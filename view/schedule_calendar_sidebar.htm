@@ -1,0 +1,11 @@
+<? exportTable($q_news,$field_news,NULL,false,false)?>
+<? foreach($sidebar_table as $sidebar_table_single){?>
+<div>
+<? arrayExportTable($sidebar_table_single,NULL,false,false)?>
+</div>
+<? }?>
+<? if(is_logged('manager')){ ?>
+<select name="staff" class="filter" method="get">
+<? displayOption(false,$_GET['staff'],true,'staff',NULL,'name',"id IN (SELECT staff FROM manager_staff WHERE manager='".$_SESSION['id']."') AND position IS NOT NULL") ?>
+</select>
+<? } ?>

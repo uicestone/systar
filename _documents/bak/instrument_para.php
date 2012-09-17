@@ -1,0 +1,52 @@
+<?php
+$condition=array(
+	'client'=>array(
+		array(
+			'name'=>'洪大军',
+			'side'=>'原告',
+			'id_card'=>'31011111111111',
+			'address'=>'宝山区',
+			'phone'=>'13641926334'
+		)
+	),
+	'current_client'=>0,
+	'lawyer'=>array(
+		array(
+			'name'=>'雷声',
+			'fee_hourly'=>'100',
+			'lawyer_num'=>'31022222222'
+		)
+	),
+	'stages'=>array('一审','二审'),
+	'fee'=>array(
+		'total'=>array(
+			'固定'=>'10000',
+			'风险'=>array(
+				array(
+					'fee'=>'20000',
+					'condition'=>'付钱条件1'
+				),
+				array(
+					'percent'=>'20',
+					'condition'=>'付钱条件2'
+				)
+			)
+		),
+		'一审'=>array(
+			'固定'=>'11000',
+			'风险'=>array(
+				array(
+					'fee'=>'30000',
+					'condition'=>'付钱条件3'
+				),
+				array(
+					'percent'=>'30',
+					'condition'=>'付钱条件4'
+				)
+			)
+		),
+	),
+	'fee_pay_time'=>'上述费用通过调解/和解协议/法院判决书确定后二日内',//上述费用在委托人已经实际收到（部分收到的按同等比例）或委托人自行放弃时的二日内
+	'fee_misc'=>'200'
+);
+?>

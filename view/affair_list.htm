@@ -1,0 +1,12 @@
+<script type="text/javascript">
+$(function(){
+	$('[name="is_on"]').change(function(){
+		var is_on=Number($(this).is(':checked'));
+		var id=$(this).attr('id');
+		$.post('affair.php?switch',{table:'affair',field:'is_on',id:id,value:is_on},function(result){
+			showMessage('功能已'+(is_on?'开启':'关闭'));
+			console.log(result);
+		});
+	});
+});
+</script>

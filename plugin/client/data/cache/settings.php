@@ -1,0 +1,33 @@
+<?php
+$_CACHE['settings'] = array (
+  'accessemail' => '',
+  'censoremail' => '',
+  'censorusername' => '',
+  'chatpmmemberlimit' => '35',
+  'chatpmthreadlimit' => '30',
+  'dateformat' => 'y-n-j',
+  'doublee' => '0',
+  'mailauth' => '1',
+  'mailauth_password' => '1218xinghan',
+  'mailauth_username' => 'lawyer@lawyerstars.com',
+  'maildefault' => 'lawyer@lawyerstars.com',
+  'maildelimiter' => '1',
+  'mailfrom' => '星瀚律师事务所 <lawyer@lawyerstars.com>',
+  'mailport' => '25',
+  'mailsend' => '2',
+  'mailserver' => 'smtp.exmail.qq.com',
+  'mailsilent' => '1',
+  'mailusername' => '1',
+  'nextnotetime' => '0',
+  'pmcenter' => '1',
+  'pmfloodctrl' => '5',
+  'pmlimit1day' => '100',
+  'pmsendregdays' => '0',
+  'privatepmthreadlimit' => '25',
+  'sendpmseccode' => '0',
+  'timeformat' => 'H:i',
+  'timeoffset' => '28800',
+  'version' => '1.6.0',
+);
+
+?>

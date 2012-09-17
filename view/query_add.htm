@@ -1,0 +1,121 @@
+<? javascript('query_add')?>
+<form method="post">
+<div class="contentTableMenu">
+	<div class="right">
+		<input type="submit" name="submit[query]" value="保存" />
+		<? if(post('query/case')){?>
+		<button type="button" onclick="location.href='case?edit=<? displayPost('query/case')?>'">查看案件</button>
+		<? }else{?>
+		<input type="submit" name="submit[newcase]" value="立案" />
+		<? }?>
+		<input type="submit" name="submit[cancel]" value="取消" />
+	</div>
+</div>
+<div class="contentTableBox">
+	<div class="contentTable">
+
+		<div class="item">
+			<div class="title">
+				<label>咨询人：</label>
+				<? if(!post('query/client')){?>
+				<span class="autocomplete-no-result-menu">
+					<input name="submit[new_client]" type="submit" title="填写了联系方式之后，按此保存为新的潜在客户" value="新客户" disabled="disabled" />
+				</span>
+				<input name="submit[recognizeOldClient]" type="submit" title="系统中已经存在的客户，点此识别" value="老客户" />
+				<? }?>
+				<? if(post('query/num')){?>
+				<? displayPost('query/num');?>
+				<? }?>
+			</div>
+			
+			<? if(!post('query/client')){?>
+			<label class="right" style="width:28%">首次接待：<input type="text" name="query[date_start]" value="<? displayPost('query/date_start')?>" style="width:60%" /></label>
+			<input type="text" name="query[querier]" value="<? displayPost('query/querier')?>" autocomplete="client" style="width:70%" />
+			<? }else{?>
+			<div class="field">
+				<span class="right">首次接待：<? displayPost('query/date_start')?></span>
+				<a href="javascript:showWindow('client?edit=<? displayPost('query/client')?>')"><? displayPost('query/querier')?></a>
+			</div>
+			<? }?>
+		</div>
+
+		<div class="item">
+			<div class="title"><label>来源：</label></div>
+			<select name="source[type]" style="width:49%">
+				<? displayOption(array('_ENUM','client_source','type'),post('source/type'))?>
+			</select>
+			<span id="source_detail"><? if(in_array(post('source/type'),array('其他网络','媒体','老客户介绍','中介机构介绍','其他')))echo '<input type="text" name="source[detail]" value="'.post('source/detail').'" style="width:49%" />';?></span>
+		</div>
+
+		<? if(!post('query/client')){?>
+		<div class="item">
+			<div class="title"><label>联系方式：</label></div>
+			<label>电话：<input name="query[phone]" value="<? displayPost('query/phone'); ?>" type="text" style="width:40%" /></label>
+			<label>邮箱：<input name="query[email]" value="<? displayPost('query/email'); ?>" type="text" style="width:40%" /></label>
+		</div>
+
+		<? }else{?>
+		<div class="item">
+			<div class="title"><label>联系方式</label></div>
+			<? exportTable($q_client_contact,$field_client_contact,NULL,false,false);?>
+		 </div>
+		<? }?>
+
+		<div class="item">
+			<div class="title"><label>咨询方式：</label></div>
+			<select name="query[type]">
+				<? displayOption(array('_ENUM','query','type'),post('query/type'))?>
+			</select>
+		</div>
+
+	<? if(post('query/client')){?>
+		<div class="item">
+			<div class="title">
+				<span class="right">
+					<? echo $schedule_time; ?>小时
+					<a href="javascript:showWindow('schedule?list&case=13&client=<? echo post('query/client');?>')">所有日志>></a>
+				</span>
+				<label>最新日志：
+				<a href="javascript:showWindow('schedule?add&case=13&client=<? echo post('query/client');?>')">添加>></a>
+				</label>
+			</div>
+
+			<? exportTable($q_schedule,$field_schedule,NULL,false,false);?>
+		</div>
+	<? }?>
+
+		<div class="item">
+			<div class="title"><label>跟进人员：</label></div>
+
+			<label>合伙人：<input type="text" name="query_staff[partner_name]" value="<? displayPost('query_staff/partner_name')?>" style="width:24%" /></label>
+
+			<label>律师：<input type="text" name="query_staff[lawyer_name]" value="<? displayPost('query_staff/lawyer_name')?>" style="width:24%" /></label>
+
+			<label>协办：<input type="text" name="query_staff[assistant_name]" value="<? displayPost('query_staff/assistant_name')?>" style="width:24%" /></label>
+
+		</div>
+		
+		<div class="item">
+			<div class="title"><label>概况：</label></div>
+			<textarea name="query[summary]" rows="7"><? displayPost('query/summary'); ?></textarea>
+		</div>
+
+		<div class="item">
+			<div class="title"><label>报价：</label></div>
+			<input type="text" name="query[quote]" value="<? displayPost('query/quote');?>" />
+		</div>
+		
+		<div class="item">
+			<div class="title"><label>备注：</label></div>
+			<textarea name="query[comment]"><? displayPost('query/comment'); ?></textarea>
+		</div>
+
+		<div class="submit">
+			<? displayRadio(array('洽谈','归档'),'query[filed]',post('query/filed'))?>
+			<input type="submit" name="submit[query]" value="保存" />
+			<input type="submit" name="submit[newcase]" value="立案" />
+			<input type="submit" name="submit[cancel]" value="取消" />
+		</div>
+	</div>
+</div>
+</form>
