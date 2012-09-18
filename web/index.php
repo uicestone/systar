@@ -153,19 +153,19 @@ if(in_array(IN_UICE,array('index','nav'))){
 	}elseif((got('view') || got('office_document') || got('instrument') || got('contact_file') || got('rules') || got('contract')) && is_permitted(IN_UICE)){//根据目录ID进行定位/文件ID则进行下载
 		
 		if(got('office_document')){
-			$_GET['view']=59297;
+			$_GET['view']=869;
 
 		}elseif(got('instrument')){
-			$_GET['view']=59298;
+			$_GET['view']=870;
 
 		}elseif(got('contact_file')){
-			$_GET['view']=59299;
+			$_GET['view']=872;
 
 		}elseif(got('rules')){
-			$_GET['view']=59301;
+			$_GET['view']=874;
 
 		}elseif(got('contract')){
-			$_GET['view']=59300;
+			$_GET['view']=873;
 		}
 		
 		$_G['action']=IN_UICE.'_list';
