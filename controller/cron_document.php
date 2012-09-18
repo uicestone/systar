@@ -5,23 +5,25 @@ forceExport();
 db_update('document',array('path'=>$_G['document_root']),'id=1');
 
 //从实体数据库取出内存表
-db_query("CREATE TEMPORARY TABLE `document_temp` (
-	`id` INT( 11 ) NOT NULL AUTO_INCREMENT ,
-	`name` VARCHAR( 255 ) NOT NULL DEFAULT  '',
-	`parent` INT( 11 ) DEFAULT NULL ,
-	`path` TEXT,
-	`type` CHAR( 15 ) DEFAULT NULL,
-	`size` INT( 11 )  DEFAULT NULL,
-	`uid` INT( 11 ) NULL,
-	`username` VARCHAR( 255 ) NOT NULL DEFAULT  '',
-	`time` INT( 11 ) NOT NULL DEFAULT  '0',
-	`comment` TEXT,
-	PRIMARY KEY (  `id` ),
-	KEY  `parent` (  `parent` )
-) ENGINE = INNODB DEFAULT CHARSET = utf8"
+db_query("
+	CREATE TEMPORARY TABLE `document_temp` (
+		`id` INT( 11 ) NOT NULL AUTO_INCREMENT ,
+		`name` VARCHAR( 255 ) NOT NULL DEFAULT  '',
+		`parent` INT( 11 ) DEFAULT NULL ,
+		`path` TEXT,
+		`type` CHAR( 15 ) DEFAULT NULL,
+		`size` INT( 11 )  DEFAULT NULL,
+		`uid` INT( 11 ) NULL,
+		`username` VARCHAR( 255 ) NOT NULL DEFAULT  '',
+		`time` INT( 11 ) NOT NULL DEFAULT  '0',
+		`comment` TEXT,
+		PRIMARY KEY (  `id` ),
+		KEY  `parent` (  `parent` )
+	) ENGINE = INNODB DEFAULT CHARSET = utf8"
 );
 
-db_query("INSERT INTO `document_temp` 
+db_query("
+	INSERT INTO `document_temp` 
 	SELECT * 
 	FROM  `document`"
 );
@@ -45,39 +47,34 @@ while(!empty($subfolder_array)){
 
 		foreach($db_file_array as $db_file){
 			//将数据库中的目录列为下层待展开目录
-			if($db_file['type']==''){
+			if(!isset($db_file['type'])){
 				$subfolder_array[]=$db_file['id'];
+				//本级的目录是下级待展开目录
 			}
 		}
 		
 		//列出实体文件中的项
 		$file_array=array();
-		if(!($handle = opendir(iconv('utf-8','gbk',$current_dir)))){
-			//if(!($handle = opendir($current_dir))){
-				echo "\n".'cannot open '.$folder.': '.$current_dir.", deleted<br>";flush();
-				db_delete('document_temp',"id='".$folder."'");
-				continue;
-			//}
+		if(is_dir(mb_convert_encoding($current_dir,'gbk','utf-8'))){
+			$handle = opendir(mb_convert_encoding($current_dir,'gbk','utf-8'));
+		}else{
+			echo "\n".'cannot open '.$folder.': '.$current_dir.", deleted<br>";flush();
+			db_delete('document_temp',"id='".$folder."'");
+			continue;
 		}
 		while($filename = readdir($handle)){
 			if($filename!='.' && $filename!='..' && !preg_match('/^~\$.*\.doc$/',$filename)){
-				$filename=iconv('gbk','utf-8',$filename);
-				if($filename!='.' && $filename!='..'){
-					if (is_dir(iconv('utf-8','gbk',$current_dir.'/'.$filename))){
-						$size=0;$type='';
-					}else{
-						$size=(int)filesize(iconv('utf-8','gbk',$current_dir.'/'.$filename));
-						$type=document_getExtension();
-					}
-					$file_array[]=array(
-						'name'=>$filename,
-						'path'=>$current_dir.'/'.$filename,
-						'parent'=>$folder,
-						'size'=>$size
-					);
-					if(isset($type)){
-						$file_array[count($file_array)-1]['type']=$type;
-					}
+				$filename=mb_convert_encoding($filename,'utf-8','gbk');
+				$file_array[]=array(
+					'name'=>$filename,
+					'path'=>$current_dir.'/'.$filename,
+					'parent'=>$folder,
+				);
+				if (is_file(mb_convert_encoding($current_dir.'/'.$filename,'gbk','utf-8'))){
+					$file_array[count($file_array)-1]['size']=(int)filesize(mb_convert_encoding($current_dir.'/'.$filename,'gbk','utf-8'));
+					$file_array[count($file_array)-1]['type']=document_getExtension($filename);
+				}elseif(!is_dir(mb_convert_encoding($current_dir.'/'.$filename,'gbk','utf-8'))){
+					$file_array[count($file_array)-1]['type']='e';
 				}
 			}
 		}
@@ -93,7 +90,7 @@ while(!empty($subfolder_array)){
 				if(mysql_error()){
 					flush();
 				}
-				if($file['type']==''){
+				if(!isset($file['type'])){
 					$subfolder_array[]=$insert_id;
 				}
 			}
@@ -141,7 +138,8 @@ db_query("
 	) ENGINE = INNODB DEFAULT CHARSET = utf8"
 );
 
-db_query("INSERT INTO `document` 
+db_query("
+	INSERT INTO `document` 
 	SELECT * 
 	FROM  `document_temp`
 "

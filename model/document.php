@@ -20,6 +20,8 @@ function document_openInBrowser($file_extension){
 function document_getExtension($filename){
 	if(preg_match('/\.(\w*?)$/',$filename,$extname_match)){
 		return $extname_match[1];
+	}else{
+		return '';
 	}
 }
 

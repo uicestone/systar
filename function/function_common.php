@@ -759,7 +759,7 @@ function codeLines(){
 	//Use GET so this script could be reused elsewhere
 	//Set to user defined options or default one
 	$options = array(
-		'ignoreFolders' => explode(',','_notes,_documents,class,plugin,redmond,fullcalendar,Jeditable,jHtmlArea,qtip2,highcharts'),
+		'ignoreFolders' => explode(',','_notes,.documents,class,plugin,redmond,fullcalendar,Jeditable,jHtmlArea,qtip2,highcharts'),
 		'ignoreFiles' => explode(',','jquery-ui.js,jquery.js'),
 		'extensions' => explode(',','php,js,css,htm')
 	);

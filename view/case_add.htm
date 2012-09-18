@@ -5,7 +5,7 @@
 	<div class="right">
 		<input type="submit" name="submit[case]" value="保存" />
 
-		<? if($responsible_partner==$_SESSION['id'] && !post('case/is_reviewed')){?>
+		<? if($responsible_partner==$_SESSION['id'] && !post('case/is_reviewed') && post('case/filed')=='在办'){?>
 		<button type="button" name="submit[review]">立案审核</button>
 		<? }?>
 
