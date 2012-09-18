@@ -61,7 +61,17 @@ if(is_posted('submit')){
 				if($staff_check>0 && $client_source>0){
 					$new_client['source_lawyer']=$staff_check;
 					$new_client['source']=$client_source;
+					if(!post('case/source')){
+						post('case/source',$client_source);
+					}
 				}else{
+					$submitable=false;
+				}
+			}else{//非客户必须输入工作单位
+				if(post('case_client_extra/work_for')){
+					$new_client['work_for']=post('case_client_extra/work_for');
+				}else{
+					showMessage('请输入工作单位','warning');
 					$submitable=false;
 				}
 			}
@@ -82,6 +92,9 @@ if(is_posted('submit')){
 
 		}elseif($client_check>0){
 			post('case_client/client',$client_check['id']);
+			if(!post('case/source')){
+				post('case/source',$client_check['source']);
+			}
 			showMessage('系统中已经存在 '.$client_check['name'].'，已自动识别');
 		}else{
 			//除了不存在意外的其他错误，如关键字多个匹配

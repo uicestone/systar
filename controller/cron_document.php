@@ -52,10 +52,12 @@ while(!empty($subfolder_array)){
 		
 		//列出实体文件中的项
 		$file_array=array();
-		if(!($handle = @opendir(iconv('utf-8','gbk',$current_dir)))){
-			echo "\n".'cannot open '.$folder.': '.$current_dir.", deleted<br>";flush();
-			db_delete('document_temp',"id='".$folder."'");
-			continue;
+		if(!($handle = opendir(iconv('utf-8','gbk',$current_dir)))){
+			//if(!($handle = opendir($current_dir))){
+				echo "\n".'cannot open '.$folder.': '.$current_dir.", deleted<br>";flush();
+				db_delete('document_temp',"id='".$folder."'");
+				continue;
+			//}
 		}
 		while($filename = readdir($handle)){
 			if($filename!='.' && $filename!='..' && !preg_match('/^~\$.*\.doc$/',$filename)){

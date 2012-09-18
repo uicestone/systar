@@ -57,39 +57,19 @@ function client_check($client_name,$data_type='id',$show_error=true,$save_to=NUL
 	}
 }
 
-function client_add($source_data){
-	global $_G;
-
-	$data=array();
+function client_add($data){
+	$field=array('name','character','classification','type','abbreviation','source','source_lawyer','comment','work_for');
+	foreach($data as $key => $value){
+		if(!in_array($key,$field)){
+			unset($data[$key]);
+		}
+	}
+	
+	$data['abbreviation']=$data['name'];
 
 	$data['display']=1;
 	$data+=uidTime();
-	$data+=array(
-		'name'=>$source_data['name'],
-		'character'=>$source_data['character'],
-		'classification'=>$source_data['classification'],
-		'type'=>$source_data['type']
-	);
-	
-	if(isset($source_data['abbreviation'])){
-		$data['abbreviation']=$source_data['abbreviation'];
 
-	}else{
-		$data['abbreviation']=$source_data['name'];
-	}
-	
-	if(isset($source_data['source'])){
-		$data['source']=$source_data['source'];
-	}
-	
-	if(isset($source_data['source_lawyer'])){
-		$data['source_lawyer']=$source_data['source_lawyer'];
-	}
-	
-	if(isset($source_data['comment'])){
-		$data['comment']=$source_data['comment'];
-	}
-	
 	return db_insert('client',$data);
 }
 

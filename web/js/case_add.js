@@ -15,6 +15,7 @@ $(function(){
 		var form=$('#'+$(this).attr('id')+'Form');
 		if(form.is(':hidden')){
 			form.show(200);
+			$(this).html('-');
 		}else{
 			form.hide(200);
 			$(this).html('+');
@@ -105,12 +106,12 @@ $(function(){
 			$('[name="case_client_extra[type]"]').fadeIn().removeAttr('disable');
 		}
 		if($(this).val()!='客户'){
-			$('#caseClientAddFormForClient').fadeOut().children('input').attr('disable','disable');
-			$('#caseClientAddFormForContact').fadeIn().children('input').removeAttr('disable');
+			$('#caseClientAddFormForClient').fadeOut().children('input').attr('disabled','disabled');
+			$('#caseClientAddFormForContact').fadeIn().children('input').removeAttr('disabled');
 			
 		}else{
-			$('#caseClientAddFormForClient').fadeIn().children('input').removeAttr('disable');
-			$('#caseClientAddFormForContact').fadeOut().children('input').attr('disable','disable');
+			$('#caseClientAddFormForClient').fadeIn().children('input').removeAttr('disabled');
+			$('#caseClientAddFormForContact').fadeOut().children('input').attr('disabled','disabled');
 		}
 	});
 	
