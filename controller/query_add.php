@@ -6,6 +6,7 @@ getPostData(function(){
 	global $_G;
 	post('query/partner',6356);//默认合伙人 _imperfect_uicestone 2012/5/3
 	post('query/date_start',$_G['date']);
+	post('query_extra/source_lawyer_name',$_SESSION['username']);
 });
 
 $q_source="SELECT type,detail FROM client_source WHERE id='".post('query/source')."'";
