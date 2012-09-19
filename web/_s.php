@@ -70,7 +70,7 @@ db_query($q);
 
 showMessage(db_affected_rows());*/
 //print_r($_G);
-//print_r($_SESSION);
+print_r($_SESSION);
 
 //forceExport();
 

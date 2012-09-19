@@ -40,4 +40,13 @@ function staff_check($staff_name,$data_type='id',$show_error=true){
 function staff_fetch($staff_id){
 	return db_fetch_first("SELECT * FROM staff WHERE id='".$staff_id."'");
 }
+
+function staff_getMyManager($field=NULL){
+	$manager=db_fetch_first("SELECT * FROM staff WHERE id = (SELECT manager FROM manager_staff WHERE staff = '".$_SESSION['id']."')");
+	if(is_null($field)){
+		return $manager['id'];
+	}else{
+		return $manager[$field];
+	}
+}
 ?>

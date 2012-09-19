@@ -12,11 +12,12 @@
 			<div class="item">
 				<div class="title"><label>咨询人：</label></div>
 				
-				<input type="text" name="query[date_start]" value="<? displayPost('query/date_start')?>" title="首次接待时间" class="date right" style="width:11%" />
-				<input type="text" name="query[querier]" value="<? displayPost('query/querier')?>" autocomplete="client" style="width:75%" />
-				<select name="query[type]" style="width:11%">
-					<? displayOption(array('_ENUM','query','type'),post('query/type'))?>
+				<input type="text" name="client[name]" value="<? displayPost('client/name')?>" placeholder="姓名" autocomplete="client" style="width:65%" />
+				<? displayRadio(array('男','女'),'client[gender]',post('client/gender')) ?>
+				<select name="query[query_type]" style="width:11%">
+					<? displayOption(array('_ENUM','query','type'),post('query/query_type'))?>
 				</select>
+				<input type="text" name="query[first_contact]" value="<? displayPost('query/first_contact')?>" title="首次接待时间" class="date" style="width:11%" />
 			</div>
 	
 			<div class="item">
@@ -25,23 +26,23 @@
 					<? displayOption(array('_ENUM','client_source','type'),post('source/type'))?>
 				</select>
 				<input type="text" name="source[detail]" value="<? displayPost('source/detail') ?>" disabled="disabled" placeholder="具体来源" style="width:32%;display:none" />
-				<input type="text" name="query_extra[source_lawyer_name]" value="<? displayPost('query_extra/source_lawyer_name') ?>" title="来源律师" placeholder="来源律师" style="width:33%" />
+				<input type="text" name="client_extra[source_lawyer_name]" value="<? displayPost('client_extra/source_lawyer_name') ?>" title="来源律师" placeholder="来源律师" style="width:33%" />
 			</div>
 	
 			<div class="item">
 				<div class="title"><label>联系方式：</label></div>
-				<input type="text" name="query[email]" value="<? displayPost('query/email'); ?>" title="电子邮件" placeholder="电子邮件" class="right" style="width:49%" />
-				<input type="text" name="query[phone]" value="<? displayPost('query/phone'); ?>" title="电话" placeholder="电话" style="width:50%" />
+				<input type="text" name="client_contact_extra[email]" value="<? displayPost('client_contact_extra/email'); ?>" title="电子邮件" placeholder="电子邮件" class="right" style="width:49%" />
+				<input type="text" name="client_contact_extra[phone]" value="<? displayPost('client_contact_extra/phone'); ?>" title="电话" placeholder="电话" style="width:50%" />
 			</div>
 	
 			<div class="item">
 				<div class="title"><label>跟进人员：</label></div>
 	
-				<label>合伙人：<input type="text" name="query_staff[partner_name]" value="<? displayPost('query_staff/partner_name')?>" style="width:24%" /></label>
+				<input type="text" name="case_lawyer_extra[partner_name]" value="<? displayPost('case_lawyer_extra/partner_name')?>" title="督办合伙人" placeholder="督办合伙人" style="width:33%" />
 	
-				<label>律师：<input type="text" name="query_staff[lawyer_name]" value="<? displayPost('query_staff/lawyer_name')?>" style="width:24%" /></label>
+				<input type="text" name="case_lawyer_extra[lawyer_name]" value="<? displayPost('case_lawyer_extra/lawyer_name')?>" title="接洽律师" placeholder="接洽律师" style="width:32%" />
 	
-				<label>协办：<input type="text" name="query_staff[assistant_name]" value="<? displayPost('query_staff/assistant_name')?>" style="width:24%" /></label>
+				<input type="text" name="case_lawyer_extra[assistant_name]" value="<? displayPost('case_lawyer_extra/assistant_name')?>" title="协助接洽" placeholder="协助接洽" style="width:32%" />
 	
 			</div>
 			

@@ -600,6 +600,8 @@ function db_update($table,$data,$condition,$treat_special_type=true){
 	$cmd='UPDATE';
 
 	$query=$cmd." `".$table."` SET ".$data." WHERE ".$condition;
+	
+	showMessage($query);
 
 	$result=db_query($query);
 	

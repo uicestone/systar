@@ -14,7 +14,7 @@ function client_fetch($id,$data_type='array'){
 	
 }
 
-function client_check($client_name,$data_type='id',$show_error=true,$save_to=NULL){
+function client_check($client_name,$data_type='id',$show_error=true,$fuzzy=true){
 	//$data_type:id,array
 	
 	global $_G;
@@ -26,7 +26,11 @@ function client_check($client_name,$data_type='id',$show_error=true,$save_to=NUL
 		return -3;
 	}
 
-	$q_client="SELECT * FROM `client` WHERE display=1 AND company='".$_G['company']."' AND (`name` LIKE '%".$client_name."%' OR abbreviation LIKE '".$client_name."')";
+	if($fuzzy){
+		$q_client="SELECT * FROM `client` WHERE display=1 AND company='".$_G['company']."' AND (`name` LIKE '%".$client_name."%' OR abbreviation LIKE '".$client_name."')";
+	}else{
+		$q_client="SELECT * FROM `client` WHERE display=1 AND company='".$_G['company']."' AND (`name` LIKE '".$client_name."' OR abbreviation LIKE '".$client_name."')";
+	}
 	$r_client=db_query($q_client);
 	$num_clients=db_rows($r_client);
 
@@ -200,6 +204,10 @@ function client_setSource($type,$detail){
 	}
 	
 	return $client_source;
+}
+
+function client_fetchSource($source_id){
+	return db_fetch_first("SELECT type,detail FROM client_source WHERE id='".$source_id."'");
 }
 
 function client_getListByCase($case_id){
