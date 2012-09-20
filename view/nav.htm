@@ -22,7 +22,7 @@ $(function(){
 foreach($_SESSION['permission'] as $controller_name => $controller){
 	if(isset($controller['_display']) && $controller['_display']){
 		if(in_subarray(1,$controller,'_display')!==false){
-			$has_sub_menu=true;	
+			$has_sub_menu=true;
 		}else{
 			$has_sub_menu=false;
 		}

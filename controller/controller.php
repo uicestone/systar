@@ -11,15 +11,15 @@ if($_G['require_export']){
 	}
 }
 
-if(file_exists('controller/'.$_G['action'].'.php')){
+if(is_file('controller/'.$_G['action'].'.php')){
 	require 'controller/'.$_G['action'].'.php';
 }
 
-if($_G['require_export'] && file_exists('view/'.$_G['action'].'.htm')){
+if($_G['require_export'] && is_file('view/'.$_G['action'].'.htm')){
 	require 'view/'.$_G['action'].'.htm';
 }
 
-if(file_exists('view/'.$_G['action'].'_sidebar.htm')){
+if(is_file('view/'.$_G['action'].'_sidebar.htm')){
 	echo '<div id="toolBar" '.(array_dir('_SESSION/minimized')?'class="minimized"':'').'>'.
 		'<span class="minimize-button">-</span>';
 	require 'view/'.$_G['action'].'_sidebar.htm';

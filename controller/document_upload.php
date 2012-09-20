@@ -5,8 +5,8 @@ if ($_FILES["file"]["error"] > 0){
 else{
 	$storePath=iconv("utf-8","gbk",$_SESSION['document']['currentPath']."/".$_FILES["file"]["name"]);//存储路径转码
 	
-	if (file_exists($storePath)){
-		unlink(file_exists($storePath));
+	if (is_file($storePath)){
+		unlink($storePath);
 		$db_replace=true;
 	}else{
 		$db_replace=false;

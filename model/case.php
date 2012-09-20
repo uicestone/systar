@@ -12,14 +12,70 @@ function case_fetch($id){
 	return db_fetch_first($query,true);
 }
 
+function case_add($data){
+    $field=array('classification','type','stage','name_extra','query_type','first_contact','time_contact','time_end','quote','timing_fee','focus','summary','filed');
+    $data=array_keyfilter($data,$field);
+    $data['display']=1;
+    $data+=uidTime();
+
+    return db_insert('case',$data);
+}
+
+function case_update($case_id,$data){
+    $field=array('classification','type','stage','name_extra','query_type','first_contact','time_contact','time_end','quote','timing_fee','focus','summary','filed');
+    $data=array_keyfilter($data,$field);
+	$data+=uidTime();
+    
+	return db_update('case',$data,"id='".$case_id."'");
+}
+
+function case_addDocument($case,$data){
+	$field=array('name','type','doctype','size','comment');
+	$data=array_keyfilter($data,$field);
+	$data['case']=$case;
+	$data+=uidTime();
+	
+	return db_insert('case_document',$data);
+}
+
+function case_addFee($case,$data){
+    $field=array('classification','type','stage','name_extra','query_type','first_contact','time_contact','time_end','quote','timing_fee','focus','summary','filed');
+	$data=array_keyfilter($data,$field);
+	$data['case']=$case;
+	$data+=uidTime();
+	return db_insert('case_fee',$data);
+}
+
+function case_addFeeTiming($case,$data){
+	//TODO
+}
+
+function case_addLawyer($case,$data){
+	if(!isset($data['lawyer'])){
+		return false;
+	}
+	
+	$field=array('lawyer','role','hourly_fee','contribute');
+	foreach($data as $key => $value){
+		if(!in_array($key,$field)){
+			unset($data[$key]);
+		}
+	}
+	
+	$data['case']=$case;
+	
+	$data+=uidTime();
+	
+	return db_insert('case_lawyer',$data);
+}
+
 function case_getStatus($is_reviewed,$locked,$contribute_sum,$uncollected,$filed){
 	$status_expression='';
 	
 	if($filed=='咨询'){
 		return '咨询';
-	}
-	
-	if($filed!='在办'){
+
+	}elseif($filed!='在办'){
 		switch($filed){
 			case '财务审核':$status_expression.='<span title="财务审核中" style="color:#800">财</span>';break;
 			case '信息审核':$status_expression.='<span title="信息审核中" style="color:#F80">信</span>';break;
@@ -180,74 +236,6 @@ function case_feeConditionPrepend($case_fee_id,$new_condition){
 
 function case_addClient($case_id,$client_id,$role){
 	return db_insert('case_client',array('case'=>$case_id,'client'=>$client_id,'role'=>$role));
-}
-
-function case_add($data){
-    $field=array('classification','type','stage','name_extra','query_type','first_contact','time_contact','time_end','quote','timing_fee','focus','summary','filed');
-    foreach($data as $key => $value){
-        if(!in_array($key,$field)){
-            unset($data[$key]);
-        }
-    }
-    
-    $data['display']=1;
-    $data+=uidTime();
-
-    return db_insert('case',$data);
-}
-
-function case_update($case_id,$data){
-    $field=array('classification','type','stage','name_extra','query_type','first_contact','time_contact','time_end','quote','timing_fee','focus','summary','filed');
-    foreach($data as $key => $value){
-        if(!in_array($key,$field)){
-            unset($data[$key]);
-        }
-    }
-	$data+=uidTime();
-    
-	return db_update('case',$data,"id='".$case_id."'");
-}
-
-function case_addDocument($case,$data){
-	$field=array('name','type','doctype','size','comment');
-	foreach($data as $key => $value){
-		if(!in_array($key,$field)){
-			unset($data[$key]);
-		}
-	}
-	
-	$data['case']=$case;
-	
-	$data+=uidTime();
-	
-	return db_insert('case_document',$data);
-}
-
-function case_addFee($case,$data){
-	
-}
-
-function case_addFeeTiming($case,$data){
-	
-}
-
-function case_addLawyer($case,$data){
-	if(!isset($data['lawyer'])){
-		return false;
-	}
-	
-	$field=array('lawyer','role','hourly_fee','contribute');
-	foreach($data as $key => $value){
-		if(!in_array($key,$field)){
-			unset($data[$key]);
-		}
-	}
-	
-	$data['case']=$case;
-	
-	$data+=uidTime();
-	
-	return db_insert('case_lawyer',$data);
 }
 
 //增减案下律师的时候自动计算贡献
@@ -573,7 +561,7 @@ function case_getDocumentList($case_id){
 			'content'=>"
 				if('{type}'==''){
 					\$image='folder';
-				}elseif(file_exists('web/images/file_type/{type}.png')){
+				}elseif(is_file('web/images/file_type/{type}.png')){
 					\$image='{type}';
 				}else{
 					\$image='unknown';
@@ -651,6 +639,10 @@ function case_getClientRole($case_id){
 	return db_fetch_first($query);
 }
 
+/*
+ * 根据案件信息，获得案号
+ * $case参数为array，需要包含filed,classification,type,type_lock,first_contact/time_contract键
+ */
 function case_getNum($case,$case_client_role=NULL){
 	global $_G;
 	$case_num=array();

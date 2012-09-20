@@ -6,9 +6,9 @@ if(got('name')){
 		$path='view';
 	}
 	
-	if(file_exists($path.'/'.$_GET['name'].'.php'))
+	if(is_file($path.'/'.$_GET['name'].'.php'))
 		require $path.'/'.$_GET['name'].'.php';
-	elseif(file_exists($path.'/'.$_GET['name'].'.htm'))
+	elseif(is_file($path.'/'.$_GET['name'].'.htm'))
 		require $path.'/'.$_GET['name'].'.htm';
 }
 ?>

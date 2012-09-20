@@ -1,6 +1,6 @@
 <?php
 function model($model_name){
-	if(file_exists('model/'.$model_name.'.php')){
+	if(is_file('model/'.$model_name.'.php')){
 		require 'model/'.$model_name.'.php';
 	}
 }
@@ -19,7 +19,7 @@ function stylesheet($stylesheet_path){
 
 function template($filename){
 	$content='';
-	if(file_exists($filename)){
+	if(is_file($filename)){
 		$content=file_get_contents('view/'.$filename.'.htm');
 	}
 
@@ -430,10 +430,11 @@ if(!function_exists('array_replace_recursive')){
 		return $array_target;
 	}
 }
-
+/*
+ * 将数组的下级数组中的某一key抽出来构成一个新数组
+ * $keyname_forkey是母数组中用来作为子数组键名的键值的键名
+ */
 function array_sub($array,$keyname,$keyname_forkey=NULL){
-	//将数组的下级数组中的某一key抽出来构成一个新数组
-	//$keyname_forkey是母数组中用来作为子数组键名的键值的键名
 	$array_new=array();
 	foreach($array as $key => $sub_array){
 		if(isset($sub_array[$keyname])){
@@ -445,6 +446,15 @@ function array_sub($array,$keyname,$keyname_forkey=NULL){
 		}
 	}
 	return $array_new;
+}
+
+function array_keyfilter($array,$legalkeys){
+    foreach($array as $key => $value){
+        if(!in_array($key,$legalkeys)){
+            unset($array[$key]);
+        }
+    }
+	return $array;
 }
 
 function in_subarray($needle,array $array,$key_specified=NULL){

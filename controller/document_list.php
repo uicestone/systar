@@ -32,7 +32,7 @@ $field=option('in_search_mod')?
 			'content'=>"
 				if('{type}'==''){
 					\$image='folder';
-				}elseif(file_exists('web/images/file_type/{type}.png')){
+				}elseif(is_file('web/images/file_type/{type}.png')){
 					\$image='{type}';
 				}else{
 					\$image='unknown';
@@ -53,7 +53,7 @@ $field=option('in_search_mod')?
 			'content'=>"
 				if('{type}'==''){
 					\$image='folder';
-				}elseif(file_exists('images/file_type/{type}.png')){
+				}elseif(is_file('images/file_type/{type}.png')){
 					\$image='{type}';
 				}else{
 					\$image='unknown';

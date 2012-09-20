@@ -147,9 +147,6 @@ if(is_posted('submit')){
 		
 		post('case_fee/pay_time',strtotime(post('case_fee/pay_time')));
 
-		post('case_fee/uid',$_SESSION['id']);
-		post('case_fee/time',$_G['timestamp']);
-		
 		if(!post('case_fee/fee')){
 			showMessage('请预估收费金额','warning');
 
@@ -157,7 +154,7 @@ if(is_posted('submit')){
 			showMessage('请预估收费时间','warning');
 
 		}else{		
-			if(db_insert('case_fee',post('case_fee'))){
+			if(case_addFee(post('case/id'),post('case_fee'))){
 				unset($_SESSION['case']['post']['case_fee']);
 				if(post('case/is_reviewed')){
 					post('case/is_reviewed',0);
