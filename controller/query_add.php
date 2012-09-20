@@ -80,13 +80,11 @@ if(is_posted('submit')){
 		case_addLawyer(post('case/id'),array('lawyer'=>post('case_lawyer_extra/assistant'),'role'=>'接洽律师（次要）'));
 		case_calcContribute(post('case/id'));
 		
-		case_getNum(post('case'));
+		post('query/num',case_getNum(post('case')));
 		
 		$new_case_id=post('case/id');
 		
-		unset($_SESSION[IN_UICE]['post']);
-        
-		redirect('case?edit='.$new_case_id);
+		processSubmit(true);
 
 	}catch(exception $e){
 		showMessage($e->getMessage(),'warning');

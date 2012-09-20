@@ -39,7 +39,7 @@ function case_addDocument($case,$data){
 }
 
 function case_addFee($case,$data){
-    $field=array('classification','type','stage','name_extra','query_type','first_contact','time_contact','time_end','quote','timing_fee','focus','summary','filed');
+    $field=array('fee','type','receiver','condition','pay_time','comment');
 	$data=array_keyfilter($data,$field);
 	$data['case']=$case;
 	$data+=uidTime();

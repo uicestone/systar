@@ -143,8 +143,6 @@ if(is_posted('submit')){
 	
 	if(is_posted('submit/case_fee')){
 		
-		post('case_fee/case',post('case/id'));
-		
 		post('case_fee/pay_time',strtotime(post('case_fee/pay_time')));
 
 		if(!post('case_fee/fee')){

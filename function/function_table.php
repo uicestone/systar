@@ -540,7 +540,11 @@ function processSubmit($submitable,$after_update=NULL,$update_table=NULL,$set_di
 	post(IN_UICE.'/company',$_G['company']);
 	
 	if(is_null($update_table)){
-		$update_table=IN_UICE;
+		if($_G['actual_table']!=''){
+			$update_table=$_G['actual_table'];
+		}else{
+			$update_table=IN_UICE;
+		}
 	}
 
 	if($submitable){
