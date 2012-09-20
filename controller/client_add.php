@@ -114,7 +114,7 @@ if(is_posted('submit')){
 		$submitable=false;
 	}
 	
-	if(staff_check(post('client_extra/source_lawyer_name'),'id',true,'client/source_lawyer')<0){
+	if(post('client/source_lawyer',staff_check(post('client_extra/source_lawyer_name'),'id',true,'client/source_lawyer'))<0){
 		$submitable=false;
 	}
 	processSubmit($submitable);
