@@ -13,6 +13,11 @@ if(in_array($_G['controller'],$_G['controllers'])){
 
 require 'config/config.php';
 
+if(IN_UICE!='user' && !is_logged(NULL,true)){
+	//对于非用户登录/登出界面，检查权限，弹出未登陆
+	redirect('user?login','js',NULL,true);
+}
+
 if(in_array(IN_UICE,array('index','nav'))){
 	$_G['require_menu']=false;
 	$_G['action']=IN_UICE;
