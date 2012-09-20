@@ -6,14 +6,9 @@ model('schedule');
 getPostData(function(){
 	global $_G;
 	
-	if(got('type','query')){
-		post('case/filed','咨询');
-		post('case/first_contact',$_G['date']);
-	}else{
-		post('case/time_contract',$_G['date']);
-		post('case/time_end',date('Y-m-d',$_G['timestamp']+100*86400));
-		//默认签约时间和结案时间
-	}
+	post('case/time_contract',$_G['date']);
+	post('case/time_end',date('Y-m-d',$_G['timestamp']+100*86400));
+	//默认签约时间和结案时间
 
 	post('case_client_extra/show_add_form',true);
 	post('case_lawyer_extra/show_add_form',true);
@@ -437,7 +432,7 @@ if(is_posted('submit')){
 		showMessage('尚未获取案号，请选择案件分类和阶段后获取案号','warning');
 	}
 	
-	if(is_posted('submit/case') && post('case/classification')!='法律顾问' && !post('case/focus')){
+	if(is_posted('submit/case') && post('case/classification')!='法律顾问' && post('case/filed')!='咨询' && !post('case/focus')){
 		$submitable=false;
 		showMessage('请填写案件争议焦点','warning');
 	}

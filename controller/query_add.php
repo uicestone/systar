@@ -8,11 +8,17 @@ getPostData(function(){
 	post('case_lawyer_extra/partner_name',staff_getMyManager('name'));
 	post('case_lawyer_extra/lawyer_name',$_SESSION['username']);
 	post('query/first_contact',$_G['date']);
+	post('query/filed','咨询');
 	post('client_extra/source_lawyer_name',$_SESSION['username']);
 	post('client/gender','男');
 });
 
 if(is_posted('submit')){
+	if(is_posted('submit/advanced')){
+		$case_id=post('query/id');
+		unset($_SESSION[IN_UICE]['post']);
+		redirect('case?edit='.$case_id);
+	}
 	try{
 		$_SESSION[IN_UICE]['post']=array_replace_recursive($_SESSION[IN_UICE]['post'],$_POST);
 		
@@ -63,8 +69,10 @@ if(is_posted('submit')){
 			'filed'=>'咨询'
 		)));
 		
-		post('case/id',case_add(post('case')));
-        
+		case_update(post('query/id'),post('case'));
+		
+		post('case/id',post('query/id'));
+		
 		case_addClient(post('case/id'),post('client/id'),'');
         
 		case_addLawyer(post('case/id'),array('lawyer'=>post('case_lawyer_extra/partner'),'role'=>'督办合伙人'));

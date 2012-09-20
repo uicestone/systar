@@ -196,6 +196,18 @@ function case_add($data){
     return db_insert('case',$data);
 }
 
+function case_update($case_id,$data){
+    $field=array('classification','type','stage','name_extra','query_type','first_contact','time_contact','time_end','quote','timing_fee','focus','summary','filed');
+    foreach($data as $key => $value){
+        if(!in_array($key,$field)){
+            unset($data[$key]);
+        }
+    }
+	$data+=uidTime();
+    
+	return db_update('case',$data,"id='".$case_id."'");
+}
+
 function case_addDocument($case,$data){
 	$field=array('name','type','doctype','size','comment');
 	foreach($data as $key => $value){
@@ -692,8 +704,9 @@ function case_getNum($case,$case_client_role=NULL){
 			post('case/type_lock',1);//申请正式案号之后不可以再改变案件类别
 		}
 		post('case/display',1);//申请案号以后案件方可见
-		db_update('case',array('num'=>'沪星'.$case_num['classification_code'].$case_num['type_code'].$case_num['year_code'].'第'.$case_num['number'].'号'),"id='".$case['id']."'");
-		return true;
+		$num='沪星'.$case_num['classification_code'].$case_num['type_code'].$case_num['year_code'].'第'.$case_num['number'].'号';
+		db_update('case',array('num'=>$num),"id='".$case['id']."'");
+		return $num;
 	}
 }
 ?>

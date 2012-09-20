@@ -279,7 +279,7 @@
 			<? if(count($case_plan_table)>1)arrayExportTable($case_plan_table,NULL,false,false);?>
 		</div>
 	
-		<? if(post('case/classification')!='法律顾问'){?>
+		<? if(post('case/filed')!='咨询' && post('case/classification')!='法律顾问'){?>
 		<div class="item">
 			<div class="title"><label>争议焦点：（案件标的）</label></div>
 			<textarea class="item" name="case[focus]" type="text" rows="2"><? displayPost('case/focus')?></textarea>

@@ -17,6 +17,18 @@ function stylesheet($stylesheet_path){
 	echo '<link rel="stylesheet" href="'.$path.'?'.$hash.'" type="text/css" />'."\n";
 }
 
+function template($filename){
+	$content='';
+	if(file_exists($filename)){
+		$content=file_get_contents('view/'.$filename.'.htm');
+	}
+
+	$content=preg_replace('/{post (.*?)}/e',"post('$1')",$content);
+	//将'{post string}'替换为post(string)的返回值
+	
+	return $content;
+}
+
 function got($variable,$value=NULL){
 	if(is_null($value))
 		return isset($_GET[$variable])?true:false;
@@ -601,7 +613,7 @@ function db_update($table,$data,$condition,$treat_special_type=true){
 
 	$query=$cmd." `".$table."` SET ".$data." WHERE ".$condition;
 	
-	showMessage($query);
+	//showMessage($query);
 
 	$result=db_query($query);
 	
@@ -733,15 +745,6 @@ function db_parseError($error){
 	}
 	
 	return $error;
-}
-
-function template($filename){
-	$content=file_get_contents('view/'.$filename.'.htm');
-	
-	$content=preg_replace('/{post (.*?)}/e',"post('$1')",$content);
-	
-	return $content;
-
 }
 
 function status($affair,$data_id,$field,$old_value,$new_value){

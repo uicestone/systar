@@ -610,7 +610,7 @@ function getPostData($callback=NULL,$generate_new_id=true,$db_table=NULL){
 
 		if($generate_new_id){
 			if(is_null($db_table)){
-				if(isset($_G['actual_table'])){
+				if($_G['actual_table']!=''){
 					$db_table=$_G['actual_table'];
 				}else{
 					$db_table=IN_UICE;

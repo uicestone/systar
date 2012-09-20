@@ -54,9 +54,6 @@ function client_check($client_name,$data_type='id',$show_error=true,$fuzzy=true)
 			$return=$data[$data_type];
 		}
 		
-		if(!is_null($save_to)){
-			post($save_to,$return);
-		}
 		return $return;
 	}
 }
