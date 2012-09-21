@@ -101,6 +101,20 @@ function starsys_schedule_side_table(){
 			'<a href="achievement?expired">'.$expired_collect['num'].'('.$expired_collect['sum'].')'.'</a>'
 		)
 	);
+	
+	if(is_logged('manager')){
+		$sidebar_table[]=array(
+			'_field'=>array(
+				'schedule_check'=>'员工日程检阅'
+			),
+			array(
+				'schedule_check'=>'<select name="staff" class="filter" method="get">'
+					.html_option(false,$_GET['staff'],true,'staff',NULL,'name',"id IN (SELECT staff FROM manager_staff WHERE manager='".$_SESSION['id']."') AND position IS NOT NULL")
+					.'</select>'
+			)
+		);
+	}
+	
 	return $sidebar_table;
 }
 ?>

@@ -258,17 +258,18 @@ function displayPost($fieldName,$strtotime=false,$date_form='Y-m-d'){
 	echo $val;
 }
 
-function displayOption($options,$checked=NULL,$array_key_as_option_value=false,$type_table='type',$classification='classification',$type='type',$condition=NULL){
+function html_option($options,$checked=NULL,$array_key_as_option_value=false,$type_table='type',$classification='classification',$type='type',$condition=NULL){
 	/*	输出一组<option>
 	 *	$options为给出的选项数组
 	 *  $options[0]=='_ENUM'时，根据$options[1]表，$options[2]字段的enum选项来定制选项
 	 *	$options是一个值时,尝试从type(可以指定)表中获得classification(可以指定)为$options的type(可以指定)
 	 *	指定$affair值时，优先根据$affair获得第一个classfication
 	 */
+	 $html_option='';
 	if(!is_array($options)){
 		//$options 作为形成选项的因子
 		if(is_null($options) || is_null($checked)){
-			echo '<option value="">全部</option>';
+			$html_option.='<option value="">全部</option>';
 		}
 
 		$q_get_option="
@@ -288,10 +289,15 @@ function displayOption($options,$checked=NULL,$array_key_as_option_value=false,$
 	
 	foreach($options as $option_key=>$option){
 		$value=$array_key_as_option_value?$option_key:$option;
-		echo '<option value="'.$value.'"'.($value==$checked?' selected="selected"':'').'>'.$option.'</option>';
+		$html_option.='<option value="'.$value.'"'.($value==$checked?' selected="selected"':'').'>'.$option.'</option>';
 	}
+	
+	return $html_option;
 }
 
+function displayOption($options,$checked=NULL,$array_key_as_option_value=false,$type_table='type',$classification='classification',$type='type',$condition=NULL){
+	echo html_option($options,$checked,$array_key_as_option_value,$type_table,$classification,$type,$condition);
+}
 function displayRadio($options,$name,$checked,$array_key_as_option_value=false){
 	foreach($options as $option_key=>$option){
 		echo '<label><input name="'.$name.'" value="'.($array_key_as_option_value?$option_key:$option).'" type="radio"'.($checked==($array_key_as_option_value?$option_key:$option)?' checked="checked"':'').' />'.$option.'</label>';
