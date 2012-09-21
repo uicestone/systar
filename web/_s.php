@@ -6,6 +6,10 @@ set_time_limit(0);
 require 'config/config.php';
 require 'view/common/head.htm';
 
+model('schedule');
+
+print_r(schedule_workHourStat($_SESSION['id']));
+
 /*$course=10;
 $prior_exam=14;
 
