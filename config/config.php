@@ -31,7 +31,7 @@ $_G['document_root']="D:/files";//文件系统根目录物理位置
 $_G['case_document_path']="D:/case_document";//案下文件物理位置
 $_G['db_execute_time']=0;
 $_G['db_executions']=0;
-$_G['debug_mode']=true;
+$_G['debug_mode']=false;
 
 db_query("SET NAMES 'UTF8'");
 

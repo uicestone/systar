@@ -18,7 +18,7 @@ function fetchTableArray($query,$field){
 				)
 		)
 	*/
-	//if($_SESSION['username']=='uicestone')showMessage($query,'notice');
+	//if($_SESSION['username']=='陆秋石')showMessage($query,'notice');
 	
 	global $_G;
 	
@@ -389,7 +389,7 @@ function processOrderby(&$q,$defaultOrder,$defaultMethod=NULL,$field_need_conver
 		option('method');
 }
 
-function dateRange(&$q,$date_field,$timestamp=true){
+function dateRange(&$q,$date_field,$date_field_is_timestamp=true){
 	global $_G;
 	if(is_posted('date_range_cancel')){
 		unset($_SESSION[IN_UICE][$_G['action']]['in_date_range']);
@@ -413,7 +413,7 @@ function dateRange(&$q,$date_field,$timestamp=true){
 	
 	if(option('in_date_range')){
 		
-		if($timestamp){
+		if($date_field_is_timestamp){
 		$condition_date_range=" AND (".db_field_name($date_field).">='".option('date_range/from_timestamp')."' AND ".db_field_name($date_field)."<'".option('date_range/to_timestamp')."')";
 		}else{
 			$condition_date_range=" AND (".db_field_name($date_field).">='".option('date_range/from')."' AND ".db_field_name($date_field)."<='".option('date_range/to')."')";

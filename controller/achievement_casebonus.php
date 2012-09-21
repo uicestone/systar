@@ -4,7 +4,7 @@ SELECT staff.name AS staff_name, ROUND(SUM(case_collect.amount*case_contribute.c
 FROM (
 	SELECT  `case` , SUM( amount ) amount
 	FROM account
-	WHERE name IN ('律师费','顾问费')
+	WHERE name <> '办案费'
 		AND `case` IN (
 			SELECT id FROM `case` WHERE lawyer_lock=1";
 
@@ -23,12 +23,12 @@ $q.="
 INNER JOIN (
 	SELECT  `case` , lawyer, SUM( contribute ) AS contribute
 	FROM case_lawyer
-WHERE 1=1
+	WHERE 1=1
 ";
 
 if(got('contribute_type','actual')){
 	$q.=" AND role = '实际贡献'";
-}elseif(got('contribute_type','fixed')){
+}else{
 	$q.=" AND role<>'实际贡献'";
 }
 
