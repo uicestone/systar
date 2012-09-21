@@ -37,15 +37,18 @@ if(date('w')==1){//今天是星期一
 }
 $start_of_this_month=strtotime(date('Y-m',$_G['timestamp']).'-1');
 $start_of_this_year=strtotime(date('Y',$_G['timestamp']).'-1-1');
+$start_of_this_term=strtotime(date('Y',$_G['timestamp']).'-'.(floor(date('m',$_G['timestamp'])/3-1)*3+1).'-1');
 
 $days_passed_this_week=ceil(($_G['timestamp']-$start_of_this_week)/86400);
 $days_passed_this_month=ceil(($_G['timestamp']-$start_of_this_month)/86400);
+$days_passed_this_term=ceil(($_G['timestamp']-$start_of_this_term)/86400);
 $days_passed_this_year=ceil(($_G['timestamp']-$start_of_this_year)/86400);
 
 $q="
 	SELECT staff.name aS staff_name,
 		this_week.sum AS this_week_sum,ROUND(this_week.avg,2) AS this_week_avg,
 		this_month.sum AS this_month_sum,ROUND(this_month.avg,2) AS this_month_avg,
+		this_term.sum AS this_term_sum,ROUND(this_term.avg,2) AS this_term_avg,
 		this_year.sum AS this_year_sum,ROUND(this_year.avg,2) AS this_year_avg
 	FROM
 	(
@@ -65,6 +68,14 @@ $q="
 	)this_month USING(uid)
 	INNER JOIN
 	(
+		SELECT uid,SUM(hours_own) AS sum, SUM(hours_own)/".$days_passed_this_term." AS avg
+		FROM schedule 
+		WHERE time_start>='".$start_of_this_term."' AND time_start<'".$_G['timestamp']."' 
+			AND completed=1 AND display=1
+		GROUP BY uid
+	)this_term USING(uid)
+	INNER JOIN
+	(
 		SELECT uid,SUM(hours_own) AS sum, SUM(hours_own)/".$days_passed_this_year." AS avg
 		FROM schedule 
 		WHERE time_start>='".$start_of_this_year."' AND time_start<'".$_G['timestamp']."' 
@@ -80,6 +91,7 @@ $field=array(
 	'staff_name'=>array('title'=>'姓名'),
 	'this_week_sum'=>array('title'=>'本周','content'=>'{this_week_sum}({this_week_avg})'),
 	'this_month_sum'=>array('title'=>'本月','content'=>'{this_month_sum}({this_month_avg})'),
+	'this_term_sum'=>array('title'=>'本季','content'=>'{this_term_sum}({this_term_avg})'),
 	'this_year_sum'=>array('title'=>'本年','content'=>'{this_year_sum}({this_year_avg})')
 );
 
