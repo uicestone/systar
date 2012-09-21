@@ -89,16 +89,12 @@ $achievement_sum=array(
 );
 
 $achievement=achievementSum('collected','contribute',option('date_range/from_timestamp'),option('date_range/to_timestamp'),false);
-$bonus=ROUND($achievement*0.15,2);
-
 $achievement_dashboard=array(
 	'_field'=>array(
-		'贡献',
-		'奖金'
+		'贡献'
 	),
 	array(
-		$achievement,
-		$bonus
+		$achievement
 	)
 );
 

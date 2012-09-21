@@ -98,7 +98,7 @@ function achievementSum($type,$range=NULL,$time_start=NULL,$time_end=NULL,$ten_t
 		$q="
 			SELECT SUM(amount) AS sum 
 			FROM account 
-			WHERE name IN('律师费','顾问费','咨询费','红包') 
+			WHERE name <> '办案费'
 				AND time_occur>='".$time_start."'
 				AND time_occur<'".$time_end."'";
 		
@@ -113,7 +113,7 @@ function achievementSum($type,$range=NULL,$time_start=NULL,$time_end=NULL,$ten_t
 				(
 					SELECT account.amount*SUM(case_lawyer.contribute) AS contribute_amount
 					FROM account INNER JOIN case_lawyer USING (`case`)
-					WHERE account.name IN ('律师费','顾问费') 
+					WHERE account.name <> '办案费'
 						AND time_occur>=".$time_start."
 						AND time_occur<".$time_end."
 						AND case_lawyer.lawyer='".$_SESSION['id']."'
@@ -126,7 +126,7 @@ function achievementSum($type,$range=NULL,$time_start=NULL,$time_end=NULL,$ten_t
 		$q="
 			SELECT SUM(amount) AS sum 
 			FROM account 
-			WHERE name IN('律师费','顾问费') 
+			WHERE name <> '办案费'
 				AND time_occur>=".$time_start."
 				AND time_occur<".$time_end."
 				AND `case` IN (SELECT id FROM `case` WHERE filed<>'在办')";
@@ -143,7 +143,7 @@ function achievementSum($type,$range=NULL,$time_start=NULL,$time_end=NULL,$ten_t
 					SELECT account.amount*SUM(case_lawyer.contribute) AS contribute_amount
 					FROM account INNER JOIN case_lawyer USING (`case`)
 						INNER JOIN `case` ON case.id=account.case
-					WHERE account.name IN ('律师费','顾问费') 
+					WHERE account.name <> '办案费'
 						AND time_occur>=".$time_start."
 						AND time_occur<".$time_end."
 						AND case_lawyer.lawyer='".$_SESSION['id']."'
