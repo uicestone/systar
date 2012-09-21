@@ -38,7 +38,7 @@ foreach($_SESSION['permission'] as $controller_name => $controller){
 			foreach($controller as $action_name => $action){
 				if(is_array($action)){
 					if($action['_display']){
-						echo '<li><a href="'.$controller_name.'?'.
+						echo '<li id="nav-'.$controller_name.'_'.$action_name.'"><a href="'.$controller_name.'?'.
 						$action_name.'" target="contentFrame" hidefocus="true">'.
 						$action['_affair_name'].'</a></li>';
 					}

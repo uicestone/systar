@@ -459,12 +459,12 @@ function array_keyfilter($array,$legalkeys){
 
 function in_subarray($needle,array $array,$key_specified=NULL){
 	foreach($array as $key => $subarray){
-		if(is_null($key_specified)){
-			if(in_array($needle,$subarray)){
+		if(isset($key_specified)){
+			if(is_array($subarray) && isset($subarray[$key_specified]) && $subarray[$key_specified]==$needle){
 				return $key;
 			}
 		}else{
-			if(isset($subarray[$key_specified]) && $subarray[$key_specified]==$needle){
+			if(in_array($needle,$subarray)){
 				return $key;
 			}
 		}
