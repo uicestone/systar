@@ -17,7 +17,7 @@ FROM
 	WHERE case_fee.type<>'办案费'
 ";
 
-$date_range_bar=dateRange($q,'account.time_occur');	
+$date_range_bar=dateRange($q,'account.time_occur');
 
 $q.="	GROUP BY case_fee.id
 )case_fee_collected
