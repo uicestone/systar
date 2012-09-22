@@ -370,7 +370,7 @@ if(is_posted('submit')){
 		showMessage('案件信息已经审核，等待主管审核');
 	}
 	
-	if(is_posted('submit/review_maanger')){
+	if(is_posted('submit/review_manager')){
 		db_insert('file_status',array('case'=>post('case/id'),'status'=>'在档','time'=>$_G['timestamp']));
 		post('case/time_end',$_G['date']);
 		post('case/filed','已归档');
