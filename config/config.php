@@ -40,8 +40,8 @@ $_G+=db_fetch_first("SELECT id AS company,name AS company_name,type AS company_t
 //ucenter配置
 if($_G['ucenter']){
 	require 'config/config_ucenter.php';
-	if(IN_UICE!='uc_api'){
+	//if(IN_UICE!='uc_api'){
 		require 'plugin/client/client.php';
-	}
+	//}
 }
 ?>

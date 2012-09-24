@@ -11,6 +11,8 @@ if(!defined('UC_API')) {
 	exit('Access denied');
 }
 
+!defined('MAGIC_QUOTES_GPC') && define('MAGIC_QUOTES_GPC', get_magic_quotes_gpc());
+
 //error_reporting(0);
 //尼玛。。。uicestone 2012/7/19
 
@@ -44,7 +46,6 @@ if(!function_exists('daddslashes')) {
 }
 
 function uc_stripslashes($string) {
-	!defined('MAGIC_QUOTES_GPC') && define('MAGIC_QUOTES_GPC', get_magic_quotes_gpc());
 	if(MAGIC_QUOTES_GPC) {
 		return stripslashes($string);
 	} else {
