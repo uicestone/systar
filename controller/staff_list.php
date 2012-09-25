@@ -3,7 +3,7 @@ if(is_posted('grade')){
 	option('grade',$_POST['grade']);
 }
 
-$q="SELECT staff.id,staff.name,staff.title,
+$q="SELECT staff.id,staff.name,staff.title,staff.modulus,staff.timing_fee_default,
 		course.name AS course_name,
 		position.ui_name AS position_name
 	FROM staff LEFT JOIN course ON staff.course=course.id
@@ -26,7 +26,9 @@ if($_G['company_type']=='school'){
 }else{
 	$field=array(
 		'id'=>array('title'=>'姓名','content'=>'{name}'),
-		'position_name'=>array('title'=>'职位','content'=>'{position_name}')
+		'position_name'=>array('title'=>'职位','content'=>'{position_name}'),
+		'mudulus'=>array('title'=>'团奖系数'),
+		'default_timing_fee'=>array('title'=>'默认小时费率')
 	);
 }
 
