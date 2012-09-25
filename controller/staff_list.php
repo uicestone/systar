@@ -27,8 +27,8 @@ if($_G['company_type']=='school'){
 	$field=array(
 		'id'=>array('title'=>'姓名','content'=>'{name}'),
 		'position_name'=>array('title'=>'职位','content'=>'{position_name}'),
-		'mudulus'=>array('title'=>'团奖系数'),
-		'default_timing_fee'=>array('title'=>'默认小时费率')
+		'modulus'=>array('title'=>'团奖系数'),
+		'timing_fee_default'=>array('title'=>'默认小时费率')
 	);
 }
 
