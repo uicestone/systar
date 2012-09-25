@@ -4,7 +4,6 @@ function model($model_name){
 		require 'model/'.$model_name.'.php';
 	}
 }
-preg_match();
 function javascript($js_file_path){
 	$path='js/'.$js_file_path.'.js';
 	$hash=filemtime('web/'.$path);

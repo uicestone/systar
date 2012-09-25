@@ -238,7 +238,7 @@ if(in_array(IN_UICE,array('index','nav'))){
 	//包含model下所有库
 	$handle = opendir('model');
 	while($filename=readdir($handle)){
-		if($filename!='.' && $filename!='..' && preg_match('/.*?\.php$/',$filename)){
+		if($filename!='.' && $filename!='..' && $filename!='company.php' && preg_match('/.*?\.php$/',$filename)){
 			require('model/'.$filename);
 		}
 	}

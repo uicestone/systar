@@ -1,6 +1,5 @@
 <?php
 model('achievement');
-model('company');
 
 $q_news="SELECT * FROM `news` WHERE display=1 AND company='".$_G['company']."' ORDER BY time DESC LIMIT 5";
 $field_news=array(

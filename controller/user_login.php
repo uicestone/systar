@@ -38,7 +38,6 @@ if(is_posted('submit/login')){
 			
 			user_update_login_time();
 			
-			model('company');
 			if(function_exists($_G['company_type'].'_init')){
 				call_user_func($_G['company_type'].'_init');
 			}

@@ -1,4 +1,13 @@
 <?php
+function company_fetchInfo(){
+	$company_info=db_fetch_first("SELECT id AS company,name AS company_name,type AS company_type,syscode,sysname,ucenter,default_controller FROM company WHERE host='".$_SERVER['SERVER_NAME']."' OR syscode='".$_SERVER['SERVER_NAME']."'");
+	if(is_array($company_info)){
+		return $company_info;
+	}else{
+		return false;
+	}
+}
+
 function school_init(){
 	/*
 		以8/1和农历新年作为学期的分界线
@@ -103,13 +112,14 @@ function starsys_schedule_side_table(){
 	);
 	
 	if(is_logged('manager')){
+		$staff=got('staff')?$_GET['staff']:false;
 		$sidebar_table[]=array(
 			'_field'=>array(
 				'schedule_check'=>'员工日程检阅'
 			),
 			array(
 				'schedule_check'=>'<select name="staff" class="filter" method="get">'
-					.html_option(false,$_GET['staff'],true,'staff',NULL,'name',"id IN (SELECT staff FROM manager_staff WHERE manager='".$_SESSION['id']."') AND position IS NOT NULL")
+					.html_option(false,$staff,true,'staff',NULL,'name',"id IN (SELECT staff FROM manager_staff WHERE manager='".$_SESSION['id']."') AND position IS NOT NULL")
 					.'</select>'
 			)
 		);

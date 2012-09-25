@@ -4,7 +4,6 @@ chdir('../');
 
 require 'config/config.php';
 require 'view/common/head.htm';
-uc_api_post('user','test');
 
 /*$course=10;
 $prior_exam=14;

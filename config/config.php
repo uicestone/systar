@@ -5,6 +5,7 @@ require "function/function_table.php";
 date_default_timezone_set('Asia/Shanghai');
 
 model(IN_UICE);
+model('company');
 
 session_set_cookie_params(86400); 
 
@@ -35,13 +36,13 @@ $_G['debug_mode']=false;
 
 db_query("SET NAMES 'UTF8'");
 
-$_G+=db_fetch_first("SELECT id AS company,name AS company_name,type AS company_type,syscode,sysname,ucenter,default_controller FROM company WHERE host='".$_SERVER['HTTP_HOST']."' OR syscode='".$_SERVER['HTTP_HOST']."'");
+if($company_info=company_fetchInfo()){
+	$_G+=$company_info;
+}
 
 //ucenter配置
 if($_G['ucenter']){
 	require 'config/config_ucenter.php';
-	//if(IN_UICE!='uc_api'){
-		require 'plugin/client/client.php';
-	//}
+	require 'plugin/client/client.php';
 }
 ?>
