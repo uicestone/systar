@@ -7,13 +7,20 @@ if(is_posted('delete')){
 $q="
 SELECT client.id,client.name,client.abbreviation,client.time,client.comment,
 	phone.content AS phone,address.content AS address
-FROM `client` LEFT JOIN (
-	SELECT client,GROUP_CONCAT(content) AS content FROM client_contact WHERE type IN('手机','固定电话') GROUP BY client
+FROM `client` 
+	LEFT JOIN (
+		SELECT client,GROUP_CONCAT(content) AS content FROM client_contact WHERE type IN('手机','固定电话') GROUP BY client
 	)phone ON client.id=phone.client
 	LEFT JOIN (
 		SELECT client,GROUP_CONCAT(content) AS content FROM client_contact WHERE type='地址' GROUP BY client
 	)address ON client.id=address.client
 WHERE display=1 AND classification='客户'
+";
+
+$q_rows="
+	SELECT COUNT(client.id)
+	FROM `client` 
+	WHERE display=1 AND classification='客户'
 ";
 
 if(got('potential')){
