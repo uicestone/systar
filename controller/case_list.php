@@ -85,7 +85,7 @@ if(got('host')){
 	$condition.="AND case.filed='在办' AND classification<>'法律顾问' AND (case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role<>'主办律师') OR case.uid='".$_SESSION['id']."')";
 	
 }elseif(got('file')){
-	$condition.="AND case.filed<>'在办' AND classification<>'法律顾问' AND (case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role<>'主办律师') OR case.uid='".$_SESSION['id']."')";
+	$condition.="AND case.filed IN ('信息审核','财务审核','主管审核') AND classification<>'法律顾问' AND (case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role<>'主办律师') OR case.uid='".$_SESSION['id']."')";
 	
 }elseif(is_logged('developer')){
 	$condition.="";
