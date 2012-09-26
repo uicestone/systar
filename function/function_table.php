@@ -498,7 +498,11 @@ function processMultiPage(&$q,$q_rows=NULL){
 		}elseif(is_posted('firstPage')){
 			option('list/start',0);
 		}elseif(is_posted('finalPage')){
-			option('list/start',$rows - ($rows % option('list/items')));
+			if($rows % option('list/items')==0){
+				option('list/start',$rows - option('list/items'));
+			}else{
+				option('list/start',$rows - ($rows % option('list/items')));
+			}
 		}
 	}else{
 		option('list/start',0);
