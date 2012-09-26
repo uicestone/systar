@@ -4,17 +4,6 @@ define('IN_UICE','uc_api');
 define('UC_CLIENT_ROOT', 'plugin/client/');
 require 'config/config.php';
 
-db_insert('log',array(
-	'uri'=>$_SERVER['REQUEST_URI'],
-	'host'=>$_SERVER['HTTP_HOST'],
-	'get'=>serialize($_GET),
-	'post'=>serialize($_POST),
-	'client'=>$_SERVER['HTTP_USER_AGENT'],
-	'duration'=>microtime(true)-$_G['microtime'],
-	'ip'=>getIp(),'company'=>$_G['company_name'],
-	'username'=>array_dir('_SESSION/username'),
-	'time'=>date('Y-m-d H:i:s',$_G['timestamp']))
-);
 define('UC_VERSION', '1.6.0');		//UCenter 版本标识
 
 define('API_DELETEUSER', 0);		//用户删除 API 接口开关

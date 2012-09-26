@@ -4,8 +4,9 @@ model('case');
 $q="
 SELECT
 	case.id,case.name,case.num,case.stage,case.time_contract,case.time_end,
-	case.type_lock,case.client_lock,case.lawyer_lock,case.fee_lock,case.is_reviewed,case.filed,
-	if(case.type_lock=1 AND case.client_lock=1 AND case.lawyer_lock=1 AND case.fee_lock=1,1,0) AS locked,
+	case.is_reviewed,case.apply_file,case.is_query,
+	case.type_lock*case.client_lock*case.lawyer_lock*case.fee_lock AS locked,
+	case.finance_review,case.info_review,case.manager_review,case.filed,
 	contribute_allocate.contribute_sum,
 	uncollected.uncollected,
 	lawyers.lawyers
@@ -42,16 +43,8 @@ FROM
 	)uncollected
 	ON case.id=uncollected.case
 	
-WHERE case.display=1 AND case.id>=20
+WHERE case.display=1 AND case.id>=20 AND case.apply_file=1
 ";
-
-if(is_logged('manager')){
-	$q.=" AND case.filed = '主管审核'";
-}elseif(is_logged('finance')){
-	$q.=" AND case.filed = '财务审核'";
-}elseif(is_logged('admin')){
-	$q.=" AND case.filed = '信息审核'";
-}
 
 $search_bar=processSearch($q,array('case_num_grouped.num'=>'案号','case.name'=>'名称','lawyers.lawyers'=>'主办律师'));
 
@@ -66,7 +59,7 @@ $field=array(
 	'time_end'=>array('title'=>'结案时间'),
 	'lawyers'=>array('title'=>'主办律师'),
 	'status'=>array('title'=>'状态','td_title'=>'width="75px"','td'=>'title="{status_time}"','eval'=>true,'content'=>"
-		return case_getStatus('{is_reviewed}','{locked}','{contribute_sum}','{uncollected}','{filed}').' {status}';
+		return case_getStatus('{is_reviewed}','{locked}',{apply_file},{is_query},{finance_review},{info_review},{manager_review},{filed},'{contribute_sum}','{uncollected}').' {status}';
 	")
 );
 

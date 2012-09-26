@@ -5,7 +5,7 @@
 	<div class="right">
 		<input type="submit" name="submit[case]" value="保存" />
 
-		<? if($responsible_partner==$_SESSION['id'] && !post('case/is_reviewed') && post('case/filed')=='在办'){?>
+		<? if($responsible_partner==$_SESSION['id'] && !post('case/is_reviewed') && !post('case/is_query')){?>
 		<button type="button" name="submit[review]">立案审核</button>
 		<? }?>
 
@@ -13,24 +13,28 @@
 		<input type="submit" name="submit[apply_lock]" value="申请锁定" />
 		<? }?>
 
-		<? if(is_logged('finance') && post('case/filed')=='财务审核'){?>
+		<? if(is_logged('finance') && post('case/apply_file') && !post('case/finance_review')){?>
 		<input type="submit" name="submit[review_finance]" value="财务审核" />
 		<? }?>
 
-		<? if(is_logged('admin') && post('case/filed')=='信息审核'){?>
+		<? if(is_logged('admin') && post('case/apply_file') && !post('case/info_review')){?>
 		<input type="submit" name="submit[review_info]" value="信息审核" />
 		<? }?>
 
-		<? if(is_logged('manager') && post('case/filed')=='主管审核'){?>
+		<? if(is_logged('manager') && post('case/apply_file') && !post('case/manager_review')){?>
 		<input type="submit" name="submit[review_manager]" value="主管审核" />
 		<? }?>
 		
-		<? if(post('case/filed')=='咨询'){ ?>
+		<? if(is_logged('admin') && post('case/apply_file') && post('case/finance_review') && post('case/info_review') && post('case/manager_review') && !post('case/filed')){?>
+		<input type="submit" name="submit[file]" value="实体归档" />
+		<? }?>
+		
+		<? if(post('case/is_query')){ ?>
 		<input type="submit" name="submit[new_case]" value="立案" />
 		<input type="submit" name="submit[file]" value="归档" />
 		<? } ?>
 
-		<? if(post('case/filed')=='在办' &&
+		<? if(!post('case/apply_file') &&
 			post('case/is_reviewed') && 
 			post('case/type_lock') && 
 			post('case/client_lock') &&
@@ -74,7 +78,7 @@
 					<input type="text" name="case_client_extra[work_for]" placeholder="工作单位" disabled="disabled" style="width:10%" />
 				</span>
 	
-				<? if(post('case/filed')!='咨询'){ ?>
+				<? if(!post('case/is_query')){ ?>
 				<label>本案地位：</label>
 				<select name="case_client[role]" style="width:15%">
 					<? displayOption(array('原告','被告','第三人','上诉人','被上诉人','申请人','被申请人','对方代理人','法官','检察官','其他'),post('case_client/role'));?>
@@ -118,7 +122,7 @@
 			<select id="type" style="width:7%;" name="case[type]" <? if(post('case/type_lock'))echo 'disabled="disabled"';?>>
 			<? displayOption(array('公司','劳动','房产','婚姻','继承','刑事','知产','留学','移民','行政','合同','侵权'),post('case/type'));?>
 			</select>
-				<? if(post('case/filed')=='咨询'){ ?>
+				<? if(post('case/is_query')){ ?>
 			<select id="classification" style="width:15%;" name="case[query_type]" <? if(post('case/type_lock'))echo 'disabled="disabled"';?>>
 			<? displayOption(array('_ENUM','case','query_type'),post('case/query_type'));?>
 			</select>
@@ -132,7 +136,7 @@
 				<? } ?>
 			<? }?>
 	
-			<? if(post('case/filed')=='咨询'){ ?>
+			<? if(post('case/is_query')){ ?>
 			<input type="text" name="case[first_contact]" value="<? displayPost('case/first_contact')?>" placeholder="首次接待日期" title="首次接待日期" class="date" style="width:100px" />
 			<? }else{ ?>
 			<input type="text" name="case[time_contract]" value="<? displayPost('case/time_contract')?>" placeholder="立案日期" title="立案日期" class="date" style="width:100px" <? if(post('case/is_reviewed'))echo 'disabled="disabled"';?> />
@@ -166,7 +170,7 @@
 			</div>
 		</div>
 		
-		<? if(post('case/filed')=='咨询'){//咨询阶段显示报价情况，不显示律师费和办案费?>
+		<? if(post('case/is_query')){//咨询阶段显示报价情况，不显示律师费和办案费?>
 		<div class="item">
 			<div class="title"><label>报价：</label></div>
 			<input type="text" name="case[quote]" value="<? displayPost('case/quote') ?>" />
@@ -279,7 +283,7 @@
 			<? if(count($case_plan_table)>1)arrayExportTable($case_plan_table,NULL,false,false);?>
 		</div>
 	
-		<? if(post('case/filed')!='咨询' && post('case/classification')!='法律顾问'){?>
+		<? if(!post('case/is_query') && post('case/classification')!='法律顾问'){?>
 		<div class="item">
 			<div class="title"><label>争议焦点：（案件标的）</label></div>
 			<textarea class="item" name="case[focus]" type="text" rows="2"><? displayPost('case/focus')?></textarea>

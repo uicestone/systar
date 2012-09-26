@@ -38,7 +38,7 @@ WHERE case_fee.type<>'办案费'
 		SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."'
 	)
 	AND case_fee.`case` NOT IN (
-		SELECT id FROM `case` WHERE filed='已归档'
+		SELECT id FROM `case` WHERE filed=1
 	)
 	AND FROM_UNIXTIME(pay_time,'%Y-%m-%d')>='".$_G['date']."'
 ";

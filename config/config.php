@@ -11,12 +11,14 @@ session_set_cookie_params(86400);
 
 session_start();
 
-$db_host="localhost";
-$db_username="starsys";
-$db_password="!@!*xinghan";
+$db['host']="localhost";
+$db['username']="starsys";
+$db['password']="!@!*xinghan";
+$db['name']='starsys';
 
-$db_link=mysql_connect($db_host,$db_username,$db_password);
-mysql_select_db('starsys',$db_link);
+define('DB_LINK',mysql_connect($db['host'],$db['username'],$db['password']));
+
+mysql_select_db($db['name'],DB_LINK);
 
 $_G['action']='';
 $_G['timestamp']=time();
@@ -32,7 +34,7 @@ $_G['document_root']="D:/files";//文件系统根目录物理位置
 $_G['case_document_path']="D:/case_document";//案下文件物理位置
 $_G['db_execute_time']=0;
 $_G['db_executions']=0;
-$_G['debug_mode']=false;
+$_G['debug_mode']=true;
 
 db_query("SET NAMES 'UTF8'");
 

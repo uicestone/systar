@@ -1,8 +1,9 @@
 <?php
+//TODO 新的咨询统计
 $q_monthly_queries="
 SELECT month,queries,filed_queries,live_queries,cases
 FROM (
-	SELECT LEFT(date_start,7) AS month, COUNT(id) AS queries, SUM(IF(filed='归档',1,0)) AS filed_queries, SUM(IF(filed='洽谈',1,0)) AS live_queries
+	SELECT LEFT(date_start,7) AS month, COUNT(id) AS queries, SUM(IF(filed=1,1,0)) AS filed_queries, SUM(IF(filed='洽谈',1,0)) AS live_queries
 	FROM query 
 	WHERE LEFT(date_start,4)='".date('Y',$_G['timestamp'])."'
 	GROUP BY LEFT(date_start,7)

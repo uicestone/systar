@@ -3,10 +3,12 @@ model('case');
 	
 $q="
 SELECT
-	case.id,case.name AS case_name,case.stage,case.time_contract,case.time_end,case.num,case.is_reviewed,case.filed,
+	case.id,case.name AS case_name,case.stage,case.time_contract,case.time_end,case.num,
+	case.is_reviewed,case.apply_file,case.is_query,
+	case.type_lock*case.client_lock*case.lawyer_lock*case.fee_lock AS locked,
+	case.finance_review,case.info_review,case.manager_review,case.filed,
 	lawyers.lawyers,
 	file_status_grouped.status,file_status_grouped.staff AS staff,FROM_UNIXTIME(file_status_grouped.time,'%Y-%m-%d %H:%i:%s') AS status_time,
-	if(case.type_lock=1 AND case.client_lock=1 AND case.lawyer_lock=1 AND case.fee_lock=1,1,0) AS locked,
 	contribute_allocate.contribute_sum,
 	uncollected.uncollected,
 	staff.name AS staff_name
@@ -54,7 +56,7 @@ FROM
 	)uncollected
 	ON case.id=uncollected.case
 	
-WHERE case.display=1 AND case.id>=20 AND case.filed='已归档'
+WHERE case.display=1 AND case.id>=20 AND case.filed=1
 ";
 
 $search_bar=processSearch($q,array('case_num_grouped.num'=>'案号','case.name'=>'名称','lawyers.lawyers'=>'主办律师'));
@@ -70,7 +72,7 @@ $field=array(
 	'time_end'=>array('title'=>'结案时间'),
 	'lawyers'=>array('title'=>'主办律师','td_title'=>'width="100px"'),
 	'status'=>array('title'=>'状态','td'=>'title="{status_time}"','eval'=>true,'content'=>"
-		return case_getStatus('{is_reviewed}','{locked}','{contribute_sum}','{uncollected}','{filed}').' {status}';
+		return case_getStatus('{is_reviewed}','{locked}',{apply_file},{is_query},{finance_review},{info_review},{manager_review},{filed},'{contribute_sum}','{uncollected}').' {status}';
 	"),
 	'staff_name'=>array('title'=>'人员')
 );

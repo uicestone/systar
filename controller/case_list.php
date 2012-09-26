@@ -2,8 +2,9 @@
 $q="
 SELECT
 	case.id,case.name,case.num,case.stage,case.time_contract,
-	case.type_lock,case.client_lock,case.lawyer_lock,case.fee_lock,case.is_reviewed,case.filed,
-	if(case.type_lock=1 AND case.client_lock=1 AND case.lawyer_lock=1 AND case.fee_lock=1,1,0) AS locked,
+	case.is_reviewed,case.apply_file,case.is_query,
+	case.type_lock*case.client_lock*case.lawyer_lock*case.fee_lock AS locked,
+	case.finance_review,case.info_review,case.manager_review,case.filed,
 	contribute_allocate.contribute_sum,
 	uncollected.uncollected,
 	schedule_grouped.id AS schedule,schedule_grouped.name AS schedule_name,schedule_grouped.time_start,schedule_grouped.username AS schedule_username,
@@ -61,7 +62,7 @@ FROM
 	)uncollected
 	ON case.id=uncollected.case
 	
-WHERE case.display=1 AND case.id>=20 AND filed NOT IN ('已归档','咨询')
+WHERE case.display=1 AND case.id>=20
 ";
 
 //此query过慢，用其简化版计算总行数
@@ -70,27 +71,24 @@ SELECT
 	COUNT(id)
 FROM 
 	`case`
-WHERE display=1 AND id>=20 AND filed<>'已归档'
+WHERE case.display=1 AND case.id>=20 AND case.filed=0
 ";
 
 $condition='';
 
 if(got('host')){
-	$condition.="AND case.filed='在办' AND case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role='主办律师')";
+	$condition.="AND case.apply_file=0 AND case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role='主办律师')";
 
 }elseif(got('consultant')){
-	$condition.="AND case.filed='在办' AND classification='法律顾问' AND (case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."') OR case.uid='".$_SESSION['id']."')";
+	$condition.="AND case.apply_file=0 AND classification='法律顾问' AND (case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."') OR case.uid='".$_SESSION['id']."')";
 
 }elseif(got('etc')){
-	$condition.="AND case.filed='在办' AND classification<>'法律顾问' AND (case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role<>'主办律师') OR case.uid='".$_SESSION['id']."')";
+	$condition.="AND case.apply_file=0 AND classification<>'法律顾问' AND (case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role<>'主办律师') OR case.uid='".$_SESSION['id']."')";
 	
 }elseif(got('file')){
-	$condition.="AND case.filed IN ('信息审核','财务审核','主管审核') AND classification<>'法律顾问' AND (case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role<>'主办律师') OR case.uid='".$_SESSION['id']."')";
+	$condition.="AND case.apply_file=1 AND classification<>'法律顾问' AND (case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role<>'主办律师') OR case.uid='".$_SESSION['id']."')";
 	
-}elseif(is_logged('developer')){
-	$condition.="";
-	
-}else{
+}elseif(!is_logged('developer')){
 	$condition.="AND (case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role IN ('接洽律师','接洽律师（次要）','主办律师','协办律师','律师助理','督办合伙人')) OR case.uid='".$_SESSION['id']."')";
 }
 
@@ -114,7 +112,7 @@ $field=array(
 		return '<a href=\"javascript:showWindow(\'schedule?add&case={id}&completed=0\')\">+</a> {plan_time} <a href=\"schedule?list&plan&case={id}\" title=\"{plan_name}\">'.str_getSummary('{plan_name}').'</a>';
 	"),
 	'is_reviewed'=>array('title'=>'状态','td_title'=>'width="75px"','eval'=>true,'content'=>"
-		return case_getStatus('{is_reviewed}','{locked}','{contribute_sum}','{uncollected}','{filed}');
+		return case_getStatus('{is_reviewed}','{locked}',{apply_file},{is_query},{finance_review},{info_review},{manager_review},{filed},'{contribute_sum}','{uncollected}').' {status}';
 	",'orderby'=>false)
 );
 

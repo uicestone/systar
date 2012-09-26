@@ -8,7 +8,7 @@ getPostData(function(){
 	post('case_lawyer_extra/partner_name',staff_getMyManager('name'));
 	post('case_lawyer_extra/lawyer_name',$_SESSION['username']);
 	post('query/first_contact',$_G['date']);
-	post('query/filed','咨询');
+	post('query/is_query',1);
 	post('client_extra/source_lawyer_name',$_SESSION['username']);
 	post('client/gender','男');
 });
@@ -66,7 +66,7 @@ if(is_posted('submit')){
 
 		
 		post('case',array_merge(post('query'),array(
-			'filed'=>'咨询'
+			'is_query'=>1
 		)));
 		
 		case_update(post('query/id'),post('case'));

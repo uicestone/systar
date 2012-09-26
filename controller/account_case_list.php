@@ -3,8 +3,10 @@ model('case');
 	
 $q="
 SELECT
-	case.id,case.name,case.num,case.stage,case.time_contract,case.is_reviewed,case.filed,
-	if(case.type_lock=1 AND case.client_lock=1 AND case.lawyer_lock=1 AND case.fee_lock=1,1,0) AS locked,
+	case.id,case.name,case.num,case.stage,case.time_contract,
+	case.is_reviewed,case.apply_file,case.is_query,
+	case.type_lock*case.client_lock*case.lawyer_lock*case.fee_lock AS locked,
+	case.finance_review,case.info_review,case.manager_review,case.filed,
 	contribute_allocate.contribute_sum,
 	uncollected.uncollected,
 	lawyers.lawyers
@@ -55,7 +57,7 @@ $field=array(
 	'name'=>array('title'=>'案名','content'=>'{name}<span class="right"><a href="javascript:showWindow(\'account?add&case={id}\')">+<span>'),
 	'lawyers'=>array('title'=>'主办律师','td_title'=>'width="100px"'),
 	'is_reviewed'=>array('title'=>'状态','td_title'=>'width="75px"','eval'=>true,'content'=>"
-		return case_getStatus('{is_reviewed}','{locked}','{contribute_sum}','{uncollected}','{filed}');
+		return case_getStatus('{is_reviewed}','{locked}',{apply_file},{is_query},{finance_review},{info_review},{manager_review},{filed},'{contribute_sum}','{uncollected}').' {status}';
 	")
 );
 

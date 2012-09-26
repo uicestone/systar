@@ -64,7 +64,7 @@ function achievementSum($type,$range=NULL,$time_start=NULL,$time_end=NULL,$ten_t
 		$q="
 			SELECT SUM(fee) AS sum 
 			FROM case_fee 
-			WHERE type<>'办案费' AND `case` IN (SELECT id FROM `case` WHERE filed='在办' AND fee_lock=1)
+			WHERE type<>'办案费' AND `case` IN (SELECT id FROM `case` WHERE filed=0 AND fee_lock=1)
 				AND reviewed=0
 				AND pay_time>=".$time_start.' 
 				AND pay_time<'.$time_end;
@@ -87,7 +87,7 @@ function achievementSum($type,$range=NULL,$time_start=NULL,$time_end=NULL,$ten_t
 					WHERE case_fee.type<>'办案费' 
 						AND case_fee.pay_time>=".$time_start.' AND case_fee.pay_time<'.$time_end."
 						AND case_lawyer.lawyer='".$_SESSION['id']."'
-						AND `case` IN (SELECT id FROM `case` WHERE filed='在办' AND fee_lock=1
+						AND `case` IN (SELECT id FROM `case` WHERE filed=0 AND fee_lock=1
 					) 
 					GROUP BY case_fee.id
 				)case_fee_contribute
@@ -129,7 +129,7 @@ function achievementSum($type,$range=NULL,$time_start=NULL,$time_end=NULL,$ten_t
 			WHERE name <> '办案费'
 				AND time_occur>=".$time_start."
 				AND time_occur<".$time_end."
-				AND `case` IN (SELECT id FROM `case` WHERE filed<>'在办')";
+				AND `case` IN (SELECT id FROM `case` WHERE filed=1)";
 		
 		if($range=='my'){
 			$q.=" AND `case` IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role='主办律师')";
@@ -147,7 +147,7 @@ function achievementSum($type,$range=NULL,$time_start=NULL,$time_end=NULL,$ten_t
 						AND time_occur>=".$time_start."
 						AND time_occur<".$time_end."
 						AND case_lawyer.lawyer='".$_SESSION['id']."'
-						AND case.filed<>'在办'
+						AND case.filed=1
 					GROUP BY account.id
 				)account_contribute";
 		}
@@ -189,7 +189,7 @@ function achievementTodo($type){
 					SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."'
 				)
 				AND `case` NOT IN (
-					SELECT id FROM `case` WHERE filed='已归档'
+					SELECT id FROM `case` WHERE filed=1
 				)
 				AND FROM_UNIXTIME(pay_time,'%Y-%m-%d')>='".$_G['date']."'
 				AND pay_time<'".($_G['timestamp']+86400*30)."'
@@ -211,7 +211,7 @@ function achievementTodo($type){
 					SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."'
 				)
 				AND `case` NOT IN (
-					SELECT id FROM `case` WHERE filed='已归档'
+					SELECT id FROM `case` WHERE filed=1
 				)
 				AND FROM_UNIXTIME(pay_time,'%Y-%m-%d')<'".$_G['date']."'
 		";

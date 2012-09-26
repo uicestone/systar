@@ -11,7 +11,7 @@ $q="
 		LEFT JOIN case_lawyer ON case.id=case_lawyer.case AND (case_lawyer.role='接洽律师'  OR case_lawyer.role='接洽律师（次要）')
 		LEFT JOIN staff ON staff.id=case_lawyer.lawyer
 		LEFT JOIN client_source ON case.source=client_source.id 
-	WHERE case.display=1
+	WHERE case.display=1 AND case.is_query=1
 ";
 
 if(got('mine')){
@@ -19,9 +19,9 @@ if(got('mine')){
 }
 
 if(got('filed')){
-	$q.=" AND case.filed='归档咨询'";
+	$q.=" AND case.filed=1";
 }else{
-	$q.=" AND case.filed='咨询'";
+	$q.=" AND case.filed=0";
 }
 
 $search_bar=processSearch($q,array('client.name'=>'咨询人'));

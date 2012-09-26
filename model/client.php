@@ -224,7 +224,7 @@ function client_getListByCase($case_id){
 		$q_option_array.=" AND type='成交客户' 
 			AND id IN (
 				SELECT client FROM case_client WHERE `case` IN (
-					SELECT id FROM `case` WHERE filed<>'在办'
+					SELECT id FROM `case` WHERE filed=1
 						AND id IN (
 							SELECT `case` FROM case_lawyer 
 							WHERE lawyer='".$_SESSION['id']."' OR uid='".$_SESSION['id']."'
@@ -235,7 +235,7 @@ function client_getListByCase($case_id){
 	}elseif($case_id==13){
 		//咨询跟踪
 		$q_option_array.="
-			AND id IN (SELECT client FROM query WHERE display=1 AND filed='洽谈' AND (partner='".$_SESSION['id']."' OR lawyer='".$_SESSION['id']."' OR assistant='".$_SESSION['id']."'))
+			AND id IN (SELECT client FROM query WHERE display=1 AND filed=0 AND (partner='".$_SESSION['id']."' OR lawyer='".$_SESSION['id']."' OR assistant='".$_SESSION['id']."'))
 		";
 	}
 	$q_option_array.=" ORDER BY id DESC";

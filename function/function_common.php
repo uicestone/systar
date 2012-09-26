@@ -478,16 +478,16 @@ function in_subarray($needle,array $array,$key_specified=NULL){
 }
 
 function db_query($query,$show_error=true){
-	global $db_link,$_G;
+	global $_G;
 	$execution_start_time=microtime(true);
-	$result=mysql_query($query,$db_link);
+	$result=mysql_query($query,DB_LINK);
 	$_G['db_execute_time']+=(microtime(true)-$execution_start_time);
 	$_G['db_executions']++;
 	//showMessage($query);
 	//showMessage(microtime(true)-$execution_start_time);
 	
 	$error='';
-	if($error=mysql_error($db_link)){
+	if($error=mysql_error(DB_LINK)){
 		if($show_error){
 			global $_G;
 			if($_G['require_export']){
@@ -510,13 +510,11 @@ function db_rows($result){
 }
 
 function db_affected_rows(){
-	global $db_link;
-	return mysql_affected_rows($db_link);
+	return mysql_affected_rows(DB_LINK);
 }
 
 function db_insert_id(){
-	global $db_link;
-	return mysql_insert_id($db_link);
+	return mysql_insert_id(DB_LINK);
 }
 
 function db_fetch_array($result){
@@ -738,6 +736,20 @@ function db_enumArray($table,$field){
 	$enum_arr=explode(",",$enum);
 
 	return $enum_arr;
+}
+
+function db_list_fields($table_name){
+	global $db;
+	$fields = mysql_list_fields($db['name'], $table_name, DB_LINK);
+	$columns = mysql_num_fields($fields);
+	
+	$table_field=array();
+	
+	for ($i = 0; $i < $columns; $i++) {
+	    $table_field[]=mysql_field_name($fields, $i);
+	}
+	
+	return $table_field;
 }
 
 function db_parseError($error){

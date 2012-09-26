@@ -130,7 +130,7 @@ if(is_posted('submit')){
 			if($submitable && case_addLawyer(post('case/id'),post('case_lawyer'))){
 				unset($_SESSION['case']['post']['case_lawyer']);
 				unset($_SESSION['case']['post']['case_lawyer_extra']);
-				if(post('case/is_reviewed') && post('case_lawyer/role')!='实际贡献' && in_array('督办合伙人',$my_roles)){
+				if(post('case/is_reviewed') && post('case_lawyer/role')!='实际贡献' && !in_array('督办合伙人',$my_roles)){
 					post('case/is_reviewed',0);
 					showMessage('案件关键信息已经更改，需要重新审核');
 				}
@@ -303,7 +303,7 @@ if(is_posted('submit')){
 	}
 
 	if(is_posted('submit/new_case')){
-		post('case/filed','在办');
+		post('case/is_query',0);
 		post('case/num','');
 		post('case/time_contract',$_G['date']);
 		post('case/time_end',date('Y-m-d',$_G['timestamp']+100*86400));
@@ -312,8 +312,8 @@ if(is_posted('submit')){
 		showMessage('已立案，请立即获得案号');
 	}
 	
-	if(post('case/filed')=='咨询' && is_posted('submit/file')){
-		post('case/filed','归档咨询');
+	if(post('case/is_query') && is_posted('submit/file')){
+		post('case/filed',1);
 	}
 	
 	if(is_posted('submit/send_message')){
@@ -356,25 +356,30 @@ if(is_posted('submit')){
 	
 	if(is_posted('submit/apply_file')){
 		post('case/time_end',$_G['date']);
-		post('case/filed','财务审核');
-		showMessage('归档申请已接受，案件被提交财务审核');
+		post('case/apply_file',1);
+		showMessage('归档申请已接受');
 	}
 	
 	if(is_posted('submit/review_finance')){
-		post('case/filed','信息审核');
-		showMessage('结案财务状况已经审核，等待信息审核');
+		post('case/finance_review',1);
+		showMessage('结案财务状况已经审核');
 	}
 
 	if(is_posted('submit/review_info')){
-		post('case/filed','主管审核');
-		showMessage('案件信息已经审核，等待主管审核');
+		post('case/info_review',1);
+		showMessage('案件信息已经审核');
 	}
 	
 	if(is_posted('submit/review_manager')){
-		db_insert('file_status',array('case'=>post('case/id'),'status'=>'在档','time'=>$_G['timestamp']));
 		post('case/time_end',$_G['date']);
-		post('case/filed','已归档');
+		post('case/manager_review',1);
 		showMessage('案件已经审核，已正式归档');
+	}
+	
+	if(!post('case/is_query') && is_posted('submit/file')){
+		db_insert('file_status',array('case'=>post('case/id'),'status'=>'在档','time'=>$_G['timestamp']));
+		post('case/filed',1);
+		showMessage('案件实体归档完成');
 	}
 	
 	$case_client_role = case_getClientRole(post('case/id'));
@@ -383,10 +388,12 @@ if(is_posted('submit')){
 		//准备插入案号
 		
 		post('case/num',case_getNum(post('case'),$case_client_role));
+		post('case/type_lock',1);
 	}
 
-	if(isset($case_client_role['client']) && post('case/filed')!='已归档'){
+	if(isset($case_client_role['client']) && !post('case/filed')){
 		//根据案件类别和客户、相对方更新案名
+		//TODO 没有填相对方的时候会报错，不过不影响运行
 		$case_client_role['client_name']='<a href="javascript:showWindow(\'client?edit='.$case_client_role['client'].'\')">'.$case_client_role['client_name'].'</a>';
 
 		$case_client_role['opposite_name']='<a href="javascript:showWindow(\'client?edit='.$case_client_role['opposite'].'\')">'.$case_client_role['opposite_name'].'</a>';
@@ -427,7 +434,7 @@ if(is_posted('submit')){
 		showMessage('尚未获取案号，请选择案件分类和阶段后获取案号','warning');
 	}
 	
-	if(is_posted('submit/case') && post('case/classification')!='法律顾问' && post('case/filed')!='咨询' && !post('case/focus')){
+	if(is_posted('submit/case') && post('case/classification')!='法律顾问' && !post('case/is_query') && !post('case/focus')){
 		$submitable=false;
 		showMessage('请填写案件争议焦点','warning');
 	}
@@ -442,7 +449,7 @@ $case_status=case_getStatusById(post('case/id'));
 
 $case_type_array=db_enumArray('case','stage');
 
-if(post('case/filed')=='咨询'){
+if(post('case/is_query')){
 	$case_lawyer_role_array=array('督办合伙人','接洽律师','接洽律师（次要）','律师助理');
 }else{
 	$case_lawyer_role_array=db_enumArray('case_lawyer','role');
@@ -450,7 +457,7 @@ if(post('case/filed')=='咨询'){
 
 $case_client_table=case_getClientList(post('case/id'),post('case/client_lock'));
 
-if(post('case/filed')=='咨询'){
+if(post('case/is_query')){
 	post('case_client_extra/type','潜在客户');
 }else{
 	post('case_client_extra/type','成交客户');//让案下客户添加默认为成交客户
