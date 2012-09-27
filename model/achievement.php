@@ -179,6 +179,7 @@ function achievementSum($type,$range=NULL,$time_start=NULL,$time_end=NULL,$ten_t
 							(account.time_occur>='$time_start' AND account.time_occur<'$time_end')
 							OR account.id IS NULL
 						)
+					AND case_fee.case IN (SELECT id FROM `case` WHERE is_reviewed=1)
 			)estimated
 			INNER JOIN 
 			(
