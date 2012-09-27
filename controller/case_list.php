@@ -71,7 +71,7 @@ SELECT
 	COUNT(id)
 FROM 
 	`case`
-WHERE case.display=1 AND case.id>=20 AND case.filed=0
+WHERE case.display=1 AND case.id>=20 AND case.filed=0 AND case.is_query=0
 ";
 
 $condition='';
