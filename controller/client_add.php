@@ -103,6 +103,9 @@ if(is_posted('submit')){
 	if(post('client/character')=='自然人'){
 		//自然人简称就是名称
 		post('client/abbreviation',post('client/name'));
+		if(!post('client/birthday')){
+			unset($_SESSION['client']['post']['client']['birthday']);
+		}
 
 	}elseif(array_dir('_POST/client/abbreviation')==''){
 		//单位简称必填
