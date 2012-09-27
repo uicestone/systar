@@ -152,8 +152,43 @@ function achievementSum($type,$range=NULL,$time_start=NULL,$time_end=NULL,$ten_t
 				)account_contribute";
 		}
 	}elseif($type=='estimated'){
-		//今年预计=今年已归档案件业绩+今年在办案件估计
-		return achievementSum('filed_collect',$range,$time_start,$time_end,$ten_thousand_unit)+achievementSum('estimated_inprocess',$range,$time_start,$time_end,$ten_thousand_unit);
+		$q="
+			SELECT SUM(IF(account.amount IS NULL,case_fee.fee,account.amount)) AS sum
+			FROM case_fee LEFT JOIN account ON case_fee.id=account.case_fee
+			WHERE case_fee.pay_time>='$time_start' AND case_fee.pay_time<'$time_end'
+				AND (
+						(account.time_occur>='$time_start' AND account.time_occur<'$time_end')
+						OR account.id IS NULL
+					)
+		";
+		
+		if($range=='my'){
+			$q.=" AND case_fee.case IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role='主办律师')";
+		}
+		
+		if($range=='contribute'){
+			$q="
+			SELECT SUM(estimated.fee*contribute.sum)
+			FROM
+			(
+				SELECT IF(account.amount IS NULL,case_fee.fee,account.amount) AS fee,case_fee.case
+				FROM case_fee LEFT JOIN account ON case_fee.id=account.case_fee
+					INNER JOIN case_lawyer ON case_lawyer.id=case_fee.case
+				WHERE case_fee.pay_time>='$time_start' AND case_fee.pay_time<'$time_end'
+					AND (
+							(account.time_occur>='$time_start' AND account.time_occur<'$time_end')
+							OR account.id IS NULL
+						)
+			)estimated
+			INNER JOIN 
+			(
+				SELECT `case`,SUM(contribute) AS sum 
+				FROM case_lawyer 
+				WHERE lawyer='{$_SESSION['id']}' 
+				GROUP BY `case` HAVING sum>0
+			)contribute USING (`case`)
+			";
+		}
 	}
 	
 	$sum=db_fetch_field($q);
