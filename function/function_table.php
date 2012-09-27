@@ -1,6 +1,5 @@
 <?php
-function fetchTableArray($query,$field){
-	/*
+/*
 	输出一个数组，包含表格中的所有单元格数据
 	$q_data:数据库查询语句,必须包含WHERE条件,留空为WHERE 1=1
 	$field:输出表的列定义
@@ -17,7 +16,8 @@ function fetchTableArray($query,$field){
 					'content'=>'显示的内容，可以用如{client}来显示变量，{client}是数据库查询结果的字段名'
 				)
 		)
-	*/
+*/
+function fetchTableArray($query,$field){
 	//if($_SESSION['username']=='陆秋石')showMessage($query,'notice');
 	
 	global $_G;
@@ -77,9 +77,8 @@ function fetchTableArray($query,$field){
 	return $table;
 }
 
-function arrayExportTable(array $array,$menu=NULL,$surroundForm=false,$surroundBox=true,array $attributes=array(),$show_line_id=false,$trim_columns=false){
-	/*
-	根据_head中规定的列，将$array输出成一个表格
+/*
+	将$array输出成一个表格
 	$array:数据数组
 	结构：
 	Array
@@ -109,7 +108,8 @@ function arrayExportTable(array $array,$menu=NULL,$surroundForm=false,$surroundB
 			)
 		...
 	)
-	*/
+*/
+function arrayExportTable(array $array,$menu=NULL,$surroundForm=false,$surroundBox=true,array $attributes=array(),$show_line_id=false,$trim_columns=false){
 	//print_r($array);
 
 	if($trim_columns){
@@ -231,6 +231,7 @@ function arrayExportTable(array $array,$menu=NULL,$surroundForm=false,$surroundB
 }
 
 function arrayExportExcel(array $array){
+	//TODO
 	require 'plugin/PHPExcel/PHPExcel.php';
 	require 'plugin/PHPExcel/PHPExcel/Writer/Excel5.php';
 	
@@ -273,11 +274,19 @@ function arrayExportExcel(array $array){
 	$objWriter->save('php://output');
 }
 
+/*
+ * 历史遗留写法，因为及其简化，保留至今
+ */
 function exportTable($q_data,$field,$menu=NULL,$surroundForm=false,$surroundBox=true,array $attributes=array(),$show_line_id=false,$trim_columns=false){
 	$array=fetchTableArray($q_data,$field);
 	arrayExportTable($array,$menu,$surroundForm,$surroundBox,$attributes,$show_line_id,$trim_columns);
 }
 
+
+/*
+ * 仅用在fetchTableArray中
+ * 将field->content等值中包含的变量占位替换为数据结果中他们的值
+ */
 function variableReplace($content,$data){
 	while(preg_match('/{(\S*?)}/',$content,$match)){
 		if(!isset($data[$match[1]])){
@@ -292,6 +301,15 @@ function variableReplaceSelf(&$content,$key,$data){
 	$content=variableReplace($content,$data);
 }
 
+/*
+ * 包围，生成html标签的时候很有用
+ * $surround=array(
+ * 		'mark'=>'div',
+ * 		'attrib1'=>'value1',
+ * 		'attrib2'=>'value2'
+ * );
+ * 将生成<div attrib1="value1" attrib2="value2">$str</div>
+ */
 function surround($str,$surround){
 	if($str=='')
 		return '';
@@ -303,6 +321,10 @@ function surround($str,$surround){
 	
 }
 
+/*controller/*_list.php类控制单元中用到的处理查询语句并返回相关界面组件的函数集*/
+/*
+ * 处理查询语句，添加搜索条件，返回一个搜索表单，配合view/*_*_sidebar.htm使用
+ */
 function processSearch(&$q,$fields){
 	global $_G;
 	if(is_posted('search_cancel')){
@@ -356,6 +378,9 @@ function processSearch(&$q,$fields){
 	return $search_bar;
 }
 
+/*
+ * 为sql语句添加排序依据，无反回值
+ */
 function processOrderby(&$q,$defaultOrder,$defaultMethod=NULL,$field_need_convert=array(),$only_table_of_the_page=true){
 	global $_G;
 	if (is_null(option('orderby'))){
@@ -389,6 +414,9 @@ function processOrderby(&$q,$defaultOrder,$defaultMethod=NULL,$field_need_conver
 		option('method');
 }
 
+/*
+ * 为查询语句加上日期条件
+ */
 function dateRange(&$q,$date_field,$date_field_is_timestamp=true){
 	global $_G;
 	if(is_posted('date_range_cancel')){
@@ -440,6 +468,9 @@ function dateRange(&$q,$date_field,$date_field_is_timestamp=true){
 	return $date_range_bar;
 }
 
+/*
+ * TODO 添加addCondition()的描述
+ */
 function addCondition(&$q,$condition_array,$unset=array()){
 	global $_G;
 	
@@ -461,6 +492,9 @@ function addCondition(&$q,$condition_array,$unset=array()){
 	return $q;
 }
 
+/*
+ * 为sql语句添加LIMIT字段，达到分页目的
+ */
 function processMultiPage(&$q,$q_rows=NULL){
 	global $_G;
 	if(is_null($q_rows)){

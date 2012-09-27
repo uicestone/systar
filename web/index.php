@@ -1,23 +1,31 @@
 <?php
+/*
+ * 系统入口文件，所有非实体文件请求都会运行这个文件
+ * 比如http://sys.lawyerstars.com/user?browser
+ * 将$_G['controller']设置为'user'
+ * 顺便说一下控制器的含义，控制器可以理解为系统若干功能的大分类，控制器接受客户端的请求，调用基于数据库的model中的底层函数来读写数据、计算等，并输出到基于html的view中。
+ */
 $_G['controllers']=array('index','nav','user','misc','cron','account','achievement','case','class','client','contact','document','evaluation','express','file','news','property','query','schedule','affair','exam','pingjiao','pingjiao_admin','score','staff','student','studystatus','survey','teach','view_score');//合法的控制器
 
 $_G['controller']=substr(preg_replace('/\.php$/','',$_SERVER['SCRIPT_NAME']),1);
 
 if(in_array($_G['controller'],$_G['controllers'])){
-	define('IN_UICE',$_G['controller']);
+	define('IN_UICE',$_G['controller']);//定义IN_UICE常量，即控制器的名称
 	chdir('../');
 
 }else{
 	exit('controller error');
 }
 
-require 'config/config.php';
+require 'config/config.php';//运行时包含此文件，相当于直接把此文件代码加到当前文件中
+//config中包含全局函数库，一些配置参数，和数据库初始化
 
 if(IN_UICE!='user' && !is_logged(NULL,true)){
 	//对于非用户登录/登出界面，检查权限，弹出未登陆
 	redirect('user?login','js',NULL,true);
 }
 
+//开始选择controller
 if(in_array(IN_UICE,array('index','nav'))){
 	$_G['require_menu']=false;
 	$_G['action']=IN_UICE;
