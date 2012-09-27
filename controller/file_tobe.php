@@ -43,7 +43,7 @@ FROM
 	)uncollected
 	ON case.id=uncollected.case
 	
-WHERE case.display=1 AND case.id>=20 AND case.apply_file=1
+WHERE case.display=1 AND case.id>=20 AND case.apply_file=1 AND filed=0
 ";
 
 $search_bar=processSearch($q,array('case_num_grouped.num'=>'案号','case.name'=>'名称','lawyers.lawyers'=>'主办律师'));

@@ -54,15 +54,15 @@ FROM
 		(
 			SELECT `case`,SUM(fee) AS fee_sum FROM case_fee WHERE type<>'办案费' AND reviewed=0 GROUP BY `case`
 		)case_fee_grouped
-		LEFT JOIN
+		INNER JOIN
 		(
-			SELECT `case`, SUM(amount) AS amount_sum FROM account WHERE reviewed=0 GROUP BY `case`
+			SELECT `case`, SUM(amount) AS amount_sum FROM account GROUP BY `case`
 		)account_grouped
 		USING (`case`)
 	)uncollected
 	ON case.id=uncollected.case
 	
-WHERE case.display=1 AND case.id>=20
+WHERE case.display=1 AND case.id>=20 AND is_query=0
 ";
 
 //此query过慢，用其简化版计算总行数
@@ -89,17 +89,17 @@ if(got('host')){
 	$condition.="AND case.apply_file=1 AND classification<>'法律顾问' AND (case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role<>'主办律师') OR case.uid='".$_SESSION['id']."')";
 	
 }elseif(!is_logged('developer')){
-	$condition.="AND (case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role IN ('接洽律师','接洽律师（次要）','主办律师','协办律师','律师助理','督办合伙人')) OR case.uid='".$_SESSION['id']."')";
+	$condition.="AND apply_file=0 AND (case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role IN ('接洽律师','接洽律师（次要）','主办律师','协办律师','律师助理','督办合伙人')) OR case.uid='".$_SESSION['id']."')";
 }
+
+$search_bar=processSearch($condition,array('case.num'=>'案号','case.type'=>'类别','case.name'=>'名称','lawyers.lawyers'=>'主办律师'));
+
+processOrderby($condition,'time_contract','DESC',array('case.name','lawyers'));
 
 $q.=$condition;
 $q_rows.=$condition;
 
-$search_bar=processSearch($q,array('case.num'=>'案号','case.type'=>'类别','case.name'=>'名称','lawyers.lawyers'=>'主办律师'));
-
-processOrderby($q,'time_contract','DESC',array('case.name','lawyers'));
-
-$listLocator=processMultiPage($q);
+$listLocator=processMultiPage($q,$q_rows);
 
 $field=array(
 	'time_contract'=>array('title'=>'案号','td_title'=>'width="180px"','td'=>'title="立案时间：{time_contract}"','content'=>'<a href="case?edit={id}">{num}</a>'),

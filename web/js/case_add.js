@@ -58,6 +58,15 @@ $(function(){
 		.remove();
 	});
 	
+	//“忽略”按钮的显示和隐藏
+	$('[name^="case_fee_check"]').change(function(){
+		if($('[name^="case_fee_check"]:checked').size()){
+			$('[name="submit[case_fee_review]"]').removeAttr('disabled').fadeIn(200);
+		}else{
+			$('[name="submit[case_fee_review]"]').attr('disabled','disabled').fadeOut(200);
+		}
+	});
+	
 	//小时费率页内编辑
 	$('.editable').editable('misc?editable',{
 		onblur:'submit',

@@ -169,11 +169,11 @@ function case_getStatusById($case_id){
 	$uncollected=db_fetch_field("
 		SELECT IF(amount_sum IS NULL,fee_sum,fee_sum-amount_sum) AS uncollected FROM
 		(
-			SELECT `case`,SUM(fee) AS fee_sum FROM case_fee WHERE type<>'办案费' AND reviewed=0 AND `case`='".post('case/id')."'
+			SELECT `case`,SUM(fee) AS fee_sum FROM case_fee WHERE type<>'办案费' AND reviewed=0 AND `case`='".$case_id."'
 		)case_fee_grouped
-		LEFT JOIN
+		INNER JOIN
 		(
-			SELECT `case`, SUM(amount) AS amount_sum FROM account WHERE reviewed=0 AND `case`='".$case_id."'
+			SELECT `case`, SUM(amount) AS amount_sum FROM account WHERE `case`='".$case_id."'
 		)account_grouped
 		USING (`case`)
 	");
@@ -485,7 +485,7 @@ function case_getStaffList($case_id,$staff_lock,$timing_fee){
 			lawyer_hour.hours_sum
 		FROM 
 			case_lawyer	INNER JOIN staff ON staff.id=case_lawyer.lawyer
-			LEFT JOIN account ON case_lawyer.case=account.case AND account.name IN ('律师费','顾问费','咨询费')
+			LEFT JOIN account ON case_lawyer.case=account.case AND account.name <> '办案费'
 			LEFT JOIN (
 				SELECT uid,SUM(hours_checked) AS hours_sum FROM schedule WHERE schedule.`case`='".$case_id."' AND hours_checked IS NOT NULL GROUP BY uid
 			)lawyer_hour
@@ -512,7 +512,7 @@ function case_getStaffList($case_id,$staff_lock,$timing_fee){
 		return \$hours_sum_string.'<span>{contribute}'.('{contribute_amount}'?' ({contribute_amount})':'').'</span>';
 	",'orderby'=>false);
 	
-	if(!$staff_lock || is_logged('manager')){
+	if(!$staff_lock){
 		//律师锁定时不显示删除按钮
 		$field['lawyer_name']['title']='<input type="submit" name="submit[case_lawyer_delete]" value="删" />'.$field['lawyer_name']['title'];
 		$field['lawyer_name']['content']='<input type="checkbox" name="case_lawyer_check[{id}]">'.$field['lawyer_name']['content'];
@@ -548,8 +548,11 @@ function case_getFeeList($case_id,$fee_lock){
 		)
 	);
 	
-	if(!$fee_lock || is_logged('finance')){
+	if(!$fee_lock){
 		$field['type']['title']='<input type="submit" name="submit[case_fee_delete]" value="删" />'.$field['type']['title'];
+	}
+
+	if(!$fee_lock || is_logged('finance')){
 		$field['type']['content']='<input type="checkbox" name="case_fee_check[{id}]" >'.$field['type']['content'];
 	}
 	
@@ -571,7 +574,7 @@ function case_getFeeMiscList($case_list,$fee_lock){
 		GROUP BY case_fee.id";
 	
 	$field=array(
-		'receiver'=>array('title'=>'收款方','content'=>'<input type="checkbox" name="case_fee_check[{id}]" />{receiver}','orderby'=>false),
+		'receiver'=>array('title'=>'收款方','content'=>'{receiver}','orderby'=>false),
 		'fee'=>array('title'=>'数额','eval'=>true,'content'=>"
 			return '{fee}'.('{fee_received}'==''?'':' （到账：{fee_received}）');
 		",'orderby'=>false),
@@ -584,6 +587,7 @@ function case_getFeeMiscList($case_list,$fee_lock){
 	
 	if(!$fee_lock){
 		$field['receiver']['title']='<input type="submit" name="submit[case_fee_delete]" value="删" />'.$field['receiver']['title'];
+		$field['receiver']['content']='<input type="checkbox" name="case_fee_check[{id}]" />';
 	}
 	
 	return fetchTableArray($query,$field);

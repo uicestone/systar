@@ -23,21 +23,24 @@ $q_rows="
 	WHERE display=1 AND classification='客户'
 ";
 
+$condition='';
 if(got('potential')){
-	$q.=" AND type='潜在客户'";
+	$condition.=" AND type='潜在客户'";
 
 }else{
-	$q.="
+	$condition.="
 		AND type='成交客户'
 		AND client.id IN (SELECT client FROM case_client WHERE `case` IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."'))
 ";
 }
 
-$search_bar=processSearch($q,array('name'=>'姓名','work_for'=>'单位','address'=>'地址','comment'=>'备注'));
+$search_bar=processSearch($condition,array('name'=>'姓名','work_for'=>'单位','address'=>'地址','comment'=>'备注'));
 
-processOrderby($q,'time','DESC',array('abbreviation','type','address','comment'));
+processOrderby($condition,'time','DESC',array('abbreviation','type','address','comment'));
 
-$listLocator=processMultiPage($q);
+$q.=$condition;$q_rows.=$condition;
+
+$listLocator=processMultiPage($q,$q_rows);
 
 $field=array(
 	'abbreviation'=>array('title'=>'名称','content'=>'<input type="checkbox" name="client_check[{id}]" />

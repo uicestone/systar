@@ -354,6 +354,18 @@ if(is_posted('submit')){
 		post('case/fee_lock',1);
 	}
 	
+	if(is_posted('submit/unlock_client')){
+		post('case/client_lock',0);
+	}
+	
+	if(is_posted('submit/unlock_lawyer')){
+		post('case/lawyer_lock',0);
+	}
+	
+	if(is_posted('submit/unlock_fee')){
+		post('case/fee_lock',0);
+	}
+	
 	if(is_posted('submit/apply_file')){
 		post('case/time_end',$_G['date']);
 		post('case/apply_file',1);
