@@ -8,15 +8,15 @@ $q="
 	FROM `case`
 		LEFT JOIN case_client ON case.id=case_client.case
 		LEFT JOIN client ON client.id=case_client.client
-		LEFT JOIN case_lawyer ON case.id=case_lawyer.case AND (case_lawyer.role='接洽律师'  OR case_lawyer.role='接洽律师（次要）')
+		LEFT JOIN case_lawyer ON case.id=case_lawyer.case AND (case_lawyer.role IN ('接洽律师','接洽律师（次要）','督办合伙人'))
 		LEFT JOIN staff ON staff.id=case_lawyer.lawyer
 		LEFT JOIN client_source ON case.source=client_source.id 
-	WHERE case.display=1 AND case.is_query=1
+	WHERE case.company='{$_G['company']}' AND case.display=1 AND case.is_query=1
 ";
 
-if(got('mine')){
+//if(got('mine')){
 	$q.=" AND case_lawyer.lawyer='".$_SESSION['id']."'";
-}
+//}
 
 if(got('filed')){
 	$q.=" AND case.filed=1";

@@ -314,6 +314,7 @@ if(is_posted('submit')){
 	
 	if(post('case/is_query') && is_posted('submit/file')){
 		post('case/filed',1);
+		showMessage('咨询案件已归档');
 	}
 	
 	if(is_posted('submit/send_message')){

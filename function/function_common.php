@@ -602,8 +602,9 @@ function db_query($query,$show_error=true){
 	$result=mysql_query($query,DB_LINK);
 	$_G['db_execute_time']+=(microtime(true)-$execution_start_time);
 	$_G['db_executions']++;
-	//showMessage($query);
-	//showMessage(microtime(true)-$execution_start_time);
+	if($_G['debug_mode'] && (microtime(true)-$execution_start_time)>0.1){
+		showMessage((microtime(true)-$execution_start_time).' - '.$query);
+	}
 	
 	$error='';
 	if($error=mysql_error(DB_LINK)){
@@ -681,7 +682,7 @@ function db_fetch_field($q,$field_name=0){
  * $strict: true: 没有数据时警告并中止程序
  */
 function db_fetch_first($query,$strict=false){
-	$result=db_query($query);
+	$result=db_query($query,true);
 	
 	if($result===false){
 		return false;

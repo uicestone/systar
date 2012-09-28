@@ -1,6 +1,6 @@
 <?php
 function company_fetchInfo(){
-	$company_info=db_fetch_first("SELECT id AS company,name AS company_name,type AS company_type,syscode,sysname,ucenter,default_controller FROM company WHERE host='".$_SERVER['SERVER_NAME']."' OR syscode='".$_SERVER['SERVER_NAME']."'");
+	$company_info=db_fetch_first("SELECT id AS company,name AS company_name,type AS company_type,syscode,sysname,ucenter,default_controller FROM company WHERE host='".$_SERVER['SERVER_NAME']."' OR syscode='{$_SERVER['SERVER_NAME']}'");
 	if(is_array($company_info)){
 		return $company_info;
 	}else{

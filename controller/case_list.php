@@ -25,7 +25,7 @@ FROM
 	LEFT JOIN
 	(
 		SELECT * FROM(
-			SELECT * FROM `schedule` WHERE completed=0 AND display=1 AND time_start>UNIX_TIMESTAMP() ORDER BY time_start LIMIT 1000
+			SELECT * FROM `schedule` WHERE completed=0 AND display=1 AND time_start>'{$_G['timestamp']}' ORDER BY time_start LIMIT 1000
 		)schedule_id_asc 
 		GROUP BY `case`
 	)plan_grouped
@@ -62,7 +62,7 @@ FROM
 	)uncollected
 	ON case.id=uncollected.case
 	
-WHERE case.display=1 AND case.id>=20 AND is_query=0
+WHERE case.company='{$_G['company']}' AND case.display=1 AND is_query=0 AND case.id>=20
 ";
 
 //此query过慢，用其简化版计算总行数

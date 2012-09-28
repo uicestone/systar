@@ -686,7 +686,7 @@ function case_getClientRole($case_id){
 
 /*
  * 根据案件信息，获得案号
- * $case参数为array，需要包含filed,classification,type,type_lock,first_contact/time_contract键
+ * $case参数为array，需要包含is_query,filed,classification,type,type_lock,first_contact/time_contract键
  */
 function case_getNum($case,$case_client_role=NULL){
 	global $_G;
@@ -734,10 +734,10 @@ function case_getNum($case,$case_client_role=NULL){
 		}
 		$case_num['case']=$case['id'];
 		$case_num+=uidTime();
-		$case_num['year_code']=substr($case['filed']=='咨询'?$case['first_contact']:$case['time_contract'],0,4);
+		$case_num['year_code']=substr($case['is_query']?$case['first_contact']:$case['time_contract'],0,4);
 		db_insert('case_num',$case_num,true,true);
 		$case_num['number']=db_fetch_field("SELECT number FROM case_num WHERE `case`='".$case['id']."'");
-		if($case['filed']=='在办'){
+		if(!$case['is_query']){
 			post('case/type_lock',1);//申请正式案号之后不可以再改变案件类别
 		}
 		post('case/display',1);//申请案号以后案件方可见

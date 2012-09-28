@@ -20,8 +20,6 @@ define('DB_LINK',mysql_connect($db['host'],$db['username'],$db['password']));
 
 mysql_select_db($db['name'],DB_LINK);
 
-db_query("SET NAMES 'UTF8'");
-
 //初始化数据库，本系统为了代码书写简便，没有将数据库操作作为类封装，但有大量实用函数在function/function_common.php->db_()
 
 $_G['action']='';
@@ -40,6 +38,8 @@ $_G['db_execute_time']=0;
 $_G['db_executions']=0;
 $_G['debug_mode']=true;
 //定义一些系统配置，$_G不是php内置的大变量，是自定义的，为了在函数中可以方便地通过global $_G来获得所有配置
+
+db_query("SET NAMES 'UTF8'");
 
 if($company_info=company_fetchInfo()){
 	$_G+=$company_info;
