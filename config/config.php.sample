@@ -12,8 +12,8 @@ session_set_cookie_params(86400);
 session_start();
 
 $db['host']="localhost";
-$db['username']="starsys";
-$db['password']="!@!*xinghan";
+$db['username']="root";
+$db['password']="1";
 $db['name']='starsys';
 
 define('DB_LINK',mysql_connect($db['host'],$db['username'],$db['password']));
