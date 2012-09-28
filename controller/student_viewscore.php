@@ -1,4 +1,5 @@
 <?php
+//FIXME 分数列表和图表存在严重不对应状况
 if(is_logged('student')){
 	$student=$_SESSION['id'];
 }elseif(is_logged('parent')){
