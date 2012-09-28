@@ -696,10 +696,10 @@ function case_getNum($case,$case_client_role=NULL){
 		$case_client_role=case_getClientRole($case['id']);
 	}
 	
-	if($case['filed']!='咨询' && !$case_client_role['client']){
+	if(!$case['is_query'] && !$case_client_role['client']){
 		showMessage('申请案号前应当至少添加一个客户','warning');
 	}else{
-		if($case['filed']=='咨询'){
+		if($case['is_query']){
 			$case_num['classification_code']='询';
 			$case_num['type_code']='';
 		}else{
