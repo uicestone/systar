@@ -62,7 +62,7 @@ FROM
 	)uncollected
 	ON case.id=uncollected.case
 	
-WHERE case.company='{$_G['company']}' AND case.display=1 AND is_query=0 AND case.id>=20
+WHERE case.company='{$_G['company']}' AND case.display=1 AND is_query=0 AND case.filed=0 AND case.id>=20
 ";
 
 //此query过慢，用其简化版计算总行数
@@ -71,7 +71,7 @@ SELECT
 	COUNT(id)
 FROM 
 	`case`
-WHERE case.display=1 AND case.id>=20 AND case.filed=0 AND case.is_query=0
+WHERE case.company='{$_G['company']}' AND case.display=1 AND is_query=0 AND case.filed=0 AND case.id>=20
 ";
 
 $condition='';

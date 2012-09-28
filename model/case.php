@@ -30,7 +30,7 @@ function case_update($case_id,$data){
 }
 
 function case_addDocument($case,$data){
-	$field=array('name','type','doctype','size','comment');
+	$field=array('name','type','doctype','doctype_other','size','comment');
 	$data=array_keyfilter($data,$field);
 	$data['case']=$case;
 	$data+=uidTime();
@@ -593,8 +593,9 @@ function case_getFeeMiscList($case_list,$fee_lock){
 	return fetchTableArray($query,$field);
 }
 
-function case_getDocumentList($case_id){
-	$query="SELECT *
+function case_getDocumentList($case_id,$apply_file=false){
+	$query="
+		SELECT id,name,type,IF(doctype='其他',doctype_other,doctype) AS doctype,comment,time,username
 		FROM 
 			case_document
 		WHERE display=1 AND `case`='".$case_id."'
@@ -624,7 +625,27 @@ function case_getDocumentList($case_id){
 		"),
 		'username'=>array('title'=>'上传人','td_title'=>'width="90px"')
 	);
+	
+	if($apply_file){
+		array_splice($field,0,0,array(
+			'id'=>array('title'=>'','td_title'=>'width="37px"','content'=>'<input type="checkbox" name="case_document_check[{id}]" checked="checked" />')
+		));
+	}
+	
 	return fetchTableArray($query,$field);
+}
+
+function case_getDocumentCatalog($case_id,$choosen_documents){
+	$query="
+		SELECT * FROM(
+			SELECT DISTINCT doctype FROM case_document WHERE `case`='$case_id' AND (".db_implode($choosen_documents,' OR ','id','=',"'","'",'`','key').") AND doctype<>'其他' ORDER BY doctype
+		)doctype
+		UNION
+		SELECT DISTINCT doctype_other FROM case_document WHERE `case`='$case_id' AND doctype='其他'
+	";
+	$array=db_toArray($query);
+	$doctypes=array_sub($array,'doctype');
+	return $doctypes;
 }
 
 function case_getScheduleList($case_id){

@@ -5,8 +5,6 @@ chdir('../');
 require 'config/config.php';
 require 'view/common/head.htm';
 
-print_r(db_list_fields('case'));
-
 /*$course=10;
 $prior_exam=14;
 

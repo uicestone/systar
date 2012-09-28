@@ -75,6 +75,9 @@ if(in_array(IN_UICE,array('index','nav'))){
 		
 	}elseif((got('add') || got('edit')) && is_permitted(IN_UICE,'add')){
 		$_G['action']=IN_UICE.'_add';
+		if(is_posted('submit/file_document_list')){
+			$_G['require_export']=false;
+		}
 	
 	}elseif(got('review') && is_permitted(IN_UICE,'review')){
 		$_G['action']=IN_UICE.'_review_list';

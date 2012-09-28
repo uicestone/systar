@@ -135,5 +135,14 @@ $(function(){
 		}
 	});
 	
+	//案下文件类别选择'其他'时,显示输入框
+	$('[name="case_document[doctype]"]').change(function(){
+		if($(this).val()=='其他'){
+			$(this).css('width','7%').after('<input type="text" name="case_document[doctype_other]" style="width:8%" />')
+		}else{
+			$(this).css('width','15%').siblings('input[name="case_document[doctype_other]"]').remove();
+		}
+	});
+	
 	$('[name="case_lawyer[role]"]').trigger('change');
 });

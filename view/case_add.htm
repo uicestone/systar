@@ -257,14 +257,18 @@
 		<? }?>
 	
 		<div class="item">
-			<div class="title"><label>案下文件：</label><label id="caseDocumentAdd" style="display:none">+</label></div>
+			<div class="title"><label>案下文件：</label>
+				<? if(post('case/apply_file')){ ?>
+				<input type="submit" name="submit[file_document_list]" value="下载目录" />
+				<? } ?>
+			</div>
 	
 			<? if(count($case_document_table)>1)arrayExportTable($case_document_table,NULL,false,false,array('name'=>'case_fee_misc'));?>
 
 			<div id="caseDocumentAddForm">
 				<input type="file" name="file" id="file" width="30%" />
 				<select name="case_document[doctype]" style="width:15%">
-				<? displayOption(array('_ENUM','case_document','doctype'),post('case_document/doctype'));?>
+				<? displayOption(array('接洽资料','身份资料','聘请委托文书','签约合同（扫描）','办案文书','裁判文书','行政文书','证据材料','其他'),post('case_document/doctype'));?>
 				</select>
 				<label>备注：</label><input name="case_document[comment]" type="text" size="10" style="width:35%" />
 				<input type="submit" name="submit[case_document]" value="上传" />

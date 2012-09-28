@@ -1,32 +1,29 @@
 <?php
 require 'plugin/PHPWord/PHPWord.php';
-model('document');
 
 $PHPWord = new PHPWord();
 
 $section = $PHPWord->createSection();
 
-//$document = $PHPWord->loadTemplate('plugin/PHPWord/Examples/Template.docx');
-
 $PHPWord->addTableStyle('schedule_billdoc',array('borderSize'=>1,'borderColor'=>'333','cellMargin'=>100));
 
 $table = $section->addTable('schedule_billdoc');
 
-foreach($table_array as $line_name=>$line){
+foreach($document_catalog as $doctype){
 	$table->addRow();
-	foreach($line as $cell_name=>$cell){
-		$table->addCell(1750)->addText(strip_tags($cell['html']));
-	}
+	$table->addCell(3000)->addText($doctype);
+	$table->addCell(9000);
 }
 
 // Save File
 $objWriter = PHPWord_IOFactory::createWriter($PHPWord, 'Word2007');
-$filename=iconv('utf-8','gbk',$_SESSION['username']).$_G['timestamp'];
-$objWriter->save('temp/'.$filename);
+$filename=$_SESSION['username'].$_G['timestamp'].'.docx';
+
+$path=iconv('utf-8','gbk','temp/'.$filename);
+
+$objWriter->save($path);
 
 document_exportHead($filename);
-
-$path='temp/'.$filename;
 
 readfile($path);
 unlink($path);

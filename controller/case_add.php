@@ -231,33 +231,35 @@ if(is_posted('submit')){
 	}
 
 	if(is_posted('submit/case_document')){
-		if($_FILES["file"]["error"]>0){
+		model('document');
+		if(post('case_document/doctype')=='其他' && !post('case_document/doctype_other')){
+			showMessage('文件类别选择“其他”，则必须填写具体类别','warning');
+
+		}elseif($_FILES["file"]["error"]>0){
 			showMessage('文件上传错误:'.$_FILES["file"]["error"],'warning');
+
 		}else{
 			$storePath=iconv("utf-8","gbk",$_G['case_document_path']."/".$_FILES["file"]["name"]);//存储路径转码
 			
 			move_uploaded_file($_FILES['file']['tmp_name'], $storePath);
 		
-			if(preg_match('/\.(\w*?)$/',$_FILES['file']['name'], $extname_match)){
-				$_FILES['file']['type']=$extname_match[1];
-			}else{
-				$_FILES["file"]["type"]='none';
-			}
+			post('case_document/name',$_FILES["file"]["name"]);
+			post('case_document/type',document_getExtension(post('case_document/name')));
+			post('case_document/size',$_FILES["file"]['size']);
 			
-			$fileInfo=array(
-				'name'=>$_FILES["file"]["name"],
-				'type'=>$_FILES["file"]["type"],
-				'doctype'=>post('case_document/doctype'),
-				'size'=>$_FILES["file"]['size'],
-				'comment'=>post('case_document/comment'),
-			);
-			
-			$_SESSION['case']['post']['case_document']['id']=case_addDocument(post('case/id'),$fileInfo);
+			$_SESSION['case']['post']['case_document']['id']=case_addDocument(post('case/id'),post('case_document'));
 
 			rename(iconv("utf-8","gbk",$_G['case_document_path']."/".$_FILES["file"]["name"]),iconv("utf-8","gbk",$_G['case_document_path']."/".post('case_document/id')));
 		}
 		
 		unset($_SESSION['case']['post']['case_document']);
+	}
+
+	if(is_posted('submit/file_document_list')){
+		$_G['require_export']=false;
+		model('document');
+		$document_catalog=case_getDocumentCatalog(post('case/id'),post('case_document_check'));
+		require 'view/case_document_catalog.php';
 	}
 	
 	if(is_posted('submit/case_client_delete')){
@@ -481,12 +483,12 @@ $case_staff_table=case_getStaffList(post('case/id'),post('case/lawyer_lock'),pos
 $case_fee_table=case_getFeeList(post('case/id'),post('case/fee_lock'));
 
 if(post('case/timing_fee')){
-	$case_fee_timing_string=case_getTimingFeeString($case_id);
+	$case_fee_timing_string=case_getTimingFeeString(post('case/id'));
 }
 
 $case_fee_misc_table=case_getFeeMiscList(post('case/id'),post('case/fee_lock'));
 
-$case_document_table=case_getDocumentList(post('case/id'));
+$case_document_table=case_getDocumentList(post('case/id'),post('case/apply_file'));
 
 $case_schedule_table=case_getScheduleList(post('case/id'));
 
