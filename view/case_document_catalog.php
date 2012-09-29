@@ -11,8 +11,8 @@ $table = $section->addTable('schedule_billdoc');
 
 foreach($document_catalog as $doctype){
 	$table->addRow();
-	$table->addCell(3000)->addText($doctype);
-	$table->addCell(9000);
+	$table->addCell(1500)->addText($doctype);
+	$table->addCell(8000);
 }
 
 // Save File
