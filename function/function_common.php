@@ -880,7 +880,11 @@ function db_toArray($query){
 	
 	$array=array();
 	while($a=db_fetch_array($result)){
-		$array[]=$a;
+		if(isset($a['id'])){
+			$array[$a['id']]=$a;
+		}else{
+			$array[]=$a;
+		}
 	}
 	return $array;
 }

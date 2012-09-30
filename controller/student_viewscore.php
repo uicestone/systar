@@ -1,5 +1,5 @@
 <?php
-//FIXME 分数列表和图表存在严重不对应状况
+//TODO 图与表的sql请求合一
 if(is_logged('student')){
 	$student=$_SESSION['id'];
 }elseif(is_logged('parent')){
@@ -10,7 +10,7 @@ if(is_logged('student')){
 
 $course_array=db_toArray("SELECT id,name,chart_color FROM course");
 
-$score_array=db_toArray("SELECT * FROM view_score WHERE student = '".$student."'");
+$score_array=db_toArray("SELECT * FROM view_score WHERE student = '".$student."' ORDER BY exam");
 
 $category=$series_raw=$series=array();
 
