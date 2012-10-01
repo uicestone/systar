@@ -602,7 +602,7 @@ function db_query($query,$show_error=true){
 	$result=mysql_query($query,DB_LINK);
 	$_G['db_execute_time']+=(microtime(true)-$execution_start_time);
 	$_G['db_executions']++;
-	if($_G['debug_mode'] && (microtime(true)-$execution_start_time)>0.1){
+	if($_G['debug_mode'] && (microtime(true)-$execution_start_time)>0.2){
 		showMessage((microtime(true)-$execution_start_time).' - '.$query);
 	}
 	
