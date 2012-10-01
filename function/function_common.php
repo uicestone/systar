@@ -131,11 +131,11 @@ function isMobileNumber($number){
  * 根据用户名或uid直接为其设置登录状态
  */
 function session_login($uid=NULL,$username=NULL){
-	if(!is_null($uid)){
-		$q_user="SELECT user.id,user.`group`,user.username,staff.position FROM user INNER JOIN staff ON user.id=staff.id WHERE user.id='".$uid."'";
+	if(isset($uid)){
+		$q_user="SELECT user.id,user.`group`,user.username,staff.position FROM user LEFT JOIN staff ON user.id=staff.id WHERE user.id='".$uid."'";
 
 	}elseif(!is_null($username)){
-		$q_user="SELECT user.id,user.`group`,user.username,staff.position FROM user INNER JOIN staff ON user.id=staff.id WHERE user.username='".$username."'";
+		$q_user="SELECT user.id,user.`group`,user.username,staff.position FROM user LEFT JOIN staff ON user.id=staff.id WHERE user.username='".$username."'";
 	}
 	$r_user=db_query($q_user);
 
