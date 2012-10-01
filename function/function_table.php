@@ -231,7 +231,7 @@ function arrayExportTable(array $array,$menu=NULL,$surroundForm=false,$surroundB
 }
 
 function arrayExportExcel(array $array){
-	//TODO
+	//TODO arrayExportExcel
 	require 'plugin/PHPExcel/PHPExcel.php';
 	require 'plugin/PHPExcel/PHPExcel/Writer/Excel5.php';
 	

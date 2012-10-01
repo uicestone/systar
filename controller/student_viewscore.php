@@ -8,7 +8,7 @@ if(is_logged('student')){
 	$student=intval($_GET['student']);
 }
 
-$course_array=db_toArray("SELECT id,name,chart_color FROM course");
+$course_array=db_toArray("SELECT id,name,chart_color FROM course",true);
 
 $score_array=db_toArray("SELECT * FROM view_score WHERE student = '".$student."' ORDER BY exam");
 

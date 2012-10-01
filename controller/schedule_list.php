@@ -20,6 +20,13 @@ $q="
 		AND schedule.display=1 AND schedule.completed=".(got('plan')?'0':'1')."
 ";
 
+//TODO schedule_list列表效率
+$q_rows="
+	SELECT COUNT(schedule.id) 
+	FROM schedule
+	WHERE 
+";
+
 $condition='';
 if(got('case')){
 	$condition.=" AND schedule.`case`='".intval($_GET['case'])."'";

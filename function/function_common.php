@@ -868,10 +868,10 @@ function db_field_name($fieldNameStr){
 
 /*
  * 运行一个sql语句并直接将所有结果返回为数组。
- * 第一层为行号＝>行内容
+ * 第一层为行号＝>行内容($id_field_as_key==true时，行号＝行内id字段值)
  * 第二层为字段名=>值
  */
-function db_toArray($query){
+function db_toArray($query,$id_field_as_key=false){
 	$result=db_query($query);
 	
 	if($result===false){
@@ -880,7 +880,7 @@ function db_toArray($query){
 	
 	$array=array();
 	while($a=db_fetch_array($result)){
-		if(isset($a['id'])){
+		if($id_field_as_key && isset($a['id'])){
 			$array[$a['id']]=$a;
 		}else{
 			$array[]=$a;
