@@ -1,0 +1,1 @@
+<? arrayExportTable($table,$menu,true) ?>
