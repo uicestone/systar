@@ -182,10 +182,10 @@ class Client_model extends CI_Model{
 				post('source/client',$client_check['id']);
 				post('source/detail',$client_check['abbreviation']);
 			}
-			$client_source=client_checkSource(post('source/client'),'client');
+			$client_source=$this->checkSource(post('source/client'),'client');
 	
 		}else{
-			$client_source=client_checkSource($detail,$type);
+			$client_source=$this->checkSource($detail,$type);
 		}
 		//试图获得现存"来源"的ID
 		if($client_source===false){

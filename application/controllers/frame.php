@@ -2,7 +2,6 @@
 class Frame extends SS_Controller{
 	function __construct(){
 		parent::__construct();
-		!defined('IN_UICE') && define('IN_UICE','frame');
 	}
 	
 	function index(){

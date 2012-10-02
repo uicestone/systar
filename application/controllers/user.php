@@ -2,7 +2,6 @@
 class user extends SS_controller{
 	function __construct(){
 		parent::__construct();
-		!defined('IN_UICE') && define('IN_UICE','user');
 	}
 	
 	function logout(){
@@ -16,7 +15,7 @@ class user extends SS_controller{
 		
 		if(is_logged()){
 			//用户已登陆，则不显示登录界面
-			redirect('/');
+			redirect('');
 		}
 		
 		if(is_posted('submit/login')){
@@ -32,7 +31,7 @@ class user extends SS_controller{
 					if(session_login($ucenter_user[0])){
 						$this->model->update_login_time();
 						echo uc_user_synlogin($ucenter_user[0]);
-						redirect('/','js');
+						redirect('','js');
 					}
 				}else{
 					showMessage('用户名或密码错','warning');
@@ -60,7 +59,7 @@ class user extends SS_controller{
 					if(!isset($user['password'])){
 						redirect('user?profile');
 					}else{
-						redirect('/');
+						redirect('');
 					}
 			
 				}else{
@@ -89,7 +88,7 @@ class user extends SS_controller{
 			
 			if($_G['ucenter']){
 				if(uc_user_edit($_SESSION['username'],$_POST['password'],$_POST['password_new'],$_POST['email'])>0){
-					redirect('/','js');
+					redirect('','js');
 				}
 			}else{
 				if(!post('user/password_new')){
@@ -110,7 +109,7 @@ class user extends SS_controller{
 				}
 				
 				if($submitable){
-					redirect('/','js',NULL,true);
+					redirect('','js',NULL,true);
 				}
 			}
 		}

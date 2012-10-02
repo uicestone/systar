@@ -2,7 +2,6 @@
 class Client extends SS_Controller{
 	function __construct(){
 		parent::__construct();
-		!defined('IN_UICE') && define('IN_UICE','client');
 	}
 	
 	function index($function=NULL){
@@ -80,9 +79,7 @@ class Client extends SS_Controller{
 		
 		$data=compact('table','menu');
 		
-		$this->load->view('head',$data);
-		$this->load->view('menu');
-		$this->load->view('client/list');
+		$this->load->view('list');
 	}
 
 	function potential(){
@@ -95,6 +92,7 @@ class Client extends SS_Controller{
 	
 	function edit($id=NULL){
 		$this->load->model('client_model','model');
+                $this->load->model('staff_model');
 		
 		$this->getPostData($id,function(){
 			global $_G;
@@ -143,7 +141,7 @@ class Client extends SS_Controller{
 					);
 					post('client_client/client_right',client_add($new_client));
 					
-					client_addContact_phone_email(post('client_client/client_right'),post('client_client_extra/phone'),post('client_client_extra/email'));
+					$this->model->addContact_phone_email(post('client_client/client_right'),post('client_client_extra/phone'),post('client_client_extra/email'));
 		
 					showMessage(
 						'<a href="javascript:showWindow(\'client?edit='.$new_client['id'].'\')" target="_blank">新客户 '.
@@ -158,7 +156,7 @@ class Client extends SS_Controller{
 		
 				post('client_client/client_left',post('client/id'));
 				
-				if($submitable && client_addRelated(post('client_client'))){
+				if($submitable && $this->model->addRelated(post('client_client'))){
 					unset($_SESSION['client']['post']['client_client']);
 					unset($_SESSION['client']['post']['client_client_extra']);
 				}
@@ -167,7 +165,7 @@ class Client extends SS_Controller{
 			if(is_posted('submit/client_contact')){
 				post('client_contact/client',post('client/id'));
 				
-				if(client_addContact(post('client_contact'))){
+				if($this->model->addContact(post('client_contact'))){
 					unset($_SESSION['client']['post']['client_contact']);
 				}
 			}
@@ -178,21 +176,21 @@ class Client extends SS_Controller{
 		
 				}elseif(count(post('client_client_check')==1)){
 					$client_client_set_default_keys=array_keys(post('client_client_check'));
-					client_setDefaultRelated($client_client_set_default_keys[0],post('client/id'));
+					$this->model->setDefaultRelated($client_client_set_default_keys[0],post('client/id'));
 		
 					showMessage('成功设置默认联系人');
 		
 				}elseif(count(post('client_client_check')==0)){
-					client_clearDefaultRelated(post('client/id'));
+					$this->model->clearDefaultRelated(post('client/id'));
 				}
 			}
 		
 			if(is_posted('submit/client_client_delete')){
-				client_deleteRelated(post('client_client_check'));
+				$this->model->deleteRelated(post('client_client_check'));
 			}
 		
 			if(is_posted('submit/client_contact_delete')){
-				client_deleteContact(post('client_contact_check'));
+				$this->model->deleteContact(post('client_contact_check'));
 			}
 			
 			if(post('client/character')=='自然人'){
@@ -208,11 +206,11 @@ class Client extends SS_Controller{
 				showMessage('请填写客户简称','warning');
 			}
 			
-			if(!post('client/source',client_setSource(post('source/type'),post('source/detail')))){
+			if(!post('client/source',$this->model->setSource(post('source/type'),post('source/detail')))){
 				$submitable=false;
 			}
 			
-			if(post('client/source_lawyer',staff_check(post('client_extra/source_lawyer_name'),'id',true,'client/source_lawyer'))<0){
+			if(post('client/source_lawyer',$this->staff_model->check(post('client_extra/source_lawyer_name'),'id',true,'client/source_lawyer'))<0){
 				$submitable=false;
 			}
 			processSubmit($submitable);
@@ -299,8 +297,6 @@ class Client extends SS_Controller{
 		}else{
 			$this->load->view('client/add_natural');
 		}
-		
-		$this->load->view('foot');
 	}
 }
 ?>
