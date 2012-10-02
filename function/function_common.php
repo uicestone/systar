@@ -13,8 +13,8 @@ function model($model_name){
  */
 function javascript($js_file_path){
 	$path='js/'.$js_file_path.'.js';
-	$hash=filemtime('web/'.$path);
-	echo '<script type="text/javascript" src="'.$path.'?'.$hash.'"></script>'."\n";
+	$hash=filemtime($path);
+	echo '<script type="text/javascript" src="/'.$path.'?'.$hash.'"></script>'."\n";
 }
 
 /*
@@ -22,8 +22,8 @@ function javascript($js_file_path){
  */
 function stylesheet($stylesheet_path){
 	$path=$stylesheet_path.'.css';
-	$hash=filemtime('web/'.$path);
-	echo '<link rel="stylesheet" href="'.$path.'?'.$hash.'" type="text/css" />'."\n";
+	$hash=filemtime($path);
+	echo '<link rel="stylesheet" href="/'.$path.'?'.$hash.'" type="text/css" />'."\n";
 }
 
 /*
@@ -280,7 +280,7 @@ function getIP(){
 function redirect($url,$method='php',$unsetPara=NULL,$jump_to_top_frame=false){
 	if($method=='php'){
 		if(is_null($unsetPara)){
-			header("location:".$url);
+			header("location:/".$url);
 		}else{
 			$query_string='?';
 			$glue='';
@@ -293,7 +293,7 @@ function redirect($url,$method='php',$unsetPara=NULL,$jump_to_top_frame=false){
 			header('location:'.$q);//待开发
 		}
 	}elseif($method=='js'){
-		echo '<script>'.(is_null($unsetPara)?($jump_to_top_frame?'top.':'')."location.href='".$url."';":"location.href=unsetURLPar('".$url."','".$unsetPara."');").'</script>';
+		echo '<script>'.(is_null($unsetPara)?($jump_to_top_frame?'top.':'')."location.href='/".$url."';":"location.href=unsetURLPar('".$url."','".$unsetPara."');").'</script>';
 	}
 	exit;
 }

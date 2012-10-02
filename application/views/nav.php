@@ -1,0 +1,57 @@
+<script language="javascript" type="text/javascript">
+$(function(){
+	$('#navMenu>.l0>li>a,controller').click(function(){
+		$(this).parent().children('ul:hidden').show();
+		$(this).siblings('.arrow').children('img').rotate({animateTo:90,duration:200});
+	});
+	$('#navMenu>.l0>li>.arrow').click(function(){
+		var subMenu=$(this).siblings('.l1');
+		if(subMenu.is(':hidden')){
+			subMenu.show(200);
+			$(this).children('img').rotate({animateTo:90,duration:200});
+		}else{
+			$(this).children('img').rotate({animateTo:0,duration:200});
+			subMenu.hide(200);
+		}
+	});
+});
+</script>
+<div id="navMenu">
+    <ul class="l0">
+<?php
+foreach($_SESSION['permission'] as $controller_name => $controller){
+	if(isset($controller['_display']) && $controller['_display']){
+		if(in_subarray(1,$controller,'_display')!==false){
+			$has_sub_menu=true;
+		}else{
+			$has_sub_menu=false;
+		}
+		echo '<li id="nav-'.$controller_name.'">'.
+        	($has_sub_menu?'<span class="arrow"><img src="images/arrow_r.png" /></span>':'').
+            '<a href="'.$controller_name.'" target="contentFrame" class="controller'.($has_sub_menu?'':' dink').'" hidefocus="true">'.$controller['_affair_name'].'</a>';
+		
+		if(isset($controller['_add_action']) && is_permitted($controller_name,'add')){
+			echo '<a href="'.$controller['_add_action'].'" target="'.$controller['_add_target'].'" hidefocus="true"> <span style="font-size:12px;color:#CEDDEC">+</span></a>';
+		}
+		if($has_sub_menu){
+			echo '<ul class="l1">';
+			foreach($controller as $action_name => $action){
+				if(is_array($action)){
+					if($action['_display']){
+						echo '<li id="nav-'.$controller_name.'_'.$action_name.'"><a href="'.$controller_name.'/'.
+						$action_name.'" target="contentFrame" hidefocus="true">'.
+						$action['_affair_name'].'</a></li>';
+					}
+				}
+			}
+			echo '</ul>';
+		}
+		echo '</li>';
+	}
+}
+?>
+    </ul>
+</div>
+<? if($_G['debug_mode']){?>
+<div style="color:#091F35;font-size:10px;position:fixed;bottom:0;"><? echo codeLines()?></div>
+<? } ?>

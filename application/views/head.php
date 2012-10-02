@@ -20,4 +20,4 @@
 	</script>
 	<? javascript('contentframe')?>
 </head>
-<body id="content" style="background-image:url('images/bg_<? echo $_G['syscode']?>.gif') ">
+<body id="content" style="background-image:url('/images/bg_<? echo $_G['syscode']?>.gif') ">

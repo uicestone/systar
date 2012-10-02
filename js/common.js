@@ -165,7 +165,7 @@ function showWindow(targetUrl,width,height){
 	if(!height){
 		var height=screen.height-300;
 	}
-	window.open(targetUrl,date.getTime(),'height='+height+',width='+width+', top=100,left=100, toolbar=no, menubar=no, scrollbars=yes, resizable=yes,location=no, status=no, titlebar=no');
+	window.open('/'+targetUrl,date.getTime(),'height='+height+',width='+width+', top=100,left=100, toolbar=no, menubar=no, scrollbars=yes, resizable=yes,location=no, status=no, titlebar=no');
 }
 
 function keyPressHandler(button,waitKeyCode){

@@ -1,6 +1,10 @@
 <?php
 class Client_model extends CI_Model{
-	function client_fetch($id,$data_type='array'){
+	function __construct(){
+		parent::__construct();
+	}
+	
+	function fetch($id,$data_type='array'){
 		$query="SELECT * FROM client WHERE id='".$id."'";
 		$data=db_fetch_first($query,true);
 		if(empty($data)){
@@ -15,7 +19,7 @@ class Client_model extends CI_Model{
 		
 	}
 	
-	function client_check($client_name,$data_type='id',$show_error=true,$fuzzy=true){
+	function check($client_name,$data_type='id',$show_error=true,$fuzzy=true){
 		//$data_type:id,array
 		
 		global $_G;
@@ -59,7 +63,7 @@ class Client_model extends CI_Model{
 		}
 	}
 	
-	function client_add($data){
+	function add($data){
 		$field=array('name','character','classification','type','abbreviation','source','source_lawyer','comment','work_for');
 		foreach($data as $key => $value){
 			if(!in_array($key,$field)){
@@ -75,19 +79,19 @@ class Client_model extends CI_Model{
 		return db_insert('client',$data);
 	}
 	
-	function client_addRelated($data){
+	function addRelated($data){
 		return db_insert('client_client',$data);
 	}
 	
-	function client_addContact($data){
+	function addContact($data){
 		return db_insert('client_contact',$data);
 	}
 	
-	function client_addSource($data){
+	function addSource($data){
 		return db_insert('client_source',$data);
 	}
 	
-	function client_addContact_phone_email($client,$phone,$email){
+	function addContact_phone_email($client,$phone,$email){
 		$new_client_contact=array();
 		if($phone){
 			$new_client_contact[]=array(
@@ -106,7 +110,7 @@ class Client_model extends CI_Model{
 		db_multiinsert('client_contact',$new_client_contact);
 	}
 	
-	function client_setDefaultRelated($client_client_id,$client){
+	function setDefaultRelated($client_client_id,$client){
 		client_clearDefaultRelated($client);
 		
 		if(db_update('client_client',array('is_default_contact'=>1),"id='".$client_client_id."'")){
@@ -115,14 +119,14 @@ class Client_model extends CI_Model{
 		return false;
 	}
 	
-	function client_clearDefaultRelated($client){
+	function clearDefaultRelated($client){
 		if(db_update('client_client',array('is_default_contact'=>'_NULL_'),"client_left='".$client."'")){
 			return true;
 		}
 		return false;
 	}
 	
-	function client_delete($client_id){
+	function delete($client_id){
 		if(is_array($client_id)){
 			$condition = db_implode($client_id, $glue = ' OR ','id','=',"'","'", '`','key');
 	
@@ -135,17 +139,17 @@ class Client_model extends CI_Model{
 		return db_delete('client',$condition);
 	}
 	
-	function client_deleteRelated($client_clients){
+	function deleteRelated($client_clients){
 		$condition = db_implode($client_clients, $glue = ' OR ','id','=',"'","'", '`','key');
 		db_delete('client_client',$condition);
 	}
 	
-	function client_deleteContact($client_contacts){
+	function deleteContact($client_contacts){
 		$condition = db_implode(post('client_contact_check'), $glue = ' OR ','id','=',"'","'", '`','key');
 		db_delete('client_contact',$condition);
 	}
 	
-	function client_checkSource($detail,$checktype){
+	function checkSource($detail,$checktype){
 		if($checktype=='client'){
 			$q_source="SELECT id FROM client_source WHERE client='".intval($detail)."' LIMIT 1";
 			
@@ -163,7 +167,7 @@ class Client_model extends CI_Model{
 		}
 	}
 	
-	function client_setSource($type,$detail){
+	function setSource($type,$detail){
 		
 		if(!$type){
 			showMessage('请选择客户来源','warning');
@@ -204,11 +208,11 @@ class Client_model extends CI_Model{
 		return $client_source;
 	}
 	
-	function client_fetchSource($source_id){
+	function fetchSource($source_id){
 		return db_fetch_first("SELECT type,detail FROM client_source WHERE id='".$source_id."'");
 	}
 	
-	function client_getListByCase($case_id){
+	function getListByCase($case_id){
 		//根据相关案件获得客户列表
 		$option_array=array();
 		
@@ -247,7 +251,7 @@ class Client_model extends CI_Model{
 		return $option_array;	
 	}
 	
-	function client_match($part_of_name,$classification='client'){
+	function match($part_of_name,$classification='client'){
 		$query="SELECT id,name FROM client WHERE display=1 AND name LIKE '%".$part_of_name."%' OR abbreviation LIKE '".$part_of_name."'OR name_en LIKE '%".$part_of_name."%'";
 		
 		switch($classification){
