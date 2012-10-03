@@ -2,6 +2,8 @@
 function postControllerConstructor(){
 	$CI=&get_instance();
 	
+	$CI->load->model('company_model','company');
+	
 	if($CI->config->item('require_export')){
 		if(IN_UICE=='nav'){
 			$CI->load->view('head_nav');
@@ -15,6 +17,8 @@ function postControllerConstructor(){
 			$CI->load->view('menu');
 		}
 	}
+	
+	$CI->load->view();
 
 /*
 	if(is_file('controller/'.$_G['action'].'.php')){

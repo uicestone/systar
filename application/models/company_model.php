@@ -4,15 +4,6 @@ class Company_model extends CI_Model{
 		parent::__construct();
 	}
 
-	function fetchInfo(){
-		$company_info=db_fetch_first("SELECT id AS company,name AS company_name,type AS company_type,syscode,sysname,ucenter,default_controller FROM company WHERE host='".$_SERVER['SERVER_NAME']."' OR syscode='{$_SERVER['SERVER_NAME']}'");
-		if(is_array($company_info)){
-			return $company_info;
-		}else{
-			return false;
-		}
-	}
-	
 	function school_init(){
 		/*
 			以8/1和农历新年作为学期的分界线

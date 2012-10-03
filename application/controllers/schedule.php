@@ -7,7 +7,7 @@ class Schedule extends SS_controller{
 	function index(){
 		model('achievement');
 		
-		$q_news="SELECT * FROM `news` WHERE display=1 AND company='".$_G['company']."' ORDER BY time DESC LIMIT 5";
+		$q_news="SELECT * FROM `news` WHERE display=1 AND company='".$this->config->item('company')."' ORDER BY time DESC LIMIT 5";
 		$field_news=array(
 			'title'=>array(
 				'title'=>'公告 <a href="news" style="font-size:14px">更多</a>',
@@ -25,8 +25,9 @@ class Schedule extends SS_controller{
 		);
 		
 		$sidebar_table=array();
-		if(function_exists($_G['syscode'].'_'.'schedule_side_table')){
-			$sidebar_table=call_user_func($_G['syscode'].'_'.'schedule_side_table');
+		if(function_exists($this->config->item('syscode').'_'.'schedule_side_table')){
+			$syscode=$this->config->item('syscode');
+			$sidebar_table=$this->$syscode->schedule_side_table();
 		}
 	}
 	
