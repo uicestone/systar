@@ -1,12 +1,8 @@
 <?php
 class SS_controller extends CI_Controller{
 	
-	private $_G;
-	
 	function __construct(){
 		parent::__construct();
-		global $_G;
-		$this->_G=$this->_G;
 	}
 	
 	/*

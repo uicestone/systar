@@ -6,11 +6,10 @@ class user extends SS_controller{
 	
 	function logout(){
 		session_logout();
-		redirect('/');
+		redirect('');
 	}
 	
 	function login(){
-		global $_G;
 		$this->load->model('user_model','model');
 		
 		if(is_logged()){
@@ -20,7 +19,7 @@ class user extends SS_controller{
 		
 		if(is_posted('submit/login')){
 			
-			if($_G['ucenter']){
+			if($this->config->item('ucenter')){
 		
 				$ucenter_user=uc_user_login($_POST['username'],$_POST['password']);//ucenter验证密码
 				
@@ -68,9 +67,7 @@ class user extends SS_controller{
 			}
 		}
 		session_destroy();
-		$this->load->view('head');
 		$this->load->view('user/login');
-		$this->load->view('foot');	
 	}
 
 	function profile(){

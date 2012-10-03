@@ -5,20 +5,16 @@ class PostControllerConstructor extends SS_controller{
 	}
 	
 	function postControllerConstructor(){
-		global $_G;
-
-		$data=compact('_G');
-
-		if($_G['require_export']){
+		if($this->config->item('require_export')){
 			if(IN_UICE=='nav'){
-				$this->load->view('head_nav',$data);
-			}elseif(IN_UICE==''){
-				$this->load->view('head_frame',$data);
+				$this->load->view('head_nav');
+			}elseif(IN_UICE=='frame'){
+				$this->load->view('head_frame');
 			}else{
-				$this->load->view('head',$data);
+				$this->load->view('head');
 			}
 
-			if($_G['require_menu']){
+			if($this->config->item('require_menu')){
 				$this->load->view('menu');
 			}
 		}

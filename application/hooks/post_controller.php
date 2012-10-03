@@ -5,9 +5,7 @@ class PostController extends SS_controller{
 	}
 	
 	function postController(){
-		global $_G;
-
-		if($_G['require_export']){
+		if($this->config->item('require_export')){
 			$this->load->view('foot');
 		}
 	}

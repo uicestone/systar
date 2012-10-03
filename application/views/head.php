@@ -13,10 +13,10 @@
 	<script type="text/javascript">
 		var controller='<? echo IN_UICE?>';
 		var affair='<? echo array_dir('_SESSION/permission/'.IN_UICE.'/_affair_name')?>';
-		var action='<? echo $_G['action']?>';
+		var action='<? echo $this->uri->segment(2)?>';
 		var username='<? echo array_dir('_SESSION/username')?>';
-		var sysname='<? echo $_G['sysname']?>';
+		var sysname='<? echo $this->config->item('sysname')?>';
 	</script>
 	<? javascript('contentframe')?>
 </head>
-<body id="content" style="background-image:url('/images/bg_<? echo $_G['syscode']?>.gif') ">
+<body id="content" style="background-image:url('/images/bg_<? echo $this->config->item('syscode')?>.gif') ">

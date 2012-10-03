@@ -44,7 +44,7 @@ function template($filename){
 }
 
 /*
- * 判断$_G[$variable]是否定义，或者判断其是否等于$value
+ * 判断$_GET[$variable]是否定义，或者判断其是否等于$value
  * 比起直接用$_GET['foo']=='bar'来判断,got('foo','bar')更便于书写，而且在foo没有定义的时候不会报错
  */
 function got($variable,$value=NULL){
@@ -597,22 +597,21 @@ function in_subarray($needle,array $array,$key_specified=NULL){
 /*数据库操作封装*/
 
 function db_query($query,$show_error=true){
-	global $_G;
+	global $CFG;
 	$execution_start_time=microtime(true);
 	$result=mysql_query($query,DB_LINK);
-	$_G['db_execute_time']+=(microtime(true)-$execution_start_time);
-	$_G['db_executions']++;
-	if($_G['debug_mode'] && (microtime(true)-$execution_start_time)>0.2){
+	$CFG->set_item('db_execute_time',$CFG->item('db_execute_time')+(microtime(true)-$execution_start_time));
+	$CFG->set_item('db_executions',$CFG->item('db_executions')+1);
+	if($CFG->item('debug_mode') && (microtime(true)-$execution_start_time)>0.2){
 		showMessage((microtime(true)-$execution_start_time).' - '.$query);
 	}
 	
 	$error='';
 	if($error=mysql_error(DB_LINK)){
 		if($show_error){
-			global $_G;
-			if($_G['require_export']){
+			if($CFG->item('require_export')){
 				showMessage(db_parseError($error),'warning');
-				if($_G['debug_mode']){
+				if($CFG->item('debug_mode')){
 					showMessage('发生错误的sql语句：'.$query,'warning');
 				}
 			}else{
