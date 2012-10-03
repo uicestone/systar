@@ -4,7 +4,7 @@ class Achievement_model extends CI_Model{
 		parent::__construct();
 	}
 
-	function achievementSum($type,$range=NULL,$time_start=NULL,$time_end=NULL,$ten_thousand_unit=true){
+	function sum($type,$range=NULL,$time_start=NULL,$time_end=NULL,$ten_thousand_unit=true){
 		global $_G;
 		/*
 		计算各项业绩总值
@@ -206,7 +206,7 @@ class Achievement_model extends CI_Model{
 		return round($sum,2);
 	}
 	
-	function achievementTodo($type){
+	function todo($type){
 		/*未实现的业绩
 		$type:recent(近期催收)，expired(过期未收)
 		返回一个数组，包含num(总数)和sum(总额)两个键

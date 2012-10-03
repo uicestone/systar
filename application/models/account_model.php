@@ -4,7 +4,7 @@ class Account_model extends CI_Model{
 		parent::__construct();
 	}
 
-	function account_fetch($id){
+	function fetch($id){
 		$query="SELECT * FROM account WHERE id='".$id."'";
 		return db_fetch_first($query,true);
 	}

@@ -4,12 +4,12 @@ class Schedule_model extends CI_Model{
 		parent::__construct();
 	}
 
-	function schedule_fetch($id){
+	function fetch($id){
 		$query="SELECT * FROM schedule WHERE id='".$id."'";
 		return db_fetch_first($query,true);
 	}
 	
-	function schedule_fetch_single($id){
+	function fetch_single($id){
 		$q_schedule="
 			SELECT schedule.id,schedule.name,schedule.content,schedule.experience,schedule.time_start,schedule.time_end,schedule.hours_own,
 				client.abbreviation AS client_name,client.id AS client,schedule.place,schedule.fee,schedule.fee_name,schedule.completed,
@@ -27,7 +27,7 @@ class Schedule_model extends CI_Model{
 		return $schedule;
 	}
 	
-	function schedule_fetch_range($start,$end,&$staff,&$case){
+	function fetch_range($start,$end,&$staff,&$case){
 	
 		global $_G;
 		
@@ -60,7 +60,7 @@ class Schedule_model extends CI_Model{
 		return $scheduleArray;
 	}
 	
-	function schedule_review_selected(){
+	function review_selected(){
 		$_POST=array_trim($_POST);
 		if(isset($_POST['schedule_check'])){
 			$condition = db_implode($_POST['schedule_check'], $glue = ' OR ','id','=',"'","'", '`','key');
@@ -68,19 +68,19 @@ class Schedule_model extends CI_Model{
 		}
 	}
 	
-	function schedule_set_comment($schedule_id,$comment){
+	function set_comment($schedule_id,$comment){
 		$schedule_id=intval($schedule_id);
 		db_update('schedule',array('comment'=>$comment),"id='".$schedule_id."'");
 		return db_fetch_first("SELECT * FROM schedule WHERE id='".$schedule_id."'");
 	}
 	
-	function schedule_check_hours($schedule_id,$hours_checked){
+	function check_hours($schedule_id,$hours_checked){
 		$schedule_id=intval($schedule_id);
 		db_update('schedule',array('hours_checked'=>$hours_checked),"id='".$schedule_id."'");
 		return db_fetch_field("SELECT hours_checked FROM schedule WHERE id='".$schedule_id."'");
 	}
 	
-	function schedule_add($data){
+	function add($data){
 		//插入一条日程，返回插入的id
 		$data['fee'] = (int)$data['fee'];
 		$data['hours_own'] = round(($data['time_end']-$data['time_start'])/3600,2);
@@ -89,15 +89,15 @@ class Schedule_model extends CI_Model{
 		return db_insert('schedule',$data);
 	}
 	
-	function schedule_delete($schedule_id){
+	function delete($schedule_id){
 		db_delete('schedule',"id='".intval($schedule_id)."' AND uid='".$_SESSION['id']."'");	
 	}
 	
-	function schedule_update($schedule_id,$data){
+	function update($schedule_id,$data){
 		db_update('schedule',$data,"id='".intval($schedule_id)."'");
 	}
 	
-	function schedule_calculateTime($case,$client=NULL,$staff=NULL){
+	function calculateTime($case,$client=NULL,$staff=NULL){
 		$q="SELECT SUM(IF(hours_checked IS NULL,0,hours_checked)) AS time FROM schedule WHERE `case`='".$case."'";
 		
 		if(!is_null($client)){

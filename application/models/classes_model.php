@@ -4,12 +4,12 @@ class Classes_model extends CI_Model{
 		parent::__construct();
 	}
 
-	function class_fetch($id){
+	function fetch($id){
 		$query="SELECT * FROM class WHERE id='".$id."'";
 		return db_fetch_first($query,true);
 	}
 	
-	function class_check($class_name,$data_type='id',$show_error=true,$save_to=NULL){
+	function check($class_name,$data_type='id',$show_error=true,$save_to=NULL){
 		//$data_type:id,array
 		if(!$class_name){
 			if($show_error){
@@ -50,7 +50,7 @@ class Classes_model extends CI_Model{
 	}
 	
 	
-	function class_fetchByStudentId($student_id){
+	function fetchByStudentId($student_id){
 		return db_fetch_first("SELECT * FROM class WHERE id = (SELECT class FROM student_class WHERE student = '".$student_id."' AND term='".$_SESSION['global']['current_term']."')");
 	}
 }

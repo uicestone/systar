@@ -4,7 +4,7 @@ class Cases_model extends CI_Model{
 		parent::__construct();
 	}
 
-	function case_fetch($id){
+	function fetch($id){
 		//finance和manager可以看到所有案件，其他律师只能看到自己涉及的案件
 		$query="
 		SELECT * 
@@ -17,7 +17,7 @@ class Cases_model extends CI_Model{
 		return db_fetch_first($query,true);
 	}
 	
-	function case_add($data){
+	function add($data){
 		$field=db_list_fields('case');
 	    $data=array_keyfilter($data,$field);
 	    $data['display']=1;
@@ -26,7 +26,7 @@ class Cases_model extends CI_Model{
 	    return db_insert('case',$data);
 	}
 	
-	function case_update($case_id,$data){
+	function update($case_id,$data){
 		$field=db_list_fields('case');
 	    $data=array_keyfilter($data,$field);
 		$data+=uidTime();
@@ -34,7 +34,7 @@ class Cases_model extends CI_Model{
 		return db_update('case',$data,"id='".$case_id."'");
 	}
 	
-	function case_addDocument($case,$data){
+	function addDocument($case,$data){
 		$field=array('name','type','doctype','doctype_other','size','comment');
 		$data=array_keyfilter($data,$field);
 		$data['case']=$case;
@@ -43,7 +43,7 @@ class Cases_model extends CI_Model{
 		return db_insert('case_document',$data);
 	}
 	
-	function case_addFee($case,$data){
+	function addFee($case,$data){
 	    $field=array('fee','type','receiver','condition','pay_time','comment');
 		$data=array_keyfilter($data,$field);
 		$data['case']=$case;
@@ -51,11 +51,11 @@ class Cases_model extends CI_Model{
 		return db_insert('case_fee',$data);
 	}
 	
-	function case_addFeeTiming($case,$data){
+	function addFeeTiming($case,$data){
 		//TODO case_addFeeTiming
 	}
 	
-	function case_addLawyer($case,$data){
+	function addLawyer($case,$data){
 		if(!isset($data['lawyer'])){
 			return false;
 		}
@@ -73,7 +73,7 @@ class Cases_model extends CI_Model{
 		
 		return db_insert('case_lawyer',$data);
 	}
-	function case_getStatus($is_reviewed,$locked,$apply_file,$is_query,$finance_review,$info_review,$manager_review,$filed,$contribute_sum,$uncollected){
+	function getStatus($is_reviewed,$locked,$apply_file,$is_query,$finance_review,$info_review,$manager_review,$filed,$contribute_sum,$uncollected){
 		$status_expression='';
 	
 		$file_review=array(
@@ -162,7 +162,7 @@ class Cases_model extends CI_Model{
 		return $status_expression;
 	}
 	
-	function case_getStatusById($case_id){
+	function getStatusById($case_id){
 		$case_data=db_fetch_first("SELECT is_reviewed,type_lock,client_lock,lawyer_lock,fee_lock,is_query,apply_file,finance_review,info_review,manager_review,filed FROM `case` WHERE id = '".$case_id."'");
 		extract($case_data);
 		if($type_lock && $client_lock && $lawyer_lock && $fee_lock){
@@ -192,14 +192,14 @@ class Cases_model extends CI_Model{
 		return case_getStatus($is_reviewed,$locked,$apply_file,$is_query,$finance_review,$info_review,$manager_review,$filed,$contribute_sum,$uncollected);
 	}
 	
-	function case_reviewMessage($reviewWord,$lawyers){
+	function reviewMessage($reviewWord,$lawyers){
 		$message='案件[url=http://sys.lawyerstars.com/case?edit='.post('case/id').']'.strip_tags(post('case/name')).'[/url]'.$reviewWord.'，"'.post('review_message').'"';
 		foreach($lawyers as $lawyer){
 			sendMessage($lawyer,$message);
 		}
 	}
 	
-	function case_getIdByCaseFee($case_fee){
+	function getIdByCaseFee($case_fee){
 		return db_fetch_field("SELECT `case` FROM case_fee WHERE id='".intval($case_fee)."'",'case');
 	}
 	
@@ -207,7 +207,7 @@ class Cases_model extends CI_Model{
 		日志添加界面，根据日志类型获得案件列表
 		$schedule_type:0:案件,1:所务,2:营销
 	*/
-	function case_getListByScheduleType($schedule_type){
+	function getListByScheduleType($schedule_type){
 		
 		$option_array=array();
 		
@@ -237,7 +237,7 @@ class Cases_model extends CI_Model{
 	}
 	
 	//根据客户id获得其参与案件的收费
-	function case_getFeeListByClient($client_id){
+	function getFeeListByClient($client_id){
 		$option_array=array();
 		
 		$q_option_array="
@@ -255,7 +255,7 @@ class Cases_model extends CI_Model{
 	}
 	
 	//根据案件ID获得收费array
-	function case_getFeeOptions($case_id){
+	function getFeeOptions($case_id){
 		$option_array=array();
 		
 		$q_option_array="
@@ -272,7 +272,7 @@ class Cases_model extends CI_Model{
 		return $option_array;	
 	}
 	
-	function case_feeConditionPrepend($case_fee_id,$new_condition){
+	function feeConditionPrepend($case_fee_id,$new_condition){
 		global $_G;
 		
 		db_update('case_fee',array('condition'=>"_CONCAT('".$new_condition."\\n',`condition`)_",'uid'=>$_SESSION['id'],'username'=>$_SESSION['username'],'time'=>$_G['timestamp']),"id='".$case_fee_id."'");
@@ -280,12 +280,12 @@ class Cases_model extends CI_Model{
 		return db_fetch_field("SELECT `condition` FROM case_fee WHERE id = '".$case_fee_id."'");
 	}
 	
-	function case_addClient($case_id,$client_id,$role){
+	function addClient($case_id,$client_id,$role){
 		return db_insert('case_client',array('case'=>$case_id,'client'=>$client_id,'role'=>$role));
 	}
 	
 	//增减案下律师的时候自动计算贡献
-	function case_calcContribute($case_id){
+	function calcContribute($case_id){
 		$case_lawyer_array=db_toArray("SELECT id,lawyer,role FROM case_lawyer WHERE `case`='".$case_id."'");
 		
 		$case_lawyer_array=array_sub($case_lawyer_array,'role','id');
@@ -329,7 +329,7 @@ class Cases_model extends CI_Model{
 		}
 	}
 	
-	function case_lawyerRoleCheck($case_id,$new_role,$actual_contribute=NULL){
+	function lawyerRoleCheck($case_id,$new_role,$actual_contribute=NULL){
 		if(strpos($new_role,'信息提供')!==false && db_fetch_field("SELECT SUM(contribute) FROM case_lawyer WHERE role LIKE '信息提供%' AND `case`='".$case_id."'")+substr($new_role,15,2)/100>0.2){
 			//信息贡献已达到20%
 			showMessage('信息提供贡献已满额','warning');
@@ -372,7 +372,7 @@ class Cases_model extends CI_Model{
 		}
 	}
 	
-	function case_getRoles($case_id){
+	function getRoles($case_id){
 		if($case_role=db_toArray("SELECT lawyer,role FROM case_lawyer WHERE `case`='".$case_id."'")){
 			return $case_role;
 		}else{
@@ -380,7 +380,7 @@ class Cases_model extends CI_Model{
 		}
 	}
 	
-	function case_getPartner($case_role){
+	function getPartner($case_role){
 		if(empty($case_role)){
 			return false;
 		}
@@ -392,7 +392,7 @@ class Cases_model extends CI_Model{
 		return false;
 	}
 	
-	function case_getlawyers($case_role){
+	function getlawyers($case_role){
 		if(empty($case_role)){
 			return false;
 		}
@@ -405,7 +405,7 @@ class Cases_model extends CI_Model{
 		return $lawyers;
 	}
 	
-	function case_getMyRoles($case_role){
+	function getMyRoles($case_role){
 		if(empty($case_role)){
 			return false;
 		}
@@ -418,7 +418,7 @@ class Cases_model extends CI_Model{
 		return $my_role;
 	}
 	
-	function case_getClientList($case_id,$client_lock){
+	function getClientList($case_id,$client_lock){
 	//案件相关人信息
 		$query="
 			SELECT case_client.id,case_client.client,case_client.role,
@@ -480,7 +480,7 @@ class Cases_model extends CI_Model{
 		return fetchTableArray($query,$field);
 	}
 	
-	function case_getStaffList($case_id,$staff_lock,$timing_fee){
+	function getStaffList($case_id,$staff_lock,$timing_fee){
 	//案件律师信息
 		$query="
 			SELECT
@@ -526,7 +526,7 @@ class Cases_model extends CI_Model{
 		return fetchTableArray($query,$field);
 	}
 	
-	function case_getFeeList($case_id,$fee_lock){
+	function getFeeList($case_id,$fee_lock){
 	//案件律师费约定信息
 		$query="
 			SELECT case_fee.id,case_fee.type,case_fee.condition,case_fee.pay_time,case_fee.fee,case_fee.reviewed,
@@ -564,12 +564,12 @@ class Cases_model extends CI_Model{
 		return fetchTableArray($query,$field);
 	}
 	
-	function case_getTimingFeeString($case_id){
+	function getTimingFeeString($case_id){
 		$query="SELECT CONCAT('包含',included_hours,'小时，','账单日：',bill_day,'，付款日：',payment_day,'，付款周期：',payment_cycle,'个月，合同周期：',contract_cycle,'个月，','合同起始日：',FROM_UNIXTIME(time_start,'%Y-%m-%d')) AS case_fee_timing_string FROM case_fee_timing WHERE `case`='".$case_id."'";
 		return db_fetch_field($query);
 	}
 	
-	function case_getFeeMiscList($case_list,$fee_lock){
+	function getFeeMiscList($case_list,$fee_lock){
 		$query="
 			SELECT case_fee.id,case_fee.type,case_fee.receiver,case_fee.comment,case_fee.pay_time,case_fee.fee,
 				if(SUM(account.amount) IS NULL,'',SUM(account.amount)) AS fee_received
@@ -598,7 +598,7 @@ class Cases_model extends CI_Model{
 		return fetchTableArray($query,$field);
 	}
 	
-	function case_getDocumentList($case_id,$apply_file=false){
+	function getDocumentList($case_id,$apply_file=false){
 		$query="
 			SELECT id,name,type,IF(doctype='其他',doctype_other,doctype) AS doctype,comment,time,username
 			FROM 
@@ -640,7 +640,7 @@ class Cases_model extends CI_Model{
 		return fetchTableArray($query,$field);
 	}
 	
-	function case_getDocumentCatalog($case_id,$choosen_documents){
+	function getDocumentCatalog($case_id,$choosen_documents){
 		$query="
 			SELECT * FROM(
 				SELECT DISTINCT doctype FROM case_document WHERE `case`='$case_id' AND (".db_implode($choosen_documents,' OR ','id','=',"'","'",'`','key').") AND doctype<>'其他' ORDER BY doctype
@@ -653,7 +653,7 @@ class Cases_model extends CI_Model{
 		return $doctypes;
 	}
 	
-	function case_getScheduleList($case_id){
+	function getScheduleList($case_id){
 		$query="SELECT *
 			FROM 
 				schedule
@@ -671,7 +671,7 @@ class Cases_model extends CI_Model{
 		return fetchTableArray($query,$field);
 	}
 	
-	function case_getPlanList($case_id){
+	function getPlanList($case_id){
 		$query="SELECT *
 			FROM 
 				schedule
@@ -689,7 +689,7 @@ class Cases_model extends CI_Model{
 		return fetchTableArray($query,$field);
 	}
 	
-	function case_getClientRole($case_id){
+	function getClientRole($case_id){
 		//获得当前案件的客户-相对方名称
 		$query="
 			SELECT * FROM
@@ -714,7 +714,7 @@ class Cases_model extends CI_Model{
 	 * 根据案件信息，获得案号
 	 * $case参数为array，需要包含is_query,filed,classification,type,type_lock,first_contact/time_contract键
 	 */
-	function case_getNum($case,$case_client_role=NULL){
+	function getNum($case,$case_client_role=NULL){
 		global $_G;
 		$case_num=array();
 		

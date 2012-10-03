@@ -5,13 +5,13 @@ class Document_model extends CI_Model{
 		require 'class/filetype.php';
 	}
 	
-	function document_getMime($file_extension){
+	function getMime($file_extension){
 		$file_extension=strtolower($file_extension);
 		$filetype=new Filetype();
 		return $filetype->type[$file_extension];
 	}
 	
-	function document_openInBrowser($file_extension){
+	function openInBrowser($file_extension){
 		$file_extension=strtolower($file_extension);
 		$filetype=new Filetype();
 		if(in_array($file_extension,$filetype->open_in_browser)){
@@ -21,7 +21,7 @@ class Document_model extends CI_Model{
 		}
 	}
 	
-	function document_getExtension($filename){
+	function getExtension($filename){
 		if(preg_match('/\.(\w*?)$/',$filename,$extname_match)){
 			return $extname_match[1];
 		}else{
@@ -29,7 +29,7 @@ class Document_model extends CI_Model{
 		}
 	}
 	
-	function document_exportHead($filename){
+	function exportHead($filename){
 		$ua = $_SERVER["HTTP_USER_AGENT"];
 		
 		$encoded_filename = urlencode($filename);

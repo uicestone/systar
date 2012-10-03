@@ -4,12 +4,12 @@ class Student_model extends CI_Model{
 		parent::__construct();
 	}
 
-	function student_fetch($id){
+	function fetch($id){
 		$query="SELECT * FROM student WHERE id='".$id."'";
 		return db_fetch_first($query,true);
 	}
 	
-	function student_update($student_id=NULL){
+	function update($student_id=NULL){
 		db_query("DROP TABLE IF EXISTS view_student");
 		db_query("
 			CREATE TABLE view_student
@@ -37,7 +37,7 @@ class Student_model extends CI_Model{
 		db_query("ALTER TABLE  `view_student` ADD FOREIGN KEY (  `id` ) REFERENCES  `starsys`.`student` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE");
 	}
 	
-	function student_changeClass($student_id,$old_class_id,$new_class_id){
+	function changeClass($student_id,$old_class_id,$new_class_id){
 		if($old_class_id!=$new_class_id){
 			$new_num_in_class=db_fetch_field("SELECT MAX(num_in_class)+1 FROM student_class WHERE class='".$new_class_id."' AND term='".$_SESSION['global']['current_term']."'");
 			
@@ -53,7 +53,7 @@ class Student_model extends CI_Model{
 		}
 	}
 	
-	function student_addRelatives($student,$relative_data){
+	function addRelatives($student,$relative_data){
 		$relatives=array(
 			'student'=>$student,
 			'name'=>$relative_data['name'],
@@ -67,7 +67,7 @@ class Student_model extends CI_Model{
 		return db_insert('student_relatives',$relatives);
 	}
 	
-	function student_addBehaviour($student,$data){
+	function addBehaviour($student,$data){
 		$behaviour=array(
 			'student'=>$student,
 			'name'=>$data['name'],
@@ -82,7 +82,7 @@ class Student_model extends CI_Model{
 		return db_insert('student_behaviour',$behaviour);
 	}
 	
-	function student_addComment($student,$data){
+	function addComment($student,$data){
 		$field=array('title','content','reply_to');
 		foreach($data as $key => $value){
 			if(!in_array($key,$field)){
@@ -97,12 +97,12 @@ class Student_model extends CI_Model{
 		return db_insert('student_comment',$data);
 	}
 	
-	function student_deleteRelatives($student_relatives){
+	function deleteRelatives($student_relatives){
 		$condition = db_implode($student_relatives, $glue = ' OR ','id','=',"'","'", '`','key');
 		db_delete('student_relatives',$condition);
 	}
 	
-	function student_get_scores($student){
+	function get_scores($student){
 		$query="SELECT exam_name,course_1,course_2,course_3,course_4,course_5,course_6,course_7,course_8,course_9,course_10,course_sum_3,course_sum_5,course_sum_8,rank_1,rank_2,rank_3,rank_4,rank_5,rank_6,rank_7,rank_8,rank_9,rank_10,rank_sum_3,rank_sum_5,rank_sum_8
 			FROM view_score WHERE student = '".$student."'
 		ORDER BY exam DESC";
@@ -124,7 +124,7 @@ class Student_model extends CI_Model{
 		return fetchTableArray($query,$field);
 	}
 	
-	function student_testClassDiv($div,$data,$classes,$gender,$showResult=false){
+	function testClassDiv($div,$data,$classes,$gender,$showResult=false){
 		global $tests,$students,$subjects;
 	
 		$tests++;
@@ -197,7 +197,7 @@ class Student_model extends CI_Model{
 		return $aver_std_sum;
 	}
 	
-	function student_getIdByParentUid($parent_uid){
+	function getIdByParentUid($parent_uid){
 		return db_fetch_field("SELECT id FROM student WHERE parent = '".$parent_uid."'");
 	}
 }

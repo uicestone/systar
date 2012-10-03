@@ -4,7 +4,7 @@ class Express_model extends CI_Model{
 		parent::__construct();
 	}
 
-	function express_fetch($id){
+	function fetch($id){
 		$query="SELECT * FROM express WHERE id='".$id."'";
 		return db_fetch_first($query,true);
 	}
