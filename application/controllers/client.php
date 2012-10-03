@@ -2,10 +2,10 @@
 class Client extends SS_Controller{
 	function __construct(){
 		parent::__construct();
+		$this->load->model('client_model','model');
 	}
 	
 	function index($function=NULL){
-		$this->load->model('client_model');
 		
 		if(is_posted('delete')){
 			$_POST=array_trim($_POST);
@@ -65,12 +65,12 @@ class Client extends SS_Controller{
 			)
 		);
 		$menu=array(
-		'head'=>'<div class="left">'.
-					'<input type="submit" name="delete" value="删除" />'.
-				'</div>'.
-				'<div class="right">'.
-					$list_locator.
-				'</div>'
+			'head'=>'<div class="left">'.
+						'<input type="submit" name="delete" value="删除" />'.
+					'</div>'.
+					'<div class="right">'.
+						$list_locator.
+					'</div>'
 		);
 		
 		$_SESSION['last_list_action']=$_SERVER['REQUEST_URI'];
@@ -91,7 +91,6 @@ class Client extends SS_Controller{
 	}
 	
 	function edit($id=NULL){
-		$this->load->model('client_model','model');
 		$this->load->model('staff_model');
 		
 		$this->getPostData($id,function(){
@@ -296,6 +295,28 @@ class Client extends SS_Controller{
 		
 		}else{
 			$this->load->view('client/add_natural');
+		}
+	}
+	
+	function autocomplete(){$type=NULL;
+		got('type') && $type=$_GET['type'];
+		
+		$result=client_match($_POST['term'],'client',$type);
+		
+		$array=array();
+		
+		foreach($result as $line_id => $content_array){
+			$array[$line_id]['label']=$content_array['name'];
+			$array[$line_id]['value']=$content_array['id'];
+		}
+		echo json_encode($array);
+	}
+	
+	function getSourceLawyer(){
+		model('staff');
+		$staff=staff_fetch(client_check($_POST['client_name'],'source_lawyer'));
+		if($staff){
+			echo $staff['name'];
 		}
 	}
 }
