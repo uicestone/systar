@@ -1,7 +1,6 @@
 <?php
 class Schedule extends SS_controller{
 	public $default_method;
-	public $data;//传递给模板参数
 	
 	function __construct(){
 		parent::__construct();
@@ -38,7 +37,11 @@ class Schedule extends SS_controller{
 		$this->data=compact('table_news','sidebar_table');
 	}
 	
-	function lists(){
+	function mine(){
+		$this->lists('mine');
+	}
+	
+	function lists($para=NULL){
 		if(is_posted('review_selected') && is_logged('partner')){
 			//在列表中批量审核所选日志
 			schedule_review_selected();
@@ -68,22 +71,22 @@ class Schedule extends SS_controller{
 		";
 		
 		$condition='';
+		if($para=='mine'){
+			$condition.=" AND schedule.`uid`='".$_SESSION['id']."'";
+		}else{
+			if(got('staff')){
+				$condition.=" AND schedule.`uid`='".intval($_GET['staff'])."'";
+			}
+		}
+
 		if(got('case')){
 			$condition.=" AND schedule.`case`='".intval($_GET['case'])."'";
 		}
-		
-		if(got('staff')){
-			$condition.=" AND schedule.`uid`='".intval($_GET['staff'])."'";
-		}
-		
-		if(got('mine')){
-			$condition.=" AND schedule.`uid`='".$_SESSION['id']."'";
-		}
-		
+			
 		if(got('client')){
 			$condition.=" AND schedule.client='".intval($_GET['client'])."'";
 		}
-		
+									
 		$q.=$condition;
 		
 		$search_bar=processSearch($q,array('case.name'=>'案件','staff.name'=>'人员'));
@@ -140,7 +143,7 @@ class Schedule extends SS_controller{
 			",'orderby'=>false)
 		);
 		
-		if(got('mine')){
+		if($para=='mine'){
 			unset($field['staff_name']);
 		}
 		
@@ -158,10 +161,10 @@ class Schedule extends SS_controller{
 			$listLocator=processMultiPage($q);
 		}
 		
-		$table_array=fetchTableArray($q,$field);
+		$table=fetchTableArray($q,$field);
 		
 		if(is_posted('export')){
-			require 'view/schedule_billdoc.php';
+			$this->load->view('schedule/billdoc');
 		
 		}else{
 			$menu=array(
@@ -175,6 +178,10 @@ class Schedule extends SS_controller{
 			);
 			
 			$_SESSION['last_list_action']=$_SERVER['REQUEST_URI'];
+			
+			$this->data+=compact('menu','table','search_bar','date_range_bar');
+			
+			$this->load->view('schedule/lists',$this->data);
 		}
 	}
 	
@@ -369,14 +376,14 @@ class Schedule extends SS_controller{
 		exportTable($q,$field,$submitBar,true);
 	}
 	
-	function readCalendar(){
-		if(got('id')){
+	function readCalendar($id=NULL){
+		if(isset($id)){
 			//获取指定的一个日程
-			echo json_encode(schedule_fetch_single($_GET['id']));
+			echo json_encode($this->schedule->fetch_single(intval($id)));
 		
 		}else{
 			//获得当前视图的全部日历，根据$_GET['start'],$_GET['end'](timestamp)
-			echo json_encode(schedule_fetch_range($_GET['start'],$_GET['end'],$_GET['staff'],$_GET['case']));
+			echo json_encode($this->schedule->fetch_range($_GET['start'],$_GET['end'],$_GET['staff'],$_GET['case']));
 		}
 	}
 	

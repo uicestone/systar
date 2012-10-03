@@ -29,8 +29,6 @@ class Schedule_model extends CI_Model{
 	
 	function fetch_range($start,$end,&$staff,&$case){
 	
-		global $_G;
-		
 		$q_calendar="SELECT * FROM schedule WHERE display=1 AND time_start>='".intval($start)."' AND time_start<'".intval($end)."'";
 		
 		if($staff){
@@ -53,7 +51,7 @@ class Schedule_model extends CI_Model{
 				'start'=>date('Y-m-d H:i',$schedule['time_start']),
 				'end'=>date('Y-m-d H:i',$schedule['time_end']),
 				'allDay'=>(bool)$schedule['all_day'],
-				'color'=>($schedule['time_start']>$_G['timestamp']?'#E35B00':($schedule['completed']?'#36C':'#555'))
+				'color'=>($schedule['time_start']>$this->config->item('timestamp')?'#E35B00':($schedule['completed']?'#36C':'#555'))
 			);
 		}
 	

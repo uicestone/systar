@@ -67,7 +67,6 @@ class user extends SS_controller{
 			}
 		}
 		session_destroy();
-		$this->load->view('user/login');
 	}
 
 	function profile(){

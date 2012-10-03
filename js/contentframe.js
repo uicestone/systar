@@ -13,7 +13,7 @@ $(function(){
 		if($('#toolBar').hasClass('minimized')){
 			minimized=1;
 		}
-		$.post('misc?set_session',{minimized:minimized},function(result){
+		$.post('misc/setsession',{minimized:minimized},function(result){
 			if(result!='success'){
 				showMessage('与服务器通信失败','warning');
 				console.log(result);

@@ -11,7 +11,7 @@ $(function(){
 	if(window.location.hash){
 		$('#contentFrame').attr('src',window.location.hash.substr(1));
 	}else{
-		$.get('misc?get_session&var=default_controller',function(default_controller){
+		$.get('misc/getsession/default_controller',function(default_controller){
 			$('#contentFrame').attr('src',default_controller);
 		});
 	}

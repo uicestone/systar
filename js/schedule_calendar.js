@@ -21,7 +21,7 @@ $(function() {
 		select: function(startDate,endDate, allDay) {
 			var dialog=createDialog('新日程');
 
-			$.get('misc?get_html&name=schedule_calendar_add',function(schedule_calendar_add_form){
+			$.get('misc/gethtml/schedule_calendar_add',function(schedule_calendar_add_form){
 
 				//获取表单html
 				dialog.html(schedule_calendar_add_form).find('#combobox').combobox();
@@ -72,7 +72,7 @@ $(function() {
 							var postData=$.extend($('#schedule').serializeJSON(),{time_start:start,time_end:end,all_day:Number(allDay)});
 							delete postData.type;
 
-							$.post("schedule?writecalendar",postData,
+							$.post("schedule/writecalendar",postData,
 								function(data){
 									if(!isNaN(data) && data!=0){
 										calendar.fullCalendar('renderEvent',
@@ -101,10 +101,10 @@ $(function() {
 		},
 		
 		editable: true,
-		events: changeURLPar(location.href,'readcalendar',1),
+		events: location.href+'/readcalendar',
 		
 		eventClick: function(event) {
-			$.get("schedule?readcalendar&id="+event.id,function(result){
+			$.get("schedule/readcalendar/"+event.id,function(result){
 				try{
 					var schedule=$.parseJSON(result);
 				}catch(e){
@@ -130,7 +130,7 @@ $(function() {
 					{
 						text: "编辑",
 						click: function(){
-							$.get('misc?get_html&name=schedule_calendar_add&edit',function(html){
+							$.get('misc/gethtml/schedule_calendar_add?edit',function(html){
 								dialog.html(html);
 								$('[name="name"]').val(schedule.name);
 								$('[name="content"]').val(schedule.content);

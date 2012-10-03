@@ -177,15 +177,6 @@ function preController(){
 	}elseif($class=='misc'){
 		$CFG->set_item('require_export',false);
 
-		//包含model下所有库
-		$handle = opendir('model');
-		while($filename=readdir($handle)){
-			if($filename!='.' && $filename!='..' && $filename!='company.php' && preg_match('/.*?\.php$/',$filename)){
-				require('model/'.$filename);
-			}
-		}
-
-
 	}elseif($class=='news'){
 		if(($method=='add' || $method=='edit') && is_permitted($class,'add')){
 			$CFG->set_item('as_popup_window',true);

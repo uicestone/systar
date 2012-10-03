@@ -76,15 +76,15 @@ class Misc extends SS_controller{
 		}
 	}
 	
-	function getSession(){
-		if(got('var','minimized')){
+	function getSession($var){
+		if($var=='minimized'){
 			echo (bool)array_dir('_SESSION/minimized');
 		}
-		if(got('var','scroll')){
+		if($var=='scroll'){
 			echo array_dir('_SESSION/'.$_POST['controller'].'/'.$_POST['action'].'/scroll_top');
 		}
-		if(got('var','default_controller')){
-			echo $_G['default_controller'];
+		if($var=='default_controller'){
+			echo $this->config->item('default_controller');
 		}
 	}
 	

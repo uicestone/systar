@@ -5,7 +5,6 @@ class Achievement_model extends CI_Model{
 	}
 
 	function sum($type,$range=NULL,$time_start=NULL,$time_end=NULL,$ten_thousand_unit=true){
-		global $_G;
 		/*
 		计算各项业绩总值
 		$type:contracted,estimated,collected
@@ -15,12 +14,12 @@ class Achievement_model extends CI_Model{
 		*/
 		if(is_null($time_start)){
 			//$time_start默认为本年年初的timestamp
-			$time_start=strtotime(date('Y',$_G['timestamp']).'-01-01');
+			$time_start=strtotime(date('Y',$this->config->item('timestamp')).'-01-01');
 		}
 		
 		if(is_null($time_end)){
 			//$time_end默认为次年年初的timestamp
-			$time_end=strtotime((date('Y',$_G['timestamp'])+1).'-01-01');
+			$time_end=strtotime((date('Y',$this->config->item('timestamp'))+1).'-01-01');
 		}
 		
 		$date_start=date('Y-m-d',$time_start);

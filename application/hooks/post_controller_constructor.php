@@ -10,5 +10,23 @@ function postControllerConstructor(){
 	}
 	
 	$CI->load->model('company_model','company');
+	
+	if(is_file(APPPATH.'models/'.$class.'_model.php')){
+		$CI->load->model($class.'_model',$class);
+	}
+
+	if($CI->config->item('require_export')){
+		if(IN_UICE=='nav'){
+			$CI->load->view('head_nav');
+		}elseif(IN_UICE=='frame'){
+			$CI->load->view('head_frame');
+		}else{
+			$CI->load->view('head');
+		}
+
+		if($CI->config->item('require_menu')){
+			$CI->load->view('menu');
+		}
+	}
 }
 ?>

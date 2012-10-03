@@ -1,6 +1,8 @@
 <?php
 class SS_controller extends CI_Controller{
 	
+	public $data=array();//传递给模板的参数
+	
 	function __construct(){
 		parent::__construct();
 	}
