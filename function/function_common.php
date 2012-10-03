@@ -194,7 +194,7 @@ function is_logged($check_type=NULL,$refresh_permission=false){
 function preparePermission(){
 	//准备权限参数，写入session
 	
-	global $_G;
+	global $CFG;
 	
 	$q_affair="
 		SELECT
@@ -203,7 +203,7 @@ function preparePermission(){
 			affair.add_action,affair.add_target,
 			`group`.action AS `action`, group.display_in_nav AS display
 		FROM affair LEFT JOIN `group` ON affair.name=`group`.affair 
-		WHERE group.company='".$_G['company']."'
+		WHERE group.company='".$CFG->item('company')."'
 			AND affair.is_on=1
 			AND (".db_implode($_SESSION['usergroup'], $glue = ' OR ',$keyname='group.name').") 
 		GROUP BY affair,action

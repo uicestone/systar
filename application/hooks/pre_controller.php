@@ -55,12 +55,6 @@ function preController(){
 
 	define('IN_UICE',$class);//定义$class常量，即控制器的名称
 
-	if(is_posted('submit/cancel') && is_permitted($class)){
-		$CFG->set_item('require_export',false);
-		$class='misc';
-		$method='cancel';
-	}
-
 	if($class!='user' && !is_logged(NULL,true)){
 		//对于非用户登录/登出界面，检查权限，弹出未登陆
 		redirect('user/login','js',NULL,true);
@@ -264,6 +258,12 @@ function preController(){
 		if(is_posted('export_to_excel')){
 			$CFG->set_item('require_export',false);
 		}
+	}
+
+	if(is_posted('submit/cancel') && is_permitted($class)){
+		$CFG->set_item('require_export',false);
+		$class='misc';
+		$method='cancel';
 	}
 }
 ?>

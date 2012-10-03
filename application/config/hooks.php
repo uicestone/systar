@@ -17,14 +17,12 @@ $hook['pre_controller']=array(
 );
 
 $hook['post_controller_constructor']=array(
-	'class'=>'PostControllerConstructor',
 	'function'=>'postControllerConstructor',
 	'filename'=>'post_controller_constructor.php',
 	'filepath'=>'hooks'
 );
 
 $hook['post_controller']=array(
-	'class'=>'PostController',
 	'function'=>'postController',
 	'filename'=>'post_controller.php',
 	'filepath'=>'hooks'

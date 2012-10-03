@@ -1,13 +1,9 @@
 <?php
-class PostController extends SS_controller{
-	function __construct() {
-		parent::__construct();
-	}
+function postController(){
+	$CI=&get_instance();
 	
-	function postController(){
-		if($this->config->item('require_export')){
-			$this->load->view('foot');
-		}
+	if($CI->config->item('require_export')){
+		$CI->load->view('foot');
 	}
 }
 ?>

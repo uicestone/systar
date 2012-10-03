@@ -1,11 +1,11 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" id="nav">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><![endif]-->
-    <link rel="shortcut icon" href="images/favicon.ico" />
-    <link rel="stylesheet" href="style/common.css" type="text/css" />
-    <title>navFrame - Systar</title>
+	<link rel="shortcut icon" href="images/favicon.ico" />
+	<link rel="stylesheet" href="style/common.css" type="text/css" />
+	<title>navFrame - Systar</title>
 	<? javascript('jquery')?>
 	<? javascript('common')?>
 </head>
