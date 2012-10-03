@@ -1,14 +1,18 @@
 <?php
 class SS_controller extends CI_Controller{
+	
+	private $_G;
+	
 	function __construct(){
 		parent::__construct();
+		global $_G;
+		$this->_G=$this->_G;
 	}
 	
 	/*
 	 * 在每个add页面之前获得数据ID，插入新数据或者根据数据ID获得数据数组
 	 */
 	function getPostData($id,$callback=NULL,$generate_new_id=true,$db_table=NULL){
-		global $_G;
 		if(isset($id)){
 			unset($_SESSION[IN_UICE]['post']);
 			post(IN_UICE.'/id',intval($id));
@@ -24,8 +28,8 @@ class SS_controller extends CI_Controller{
 	
 			if($generate_new_id){
 				if(is_null($db_table)){
-					if($_G['actual_table']!=''){
-						$db_table=$_G['actual_table'];
+					if($this->_G['actual_table']!=''){
+						$db_table=$this->_G['actual_table'];
 					}else{
 						$db_table=IN_UICE;
 					}
@@ -62,8 +66,6 @@ class SS_controller extends CI_Controller{
 	*/
 	function fetchTableArray($query,$field){
 		//if($_SESSION['username']=='陆秋石')showMessage($query,'notice');
-
-		global $_G;
 
 		$result=db_query($query);
 
@@ -369,10 +371,9 @@ class SS_controller extends CI_Controller{
 	 * 处理查询语句，添加搜索条件，返回一个搜索表单，配合view/*_*_sidebar.htm使用
 	 */
 	function processSearch(&$q,$fields){
-		global $_G;
 		if(is_posted('search_cancel')){
-			unset($_SESSION[IN_UICE][$_G['action']]['in_search_mod']);
-			unset($_SESSION[IN_UICE][$_G['action']]['keyword']);
+			unset($_SESSION[IN_UICE][$this->_G['action']]['in_search_mod']);
+			unset($_SESSION[IN_UICE][$this->_G['action']]['keyword']);
 		}
 
 		if(is_posted('search')){
@@ -423,7 +424,6 @@ class SS_controller extends CI_Controller{
 	 * 为sql语句添加排序依据，无反回值
 	 */
 	function processOrderby(&$q,$defaultOrder,$defaultMethod=NULL,$field_need_convert=array(),$only_table_of_the_page=true){
-		global $_G;
 		if (is_null(option('orderby'))){
 			option('orderby',$defaultOrder);
 		}
@@ -431,7 +431,7 @@ class SS_controller extends CI_Controller{
 			option('method',is_null($defaultMethod)?'ASC':$defaultMethod);
 		}
 
-		if($only_table_of_the_page && is_posted('orderby') && !is_null(option('orderby')) && $_POST['orderby']==$_SESSION[IN_UICE][$_G['action']]['orderby']){
+		if($only_table_of_the_page && is_posted('orderby') && !is_null(option('orderby')) && $_POST['orderby']==$_SESSION[IN_UICE][$this->_G['action']]['orderby']){
 			if(option('method')=='ASC'){
 				option('method','DESC');
 			}else{
@@ -459,10 +459,9 @@ class SS_controller extends CI_Controller{
 	 * 为查询语句加上日期条件
 	 */
 	function dateRange(&$q,$date_field,$date_field_is_timestamp=true){
-		global $_G;
 		if(is_posted('date_range_cancel')){
-			unset($_SESSION[IN_UICE][$_G['action']]['in_date_range']);
-			unset($_SESSION[IN_UICE][$_G['action']]['date_range']);
+			unset($_SESSION[IN_UICE][$this->_G['action']]['in_date_range']);
+			unset($_SESSION[IN_UICE][$this->_G['action']]['date_range']);
 		}
 
 		if(is_posted('date_range')){
@@ -513,11 +512,9 @@ class SS_controller extends CI_Controller{
 	 * TODO 添加addCondition()的描述
 	 */
 	function addCondition(&$q,$condition_array,$unset=array()){
-		global $_G;
-
 		foreach($unset as $changed_variable => $unset_variable){
 			if(is_posted($changed_variable)){
-				unset($_SESSION[IN_UICE][$_G['action']][$unset_variable]);
+				unset($_SESSION[IN_UICE][$this->_G['action']][$unset_variable]);
 			}
 		}
 
@@ -601,13 +598,12 @@ class SS_controller extends CI_Controller{
 	 * $after_update为数据库更新成功后，跳转前需要的额外操作
 	 */
 	function processSubmit($submitable,$after_update=NULL,$update_table=NULL,$set_display=true,$set_time=true,$set_user=true){
-		global $_G;
 		if($set_display){
 			post(IN_UICE.'/display',1);
 		}
 
 		if($set_time){
-			post(IN_UICE.'/time',$_G['timestamp']);
+			post(IN_UICE.'/time',$this->_G['timestamp']);
 		}
 
 		if($set_user){
@@ -615,11 +611,11 @@ class SS_controller extends CI_Controller{
 			post(IN_UICE.'/username',$_SESSION['username']);
 		}
 
-		post(IN_UICE.'/company',$_G['company']);
+		post(IN_UICE.'/company',$this->_G['company']);
 
 		if(is_null($update_table)){
-			if($_G['actual_table']!=''){
-				$update_table=$_G['actual_table'];
+			if($this->_G['actual_table']!=''){
+				$update_table=$this->_G['actual_table'];
 			}else{
 				$update_table=IN_UICE;
 			}
@@ -634,15 +630,15 @@ class SS_controller extends CI_Controller{
 
 				if(is_posted('submit/'.IN_UICE)){
 
-					if(!$_G['as_controller_default_page']){
+					if(!$this->_G['as_controller_default_page']){
 						unset($_SESSION[IN_UICE]['post']);
 					}
 
-					if($_G['as_popup_window']){
+					if($this->_G['as_popup_window']){
 						refreshParentContentFrame();
 						closeWindow();
 					}else{
-						if($_G['as_controller_default_page']){
+						if($this->_G['as_controller_default_page']){
 							showMessage('保存成功~');
 						}else{
 							redirect((sessioned('last_list_action')?$_SESSION['last_list_action']:IN_UICE));
@@ -661,12 +657,11 @@ class SS_controller extends CI_Controller{
 	}
 
 	function uidTime(){
-		global $_G;
 		$array=array(
 			'uid'=>$_SESSION['id'],
 			'username'=>$_SESSION['username'],
-			'time'=>$_G['timestamp'],
-			'company'=>$_G['company']
+			'time'=>$this->_G['timestamp'],
+			'company'=>$this->_G['company']
 		);
 		return $array;
 	}	

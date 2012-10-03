@@ -13,16 +13,16 @@ class Client extends SS_Controller{
 		}
 		
 		$q="
-		SELECT client.id,client.name,client.abbreviation,client.time,client.comment,
-			phone.content AS phone,address.content AS address
-		FROM `client` 
-			LEFT JOIN (
-				SELECT client,GROUP_CONCAT(content) AS content FROM client_contact WHERE type IN('手机','固定电话') GROUP BY client
-			)phone ON client.id=phone.client
-			LEFT JOIN (
-				SELECT client,GROUP_CONCAT(content) AS content FROM client_contact WHERE type='地址' GROUP BY client
-			)address ON client.id=address.client
-		WHERE display=1 AND classification='客户'
+			SELECT client.id,client.name,client.abbreviation,client.time,client.comment,
+				phone.content AS phone,address.content AS address
+			FROM `client` 
+				LEFT JOIN (
+					SELECT client,GROUP_CONCAT(content) AS content FROM client_contact WHERE type IN('手机','固定电话') GROUP BY client
+				)phone ON client.id=phone.client
+				LEFT JOIN (
+					SELECT client,GROUP_CONCAT(content) AS content FROM client_contact WHERE type='地址' GROUP BY client
+				)address ON client.id=address.client
+			WHERE display=1 AND classification='客户'
 		";
 		
 		$q_rows="
@@ -79,7 +79,7 @@ class Client extends SS_Controller{
 		
 		$data=compact('table','menu');
 		
-		$this->load->view('list');
+		$this->load->view('list',$data);
 	}
 
 	function potential(){
@@ -92,7 +92,7 @@ class Client extends SS_Controller{
 	
 	function edit($id=NULL){
 		$this->load->model('client_model','model');
-                $this->load->model('staff_model');
+		$this->load->model('staff_model');
 		
 		$this->getPostData($id,function(){
 			global $_G;

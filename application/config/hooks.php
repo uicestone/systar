@@ -11,23 +11,22 @@
 */
 
 $hook['pre_controller']=array(
-	'class'=>NULL,
 	'function'=>'preController',
-	'filename'=>'pre_controller',
+	'filename'=>'pre_controller.php',
 	'filepath'=>'hooks'
 );
 
 $hook['post_controller_constructor']=array(
-	'class'=>NULL,
+	'class'=>'PostControllerConstructor',
 	'function'=>'postControllerConstructor',
-	'filename'=>'post_controller_constructor',
+	'filename'=>'post_controller_constructor.php',
 	'filepath'=>'hooks'
 );
 
 $hook['post_controller']=array(
-	'class'=>NULL,
+	'class'=>'PostController',
 	'function'=>'postController',
-	'filename'=>'post_controller',
+	'filename'=>'post_controller.php',
 	'filepath'=>'hooks'
 );
 

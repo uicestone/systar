@@ -1,58 +1,56 @@
 <?php
 function preController(){
-	global $_G;
+	global $_G,$class,$function;
+	
+	define('IN_UICE',$class);//定义$class常量，即控制器的名称
 
-	$_G['controller']=$this->uri->segment(1);
-
-	define('IN_UICE',$_G['controller']);//定义IN_UICE常量，即控制器的名称
-
-	if(IN_UICE!='user' && !is_logged(NULL,true)){
+	if($class!='user' && !is_logged(NULL,true)){
 		//对于非用户登录/登出界面，检查权限，弹出未登陆
 		redirect('user/login','js',NULL,true);
 	}
 
 	//开始选择controller
-	if(in_array(IN_UICE,array('','nav'))){
+	if(in_array($class,array('frame','nav'))){
 		$_G['require_menu']=false;
 
-	}elseif(IN_UICE=='account'){
-		if(($this->uri->segment(2)=='add' || $this->uri->segment(2)=='edit') && is_permitted(IN_UICE,'add')){
+	}elseif($class=='account'){
+		if(($function=='add' || $function=='edit') && is_permitted($class,'add')){
 			$_G['as_popup_window']=true;
 
 		}
-	}elseif(IN_UICE=='case'){
-		if(($this->uri->segment(2)=='add' || $this->uri->segment(2)=='edit') && is_permitted(IN_UICE,'add')){
+	}elseif($class=='case'){
+		if(($function=='add' || $function=='edit') && is_permitted($class,'add')){
 			if(is_posted('submit/file_document_list')){
 				$_G['require_export']=false;
 			}
 
-		}elseif($this->uri->segment(2)=='write' && is_permitted(IN_UICE)){
+		}elseif($function=='write' && is_permitted($class)){
 			$_G['require_export']=false;
 
 		}
-	}elseif(IN_UICE=='client'){
-		if(($this->uri->segment(2)=='add'||$this->uri->segment(2)=='edit') && is_permitted(IN_UICE)){
+	}elseif($class=='client'){
+		if(($function=='add'||$function=='edit') && is_permitted($class)){
 			$_G['as_popup_window']=true;
 
-		}elseif($this->uri->segment(2)=='get_source_lawyer' && is_permitted(IN_UICE)){
+		}elseif($function=='get_source_lawyer' && is_permitted($class)){
 			$_G['require_export']=false;
 
-		}elseif($this->uri->segment(2)=='autocomplete'){
+		}elseif($function=='autocomplete'){
 			$_G['require_export']=false;
 
 		}
-	}elseif(IN_UICE=='contact'){
+	}elseif($class=='contact'){
 		$_G['actual_table']='client';
-		if(($this->uri->segment(2)=='add'||$this->uri->segment(2)=='edit') && is_permitted(IN_UICE)){
+		if(($function=='add'||$function=='edit') && is_permitted($class)){
 			$_G['as_popup_window']=true;
 
 		}
-	}elseif(IN_UICE=='cron'){
+	}elseif($class=='cron'){
 		ignore_user_abort();
 		set_time_limit(0);
 		//error_reporting('~E_ALL');
 
-		if($this->uri->segment(2)=='script'){
+		if($function=='script'){
 			$_G['action']='cron_'.$_GET['script'];
 
 		}/*else{
@@ -66,34 +64,34 @@ function preController(){
 			}
 		}*/
 
-	}elseif(IN_UICE=='document'){
-		if(is_posted('fileSubmit') && is_permitted(IN_UICE)){
+	}elseif($class=='document'){
+		if(is_posted('fileSubmit') && is_permitted($class)){
 			$_G['require_export']=false;
 
-		}elseif(is_posted('createDirSubmit') && is_permitted(IN_UICE)){
+		}elseif(is_posted('createDirSubmit') && is_permitted($class)){
 			$_G['require_export']=false;
 
-		}elseif(is_posted('fav') && is_permitted(IN_UICE)){
+		}elseif(is_posted('fav') && is_permitted($class)){
 			$_G['require_export']=false;
 
-		}elseif(is_posted('favDelete') && is_permitted(IN_UICE)){
+		}elseif(is_posted('favDelete') && is_permitted($class)){
 			$_G['require_export']=false;
 
-		}elseif(($this->uri->segment(2)=='view' || $this->uri->segment(2)=='office_document' || $this->uri->segment(2)=='instrument' || $this->uri->segment(2)=='contact_file' || $this->uri->segment(2)=='rules' || $this->uri->segment(2)=='contract') && is_permitted(IN_UICE)){//根据目录ID进行定位/文件ID则进行下载
+		}elseif(($function=='view' || $function=='office_document' || $function=='instrument' || $function=='contact_file' || $function=='rules' || $function=='contract') && is_permitted($class)){//根据目录ID进行定位/文件ID则进行下载
 
-			if($this->uri->segment(2)=='office_document'){
+			if($function=='office_document'){
 				$_GET['view']=869;
 
-			}elseif($this->uri->segment(2)=='instrument'){
+			}elseif($function=='instrument'){
 				$_GET['view']=870;
 
-			}elseif($this->uri->segment(2)=='contact_file'){
+			}elseif($function=='contact_file'){
 				$_GET['view']=872;
 
-			}elseif($this->uri->segment(2)=='rules'){
+			}elseif($function=='rules'){
 				$_GET['view']=874;
 
-			}elseif($this->uri->segment(2)=='contract'){
+			}elseif($function=='contract'){
 				$_GET['view']=873;
 			}
 
@@ -106,26 +104,26 @@ function preController(){
 				$_G['action']="document_download";
 				$_G['require_export']=false;
 			}else{
-				$_SESSION[IN_UICE]['upID']=$folder['parent'];
-				$_SESSION[IN_UICE]['currentDir']=$folder['name'];
-				$_SESSION[IN_UICE]['currentDirID']=$folder['id'];
-				$_SESSION[IN_UICE]['currentPath']=$folder['path'];
+				$_SESSION[$class]['upID']=$folder['parent'];
+				$_SESSION[$class]['currentDir']=$folder['name'];
+				$_SESSION[$class]['currentDirID']=$folder['id'];
+				$_SESSION[$class]['currentPath']=$folder['path'];
 			}
 
 		}
-	}elseif(IN_UICE=='evaluation'){
-		if($this->uri->segment(2)=='score' && is_permitted(IN_UICE)){
+	}elseif($class=='evaluation'){
+		if($function=='score' && is_permitted($class)){
 			$_G['as_popup_window']=true;
 
-		}elseif($this->uri->segment(2)=='score_write' && is_permitted(IN_UICE)){
+		}elseif($function=='score_write' && is_permitted($class)){
 			$_G['require_export']=false;
 
 		}
-	}elseif(IN_UICE=='file'){
-		if(!$this->uri->segment(2)=='action'){
+	}elseif($class=='file'){
+		if(!$function=='action'){
 			$_SESSION['last_list_action']='file';
 		}
-	}elseif(IN_UICE=='misc'){
+	}elseif($class=='misc'){
 		$_G['require_export']=false;
 
 		//包含model下所有库
@@ -137,93 +135,84 @@ function preController(){
 		}
 
 
-	}elseif(IN_UICE=='news'){
-		if(($this->uri->segment(2)=='add' || $this->uri->segment(2)=='edit') && is_permitted(IN_UICE,'add')){
+	}elseif($class=='news'){
+		if(($function=='add' || $function=='edit') && is_permitted($class,'add')){
 			$_G['as_popup_window']=true;
 
 		}
-	}elseif(IN_UICE=='query'){
+	}elseif($class=='query'){
 		$_G['actual_table']='case';
 
-	}elseif(IN_UICE=='schedule'){
-		if(($this->uri->segment(2)=='add'||$this->uri->segment(2)=='edit') && is_permitted(IN_UICE)){
+	}elseif($class=='schedule'){
+		if(($function=='add'||$function=='edit') && is_permitted($class)){
 			$_G['as_popup_window']=true;
 
-		}elseif($this->uri->segment(2)=='readcalendar' && is_permitted(IN_UICE)){
+		}elseif($function=='readcalendar' && is_permitted($class)){
 			$_G['require_export']=false;
 
-		}elseif($this->uri->segment(2)=='writecalendar' && is_permitted(IN_UICE)){
+		}elseif($function=='writecalendar' && is_permitted($class)){
 			$_G['require_export']=false;
 
-		}elseif(($this->uri->segment(2)=='list' || $this->uri->segment(2)=='mine' || $this->uri->segment(2)=='plan') && is_permitted(IN_UICE)){
+		}elseif(($function=='list' || $function=='mine' || $function=='plan') && is_permitted($class)){
 			if(is_posted('export')){
 				$_G['require_export']=false;
 			}
 
-		}elseif($this->uri->segment(2)=='listwrite' && is_permitted(IN_UICE)){//日志列表写入评语/审核时间
+		}elseif($function=='listwrite' && is_permitted($class)){//日志列表写入评语/审核时间
 			$_G['require_export']=false;
 
 		}
-	}elseif(IN_UICE=='user'){
-		if($this->uri->segment(2)=='logout'){
-			session_logout();
-			redirect('user/login','js');
-
-		}elseif($this->uri->segment(2)=='login'){
+	}elseif($class=='user'){
+		if($function=='login'){
 			$_G['require_menu']=false;
 
 		}
-	}elseif(IN_UICE=='affair'){
-		if($this->uri->segment(2)=='switch' && is_permitted('affair')){
+	}elseif($class=='affair'){
+		if($function=='switch' && is_permitted('affair')){
 			$_G['require_export']=false;
 
 		}
-	}elseif(IN_UICE=='exam'){
-		if($this->uri->segment(2)=='save' && is_permitted(IN_UICE)){
-			$_G{'action'}=IN_UICE.'_list_save';
+	}elseif($class=='exam'){
+		if($function=='save' && is_permitted($class)){
+			$_G{'action'}=$class.'_list_save';
 			$_G['require_export']=false;
 
 		}
-	}elseif(IN_UICE=='pingjiao'){
-		if(!$this->uri->segment(2)=='action')
-			$_GET['action']=IN_UICE.'';
-
-
-	}elseif(IN_UICE=='student'){
-		if($this->uri->segment(2)=='setclass' && is_permitted(IN_UICE)){
+	}elseif($class=='student'){
+		if($function=='setclass' && is_permitted($class)){
 			$_G['require_export']=false;
 
-		}elseif(is_logged('student') && is_permitted(IN_UICE)){
+		}elseif(is_logged('student') && is_permitted($class)){
 			//学生查看/编辑自己的信息
 			post('student/id',$_SESSION['id']);
 			$_G['as_controller_default_page']=true;
 
-		}elseif(is_logged('parent') && is_permitted(IN_UICE)){
+		}elseif(is_logged('parent') && is_permitted($class)){
 			//家长查看/编辑孩子的信息
 			post('student/id',$_SESSION['child']);
 			$_G['as_controller_default_page']=true;
 
-		}elseif(is_permitted(IN_UICE)){//默认action
+		}elseif(is_permitted($class)){//默认action
 						}	
-	}elseif(IN_UICE=='survey'){
+	}elseif($class=='survey'){
 		if(got('action','homework') && is_permitted('survey','homework')){
-			$_SESSION['action']='survey_homework';
 
 		}
-	}elseif(IN_UICE=='teach'){
-		if(($this->uri->segment(2)=='add'||$this->uri->segment(2)=='edit') && is_permitted(IN_UICE)){
+	}elseif($class=='teach'){
+		if(($function=='add'||$function=='edit') && is_permitted($class)){
 			$_G['as_popup_window']=true;
 		}
 
-	}elseif(IN_UICE=='view_score'){
+	}elseif($class=='view_score'){
 		if(is_posted('export_to_excel')){
 			$_G['require_export']=false;
 		}
 	}
 
-	if(is_posted('submit/cancel') && is_permitted(IN_UICE)){
+	if(is_posted('submit/cancel') && is_permitted($class)){
 		$_G['require_export']=false;
-		redirect('misc/cancel');
+		$class='misc';
+		$function='cancel';
 	}
 }
 ?>
