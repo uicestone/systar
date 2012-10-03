@@ -1,4 +1,3 @@
-<? global $_G ?>
 <div id="topBar">
 <? if(!$_G['as_popup_window'] && is_logged()){?>
 	<div id="topMenu">

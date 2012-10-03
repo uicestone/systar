@@ -10,7 +10,26 @@
 |
 */
 
+$hook['pre_controller']=array(
+	'class'=>NULL,
+	'function'=>'preController',
+	'filename'=>'pre_controller',
+	'filepath'=>'hooks'
+);
 
+$hook['post_controller_constructor']=array(
+	'class'=>NULL,
+	'function'=>'postControllerConstructor',
+	'filename'=>'post_controller_constructor',
+	'filepath'=>'hooks'
+);
+
+$hook['post_controller']=array(
+	'class'=>NULL,
+	'function'=>'postController',
+	'filename'=>'post_controller',
+	'filepath'=>'hooks'
+);
 
 /* End of file hooks.php */
 /* Location: ./application/config/hooks.php */
