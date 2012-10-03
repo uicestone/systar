@@ -26,7 +26,7 @@ class Company_model extends CI_Model{
 	}
 	
 	function starsys_schedule_side_table(){
-		global $_G;
+		$CI=&get_instance();
 		
 		$sidebar_table=array();
 		$sidebar_table[]=array(
@@ -39,28 +39,28 @@ class Company_model extends CI_Model{
 			
 			'contracted'=>array(
 				'field'=>'签约',
-				'total'=>achievementSum('contracted'),
-				'my'=>achievementSum('contracted','my'),
-				'contribute'=>achievementSum('contracted','contribute')
+				'total'=>$CI->achievement->sum('contracted'),
+				'my'=>$CI->achievement->sum('contracted','my'),
+				'contribute'=>$CI->achievement->sum('contracted','contribute')
 			),
 			
 			'estimated'=>array(
 				'field'=>'预计',
-				'total'=>achievementSum('estimated'),
-				'my'=>achievementSum('estimated','my'),
-				'contribute'=>achievementSum('estimated','contribute')
+				'total'=>$CI->achievement->sum('estimated'),
+				'my'=>$CI->achievement->sum('estimated','my'),
+				'contribute'=>$CI->achievement->sum('estimated','contribute')
 			),
 			
 			'collected'=>array(
 				'field'=>'到账',
-				'total'=>achievementSum('collected'),
-				'my'=>achievementSum('collected','my'),
-				'contribute'=>achievementSum('collected','contribute')
+				'total'=>$CI->achievement->sum('collected'),
+				'my'=>$CI->achievement->sum('collected','my'),
+				'contribute'=>$CI->achievement->sum('collected','contribute')
 			)
 		);
 		
-		$month_start_timestamp=strtotime(date('Y-m',$_G['timestamp']).'-1');
-		$month_end_timestamp=mktime(0,0,0,date('m',$_G['timestamp'])+1,1,date('Y',$_G['timestamp']));
+		$month_start_timestamp=strtotime(date('Y-m',$CI->config->item('timestamp')).'-1');
+		$month_end_timestamp=mktime(0,0,0,date('m',$CI->config->item('timestamp'))+1,1,date('Y',$CI->config->item('timestamp')));
 		
 		$sidebar_table[]=array(
 			'_field'=>array(
@@ -72,29 +72,29 @@ class Company_model extends CI_Model{
 			
 			'contracted'=>array(
 				'field'=>'签约',
-				'total'=>achievementSum('contracted','total',$month_start_timestamp),
-				'my'=>achievementSum('contracted','my',$month_start_timestamp),
-				'contribute'=>achievementSum('contracted','contribute',$month_start_timestamp)
+				'total'=>$CI->achievement->sum('contracted','total',$month_start_timestamp),
+				'my'=>$CI->achievement->sum('contracted','my',$month_start_timestamp),
+				'contribute'=>$CI->achievement->sum('contracted','contribute',$month_start_timestamp)
 			),
 			
 			'estimated'=>array(
 				'field'=>'预计',
-				'total'=>achievementSum('estimated','total',$month_start_timestamp,$month_end_timestamp),
-				'my'=>achievementSum('estimated','my',$month_start_timestamp,$month_end_timestamp),
-				'contribute'=>achievementSum('estimated','contribute',$month_start_timestamp,$month_end_timestamp)
+				'total'=>$CI->achievement->sum('estimated','total',$month_start_timestamp,$month_end_timestamp),
+				'my'=>$CI->achievement->sum('estimated','my',$month_start_timestamp,$month_end_timestamp),
+				'contribute'=>$CI->achievement->sum('estimated','contribute',$month_start_timestamp,$month_end_timestamp)
 			),
 			
 			'collected'=>array(
 				'field'=>'到账',
-				'total'=>achievementSum('collected','total',$month_start_timestamp),
-				'my'=>achievementSum('collected','my',$month_start_timestamp),
-				'contribute'=>achievementSum('collected','contribute',$month_start_timestamp)
+				'total'=>$CI->achievement->sum('collected','total',$month_start_timestamp),
+				'my'=>$CI->achievement->sum('collected','my',$month_start_timestamp),
+				'contribute'=>$CI->achievement->sum('collected','contribute',$month_start_timestamp)
 			)
 		);
 		
 		
-		$recent_collect=achievementTodo('recent');
-		$expired_collect=achievementTodo('expired');
+		$recent_collect=$CI->achievement->todo('recent');
+		$expired_collect=$CI->achievement->todo('expired');
 		
 		$sidebar_table[]=array(
 			'_field'=>array(

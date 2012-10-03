@@ -930,7 +930,7 @@ function db_list_fields($table_name){
 }
 
 function db_parseError($error){
-	global $_G;
+	global $CFG;
 	
 	if(preg_match('/^Cannot delete or update a parent row: a foreign key constraint fails \((.*?),.*$/',$error,$match)){
 		$error='无法删除，已在'.$match[1].'中引用';	
@@ -944,7 +944,7 @@ function db_parseError($error){
 		}
 		$error=$match[2].'不能为'.$match[1];
 
-	}elseif(!$_G['debug_mode']){
+	}elseif(!$CFG->item('debug_mode')){
 		$error='数据库出错，本次出错已被系统记录，感谢您的使用，给您带来的不便请谅解';
 	}
 	

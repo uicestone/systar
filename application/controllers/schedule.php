@@ -1,11 +1,15 @@
 <?php
 class Schedule extends SS_controller{
+	public $default_method;
+	public $data;//传递给模板参数
+	
 	function __construct(){
 		parent::__construct();
+		$this->default_method='calendar';
 	}
 	
-	function index(){
-		model('achievement');
+	function calendar(){
+		$this->load->model('achievement_model','achievement');
 		
 		$q_news="SELECT * FROM `news` WHERE display=1 AND company='".$this->config->item('company')."' ORDER BY time DESC LIMIT 5";
 		$field_news=array(
@@ -15,7 +19,7 @@ class Schedule extends SS_controller{
 				'eval'=>true,
 				'content'=>"
 					\$return='{title}';
-					if('{time}'>\$_G['timestamp']-86400*7){
+					if('{time}'>\$this->config->item('timestamp')-86400*7){
 						\$return.=' <img src=\"images/new.gif\" alt=\"new\" />';
 					}
 					return \$return;
@@ -24,11 +28,14 @@ class Schedule extends SS_controller{
 			),
 		);
 		
+		$table_news=$this->fetchTableArray($q_news, $field_news);
+		
 		$sidebar_table=array();
-		if(function_exists($this->config->item('syscode').'_'.'schedule_side_table')){
-			$syscode=$this->config->item('syscode');
-			$sidebar_table=$this->$syscode->schedule_side_table();
-		}
+		$sidebar_function=$this->config->item('syscode').'_'.'schedule_side_table';
+
+		$sidebar_table=$this->company->$sidebar_function();
+				
+		$this->data=compact('table_news','sidebar_table');
 	}
 	
 	function lists(){

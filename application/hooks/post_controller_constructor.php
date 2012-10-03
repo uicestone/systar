@@ -1,40 +1,14 @@
 <?php
 function postControllerConstructor(){
+	global $class,$method;
+
 	$CI=&get_instance();
 	
+	//使用controller中自定义的默认method
+	if(isset($CI->default_method) && $method=='index'){
+		$method=$CI->default_method;
+	}
+	
 	$CI->load->model('company_model','company');
-	
-	if($CI->config->item('require_export')){
-		if(IN_UICE=='nav'){
-			$CI->load->view('head_nav');
-		}elseif(IN_UICE=='frame'){
-			$CI->load->view('head_frame');
-		}else{
-			$CI->load->view('head');
-		}
-
-		if($CI->config->item('require_menu')){
-			$CI->load->view('menu');
-		}
-	}
-	
-	$CI->load->view();
-
-/*
-	if(is_file('controller/'.$_G['action'].'.php')){
-		require 'controller/'.$_G['action'].'.php';
-	}
-
-	if($_G['require_export'] && is_file('view/'.$_G['action'].'.htm')){
-		require 'view/'.$_G['action'].'.htm';
-	}
-
-	if(is_file('view/'.$_G['action'].'_sidebar.htm')){
-		echo '<div id="toolBar" '.(array_dir('_SESSION/minimized')?'class="minimized"':'').'>'.
-			'<span class="minimize-button">-</span>';
-		require 'view/'.$_G['action'].'_sidebar.htm';
-		echo '</div>';
-	}
-*/
 }
 ?>
