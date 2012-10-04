@@ -6,9 +6,6 @@ function preController(){
 
 	date_default_timezone_set('Asia/Shanghai');//定义时区，windows系统中php不能识别到系统时区
 
-	defined('IN_UICE') && model(IN_UICE);//默认加在当前控制器对应model，比如当前控制器如果是case，则case_fetch(),case_update()等相关读写函数会被自动加载
-	model('company');//这个model比较特殊，是各类型企业的函数库，也包含企业信息的通用函数比如conpany_fetchinfo()
-
 	session_set_cookie_params(86400); 
 
 	session_start();
@@ -53,6 +50,7 @@ function preController(){
 	}
 
 	define('IN_UICE',$class);//定义$class常量，即控制器的名称
+	define('METHOD',$method);
 
 	if($class!='user' && !is_logged(NULL,true)){
 		//对于非用户登录/登出界面，检查权限，弹出未登陆

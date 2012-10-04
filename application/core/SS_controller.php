@@ -218,8 +218,8 @@ class SS_Controller extends CI_Controller{
 	 */
 	function processSearch(&$q,$fields){
 		if(is_posted('search_cancel')){
-			unset($_SESSION[IN_UICE][$this->_G['action']]['in_search_mod']);
-			unset($_SESSION[IN_UICE][$this->_G['action']]['keyword']);
+			unset($_SESSION[IN_UICE][METHOD]['in_search_mod']);
+			unset($_SESSION[IN_UICE][METHOD]['keyword']);
 		}
 
 		if(is_posted('search')){
@@ -277,7 +277,7 @@ class SS_Controller extends CI_Controller{
 			option('method',is_null($defaultMethod)?'ASC':$defaultMethod);
 		}
 
-		if($only_table_of_the_page && is_posted('orderby') && !is_null(option('orderby')) && $_POST['orderby']==$_SESSION[IN_UICE][$this->_G['action']]['orderby']){
+		if($only_table_of_the_page && is_posted('orderby') && !is_null(option('orderby')) && $_POST['orderby']==$_SESSION[IN_UICE][METHOD]['orderby']){
 			if(option('method')=='ASC'){
 				option('method','DESC');
 			}else{
@@ -306,8 +306,8 @@ class SS_Controller extends CI_Controller{
 	 */
 	function dateRange(&$q,$date_field,$date_field_is_timestamp=true){
 		if(is_posted('date_range_cancel')){
-			unset($_SESSION[IN_UICE][$this->_G['action']]['in_date_range']);
-			unset($_SESSION[IN_UICE][$this->_G['action']]['date_range']);
+			unset($_SESSION[IN_UICE][METHOD]['in_date_range']);
+			unset($_SESSION[IN_UICE][METHOD]['date_range']);
 		}
 
 		if(is_posted('date_range')){
@@ -360,7 +360,7 @@ class SS_Controller extends CI_Controller{
 	function addCondition(&$q,$condition_array,$unset=array()){
 		foreach($unset as $changed_variable => $unset_variable){
 			if(is_posted($changed_variable)){
-				unset($_SESSION[IN_UICE][$this->_G['action']][$unset_variable]);
+				unset($_SESSION[IN_UICE][METHOD][$unset_variable]);
 			}
 		}
 

@@ -124,10 +124,10 @@ function optioned($variable,$value=NULL){
 function option($arrayindex,$set_to=NULL){
 	global $_G;
 	if(is_null($set_to)){
-		return array_dir('_SESSION/'.IN_UICE.'/'.$_G['action'].'/'.$arrayindex);
+		return array_dir('_SESSION/'.IN_UICE.'/'.METHOD.'/'.$arrayindex);
 
 	}else{
-		return array_dir('_SESSION/'.IN_UICE.'/'.$_G['action'].'/'.$arrayindex,$set_to);
+		return array_dir('_SESSION/'.IN_UICE.'/'.METHOD.'/'.$arrayindex,$set_to);
 	}
 }
 

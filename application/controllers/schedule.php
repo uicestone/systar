@@ -479,7 +479,7 @@ class Schedule extends SS_controller{
 			INNER JOIN staff ON staff.id=this_week.uid
 		";
 		
-		$this->$this->processOrderby($q,'this_week_sum','DESC');
+		$this->processOrderby($q,'this_week_sum','DESC');
 		
 		$field=array(
 			'staff_name'=>array('title'=>'姓名'),
