@@ -11,7 +11,7 @@ class News extends SS_controller{
 		
 		processOrderby($q,'time','DESC');
 		
-		$listLocator=processMultiPage($q);
+		$listLocator=$this->processMultiPage($q);
 		
 		$field=array(
 			'time'=>array('title'=>'日期','td_title'=>'width="80px"','eval'=>true,'content'=>"

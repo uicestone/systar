@@ -65,11 +65,11 @@ class File extends SS_controller{
 		WHERE case.display=1 AND case.id>=20 AND case.filed=1
 		";
 		
-		$search_bar=processSearch($q,array('case_num_grouped.num'=>'案号','case.name'=>'名称','lawyers.lawyers'=>'主办律师'));
+		$search_bar=$this->processSearch($q,array('case_num_grouped.num'=>'案号','case.name'=>'名称','lawyers.lawyers'=>'主办律师'));
 		
 		processOrderby($q,'time_contract','DESC',array('case.name','lawyers'));
 		
-		$listLocator=processMultiPage($q);
+		$listLocator=$this->processMultiPage($q);
 		
 		$field=array(
 			'num'=>array('title'=>'案号','td_title'=>'width="180px"','content'=>'<a href="case?edit={id}">{num}</a>'),
@@ -142,11 +142,11 @@ class File extends SS_controller{
 				AND file_status.id IN 
 				(SELECT max(id) FROM file_status GROUP BY file)";
 		
-		$search_bar=processSearch($q,array('case'=>'案件','lawyer'=>'律师','client'=>'客户'));
+		$search_bar=$this->processSearch($q,array('case'=>'案件','lawyer'=>'律师','client'=>'客户'));
 		
 		processOrderby($q,'time','DESC',array('case','client','lawyer','status'));
 		
-		$listLocator=processMultiPage($q);
+		$listLocator=$this->processMultiPage($q);
 		
 		$field=Array(
 			'file'=>array('title'=>'序号','td_title'=>'width=50px'),
@@ -224,11 +224,11 @@ class File extends SS_controller{
 		WHERE case.display=1 AND case.id>=20 AND case.apply_file=1 AND filed=0
 		";
 		
-		$search_bar=processSearch($q,array('case_num_grouped.num'=>'案号','case.name'=>'名称','lawyers.lawyers'=>'主办律师'));
+		$search_bar=$this->processSearch($q,array('case_num_grouped.num'=>'案号','case.name'=>'名称','lawyers.lawyers'=>'主办律师'));
 		
 		processOrderby($q,'case.time_contract','ASC',array('case.name','lawyers'));
 		
-		$listLocator=processMultiPage($q);
+		$listLocator=$this->processMultiPage($q);
 		
 		$field=array(
 			'num'=>array('title'=>'案号','content'=>'<a href="case?edit={id}">{num}</a>','td_title'=>'width="180px"'),

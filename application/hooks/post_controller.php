@@ -4,7 +4,7 @@ function postController(){
 	
 	$CI=&get_instance();
 
-	if(is_file(APPPATH.'views/'.$class.'/'.$method.'.php')){
+	if(!$CI->main_view_loaded && is_file(APPPATH.'views/'.$class.'/'.$method.'.php')){
 		$CI->load->view("{$class}/{$method}",$CI->data);
 	}
 	

@@ -3,7 +3,6 @@ function preController(){
 	global $CFG,$class,$method;
 	
 	require "function/function_common.php";
-	require "function/function_table.php";
 
 	date_default_timezone_set('Asia/Shanghai');//定义时区，windows系统中php不能识别到系统时区
 

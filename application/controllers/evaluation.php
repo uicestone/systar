@@ -13,7 +13,7 @@ class Evaluation extends SS_controller{
 		
 		processOrderby($q,'id');
 		
-		$listLocator=processMultiPage($q);
+		$listLocator=$this->processMultiPage($q);
 		
 		$field=array(
 			'name'=>array('title'=>'姓名','surround'=>array('mark'=>'a','href'=>'javascript:showWindow(\'evaluation?score&staff={id}\')')),
@@ -59,7 +59,7 @@ class Evaluation extends SS_controller{
 		
 		processOrderby($q,'evaluation_score.time','DESC');
 		
-		$listLocator=processMultiPage($q);
+		$listLocator=$this->processMultiPage($q);
 		
 		$field=array(
 			'name'=>array('title'=>'评分项','content'=>'{name}({weight})'),
@@ -157,7 +157,7 @@ class Evaluation extends SS_controller{
 		
 		processOrderby($q,'id');
 		
-		$listLocator=processMultiPage($q);
+		$listLocator=$this->processMultiPage($q);
 		
 		$field=array(
 			'name'=>array('title'=>'考核指标','td'=>'id="{id}"','content'=>'{name}({weight})','td_title'=>'width="20%"'),

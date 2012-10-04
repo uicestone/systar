@@ -21,13 +21,13 @@ class Document extends SS_controller{
 			FROM `document` 
 			WHERE 1=1 ";
 		
-		$search_bar=processSearch($q,array('name'=>'文件名'));
+		$search_bar=$this->processSearch($q,array('name'=>'文件名'));
 		
 		$q.=(option('in_search_mod')?'':"AND parent='".$_SESSION['document']['currentDirID']."'").'';
 		
 		processOrderby($q,'type','ASC');
 			
-		$listLocator=processMultiPage($q);
+		$listLocator=$this->processMultiPage($q);
 		
 		$field=option('in_search_mod')?
 			array(

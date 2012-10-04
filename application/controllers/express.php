@@ -13,11 +13,11 @@ class Express extends SS_controller{
 			WHERE express.display=1
 		";
 		
-		$search_bar=processSearch($q,array('num'=>'单号','staff.name'=>'寄送人','destination'=>'寄送地点'));
+		$search_bar=$this->processSearch($q,array('num'=>'单号','staff.name'=>'寄送人','destination'=>'寄送地点'));
 		
 		processOrderby($q,'time_send','DESC');
 		
-		$listLocator=processMultiPage($q);
+		$listLocator=$this->processMultiPage($q);
 		
 		$field=array(
 			'content'=>array('title'=>'寄送内容','surround'=>array('mark'=>'a','href'=>'express?edit={id}'),'td'=>'class="ellipsis" title="{content}"'),

@@ -63,7 +63,7 @@
 				<? } ?>
 			</div>
 		
-			<? if(count($case_client_table)>1)arrayExportTable($case_client_table,NULL,false,false);?>
+			<? if(count($case_client_table)>1)$this->arrayExportTable($case_client_table,NULL,false,false);?>
 	
 			<div id="caseClientAddForm" <? if(!post('case_client_extra/show_add_form'))echo 'style="display:none"';?>>
 				<input type="text" name="case_client_extra[name]" value="<? displayPost('case_client_extra/name')?>" placeholder="名称" autocomplete="client" autocomplete-input-name="case_client[client]" style="width:20%" />
@@ -168,7 +168,7 @@
 				<? } ?>
 			</div>
 	
-			<? if(count($case_staff_table)>1)arrayExportTable($case_staff_table,NULL,false,false);?>
+			<? if(count($case_staff_table)>1)$this->arrayExportTable($case_staff_table,NULL,false,false);?>
 			
 			<div id="caseLawyerAddForm" <? if(!post('case_lawyer_extra/show_add_form'))echo 'style="display:none"';?>>
 				<input type="text" name="case_lawyer_extra[lawyer_name]" value="<? displayPost('case_lawyer_extra/lawyer_name');?>" placeholder="姓名" style="width:45%" />
@@ -226,7 +226,7 @@
 				</div>
 			</div>
 	
-			<? if(count($case_fee_table)>1)arrayExportTable($case_fee_table,NULL,false,false,array('name'=>'case_fee'))?>	
+			<? if(count($case_fee_table)>1)$this->arrayExportTable($case_fee_table,NULL,false,false,array('name'=>'case_fee'))?>	
 			<? if(!post('case/fee_lock')){?>
 			<div id="caseFeeAddForm">
 				<select style="width:25%;" name="case_fee[type]">
@@ -243,7 +243,7 @@
 		<div class="item">
 			<div class="title"><label>办案费约定情况：</label><label id="caseFeeMiscAdd" style="display:none">+</label></div>
 	
-			<? if(count($case_fee_misc_table)>1)arrayExportTable($case_fee_misc_table,NULL,false,false);?>
+			<? if(count($case_fee_misc_table)>1)$this->arrayExportTable($case_fee_misc_table,NULL,false,false);?>
 			<div id="caseFeeMiscAddForm">
 				<select name="case_fee_misc[receiver]" style="width:25%">
 					<? displayOption(array('承办律师','律所'));?>
@@ -263,7 +263,7 @@
 				<? } ?>
 			</div>
 	
-			<? if(count($case_document_table)>1)arrayExportTable($case_document_table,NULL,false,false,array('name'=>'case_fee_misc'));?>
+			<? if(count($case_document_table)>1)$this->arrayExportTable($case_document_table,NULL,false,false,array('name'=>'case_fee_misc'));?>
 
 			<div id="caseDocumentAddForm">
 				<input type="file" name="file" id="file" width="30%" />
@@ -285,7 +285,7 @@
 					<a href="javascript:showWindow('schedule?add&case=<? echo post('case/id')?>')">添加>></a>
 				</label>
 			</div>
-			<? if(count($case_schedule_table)>1)arrayExportTable($case_schedule_table,NULL,false,false);?>
+			<? if(count($case_schedule_table)>1)$this->arrayExportTable($case_schedule_table,NULL,false,false);?>
 		</div>
 	
 		<div class="item">
@@ -297,7 +297,7 @@
 					<a href="javascript:showWindow('schedule?add&case=<? echo post('case/id')?>&completed=0')">添加>></a>
 				</label>
 			</div>
-			<? if(count($case_plan_table)>1)arrayExportTable($case_plan_table,NULL,false,false);?>
+			<? if(count($case_plan_table)>1)$this->arrayExportTable($case_plan_table,NULL,false,false);?>
 		</div>
 	
 		<? if(!post('case/is_query') && post('case/classification')!='法律顾问'){?>

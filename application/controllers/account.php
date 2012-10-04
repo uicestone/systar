@@ -19,13 +19,13 @@ class Account extends SS_controller{
 			$q.=" AND account.case IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role='主办律师')";
 		}
 		
-		$search_bar=processSearch($q,array('client.name'=>'客户','account.name'=>'名目','account.amount'=>'金额'));
+		$search_bar=$this->processSearch($q,array('client.name'=>'客户','account.name'=>'名目','account.amount'=>'金额'));
 		
-		$date_range_bar=dateRange($q,'account.time_occur');
+		$date_range_bar=$this->dateRange($q,'account.time_occur');
 		
 		processOrderby($q,'time_occur','DESC');
 		
-		$listLocator=processMultiPage($q);
+		$listLocator=$this->processMultiPage($q);
 		
 		$field=array(
 			'time_occur'=>array('title'=>'日期','eval'=>true,'content'=>"
@@ -56,7 +56,7 @@ class Account extends SS_controller{
 		
 		$_SESSION['last_list_action']=$_SERVER['REQUEST_URI'];
 		
-		$table=fetchTableArray($q,$field);
+		$table=$this->fetchTableArray($q,$field);
 		
 		$data=compact('table','menu');
 		
@@ -200,11 +200,11 @@ class Account extends SS_controller{
 		WHERE case.display=1 AND case.id>=20
 		";
 		
-		$search_bar=processSearch($q,array('num'=>'案号','name'=>'名称','lawyers.lawyers'=>'主办律师'));
+		$search_bar=$this->processSearch($q,array('num'=>'案号','name'=>'名称','lawyers.lawyers'=>'主办律师'));
 		
 		processOrderby($q,'case.time_contract','DESC',array('case.name','lawyers'));
 		
-		$listLocator=processMultiPage($q);
+		$listLocator=$this->processMultiPage($q);
 		
 		$field=array(
 			'time_contract'=>array('title'=>'案号','td_title'=>'width="180px"','content'=>'<a href="case?edit={id}">{num}</a>'),
@@ -223,7 +223,7 @@ class Account extends SS_controller{
 		
 		$_SESSION['last_list_action']=$_SERVER['REQUEST_URI'];
 		
-		$table=fetchTableArray($q,$field);
+		$table=$this->fetchTableArray($q,$field);
 		
 		$data=compact('table','menu');
 		

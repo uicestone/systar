@@ -1,1 +1,1 @@
-<? arrayExportTable($table,$menu,true) ?>
+<? $this->arrayExportTable($table,$menu,true) ?>

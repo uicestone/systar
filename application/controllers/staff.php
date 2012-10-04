@@ -17,11 +17,11 @@ class Staff extends SS_controller{
 			WHERE staff.company='".$_G['company']."'
 		";
 		
-		$search_bar=processSearch($q,array('name'=>'姓名'));
+		$search_bar=$this->processSearch($q,array('name'=>'姓名'));
 		
 		processOrderby($q,'staff.id','ASC');
 		
-		$listLocator=processMultiPage($q);
+		$listLocator=$this->processMultiPage($q);
 		
 		if($_G['company_type']=='school'){
 			$field=array(

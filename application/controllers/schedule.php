@@ -27,7 +27,7 @@ class Schedule extends SS_controller{
 			),
 		);
 		
-		$table_news=$this->fetchTableArray($q_news, $field_news);
+		$table_news=$this->$this->fetchTableArray($q_news, $field_news);
 		
 		$sidebar_table=array();
 		$sidebar_function=$this->config->item('syscode').'_'.'schedule_side_table';
@@ -89,9 +89,9 @@ class Schedule extends SS_controller{
 									
 		$q.=$condition;
 		
-		$search_bar=processSearch($q,array('case.name'=>'案件','staff.name'=>'人员'));
+		$search_bar=$this->processSearch($q,array('case.name'=>'案件','staff.name'=>'人员'));
 		
-		$date_range_bar=dateRange($q,'time_start');
+		$date_range_bar=$this->dateRange($q,'time_start');
 		
 		$q.="
 			GROUP BY schedule.id
@@ -158,10 +158,10 @@ class Schedule extends SS_controller{
 				'staff_name'=>array('title'=>'律师')
 			);
 		}else{
-			$listLocator=processMultiPage($q);
+			$listLocator=$this->processMultiPage($q);
 		}
 		
-		$table=fetchTableArray($q,$field);
+		$table=$this->fetchTableArray($q,$field);
 		
 		if(is_posted('export')){
 			$this->load->view('schedule/billdoc');
@@ -182,6 +182,7 @@ class Schedule extends SS_controller{
 			$this->data+=compact('menu','table','search_bar','date_range_bar');
 			
 			$this->load->view('schedule/lists',$this->data);
+			$this->main_view_loaded=TRUE;
 		}
 	}
 	
@@ -211,8 +212,8 @@ class Schedule extends SS_controller{
 		
 		
 		if(!post('schedule/time_start')){
-			post('schedule/time_start',$_G['timestamp']);
-			post('schedule/time_end',$_G['timestamp']+3600);
+			post('schedule/time_start',$this->config->item('timestamp'));
+			post('schedule/time_end',$this->config->item('timestamp')+3600);
 		}
 		
 		$submitable=false;//可提交性，false则显示form，true则可以跳转
@@ -353,9 +354,9 @@ class Schedule extends SS_controller{
 		
 		processOrderby($q,'time_start','DESC',array('place'));
 		
-		$search_bar=processSearch($q,array('staff.name'=>'人员'));
+		$search_bar=$this->processSearch($q,array('staff.name'=>'人员'));
 		
-		$listLocator=processMultiPage($q);
+		$listLocator=$this->processMultiPage($q);
 		
 		$field=Array(
 			'staff_name'=>array('title'=>'人员','content'=>'<a href="schedule?list&staff={staff}"> {staff_name}</a>','td_title'=>'width="60px"'),
@@ -420,18 +421,18 @@ class Schedule extends SS_controller{
 		$chart_staffly_workhours_series=json_encode($chart_staffly_workhours_series,JSON_NUMERIC_CHECK);
 		
 		if(date('w')==1){//今天是星期一
-			$start_of_this_week=strtotime($_G['date']);
+			$start_of_this_week=strtotime($this->config->item('date'));
 		}else{
 			$start_of_this_week=strtotime("-1 Week Monday");
 		}
-		$start_of_this_month=strtotime(date('Y-m',$_G['timestamp']).'-1');
-		$start_of_this_year=strtotime(date('Y',$_G['timestamp']).'-1-1');
-		$start_of_this_term=strtotime(date('Y',$_G['timestamp']).'-'.(floor(date('m',$_G['timestamp'])/3-1)*3+1).'-1');
+		$start_of_this_month=strtotime(date('Y-m',$this->config->item('timestamp')).'-1');
+		$start_of_this_year=strtotime(date('Y',$this->config->item('timestamp')).'-1-1');
+		$start_of_this_term=strtotime(date('Y',$this->config->item('timestamp')).'-'.(floor(date('m',$this->config->item('timestamp'))/3-1)*3+1).'-1');
 		
-		$days_passed_this_week=ceil(($_G['timestamp']-$start_of_this_week)/86400);
-		$days_passed_this_month=ceil(($_G['timestamp']-$start_of_this_month)/86400);
-		$days_passed_this_term=ceil(($_G['timestamp']-$start_of_this_term)/86400);
-		$days_passed_this_year=ceil(($_G['timestamp']-$start_of_this_year)/86400);
+		$days_passed_this_week=ceil(($this->config->item('timestamp')-$start_of_this_week)/86400);
+		$days_passed_this_month=ceil(($this->config->item('timestamp')-$start_of_this_month)/86400);
+		$days_passed_this_term=ceil(($this->config->item('timestamp')-$start_of_this_term)/86400);
+		$days_passed_this_year=ceil(($this->config->item('timestamp')-$start_of_this_year)/86400);
 		
 		$q="
 			SELECT staff.name aS staff_name,
@@ -443,7 +444,7 @@ class Schedule extends SS_controller{
 			(
 				SELECT uid,SUM(hours_own) AS sum, SUM(hours_own)/".$days_passed_this_week." AS avg
 				FROM schedule 
-				WHERE time_start>='".$start_of_this_week."' AND time_start<'".$_G['timestamp']."' 
+				WHERE time_start>='".$start_of_this_week."' AND time_start<'".$this->config->item('timestamp')."' 
 					AND completed=1 AND display=1
 				GROUP BY uid
 			)this_week
@@ -451,7 +452,7 @@ class Schedule extends SS_controller{
 			(
 				SELECT uid,SUM(hours_own) AS sum, SUM(hours_own)/".$days_passed_this_month." AS avg
 				FROM schedule 
-				WHERE time_start>='".$start_of_this_month."' AND time_start<'".$_G['timestamp']."' 
+				WHERE time_start>='".$start_of_this_month."' AND time_start<'".$this->config->item('timestamp')."' 
 					AND completed=1 AND display=1
 				GROUP BY uid
 			)this_month USING(uid)
@@ -459,7 +460,7 @@ class Schedule extends SS_controller{
 			(
 				SELECT uid,SUM(hours_own) AS sum, SUM(hours_own)/".$days_passed_this_term." AS avg
 				FROM schedule 
-				WHERE time_start>='".$start_of_this_term."' AND time_start<'".$_G['timestamp']."' 
+				WHERE time_start>='".$start_of_this_term."' AND time_start<'".$this->config->item('timestamp')."' 
 					AND completed=1 AND display=1
 				GROUP BY uid
 			)this_term USING(uid)
@@ -467,14 +468,14 @@ class Schedule extends SS_controller{
 			(
 				SELECT uid,SUM(hours_own) AS sum, SUM(hours_own)/".$days_passed_this_year." AS avg
 				FROM schedule 
-				WHERE time_start>='".$start_of_this_year."' AND time_start<'".$_G['timestamp']."' 
+				WHERE time_start>='".$start_of_this_year."' AND time_start<'".$this->config->item('timestamp')."' 
 					AND completed=1 AND display=1
 				GROUP BY uid
 			)this_year USING(uid)
 			INNER JOIN staff ON staff.id=this_week.uid
 		";
 		
-		processOrderBy($q,'this_week_sum','DESC');
+		$this->processOrderBy($q,'this_week_sum','DESC');
 		
 		$field=array(
 			'staff_name'=>array('title'=>'姓名'),
@@ -484,7 +485,9 @@ class Schedule extends SS_controller{
 			'this_year_sum'=>array('title'=>'本年','content'=>'{this_year_sum}({this_year_avg})')
 		);
 		
-		$work_hour_stat=fetchTableArray($q,$field);
+		$work_hour_stat=$this->fetchTableArray($q,$field);
+		
+		$this->data+=compact('work_hour_stat','chart_staffly_workhours_catogary','chart_staffly_workhours_series');
 	}
 	
 	function writeCalendar(){

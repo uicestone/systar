@@ -98,14 +98,14 @@ class Cases extends SS_controller{
 			$condition.="AND (case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role IN ('接洽律师','接洽律师（次要）','主办律师','协办律师','律师助理','督办合伙人')) OR case.uid='".$_SESSION['id']."')";
 		}
 		
-		$search_bar=processSearch($condition,array('case.num'=>'案号','case.type'=>'类别','case.name'=>'名称','lawyers.lawyers'=>'主办律师'));
+		$search_bar=$this->processSearch($condition,array('case.num'=>'案号','case.type'=>'类别','case.name'=>'名称','lawyers.lawyers'=>'主办律师'));
 		
 		processOrderby($condition,'time_contract','DESC',array('case.name','lawyers'));
 		
 		$q.=$condition;
 		$q_rows.=$condition;
 		
-		$listLocator=processMultiPage($q,$q_rows);
+		$listLocator=$this->processMultiPage($q,$q_rows);
 		
 		$field=array(
 			'time_contract'=>array('title'=>'案号','td_title'=>'width="180px"','td'=>'title="立案时间：{time_contract}"','content'=>'<a href="case?edit={id}">{num}</a>'),
@@ -691,11 +691,11 @@ class Cases extends SS_controller{
 				WHERE case.display=1 AND case.id>=20 AND case.lawyer_lock=0 AND case.is_reviewed=0
 		";
 		
-		$search_bar=processSearch($q,array('case_num_grouped.num'=>'案号','case.name'=>'名称','lawyers.lawyers'=>'主办律师'));
+		$search_bar=$this->processSearch($q,array('case_num_grouped.num'=>'案号','case.name'=>'名称','lawyers.lawyers'=>'主办律师'));
 		
 		processOrderby($q,'case.time_contract','DESC',array('case.name','lawyers'));
 		
-		$listLocator=processMultiPage($q);
+		$listLocator=$this->processMultiPage($q);
 		
 		$field=array(
 			'time_contract'=>array('title'=>'案号','td_title'=>'width="180px"','content'=>'<a href="case?edit={id}">{num}</a>'),

@@ -42,13 +42,13 @@ class Client extends SS_Controller{
 		";
 		}
 		
-		$search_bar=processSearch($condition,array('name'=>'姓名','work_for'=>'单位','address'=>'地址','comment'=>'备注'));
+		$search_bar=$this->processSearch($condition,array('name'=>'姓名','work_for'=>'单位','address'=>'地址','comment'=>'备注'));
 		
 		processOrderby($condition,'time','DESC',array('abbreviation','type','address','comment'));
 		
 		$q.=$condition;$q_rows.=$condition;
 		
-		$list_locator=processMultiPage($q,$q_rows);
+		$list_locator=$this->processMultiPage($q,$q_rows);
 		
 		$field=array(
 			'abbreviation'=>array('title'=>'名称','content'=>'<input type="checkbox" name="client_check[{id}]" />
@@ -75,7 +75,7 @@ class Client extends SS_Controller{
 		
 		$_SESSION['last_list_action']=$_SERVER['REQUEST_URI'];
 		
-		$table=fetchTableArray($q,$field);
+		$table=$this->fetchTableArray($q,$field);
 		
 		$data=compact('table','menu');
 		

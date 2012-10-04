@@ -45,11 +45,11 @@ class Student extends SS_controller{
 		}
 		addCondition($q,array('class'=>'class.id','grade'=>'class.grade'),array('grade'=>'class'));
 				
-		$search_bar=processSearch($q,array('num'=>'学号','student.name'=>'姓名'));
+		$search_bar=$this->processSearch($q,array('num'=>'学号','student.name'=>'姓名'));
 		
 		processOrderby($q,'num','ASC',array('num','student.name'));
 		
-		$listLocator=processMultiPage($q);
+		$listLocator=$this->processMultiPage($q);
 		
 		$field=array(
 			'num'=>array('title'=>'学号','td'=>'id="{id}" '),
@@ -396,7 +396,7 @@ class Student extends SS_controller{
 		
 			$q="SELECT * FROM student_classdiv";
 			
-			$list_locator=processMultipage($q);
+			$list_locator=$this->processMultiPage($q);
 			
 			$field=array(
 				'name'=>array('title'=>'姓名'),
@@ -450,7 +450,7 @@ class Student extends SS_controller{
 		ORDER BY time DESC
 		";
 		
-		$list_locator=processMultipage($q);
+		$list_locator=$this->processMultiPage($q);
 		
 		$field=array(
 			'date'=>array('title'=>'日期','td_title'=>'width="100px"'),

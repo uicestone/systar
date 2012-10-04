@@ -83,7 +83,7 @@
 		<div class="item">
 			<div class="title"><label>成绩</label>
 			<a href="student?viewscore&student=<? echo post('student/id') ?>" style="font-size:12px">查看详细</a></div>
-			<? arrayExportTable($scores,NULL,false,false,array(),false,true) ?>
+			<? $this->arrayExportTable($scores,NULL,false,false,array(),false,true) ?>
 		</div>
 
 		<div class="item">

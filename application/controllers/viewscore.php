@@ -25,7 +25,7 @@ class ViewScore extends SS_controller{
 		
 		addCondition($q,array('class'=>'view_student.class','grade'=>'view_student.grade','exam'=>'view_score.exam'),array('grade'=>'class'));
 		
-		$search_bar=processSearch($q,array('view_student.name'=>'学生'));
+		$search_bar=$this->processSearch($q,array('view_student.name'=>'学生'));
 		
 		processOrderby($q,'view_student.num');
 		
@@ -95,10 +95,10 @@ class ViewScore extends SS_controller{
 				'course_sum_5'=>array('title'=>'5总','content'=>'{course_sum_5}')
 			);
 		}else{
-			$listLocator=processMultipage($q);
+			$listLocator=$this->processMultiPage($q);
 		}
 		
-		$table=fetchTableArray($q,$field);
+		$table=$this->fetchTableArray($q,$field);
 		
 		if(is_posted('export_to_excel')){
 			model('document');

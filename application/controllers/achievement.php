@@ -23,7 +23,7 @@ class Achievement extends SS_controller{
 			WHERE case_fee.type<>'办案费'
 		";
 		
-		$date_range_bar=dateRange($q,'account.time_occur');
+		$date_range_bar=$this->dateRange($q,'account.time_occur');
 		
 		$q.="	GROUP BY case_fee.id
 		)case_fee_collected
@@ -42,7 +42,7 @@ class Achievement extends SS_controller{
 		
 		processOrderby($q,'case_fee_collected.pay_time','DESC');
 		
-		$listLocator=processMultiPage($q);
+		$listLocator=$this->processMultiPage($q);
 		
 		$field=array(
 			'type'=>array('title'=>'类别','td_title'=>'width="85px"'),
@@ -156,7 +156,7 @@ class Achievement extends SS_controller{
 		
 		processOrderby($q,'case_fee.pay_time');
 		
-		$listLocator=processMultiPage($q);
+		$listLocator=$this->processMultiPage($q);
 		
 		$field=array(
 			'type'=>array('title'=>'类别','td_title'=>'width="85px"'),
@@ -227,7 +227,7 @@ class Achievement extends SS_controller{
 		
 		processOrderby($q,'case_fee.pay_time');
 		
-		$listLocator=processMultiPage($q);
+		$listLocator=$this->processMultiPage($q);
 		
 		$field=array(
 			'type'=>array('title'=>'类别','td_title'=>'width="85px"'),
@@ -262,9 +262,9 @@ class Achievement extends SS_controller{
 		
 		if(got('contribute_type','actual')){
 			$q.=" AND case.filed='已归档'";
-			$date_range_bar=dateRange($q,'case.time_end',false);
+			$date_range_bar=$this->dateRange($q,'case.time_end',false);
 		}else{
-			$date_range_bar=dateRange($q,'account.time_occur');
+			$date_range_bar=$this->dateRange($q,'account.time_occur');
 		}
 		
 		$q.="		)#律师锁定的案子才能计算奖金";
@@ -296,7 +296,7 @@ class Achievement extends SS_controller{
 		
 		$q_rows="SELECT COUNT(id) FROM staff";
 		
-		$listLocator=processMultiPage($q,$q_rows);
+		$listLocator=$this->processMultiPage($q,$q_rows);
 		
 		$field=array(
 			'staff_name'=>array('title'=>'人员'),
@@ -325,7 +325,7 @@ class Achievement extends SS_controller{
 			WHERE name IN('律师费','顾问费','咨询费')
 		";
 		
-		$date_range_bar=dateRange($q,'time_occur');
+		$date_range_bar=$this->dateRange($q,'time_occur');
 		
 		$q.="
 		)account_sum
@@ -335,7 +335,7 @@ class Achievement extends SS_controller{
 		
 		$q_rows="SELECT COUNT(id) FROM staff WHERE modulus>0";
 		
-		$listLocator=processMultiPage($q,$q_rows);
+		$listLocator=$this->processMultiPage($q,$q_rows);
 		
 		$field=array(
 			'staff_name'=>array('title'=>'人员'),

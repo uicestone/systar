@@ -20,11 +20,11 @@ class Classes extends SS_controller{
 		
 		addCondition($q,array('grade'=>'class.grade'));
 				
-		$search_bar=processSearch($q,array('name'=>'班级','depart'=>'部门'));
+		$search_bar=$this->processSearch($q,array('name'=>'班级','depart'=>'部门'));
 		
 		processOrderby($q,'class.id','ASC');
 		
-		$listLocator=processMultiPage($q);
+		$listLocator=$this->processMultiPage($q);
 		
 		$field=array(
 			'class.id'=>array('title'=>'名称','td'=>'title="编号：{id}"','content'=>'{name}','surround'=>array('mark'=>'a','href'=>'class?edit={id}')),

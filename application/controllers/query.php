@@ -30,13 +30,13 @@ class Query extends SS_controller{
 			$q.=" AND case.filed=0";
 		}
 		
-		$search_bar=processSearch($q,array('client.name'=>'咨询人'));
+		$search_bar=$this->processSearch($q,array('client.name'=>'咨询人'));
 		
 		$q.=" GROUP BY case.id";
 		
 		processOrderby($q,'first_contact','DESC');
 		
-		$listLocator=processMultiPage($q);
+		$listLocator=$this->processMultiPage($q);
 		
 		$field=array(
 			'first_contact'=>array('title'=>'日期','td_title'=>'width="95px"'),

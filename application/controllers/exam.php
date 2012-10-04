@@ -19,7 +19,7 @@ class Exam extends SS_controller{
 				
 		processOrderby($q,'exam.id','DESC',array('exam.name'));
 		
-		$listLocator=processMultiPage($q);
+		$listLocator=$this->processMultiPage($q);
 		
 		$field=array(
 			'id'=>array('title'=>'编号','td_title'=>'width="70px"'),
@@ -160,7 +160,7 @@ class Exam extends SS_controller{
 				
 		processOrderby($q,'course.id');
 		
-		$listLocator=processMultiPage($q);
+		$listLocator=$this->processMultiPage($q);
 		
 		$field=array(
 			'id'=>array('title'=>'编号','td_title'=>'width="70px"'),
@@ -201,7 +201,7 @@ class Exam extends SS_controller{
 				
 		processOrderby($q,'view_student.num','ASC');
 		
-		$listLocator=processMultiPage($q);
+		$listLocator=$this->processMultiPage($q);
 		
 		$field=array(
 			'num'=>array('title'=>'学号'),

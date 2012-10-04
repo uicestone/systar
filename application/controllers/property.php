@@ -19,11 +19,11 @@ class Property extends SS_controller{
 				AND property_status.id IN 
 				(SELECT max(id) FROM property_status GROUP BY property)";
 		
-		$searchBar=processSearch($q,array('name'=>'物品','admin'=>'管理人'));
+		$searchBar=$this->processSearch($q,array('name'=>'物品','admin'=>'管理人'));
 		
 		processOrderby($q,'time','DESC',array('property'));
 		
-		$listLocator=processMultiPage($q);
+		$listLocator=$this->processMultiPage($q);
 		
 		$field=Array(
 			'property'=>'序号',

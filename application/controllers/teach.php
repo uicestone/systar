@@ -22,11 +22,11 @@ class Teach extends SS_controller{
 		
 		addCondition($q,array('class'=>'class.id','grade'=>'class.grade','term'=>'teach.term'));
 		
-		$search_bar=processSearch($q,array('class.name'=>'班级','course.name'=>'学科','staff.name'=>'教师'));
+		$search_bar=$this->processSearch($q,array('class.name'=>'班级','course.name'=>'学科','staff.name'=>'教师'));
 		
 		$q.=" ORDER BY term DESC,class.id,course.id ASC";
 		
-		$listLocator=processMultiPage($q);
+		$listLocator=$this->processMultiPage($q);
 		
 		$field=array(
 			'id'=>array('title'=>'','content'=>'<input type="checkbox" name="teach[{id}]">','td_title'=>'width="30px"'),

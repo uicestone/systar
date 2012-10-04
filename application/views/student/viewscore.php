@@ -32,5 +32,5 @@ $(function(){
 </script>
 <div class="contentTableBox">
 	<div id="chart" style="width:900px;height:500px;margin:auto"></div>
-	<? arrayExportTable($scores,NULL,false,false,array(),false,true) ?>
+	<? $this->arrayExportTable($scores,NULL,false,false,array(),false,true) ?>
 </div>

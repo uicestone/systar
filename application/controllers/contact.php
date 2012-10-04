@@ -30,11 +30,11 @@ class Contact extends SS_controller{
 			$q.=" AND classification='联系人'";
 		}
 		
-		$search_bar=processSearch($q,array('name'=>'姓名','type'=>'类型','work_for'=>'单位','address'=>'地址'));
+		$search_bar=$this->processSearch($q,array('name'=>'姓名','type'=>'类型','work_for'=>'单位','address'=>'地址'));
 		
 		processOrderby($q,'time','DESC',array('abbreviation','address','comment'));
 		
-		$listLocator=processMultiPage($q);
+		$listLocator=$this->processMultiPage($q);
 		
 		$field=array(
 			'abbreviation'=>array('title'=>'名称','content'=>'<input type="checkbox" name="contact_check[{id}]" />
