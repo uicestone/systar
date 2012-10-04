@@ -17,7 +17,7 @@ class Query extends SS_controller{
 				LEFT JOIN case_lawyer ON case.id=case_lawyer.case AND (case_lawyer.role IN ('接洽律师','接洽律师（次要）','督办合伙人'))
 				LEFT JOIN staff ON staff.id=case_lawyer.lawyer
 				LEFT JOIN client_source ON case.source=client_source.id 
-			WHERE case.company='{$_G['company']}' AND case.display=1 AND case.is_query=1
+			WHERE case.company='{$this->config->item('company')}' AND case.display=1 AND case.is_query=1
 		";
 		
 		//if(got('mine')){
@@ -73,11 +73,11 @@ class Query extends SS_controller{
 		model('staff');
 		model('case');
 		
-		getPostData(function(){
+		$this->getPostData($id,function(){
 			global $_G;
 			post('case_lawyer_extra/partner_name',staff_getMyManager('name'));
 			post('case_lawyer_extra/lawyer_name',$_SESSION['username']);
-			post('query/first_contact',$_G['date']);
+			post('query/first_contact',$this->config->item('date'));
 			post('query/is_query',1);
 			post('client_extra/source_lawyer_name',$_SESSION['username']);
 			post('client/gender','男');
@@ -154,7 +154,7 @@ class Query extends SS_controller{
 				
 				$new_case_id=post('case/id');
 				
-				processSubmit(true);
+				$this->processSubmit(true);
 		
 			}catch(exception $e){
 				showMessage($e->getMessage(),'warning');

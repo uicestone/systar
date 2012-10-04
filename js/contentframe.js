@@ -13,7 +13,7 @@ $(function(){
 		if($('#toolBar').hasClass('minimized')){
 			minimized=1;
 		}
-		$.post('misc/setsession',{minimized:minimized},function(result){
+		$.post('/misc/setsession',{minimized:minimized},function(result){
 			if(result!='success'){
 				showMessage('与服务器通信失败','warning');
 				console.log(result);
@@ -32,13 +32,13 @@ $(function(){
 
 	if(action.match('[^_]+?$')=='add'){
 		//对于add和edit页面，当鼠标进入submit按钮的时候记录当前页面滚动条位置
-		$.post('misc?get_session&var=scroll',{controller:controller,action:action},function(scrollTop){
+		$.post('/misc/getsession/scroll',{controller:controller,action:action},function(scrollTop){
 			$(window).scrollTop(scrollTop);
 		});
 		
 		$('[name^="submit"]').mouseenter(function(){
 			var scrollTop=$(window).scrollTop();
-			$.post('misc?set_session&scroll',{controller:controller,action:action,scrollTop:scrollTop});
+			$.post('/misc/setsession/scroll',{controller:controller,action:action,scrollTop:scrollTop});
 		});
 	}
 	

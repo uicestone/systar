@@ -6,7 +6,7 @@ class News extends SS_controller{
 	
 	function index(){
 		$q="
-			SELECT * FROM news WHERE display=1 AND company='".$_G['company']."'
+			SELECT * FROM news WHERE display=1 AND company='".$this->config->item('company')."'
 		";
 		
 		$this->processOrderby($q,'time','DESC');
@@ -41,7 +41,7 @@ class News extends SS_controller{
 	}
 	
 	function edit($id=NULL){
-		getPostData();
+		$this->getPostData($id);
 		
 		//取得数据
 		$q_news="SELECT * FROM news WHERE id='".post(''.IN_UICE.'/id')."'";
@@ -63,7 +63,7 @@ class News extends SS_controller{
 				showMessage('请填写标题','warning');
 			}
 			
-			processSubmit($submitable);
+			$this->processSubmit($submitable);
 		}
 	}
 }

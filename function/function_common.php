@@ -324,11 +324,13 @@ function redirect($url,$method='php',$unsetPara=NULL,$jump_to_top_frame=false){
  * 注意区分DOM中的parent和opener这两个概念，前者是上层框架，后者是弹出窗口的打开者
  */
 function refreshParentContentFrame(){
-	echo '<script type="text/javascript">window.rootOpener.parent.contentFrame.location.reload();</script>';
+	$CI=&get_instance();
+	$CI->output->append_output('<script type="text/javascript">window.rootOpener.parent.contentFrame.location.reload();</script>');
 }
 
 function closeWindow(){
-	echo '<script type="text/javascript">window.close();</script>';
+	$CI=&get_instance();
+	$CI->output->append_output('<script type="text/javascript">window.close();</script>');
 }
 
 /*

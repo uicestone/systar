@@ -6,7 +6,7 @@ class Document extends SS_controller{
 	
 	function index(){
 		if(!sessioned('currentPath',NULL,false))
-			$_SESSION['document']['currentPath']=$_G['document_root'];
+			$_SESSION['document']['currentPath']=$this->config->item('document_root');
 		
 		if(!sessioned('currentDir',NULL,false))
 			$_SESSION['document']['currentDir']='root';
@@ -173,7 +173,7 @@ class Document extends SS_controller{
 				'comment'=>$_POST['comment'],
 				'uid'=>$_SESSION['id'],
 				'username'=>$_SESSION['username'],
-				'time'=>$_G['timestamp']
+				'time'=>$this->config->item('timestamp')
 			);
 			db_insert('document',$fileInfo,false,$db_replace);
 			redirect('/document');

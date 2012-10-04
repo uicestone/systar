@@ -55,7 +55,7 @@ class Evaluation extends SS_controller{
 			position.ui_name AS position_name,
 			staff.name AS staff_name
 		FROM evaluation_score 
-			INNER JOIN evaluation_indicator ON evaluation_indicator.id=evaluation_score.indicator AND evaluation_score.quarter='".$_G['quarter']."'
+			INNER JOIN evaluation_indicator ON evaluation_indicator.id=evaluation_score.indicator AND evaluation_score.quarter='".$this->config->item('quarter')."'
 			INNER JOIN staff ON staff.id=evaluation_score.uid
 			INNER JOIN position ON evaluation_indicator.critic=position.id
 		WHERE comment IS NOT NULL AND staff='".$_SESSION['id']."'

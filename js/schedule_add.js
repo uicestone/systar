@@ -7,7 +7,7 @@ $(function(){
 		var type=$(this).val();//日程类别，0案件，1所务，2营销
 
 		//根据日程类别获得案件列表
-		caseSelect.getOptions('case_getListByScheduleType',type,1,function(scheduleCase){
+		caseSelect.getOptions('cases','getListByScheduleType',type,1,function(scheduleCase){
 			caseSelect.trigger('change',{scheduleCase:scheduleCase,type:type});
 		});
 		
@@ -29,7 +29,7 @@ $(function(){
 			}else{
 				$('input[name="schedule[client]"]').hide(200).attr('disabled','disabled');
 				$('select[name="schedule[client]"]').show(200).removeAttr('disabled')
-				.getOptions('client_getListByCase',scheduleCase,1);
+				.getOptions('client','getListByCase',scheduleCase,1);
 			}
 		}else{
 			$('[name="schedule[client]"]').hide(200).attr('disabled','disabled');

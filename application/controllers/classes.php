@@ -55,7 +55,7 @@ class Classes extends SS_controller{
 	function edit($id=NULL){
 		model('staff');
 		
-		getPostData();
+		getPostData($id);
 		
 		$submitable=false;
 		
@@ -68,7 +68,7 @@ class Classes extends SS_controller{
 				$submitable=false;
 			}
 		
-			processSubmit($submitable);
+			$this->processSubmit($submitable);
 		}
 		
 		post('class/class_teacher')>0 && post('class_extra/class_teacher_name',db_fetch_field("

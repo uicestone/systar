@@ -31,7 +31,7 @@ class Cases extends SS_controller{
 				LEFT JOIN
 				(
 					SELECT * FROM(
-						SELECT * FROM `schedule` WHERE completed=0 AND display=1 AND time_start>'{$_G['timestamp']}' ORDER BY time_start LIMIT 1000
+						SELECT * FROM `schedule` WHERE completed=0 AND display=1 AND time_start>'{$this->config->item('timestamp')}' ORDER BY time_start LIMIT 1000
 					)schedule_id_asc 
 					GROUP BY `case`
 				)plan_grouped
@@ -68,7 +68,7 @@ class Cases extends SS_controller{
 				)uncollected
 				ON case.id=uncollected.case
 				
-			WHERE case.company='{$_G['company']}' AND case.display=1 AND is_query=0 AND case.filed=0 AND case.id>=20
+			WHERE case.company='{$this->config->item('company')}' AND case.display=1 AND is_query=0 AND case.filed=0 AND case.id>=20
 		";
 		
 		//此query过慢，用其简化版计算总行数
@@ -77,7 +77,7 @@ class Cases extends SS_controller{
 				COUNT(id)
 			FROM 
 				`case`
-			WHERE case.company='{$_G['company']}' AND case.display=1 AND is_query=0 AND case.filed=0 AND case.id>=20
+			WHERE case.company='{$this->config->item('company')}' AND case.display=1 AND is_query=0 AND case.filed=0 AND case.id>=20
 		";
 		
 		$condition='';
@@ -146,9 +146,9 @@ class Cases extends SS_controller{
 		$this->load->model('client_model','client');
 		$this->load->model('schedule_model','schedule');
 		
-		getPostData(function(){
-			post('case/time_contract',$_G['date']);
-			post('case/time_end',date('Y-m-d',$_G['timestamp']+100*86400));
+		getPostData($id,function(){
+			post('case/time_contract',$this->config->item('date'));
+			post('case/time_end',date('Y-m-d',$this->config->item('timestamp')+100*86400));
 			//默认签约时间和结案时间
 		
 			post('case_client_extra/show_add_form',true);
@@ -334,7 +334,7 @@ class Cases extends SS_controller{
 				post('case_fee_timing/timing_start');
 				
 				post('case_fee_timing/uid',$_SESSION['id']);
-				post('case_fee_timing/time',$_G['timestamp']);
+				post('case_fee_timing/time',$this->config->item('timestamp'));
 					
 				if(
 					post('case/timing_fee') && 
@@ -380,7 +380,7 @@ class Cases extends SS_controller{
 					showMessage('文件上传错误:'.$_FILES["file"]["error"],'warning');
 		
 				}else{
-					$storePath=iconv("utf-8","gbk",$_G['case_document_path']."/".$_FILES["file"]["name"]);//存储路径转码
+					$storePath=iconv("utf-8","gbk",$this->config->item('case_document_path')."/".$_FILES["file"]["name"]);//存储路径转码
 					
 					move_uploaded_file($_FILES['file']['tmp_name'], $storePath);
 				
@@ -390,14 +390,14 @@ class Cases extends SS_controller{
 					
 					$_SESSION['case']['post']['case_document']['id']=case_addDocument(post('case/id'),post('case_document'));
 		
-					rename(iconv("utf-8","gbk",$_G['case_document_path']."/".$_FILES["file"]["name"]),iconv("utf-8","gbk",$_G['case_document_path']."/".post('case_document/id')));
+					rename(iconv("utf-8","gbk",$this->config->item('case_document_path')."/".$_FILES["file"]["name"]),iconv("utf-8","gbk",$this->config->item('case_document_path')."/".post('case_document/id')));
 				}
 				
 				unset($_SESSION['case']['post']['case_document']);
 			}
 		
 			if(is_posted('submit/file_document_list')){
-				$_G['require_export']=false;
+				$this->config->item('require_export')=false;
 				model('document');
 				$document_catalog=case_getDocumentCatalog(post('case/id'),post('case_document_check'));
 				require 'view/case_document_catalog.php';
@@ -448,8 +448,8 @@ class Cases extends SS_controller{
 			if(is_posted('submit/new_case')){
 				post('case/is_query',0);
 				post('case/num','');
-				post('case/time_contract',$_G['date']);
-				post('case/time_end',date('Y-m-d',$_G['timestamp']+100*86400));
+				post('case/time_contract',$this->config->item('date'));
+				post('case/time_end',date('Y-m-d',$this->config->item('timestamp')+100*86400));
 				//默认签约时间和结案时间
 		
 				showMessage('已立案，请立即获得案号');
@@ -511,7 +511,7 @@ class Cases extends SS_controller{
 			}
 			
 			if(is_posted('submit/apply_file')){
-				post('case/time_end',$_G['date']);
+				post('case/time_end',$this->config->item('date'));
 				post('case/apply_file',1);
 				showMessage('归档申请已接受');
 			}
@@ -527,13 +527,13 @@ class Cases extends SS_controller{
 			}
 			
 			if(is_posted('submit/review_manager')){
-				post('case/time_end',$_G['date']);
+				post('case/time_end',$this->config->item('date'));
 				post('case/manager_review',1);
 				showMessage('案件已经审核，已正式归档');
 			}
 			
 			if(!post('case/is_query') && is_posted('submit/file')){
-				db_insert('file_status',array('case'=>post('case/id'),'status'=>'在档','time'=>$_G['timestamp']));
+				db_insert('file_status',array('case'=>post('case/id'),'status'=>'在档','time'=>$this->config->item('timestamp')));
 				post('case/filed',1);
 				showMessage('案件实体归档完成');
 			}
@@ -595,7 +595,7 @@ class Cases extends SS_controller{
 				showMessage('请填写案件争议焦点','warning');
 			}
 			
-			processSubmit($submitable,NULL,NULL,false,true,false);
+			$this->processSubmit($submitable,NULL,NULL,false,true,false);
 		}
 		
 		//计算本案有效日志总时间
@@ -670,7 +670,7 @@ class Cases extends SS_controller{
 			header('Content-Disposition:filename="'.$filename.'"');
 		}
 		
-		$path=iconv("utf-8","gbk",$_G['case_document_path'].'/'.$id);
+		$path=iconv("utf-8","gbk",$this->config->item('case_document_path').'/'.$id);
 		
 		readfile($path);
 		exit;

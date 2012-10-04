@@ -14,7 +14,7 @@ class Staff extends SS_controller{
 				position.ui_name AS position_name
 			FROM staff LEFT JOIN course ON staff.course=course.id
 				LEFT JOIN position ON staff.position=position.id
-			WHERE staff.company='".$_G['company']."'
+			WHERE staff.company='".$this->config->item('company')."'
 		";
 		
 		$search_bar=$this->processSearch($q,array('name'=>'姓名'));
@@ -23,7 +23,7 @@ class Staff extends SS_controller{
 		
 		$listLocator=$this->processMultiPage($q);
 		
-		if($_G['company_type']=='school'){
+		if($this->config->item('company_type')=='school'){
 			$field=array(
 				'id'=>array('title'=>'姓名','content'=>'{name}'),
 				'course_name'=>array('title'=>'学科'),

@@ -50,9 +50,9 @@ class Express extends SS_controller{
 	}
 	
 	function edit($id=NULL){
-		getPostData(function(){
+		$this->getPostData($id,function(){
 			global $_G;
-			post('express/time_send',$_G['timestamp']);
+			post('express/time_send',$this->config->item('timestamp'));
 		});
 		
 		$q_sender_name="SELECT name FROM staff WHERE id='".post('express/sender')."'";
@@ -86,7 +86,7 @@ class Express extends SS_controller{
 				showMessage('寄送日期格式错误','warning');
 			}
 			
-			processSubmit($submitable);
+			$this->processSubmit($submitable);
 		}
 	}
 }

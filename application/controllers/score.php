@@ -145,7 +145,7 @@ class Score extends SS_controller{
 				//插入分数
 				$q_insert_score="
 				REPLACE INTO score (student,exam,exam_paper,exam_part,score,is_absent,scorer,scorer_username,time)
-				SELECT view_student.id,'".$currentExam['exam']."','".$currentExam['exam_paper']."','".$exam_part."',t.`".$exam_part."`,if(t.`".$exam_part."` IS NULL,1,0),'".$_SESSION['id']."','".$_SESSION['username']."','".$_G['timestamp']."'  
+				SELECT view_student.id,'".$currentExam['exam']."','".$currentExam['exam_paper']."','".$exam_part."',t.`".$exam_part."`,if(t.`".$exam_part."` IS NULL,1,0),'".$_SESSION['id']."','".$_SESSION['username']."','".$this->config->item('timestamp')."'  
 				FROM t INNER JOIN view_student ON t.num=view_student.num
 				";
 				mysql_query($q_insert_score);
@@ -196,7 +196,7 @@ class Score extends SS_controller{
 				'is_absent'=>is_posted('is_absent')?'1':'0',
 				'scorer'=>$_SESSION['id'],
 				'scorer_username'=>$_SESSION['username'],
-				'time'=>$_G['timestamp']
+				'time'=>$this->config->item('timestamp')
 			);
 			
 			if($_POST['score']!=$_SESSION['score']['currentScore']['score'] || isset($_POST['is_absent'])!=$_SESSION['score']['currentScore']['is_absent'])

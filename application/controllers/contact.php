@@ -77,10 +77,10 @@ class Contact extends SS_controller{
 	function edit($id=NULL){
 		model('client');
 	
-		getPostData(function(){
+		$this->getPostData($id,function(){
 			global $_G;
-			post('contact/name',$_SESSION['username'].'的新联系人 '.date('Y-m-d h:i:s',$_G['timestamp']));
-			post('contact/abbreviation',$_SESSION['username'].'的新联系人 '.date('Y-m-d h:i:s',$_G['timestamp']));
+			post('contact/name',$_SESSION['username'].'的新联系人 '.date('Y-m-d h:i:s',$this->config->item('timestamp')));
+			post('contact/abbreviation',$_SESSION['username'].'的新联系人 '.date('Y-m-d h:i:s',$this->config->item('timestamp')));
 		},true,'client');
 		
 		if(is_posted('character')){
@@ -108,7 +108,7 @@ class Contact extends SS_controller{
 							'type'=>'潜在联系人',
 							'uid'=>array_dir('_SESSION/id'),
 							'username'=>array_dir('_SESSION/username'),
-							'time'=>$_G['timestamp']
+							'time'=>$this->config->item('timestamp')
 						);
 						db_insert('client',$new_contact);
 						$new_contact['id']=db_insert_id();
@@ -177,7 +177,7 @@ class Contact extends SS_controller{
 				showMessage('请填写联系人简称','warning');
 			}
 			
-			processSubmit($submitable,NULL,'client');
+			$this->processSubmit($submitable,NULL,'client');
 		}
 		
 		//准备contact_add表单中的小表

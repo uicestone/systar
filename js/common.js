@@ -198,7 +198,7 @@ jQuery.fn.getOptions=function(affair,method,active_value,select_type,callback){
 		select_type=0;
 	}
 	var passive_select=$(this);
-	$.post('misc/getselectoption',{affair:affair,method:method,active_value:active_value,select_type:select_type},function(options_html){
+	$.post('/misc/getselectoption',{affair:affair,method:method,active_value:active_value,select_type:select_type},function(options_html){
 		passive_select.html('')
 		.html(options_html);
 		if (typeof callback != 'undefined'){

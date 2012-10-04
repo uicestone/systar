@@ -51,8 +51,8 @@ class user extends SS_controller{
 					
 					$this->model->update_login_time();
 					
-					if(function_exists($_G['company_type'].'_init')){
-						call_user_func($_G['company_type'].'_init');
+					if(function_exists($this->config->item('company_type').'_init')){
+						call_user_func($this->config->item('company_type').'_init');
 					}
 			
 					if(!isset($user['password'])){
@@ -82,7 +82,7 @@ class user extends SS_controller{
 			
 			$_SESSION[IN_UICE]['post']=array_replace_recursive($_SESSION[IN_UICE]['post'],$_POST);
 			
-			if($_G['ucenter']){
+			if($this->config->item('ucenter')){
 				if(uc_user_edit($_SESSION['username'],$_POST['password'],$_POST['password_new'],$_POST['email'])>0){
 					redirect('','js');
 				}

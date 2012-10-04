@@ -8,7 +8,7 @@ class Cron extends SS_controller{
 		model('document');
 		forceExport();
 		
-		db_update('document',array('path'=>$_G['document_root']),'id=1');
+		db_update('document',array('path'=>$this->config->item('document_root')),'id=1');
 		
 		//从实体数据库取出内存表
 		db_query("

@@ -19,7 +19,7 @@ class SS_Controller extends CI_Controller{
 		}elseif(is_null(post(IN_UICE.'/id'))){
 			unset($_SESSION[IN_UICE]['post']);
 		
-			processUidTimeInfo(IN_UICE);
+			$this->processUidTimeInfo(IN_UICE);
 		
 			if(is_a($callback,'Closure')){
 				$callback();
@@ -27,8 +27,8 @@ class SS_Controller extends CI_Controller{
 	
 			if($generate_new_id){
 				if(is_null($db_table)){
-					if($this->_G['actual_table']!=''){
-						$db_table=$this->_G['actual_table'];
+					if($this->config->item('actual_table')!=''){
+						$db_table=$this->config->item('actual_table');
 					}else{
 						$db_table=IN_UICE;
 					}
@@ -42,8 +42,8 @@ class SS_Controller extends CI_Controller{
 			showMessage('获得信息ID失败','warning');
 			exit;
 		}
-		
-		post(IN_UICE,$this->model->fetch(post(IN_UICE.'/id')));
+		global $class;
+		post(IN_UICE,$this->$class->fetch(post(IN_UICE.'/id')));
 	}
 	/*
 		输出一个数组，包含表格中的所有单元格数据
@@ -449,7 +449,7 @@ class SS_Controller extends CI_Controller{
 		}
 
 		if($set_time){
-			post(IN_UICE.'/time',$this->_G['timestamp']);
+			post(IN_UICE.'/time',$this->config->item('timestamp'));
 		}
 
 		if($set_user){
@@ -457,11 +457,11 @@ class SS_Controller extends CI_Controller{
 			post(IN_UICE.'/username',$_SESSION['username']);
 		}
 
-		post(IN_UICE.'/company',$this->_G['company']);
+		post(IN_UICE.'/company',$this->config->item('company'));
 
 		if(is_null($update_table)){
-			if($this->_G['actual_table']!=''){
-				$update_table=$this->_G['actual_table'];
+			if($this->config->item('actual_table')!=''){
+				$update_table=$this->config->item('actual_table');
 			}else{
 				$update_table=IN_UICE;
 			}
@@ -476,15 +476,15 @@ class SS_Controller extends CI_Controller{
 
 				if(is_posted('submit/'.IN_UICE)){
 
-					if(!$this->_G['as_controller_default_page']){
+					if(!$this->config->item('as_controller_default_page')){
 						unset($_SESSION[IN_UICE]['post']);
 					}
 
-					if($this->_G['as_popup_window']){
+					if($this->config->item('as_popup_window')){
 						refreshParentContentFrame();
 						closeWindow();
 					}else{
-						if($this->_G['as_controller_default_page']){
+						if($this->config->item('as_controller_default_page')){
 							showMessage('保存成功~');
 						}else{
 							redirect((sessioned('last_list_action')?$_SESSION['last_list_action']:IN_UICE));
@@ -500,6 +500,18 @@ class SS_Controller extends CI_Controller{
 			post($affair,array());
 		}
 		post($affair,post($affair)+uidTime());
+	}
+	
+	function cancel(){
+		unset($_SESSION[IN_UICE]['post']);
+		
+		db_delete($this->config->item('actual_table')==''?IN_UICE:$this->config->item('actual_table'),"uid='".$_SESSION['id']."' AND display=0");//删除本用户的误添加数据
+		
+		if($this->config->item('as_popup_window')){
+			closeWindow();
+		}else{
+			redirect((sessioned('last_list_action')?$_SESSION['last_list_action']:IN_UICE));
+		}
 	}
 
 }

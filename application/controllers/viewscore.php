@@ -175,7 +175,7 @@ class ViewScore extends SS_controller{
 				INSERT IGNORE INTO view_score (student,extra_course,exam,course_1,course_2,course_3,course_4,course_5,course_6,course_7,course_8,course_9,course_10,time)
 				SELECT 
 					student,extra_course,exam,
-					course_1,course_2,course_3,course_4,course_5,course_6,course_7,course_8,course_9,course_10,'".$_G['timestamp']."'
+					course_1,course_2,course_3,course_4,course_5,course_6,course_7,course_8,course_9,course_10,'".$this->config->item('timestamp')."'
 				FROM
 				(
 					SELECT score_sum.student,student.extra_course,score_sum.exam,score_sum.exam_paper,

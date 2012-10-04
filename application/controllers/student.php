@@ -91,9 +91,9 @@ class Student extends SS_controller{
 	}
 	
 	function edit($id=NULL){
-		getPostData(function(){
+		$this->getPostData($id,function(){
 			global $_G;
-			post('student/name','新学生'.$_G['timestamp']);
+			post('student/name','新学生'.$this->config->item('timestamp'));
 			
 			post(IN_UICE.'/id',db_insert('user',array('group'=>'student')));
 			//先创建用户，再创建学生
@@ -108,7 +108,7 @@ class Student extends SS_controller{
 				staff.name AS class_teacher_name
 			FROM student_class
 				INNER JOIN class ON student_class.class=class.id
-				LEFT JOIN staff ON class.class_teacher=staff.id AND staff.company='".$_G['company']."'
+				LEFT JOIN staff ON class.class_teacher=staff.id AND staff.company='".$this->config->item('company')."'
 			WHERE student='".post('student/id')."' 
 				AND term='".$_SESSION['global']['current_term']."'
 		";
@@ -203,7 +203,7 @@ class Student extends SS_controller{
 				}
 			}
 			
-			processSubmit($submitable,function(){
+			$this->processSubmit($submitable,function(){
 				$username=db_fetch_field("SELECT username FROM user WHERE id = '".post(IN_UICE.'/id')."'");
 				if(!$username){
 					student_update();
@@ -217,7 +217,7 @@ class Student extends SS_controller{
 				id,name,relationship,work_for,contact
 			FROM 
 				student_relatives
-			WHERE company='".$_G['company']."'
+			WHERE company='".$this->config->item('company')."'
 				AND `student`='".post('student/id')."'
 		";
 		
@@ -255,7 +255,7 @@ class Student extends SS_controller{
 			'time'=>array('title'=>'时间','orderby'=>false)
 		);
 		
-		if($_G['as_controller_default_page']){
+		if($this->config->item('as_controller_default_page')){
 			$_SESSION['last_list_action']=$_SERVER['REQUEST_URI'];
 		}
 		

@@ -191,10 +191,10 @@ class Schedule extends SS_controller{
 	}
 	
 	function edit($id=NULL){
-		model('case');
-		model('client');
+		$this->load->model('cases_model','cases');
+		$this->load->model('client_model','client');
 		
-		getPostData(function(){
+		$this->getPostData($id,function(){
 			if(got('case')){
 				post('schedule/case',intval($_GET['case']));
 			}
@@ -243,7 +243,7 @@ class Schedule extends SS_controller{
 			post('schedule/time_end',post('schedule/time_start')+post('schedule/hours_own')*3600);
 			
 			if($_FILES['file']['name']){
-				$storePath=iconv("utf-8","gbk",$_G['case_document_path']."/".$_FILES["file"]["name"]);//存储路径转码
+				$storePath=iconv("utf-8","gbk",$this->config->item('case_document_path')."/".$_FILES["file"]["name"]);//存储路径转码
 				
 				move_uploaded_file($_FILES['file']['tmp_name'], $storePath);
 			
@@ -267,7 +267,7 @@ class Schedule extends SS_controller{
 					}
 				}
 		
-				rename(iconv("utf-8","gbk",$_G['case_document_path']."/".$_FILES["file"]["name"]),iconv("utf-8","gbk",$_G['case_document_path']."/".post('schedule/document')));
+				rename(iconv("utf-8","gbk",$this->config->item('case_document_path')."/".$_FILES["file"]["name"]),iconv("utf-8","gbk",$this->config->item('case_document_path')."/".post('schedule/document')));
 		
 				unset($_SESSION['case']['post']['case_document']);
 			}
@@ -276,7 +276,7 @@ class Schedule extends SS_controller{
 				db_update('case_document',post('case_document'),"id='".post('schedule/document')."'");
 			}
 		
-			processSubmit($submitable);
+			$this->processSubmit($submitable);
 		}
 		
 		//为scheduleType的Radio准备值
@@ -292,10 +292,12 @@ class Schedule extends SS_controller{
 		}
 		
 		//准备案件数组
-		$case_array=case_getListByScheduleType(post('schedule_extra/type'));
+		$case_array=$this->cases->getListByScheduleType(post('schedule_extra/type'));
 		
 		//准备客户数组
-		$client_array=client_getListByCase(post('schedule/case'));
+		$client_array=$this->client->getListByCase(post('schedule/case'));
+		
+		$this->data+=compact('case_array','client_array');
 		
 		//获得案名
 		$q_case="SELECT name FROM `case` WHERE id='".post('schedule/case')."'";
@@ -327,7 +329,7 @@ class Schedule extends SS_controller{
 		
 		if(is_posted('schedule_list_hours_checked') || is_posted('schedule_list_hours_checked')){
 			foreach($_POST['schedule_list_hours_checked'] as $id => $hours_checked){
-				echo schedule_check_hours($id,$hours_checked);
+				echo $this->schedule->check_hours($id,$hours_checked);
 			}
 		}
 	}

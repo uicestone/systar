@@ -61,8 +61,8 @@ class Achievement extends SS_controller{
 				'</div>'
 		);
 		
-		$month_start_timestamp=strtotime(date('Y-m',$_G['timestamp']).'-1');
-		$month_end_timestamp=mktime(0,0,0,date('m',$_G['timestamp'])+1,1,date('Y',$_G['timestamp']));
+		$month_start_timestamp=strtotime(date('Y-m',$this->config->item('timestamp')).'-1');
+		$month_end_timestamp=mktime(0,0,0,date('m',$this->config->item('timestamp'))+1,1,date('Y',$this->config->item('timestamp')));
 		
 		$achievement_sum=array(
 			'_field'=>array(
@@ -155,7 +155,7 @@ class Achievement extends SS_controller{
 			AND case_fee.`case` NOT IN (
 				SELECT id FROM `case` WHERE filed=1
 			)
-			AND FROM_UNIXTIME(pay_time,'%Y-%m-%d')>='".$_G['date']."'
+			AND FROM_UNIXTIME(pay_time,'%Y-%m-%d')>='".$this->config->item('date')."'
 		";
 		
 		$this->processOrderby($q,'case_fee.pay_time');
@@ -225,7 +225,7 @@ class Achievement extends SS_controller{
 			AND case_fee.`case` NOT IN (
 				SELECT id FROM `case` WHERE filed='已归档'
 			)
-			AND FROM_UNIXTIME(pay_time,'%Y-%m-%d')<'".$_G['date']."'
+			AND FROM_UNIXTIME(pay_time,'%Y-%m-%d')<'".$this->config->item('date')."'
 			AND case.filed<>'已归档'
 		";
 		
@@ -382,7 +382,7 @@ class Achievement extends SS_controller{
 				FROM case_fee INNER JOIN `case` ON case.id=case_fee.case
 				GROUP BY LEFT(case.time_contract,7)
 			)contract USING (month)
-			WHERE LEFT(month,4)='".date('Y',$_G['timestamp'])."'
+			WHERE LEFT(month,4)='".date('Y',$this->config->item('timestamp'))."'
 		";
 		
 		$monthly_collect=db_toArray($q_monthly_achievement);
@@ -413,12 +413,12 @@ class Achievement extends SS_controller{
 		FROM (
 			SELECT LEFT(date_start,7) AS month, COUNT(id) AS queries, SUM(IF(filed=1,1,0)) AS filed_queries, SUM(IF(filed='洽谈',1,0)) AS live_queries
 			FROM query 
-			WHERE LEFT(date_start,4)='".date('Y',$_G['timestamp'])."'
+			WHERE LEFT(date_start,4)='".date('Y',$this->config->item('timestamp'))."'
 			GROUP BY LEFT(date_start,7)
 		)query INNER JOIN (
 			SELECT LEFT(time_contract,7) AS month, COUNT(id) AS cases
 			FROM `case`
-			WHERE LEFT(time_contract,4)='".date('Y',$_G['timestamp'])."'
+			WHERE LEFT(time_contract,4)='".date('Y',$this->config->item('timestamp'))."'
 			GROUP BY LEFT(time_contract,7)
 		)`case` USING(month)";
 		$monthly_queries=db_toArray($q_monthly_queries);
@@ -435,7 +435,7 @@ class Achievement extends SS_controller{
 		$q_personally_queries="
 			SELECT staff.name AS staff_name, COUNT(query.id) AS queries, SUM(IF(filed='归档',1,0)) AS filed_queries, SUM(IF(filed='洽谈',1,0)) AS live_queries
 			FROM query INNER JOIN staff ON staff.id=query.lawyer
-			WHERE LEFT(date_start,4)='".date('Y',$_G['timestamp'])."'
+			WHERE LEFT(date_start,4)='".date('Y',$this->config->item('timestamp'))."'
 			GROUP BY lawyer
 			ORDER BY live_queries DESC, queries DESC
 		";
@@ -452,7 +452,7 @@ class Achievement extends SS_controller{
 		$q_personally_type_queries="
 			SELECT staff.name AS staff_name, COUNT(query.id) AS queries, SUM(IF(type='面谈咨询',1,0)) AS face_queries, SUM(IF(type='电话咨询',1,0)) AS call_queries, SUM(IF(type='网上咨询',1,0)) AS online_queries
 			FROM query INNER JOIN staff ON staff.id=query.lawyer
-			WHERE LEFT(date_start,4)='".date('Y',$_G['timestamp'])."'
+			WHERE LEFT(date_start,4)='".date('Y',$this->config->item('timestamp'))."'
 			GROUP BY lawyer
 			ORDER BY face_queries DESC, call_queries DESC, online_queries DESC
 		";

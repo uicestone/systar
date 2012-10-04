@@ -71,7 +71,7 @@ class Account extends SS_controller{
 		$this->load->model('client_model');
 		$this->load->model('case_model');
 		
-		getPostData($id,function(){
+		$this->getPostData($id,function(){
 			if(got('case')){
 				post(IN_UICE.'/case',intval($_GET['case']));
 			}
@@ -132,7 +132,7 @@ class Account extends SS_controller{
 		
 			post('account',array_trim(post('account')));//imperfect 2012/5/25 uicestone 为了让没有case_fee 和case的account能够保存
 			
-			processSubmit($submitable);
+			$this->processSubmit($submitable);
 		}
 		
 		if(post('account/client')){

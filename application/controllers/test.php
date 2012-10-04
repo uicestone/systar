@@ -6,11 +6,9 @@ class Test extends SS_controller{
 	
 	function index(){
 		
-		global $_G;
+		$this->config->set_item('require_export',false);
 		
-		$this->load->view('head');
-		
-		print_r($_G);
+		//$this->load->view('head');
 		
 		print_r($_SESSION);
 	}

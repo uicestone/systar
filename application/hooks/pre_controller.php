@@ -247,11 +247,11 @@ function preController(){
 			$CFG->set_item('require_export',false);
 		}
 	}
-
+	
 	if(is_posted('submit/cancel') && is_permitted($class)){
 		$CFG->set_item('require_export',false);
-		$class='misc';
 		$method='cancel';
 	}
+
 }
 ?>

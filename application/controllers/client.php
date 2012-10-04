@@ -95,8 +95,8 @@ class Client extends SS_Controller{
 		
 		$this->getPostData($id,function(){
 			global $_G;
-			post('client/name',$_SESSION['username'].'的新客户 '.date('Y-m-d h:i:s',$_G['timestamp']));
-			post('client/abbreviation',$_SESSION['username'].'的新客户 '.date('Y-m-d h:i:s',$_G['timestamp']));
+			post('client/name',$_SESSION['username'].'的新客户 '.date('Y-m-d h:i:s',$this->config->item('timestamp')));
+			post('client/abbreviation',$_SESSION['username'].'的新客户 '.date('Y-m-d h:i:s',$this->config->item('timestamp')));
 			
 			post('client_extra/source_lawyer_name',$_SESSION['username']);
 		});
@@ -212,7 +212,7 @@ class Client extends SS_Controller{
 			if(post('client/source_lawyer',$this->staff_model->check(post('client_extra/source_lawyer_name'),'id',true,'client/source_lawyer'))<0){
 				$submitable=false;
 			}
-			processSubmit($submitable);
+			$this->processSubmit($submitable);
 		}
 		
 		//准备client_add表单中的小表
