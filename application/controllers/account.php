@@ -23,7 +23,7 @@ class Account extends SS_controller{
 		
 		$date_range_bar=$this->dateRange($q,'account.time_occur');
 		
-		processOrderby($q,'time_occur','DESC');
+		$this->processOrderby($q,'time_occur','DESC');
 		
 		$listLocator=$this->processMultiPage($q);
 		
@@ -202,7 +202,7 @@ class Account extends SS_controller{
 		
 		$search_bar=$this->processSearch($q,array('num'=>'案号','name'=>'名称','lawyers.lawyers'=>'主办律师'));
 		
-		processOrderby($q,'case.time_contract','DESC',array('case.name','lawyers'));
+		$this->processOrderby($q,'case.time_contract','DESC',array('case.name','lawyers'));
 		
 		$listLocator=$this->processMultiPage($q);
 		

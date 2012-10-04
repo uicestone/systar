@@ -502,14 +502,5 @@ class SS_Controller extends CI_Controller{
 		post($affair,post($affair)+uidTime());
 	}
 
-	function uidTime(){
-		$array=array(
-			'uid'=>$_SESSION['id'],
-			'username'=>$_SESSION['username'],
-			'time'=>$this->_G['timestamp'],
-			'company'=>$this->_G['company']
-		);
-		return $array;
-	}	
 }
 ?>

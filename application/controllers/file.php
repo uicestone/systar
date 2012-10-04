@@ -67,7 +67,7 @@ class File extends SS_controller{
 		
 		$search_bar=$this->processSearch($q,array('case_num_grouped.num'=>'案号','case.name'=>'名称','lawyers.lawyers'=>'主办律师'));
 		
-		processOrderby($q,'time_contract','DESC',array('case.name','lawyers'));
+		$this->processOrderby($q,'time_contract','DESC',array('case.name','lawyers'));
 		
 		$listLocator=$this->processMultiPage($q);
 		
@@ -144,7 +144,7 @@ class File extends SS_controller{
 		
 		$search_bar=$this->processSearch($q,array('case'=>'案件','lawyer'=>'律师','client'=>'客户'));
 		
-		processOrderby($q,'time','DESC',array('case','client','lawyer','status'));
+		$this->processOrderby($q,'time','DESC',array('case','client','lawyer','status'));
 		
 		$listLocator=$this->processMultiPage($q);
 		
@@ -226,7 +226,7 @@ class File extends SS_controller{
 		
 		$search_bar=$this->processSearch($q,array('case_num_grouped.num'=>'案号','case.name'=>'名称','lawyers.lawyers'=>'主办律师'));
 		
-		processOrderby($q,'case.time_contract','ASC',array('case.name','lawyers'));
+		$this->processOrderby($q,'case.time_contract','ASC',array('case.name','lawyers'));
 		
 		$listLocator=$this->processMultiPage($q);
 		
@@ -258,7 +258,7 @@ class File extends SS_controller{
 			WHERE file.id=file_status.file 
 				AND file.id='".$_GET['view']."'";
 		
-		processOrderby($q,'time','DESC');
+		$this->processOrderby($q,'time','DESC');
 		
 		$field=Array('file'=>'序号','client'=>'客户','case'=>'案件','lawyer'=>'承办律师','status'=>'状态','time'=>'时间','person'=>'借阅人','comment'=>'备注');
 		

@@ -21,7 +21,7 @@ class Property extends SS_controller{
 		
 		$searchBar=$this->processSearch($q,array('name'=>'物品','admin'=>'管理人'));
 		
-		processOrderby($q,'time','DESC',array('property'));
+		$this->processOrderby($q,'time','DESC',array('property'));
 		
 		$listLocator=$this->processMultiPage($q);
 		
@@ -123,7 +123,7 @@ class Property extends SS_controller{
 			WHERE property.id=property_status.property 
 				AND property.id='".$_GET['view']."'";
 		
-		processOrderby($q,'time','DESC');
+		$this->processOrderby($q,'time','DESC');
 		
 		$field=Array('property'=>'序号','num'=>'编号','name'=>'物品','status'=>'目前状态','time'=>'时间','usingPerson'=>'经手人','comment'=>'备注');
 		

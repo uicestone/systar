@@ -21,7 +21,7 @@ $(function() {
 		select: function(startDate,endDate, allDay) {
 			var dialog=createDialog('新日程');
 
-			$.get('misc/gethtml/schedule_calendar_add',function(schedule_calendar_add_form){
+			$.get('misc/gethtml/schedule/calendar_add',function(schedule_calendar_add_form){
 
 				//获取表单html
 				dialog.html(schedule_calendar_add_form).find('#combobox').combobox();
@@ -36,7 +36,7 @@ $(function() {
 				typeRadio.change(function(){
 					var type=$('input[name="type"]:checked').val();
 
-					caseSelect.getOptions('case_getListByScheduleType',type,1,function(scheduleCase){
+					caseSelect.getOptions('cases','getListByScheduleType',type,1,function(scheduleCase){
 						caseSelect.trigger('change',{scheduleCase:scheduleCase,type:type});
 					});
 				});
@@ -51,7 +51,7 @@ $(function() {
 					
 					if((data && data.type==2) || $('input[name="type"]:checked').val()==2){
 						$('#clientSelectBox').show(200).children('select').removeAttr('disabled')
-						.getOptions('client_getListByCase',scheduleCase,1);
+						.getOptions('client','getListByCase',scheduleCase,1);
 					}else{
 						$('#clientSelectBox,#clientInputBox').hide(200).children('select').attr('disabled','disabled');
 					}

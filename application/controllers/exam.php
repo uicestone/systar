@@ -17,7 +17,7 @@ class Exam extends SS_controller{
 				1=1
 			";
 				
-		processOrderby($q,'exam.id','DESC',array('exam.name'));
+		$this->processOrderby($q,'exam.id','DESC',array('exam.name'));
 		
 		$listLocator=$this->processMultiPage($q);
 		
@@ -158,7 +158,7 @@ class Exam extends SS_controller{
 				exam.id='".post('exam/id')."'
 			";
 				
-		processOrderby($q,'course.id');
+		$this->processOrderby($q,'course.id');
 		
 		$listLocator=$this->processMultiPage($q);
 		
@@ -199,7 +199,7 @@ class Exam extends SS_controller{
 				exam_student.exam='".$exam."'
 		";
 				
-		processOrderby($q,'view_student.num','ASC');
+		$this->processOrderby($q,'view_student.num','ASC');
 		
 		$listLocator=$this->processMultiPage($q);
 		

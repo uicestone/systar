@@ -190,7 +190,7 @@ function createDialog(title){
 	return dialog;
 }
 
-jQuery.fn.getOptions=function(affair,active_value,select_type,callback){
+jQuery.fn.getOptions=function(affair,method,active_value,select_type,callback){
 	/*
 	 * select_type 是选框的数据类型，可选0(type)和1(data)两个值，默认为0(type)
 	 */
@@ -198,7 +198,7 @@ jQuery.fn.getOptions=function(affair,active_value,select_type,callback){
 		select_type=0;
 	}
 	var passive_select=$(this);
-	$.post('misc?get_select_option',{affair:affair,active_value:active_value,select_type:select_type},function(options_html){
+	$.post('misc/getselectoption',{affair:affair,method:method,active_value:active_value,select_type:select_type},function(options_html){
 		passive_select.html('')
 		.html(options_html);
 		if (typeof callback != 'undefined'){

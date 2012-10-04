@@ -27,7 +27,7 @@ class Schedule extends SS_controller{
 			),
 		);
 		
-		$table_news=$this->$this->fetchTableArray($q_news, $field_news);
+		$table_news=$this->fetchTableArray($q_news, $field_news);
 		
 		$sidebar_table=array();
 		$sidebar_function=$this->config->item('syscode').'_'.'schedule_side_table';
@@ -352,7 +352,7 @@ class Schedule extends SS_controller{
 		
 		}
 		
-		processOrderby($q,'time_start','DESC',array('place'));
+		$this->processOrderby($q,'time_start','DESC',array('place'));
 		
 		$search_bar=$this->processSearch($q,array('staff.name'=>'人员'));
 		
@@ -475,7 +475,7 @@ class Schedule extends SS_controller{
 			INNER JOIN staff ON staff.id=this_week.uid
 		";
 		
-		$this->processOrderBy($q,'this_week_sum','DESC');
+		$this->$this->processOrderby($q,'this_week_sum','DESC');
 		
 		$field=array(
 			'staff_name'=>array('title'=>'姓名'),
@@ -492,14 +492,14 @@ class Schedule extends SS_controller{
 	
 	function writeCalendar(){
 		if(!is_posted('id')){//插入新的任务
-			echo schedule_add($_POST);
+			echo $this->schedule->add($_POST);
 			unset($_SESSION['schedule']['post']);
 			
 		}elseif(is_posted('action','delete')){//删除任务
-			schedule_delete($_POST['id']);
+			$this->schedule->delete($_POST['id']);
 		
 		}elseif(is_posted('action','updateContent')){//更新任务内容
-			schedule_update($_POST['id'],array(
+			$this->schedule->update($_POST['id'],array(
 				'content'=>$_POST['content'],
 				'experience'=>$_POST['experience'],
 				'completed'=>$_POST['completed'],

@@ -40,7 +40,7 @@ class Achievement extends SS_controller{
 		$q.=' GROUP BY case_fee_collected.id,case_lawyer.lawyer,case_lawyer.role
 			HAVING collected>0';
 		
-		processOrderby($q,'case_fee_collected.pay_time','DESC');
+		$this->processOrderby($q,'case_fee_collected.pay_time','DESC');
 		
 		$listLocator=$this->processMultiPage($q);
 		
@@ -154,7 +154,7 @@ class Achievement extends SS_controller{
 			AND FROM_UNIXTIME(pay_time,'%Y-%m-%d')>='".$_G['date']."'
 		";
 		
-		processOrderby($q,'case_fee.pay_time');
+		$this->processOrderby($q,'case_fee.pay_time');
 		
 		$listLocator=$this->processMultiPage($q);
 		
@@ -225,7 +225,7 @@ class Achievement extends SS_controller{
 			AND case.filed<>'已归档'
 		";
 		
-		processOrderby($q,'case_fee.pay_time');
+		$this->processOrderby($q,'case_fee.pay_time');
 		
 		$listLocator=$this->processMultiPage($q);
 		
@@ -292,7 +292,7 @@ class Achievement extends SS_controller{
 		
 		$q.="GROUP BY case_contribute.lawyer";
 		
-		processOrderby($q,'staff.id','ASC',array('staff_name'));
+		$this->processOrderby($q,'staff.id','ASC',array('staff_name'));
 		
 		$q_rows="SELECT COUNT(id) FROM staff";
 		
@@ -331,7 +331,7 @@ class Achievement extends SS_controller{
 		)account_sum
 		WHERE (account_sum.sum-600000)*0.04*staff.modulus>0
 		";
-		processOrderby($q,'staff.id','ASC',array('staff_name'));
+		$this->processOrderby($q,'staff.id','ASC',array('staff_name'));
 		
 		$q_rows="SELECT COUNT(id) FROM staff WHERE modulus>0";
 		

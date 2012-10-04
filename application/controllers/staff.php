@@ -19,7 +19,7 @@ class Staff extends SS_controller{
 		
 		$search_bar=$this->processSearch($q,array('name'=>'姓名'));
 		
-		processOrderby($q,'staff.id','ASC');
+		$this->processOrderby($q,'staff.id','ASC');
 		
 		$listLocator=$this->processMultiPage($q);
 		

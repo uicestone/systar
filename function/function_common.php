@@ -8,6 +8,17 @@ function company_fetchInfo(){
 	}
 }
 
+function uidTime(){
+	$CI=&get_instance();
+	$array=array(
+		'uid'=>$_SESSION['id'],
+		'username'=>$_SESSION['username'],
+		'time'=>$CI->config->item('timestamp'),
+		'company'=>$CI->config->item('company')
+	);
+	return $array;
+}	
+
 /*
  * 载入model的简写
  */

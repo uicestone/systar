@@ -11,7 +11,7 @@ class Evaluation extends SS_controller{
 			INNER JOIN position ON position.id=staff.position
 		";
 		
-		processOrderby($q,'id');
+		$this->processOrderby($q,'id');
 		
 		$listLocator=$this->processMultiPage($q);
 		
@@ -57,7 +57,7 @@ class Evaluation extends SS_controller{
 		WHERE comment IS NOT NULL AND staff='".$_SESSION['id']."'
 		";
 		
-		processOrderby($q,'evaluation_score.time','DESC');
+		$this->processOrderby($q,'evaluation_score.time','DESC');
 		
 		$listLocator=$this->processMultiPage($q);
 		
@@ -107,7 +107,7 @@ class Evaluation extends SS_controller{
 			INNER JOIN staff ON staff.id=each_other.staff	
 		";
 		
-		processOrderby($q,'staff');
+		$this->processOrderby($q,'staff');
 		
 		$field=array(
 			'staff_name'=>array('title'=>'姓名'),
@@ -155,7 +155,7 @@ class Evaluation extends SS_controller{
 			AND position='".$position."'
 		";
 		
-		processOrderby($q,'id');
+		$this->processOrderby($q,'id');
 		
 		$listLocator=$this->processMultiPage($q);
 		

@@ -9,7 +9,7 @@ class News extends SS_controller{
 			SELECT * FROM news WHERE display=1 AND company='".$_G['company']."'
 		";
 		
-		processOrderby($q,'time','DESC');
+		$this->processOrderby($q,'time','DESC');
 		
 		$listLocator=$this->processMultiPage($q);
 		

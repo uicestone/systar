@@ -32,7 +32,7 @@ class Contact extends SS_controller{
 		
 		$search_bar=$this->processSearch($q,array('name'=>'姓名','type'=>'类型','work_for'=>'单位','address'=>'地址'));
 		
-		processOrderby($q,'time','DESC',array('abbreviation','address','comment'));
+		$this->processOrderby($q,'time','DESC',array('abbreviation','address','comment'));
 		
 		$listLocator=$this->processMultiPage($q);
 		

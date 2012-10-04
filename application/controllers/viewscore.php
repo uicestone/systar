@@ -27,7 +27,7 @@ class ViewScore extends SS_controller{
 		
 		$search_bar=$this->processSearch($q,array('view_student.name'=>'学生'));
 		
-		processOrderby($q,'view_student.num');
+		$this->processOrderby($q,'view_student.num');
 		
 		$field=array(
 			'class'=>array('title'=>'班级','td_title'=>'width=103px','content'=>'{class_name}'),
@@ -307,7 +307,7 @@ class ViewScore extends SS_controller{
 		
 		$q.=' GROUP BY view_student.type';
 		
-		processOrderby($q,'student_num');
+		$this->processOrderby($q,'student_num');
 		
 		$field=array(
 			'type'=>array('title'=>'分类','td_title'=>'width=112px'),
@@ -349,7 +349,7 @@ class ViewScore extends SS_controller{
 		
 		$q_sum_3.=' GROUP BY class';
 		
-		processOrderby($q_sum_3,'class');
+		$this->processOrderby($q_sum_3,'class');
 		
 		$field=array(
 			'class'=>array('title'=>'班级','td_title'=>'width=112px','content'=>'{class_name}'),
@@ -386,7 +386,7 @@ class ViewScore extends SS_controller{
 		
 		$q_sum_5.=' GROUP BY class';
 		
-		processOrderby($q_sum_5,'class',NULL,array(),false);
+		$this->processOrderby($q_sum_5,'class',NULL,array(),false);
 		
 		$menu_sum_5=array(
 			'head'=>'<div style="float:left;margin-top:20px;">'.

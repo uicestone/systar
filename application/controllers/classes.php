@@ -22,7 +22,7 @@ class Classes extends SS_controller{
 				
 		$search_bar=$this->processSearch($q,array('name'=>'班级','depart'=>'部门'));
 		
-		processOrderby($q,'class.id','ASC');
+		$this->processOrderby($q,'class.id','ASC');
 		
 		$listLocator=$this->processMultiPage($q);
 		

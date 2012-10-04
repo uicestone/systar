@@ -47,7 +47,7 @@ class Student extends SS_controller{
 				
 		$search_bar=$this->processSearch($q,array('num'=>'学号','student.name'=>'姓名'));
 		
-		processOrderby($q,'num','ASC',array('num','student.name'));
+		$this->processOrderby($q,'num','ASC',array('num','student.name'));
 		
 		$listLocator=$this->processMultiPage($q);
 		

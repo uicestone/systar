@@ -25,7 +25,7 @@ class Document extends SS_controller{
 		
 		$q.=(option('in_search_mod')?'':"AND parent='".$_SESSION['document']['currentDirID']."'").'';
 		
-		processOrderby($q,'type','ASC');
+		$this->processOrderby($q,'type','ASC');
 			
 		$listLocator=$this->processMultiPage($q);
 		

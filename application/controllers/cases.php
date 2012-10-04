@@ -100,7 +100,7 @@ class Cases extends SS_controller{
 		
 		$search_bar=$this->processSearch($condition,array('case.num'=>'案号','case.type'=>'类别','case.name'=>'名称','lawyers.lawyers'=>'主办律师'));
 		
-		processOrderby($condition,'time_contract','DESC',array('case.name','lawyers'));
+		$this->processOrderby($condition,'time_contract','DESC',array('case.name','lawyers'));
 		
 		$q.=$condition;
 		$q_rows.=$condition;
@@ -693,7 +693,7 @@ class Cases extends SS_controller{
 		
 		$search_bar=$this->processSearch($q,array('case_num_grouped.num'=>'案号','case.name'=>'名称','lawyers.lawyers'=>'主办律师'));
 		
-		processOrderby($q,'case.time_contract','DESC',array('case.name','lawyers'));
+		$this->processOrderby($q,'case.time_contract','DESC',array('case.name','lawyers'));
 		
 		$listLocator=$this->processMultiPage($q);
 		

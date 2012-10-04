@@ -15,7 +15,7 @@ class Express extends SS_controller{
 		
 		$search_bar=$this->processSearch($q,array('num'=>'单号','staff.name'=>'寄送人','destination'=>'寄送地点'));
 		
-		processOrderby($q,'time_send','DESC');
+		$this->processOrderby($q,'time_send','DESC');
 		
 		$listLocator=$this->processMultiPage($q);
 		

@@ -43,26 +43,20 @@ class Misc extends SS_controller{
 	}
 	
 	function getHtml(){
-		if(got('name')){
-			if(in_array($_GET['name'],array('head','foot','frame','nav'))){
-				$path='view/common';
-			}else{
-				$path='view';
-			}
-			
-			if(is_file($path.'/'.$_GET['name'].'.php'))
-				require $path.'/'.$_GET['name'].'.php';
-			elseif(is_file($path.'/'.$_GET['name'].'.htm'))
-				require $path.'/'.$_GET['name'].'.htm';
+		$name=implode('/',func_get_args());
+		if(is_file(APPPATH.'views/'.$name.'.php')){
+			require APPPATH.'views/'.$name.'.php';
 		}
 	}
 	
 	function getSelectOption(){
 		$select_type=intval($_POST['select_type']);
 		
+		$this->load->model($_POST['affair'].'_model',$_POST['affair']);
+		
 		if($select_type){
-			if(function_exists($_POST['affair'])){
-				$options=call_user_func($_POST['affair'],$_POST['active_value']);
+			if(is_callable(array($this->$_POST['affair'],$_POST['method']))){
+				$options=call_user_func(array($this->$_POST['affair'],$_POST['method']),$_POST['active_value']);
 			}
 			
 			displayOption($options,NULL,true);

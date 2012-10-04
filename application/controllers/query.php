@@ -34,7 +34,7 @@ class Query extends SS_controller{
 		
 		$q.=" GROUP BY case.id";
 		
-		processOrderby($q,'first_contact','DESC');
+		$this->processOrderby($q,'first_contact','DESC');
 		
 		$listLocator=$this->processMultiPage($q);
 		

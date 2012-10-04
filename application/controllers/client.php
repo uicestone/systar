@@ -44,7 +44,7 @@ class Client extends SS_Controller{
 		
 		$search_bar=$this->processSearch($condition,array('name'=>'姓名','work_for'=>'单位','address'=>'地址','comment'=>'备注'));
 		
-		processOrderby($condition,'time','DESC',array('abbreviation','type','address','comment'));
+		$this->processOrderby($condition,'time','DESC',array('abbreviation','type','address','comment'));
 		
 		$q.=$condition;$q_rows.=$condition;
 		
