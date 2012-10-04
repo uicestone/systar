@@ -84,7 +84,11 @@ class Document extends SS_controller{
 					'</div>',
 		);
 		
-		exportTable($q,$field,$menu,true);	
+		$table=$this->fetchTableArray($q, $field);
+		
+		$this->data+=compact('table','menu');
+		
+		$this->load->view('lists');
 	}
 
 	function createDir(){

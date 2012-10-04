@@ -368,13 +368,17 @@ class Schedule extends SS_controller{
 			'place'=>array('title'=>'外出地点','td_title'=>'width="25%"')
 		);
 		
-		$submitBar=array(
+		$menu=array(
 		'head'=>'<div style="float:right;">'.
 					$listLocator.
 				'</div>'
 		);
 		
-		exportTable($q,$field,$submitBar,true);
+		$table=$this->fetchTableArray($q, $field);
+		
+		$this->data+=compact('table','menu');
+		
+		$this->load->view('lists');
 	}
 	
 	function readCalendar($id=NULL){
@@ -520,7 +524,7 @@ class Schedule extends SS_controller{
 			$data['all_day']=(int)$_POST['allDay'];
 			$data['time_end']="_time_end+'".$timeDelta."'_";
 			
-			schedule_update($_POST['id'],$data);
+			$this->schedule->update($_POST['id'],$data);
 		}
 	}
 }

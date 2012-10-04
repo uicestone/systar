@@ -83,7 +83,7 @@ class File extends SS_controller{
 			'staff_name'=>array('title'=>'人员')
 		);
 		
-		$submitBar=array(
+		$menu=array(
 		'head'=>'<div class="right">'.
 					$listLocator.
 				'</div>'
@@ -91,7 +91,11 @@ class File extends SS_controller{
 		
 		$_SESSION['last_list_action']=$_SERVER['REQUEST_URI'];
 		
-		exportTable($q,$field,$submitBar);
+		$table=$this->fetchTableArray($q, $field);
+		
+		$this->data+=compact('table','menu');
+		
+		$this->load->view('lists');
 	}
 
 	function addStatus(){
@@ -162,7 +166,7 @@ class File extends SS_controller{
 			'comment'=>'备注'
 		);
 		
-		$submitBar=array(
+		$menu=array(
 		'head'=>'<div style="float:left;">'.
 					(option('in_search_mod')?'<button type="button" value="searchCancel" onclick="redirectPara(this)">取消搜索</button>':'').
 				'</div>'.
@@ -171,9 +175,11 @@ class File extends SS_controller{
 				'</div>',
 		);
 		
-		exportTable($q,$field,$submitBar,true);
+		$table=$this->fetchTableArray($q, $field);
 		
-		require 'view/file_list_sidebar.htm';
+		$this->data+=compact('table','menu');
+		
+		$this->load->view('lists');
 	}
 
 	function tobe(){
@@ -241,7 +247,7 @@ class File extends SS_controller{
 			")
 		);
 		
-		$submitBar=array(
+		$menu=array(
 		'head'=>'<div class="right">'.
 					$listLocator.
 				'</div>'
@@ -249,7 +255,11 @@ class File extends SS_controller{
 		
 		$_SESSION['last_list_action']=$_SERVER['REQUEST_URI'];
 		
-		exportTable($q,$field,$submitBar);
+		$table=$this->fetchTableArray($q, $field);
+		
+		$this->data+=compact('table','menu');
+		
+		$this->load->view('lists');
 	}
 	
 	function view(){
@@ -262,7 +272,11 @@ class File extends SS_controller{
 		
 		$field=Array('file'=>'序号','client'=>'客户','case'=>'案件','lawyer'=>'承办律师','status'=>'状态','time'=>'时间','person'=>'借阅人','comment'=>'备注');
 		
-		exportTable($q,$field);
+		$table=$this->fetchTableArray($q, $field);
+		
+		$this->data+=compact('table');
+		
+		$this->load->view('lists');
 	}
 }
 ?>

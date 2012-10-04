@@ -122,7 +122,7 @@ class Cases extends SS_controller{
 			",'orderby'=>false)
 		);
 		
-		$submitBar=array(
+		$menu=array(
 		'head'=>'<div class="right">'.
 					$listLocator.
 				'</div>'
@@ -130,7 +130,11 @@ class Cases extends SS_controller{
 		
 		$_SESSION['last_list_action']=$_SERVER['REQUEST_URI'];
 		
-		exportTable($q,$field,$submitBar);
+		$table=$this->fetchTableArray($q, $field);
+		
+		$this->data+=compact('table','menu');
+		
+		$this->load->view('lists');
 	}
 	
 	function add(){
@@ -703,7 +707,7 @@ class Cases extends SS_controller{
 			'lawyers'=>array('title'=>'主办律师','td_title'=>'width="100px"')
 		);
 		
-		$submitBar=array(
+		$menu=array(
 		'head'=>'<div class="right">'.
 					$listLocator.
 				'</div>'
@@ -711,7 +715,11 @@ class Cases extends SS_controller{
 		
 		$_SESSION['last_list_action']=$_SERVER['REQUEST_URI'];
 		
-		exportTable($q,$field,$submitBar);
+		$table=$this->fetchTableArray($q, $field);
+		
+		$this->data+=compact('table','menu');
+		
+		$this->load->view('lists');
 		
 		require 'view/case_list_sidebar.htm';
 	}

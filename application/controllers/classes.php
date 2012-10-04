@@ -33,7 +33,7 @@ class Classes extends SS_controller{
 			'class_teacher_name'=>array('title'=>'班主任')
 		);
 		
-		$submitBar=array(
+		$menu=array(
 			'head'=>'<div class="right">'.
 						$listLocator.
 					'</div>'
@@ -41,7 +41,11 @@ class Classes extends SS_controller{
 		
 		$_SESSION['last_list_action']=$_SERVER['REQUEST_URI'];
 		
-		exportTable($q,$field,$submitBar,true);	
+		$table=$this->fetchTableArray($q, $field);
+		
+		$this->data+=compact('table','menu');
+		
+		$this->load->view('lists');
 	}
 
 	function add(){

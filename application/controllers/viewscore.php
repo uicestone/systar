@@ -329,7 +329,11 @@ class ViewScore extends SS_controller{
 					'</div>'
 		);
 		
-		exportTable($q,$field,$menu,true);
+		$table=$this->fetchTableArray($q, $field);
+		
+		$this->data+=compact('table','menu');
+		
+		$this->load->view('lists');
 	}
 	
 	function rankRange(){
@@ -395,9 +399,11 @@ class ViewScore extends SS_controller{
 					'</div>'
 		);
 		
+/*
 		exportTable($q_sum_3,$field,$menu_sum_3,true);
 		
 		exportTable($q_sum_5,$field,$menu_sum_5,true);
+*/
 	}
 }
 ?>

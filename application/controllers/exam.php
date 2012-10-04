@@ -32,7 +32,7 @@ class Exam extends SS_controller{
 			")
 		);
 		
-		$submitBar=array(
+		$menu=array(
 			'head'=>'<div style="float:left;">'.
 						'<button type="button" id="addExam">添加</button>'.
 						'<input type="submit" name="allocate_seat" value="排座位" title="根据当前教室设置，为已激活的考试生成座位表" />'.
@@ -41,7 +41,12 @@ class Exam extends SS_controller{
 						$listLocator.
 					'</div>'
 		);
-		exportTable($q,$field,$submitBar,true);	
+
+		$table=$this->fetchTableArray($q, $field);
+		
+		$this->data+=compact('table','menu');
+		
+		$this->load->view('lists');
 	}
 
 	function listSave(){
@@ -175,7 +180,7 @@ class Exam extends SS_controller{
 			")
 		);
 		
-		$submitBar=array(
+		$menu=array(
 			'head'=>'<div class="left">'.
 						'<button type="button" id="addExamPaper">添加</button>'.
 						'<button type="button" onclick="redirectPara(this,\'exam\')">返回</button>'.
@@ -184,7 +189,11 @@ class Exam extends SS_controller{
 						$listLocator.
 					'</div>'
 		);
-		exportTable($q,$field,$submitBar,true);
+		$table=$this->fetchTableArray($q, $field);
+		
+		$this->data+=compact('table','menu');
+		
+		$this->load->view('lists');
 	}
 
 	function viewSeat(){
@@ -211,7 +220,7 @@ class Exam extends SS_controller{
 			'course_name'=>array('title'=>'加科')
 		);
 		
-		$submitBar=array(
+		$menu=array(
 			'head'=>'<div style="float:left;">'.
 						'<button type="button" onclick="location.href=\'exam.php\'">返回</button>'.
 					'</div>'.
@@ -220,8 +229,12 @@ class Exam extends SS_controller{
 					'</div>'
 		);
 		
-		require 'view/exam_list.htm';
-		exportTable($q,$field,$submitBar,true);
+		$table=$this->fetchTableArray($q, $field);
+		
+		$this->data+=compact('table','menu');
+		
+		$this->load->view('lists');
+
 	}
 }
 ?>

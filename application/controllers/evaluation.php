@@ -28,7 +28,11 @@ class Evaluation extends SS_controller{
 		
 		$_SESSION['last_list_action']=$_SERVER['REQUEST_URI'];
 		
-		exportTable($q,$field,$menu,true);
+		$table=$this->fetchTableArray($q, $field);
+		
+		$this->data+=compact('table','menu');
+		
+		$this->load->view('lists');
 	}
 	
 	function comment(){
@@ -75,7 +79,11 @@ class Evaluation extends SS_controller{
 		
 		$_SESSION['last_list_action']=$_SERVER['REQUEST_URI'];
 		
-		exportTable($q,$field);
+		$table=$this->fetchTableArray($q, $field);
+		
+		$this->data+=compact('table','menu');
+		
+		$this->load->view('lists');
 	}
 	
 	function result(){
@@ -118,7 +126,11 @@ class Evaluation extends SS_controller{
 		
 		$_SESSION['last_list_action']=$_SERVER['REQUEST_URI'];
 		
-		exportTable($q,$field);
+		$table=$this->fetchTableArray($q, $field);
+		
+		$this->data+=compact('table','menu');
+		
+		$this->load->view('lists');
 	}
 	
 	function scoreWrite(){$staff=intval($_GET['staff']);
@@ -188,7 +200,11 @@ class Evaluation extends SS_controller{
 		
 		$_SESSION['last_list_action']=$_SERVER['REQUEST_URI'];
 		
-		exportTable($q,$field,$menu,true);
+		$table=$this->fetchTableArray($q, $field);
+		
+		$this->data+=compact('table','menu');
+		
+		$this->load->view('lists');
 	}
 }
 ?>

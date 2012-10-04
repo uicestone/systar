@@ -52,7 +52,7 @@ class Contact extends SS_controller{
 			",
 			)
 		);
-		$submitBar=array(
+		$menu=array(
 		'head'=>'<div class="left">'.
 					'<input type="submit" name="delete" value="删除" />'.
 				'</div>'.
@@ -63,7 +63,11 @@ class Contact extends SS_controller{
 		
 		$_SESSION['last_list_action']=$_SERVER['REQUEST_URI'];
 		
-		exportTable($q,$field,$submitBar,true);
+		$table=$this->fetchTableArray($q, $field);
+		
+		$this->data+=compact('table','menu');
+		
+		$this->load->view('lists');
 	}
 
 	function add(){

@@ -34,7 +34,7 @@ class Property extends SS_controller{
 			'comment'=>'备注');
 		
 		
-		$submitBar=array(
+		$menu=array(
 		'head'=>'<div style="float:left;">'.
 					'<input type="submit" name="delete" value="删除" />'.
 					(option('in_search_mod')?'<button type="button" value="searchCancel" onclick="redirectPara(this)">取消搜索</button>':'').
@@ -46,7 +46,11 @@ class Property extends SS_controller{
 		
 		$_SESSION['last_list_action']=$_SERVER['REQUEST_URI'];
 		
-		exportTable($q,$field,$submitBar,true);
+		$table=$this->fetchTableArray($q, $field);
+		
+		$this->data+=compact('table','menu');
+		
+		$this->load->view('lists');
 	}
 
 	function add(){
@@ -127,7 +131,11 @@ class Property extends SS_controller{
 		
 		$field=Array('property'=>'序号','num'=>'编号','name'=>'物品','status'=>'目前状态','time'=>'时间','usingPerson'=>'经手人','comment'=>'备注');
 		
-		exportTable($field, $q);
+		$table=$this->fetchTableArray($q, $field);
+		
+		$this->data+=compact('table');
+		
+		$this->load->view('lists');
 	}
 }
 ?>

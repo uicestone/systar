@@ -71,7 +71,7 @@ class Student extends SS_controller{
 			$field['student_num.class']['td']='class="editable"';
 		}
 		
-		$submitBar=array(
+		$menu=array(
 			'head'=>'<div class="right">'.
 						$listLocator.
 					'</div>'
@@ -79,7 +79,11 @@ class Student extends SS_controller{
 		
 		$_SESSION['last_list_action']=$_SERVER['REQUEST_URI'];
 		
-		exportTable($q,$field,$submitBar,true);
+		$table=$this->fetchTableArray($q, $field);
+		
+		$this->data+=compact('table','menu');
+		
+		$this->load->view('lists');
 	}
 
 	function add(){
@@ -408,7 +412,11 @@ class Student extends SS_controller{
 			
 			$menu=array('head'=>'<div class="right">'.$list_locator.'</div>');
 			
-			exportTable($q,$field,$menu);
+			$table=$this->fetchTableArray($q, $field);
+			
+			$this->data+=compact('table','menu');
+			
+			$this->load->view('lists');
 		}
 	}
 
@@ -467,7 +475,11 @@ class Student extends SS_controller{
 		
 		$_SESSION['last_list_action']=$_SERVER['REQUEST_URI'];
 		
-		exportTable($q,$field,$menu);
+		$table=$this->fetchTableArray($q, $field);
+		
+		$this->data+=compact('table','menu');
+		
+		$this->load->view('lists');
 	}
 	
 	function viewScore(){

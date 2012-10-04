@@ -21,7 +21,7 @@ class News extends SS_controller{
 			'username'=>array('title'=>'发布人')
 		);
 		
-		$submitBar=array(
+		$menu=array(
 		'head'=>'<div style="float:right;">'.
 					$listLocator.
 				'</div>'
@@ -29,7 +29,11 @@ class News extends SS_controller{
 		
 		$_SESSION['last_list_action']=$_SERVER['REQUEST_URI'];
 		
-		exportTable($q,$field,$submitBar);
+		$table=$this->fetchTableArray($q, $field);
+		
+		$this->data+=compact('table','menu');
+		
+		$this->load->view('lists');
 	}
 	
 	function add(){

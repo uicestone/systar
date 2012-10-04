@@ -38,7 +38,7 @@ class Staff extends SS_controller{
 			);
 		}
 		
-		$submitBar=array(
+		$menu=array(
 			'head'=>'<div class="right">'.
 						$listLocator.
 					'</div>'
@@ -46,7 +46,11 @@ class Staff extends SS_controller{
 		
 		$_SESSION['last_list_action']=$_SERVER['REQUEST_URI'];
 		
-		exportTable($q,$field,$submitBar,true);
+		$table=$this->fetchTableArray($q, $field);
+		
+		$this->data+=compact('table','menu');
+		
+		$this->load->view('lists');
 	}
 }
 ?>

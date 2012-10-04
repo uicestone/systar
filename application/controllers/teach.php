@@ -38,7 +38,7 @@ class Teach extends SS_controller{
 			'unchanged'=>array('title'=>'未变','orderby'=>false,'content'=>'<input type="checkbox" name="unchanged[{id}]">','td_title'=>'width="60px"','td_body'=>'align="center"'),
 		);
 		
-		$submitBar=array(
+		$menu=array(
 			'head'=>'<div class="left">'.
 						'<input type="submit" name="delete" value="删除" />'.
 					'</div>'.
@@ -48,7 +48,11 @@ class Teach extends SS_controller{
 					'</div>',
 		);
 		
-		exportTable($q,$field,$submitBar,true);
+		$table=$this->fetchTableArray($q, $field);
+		
+		$this->data+=compact('table','menu');
+		
+		$this->load->view('lists');
 	}
 }
 ?>

@@ -30,7 +30,7 @@ class Express extends SS_controller{
 			'comment'=>array('title'=>'备注')
 		);
 		
-		$submitBar=array(
+		$menu=array(
 		'head'=>'<div class="right">'.
 					$listLocator.
 				'</div>'
@@ -38,7 +38,11 @@ class Express extends SS_controller{
 		
 		$_SESSION['last_list_action']=$_SERVER['REQUEST_URI'];
 		
-		exportTable($q,$field,$submitBar);
+		$table=$this->fetchTableArray($q, $field);
+		
+		$this->data+=compact('table','menu');
+		
+		$this->load->view('lists');
 	}
 	
 	function add(){

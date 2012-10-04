@@ -49,7 +49,7 @@ class Query extends SS_controller{
 			'comment'=>array('title'=>'备注','td'=>'class="ellipsis" title="{comment}"')
 		);
 		
-		$submitBar=array(
+		$menu=array(
 		'head'=>'<div class="right">'.
 					$listLocator.
 				'</div>'
@@ -57,7 +57,11 @@ class Query extends SS_controller{
 		
 		$_SESSION['last_list_action']=$_SERVER['REQUEST_URI'];
 		
-		exportTable($q,$field,$submitBar);
+		$table=$this->fetchTableArray($q, $field);
+		
+		$this->data+=compact('table','menu');
+		
+		$this->load->view('lists');
 	}
 
 	function add(){

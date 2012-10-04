@@ -130,7 +130,7 @@ $(function() {
 					{
 						text: "编辑",
 						click: function(){
-							$.get('misc/gethtml/schedule_calendar_add?edit',function(html){
+							$.get('misc/gethtml/schedule/calendar_add?edit',function(html){
 								dialog.html(html);
 								$('[name="name"]').val(schedule.name);
 								$('[name="content"]').val(schedule.content);
@@ -145,7 +145,7 @@ $(function() {
 									{
 										text: "删除",
 										click: function() {
-											$.post("schedule?writecalendar",{id:event.id,action:'delete'},function(result){
+											$.post("schedule/writecalendar",{id:event.id,action:'delete'},function(result){
 												console.log(result);
 											});
 											$(this).dialog("close");
@@ -156,13 +156,13 @@ $(function() {
 										text: "高级",
 										click: function() {
 											$(this).dialog("close");
-											showWindow('schedule?edit='+event.id);
+											showWindow('schedule/edit/'+event.id);
 										}
 									},
 									{
 										text: "保存",
 										click: function() {
-											$.post("schedule?writecalendar",{
+											$.post("schedule/writecalendar",{
 												id:event.id,
 												action:'updateContent',
 												content:$('[name="content"]').val(),
@@ -185,7 +185,7 @@ $(function() {
 			
 		},
 		eventDrop: function(event,dayDelta,minuteDelta,allDay) {
-			$.post("schedule?writecalendar",{id:event.id,action:'drag',dayDelta:dayDelta,minuteDelta:minuteDelta,allDay:Number(allDay)},function(){
+			$.post("schedule/writecalendar",{id:event.id,action:'drag',dayDelta:dayDelta,minuteDelta:minuteDelta,allDay:Number(allDay)},function(){
 				if(event.start.getTime()>date.getTime()){
 					event.color='#E35B00';
 				}else{
@@ -195,7 +195,7 @@ $(function() {
 			});
 		},
 		eventResize:function(event,dayDelta,minuteDelta){
-			$.post("schedule?writecalendar",{id:event.id,action:'resize',dayDelta:dayDelta,minuteDelta:minuteDelta,allDay:event.allDay},function(result){
+			$.post("schedule/writecalendar",{id:event.id,action:'resize',dayDelta:dayDelta,minuteDelta:minuteDelta,allDay:event.allDay},function(result){
 				if(result!=''){
 					alert('保存失败了，请联系程序员');
 					console.log(result);
