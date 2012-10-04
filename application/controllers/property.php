@@ -50,7 +50,7 @@ class Property extends SS_controller{
 		
 		$this->data+=compact('table','menu');
 		
-		$this->load->view('lists');
+		$this->load->view('lists',$this->data);
 	}
 
 	function add(){
@@ -135,7 +135,7 @@ class Property extends SS_controller{
 		
 		$this->data+=compact('table');
 		
-		$this->load->view('lists');
+		$this->load->view('lists',$this->data);
 	}
 }
 ?>

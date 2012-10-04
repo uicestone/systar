@@ -110,7 +110,7 @@ class Achievement extends SS_controller{
 		
 		$this->data+=compact('table','menu');
 		
-		$this->load->view('lists');
+		$this->load->view('lists',$this->data);
 	}
 
 	function recent(){
@@ -255,7 +255,7 @@ class Achievement extends SS_controller{
 		
 		$this->data+=compact('table','menu');
 		
-		$this->load->view('lists');
+		$this->load->view('lists',$this->data);
 	}
 	
 	function casebonus(){
@@ -324,7 +324,7 @@ class Achievement extends SS_controller{
 		
 		$this->data+=compact('table','menu');
 		
-		$this->load->view('lists');
+		$this->load->view('lists',$this->data);
 	}
 
 	function teambonus(){
@@ -366,7 +366,7 @@ class Achievement extends SS_controller{
 		
 		$this->data+=compact('table','menu');
 		
-		$this->load->view('lists');
+		$this->load->view('lists',$this->data);
 	}
 	
 	function summary(){

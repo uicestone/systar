@@ -33,7 +33,7 @@ class News extends SS_controller{
 		
 		$this->data+=compact('table','menu');
 		
-		$this->load->view('lists');
+		$this->load->view('lists',$this->data);
 	}
 	
 	function add(){

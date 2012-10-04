@@ -83,7 +83,7 @@ class Student extends SS_controller{
 		
 		$this->data+=compact('table','menu');
 		
-		$this->load->view('lists');
+		$this->load->view('lists',$this->data);
 	}
 
 	function add(){
@@ -416,7 +416,7 @@ class Student extends SS_controller{
 			
 			$this->data+=compact('table','menu');
 			
-			$this->load->view('lists');
+			$this->load->view('lists',$this->data);
 		}
 	}
 
@@ -479,7 +479,7 @@ class Student extends SS_controller{
 		
 		$this->data+=compact('table','menu');
 		
-		$this->load->view('lists');
+		$this->load->view('lists',$this->data);
 	}
 	
 	function viewScore(){

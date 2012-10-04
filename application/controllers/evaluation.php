@@ -32,7 +32,7 @@ class Evaluation extends SS_controller{
 		
 		$this->data+=compact('table','menu');
 		
-		$this->load->view('lists');
+		$this->load->view('lists',$this->data);
 	}
 	
 	function comment(){
@@ -83,7 +83,7 @@ class Evaluation extends SS_controller{
 		
 		$this->data+=compact('table','menu');
 		
-		$this->load->view('lists');
+		$this->load->view('lists',$this->data);
 	}
 	
 	function result(){
@@ -130,7 +130,7 @@ class Evaluation extends SS_controller{
 		
 		$this->data+=compact('table','menu');
 		
-		$this->load->view('lists');
+		$this->load->view('lists',$this->data);
 	}
 	
 	function scoreWrite(){$staff=intval($_GET['staff']);
@@ -204,7 +204,7 @@ class Evaluation extends SS_controller{
 		
 		$this->data+=compact('table','menu');
 		
-		$this->load->view('lists');
+		$this->load->view('lists',$this->data);
 	}
 }
 ?>

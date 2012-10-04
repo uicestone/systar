@@ -134,7 +134,7 @@ class Cases extends SS_controller{
 		
 		$this->data+=compact('table','menu');
 		
-		$this->load->view('lists');
+		$this->load->view('lists',$this->data);
 	}
 	
 	function add(){
@@ -719,7 +719,7 @@ class Cases extends SS_controller{
 		
 		$this->data+=compact('table','menu');
 		
-		$this->load->view('lists');
+		$this->load->view('lists',$this->data);
 		
 		require 'view/case_list_sidebar.htm';
 	}

@@ -95,7 +95,7 @@ class File extends SS_controller{
 		
 		$this->data+=compact('table','menu');
 		
-		$this->load->view('lists');
+		$this->load->view('lists',$this->data);
 	}
 
 	function addStatus(){
@@ -179,7 +179,7 @@ class File extends SS_controller{
 		
 		$this->data+=compact('table','menu');
 		
-		$this->load->view('lists');
+		$this->load->view('lists',$this->data);
 	}
 
 	function tobe(){
@@ -259,7 +259,7 @@ class File extends SS_controller{
 		
 		$this->data+=compact('table','menu');
 		
-		$this->load->view('lists');
+		$this->load->view('lists',$this->data);
 	}
 	
 	function view(){
@@ -276,7 +276,7 @@ class File extends SS_controller{
 		
 		$this->data+=compact('table');
 		
-		$this->load->view('lists');
+		$this->load->view('lists',$this->data);
 	}
 }
 ?>
