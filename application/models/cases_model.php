@@ -1,5 +1,5 @@
 <?php
-class Cases_model extends CI_Model{
+class Cases_model extends SS_Model{
 	function __construct(){
 		parent::__construct();
 	}
@@ -7,12 +7,12 @@ class Cases_model extends CI_Model{
 	function fetch($id){
 		//finance和manager可以看到所有案件，其他律师只能看到自己涉及的案件
 		$query="
-		SELECT * 
-		FROM `case` 
-		WHERE id='".post('case/id')."' 
-			AND ( '".(is_logged('manager') || is_logged('finance') || is_logged('admin'))."'=1 OR uid='".$_SESSION['id']."' OR id IN (
-				SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."'
-			))
+			SELECT * 
+			FROM `case` 
+			WHERE id='".$id."' 
+				AND ( '".(is_logged('manager') || is_logged('finance') || is_logged('admin'))."'=1 OR uid='".$_SESSION['id']."' OR id IN (
+					SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."'
+				))
 		";
 		return db_fetch_first($query,true);
 	}
@@ -189,11 +189,11 @@ class Cases_model extends CI_Model{
 			WHERE `case`='".$case_id."'
 		");
 		
-		return case_getStatus($is_reviewed,$locked,$apply_file,$is_query,$finance_review,$info_review,$manager_review,$filed,$contribute_sum,$uncollected);
+		return $this->cases->getStatus($is_reviewed,$locked,$apply_file,$is_query,$finance_review,$info_review,$manager_review,$filed,$contribute_sum,$uncollected);
 	}
 	
 	function reviewMessage($reviewWord,$lawyers){
-		$message='案件[url=http://sys.lawyerstars.com/case?edit='.post('case/id').']'.strip_tags(post('case/name')).'[/url]'.$reviewWord.'，"'.post('review_message').'"';
+		$message='案件[url=http://sys.lawyerstars.com/case?edit='.post('cases/id').']'.strip_tags(post('cases/name')).'[/url]'.$reviewWord.'，"'.post('review_message').'"';
 		foreach($lawyers as $lawyer){
 			sendMessage($lawyer,$message);
 		}
@@ -457,7 +457,7 @@ class Cases_model extends CI_Model{
 		$field=array(
 			'client_name'=>array('title'=>'名称','eval'=>true,'content'=>"
 				\$return='';
-				if(!post('case/client_lock')){
+				if(!post('cases/client_lock')){
 					\$return.='<input type=\"checkbox\" name=\"case_client_check[{id}]\" />';
 				}
 				\$return.='<a href=\"javascript:showWindow(\''.('{classification}'=='客户'?'client':'contact').'?edit={client}\')\">{client_name}</a>';
@@ -477,7 +477,7 @@ class Cases_model extends CI_Model{
 			$field['client_name']['title']='<input type="submit" name="submit[case_client_delete]" value="删" />'.$field['client_name']['title'];
 		}
 		
-		return fetchTableArray($query,$field);
+		return $this->fetchTableArray($query,$field);
 	}
 	
 	function getStaffList($case_id,$staff_lock,$timing_fee){
@@ -523,7 +523,7 @@ class Cases_model extends CI_Model{
 			$field['lawyer_name']['content']='<input type="checkbox" name="case_lawyer_check[{id}]">'.$field['lawyer_name']['content'];
 		}
 		
-		return fetchTableArray($query,$field);
+		return $this->fetchTableArray($query,$field);
 	}
 	
 	function getFeeList($case_id,$fee_lock){
@@ -561,7 +561,7 @@ class Cases_model extends CI_Model{
 			$field['type']['content']='<input type="checkbox" name="case_fee_check[{id}]" >'.$field['type']['content'];
 		}
 		
-		return fetchTableArray($query,$field);
+		return $this->fetchTableArray($query,$field);
 	}
 	
 	function getTimingFeeString($case_id){
@@ -575,7 +575,7 @@ class Cases_model extends CI_Model{
 				if(SUM(account.amount) IS NULL,'',SUM(account.amount)) AS fee_received
 			FROM 
 				case_fee LEFT JOIN account ON case_fee.id=account.case_fee
-			WHERE case_fee.case='".post('case/id')."' AND case_fee.type='办案费'
+			WHERE case_fee.case='".post('cases/id')."' AND case_fee.type='办案费'
 			GROUP BY case_fee.id";
 		
 		$field=array(
@@ -595,7 +595,7 @@ class Cases_model extends CI_Model{
 			$field['receiver']['content']='<input type="checkbox" name="case_fee_check[{id}]" />';
 		}
 		
-		return fetchTableArray($query,$field);
+		return $this->fetchTableArray($query,$field);
 	}
 	
 	function getDocumentList($case_id,$apply_file=false){
@@ -617,7 +617,7 @@ class Cases_model extends CI_Model{
 					}else{
 						\$image='unknown';
 					}
-					return '<img src=\"images/file_type/'.\$image.'.png\" alt=\"{type}\" />';
+					return '<img src=\"/images/file_type/'.\$image.'.png\" alt=\"{type}\" />';
 				",
 				'td_title'=>'width="70px"',
 				'orderby'=>false
@@ -637,7 +637,7 @@ class Cases_model extends CI_Model{
 			));
 		}
 		
-		return fetchTableArray($query,$field);
+		return $this->fetchTableArray($query,$field);
 	}
 	
 	function getDocumentCatalog($case_id,$choosen_documents){
@@ -668,7 +668,7 @@ class Cases_model extends CI_Model{
 			",'orderby'=>false),
 			'username'=>array('title'=>'填写人','td_title'=>'width="90px"','orderby'=>false)
 		);
-		return fetchTableArray($query,$field);
+		return $this->fetchTableArray($query,$field);
 	}
 	
 	function getPlanList($case_id){
@@ -686,7 +686,7 @@ class Cases_model extends CI_Model{
 			",'orderby'=>false),
 			'username'=>array('title'=>'填写人','td_title'=>'width="90px"','orderby'=>false)
 		);
-		return fetchTableArray($query,$field);
+		return $this->fetchTableArray($query,$field);
 	}
 	
 	function getClientRole($case_id){
@@ -764,9 +764,9 @@ class Cases_model extends CI_Model{
 			db_insert('case_num',$case_num,true,true);
 			$case_num['number']=db_fetch_field("SELECT number FROM case_num WHERE `case`='".$case['id']."'");
 			if(!$case['is_query']){
-				post('case/type_lock',1);//申请正式案号之后不可以再改变案件类别
+				post('cases/type_lock',1);//申请正式案号之后不可以再改变案件类别
 			}
-			post('case/display',1);//申请案号以后案件方可见
+			post('cases/display',1);//申请案号以后案件方可见
 			$num='沪星'.$case_num['classification_code'].$case_num['type_code'].$case_num['year_code'].'第'.$case_num['number'].'号';
 			db_update('case',array('num'=>$num),"id='".$case['id']."'");
 			return $num;

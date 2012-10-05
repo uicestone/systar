@@ -67,6 +67,7 @@ function preController(){
 
 		}
 	}elseif($class=='case'){
+		$CFG->set_item('actual_table','case');
 		if(($method=='add' || $method=='edit') && is_permitted($class,'add')){
 			if(is_posted('submit/file_document_list')){
 				$CFG->set_item('require_export',false);

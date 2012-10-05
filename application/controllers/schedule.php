@@ -1,6 +1,5 @@
 <?php
 class Schedule extends SS_controller{
-	public $default_method;
 	
 	function __construct(){
 		parent::__construct();

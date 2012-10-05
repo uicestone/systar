@@ -1,5 +1,5 @@
 <?php
-class Student_model extends CI_Model{
+class Student_model extends SS_Model{
 	function __construct(){
 		parent::__construct();
 	}
@@ -121,7 +121,7 @@ class Student_model extends CI_Model{
 			'course_10'=>array('title'=>'信息','content'=>'{course_10}<span class="rank">{rank_10}</span>')
 		);
 		
-		return fetchTableArray($query,$field);
+		return $this->fetchTableArray($query,$field);
 	}
 	
 	function testClassDiv($div,$data,$classes,$gender,$showResult=false){

@@ -7,7 +7,7 @@ function postController(){
 	if(!$CI->main_view_loaded && is_file(APPPATH.'views/'.$class.'/'.$method.'.php')){
 		$CI->load->view("{$class}/{$method}",$CI->data);
 	}
-	
+
 	if(is_file(APPPATH.'views/'.$class.'/'.$method.'_sidebar'.'.php')){
 		$CI->load->view('sidebar_head');
 		$CI->load->view("{$class}/{$method}_sidebar");

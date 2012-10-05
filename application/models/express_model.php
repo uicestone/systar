@@ -1,5 +1,5 @@
 <?php
-class Express_model extends CI_Model{
+class Express_model extends SS_Model{
 	function __construct(){
 		parent::__construct();
 	}

@@ -1,5 +1,5 @@
 <?php
-class Evaluation extends CI_Model{
+class Evaluation extends SS_Model{
 	function __construct(){
 		parent::__construct();
 	}

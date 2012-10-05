@@ -1,5 +1,5 @@
 <?php
-class News_model extends CI_Model{
+class News_model extends SS_Model{
 	function __construct(){
 		parent::__construct();
 	}

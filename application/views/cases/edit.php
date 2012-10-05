@@ -5,41 +5,41 @@
 	<div class="right">
 		<input type="submit" name="submit[case]" value="保存" />
 
-		<? if($responsible_partner==$_SESSION['id'] && !post('case/is_reviewed') && !post('case/is_query')){?>
+		<? if($responsible_partner==$_SESSION['id'] && !post('cases/is_reviewed') && !post('cases/is_query')){?>
 		<button type="button" name="submit[review]">立案审核</button>
 		<? }?>
 
-		<? if($responsible_partner!=$_SESSION['id'] && !post('case/client_lock') && post('case/is_reviewed')){?>
+		<? if($responsible_partner!=$_SESSION['id'] && !post('cases/client_lock') && post('cases/is_reviewed')){?>
 		<input type="submit" name="submit[apply_lock]" value="申请锁定" />
 		<? }?>
 
-		<? if(is_logged('finance') && post('case/apply_file') && !post('case/finance_review')){?>
+		<? if(is_logged('finance') && post('cases/apply_file') && !post('cases/finance_review')){?>
 		<input type="submit" name="submit[review_finance]" value="财务审核" />
 		<? }?>
 
-		<? if(is_logged('admin') && post('case/apply_file') && !post('case/info_review')){?>
+		<? if(is_logged('admin') && post('cases/apply_file') && !post('cases/info_review')){?>
 		<input type="submit" name="submit[review_info]" value="信息审核" />
 		<? }?>
 
-		<? if(is_logged('manager') && post('case/apply_file') && !post('case/manager_review')){?>
+		<? if(is_logged('manager') && post('cases/apply_file') && !post('cases/manager_review')){?>
 		<input type="submit" name="submit[review_manager]" value="主管审核" />
 		<? }?>
 		
-		<? if(is_logged('admin') && post('case/apply_file') && post('case/finance_review') && post('case/info_review') && post('case/manager_review') && !post('case/filed')){?>
+		<? if(is_logged('admin') && post('cases/apply_file') && post('cases/finance_review') && post('cases/info_review') && post('cases/manager_review') && !post('cases/filed')){?>
 		<input type="submit" name="submit[file]" value="实体归档" />
 		<? }?>
 		
-		<? if(post('case/is_query')){ ?>
+		<? if(post('cases/is_query')){ ?>
 		<input type="submit" name="submit[new_case]" value="立案" />
 		<input type="submit" name="submit[file]" value="归档" />
 		<? } ?>
 
-		<? if(!post('case/apply_file') &&
-			post('case/is_reviewed') && 
-			post('case/type_lock') && 
-			post('case/client_lock') &&
-			post('case/lawyer_lock') &&
-			post('case/fee_lock')
+		<? if(!post('cases/apply_file') &&
+			post('cases/is_reviewed') && 
+			post('cases/type_lock') && 
+			post('cases/client_lock') &&
+			post('cases/lawyer_lock') &&
+			post('cases/fee_lock')
 		){?>
 		<input type="submit" name="submit[apply_file]" value="申请归档" />
 		<? }?>
@@ -52,13 +52,13 @@
 	<div class="contentTable">
 		<div class="item">
 			<div class="title"><label>客户及相关人：</label>
-				<? if(!post('case/client_lock')){?>
+				<? if(!post('cases/client_lock')){?>
 				<label id="caseClientAdd"><? if(post('case_client_extra/show_add_form'))echo '-';else echo '+'?></label>
 				<? } ?>
-				<? if($responsible_partner==$_SESSION['id'] && !post('case/client_lock') && post('case/is_reviewed')){?>
+				<? if($responsible_partner==$_SESSION['id'] && !post('cases/client_lock') && post('cases/is_reviewed')){?>
 				<input type="submit" name="submit[lock_client]" value="锁定" />
 				<? }?>
-				<? if($responsible_partner==$_SESSION['id'] && post('case/client_lock')){ ?>
+				<? if($responsible_partner==$_SESSION['id'] && post('cases/client_lock')){ ?>
 				<input type="submit" name="submit[unlock_client]" value="解锁" />
 				<? } ?>
 			</div>
@@ -84,7 +84,7 @@
 					<input type="text" name="case_client_extra[work_for]" placeholder="工作单位" disabled="disabled" style="width:10%" />
 				</span>
 	
-				<? if(!post('case/is_query')){ ?>
+				<? if(!post('cases/is_query')){ ?>
 				<label>本案地位：</label>
 				<select name="case_client[role]" style="width:15%">
 					<? displayOption(array('原告','被告','第三人','上诉人','被上诉人','申请人','被申请人','对方代理人','法官','检察官','其他'),post('case_client/role'));?>
@@ -111,59 +111,59 @@
 		 </div>
 	
 		<div class="item">
-			<div class="title"><label>案件名称：</label><label title="内部ID：<? displayPost('case/id')?>"><? displayPost('case/num');?></label></div>
+			<div class="title"><label>案件名称：</label><label title="内部ID：<? displaypost('cases/id')?>"><? displaypost('cases/num');?></label></div>
 	
 			<div class="field" id="case_name">
 				<span class="right">
 					<? echo $case_status?>
 				</span>
 	
-				<? displayPost('case/name')?>
+				<? displaypost('cases/name')?>
 				&nbsp;
 			</div>
 	
-			<? if(post('case/classification')=='内部行政'){?>
+			<? if(post('cases/classification')=='内部行政'){?>
 			<span class="field">内部行政</span>
 			<? }else{?>
-			<select id="type" style="width:7%;" name="case[type]" <? if(post('case/type_lock'))echo 'disabled="disabled"';?>>
-			<? displayOption(array('公司','劳动','房产','婚姻','继承','刑事','知产','留学','移民','行政','合同','侵权'),post('case/type'));?>
+			<select id="type" style="width:7%;" name="case[type]" <? if(post('cases/type_lock'))echo 'disabled="disabled"';?>>
+			<? displayOption(array('公司','劳动','房产','婚姻','继承','刑事','知产','留学','移民','行政','合同','侵权'),post('cases/type'));?>
 			</select>
-				<? if(post('case/is_query')){ ?>
-			<select id="classification" style="width:15%;" name="case[query_type]" <? if(post('case/type_lock'))echo 'disabled="disabled"';?>>
-			<? displayOption(array('_ENUM','case','query_type'),post('case/query_type'));?>
+				<? if(post('cases/is_query')){ ?>
+			<select id="classification" style="width:15%;" name="case[query_type]" <? if(post('cases/type_lock'))echo 'disabled="disabled"';?>>
+			<? displayOption(array('_ENUM','case','query_type'),post('cases/query_type'));?>
 			</select>
 				<? }else{ ?>
-			<select id="classification" style="width:15%;" name="case[classification]" <? if(post('case/type_lock'))echo 'disabled="disabled"';?>>
-			<? displayOption(array('诉讼','非诉讼','法律顾问'),post('case/classification'));?>
+			<select id="classification" style="width:15%;" name="case[classification]" <? if(post('cases/type_lock'))echo 'disabled="disabled"';?>>
+			<? displayOption(array('诉讼','非诉讼','法律顾问'),post('cases/classification'));?>
 			</select>
-			<select id="stage" style="width:15%;" name="case[stage]" <? if(post('case/type_lock'))echo 'disabled="disabled"';?>>
-			<? displayOption($case_type_array,post('case/stage'));?>
+			<select id="stage" style="width:15%;" name="case[stage]" <? if(post('cases/type_lock'))echo 'disabled="disabled"';?>>
+			<? displayOption($case_type_array,post('cases/stage'));?>
 			</select>
 				<? } ?>
 			<? }?>
 	
-			<? if(post('case/is_query')){ ?>
-			<input type="text" name="case[first_contact]" value="<? displayPost('case/first_contact')?>" placeholder="首次接待日期" title="首次接待日期" class="date" style="width:100px" />
+			<? if(post('cases/is_query')){ ?>
+			<input type="text" name="case[first_contact]" value="<? displaypost('cases/first_contact')?>" placeholder="首次接待日期" title="首次接待日期" class="date" style="width:100px" />
 			<? }else{ ?>
-			<input type="text" name="case[time_contract]" value="<? displayPost('case/time_contract')?>" placeholder="立案日期" title="立案日期" class="date" style="width:100px" <? if(post('case/is_reviewed'))echo 'disabled="disabled"';?> />
+			<input type="text" name="case[time_contract]" value="<? displaypost('cases/time_contract')?>" placeholder="立案日期" title="立案日期" class="date" style="width:100px" <? if(post('cases/is_reviewed'))echo 'disabled="disabled"';?> />
 			-
-			<input type="text" name="case[time_end]" value="<? displayPost('case/time_end')?>" placeholder="预估结案日期" title="预估结案日期" class="date" style="width:100px" <? if(post('case/is_reviewed'))echo 'disabled="disabled"';?> />
+			<input type="text" name="case[time_end]" value="<? displaypost('cases/time_end')?>" placeholder="预估结案日期" title="预估结案日期" class="date" style="width:100px" <? if(post('cases/is_reviewed'))echo 'disabled="disabled"';?> />
 			<? } ?>
 	
-			<? if(!post('case/num')){?>
+			<? if(!post('cases/num')){?>
 			<input type="submit" name="submit[apply_case_num]" value="获得案号" />
 			<? }else{?>
-			<input type="text" name="case[name_extra]" style="width:20%" value="<? displayPost('case/name_extra')?>" placeholder="后缀" />
+			<input type="text" name="case[name_extra]" style="width:20%" value="<? displaypost('cases/name_extra')?>" placeholder="后缀" />
 			<? }?>
 		</div>
 	
 		<div class="item">
 			<div class="title"><label>律师：</label>
 				<label id="caseLawyerAdd"><? if(post('case_lawyer_extra/show_add_form'))echo '-';else echo '+'?></label>
-				<? if($responsible_partner==$_SESSION['id'] && !post('case/lawyer_lock') && post('case/is_reviewed')){?>
+				<? if($responsible_partner==$_SESSION['id'] && !post('cases/lawyer_lock') && post('cases/is_reviewed')){?>
 				<input type="submit" name="submit[lock_lawyer]" value="锁定" />
 				<? }?>
-				<? if($responsible_partner==$_SESSION['id'] && post('case/lawyer_lock')){ ?>
+				<? if($responsible_partner==$_SESSION['id'] && post('cases/lawyer_lock')){ ?>
 				<input type="submit" name="submit[unlock_lawyer]" value="解锁" />
 				<? } ?>
 			</div>
@@ -180,32 +180,32 @@
 			</div>
 		</div>
 		
-		<? if(post('case/is_query')){//咨询阶段显示报价情况，不显示律师费和办案费?>
+		<? if(post('cases/is_query')){//咨询阶段显示报价情况，不显示律师费和办案费?>
 		<div class="item">
 			<div class="title"><label>报价：</label></div>
-			<input type="text" name="case[quote]" value="<? displayPost('case/quote') ?>" />
+			<input type="text" name="case[quote]" value="<? displaypost('cases/quote') ?>" />
 		</div>
 		<? }else{ ?>
 		<div class="item">
 			<div class="title">
 				<label>签约律师费：</label>
-				<label><input type="checkbox" name="case[timing_fee]" value="1" <? if(post('case/timing_fee'))echo 'checked="checked"';if(post('case/fee_lock'))echo 'disabled="disabled"';?>/>计时收费</label> 
+				<label><input type="checkbox" name="case[timing_fee]" value="1" <? if(post('cases/timing_fee'))echo 'checked="checked"';if(post('cases/fee_lock'))echo 'disabled="disabled"';?>/>计时收费</label> 
 				<label id="caseFeeAdd" style="display:none">+</label>
 				<label id="caseTimingFeeSave">
 	
-				<? if(post('case/timing_fee') && !isset($case_fee_timing_string)){?>
+				<? if(post('cases/timing_fee') && !isset($case_fee_timing_string)){?>
 					<input type="submit" name="submit[case_fee_timing]" value="保存" />
 				<? }?></label>
 	
-				<? if($responsible_partner==$_SESSION['id'] && !post('case/fee_lock') && post('case/is_reviewed')){?>
+				<? if($responsible_partner==$_SESSION['id'] && !post('cases/fee_lock') && post('cases/is_reviewed')){?>
 				<input type="submit" name="submit[lock_fee]" value="锁定" />
 				<? }?>
-				<? if($responsible_partner==$_SESSION['id'] && post('case/fee_lock')){ ?>
+				<? if($responsible_partner==$_SESSION['id'] && post('cases/fee_lock')){ ?>
 				<input type="submit" name="submit[unlock_fee]" value="解锁" />
 				<? } ?>
 				
 				<? if(is_logged('finance')){?>
-				<button type="button" onclick="showWindow('account?add&case=<? displayPost('case/id')?>')">到账</button>
+				<button type="button" onclick="showWindow('account?add&case=<? displaypost('cases/id')?>')">到账</button>
 				<? }?>
 				
 				<? if(is_logged('finance')){?>
@@ -214,7 +214,7 @@
 			</div>
 	
 			<div class="title">
-				<div id="caseFeeTimingAddForm" <? if(!post('case/timing_fee'))echo 'style="display:none"';?>>
+				<div id="caseFeeTimingAddForm" <? if(!post('cases/timing_fee'))echo 'style="display:none"';?>>
 					<? if(isset($case_fee_timing_string) && $case_fee_timing_string!=''){echo $case_fee_timing_string;}else{?>
 					包含：<input type="text" name="case_fee_timing[included_hours]" value="<? displayPost('case_fee_timing/included_hours');?>" style="width:3%" />小时&nbsp;
 					账单起始日：<input type="text" name="case_fee_timing[time_start]" value="<? displayPost('case_fee_timing/time_start',true);?>" class="date" style="width:11%" />&nbsp;
@@ -227,7 +227,7 @@
 			</div>
 	
 			<? if(count($case_fee_table)>1)$this->arrayExportTable($case_fee_table,NULL,false,false,array('name'=>'case_fee'))?>	
-			<? if(!post('case/fee_lock')){?>
+			<? if(!post('cases/fee_lock')){?>
 			<div id="caseFeeAddForm">
 				<select style="width:25%;" name="case_fee[type]">
 					<? displayOption(array('固定','风险','计时预付'));?>
@@ -258,7 +258,7 @@
 	
 		<div class="item">
 			<div class="title"><label>案下文件：</label>
-				<? if(post('case/apply_file')){ ?>
+				<? if(post('cases/apply_file')){ ?>
 				<input type="submit" name="submit[file_document_list]" value="下载目录" />
 				<? } ?>
 			</div>
@@ -279,10 +279,10 @@
 			<div class="title">
 				<span class="right">
 					<? echo $schedule_time; ?>小时
-					<a href="schedule?list&amp;case=<? echo post('case/id')?>">所有日志>></a>
+					<a href="schedule?list&amp;case=<? echo post('cases/id')?>">所有日志>></a>
 				</span>
 				<label>最新日志：
-					<a href="javascript:showWindow('schedule?add&case=<? echo post('case/id')?>')">添加>></a>
+					<a href="javascript:showWindow('schedule?add&case=<? echo post('cases/id')?>')">添加>></a>
 				</label>
 			</div>
 			<? if(count($case_schedule_table)>1)$this->arrayExportTable($case_schedule_table,NULL,false,false);?>
@@ -291,30 +291,30 @@
 		<div class="item">
 			<div class="title">
 				<span class="right">
-					<a href="schedule?plan&case=<? echo post('case/id')?>">所有计划>></a>
+					<a href="schedule?plan&case=<? echo post('cases/id')?>">所有计划>></a>
 				</span>
 				<label>日程计划：
-					<a href="javascript:showWindow('schedule?add&case=<? echo post('case/id')?>&completed=0')">添加>></a>
+					<a href="javascript:showWindow('schedule?add&case=<? echo post('cases/id')?>&completed=0')">添加>></a>
 				</label>
 			</div>
 			<? if(count($case_plan_table)>1)$this->arrayExportTable($case_plan_table,NULL,false,false);?>
 		</div>
 	
-		<? if(!post('case/is_query') && post('case/classification')!='法律顾问'){?>
+		<? if(!post('cases/is_query') && post('cases/classification')!='法律顾问'){?>
 		<div class="item">
 			<div class="title"><label>争议焦点：（案件标的）</label></div>
-			<textarea class="item" name="case[focus]" type="text" rows="2"><? displayPost('case/focus')?></textarea>
+			<textarea class="item" name="case[focus]" type="text" rows="2"><? displaypost('cases/focus')?></textarea>
 		</div>
 		<? }?>
 	
 		<div class="item">
 			<div class="title"><label>案情简介：</label></div>
-			<textarea class="item" name="case[summary]" type="text" rows="4"><? displayPost('case/summary')?></textarea>
+			<textarea class="item" name="case[summary]" type="text" rows="4"><? displaypost('cases/summary')?></textarea>
 		</div>
 	
 		<div class="item">
 			<div class="title"><label>备注：</label></div>
-			<textarea class="item" name="case[comment]" type="text" rows="3"><? displayPost('case/comment')?></textarea>
+			<textarea class="item" name="case[comment]" type="text" rows="3"><? displaypost('cases/comment')?></textarea>
 		</div>
 	
 		<div class="submit">

@@ -1,5 +1,5 @@
 <?php
-class Schedule_model extends CI_Model{
+class Schedule_model extends SS_Model{
 	function __construct(){
 		parent::__construct();
 	}

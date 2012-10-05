@@ -439,8 +439,9 @@ function post($arrayindex){
  * 本系统js下也有一个一样的函数
  */
 function showMessage($message,$type='notice',$direct_export=false){
+	$output='';
 	if($direct_export){
-		echo $message;
+		$output=$message;
 	}else{
 		if($type=='notice'){
 			$notice_class='ui-state-highlight ';
@@ -449,8 +450,10 @@ function showMessage($message,$type='notice',$direct_export=false){
 			$notice_class='ui-state-error';
 			$notice_symbol='<span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>';
 		}
-		echo '<span class="message ui-corner-all '.$notice_class.'" title="点击隐藏提示">'.$notice_symbol.$message.'</span>';
+		$output='<span class="message ui-corner-all '.$notice_class.'" title="点击隐藏提示">'.$notice_symbol.$message.'</span>';
 	}
+	$CI=&get_instance();
+	$CI->output->append_output($output);
 }
 
 function str_getSummary($str,$length=28){

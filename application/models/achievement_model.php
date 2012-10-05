@@ -1,5 +1,5 @@
 <?php
-class Achievement_model extends CI_Model{
+class Achievement_model extends SS_Model{
 	function __construct(){
 		parent::__construct();
 	}
