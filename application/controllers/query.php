@@ -4,7 +4,11 @@ class Query extends SS_controller{
 		parent::__construct();
 	}
 	
-	function index(){
+	function filed(){
+		$this->lists('filed');
+	}
+	
+	function lists($para=NULL){
 		$q="
 			SELECT 
 				case.id,case.first_contact,case.num,case.query_type AS type,case.summary,case.comment,
@@ -24,7 +28,7 @@ class Query extends SS_controller{
 			$q.=" AND case_lawyer.lawyer='".$_SESSION['id']."'";
 		//}
 		
-		if(got('filed')){
+		if($para=='filed'){
 			$q.=" AND case.filed=1";
 		}else{
 			$q.=" AND case.filed=0";

@@ -4,7 +4,7 @@ class Staff extends SS_controller{
 		parent::__construct();
 	}
 	
-	function index(){
+	function lists(){
 		if(is_posted('grade')){
 			option('grade',$_POST['grade']);
 		}

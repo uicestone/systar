@@ -2,10 +2,13 @@
 class Client extends SS_Controller{
 	function __construct(){
 		parent::__construct();
-		$this->load->model('client_model','model');
 	}
 	
-	function index($function=NULL){
+	function potential(){
+		$this->lists('potential');
+	}
+	
+	function lists($method=NULL){
 		
 		if(is_posted('delete')){
 			$_POST=array_trim($_POST);
@@ -32,7 +35,7 @@ class Client extends SS_Controller{
 		";
 		
 		$condition='';
-		if($function=='potential'){
+		if($method=='potential'){
 			$condition.=" AND type='潜在客户'";
 		
 		}else{
@@ -77,15 +80,18 @@ class Client extends SS_Controller{
 		
 		$table=$this->fetchTableArray($q,$field);
 		
-		$data=compact('table','menu');
+		$this->data+=compact('table','menu','search_bar');
 		
-		$this->load->view('list',$data);
+		$this->load->view('lists',$this->data);
+		$this->main_view_loaded=TRUE;
+		
+		$this->load->view('sidebar_head');
+		$this->load->view('client/lists_sidebar');
+		$this->load->view('sidebar_foot');
+		$this->sidebar_loaded=TRUE;
+		
 	}
 
-	function potential(){
-		$this->index('potential');
-	}
-	
 	function add(){
 		$this->edit();
 	}
@@ -296,6 +302,7 @@ class Client extends SS_Controller{
 		}else{
 			$this->load->view('client/add_natural');
 		}
+		
 	}
 	
 	function autocomplete(){$type=NULL;

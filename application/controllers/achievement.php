@@ -4,7 +4,7 @@ class Achievement extends SS_controller{
 		parent::__construct();
 	}
 	
-	function index(){
+	function lists(){
 		$q="
 		SELECT case_fee_collected.*,
 			GROUP_CONCAT(DISTINCT client.abbreviation) AS clients,
@@ -74,27 +74,27 @@ class Achievement extends SS_controller{
 			
 			'contracted'=>array(
 				'field'=>'签约',
-				'total'=>achievementSum('contracted','total',$month_start_timestamp),
-				'my'=>achievementSum('contracted','my',$month_start_timestamp),
-				'contribute'=>achievementSum('contracted','contribute',$month_start_timestamp)
+				'total'=>$this->achievement->sum('contracted','total',$month_start_timestamp),
+				'my'=>$this->achievement->sum('contracted','my',$month_start_timestamp),
+				'contribute'=>$this->achievement->sum('contracted','contribute',$month_start_timestamp)
 			),
 			
 			'estimated'=>array(
 				'field'=>'预计',
-				'total'=>achievementSum('estimated','total',$month_start_timestamp,$month_end_timestamp),
-				'my'=>achievementSum('estimated','my',$month_start_timestamp,$month_end_timestamp),
-				'contribute'=>achievementSum('estimated','contribute',$month_start_timestamp,$month_end_timestamp)
+				'total'=>$this->achievement->sum('estimated','total',$month_start_timestamp,$month_end_timestamp),
+				'my'=>$this->achievement->sum('estimated','my',$month_start_timestamp,$month_end_timestamp),
+				'contribute'=>$this->achievement->sum('estimated','contribute',$month_start_timestamp,$month_end_timestamp)
 			),
 			
 			'collected'=>array(
 				'field'=>'到账',
-				'total'=>achievementSum('collected','total',$month_start_timestamp),
-				'my'=>achievementSum('collected','my',$month_start_timestamp),
-				'contribute'=>achievementSum('collected','contribute',$month_start_timestamp)
+				'total'=>$this->achievement->sum('collected','total',$month_start_timestamp),
+				'my'=>$this->achievement->sum('collected','my',$month_start_timestamp),
+				'contribute'=>$this->achievement->sum('collected','contribute',$month_start_timestamp)
 			)
 		);
 		
-		$achievement=achievementSum('collected','contribute',option('date_range/from_timestamp'),option('date_range/to_timestamp'),false);
+		$achievement=$this->achievement->sum('collected','contribute',option('date_range/from_timestamp'),option('date_range/to_timestamp'),false);
 		$achievement_dashboard=array(
 			'_field'=>array(
 				'贡献'
@@ -108,9 +108,10 @@ class Achievement extends SS_controller{
 		
 		$table=$this->fetchTableArray($q, $field);
 		
-		$this->data+=compact('table','menu');
+		$this->data+=compact('table','menu','date_range_bar','achievement_dashboard','achievement_sum');
 		
 		$this->load->view('lists',$this->data);
+		$this->main_view_loaded=TRUE;
 	}
 
 	function recent(){
@@ -180,8 +181,12 @@ class Achievement extends SS_controller{
 		
 		$_SESSION['last_list_action']=$_SERVER['REQUEST_URI'];
 		
-		exportTable($q,$field,$menu,true);
-	}
+		$table=$this->fetchTableArray($q, $field);
+		
+		$this->data+=compact('table','menu','date_range_bar','achievement_dashboard','achievement_sum');
+		
+		$this->load->view('lists',$this->data);
+		$this->main_view_loaded=TRUE;	}
 	
 	function expired(){
 		$q="SELECT case_fee.id,case_fee.type,case_fee.fee,FROM_UNIXTIME(case_fee.pay_time,'%Y-%m-%d') AS pay_time,
@@ -258,7 +263,7 @@ class Achievement extends SS_controller{
 		$this->load->view('lists',$this->data);
 	}
 	
-	function casebonus(){
+	function caseBonus(){
 		$q="
 		SELECT staff.name AS staff_name, ROUND(SUM(case_collect.amount*case_contribute.contribute),2) AS contribute_sum,ROUND(SUM(case_collect.amount*case_contribute.contribute*0.15),2) AS bonus_sum
 		FROM (
@@ -322,7 +327,7 @@ class Achievement extends SS_controller{
 		
 		$table=$this->fetchTableArray($q, $field);
 		
-		$this->data+=compact('table','menu');
+		$this->data+=compact('table','menu','date_range_bar');
 		
 		$this->load->view('lists',$this->data);
 	}
@@ -364,7 +369,7 @@ class Achievement extends SS_controller{
 		
 		$table=$this->fetchTableArray($q, $field);
 		
-		$this->data+=compact('table','menu');
+		$this->data+=compact('table','menu','date_range_bar');
 		
 		$this->load->view('lists',$this->data);
 	}
@@ -402,8 +407,9 @@ class Achievement extends SS_controller{
 			),
 		);
 		
-		$months=json_encode($months);
-		$series=json_encode($series,JSON_NUMERIC_CHECK);
+		$this->data['months']=json_encode($months);
+		$this->data['series']=json_encode($series,JSON_NUMERIC_CHECK);
+		
 	}
 	
 	function query(){
@@ -422,7 +428,7 @@ class Achievement extends SS_controller{
 			GROUP BY LEFT(time_contract,7)
 		)`case` USING(month)";
 		$monthly_queries=db_toArray($q_monthly_queries);
-		$chart_monthly_queries_catogary=json_encode(array_sub($monthly_queries,'month'));
+		$this->data['chart_monthly_queries_catogary']=json_encode(array_sub($monthly_queries,'month'));
 		$chart_monthly_queries_series=array(
 			array('name'=>'总量','data'=>array_sub($monthly_queries,'queries')),
 			array('name'=>'归档','color'=>'#AAA','data'=>array_sub($monthly_queries,'filed_queries')),
@@ -430,7 +436,7 @@ class Achievement extends SS_controller{
 			array('name'=>'新增案件','data'=>array_sub($monthly_queries,'cases'))
 		
 		);
-		$chart_monthly_queries_series=json_encode($chart_monthly_queries_series,JSON_NUMERIC_CHECK);
+		$this->data['chart_monthly_queries_series']=json_encode($chart_monthly_queries_series,JSON_NUMERIC_CHECK);
 		
 		$q_personally_queries="
 			SELECT staff.name AS staff_name, COUNT(query.id) AS queries, SUM(IF(filed='归档',1,0)) AS filed_queries, SUM(IF(filed='洽谈',1,0)) AS live_queries
@@ -441,13 +447,13 @@ class Achievement extends SS_controller{
 		";
 		$personally_queries=db_toArray($q_personally_queries);
 		
-		$chart_personally_queries_catogary=json_encode(array_sub($personally_queries,'staff_name'));
+		$this->data['chart_personally_queries_catogary']=json_encode(array_sub($personally_queries,'staff_name'));
 		$chart_personally_queries_series=array(
 			array('name'=>'归档','color'=>'#AAA','data'=>array_sub($personally_queries,'filed_queries')),
 			array('name'=>'在谈','data'=>array_sub($personally_queries,'live_queries'))
 		
 		);
-		$chart_personally_queries_series=json_encode($chart_personally_queries_series,JSON_NUMERIC_CHECK);
+		$this->data['chart_personally_queries_series']=json_encode($chart_personally_queries_series,JSON_NUMERIC_CHECK);
 		
 		$q_personally_type_queries="
 			SELECT staff.name AS staff_name, COUNT(query.id) AS queries, SUM(IF(type='面谈咨询',1,0)) AS face_queries, SUM(IF(type='电话咨询',1,0)) AS call_queries, SUM(IF(type='网上咨询',1,0)) AS online_queries
@@ -458,14 +464,14 @@ class Achievement extends SS_controller{
 		";
 		$personally_type_queries=db_toArray($q_personally_type_queries);
 		
-		$chart_personally_type_queries_catogary=json_encode(array_sub($personally_type_queries,'staff_name'));
+		$this->data['chart_personally_type_queries_catogary']=json_encode(array_sub($personally_type_queries,'staff_name'));
 		$chart_personally_type_queries_series=array(
 			array('name'=>'网上咨询','data'=>array_sub($personally_type_queries,'online_queries')),
 			array('name'=>'电话咨询','data'=>array_sub($personally_type_queries,'call_queries')),
 			array('name'=>'面谈咨询','data'=>array_sub($personally_type_queries,'face_queries'))
 		
 		);
-		$chart_personally_type_queries_series=json_encode($chart_personally_type_queries_series,JSON_NUMERIC_CHECK);
+		$this->data['chart_personally_type_queries_series']=json_encode($chart_personally_type_queries_series,JSON_NUMERIC_CHECK);
 	}
 }
 ?>

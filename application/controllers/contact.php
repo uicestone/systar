@@ -4,8 +4,8 @@ class Contact extends SS_controller{
 		parent::__construct();
 	}
 	
-	function index(){
-		model('client');
+	function lists(){
+		$this->load->model('client_model','client');
 		
 		if(is_posted('delete')){
 			$_POST=array_trim($_POST);

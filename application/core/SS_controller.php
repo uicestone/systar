@@ -3,7 +3,8 @@ class SS_Controller extends CI_Controller{
 	
 	public $data=array();//传递给模板的参数
 	public $main_view_loaded=FALSE;
-	public $default_method;
+	public $sidebar_loaded=FALSE;
+	public $default_method='lists';
 	
 	function __construct(){
 		parent::__construct();

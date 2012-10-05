@@ -2,9 +2,10 @@
 class Evaluation extends SS_controller{
 	function __construct(){
 		parent::__construct();
+		$this->default_method='comment';
 	}
 	
-	function index(){
+	function staffList(){
 		$q="
 		SELECT staff.id,staff.name,position.ui_name AS position_name
 		FROM staff
@@ -43,9 +44,9 @@ class Evaluation extends SS_controller{
 				'主管分'
 			),
 			array(
-				evaluation_getPeer(),
-				evaluation_getSelf(),
-				evaluation_getManager()
+				$this->evaluation->getPeer(),
+				$this->evaluation->getSelf(),
+				$this->evaluation->getManager()
 			)
 		);
 		
