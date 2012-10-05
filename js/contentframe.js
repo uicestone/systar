@@ -1,6 +1,6 @@
 $(function(){
 	if($.browser.msie && $.browser.version<7 && action!='user_browser'){
-		window.location.href='/user?browser';
+		window.location.href='/user/browser';
 	}
 
 	window.parent.document.title=affair+' - '+(username?username+' - ':'')+sysname;
@@ -68,7 +68,7 @@ $(function(){
 	//案下客户名称自动完成
 	$('[autocomplete=client]').autocomplete({
 		source: function(request, response){
-			$.post('client?autocomplete',{term:request.term},function(data){
+			$.post('/client/autocomplete',{term:request.term},function(data){
 				data=$.parseResponse(data);
 				response(data);
 			});

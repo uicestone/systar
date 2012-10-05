@@ -68,7 +68,7 @@ $(function(){
 	});
 	
 	//小时费率页内编辑
-	$('.editable').editable('misc?editable',{
+	$('.editable').editable('misc/editable',{
 		onblur:'submit',
 		id:'case_lawyer-id',
 		name:'hourly_fee'
@@ -81,7 +81,7 @@ $(function(){
 		var result;
 		
 		$.ajax({
-			url:'case?write&case_fee_condition',
+			url:'/cases/write/case_fee_condition',
 			type:'POST',
 			data:{
 				id:id,

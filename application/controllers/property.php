@@ -112,7 +112,7 @@ class Property extends SS_controller{
 				db_insert('property_status',$_SESSION['property']['post']);
 				unset($_SESSION['property']['post']);
 				
-				redirect('/property');
+				redirect('property');
 			}
 		}
 		

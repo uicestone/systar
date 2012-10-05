@@ -104,7 +104,7 @@ class Document extends SS_controller{
 		);
 		db_insert('document',$dir);
 		
-		redirect('/document');
+		redirect('document');
 	}
 
 	function download(){
@@ -127,7 +127,7 @@ class Document extends SS_controller{
 			$q="DELETE FROM document_fav WHERE (".$condition.") AND uid='".$_SESSION['id']."'";
 			db_query($q);
 		}
-		redirect('/document');
+		redirect('document');
 	}
 	
 	function fav(){
@@ -141,7 +141,7 @@ class Document extends SS_controller{
 			$q="REPLACE INTO document_fav (file,uid,time) values ".$values;
 			db_query($q);
 		}
-		redirect('/document');
+		redirect('document');
 	}
 	
 	function upload(){
@@ -176,7 +176,7 @@ class Document extends SS_controller{
 				'time'=>$this->config->item('timestamp')
 			);
 			db_insert('document',$fileInfo,false,$db_replace);
-			redirect('/document');
+			redirect('document');
 		}
 	}
 }

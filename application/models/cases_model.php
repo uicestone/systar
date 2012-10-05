@@ -529,7 +529,7 @@ class Cases_model extends SS_Model{
 	function getFeeList($case_id,$fee_lock){
 	//案件律师费约定信息
 		$query="
-			SELECT case_fee.id,case_fee.type,case_fee.condition,case_fee.pay_time,case_fee.fee,case_fee.reviewed,
+			SELECT case_fee.id,case_fee.type,case_fee.receiver,case_fee.condition,case_fee.pay_time,case_fee.fee,case_fee.reviewed,
 				if(SUM(account.amount) IS NULL,'',SUM(account.amount)) AS fee_received,
 				FROM_UNIXTIME(MAX(account.time_occur),'%Y-%m-%d') AS fee_received_time
 			FROM 

@@ -6,8 +6,6 @@ class Staff_model extends SS_Model{
 	
 	function check($staff_name,$data_type='id',$show_error=true){
 			//$data_type:id,array
-			global $_G;
-
 			if(!$staff_name){
 					if($show_error){
 							showMessage('请输入职员名称','warning');
@@ -15,7 +13,7 @@ class Staff_model extends SS_Model{
 					return -3;
 			}
 
-			$q_lawyer="SELECT * FROM `staff` WHERE company='".$_G['company']."' AND `name` LIKE '%".$staff_name."%'";
+			$q_lawyer="SELECT * FROM `staff` WHERE company='".$this->config->item('company')."' AND `name` LIKE '%".$staff_name."%'";
 			$r_lawyer=db_query($q_lawyer);
 			$num_lawyers=db_rows($r_lawyer);
 

@@ -11,6 +11,7 @@ class Test extends SS_controller{
 		//$this->load->view('head');
 		
 		print_r($_SESSION);
+		
 	}
 }
 

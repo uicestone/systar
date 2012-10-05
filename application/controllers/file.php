@@ -121,7 +121,7 @@ class File extends SS_controller{
 				db_insert('file_status',$_SESSION['file']['post']);
 				unset($_SESSION['file']['post']);
 				
-				//redirect('/file');
+				//redirect('file');
 			}
 		}
 		

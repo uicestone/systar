@@ -9,7 +9,7 @@ class Client extends SS_Controller{
 		
 		if(is_posted('delete')){
 			$_POST=array_trim($_POST);
-			client_delete($_POST['client_check']);
+			$this->client->delete($_POST['client_check']);
 		}
 		
 		$q="
@@ -301,7 +301,7 @@ class Client extends SS_Controller{
 	function autocomplete(){$type=NULL;
 		got('type') && $type=$_GET['type'];
 		
-		$result=client_match($_POST['term'],'client',$type);
+		$result=$this->client->match($_POST['term'],'client',$type);
 		
 		$array=array();
 		
@@ -314,7 +314,7 @@ class Client extends SS_Controller{
 	
 	function getSourceLawyer(){
 		model('staff');
-		$staff=staff_fetch(client_check($_POST['client_name'],'source_lawyer'));
+		$staff=$this->staff->fetch(client_check($_POST['client_name'],'source_lawyer'));
 		if($staff){
 			echo $staff['name'];
 		}

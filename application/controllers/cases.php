@@ -5,7 +5,23 @@ class Cases extends SS_controller{
 		$this->default_method='lists';
 	}
 	
-	function lists(){
+	function host(){
+		$this->lists('host');
+	}
+	
+	function consultant(){
+		$this->lists('consultant');
+	}
+	
+	function etc(){
+		$this->lists('etc');
+	}
+	
+	function file(){
+		$this->lists('file');
+	}
+	
+	function lists($para=NULL){
 		$q="
 			SELECT
 				case.id,case.name,case.num,case.stage,case.time_contract,
@@ -83,16 +99,16 @@ class Cases extends SS_controller{
 		
 		$condition='';
 		
-		if(got('host')){
+		if($para=='host'){
 			$condition.="AND case.apply_file=0 AND case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role='主办律师')";
 		
-		}elseif(got('consultant')){
+		}elseif($para=='consultant'){
 			$condition.="AND case.apply_file=0 AND classification='法律顾问' AND (case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."') OR case.uid='".$_SESSION['id']."')";
 		
-		}elseif(got('etc')){
+		}elseif($para=='etc'){
 			$condition.="AND case.apply_file=0 AND classification<>'法律顾问' AND (case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role<>'主办律师') OR case.uid='".$_SESSION['id']."')";
 			
-		}elseif(got('file')){
+		}elseif($para=='file'){
 			$condition.="AND case.apply_file=1 AND classification<>'法律顾问' AND (case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role<>'主办律师') OR case.uid='".$_SESSION['id']."')";
 			
 		}elseif(!is_logged('developer')){
@@ -146,10 +162,9 @@ class Cases extends SS_controller{
 		$this->load->model('staff_model','staff');
 		$this->load->model('client_model','client');
 		$this->load->model('schedule_model','schedule');
-		
-		$this->getPostData($id,function(){
-			post('cases/time_contract',$this->config->item('date'));
-			post('cases/time_end',date('Y-m-d',$this->config->item('timestamp')+100*86400));
+		$this->getPostData($id,function($CFG){
+			post('cases/time_contract',$CFG->item('date'));
+			post('cases/time_end',date('Y-m-d',$CFG->item('timestamp')+100*86400));
 			//默认签约时间和结案时间
 		
 			post('case_client_extra/show_add_form',true);
@@ -172,14 +187,14 @@ class Cases extends SS_controller{
 		$submitable=false;
 		
 		if(is_posted('submit')){
-			$_SESSION['case']['post']=array_replace_recursive($_SESSION['case']['post'],$_POST);
+			$_SESSION['cases']['post']=array_replace_recursive($_SESSION['cases']['post'],$_POST);
 			$submitable=true;
 			
 			if(is_posted('submit/case_client')){
 				if(!is_posted('case_client_extra/character')){//[单位]不打钩则删除session对应变量
 					unset($_SESSION[IN_UICE]['post']['case_client_extra']['character']);
 				}
-				$client_check=client_check(post('case_client_extra/name'),'array');
+				$client_check=$this->client->check(post('case_client_extra/name'),'array');
 				if($client_check==-1){//如果case_client添加的客户不存在，则先添加客户
 					$new_client=array(
 						'name'=>post('case_client_extra/name'),
@@ -189,9 +204,9 @@ class Cases extends SS_controller{
 					);
 				
 					if(post('case_client_extra/classification')=='客户'){//客户必须输入来源
-						$client_source=client_setSource(post('case_client_extra/source_type'),post('case_client_extra/source_detail'));
+						$client_source=$this->client->setSource(post('case_client_extra/source_type'),post('case_client_extra/source_detail'));
 						
-						$staff_check=staff_check(post('case_client_extra/source_lawyer_name'),'id',false);
+						$staff_check=$this->staff->check(post('case_client_extra/source_lawyer_name'),'id',false);
 						
 						if($staff_check<0){
 							showMessage('请输入正确的来源律师','warning');
@@ -215,10 +230,10 @@ class Cases extends SS_controller{
 						}
 					}
 					
-					if($submitable && $new_client_id=client_add($new_client)){
+					if($submitable && $new_client_id=$this->client->add($new_client)){
 						post('case_client/client',$new_client_id);
 			
-						client_addContact_phone_email(post('case_client/client'),post('case_client_extra/phone'),post('case_client_extra/email'));
+						$this->client->addContact_phone_email(post('case_client/client'),post('case_client_extra/phone'),post('case_client_extra/email'));
 			
 						showMessage(
 							'<a href="javascript:showWindow(\''.
@@ -240,9 +255,9 @@ class Cases extends SS_controller{
 					$submitable=false;
 				}
 		
-				if($submitable && case_addClient(post('cases/id'),post('case_client/client'),post('case_client/role'))){
-					unset($_SESSION['case']['post']['case_client']);
-					unset($_SESSION['case']['post']['case_client_extra']);
+				if($submitable && $this->cases->addClient(post('cases/id'),post('case_client/client'),post('case_client/role'))){
+					unset($_SESSION['cases']['post']['case_client']);
+					unset($_SESSION['cases']['post']['case_client_extra']);
 					post('case_client_extra/show_add_form',false);
 				}
 		
@@ -250,7 +265,7 @@ class Cases extends SS_controller{
 			}
 			
 			if(is_posted('submit/case_lawyer')){
-				if(post('case_lawyer/lawyer',staff_check(post('case_lawyer_extra/lawyer_name'),'id'))<0){
+				if(post('case_lawyer/lawyer',$this->staff->check(post('case_lawyer_extra/lawyer_name'),'id'))<0){
 					//查找职员并保存至session，捕获错误
 					$submitable=false;
 		
@@ -259,7 +274,7 @@ class Cases extends SS_controller{
 					showMessage('你没有权限分配实际贡献');
 					$submitable=false;
 					
-				}elseif(post('case_lawyer/contribute',case_lawyerRoleCheck(post('cases/id'),post('case_lawyer/role'),post('case_lawyer_extra/actual_contribute')))===false){
+				}elseif(post('case_lawyer/contribute',$this->cases->lawyerRoleCheck(post('cases/id'),post('case_lawyer/role'),post('case_lawyer_extra/actual_contribute')))===false){
 					//检查并保存本条case_lawyer的contribute，若不可添加则返回false并终止过程
 					$submitable=false;
 					
@@ -271,9 +286,9 @@ class Cases extends SS_controller{
 						showMessage('未设置督办合伙人','warning');
 						$submitable=false;
 					}
-					if($submitable && case_addLawyer(post('cases/id'),post('case_lawyer'))){
-						unset($_SESSION['case']['post']['case_lawyer']);
-						unset($_SESSION['case']['post']['case_lawyer_extra']);
+					if($submitable && $this->cases->addLawyer(post('cases/id'),post('case_lawyer'))){
+						unset($_SESSION['cases']['post']['case_lawyer']);
+						unset($_SESSION['cases']['post']['case_lawyer_extra']);
 						if(post('cases/is_reviewed') && post('case_lawyer/role')!='实际贡献' && !in_array('督办合伙人',$my_roles)){
 							post('cases/is_reviewed',0);
 							showMessage('案件关键信息已经更改，需要重新审核');
@@ -282,7 +297,7 @@ class Cases extends SS_controller{
 				}
 				post('case_lawyer_extra/show_add_form',true);//无论是否插入成功，刷新后继续显示添加律师表单
 				
-				case_calcContribute(post('cases/id'));
+				$this->cases->calcContribute(post('cases/id'));
 			}
 			
 			if(is_posted('submit/case_fee')){
@@ -296,8 +311,8 @@ class Cases extends SS_controller{
 					showMessage('请预估收费时间','warning');
 		
 				}else{		
-					if(case_addFee(post('cases/id'),post('case_fee'))){
-						unset($_SESSION['case']['post']['case_fee']);
+					if($this->cases->addFee(post('cases/id'),post('case_fee'))){
+						unset($_SESSION['cases']['post']['case_fee']);
 						if(post('cases/is_reviewed')){
 							post('cases/is_reviewed',0);
 							showMessage('案件关键信息已经更改，需要重新审核');
@@ -348,7 +363,7 @@ class Cases extends SS_controller{
 		
 				}else{
 					if(db_insert('case_fee_timing',post('case_fee_timing'),true,true)){
-						unset($_SESSION['case']['post']['case_fee_timing']);
+						unset($_SESSION['cases']['post']['case_fee_timing']);
 					}
 				}
 			}
@@ -369,13 +384,13 @@ class Cases extends SS_controller{
 		
 				}else{		
 					if(db_insert('case_fee',post('case_fee_misc'))){
-						unset($_SESSION['case']['post']['case_fee_misc']);
+						unset($_SESSION['cases']['post']['case_fee_misc']);
 					}
 				}
 			}
 		
 			if(is_posted('submit/case_document')){
-				model('document');
+				$this->load->model('document_model','document');
 				if(post('case_document/doctype')=='其他' && !post('case_document/doctype_other')){
 					showMessage('文件类别选择“其他”，则必须填写具体类别','warning');
 		
@@ -388,15 +403,15 @@ class Cases extends SS_controller{
 					move_uploaded_file($_FILES['file']['tmp_name'], $storePath);
 				
 					post('case_document/name',$_FILES["file"]["name"]);
-					post('case_document/type',document_getExtension(post('case_document/name')));
+					post('case_document/type',$this->document->getExtension(post('case_document/name')));
 					post('case_document/size',$_FILES["file"]['size']);
 					
-					$_SESSION['case']['post']['case_document']['id']=case_addDocument(post('cases/id'),post('case_document'));
+					$_SESSION['case']['post']['case_document']['id']=$this->cases->addDocument(post('cases/id'),post('case_document'));
 		
 					rename(iconv("utf-8","gbk",$this->config->item('case_document_path')."/".$_FILES["file"]["name"]),iconv("utf-8","gbk",$this->config->item('case_document_path')."/".post('case_document/id')));
 				}
 				
-				unset($_SESSION['case']['post']['case_document']);
+				unset($_SESSION['cases']['post']['case_document']);
 			}
 		
 			if(is_posted('submit/file_document_list')){
@@ -428,7 +443,7 @@ class Cases extends SS_controller{
 		
 				db_query($q);
 				
-				case_calcContribute(post('cases/id'));
+				$this->cases->calcContribute(post('cases/id'));
 		
 				if(post('cases/is_reviewed')){
 					post('cases/is_reviewed',0);
@@ -471,7 +486,7 @@ class Cases extends SS_controller{
 			if(is_posted('submit/review')){
 				post('cases/is_reviewed',1);
 				showMessage('本案已经审核通过');
-				case_reviewMessage('通过审核',$lawyers);
+				$this->cases->reviewMessage('通过审核',$lawyers);
 			}
 			
 			if(is_posted('submit/apply_lock')){
@@ -541,12 +556,12 @@ class Cases extends SS_controller{
 				showMessage('案件实体归档完成');
 			}
 			
-			$case_client_role = case_getClientRole(post('cases/id'));
+			$case_client_role = $this->cases->getClientRole(post('cases/id'));
 			
 			if(is_posted('submit/apply_case_num') && post('cases/num')==''){
 				//准备插入案号
 				
-				post('cases/num',case_getNum(post('case'),$case_client_role));
+				post('cases/num',$this->cases->getNum(post('cases'),$case_client_role));
 				post('cases/type_lock',1);
 			}
 		
@@ -609,9 +624,9 @@ class Cases extends SS_controller{
 		$this->data['case_type_array']=db_enumArray('case','stage');
 		
 		if(post('cases/is_query')){
-			$case_lawyer_role_array=array('督办合伙人','接洽律师','接洽律师（次要）','律师助理');
+			$this->data['case_lawyer_role_array']=array('督办合伙人','接洽律师','接洽律师（次要）','律师助理');
 		}else{
-			$case_lawyer_role_array=db_enumArray('case_lawyer','role');
+			$this->data['case_lawyer_role_array']=db_enumArray('case_lawyer','role');
 		}
 		
 		$this->data['case_client_table']=$this->cases->getClientList(post('cases/id'),post('cases/client_lock'));
@@ -637,6 +652,10 @@ class Cases extends SS_controller{
 		$this->data['case_schedule_table']=$this->cases->getScheduleList(post('cases/id'));
 		
 		$this->data['case_plan_table']=$this->cases->getPlanList(post('cases/id'));
+		
+		$this->load->view('cases/edit',$this->data);
+		
+		$this->main_view_loaded=TRUE;
 	}
 
 	function documentDownload(){

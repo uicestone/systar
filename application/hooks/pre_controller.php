@@ -52,11 +52,6 @@ function preController(){
 	define('IN_UICE',$class);//定义$class常量，即控制器的名称
 	define('METHOD',$method);
 
-	if($class!='user' && !is_logged(NULL,true)){
-		//对于非用户登录/登出界面，检查权限，弹出未登陆
-		redirect('user/login','js',NULL,true);
-	}
-
 	//开始选择controller
 	if(in_array($class,array('frame','nav'))){
 		$CFG->set_item('require_menu',false);
@@ -66,7 +61,7 @@ function preController(){
 			$CFG->set_item('as_popup_window',true);
 
 		}
-	}elseif($class=='case'){
+	}elseif($class=='cases'){
 		$CFG->set_item('actual_table','case');
 		if(($method=='add' || $method=='edit') && is_permitted($class,'add')){
 			if(is_posted('submit/file_document_list')){

@@ -268,11 +268,11 @@ method (default) or the "refresh" method.  Location is faster, but on Windows se
 
 <code>if ($logged_in == FALSE)<br />
 {<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;redirect('/login/form/', 'refresh');<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;redirect('login/form/', 'refresh');<br />
 }<br />
 <br />
 // with 301 redirect<br />
-redirect('/article/13', 'location', 301);</code>
+redirect('article/13', 'location', 301);</code>
 
 <p class="important"><strong>Note:</strong> In order for this function to work it must be used before anything is outputted
 to the browser since it utilizes server headers.<br />

@@ -7,6 +7,14 @@ class SS_Controller extends CI_Controller{
 	
 	function __construct(){
 		parent::__construct();
+
+		global $class,$method;
+
+		if($class!='user' && !is_logged(NULL,true)){
+			//对于非用户登录/登出界面，检查权限，弹出未登陆
+			redirect('user/login','js',NULL,true);
+		}
+
 	}
 	
 	/*
@@ -23,7 +31,8 @@ class SS_Controller extends CI_Controller{
 			$this->processUidTimeInfo(IN_UICE);
 		
 			if(is_a($callback,'Closure')){
-				$callback();
+				global $CFG;
+				$callback($CFG);
 			}
 	
 			if($generate_new_id){
