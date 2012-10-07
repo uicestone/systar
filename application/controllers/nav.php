@@ -1,8 +1,8 @@
 <?php
 class Nav extends SS_Controller{
 	function __construct() {
-		parent::__construct();
 		$this->default_method='index';
+		parent::__construct();
 	}
 	
 	function index(){

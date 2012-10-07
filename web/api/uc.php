@@ -1,7 +1,7 @@
 <?php
 chdir('../../');
-define('IN_UICE','uc_api');
-define('UC_CLIENT_ROOT', 'plugin/client/');
+
+define('UC_CLIENT_ROOT', 'application/third_party/client/');
 require 'config/config.php';
 
 define('UC_VERSION', '1.6.0');		//UCenter 版本标识
@@ -37,7 +37,6 @@ if(empty($get)) {
 	exit('Invalid Request');
 }
 $action = $get['action'];
-$timestamp = $_G['timestamp'];
 
 if($action == 'test') {
 
@@ -48,14 +47,6 @@ if($action == 'test') {
 	!API_DELETEUSER && exit(API_RETURN_FORBIDDEN);
 
 	//用户删除 API 接口
-/*	include 'source/ucenter/db_mysql.class.php';
-	$db = new dbstuff;
-	$db->connect($dbhost, $dbuser, $dbpw, $dbname, $pconnect);
-	unset($dbhost, $dbuser, $dbpw, $dbname, $pconnect);
-
-	$uids = $get['ids'];
-	$query = $db->query("DELETE FROM {$tablepre}members WHERE uid IN ($uids)");
-*/
 	exit(API_RETURN_SUCCEED);
 
 } elseif($action == 'renameuser') {
@@ -63,12 +54,8 @@ if($action == 'test') {
 	!API_RENAMEUSER && exit(API_RETURN_FORBIDDEN);
 
 	//用户改名 API 接口
-/*	$uid = $get['uid'];
-	$usernamenew = $get['newusername'];
 
-	$db->query("UPDATE {$tablepre}members SET username='$usernamenew' WHERE uid='$uid'");
-
-*/	exit(API_RETURN_SUCCEED);
+	exit(API_RETURN_SUCCEED);
 
 } elseif($action == 'updatepw') {
 
@@ -81,10 +68,6 @@ if($action == 'test') {
 
 	!API_GETTAG && exit(API_RETURN_FORBIDDEN);
 
-	//获取标签 API 接口
-/*	$return = array($name, array());
-	echo uc_serialize($return, 1);
-*/
 } elseif($action == 'synlogin' && $_GET['time'] == $get['time']) {
 
 	!API_SYNLOGIN && exit(API_RETURN_FORBIDDEN);

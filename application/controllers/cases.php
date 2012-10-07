@@ -162,15 +162,16 @@ class Cases extends SS_controller{
 		$this->load->model('staff_model','staff');
 		$this->load->model('client_model','client');
 		$this->load->model('schedule_model','schedule');
-		$this->getPostData($id,function($CFG){
-			post('cases/time_contract',$CFG->item('date'));
-			post('cases/time_end',date('Y-m-d',$CFG->item('timestamp')+100*86400));
+
+		$this->getPostData($id,function($CI){
+			post('cases/time_contract',$CI->config->item('date'));
+			post('cases/time_end',date('Y-m-d',$CI->config->item('timestamp')+100*86400));
 			//默认签约时间和结案时间
 		
 			post('case_client_extra/show_add_form',true);
 			post('case_lawyer_extra/show_add_form',true);
 		});
-		
+
 		$case_role=$this->cases->getRoles(post('cases/id'));
 		
 		$responsible_partner=$this->cases->getPartner($case_role);
@@ -415,7 +416,7 @@ class Cases extends SS_controller{
 			}
 		
 			if(is_posted('submit/file_document_list')){
-				$this->config->set_item('require_export',false);
+				$this->require_export=FALSE;
 				model('document');
 				$document_catalog=$this->cases->getDocumentCatalog(post('cases/id'),post('case_document_check'));
 				require 'view/case_document_catalog.php';
@@ -614,6 +615,7 @@ class Cases extends SS_controller{
 			}
 			
 			$this->processSubmit($submitable,NULL,NULL,false,true,false);
+
 		}
 		
 		//计算本案有效日志总时间

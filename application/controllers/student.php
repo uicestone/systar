@@ -91,9 +91,9 @@ class Student extends SS_controller{
 	}
 	
 	function edit($id=NULL){
-		$this->getPostData($id,function(){
+		$this->getPostData($id,function($CI){
 			global $_G;
-			post('student/name','新学生'.$this->config->item('timestamp'));
+			post('student/name','新学生'.$CI->config->item('timestamp'));
 			
 			post(IN_UICE.'/id',db_insert('user',array('group'=>'student')));
 			//先创建用户，再创建学生
@@ -255,7 +255,7 @@ class Student extends SS_controller{
 			'time'=>array('title'=>'时间','orderby'=>false)
 		);
 		
-		if($this->config->item('as_controller_default_page')){
+		if($this->as_controller_default_page){
 			$_SESSION['last_list_action']=$_SERVER['REQUEST_URI'];
 		}
 		

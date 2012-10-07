@@ -71,7 +71,7 @@ class Account extends SS_controller{
 		$this->load->model('client_model');
 		$this->load->model('case_model');
 		
-		$this->getPostData($id,function(){
+		$this->getPostData($id,function($CI){
 			if(got('case')){
 				post(IN_UICE.'/case',intval($_GET['case']));
 			}
@@ -80,7 +80,7 @@ class Account extends SS_controller{
 			}
 		
 			post('account/name','律师费');
-			post('account/time_occur',$this->config->item('timestamp'));
+			post('account/time_occur',$CI->config->item('timestamp'));
 		});
 		
 		//转换时间

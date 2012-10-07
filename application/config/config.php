@@ -357,6 +357,14 @@ $config['rewrite_short_tags'] = FALSE;
 */
 $config['proxy_ips'] = '';
 
+/*自定义配置*/
+
+//“文件”模块根目录物理位置
+$config['document_root']="D:/files";
+
+//案下文件物理位置
+$config['case_document_path']="D:/case_document";
+
 
 /* End of file config.php */
 /* Location: ./application/config/config.php */

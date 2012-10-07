@@ -2,7 +2,7 @@
 <div class="contentTableMenu">
 	<div class="right">
 		<input type="submit" name="submit[class]" value="保存" />
-		<? if($_G['as_popup_window']){?>
+		<? if($this->as_popup_window){?>
 		<input type="submit" name="submit[cancel]" value="关闭" />
 		<? }?>
 	</div>

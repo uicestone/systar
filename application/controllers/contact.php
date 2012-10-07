@@ -77,10 +77,10 @@ class Contact extends SS_controller{
 	function edit($id=NULL){
 		model('client');
 	
-		$this->getPostData($id,function(){
+		$this->getPostData($id,function($CI){
 			global $_G;
-			post('contact/name',$_SESSION['username'].'的新联系人 '.date('Y-m-d h:i:s',$this->config->item('timestamp')));
-			post('contact/abbreviation',$_SESSION['username'].'的新联系人 '.date('Y-m-d h:i:s',$this->config->item('timestamp')));
+			post('contact/name',$_SESSION['username'].'的新联系人 '.date('Y-m-d h:i:s',$CI->config->item('timestamp')));
+			post('contact/abbreviation',$_SESSION['username'].'的新联系人 '.date('Y-m-d h:i:s',$CI->config->item('timestamp')));
 		},true,'client');
 		
 		if(is_posted('character')){

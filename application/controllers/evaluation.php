@@ -1,8 +1,8 @@
 <?php
 class Evaluation extends SS_controller{
 	function __construct(){
-		parent::__construct();
 		$this->default_method='comment';
+		parent::__construct();
 	}
 	
 	function staffList(){

@@ -77,11 +77,10 @@ class Query extends SS_controller{
 		model('staff');
 		model('case');
 		
-		$this->getPostData($id,function(){
-			global $_G;
-			post('case_lawyer_extra/partner_name',staff_getMyManager('name'));
+		$this->getPostData($id,function($CI){
+			post('case_lawyer_extra/partner_name',$CI->staff->getMyManager('name'));
 			post('case_lawyer_extra/lawyer_name',$_SESSION['username']);
-			post('query/first_contact',$this->config->item('date'));
+			post('query/first_contact',$CI->config->item('date'));
 			post('query/is_query',1);
 			post('client_extra/source_lawyer_name',$_SESSION['username']);
 			post('client/gender','男');

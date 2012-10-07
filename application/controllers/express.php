@@ -50,9 +50,9 @@ class Express extends SS_controller{
 	}
 	
 	function edit($id=NULL){
-		$this->getPostData($id,function(){
+		$this->getPostData($id,function($CI){
 			global $_G;
-			post('express/time_send',$this->config->item('timestamp'));
+			post('express/time_send',$CI->config->item('timestamp'));
 		});
 		
 		$q_sender_name="SELECT name FROM staff WHERE id='".post('express/sender')."'";

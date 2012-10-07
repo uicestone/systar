@@ -1,12 +1,13 @@
 <?php
 class Test extends SS_controller{
 	function __construct() {
+		$this->default_method='index';
 		parent::__construct();
 	}
 	
 	function index(){
 		
-		$this->config->set_item('require_export',false);
+		$this->require_export=false;
 		
 		//$this->load->view('head');
 		

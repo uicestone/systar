@@ -1,21 +1,256 @@
 <?php
 class SS_Controller extends CI_Controller{
 	
+	public $default_method='lists';
+
 	public $data=array();//传递给模板的参数
+
 	public $main_view_loaded=FALSE;
 	public $sidebar_loaded=FALSE;
-	public $default_method='lists';
+
+	public $require_export=true;//页面头尾输出开关（含menu）
+	public $require_menu=true;//顶部蓝条/菜单输出开关
+	public $as_popup_window=false;
+	public $as_controller_default_page=false;
+	public $actual_table='';//借用数据表的controller的实际主读写表，如contact为client,query为cases
 	
 	function __construct(){
 		parent::__construct();
 
 		global $class,$method;
+		
+		//定义$class常量，即控制器的名称
+		define('IN_UICE',$class);
+		define('METHOD',$method);
+		
+		$this->config->set_item('timestamp',time());
+		$this->config->set_item('microtime',microtime(true));
+		$this->config->set_item('date',date('Y-m-d',$this->config->item('timestamp')));
+		$this->config->set_item('quarter',date('y',$this->config->item('timestamp')).ceil(date('m',$this->config->item('timestamp'))/3));
+	
+		db_query("SET NAMES 'UTF8'");
+	
+		//获得公司信息，见数据库，company表
+		if($company_info=company_fetchInfo()){
+			foreach($company_info as $config_name => $config_value){
+				$this->config->set_item($config_name, $config_value);
+			}
+		}
+	
+		//ucenter配置
+		if($this->config->item('ucenter')){
+			require APPPATH.'helpers/config_ucenter.php';
+			require APPPATH.'third_party/client/client.php';
+		}
 
 		if($class!='user' && !is_logged(NULL,true)){
-			//对于非用户登录/登出界面，检查权限，弹出未登陆
+			//对于非用户登录/登出界面，检查权限，弹出未登陆（顺便刷新权限）
 			redirect('user/login','js',NULL,true);
 		}
 
+			
+		//使用controller中自定义的默认method
+		if($method=='index'){
+			$method=$this->default_method;
+		}
+		
+		//根据controller和method请求决定一些参数
+		//这相当于集中处理了分散的控制器属性，在团队开发中，这不科学。有空应该把这些设置移动到对应的控制器中
+		if(in_array($method,array('add','edit'))){
+			$this->as_popup_window=TRUE;
+		}
+			
+		if(in_array($class,array('frame','nav'))){
+			$this->require_menu=false;
+	
+		}elseif($class=='cases'){
+			$this->actual_table='case';
+			if(($method=='add' || $method=='edit')){
+				$this->as_popup_window=FALSE;
+				if(is_posted('submit/file_document_list')){
+					$this->require_export=false;
+				}
+				$this->as_popup_window=FALSE;
+	
+			}elseif($method=='write'){
+				$this->require_export=false;
+	
+			}
+		}elseif($class=='client'){
+			if($method=='get_source_lawyer'){
+				$this->require_export=false;
+	
+			}elseif($method=='autocomplete'){
+				$this->require_export=false;
+	
+			}
+		}elseif($class=='contact'){
+			$this->actual_table='client';
+
+		}elseif($class=='cron'){
+			ignore_user_abort();
+			set_time_limit(0);
+			//error_reporting('~E_ALL');
+	
+			if($method=='script'){
+				$this->action='cron_'.$_GET['script'];
+	
+			}/*else{
+				//imperfect uicestone 2012/8/6 定时任务，尚未处理
+				$q_cron="SELECT name,cycle,nextrun,lastrun cron where 1=1";
+				$r_cron=db_query($q_cron);
+				while($cron=mysql_fetch_array($r_cron)){
+					if($_G['timestamp'] > $cron['next_run']){
+						db_query("UPDATE cron set next_run =".($_G['timestamp']+$cron['cycle'])." WHERE id=".$cron['id']);
+					}
+				}
+			}*/
+	
+		}elseif($class=='document'){
+			if(is_posted('fileSubmit')){
+				$this->require_export=false;
+	
+			}elseif(is_posted('createDirSubmit')){
+				$this->require_export=false;
+	
+			}elseif(is_posted('fav')){
+				$this->require_export=false;
+	
+			}elseif(is_posted('favDelete')){
+				$this->require_export=false;
+	
+			}elseif(($method=='view' || $method=='office_document' || $method=='instrument' || $method=='contact_file' || $method=='rules' || $method=='contract')){//根据目录ID进行定位/文件ID则进行下载
+	
+				if($method=='office_document'){
+					$_GET['view']=869;
+	
+				}elseif($method=='instrument'){
+					$_GET['view']=870;
+	
+				}elseif($method=='contact_file'){
+					$_GET['view']=872;
+	
+				}elseif($method=='rules'){
+					$_GET['view']=874;
+	
+				}elseif($method=='contract'){
+					$_GET['view']=873;
+				}
+	
+	
+				option('in_search_mod',false);
+	
+				$folder=db_fetch_first("SELECT * FROM `document` WHERE id='".intval($_GET['view'])."'");
+	
+				if($folder['type']!=''){
+					$this->action="document_download";
+					$this->require_export=false;
+				}else{
+					$_SESSION[$class]['upID']=$folder['parent'];
+					$_SESSION[$class]['currentDir']=$folder['name'];
+					$_SESSION[$class]['currentDirID']=$folder['id'];
+					$_SESSION[$class]['currentPath']=$folder['path'];
+				}
+	
+			}
+		}elseif($class=='evaluation'){
+			if($method=='score'){
+				$this->as_popup_window=true;
+	
+			}elseif($method=='score_write'){
+				$this->require_export=false;
+	
+			}
+		}elseif($class=='misc'){
+			$this->require_export=false;
+	
+		}elseif($class=='query'){
+			$this->actual_table='case';
+			$this->as_popup_window=FALSE;
+			
+	
+		}elseif($class=='schedule'){
+			if($method=='readcalendar'){
+				$this->require_export=false;
+	
+			}elseif($method=='writecalendar'){
+				$this->require_export=false;
+	
+			}elseif(($method=='list' || $method=='mine' || $method=='plan')){
+				if(is_posted('export')){
+					$this->require_export=false;
+				}
+	
+			}elseif($method=='listwrite'){//日志列表写入评语/审核时间
+				$this->require_export=false;
+	
+			}
+		}elseif($class=='user'){
+			if($method=='login'){
+				$this->require_menu=false;
+	
+			}
+		}elseif($class=='affair'){
+			if($method=='switch'){
+				$this->require_export=false;
+	
+			}
+		}elseif($class=='exam'){
+			if($method=='save'){
+				$_G{'action'}=$class.'_list_save';
+				$this->require_export=false;
+	
+			}
+		}elseif($class=='student'){
+			$this->as_popup_window=FALSE;
+			if($method=='setclass'){
+				$this->require_export=false;
+	
+			}elseif(is_logged('student')){
+				post('student/id',$_SESSION['id']);
+				$this->as_controller_default_page=true;
+	
+			}elseif(is_logged('parent')){
+				post('student/id',$_SESSION['child']);
+				$this->as_controller_default_page=true;
+	
+			}elseif(is_permitted($class)){//默认action
+							}	
+		}elseif($class=='survey'){
+			if(got('action','homework')){
+	
+			}
+		}elseif($class=='view_score'){
+			if(is_posted('export_to_excel')){
+				$this->require_export=false;
+			}
+		}
+
+		if(is_posted('submit/cancel')){
+			$this->require_export=false;
+			$method='cancel';
+		}
+	
+		$this->load->model('company_model','company');
+		
+		if(is_file(APPPATH.'models/'.$class.'_model.php')){
+			$this->load->model($class.'_model',$class);
+		}
+	
+		if($this->require_export){
+			if(IN_UICE=='nav'){
+				$this->load->view('head_nav');
+			}elseif(IN_UICE=='frame'){
+				$this->load->view('head_frame');
+			}else{
+				$this->load->view('head');
+			}
+	
+			if($this->require_menu){
+				$this->load->view('menu');
+			}
+		}
+		
 	}
 	
 	/*
@@ -32,14 +267,14 @@ class SS_Controller extends CI_Controller{
 			$this->processUidTimeInfo(IN_UICE);
 		
 			if(is_a($callback,'Closure')){
-				global $CFG;
-				$callback($CFG);
+				$CI=&get_instance();
+				$callback($CI);
 			}
 	
 			if($generate_new_id){
 				if(is_null($db_table)){
-					if($this->config->item('actual_table')!=''){
-						$db_table=$this->config->item('actual_table');
+					if($this->actual_table!=''){
+						$db_table=$this->actual_table;
 					}else{
 						$db_table=IN_UICE;
 					}
@@ -413,8 +648,8 @@ class SS_Controller extends CI_Controller{
 		post(IN_UICE.'/company',$this->config->item('company'));
 
 		if(is_null($update_table)){
-			if($this->config->item('actual_table')!=''){
-				$update_table=$this->config->item('actual_table');
+			if($this->actual_table!=''){
+				$update_table=$this->actual_table;
 			}else{
 				$update_table=IN_UICE;
 			}
@@ -458,9 +693,9 @@ class SS_Controller extends CI_Controller{
 	function cancel(){
 		unset($_SESSION[IN_UICE]['post']);
 		
-		db_delete($this->config->item('actual_table')==''?IN_UICE:$this->config->item('actual_table'),"uid='".$_SESSION['id']."' AND display=0");//删除本用户的误添加数据
+		db_delete($this->actual_table==''?IN_UICE:$this->actual_table,"uid='".$_SESSION['id']."' AND display=0");//删除本用户的误添加数据
 		
-		if($this->config->item('as_popup_window')){
+		if($this->as_popup_window){
 			closeWindow();
 		}else{
 			redirect((sessioned('last_list_action')?$_SESSION['last_list_action']:IN_UICE));

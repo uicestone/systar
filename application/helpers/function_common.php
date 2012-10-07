@@ -625,6 +625,7 @@ function in_subarray($needle,array $array,$key_specified=NULL){
 /*数据库操作封装*/
 
 function db_query($query,$show_error=true){
+	$CI=&get_instance();
 	global $CFG;
 	$execution_start_time=microtime(true);
 	$result=mysql_query($query,DB_LINK);
@@ -637,7 +638,7 @@ function db_query($query,$show_error=true){
 	$error='';
 	if($error=mysql_error(DB_LINK)){
 		if($show_error){
-			if($CFG->item('require_export')){
+			if($CI->require_export){
 				showMessage(db_parseError($error),'warning');
 				if($CFG->item('debug_mode')){
 					showMessage('发生错误的sql语句：'.$query,'warning');

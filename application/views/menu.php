@@ -1,5 +1,5 @@
 <div id="topBar">
-<? if(!$this->config->item('as_popup_window') && is_logged()){?>
+<? if(!$this->as_popup_window && is_logged()){?>
 	<div id="topMenu">
 		<a href="/user/profile"><? echo array_dir('_SESSION/username');?></a>
 		<?if($this->config->item('ucenter')){?>
