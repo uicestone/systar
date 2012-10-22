@@ -759,7 +759,7 @@ class pmmodel {
 
 		if($filter == 'newpm') {
 			$addsql = 'm.isnew=1 AND ';
-		/*ÐÔÄÜÓÐÓ°Ïì
+		/*ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó°ï¿½ï¿½
 		} elseif($filter == 'privatepm') {
 			$addsql = 't.pmtype=1 AND ';
 		} elseif($filter == 'chatpm') {
