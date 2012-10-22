@@ -58,7 +58,7 @@ class Schedule_model extends SS_Model{
 		return $scheduleArray;
 	}
 	
-	function review_selected(){
+	function reviewSelected(){
 		$_POST=array_trim($_POST);
 		if(isset($_POST['schedule_check'])){
 			$condition = db_implode($_POST['schedule_check'], $glue = ' OR ','id','=',"'","'", '`','key');
@@ -66,7 +66,7 @@ class Schedule_model extends SS_Model{
 		}
 	}
 	
-	function set_comment($schedule_id,$comment){
+	function setComment($schedule_id,$comment){
 		$schedule_id=intval($schedule_id);
 		db_update('schedule',array('comment'=>$comment),"id='".$schedule_id."'");
 		return db_fetch_first("SELECT * FROM schedule WHERE id='".$schedule_id."'");

@@ -7,8 +7,8 @@
 	<? stylesheet('style/redmond/jquery-ui-1.8.21')?>
 	<? javascript('jquery')?>
 	<? javascript('jquery-ui')?>
-    <? stylesheet('js/qtip2/jquery.qtip.min')?>
-    <? javascript('qtip2/jquery.qtip.min')?>
+	<? stylesheet('js/qtip2/jquery.qtip.min')?>
+	<? javascript('qtip2/jquery.qtip.min')?>
 	<? javascript('common')?>
 	<script type="text/javascript">
 		var controller='<? echo IN_UICE?>';

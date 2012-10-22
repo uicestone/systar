@@ -11,7 +11,7 @@ function preController(){
 	//初始化数据库，本系统为了代码书写简便，没有将数据库操作作为类封装，但有大量实用函数在function/function_common.php->db_()
 	$db['host']="localhost";
 	$db['username']="root";
-	$db['password']="1";
+	$db['password']="";
 	$db['name']='starsys';
 
 	define('DB_LINK',mysql_connect($db['host'],$db['username'],$db['password']));

@@ -1,5 +1,5 @@
 <?php
-require 'plugin/PHPWord/PHPWord.php';
+require APPPATH.'third_party/PHPWord/PHPWord.php';
 
 $PHPWord = new PHPWord();
 

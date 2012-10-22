@@ -2,7 +2,7 @@
 class Document_model extends SS_Model{
 	function __construct(){
 		parent::__construct();
-		require 'class/filetype.php';
+		$this->load->library('filetype');
 	}
 	
 	function getMime($file_extension){
@@ -35,9 +35,9 @@ class Document_model extends SS_Model{
 		$encoded_filename = urlencode($filename);
 		$encoded_filename = str_replace("+", "%20", $encoded_filename);
 		
-		$extension=document_getExtension($filename);
+		$extension=$this->getExtension($filename);
 		
-		header('Content-Type: '.document_getMime($extension).';charset=utf-8');
+		header('Content-Type: '.$this->getMime($extension).';charset=utf-8');
 		
 		if (preg_match("/MSIE/", $ua)) {
 			header('Content-Disposition: attachment; filename="' . $encoded_filename . '"');

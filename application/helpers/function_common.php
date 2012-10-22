@@ -979,7 +979,7 @@ function status($affair,$data_id,$field,$old_value,$new_value){
 
 function codeLines(){
 	$dir='.';
-	$src = 'plugin/line-counter/';
+	$src = APPPATH.'third_party/line-counter/';
 	require $src . 'Folder.php';
 	require $src . 'File.php';
 	require $src . 'Option.php';
@@ -988,7 +988,7 @@ function codeLines(){
 	//Use GET so this script could be reused elsewhere
 	//Set to user defined options or default one
 	$options = array(
-		'ignoreFolders' => explode(',','_doc,system,class,plugin,redmond,fullcalendar,Jeditable,jHtmlArea,qtip2,highcharts'),
+		'ignoreFolders' => explode(',','_doc,system,class,third_party,redmond,fullcalendar,Jeditable,jHtmlArea,qtip2,highcharts'),
 		'ignoreFiles' => explode(',','jquery-ui.js,jquery.js'),
 		'extensions' => explode(',','php,js,css')
 	);

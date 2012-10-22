@@ -40,10 +40,14 @@ class Schedule extends SS_controller{
 		$this->lists('mine');
 	}
 	
+	function plan(){
+		$this->lists('plan');
+	}
+	
 	function lists($para=NULL){
 		if(is_posted('review_selected') && is_logged('partner')){
 			//在列表中批量审核所选日志
-			schedule_review_selected();
+			$this->schedule->reviewSelected();
 		}
 		
 		$q="
@@ -88,9 +92,9 @@ class Schedule extends SS_controller{
 									
 		$q.=$condition;
 		
-		$search_bar=$this->processSearch($q,array('case.name'=>'案件','staff.name'=>'人员'));
+		$this->data['search_bar']=$this->processSearch($q,array('case.name'=>'案件','staff.name'=>'人员'));
 		
-		$date_range_bar=$this->dateRange($q,'time_start');
+		$this->data['date_range_bar']=$this->dateRange($q,'time_start');
 		
 		$q.="
 			GROUP BY schedule.id
@@ -100,7 +104,7 @@ class Schedule extends SS_controller{
 		$field=array(
 			'checkbox'=>array('title'=>'<input type="checkbox" name="schedule_checkall">','content'=>'<input type="checkbox" name="schedule_check[{id}]" >','td_title'=>' width=38px','orderby'=>false),
 		
-			'case.id'=>array('title'=>'案件','content'=>'{case_name}<p style="font-size:11px;text-align:right;"><a href="schedule/lists?case={case}">本案日志</a> <a href="case?edit={case}">案件</a></p>','orderby'=>false),
+			'case.id'=>array('title'=>'案件','content'=>'{case_name}<p style="font-size:11px;text-align:right;"><a href="/schedule/lists?case={case}">本案日志</a> <a href="/cases/edit/{case}">案件</a></p>','orderby'=>false),
 		
 			'staff_name'=>array('title'=>'人员','content'=>'<a href="schedule/list?staff={staff}"> {staff_name}</a>','td_title'=>'width="60px"','orderby'=>false),
 		
@@ -160,13 +164,43 @@ class Schedule extends SS_controller{
 			$listLocator=$this->processMultiPage($q);
 		}
 		
-		$table=$this->fetchTableArray($q,$field);
+		$this->data['table']=$this->fetchTableArray($q,$field);
 		
 		if(is_posted('export')){
-			$this->load->view('schedule/billdoc');
+			$this->load->model('document_model','document');
+
+			require APPPATH.'third_party/PHPWord/PHPWord.php';
+			
+			$PHPWord = new PHPWord();
+			
+			$section = $PHPWord->createSection();
+			
+			$PHPWord->addTableStyle('schedule_billdoc',array('borderSize'=>1,'borderColor'=>'333','cellMargin'=>100));
+			
+			$table = $section->addTable('schedule_billdoc');
+			
+			foreach($this->data['table'] as $line_name=>$line){
+				$table->addRow();
+				foreach($line as $cell_name=>$cell){
+					$table->addCell(1750)->addText(strip_tags($cell['html']));
+				}
+			}
+			
+			// Save File
+			$objWriter = PHPWord_IOFactory::createWriter($PHPWord, 'Word2007');
+			
+			$filename=$_SESSION['username'].$this->config->item('timestamp').'.docx';
+			
+			$path=iconv('utf-8','gbk','temp/'.$filename);
+			
+			$this->document->exportHead($filename);
+
+			$objWriter->save('php://output');
+
+			$this->main_view_loaded=TRUE;
 		
 		}else{
-			$menu=array(
+			$this->data['menu']=array(
 			'head'=>'<div class="left">'.
 						(is_logged('partner')?'<input type="submit" name="review_selected" value="审核" />':'').
 						'<input type="submit" name="export" value="导出" />'.
@@ -178,10 +212,13 @@ class Schedule extends SS_controller{
 			
 			$_SESSION['last_list_action']=$_SERVER['REQUEST_URI'];
 			
-			$this->data+=compact('menu','table','search_bar','date_range_bar');
-			
 			$this->load->view('schedule/lists',$this->data);
 			$this->main_view_loaded=TRUE;
+			
+			$this->load->view('sidebar_head');
+			$this->load->view('schedule/lists_sidebar');
+			$this->load->view('sidebar_foot');
+			$this->sidebar_loaded=TRUE;
 		}
 	}
 	
@@ -261,7 +298,7 @@ class Schedule extends SS_controller{
 				);
 				
 				if(post('schedule/case')){
-					if(!post('schedule/document',case_addDocument(post('schedule/case'),$fileInfo))){
+					if(!post('schedule/document',$this->cases->addDocument(post('schedule/case'),$fileInfo))){
 						$submitable=false;
 					}
 				}
@@ -274,7 +311,6 @@ class Schedule extends SS_controller{
 			if(post('schedule/document')){
 				db_update('case_document',post('case_document'),"id='".post('schedule/document')."'");
 			}
-		
 			$this->processSubmit($submitable);
 		}
 		
@@ -318,7 +354,7 @@ class Schedule extends SS_controller{
 	function listWrite(){
 		if(is_posted('schedule_list_comment')){
 			foreach($_POST['schedule_list_comment'] as $id => $comment){
-				$schedule_list_comment_return=schedule_set_comment($id,$comment);
+				$schedule_list_comment_return=$this->schedule->setComment($id,$comment);
 				
 				echo $schedule_list_comment_return['comment'];
 				

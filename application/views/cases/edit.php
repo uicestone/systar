@@ -279,10 +279,10 @@
 			<div class="title">
 				<span class="right">
 					<? echo $schedule_time; ?>小时
-					<a href="schedule?list&amp;case=<? echo post('cases/id')?>">所有日志>></a>
+					<a href="/schedule/lists?case=<? echo post('cases/id')?>">所有日志>></a>
 				</span>
 				<label>最新日志：
-					<a href="javascript:showWindow('schedule?add&case=<? echo post('cases/id')?>')">添加>></a>
+					<a href="javascript:showWindow('schedule/add?case=<? echo post('cases/id')?>')">添加>></a>
 				</label>
 			</div>
 			<? if(count($case_schedule_table)>1)$this->arrayExportTable($case_schedule_table,NULL,false,false);?>
@@ -291,10 +291,10 @@
 		<div class="item">
 			<div class="title">
 				<span class="right">
-					<a href="schedule?plan&case=<? echo post('cases/id')?>">所有计划>></a>
+					<a href="/schedule/plan?case=<? echo post('cases/id')?>">所有计划>></a>
 				</span>
 				<label>日程计划：
-					<a href="javascript:showWindow('schedule?add&case=<? echo post('cases/id')?>&completed=0')">添加>></a>
+					<a href="javascript:showWindow('schedule/add?case=<? echo post('cases/id')?>&completed=0')">添加>></a>
 				</label>
 			</div>
 			<? if(count($case_plan_table)>1)$this->arrayExportTable($case_plan_table,NULL,false,false);?>

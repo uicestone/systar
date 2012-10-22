@@ -15,7 +15,7 @@
 				<? if(!post('schedule/case')){?>
 				<? displayRadio(array(0=>'案件',1=>'所务',2=>'营销'),'type',post('schedule_extra/type'),true)?>
 				<? }else{?>
-				<button type="button" onclick="javascript:window.opener.parent.focus();window.rootOpener.location.href='case?edit=<? displayPost('schedule/case')?>'">查看</button>
+				<button type="button" onclick="javascript:window.opener.parent.focus();window.rootOpener.location.href='/cases/edit/<?displayPost('schedule/case')?>'">查看</button>
 				<? }?>
 			</div>
 
@@ -86,20 +86,20 @@
 		  <label>费用名称：<input name="schedule[fee_name]" value="<? displayPost('schedule/fee_name');?>" type="text" style="width:20%" /></label>
 		</div>
 		
-		<!--<? if(post('schedule/document') || $_SESSION['id']==post('schedule/uid')){ ?>-->
+		<? if(post('schedule/document') || $_SESSION['id']==post('schedule/uid')){ ?>
 		<div class="item">
 			<div class="title">相关文件</div>
-			<!--<? if(post('schedule/document')){ ?>-->
-			<a href="case?document=<? echo post('schedule/document') ?>"><? echo post('case_document/name') ?></a>
-			<!--<? }else{ ?>-->
+			<? if(post('schedule/document')){ ?>
+			<a href="/cases/document<?displayPost('schedule/document')?>"><?displayPost('case_document/name')?></a>
+			<? }else{ ?>
 			<input type="file" name="file" id="file" width="30%" />
-			<!--<? } ?>-->
+			<? } ?>
 			<select name="case_document[doctype]" style="width:15%">
 			<? displayOption(array('_ENUM','case_document','doctype'),post('case_document/doctype'));?>
 			</select>
 			<label>备注：</label><input type="text" name="case_document[comment]" value="<? displayPost('case_document/comment') ?>" style="width:35%" />
 		</div>
-		<!--<? } ?>-->
+		<? } ?>
 		
 		<div class="submit">
 			<? if( post('schedule/uid')==$_SESSION['id']){?>

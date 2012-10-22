@@ -7,10 +7,6 @@ class Test extends SS_controller{
 	
 	function index(){
 		
-		$this->require_export=false;
-		
-		//$this->load->view('head');
-		
 		print_r($_SESSION);
 		
 	}

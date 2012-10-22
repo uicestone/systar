@@ -47,7 +47,7 @@ class Score extends SS_controller{
 				showMessage('文件格式错误，请上传xls格式的excel表格','warning');break;
 			}
 		
-			require 'plugin/PHP-ExcelReader/reader.php';
+			require APPPATH.'third_party/PHP-ExcelReader/reader.php';
 			$data = new Spreadsheet_Excel_Reader();
 			$data->setOutputEncoding('utf-8');
 			$data->setRowColOffset(0);

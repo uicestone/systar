@@ -159,8 +159,8 @@ class SS_Loader extends CI_Loader{
 
 	function arrayExportExcel(array $array){
 		//TODO arrayExportExcel
-		require 'plugin/PHPExcel/PHPExcel.php';
-		require 'plugin/PHPExcel/PHPExcel/Writer/Excel5.php';
+		require APPPATH.'third_party/PHPExcel/PHPExcel.php';
+		require APPPATH.'third_party/PHPExcel/PHPExcel/Writer/Excel5.php';
 
 		$objExcel = new PHPExcel();
 		$objWriter = new PHPExcel_Writer_Excel5($objExcel);

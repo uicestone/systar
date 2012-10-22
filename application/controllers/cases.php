@@ -21,6 +21,10 @@ class Cases extends SS_controller{
 		$this->lists('file');
 	}
 	
+	function review(){
+		$this->lists('review');
+	}
+	
 	function lists($para=NULL){
 		$q="
 			SELECT
@@ -125,14 +129,14 @@ class Cases extends SS_controller{
 		$listLocator=$this->processMultiPage($q,$q_rows);
 		
 		$field=array(
-			'time_contract'=>array('title'=>'案号','td_title'=>'width="180px"','td'=>'title="立案时间：{time_contract}"','content'=>'<a href="cases/edit/{id}">{num}</a>'),
+			'time_contract'=>array('title'=>'案号','td_title'=>'width="180px"','td'=>'title="立案时间：{time_contract}"','content'=>'<a href="/cases/edit/{id}">{num}</a>'),
 			'name'=>array('title'=>'案名','content'=>'{name}'),
 			'lawyers'=>array('title'=>'主办律师','td_title'=>'width="100px"'),
 			'schedule_grouped.time_start'=>array('title'=>'最新日志','eval'=>true,'content'=>"
-				return '<a href=\"javascript:showWindow(\'schedule?add&case={id}\')\">+</a> <a href=\"schedule?list&case={id}\" title=\"{schedule_name}\">'.str_getSummary('{schedule_name}').'</a>';
+				return '<a href=\"javascript:showWindow(\'schedule/add?case={id}\')\">+</a> <a href=\"/schedule/lists?case={id}\" title=\"{schedule_name}\">'.str_getSummary('{schedule_name}').'</a>';
 			"),
 			'plan_grouped.time_start'=>array('title'=>'最近提醒','eval'=>true,'content'=>"
-				return '<a href=\"javascript:showWindow(\'schedule?add&case={id}&completed=0\')\">+</a> {plan_time} <a href=\"schedule?list&plan&case={id}\" title=\"{plan_name}\">'.str_getSummary('{plan_name}').'</a>';
+				return '<a href=\"javascript:showWindow(\'schedule/add?case={id}&completed=0\')\">+</a> {plan_time} <a href=\"/schedule/list/plan?case={id}\" title=\"{plan_name}\">'.str_getSummary('{plan_name}').'</a>';
 			"),
 			'is_reviewed'=>array('title'=>'状态','td_title'=>'width="75px"','eval'=>true,'content'=>"
 				return \$this->cases->getStatus('{is_reviewed}','{locked}',{apply_file},{is_query},{finance_review},{info_review},{manager_review},{filed},'{contribute_sum}','{uncollected}').' {status}';
@@ -152,6 +156,12 @@ class Cases extends SS_controller{
 		$this->data+=compact('table','menu','search_bar');
 		
 		$this->load->view('lists',$this->data);
+		$this->main_view_loaded=TRUE;
+		
+		$this->load->view('sidebar_head');
+		$this->load->view('cases/lists_sidebar');
+		$this->load->view('sidebar_foot');
+		$this->sidebar_loaded=TRUE;
 	}
 	
 	function add(){
@@ -569,9 +579,9 @@ class Cases extends SS_controller{
 			if(isset($case_client_role['client']) && !post('cases/filed')){
 				//根据案件类别和客户、相对方更新案名
 				//TODO 没有填相对方的时候会报错，不过不影响运行
-				$case_client_role['client_name']='<a href="javascript:showWindow(\'client?edit='.$case_client_role['client'].'\')">'.$case_client_role['client_name'].'</a>';
+				$case_client_role['client_name']='<a href="javascript:showWindow(\'client/edit/'.$case_client_role['client'].'\')">'.$case_client_role['client_name'].'</a>';
 		
-				$case_client_role['opposite_name']='<a href="javascript:showWindow(\'client?edit='.$case_client_role['opposite'].'\')">'.$case_client_role['opposite_name'].'</a>';
+				$case_client_role['opposite_name']='<a href="javascript:showWindow(\'client?edit/'.$case_client_role['opposite'].'\')">'.$case_client_role['opposite_name'].'</a>';
 		
 				//更新案名
 				if(post('cases/classification')=='诉讼' && ($case_client_role['client_role']=='原告' || $case_client_role['client_role']=='申请人') && ($case_client_role['opposite_role']=='被告' || $case_client_role['opposite_role']=='被申请人')){
@@ -660,15 +670,10 @@ class Cases extends SS_controller{
 		$this->main_view_loaded=TRUE;
 	}
 
-	function documentDownload(){
+	function documentDownload($case_document_id){
 		$this->load->model('document_model','document');
 		
-		if(isset($_GET['document']))
-			$id=$_GET['document'];
-		else
-			exit('file id id not defined');
-		
-		$q_case_document="SELECT * FROM case_document WHERE id='".$id."'";
+		$q_case_document="SELECT * FROM case_document WHERE id='".$case_document_id."'";
 		$r_case_document=db_query($q_case_document);
 		$case_document=mysql_fetch_array($r_case_document);
 		
@@ -679,8 +684,8 @@ class Cases extends SS_controller{
 		$encoded_filename = urlencode($filename);
 		$encoded_filename = str_replace("+", "%20", $encoded_filename);
 		
-		if(document_openInBrowser($case_document['type'])){
-			header('Content-Type:'.document_getMime($case_document['type']).';charset=utf-8');
+		if($this->document->openInBrowser($case_document['type'])){
+			header('Content-Type:'.$this->document->getMime($case_document['type']).';charset=utf-8');
 		}else{
 			header('Content-Type:application/octet-stream;charset=utf-8');
 			header('Content-Disposition:attachment');
@@ -694,7 +699,7 @@ class Cases extends SS_controller{
 			header('Content-Disposition:filename="'.$filename.'"');
 		}
 		
-		$path=iconv("utf-8","gbk",$this->config->item('case_document_path').'/'.$id);
+		$path=iconv("utf-8","gbk",$this->config->item('case_document_path').'/'.$case_document_id);
 		
 		readfile($path);
 		exit;

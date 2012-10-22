@@ -460,7 +460,7 @@ class Cases_model extends SS_Model{
 				if(!post('cases/client_lock')){
 					\$return.='<input type=\"checkbox\" name=\"case_client_check[{id}]\" />';
 				}
-				\$return.='<a href=\"javascript:showWindow(\''.('{classification}'=='客户'?'client':'contact').'?edit={client}\')\">{client_name}</a>';
+				\$return.='<a href=\"javascript:showWindow(\''.('{classification}'=='客户'?'client':'contact').'/edit/{client}\')\">{client_name}</a>';
 				return \$return;
 			",'orderby'=>false),
 			'contact_name'=>array('title'=>'联系人','eval'=>true,'content'=>"
@@ -613,7 +613,7 @@ class Cases_model extends SS_Model{
 					if('{type}'==''){
 						\$image='folder';
 					}elseif(is_file('web/images/file_type/{type}.png')){
-						\$image='{type}';
+						\$image='{type}.png';
 					}else{
 						\$image='unknown';
 					}
@@ -622,7 +622,7 @@ class Cases_model extends SS_Model{
 				'td_title'=>'width="70px"',
 				'orderby'=>false
 			),
-			'name'=>array('title'=>'文件名','td_title'=>'width="150px"','surround'=>array('mark'=>'a','href'=>'case?document={id}'),'orderby'=>false),
+			'name'=>array('title'=>'文件名','td_title'=>'width="150px"','surround'=>array('mark'=>'a','href'=>'/cases/documentdownload/{id}'),'orderby'=>false),
 			'doctype'=>array('title'=>'类型','td_title'=>'width="80px"'),
 			'comment'=>array('title'=>'备注','orderby'=>false),
 			'time'=>array('title'=>'时间','td_title'=>'width="60px"','eval'=>true,'content'=>"
@@ -662,7 +662,7 @@ class Cases_model extends SS_Model{
 			LIMIT 10";
 		
 		$field=array(
-			'name'=>array('title'=>'标题','td_title'=>'width="150px"','surround'=>array('mark'=>'a','href'=>'javascript:showWindow(\'schedule?edit={id}\')'),'orderby'=>false),
+			'name'=>array('title'=>'标题','td_title'=>'width="150px"','surround'=>array('mark'=>'a','href'=>'javascript:showWindow(\'schedule/edit/{id}\')'),'orderby'=>false),
 			'time_start'=>array('title'=>'时间','td_title'=>'width="60px"','eval'=>true,'content'=>"
 				return date('m-d H:i',{time_start});
 			",'orderby'=>false),
@@ -680,7 +680,7 @@ class Cases_model extends SS_Model{
 			LIMIT 10";
 		
 		$field=array(
-			'name'=>array('title'=>'标题','td_title'=>'width="150px"','surround'=>array('mark'=>'a','href'=>'javascript:showWindow(\'schedule?edit={id}\')'),'orderby'=>false),
+			'name'=>array('title'=>'标题','td_title'=>'width="150px"','surround'=>array('mark'=>'a','href'=>'javascript:showWindow(\'schedule/edit/{id}\')'),'orderby'=>false),
 			'time_start'=>array('title'=>'时间','td_title'=>'width="60px"','eval'=>true,'content'=>"
 				return date('m-d H:i',{time_start});
 			",'orderby'=>false),
