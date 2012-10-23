@@ -303,7 +303,7 @@ function redirect($url,$method='php',$unsetPara=NULL,$jump_to_top_frame=false){
 	
 	if($method=='php'){
 		if(is_null($unsetPara)){
-			header("location:{$base_url}/".$url);
+			header("location:{$base_url}".$url);
 		}else{
 			$query_string='?';
 			$glue='';
@@ -316,7 +316,7 @@ function redirect($url,$method='php',$unsetPara=NULL,$jump_to_top_frame=false){
 			header('location:'.$q);//待开发
 		}
 	}elseif($method=='js'){
-		echo '<script>'.(is_null($unsetPara)?($jump_to_top_frame?'top.':'')."location.href='{$base_url}/".$url."';":"location.href=unsetURLPar('".$url."','".$unsetPara."');").'</script>';
+		echo '<script>'.(is_null($unsetPara)?($jump_to_top_frame?'top.':'')."location.href='{$base_url}".$url."';":"location.href=unsetURLPar('".$url."','".$unsetPara."');").'</script>';
 	}
 	exit;
 }
