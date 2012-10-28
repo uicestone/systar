@@ -296,7 +296,6 @@ class SS_Controller extends CI_Controller{
 	 * 此方法将被移至SS_Model下
 	 */
 	function fetchTableArray($query,$field){
-		//if($_SESSION['username']=='陆秋石')showMessage($query,'notice');
 
 		$result=db_query($query);
 
@@ -352,15 +351,6 @@ class SS_Controller extends CI_Controller{
 
 		return $table;
 	}
-
-	/*
-	 * 历史遗留写法，因为及其简化，保留至今
-	 */
-	function exportTable($q_data,$field,$menu=NULL,$surroundForm=false,$surroundBox=true,array $attributes=array(),$show_line_id=false,$trim_columns=false){
-		$array=fetchTableArray($q_data,$field);
-		$this->arrayExportTable($array,$menu,$surroundForm,$surroundBox,$attributes,$show_line_id,$trim_columns);
-	}
-
 
 	/*
 	 * 仅用在fetchTableArray中
@@ -562,69 +552,6 @@ class SS_Controller extends CI_Controller{
 			}
 		}
 		return $q;
-	}
-
-	/*
-	 * 为sql语句添加LIMIT字段，达到分页目的
-	 */
-	function processMultiPage(&$q,$q_rows=NULL){
-		if(is_null($q_rows)){
-			$q_rows=$q;
-			if(preg_match('/GROUP BY[^()]*?[ORDER BY].*?$/',$q_rows)){
-				$q_rows="SELECT COUNT(*) AS number FROM (".$q_rows.")query";
-			}else{
-				$q_rows=preg_replace('/^[\s\S]*?FROM /','SELECT COUNT(1) AS number FROM ',$q_rows);
-				$q_rows=preg_replace('/GROUP BY(?![\s\S]*?WHERE)[\s\S]*?$/','',$q_rows);
-				$q_rows=preg_replace('/ORDER BY(?![\s\S]*?WHERE)[\s\S]*?$/','',$q_rows);
-			}
-		}
-
-		$rows=db_fetch_field($q_rows);
-
-		if(option('list/start')>$rows || $rows==0){
-			//已越界或空列表时，列表起点归零
-			option('list/start',0);
-
-		}elseif(option('list/start')+option('list/item')>=$rows && $rows>option('list/items')){
-			//末页且非唯一页时，列表起点定位末页起点
-			option('list/start',$rows - ($rows % option('list/items')));
-		}
-
-		if(!is_null(option('list/start')) && option('list/items')){
-			if(is_posted('previousPage')){
-				option('list/start',option('list/start')-option('list/items'));
-				if(option('list/start')<0){
-					option('list/start',0);
-				}
-			}elseif(is_posted('nextPage')){
-				if(option('list/start')+option('list/items')<$rows){
-					option('list/start',option('list/start')+option('list/items'));
-				}
-			}elseif(is_posted('firstPage')){
-				option('list/start',0);
-			}elseif(is_posted('finalPage')){
-				if($rows % option('list/items')==0){
-					option('list/start',$rows - option('list/items'));
-				}else{
-					option('list/start',$rows - ($rows % option('list/items')));
-				}
-			}
-		}else{
-			option('list/start',0);
-			option('list/items',25);
-		}
-
-		$q.=" LIMIT ".option('list/start').",".option('list/items');
-
-		$listLocator=($rows==0?0:option('list/start')+1)."-".
-		(option('list/start')+option('list/items')<$rows?(option('list/start')+option('list/items')):$rows).'/'.$rows;
-
-		$listLocator.=
-			'<button type="button" class="nav" onclick="post(\'firstPage\',true)"'.(option('list/start')==0?' disabled="disabled"':'').'>&lt;&lt;</button>'.
-			'<button type="button" class="nav" onclick="post(\'previousPage\',true)"'.(option('list/start')==0?' disabled="disabled"':'').'>&nbsp;&lt;&nbsp;</button>'.
-			'<button type="button" class="nav" onclick="post(\'nextPage\',true)"'.(option('list/start')+option('list/items')>=$rows?' disabled="disabled"':'').'>&nbsp;&gt;&nbsp;</button>'.
-			'<button type="button" class="nav" onclick="post(\'finalPage\',true)"'.(option('list/start')+option('list/items')>=$rows?' disabled="disabled"':'').'>&gt;&gt;</button>';
-		return $listLocator;
 	}
 
 	/* 

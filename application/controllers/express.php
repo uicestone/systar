@@ -1,26 +1,16 @@
 <?php
 class Express extends SS_controller{
+
 	function __construct(){
 		parent::__construct();
+
+		$this->load->library('pagination');
+		$this->load->library('session');
 	}
-	
-	function index(){
-		$q="
-			SELECT 
-				express.id,express.destination,express.content,express.comment,express.time_send,express.num,
-				staff.name AS sender_name
-			FROM express LEFT JOIN staff ON staff.id=express.sender
-			WHERE express.display=1
-		";
-		
-		$search_bar=$this->processSearch($q,array('num'=>'单号','staff.name'=>'寄送人','destination'=>'寄送地点'));
-		
-		$this->processOrderby($q,'time_send','DESC');
-		
-		$listLocator=$this->processMultiPage($q);
-		
+
+	function lists(){
 		$field=array(
-			'content'=>array('title'=>'寄送内容','surround'=>array('mark'=>'a','href'=>'express?edit={id}'),'td'=>'class="ellipsis" title="{content}"'),
+			'content'=>array('title'=>'寄送内容','surround'=>array('mark'=>'a','href'=>'/express/{id}'),'td'=>'class="ellipsis" title="{content}"'),
 			'time_send'=>array('title'=>'日期','td_title'=>'width="60px"','eval'=>true,'content'=>"
 				return date('m-d',{time_send});
 			"),
@@ -30,17 +20,9 @@ class Express extends SS_controller{
 			'comment'=>array('title'=>'备注')
 		);
 		
-		$menu=array(
-		'head'=>'<div class="right">'.
-					$listLocator.
-				'</div>'
-		);
-		
-		$_SESSION['last_list_action']=$_SERVER['REQUEST_URI'];
-		
-		$table=$this->fetchTableArray($q, $field);
-		
-		$this->data+=compact('table','menu');
+		$table=$this->express->getList($field);
+
+		$this->data+=compact('table');
 		
 		$this->load->view('lists',$this->data);
 	}
