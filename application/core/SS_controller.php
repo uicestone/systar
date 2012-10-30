@@ -14,6 +14,8 @@ class SS_Controller extends CI_Controller{
 	public $as_controller_default_page=false;
 	public $actual_table='';//借用数据表的controller的实际主读写表，如contact为client,query为cases
 	
+	public $search=array();//列表中需要搜索的字段
+	
 	function __construct(){
 		parent::__construct();
 
@@ -552,6 +554,60 @@ class SS_Controller extends CI_Controller{
 			}
 		}
 		return $q;
+	}
+
+	function processMultiPage(&$q,$q_rows=NULL){
+		if(is_null($q_rows)){
+			$q_rows=$q;
+			if(preg_match('/GROUP BY[^()]*?[ORDER BY].*?$/',$q_rows)){
+				$q_rows="SELECT COUNT(*) AS number FROM (".$q_rows.")query";
+			}else{
+				$q_rows=preg_replace('/^[\s\S]*?FROM /','SELECT COUNT(1) AS number FROM ',$q_rows);
+				$q_rows=preg_replace('/GROUP BY(?![\s\S]*?WHERE)[\s\S]*?$/','',$q_rows);
+				$q_rows=preg_replace('/ORDER BY(?![\s\S]*?WHERE)[\s\S]*?$/','',$q_rows);
+			}
+		}
+
+		$rows=db_fetch_field($q_rows);
+
+		if(option('list/start')>$rows || $rows==0){
+			//已越界或空列表时，列表起点归零
+			option('list/start',0);
+
+		}elseif(option('list/start')+option('list/item')>=$rows && $rows>option('list/items')){
+			//末页且非唯一页时，列表起点定位末页起点
+			option('list/start',$rows - ($rows % option('list/items')));
+		}
+
+		if(!is_null(option('list/start')) && option('list/items')){
+			if(is_posted('previousPage')){
+				option('list/start',option('list/start')-option('list/items'));
+				if(option('list/start')<0){
+					option('list/start',0);
+				}
+			}elseif(is_posted('nextPage')){
+				if(option('list/start')+option('list/items')<$rows){
+					option('list/start',option('list/start')+option('list/items'));
+				}
+			}elseif(is_posted('firstPage')){
+				option('list/start',0);
+			}elseif(is_posted('finalPage')){
+				if($rows % option('list/items')==0){
+					option('list/start',$rows - option('list/items'));
+				}else{
+					option('list/start',$rows - ($rows % option('list/items')));
+				}
+			}
+		}else{
+			option('list/start',0);
+			option('list/items',25);
+		}
+
+		$q.=" LIMIT ".option('list/start').",".option('list/items');
+
+		$listLocator=($rows==0?0:option('list/start')+1)."-".
+		(option('list/start')+option('list/items')<$rows?(option('list/start')+option('list/items')):$rows).'/'.$rows;
+
 	}
 
 	/* 

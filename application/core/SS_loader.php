@@ -37,7 +37,6 @@ class SS_Loader extends CI_Loader{
 		)
 	*/
 	function arrayExportTable(array $array,$menu=NULL,$surroundForm=false,$surroundBox=true,array $attributes=array(),$show_line_id=false,$trim_columns=false){
-		//print_r($array);
 
 		if($trim_columns){
 			$table_head['_field']=$array['_field'];

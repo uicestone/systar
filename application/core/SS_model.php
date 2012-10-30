@@ -137,7 +137,15 @@ class SS_Model extends CI_Model{
 	/**
 	 * 为sql语句添加LIMIT字段，达到分页目的
 	 */
+/*
 	function pagination($query_rows=NULL){
+		if(isset($_SESSION[IN_UICE.'/'.METHOD.'/pagination'])){
+			$this->pagination=  unserialize($_SESSION[IN_UICE.'/'.METHOD.'/pagination']);
+		}else{
+			$this->pagination->base_url=$this->config->item('base_url').IN_UICE.'/'.METHOD.'/';
+			$this->pagination->per_page=25;
+		}
+
 		if(isset($query_rows)){
 			$this->pagination->total_rows=db_fetch_field($q_rows);
 
@@ -146,59 +154,100 @@ class SS_Model extends CI_Model{
 			$this->pagination->total_rows=$db->count_all_results();
 		}
 
-		$this->pagination->base_url=$this->config->item('base_url').IN_UICE.'/'.METHOD.'/';
-		$this->pagination->per_page=25;
-
-		/*if($this->session->userdata(IN_UICE.'/'.METHOD.'pagination',$this->pagenation)){
-			$this->pagination=$this->session->userdata(IN_UICE.'/'.METHOD.'pagination');
-
-		}else{
-			$this->session->set_userdata(IN_UICE.'/'.METHOD.'pagination',$this->pagenation);
-			$this->pagination->initialize(
-				array(
-					'base_url'=>$this->config->item('base_url').IN_UICE.'/'.METHOD,
-					'total_rows'=>$rows,
-					'perpage'=>25
-				)
-			);
-		}*/
-
 		$this->pagination->links=$this->pagination->create_links();
 
 		if($this->pagination->cur_page>$this->pagination->total_rows || $this->pagination->total_rows==0){
 			//已越界或空列表时，列表起点归零
 			$this->pagination->cur_page=0;
 
-		}elseif($this->pagination->cur_page+$this->pagination->per_page>=$rows && $rows>$this->pagination->per_page){
+		}elseif($this->pagination->cur_page+$this->pagination->per_page>=$this->pagination->total_rows && $this->pagination->total_rows>$this->pagination->per_page){
 			//末页且非唯一页时，列表起点定位末页起点
-			$this->pagination->cur_page=$rows - ($this->pagination->total_rows % $this->pagination->per_page);
+			$this->pagination->cur_page=$this->pagination->total_rows - ($this->pagination->total_rows % $this->pagination->per_page);
 		}
 
-		if(isset($this->pagination->cur_page) && $this->pagination->per_page){
+		if(is_posted('previousPage')){
+			$this->pagination->cur_page-=$this->pagination->per_page;
+			if($this->pagination->cur_page<0){
+				$this->pagination->cur_page=0;
+			}
+		}elseif(is_posted('nextPage')){
+			if($this->pagination->cur_page+$this->pagination->per_page<$this->pagination->total_rows){
+				$this->pagination->cur_page+=$this->pagination->per_page;
+			}
+		}elseif(is_posted('firstPage')){
+			$this->pagination->cur_page=0;
+		}elseif(is_posted('finalPage')){
+			if($this->pagination->total_rows % $this->pagination->per_page==0){
+				$this->pagination->cur_page=$this->pagination->total_rows - $this->pagination->per_page;
+			}else{
+				$this->pagination->cur_page=$this->pagination->total_rows - ($this->pagination->total_rows % $this->pagination->per_page);
+			}
+		}
+			
+		$this->db->limit($this->pagination->per_page,$this->pagination->cur_page);
+
+		$_SESSION[IN_UICE.'/'.METHOD.'/pagination']=serialize($this->pagination);
+	}
+ */
+	function pagination($query_rows=NULL){
+		if(isset($query_rows)){
+			$rows=db_fetch_field($query_rows);
+
+		}else{
+			$db=clone $this->db;
+			$rows=$db->count_all_results();
+		}
+
+/*
+ 		if(is_null($q_rows)){
+			$q_rows=$q;
+			if(preg_match('/GROUP BY[^()]*?[ORDER BY].*?$/',$q_rows)){
+				$q_rows="SELECT COUNT(*) AS number FROM (".$q_rows.")query";
+			}else{
+				$q_rows=preg_replace('/^[\s\S]*?FROM /','SELECT COUNT(1) AS number FROM ',$q_rows);
+				$q_rows=preg_replace('/GROUP BY(?![\s\S]*?WHERE)[\s\S]*?$/','',$q_rows);
+				$q_rows=preg_replace('/ORDER BY(?![\s\S]*?WHERE)[\s\S]*?$/','',$q_rows);
+			}
+		}
+
+		$rows=db_fetch_field($q_rows);
+*/
+		if(option('list/start')>$rows || $rows==0){
+			//已越界或空列表时，列表起点归零
+			option('list/start',0);
+
+		}elseif(option('list/start')+option('list/item')>=$rows && $rows>option('list/items')){
+			//末页且非唯一页时，列表起点定位末页起点
+			option('list/start',$rows - ($rows % option('list/items')));
+		}
+
+		if(!is_null(option('list/start')) && option('list/items')){
 			if(is_posted('previousPage')){
-				$this->pagination->cur_page-=$this->pagination->per_page;
-				if($this->pagination->cur_page<0){
-					$this->pagination->cur_page=0;
+				option('list/start',option('list/start')-option('list/items'));
+				if(option('list/start')<0){
+					option('list/start',0);
 				}
 			}elseif(is_posted('nextPage')){
-				if($this->pagination->cur_page+$this->pagination->per_page<$rows){
-					$this->pagination->cur_page+=$this->pagination->per_page;
+				if(option('list/start')+option('list/items')<$rows){
+					option('list/start',option('list/start')+option('list/items'));
 				}
 			}elseif(is_posted('firstPage')){
-				$this->pagination->cur_page=0;
+				option('list/start',0);
 			}elseif(is_posted('finalPage')){
-				if($this->pagination->total_rows % $this->pagination->per_page==0){
-					$this->pagination->cur_page=$this->pagination->total_rows - $this->pagination->per_page;
+				if($rows % option('list/items')==0){
+					option('list/start',$rows - option('list/items'));
 				}else{
-					$this->pagination->cur_page=$this->pagination->total_rows - ($this->pagination->total_rows % $this->pagination->per_page);
+					option('list/start',$rows - ($rows % option('list/items')));
 				}
 			}
 		}else{
-			$this->pagination->cur_page=0;
+			option('list/start',0);
 			option('list/items',25);
 		}
-			
-		$this->db->limit(option('list/items'),$this->pagination->cur_page);
+		
+		option('list/rows',$rows);
+
+		$this->db->limit(option('list/items'),option('list/start'));
 	}
 
 	/**
@@ -220,8 +269,9 @@ class SS_Model extends CI_Model{
 			)
 	*/
 	function fetchTable($field){
-		
 		$result=$this->db->get();
+
+		//showMessage($this->db->last_query());
 
 		if($result->num_rows()==0){
 			return false;

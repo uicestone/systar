@@ -6,9 +6,11 @@ class Test extends SS_controller{
 	}
 	
 	function index(){
-		$query=$this->db->select('a')->from('b')->join('c','1=1')->join('d','1=1')->where('a = 2');
-		
-		print_r($query);
+		$this->load->library('session');
+		//$this->session->sess_destroy();
+		print_r($this->session->all_userdata());
+		print_r($_SESSION);
+		session_destroy();
 	}
 }
 
