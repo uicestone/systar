@@ -11,8 +11,8 @@
 	<? javascript('qtip2/jquery.qtip.min')?>
 	<? javascript('common')?>
 	<script type="text/javascript">
-		var controller='<? echo IN_UICE?>';
-		var affair='<? echo array_dir('_SESSION/permission/'.IN_UICE.'/_affair_name')?>';
+		var controller='<? echo CONTROLLER?>';
+		var affair='<? echo array_dir('_SESSION/permission/'.CONTROLLER.'/_affair_name')?>';
 		var action='<? echo $this->uri->segment(2)?>';
 		var username='<? echo array_dir('_SESSION/username')?>';
 		var sysname='<? echo $this->config->item('sysname')?>';

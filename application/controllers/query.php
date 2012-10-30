@@ -89,11 +89,11 @@ class Query extends SS_controller{
 		if(is_posted('submit')){
 			if(is_posted('submit/advanced')){
 				$case_id=post('query/id');
-				unset($_SESSION[IN_UICE]['post']);
+				unset($_SESSION[CONTROLLER]['post']);
 				redirect('case?edit='.$case_id);
 			}
 			try{
-				$_SESSION[IN_UICE]['post']=array_replace_recursive($_SESSION[IN_UICE]['post'],$_POST);
+				$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$_POST);
 				
 				if(!post('client/id')){
 					if(post('client/name')==''){

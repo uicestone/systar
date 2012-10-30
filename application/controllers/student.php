@@ -95,10 +95,10 @@ class Student extends SS_controller{
 			global $_G;
 			post('student/name','新学生'.$CI->config->item('timestamp'));
 			
-			post(IN_UICE.'/id',db_insert('user',array('group'=>'student')));
+			post(CONTROLLER.'/id',db_insert('user',array('group'=>'student')));
 			//先创建用户，再创建学生
 			
-			db_insert(IN_UICE,post(IN_UICE));
+			db_insert(CONTROLLER,post(CONTROLLER));
 		},false);
 		
 		$q_student_class="
@@ -121,11 +121,11 @@ class Student extends SS_controller{
 		if(is_posted('submit')){
 			$submitable=true;
 		
-			$_SESSION[IN_UICE]['post']=array_replace_recursive($_SESSION[IN_UICE]['post'],$_POST);
+			$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$_POST);
 			
 			if(is_posted('submit/student_relatives')){
 				student_addRelatives(post('student/id'),post('student_relatives'));
-				unset($_SESSION[IN_UICE]['post']['student_relatives']);
+				unset($_SESSION[CONTROLLER]['post']['student_relatives']);
 			}
 			
 			if(is_posted('submit/student_relatives_delete')){
@@ -134,7 +134,7 @@ class Student extends SS_controller{
 			
 			if(is_posted('submit/student_behaviour')){
 				if(student_addBehaviour(post('student/id'),post('student_behaviour'))){
-					unset($_SESSION[IN_UICE]['post']['student_behaviour']);
+					unset($_SESSION[CONTROLLER]['post']['student_behaviour']);
 				}else{
 					$submitable=false;
 				}
@@ -146,7 +146,7 @@ class Student extends SS_controller{
 			){
 		
 				if(student_addComment(post('student/id'),post('student_comment'))){
-					unset($_SESSION[IN_UICE]['post']['student_comment']);
+					unset($_SESSION[CONTROLLER]['post']['student_comment']);
 				}else{
 					$submitable=false;
 				}
@@ -162,7 +162,7 @@ class Student extends SS_controller{
 			}
 			
 			if(post('student/birthday')==''){
-				unset($_SESSION[IN_UICE]['post']['student']['birthday']);
+				unset($_SESSION[CONTROLLER]['post']['student']['birthday']);
 			}
 			
 			if(is_logged('student') && is_posted('submit/student')){
@@ -181,7 +181,7 @@ class Student extends SS_controller{
 				);
 				
 				foreach($form_check as $item => $warning){
-					if(!post(IN_UICE.'/'.$item)){
+					if(!post(CONTROLLER.'/'.$item)){
 						showMessage('请输入'.$warning,'warning');
 						$submitable=false;
 					}
@@ -204,10 +204,10 @@ class Student extends SS_controller{
 			}
 			
 			$this->processSubmit($submitable,function(){
-				$username=db_fetch_field("SELECT username FROM user WHERE id = '".post(IN_UICE.'/id')."'");
+				$username=db_fetch_field("SELECT username FROM user WHERE id = '".post(CONTROLLER.'/id')."'");
 				if(!$username){
 					student_update();
-					db_query("UPDATE user INNER JOIN view_student USING (id) SET user.username=CONCAT(view_student.name,view_student.num),user.alias=view_student.num WHERE view_student.id = '".post(IN_UICE.'/id')."'");
+					db_query("UPDATE user INNER JOIN view_student USING (id) SET user.username=CONCAT(view_student.name,view_student.num),user.alias=view_student.num WHERE view_student.id = '".post(CONTROLLER.'/id')."'");
 				}
 			});
 		}
@@ -426,7 +426,7 @@ class Student extends SS_controller{
 		if(is_posted('submit')){
 			$submitable=true;
 			
-			$_SESSION[IN_UICE]['post']=array_replace_recursive($_SESSION[IN_UICE]['post'],$_POST);
+			$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$_POST);
 			
 			if(post('student_comment/reply_to',user_check(post('student_comment_extra/reply_to_username')))<0){
 				$submitable=false;
@@ -440,8 +440,8 @@ class Student extends SS_controller{
 			
 			if($submitable){
 				student_addComment($student_id,post('student_comment'));
-				unset($_SESSION[IN_UICE]['post']['student_comment']);
-				unset($_SESSION[IN_UICE]['post']['student_comment_extra']);
+				unset($_SESSION[CONTROLLER]['post']['student_comment']);
+				unset($_SESSION[CONTROLLER]['post']['student_comment_extra']);
 			}
 		}
 		

@@ -203,7 +203,7 @@ class Cases extends SS_controller{
 			
 			if(is_posted('submit/case_client')){
 				if(!is_posted('case_client_extra/character')){//[单位]不打钩则删除session对应变量
-					unset($_SESSION[IN_UICE]['post']['case_client_extra']['character']);
+					unset($_SESSION[CONTROLLER]['post']['case_client_extra']['character']);
 				}
 				$client_check=$this->client->check(post('case_client_extra/name'),'array');
 				if($client_check==-1){//如果case_client添加的客户不存在，则先添加客户

@@ -92,7 +92,7 @@ class Contact extends SS_controller{
 		if(is_posted('submit')){
 			$submitable=true;
 		
-			$_SESSION[IN_UICE]['post']=array_replace_recursive($_SESSION[IN_UICE]['post'],$_POST);
+			$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$_POST);
 		
 			if(is_posted('submit/contact_related')){
 				$q_contact="SELECT id,name FROM `client` WHERE display=1 AND (`name` LIKE '%".post('contact_related_extra/name')."%' OR abbreviation LIKE '%".post('contact_related_extra/name')."%')";

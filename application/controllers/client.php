@@ -124,7 +124,7 @@ class Client extends SS_Controller{
 		if(is_posted('submit')){
 			$submitable=true;
 		
-			$_SESSION[IN_UICE]['post']=array_replace_recursive($_SESSION[IN_UICE]['post'],$_POST);
+			$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$_POST);
 		
 			if(is_posted('submit/client_client')){
 				post('client_client_extra/show_add_form',true);

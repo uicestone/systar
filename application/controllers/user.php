@@ -80,7 +80,7 @@ class user extends SS_controller{
 			
 			$submitable=true;
 			
-			$_SESSION[IN_UICE]['post']=array_replace_recursive($_SESSION[IN_UICE]['post'],$_POST);
+			$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$_POST);
 			
 			if($this->config->item('ucenter')){
 				if(uc_user_edit($_SESSION['username'],$_POST['password'],$_POST['password_new'],$_POST['email'])>0){
@@ -88,7 +88,7 @@ class user extends SS_controller{
 				}
 			}else{
 				if(!post('user/password_new')){
-					unset($_SESSION[IN_UICE]['post']['user']['password_new']);
+					unset($_SESSION[CONTROLLER]['post']['user']['password_new']);
 					if(is_null(post('user/password'))){
 						$submitable=false;
 						showMessage('你还没有设置密码~','warning');

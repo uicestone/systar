@@ -6,8 +6,8 @@ class SS_Model extends CI_Model{
 	
 	function search(array $search_fields){
 		if($this->input->post('search_cancel')){
-			unset($_SESSION[IN_UICE][METHOD]['in_search_mod']);
-			unset($_SESSION[IN_UICE][METHOD]['keyword']);
+			unset($_SESSION[CONTROLLER][METHOD]['in_search_mod']);
+			unset($_SESSION[CONTROLLER][METHOD]['keyword']);
 		}
 
 		if($this->input->post('search')){
@@ -30,8 +30,8 @@ class SS_Model extends CI_Model{
 	 */
 	function dateRange(&$q,$date_field,$date_field_is_timestamp=true){
 		if(is_posted('date_range_cancel')){
-			unset($_SESSION[IN_UICE][METHOD]['in_date_range']);
-			unset($_SESSION[IN_UICE][METHOD]['date_range']);
+			unset($_SESSION[CONTROLLER][METHOD]['in_date_range']);
+			unset($_SESSION[CONTROLLER][METHOD]['date_range']);
 		}
 
 		if(is_posted('date_range')){
@@ -82,7 +82,7 @@ class SS_Model extends CI_Model{
 	function addCondition(&$q,$condition_array,$unset=array()){
 		foreach($unset as $changed_variable => $unset_variable){
 			if(is_posted($changed_variable)){
-				unset($_SESSION[IN_UICE][METHOD][$unset_variable]);
+				unset($_SESSION[CONTROLLER][METHOD][$unset_variable]);
 			}
 		}
 
@@ -110,7 +110,7 @@ class SS_Model extends CI_Model{
 			option('method',is_null($default_method)?'ASC':$default_method);
 		}
 
-		if($only_table_of_the_page && is_posted('orderby') && !is_null(option('orderby')) && $this->input->post('orderby')==$_SESSION[IN_UICE][METHOD]['orderby']){
+		if($only_table_of_the_page && is_posted('orderby') && !is_null(option('orderby')) && $this->input->post('orderby')==$_SESSION[CONTROLLER][METHOD]['orderby']){
 			if(option('method')=='ASC'){
 				option('method','DESC');
 			}else{
@@ -139,10 +139,10 @@ class SS_Model extends CI_Model{
 	 */
 /*
 	function pagination($query_rows=NULL){
-		if(isset($_SESSION[IN_UICE.'/'.METHOD.'/pagination'])){
-			$this->pagination=  unserialize($_SESSION[IN_UICE.'/'.METHOD.'/pagination']);
+		if(isset($_SESSION[CONTROLLER.'/'.METHOD.'/pagination'])){
+			$this->pagination=  unserialize($_SESSION[CONTROLLER.'/'.METHOD.'/pagination']);
 		}else{
-			$this->pagination->base_url=$this->config->item('base_url').IN_UICE.'/'.METHOD.'/';
+			$this->pagination->base_url=$this->config->item('base_url').CONTROLLER.'/'.METHOD.'/';
 			$this->pagination->per_page=25;
 		}
 
@@ -186,7 +186,7 @@ class SS_Model extends CI_Model{
 			
 		$this->db->limit($this->pagination->per_page,$this->pagination->cur_page);
 
-		$_SESSION[IN_UICE.'/'.METHOD.'/pagination']=serialize($this->pagination);
+		$_SESSION[CONTROLLER.'/'.METHOD.'/pagination']=serialize($this->pagination);
 	}
  */
 	function pagination($query_rows=NULL){

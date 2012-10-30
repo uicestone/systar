@@ -73,10 +73,10 @@ class Account extends SS_controller{
 		
 		$this->getPostData($id,function($CI){
 			if(got('case')){
-				post(IN_UICE.'/case',intval($_GET['case']));
+				post(CONTROLLER.'/case',intval($_GET['case']));
 			}
 			if(got('client')){
-				post(IN_UICE.'/client',intval($_GET['client']));
+				post(CONTROLLER.'/client',intval($_GET['client']));
 			}
 		
 			post('account/name','律师费');

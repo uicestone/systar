@@ -22,7 +22,7 @@ class SS_Controller extends CI_Controller{
 		global $class,$method;
 		
 		//定义$class常量，即控制器的名称
-		define('IN_UICE',$class);
+		define('CONTROLLER',$class);
 		define('METHOD',$method);
 		
 		$this->config->set_item('timestamp',time());
@@ -240,9 +240,9 @@ class SS_Controller extends CI_Controller{
 		}
 	
 		if($this->require_export){
-			if(IN_UICE=='nav'){
+			if(CONTROLLER=='nav'){
 				$this->load->view('head_nav');
-			}elseif(IN_UICE=='frame'){
+			}elseif(CONTROLLER=='frame'){
 				$this->load->view('head_frame');
 			}else{
 				$this->load->view('head');
@@ -260,13 +260,13 @@ class SS_Controller extends CI_Controller{
 	 */
 	function getPostData($id,$callback=NULL,$generate_new_id=true,$db_table=NULL){
 		if(isset($id)){
-			unset($_SESSION[IN_UICE]['post']);
-			post(IN_UICE.'/id',intval($id));
+			unset($_SESSION[CONTROLLER]['post']);
+			post(CONTROLLER.'/id',intval($id));
 		
-		}elseif(is_null(post(IN_UICE.'/id'))){
-			unset($_SESSION[IN_UICE]['post']);
+		}elseif(is_null(post(CONTROLLER.'/id'))){
+			unset($_SESSION[CONTROLLER]['post']);
 		
-			$this->processUidTimeInfo(IN_UICE);
+			$this->processUidTimeInfo(CONTROLLER);
 		
 			if(is_a($callback,'Closure')){
 				$CI=&get_instance();
@@ -278,20 +278,20 @@ class SS_Controller extends CI_Controller{
 					if($this->actual_table!=''){
 						$db_table=$this->actual_table;
 					}else{
-						$db_table=IN_UICE;
+						$db_table=CONTROLLER;
 					}
 				}
-				post(IN_UICE.'/id',db_insert($db_table,post(IN_UICE)));
+				post(CONTROLLER.'/id',db_insert($db_table,post(CONTROLLER)));
 			}
-			//如果$generate_new_id==false，那么必须在callback中获得post(IN_UICE/id)
+			//如果$generate_new_id==false，那么必须在callback中获得post(CONTROLLER/id)
 		}
 	
-		if(!post(IN_UICE.'/id')){
+		if(!post(CONTROLLER.'/id')){
 			showMessage('获得信息ID失败','warning');
 			exit;
 		}
 		global $class;
-		post(IN_UICE,$this->$class->fetch(post(IN_UICE.'/id')));
+		post(CONTROLLER,$this->$class->fetch(post(CONTROLLER.'/id')));
 	}
 
 	/**
@@ -398,8 +398,8 @@ class SS_Controller extends CI_Controller{
 	 */
 	function processSearch(&$q,$fields){
 		if(is_posted('search_cancel')){
-			unset($_SESSION[IN_UICE][METHOD]['in_search_mod']);
-			unset($_SESSION[IN_UICE][METHOD]['keyword']);
+			unset($_SESSION[CONTROLLER][METHOD]['in_search_mod']);
+			unset($_SESSION[CONTROLLER][METHOD]['keyword']);
 		}
 
 		if(is_posted('search')){
@@ -457,7 +457,7 @@ class SS_Controller extends CI_Controller{
 			option('method',is_null($defaultMethod)?'ASC':$defaultMethod);
 		}
 
-		if($only_table_of_the_page && is_posted('orderby') && !is_null(option('orderby')) && $_POST['orderby']==$_SESSION[IN_UICE][METHOD]['orderby']){
+		if($only_table_of_the_page && is_posted('orderby') && !is_null(option('orderby')) && $_POST['orderby']==$_SESSION[CONTROLLER][METHOD]['orderby']){
 			if(option('method')=='ASC'){
 				option('method','DESC');
 			}else{
@@ -486,8 +486,8 @@ class SS_Controller extends CI_Controller{
 	 */
 	function dateRange(&$q,$date_field,$date_field_is_timestamp=true){
 		if(is_posted('date_range_cancel')){
-			unset($_SESSION[IN_UICE][METHOD]['in_date_range']);
-			unset($_SESSION[IN_UICE][METHOD]['date_range']);
+			unset($_SESSION[CONTROLLER][METHOD]['in_date_range']);
+			unset($_SESSION[CONTROLLER][METHOD]['date_range']);
 		}
 
 		if(is_posted('date_range')){
@@ -540,7 +540,7 @@ class SS_Controller extends CI_Controller{
 	function addCondition(&$q,$condition_array,$unset=array()){
 		foreach($unset as $changed_variable => $unset_variable){
 			if(is_posted($changed_variable)){
-				unset($_SESSION[IN_UICE][METHOD][$unset_variable]);
+				unset($_SESSION[CONTROLLER][METHOD][$unset_variable]);
 			}
 		}
 
@@ -616,39 +616,39 @@ class SS_Controller extends CI_Controller{
 	 */
 	function processSubmit($submitable,$after_update=NULL,$update_table=NULL,$set_display=true,$set_time=true,$set_user=true){
 		if($set_display){
-			post(IN_UICE.'/display',1);
+			post(CONTROLLER.'/display',1);
 		}
 
 		if($set_time){
-			post(IN_UICE.'/time',$this->config->item('timestamp'));
+			post(CONTROLLER.'/time',$this->config->item('timestamp'));
 		}
 
 		if($set_user){
-			post(IN_UICE.'/uid',$_SESSION['id']);
-			post(IN_UICE.'/username',$_SESSION['username']);
+			post(CONTROLLER.'/uid',$_SESSION['id']);
+			post(CONTROLLER.'/username',$_SESSION['username']);
 		}
 
-		post(IN_UICE.'/company',$this->config->item('company'));
+		post(CONTROLLER.'/company',$this->config->item('company'));
 
 		if(is_null($update_table)){
 			if($this->actual_table!=''){
 				$update_table=$this->actual_table;
 			}else{
-				$update_table=IN_UICE;
+				$update_table=CONTROLLER;
 			}
 		}
 
 		if($submitable){
-			if(db_update($update_table,post(IN_UICE),"id='".post(IN_UICE.'/id')."'")){
+			if(db_update($update_table,post(CONTROLLER),"id='".post(CONTROLLER.'/id')."'")){
 
 				if(is_a($after_update,'Closure')){
 					$after_update();
 				}
 
-				if(is_posted('submit/'.IN_UICE)){
+				if(is_posted('submit/'.CONTROLLER)){
 
 					if(!$this->config->item('as_controller_default_page')){
-						unset($_SESSION[IN_UICE]['post']);
+						unset($_SESSION[CONTROLLER]['post']);
 					}
 
 					if($this->config->item('as_popup_window')){
@@ -658,7 +658,7 @@ class SS_Controller extends CI_Controller{
 						if($this->config->item('as_controller_default_page')){
 							showMessage('保存成功~');
 						}else{
-							redirect((sessioned('last_list_action')?$_SESSION['last_list_action']:IN_UICE));
+							redirect((sessioned('last_list_action')?$_SESSION['last_list_action']:CONTROLLER));
 						}
 					}
 				}
@@ -674,14 +674,14 @@ class SS_Controller extends CI_Controller{
 	}
 	
 	function cancel(){
-		unset($_SESSION[IN_UICE]['post']);
+		unset($_SESSION[CONTROLLER]['post']);
 		
-		db_delete($this->actual_table==''?IN_UICE:$this->actual_table,"uid='".$_SESSION['id']."' AND display=0");//删除本用户的误添加数据
+		db_delete($this->actual_table==''?CONTROLLER:$this->actual_table,"uid='".$_SESSION['id']."' AND display=0");//删除本用户的误添加数据
 		
 		if($this->as_popup_window){
 			closeWindow();
 		}else{
-			redirect((sessioned('last_list_action')?$_SESSION['last_list_action']:IN_UICE));
+			redirect((sessioned('last_list_action')?$_SESSION['last_list_action']:CONTROLLER));
 		}
 	}
 

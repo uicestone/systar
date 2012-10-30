@@ -97,8 +97,8 @@ function sessioned($variable,$value=NULL,$global=true){
 			return false;
 	}else{
 		if(is_null($value)){
-			return isset($_SESSION[IN_UICE][$variable])?true:false;
-		}elseif(isset($_SESSION[IN_UICE][$variable]) && $_SESSION[IN_UICE][$variable]==$value)
+			return isset($_SESSION[CONTROLLER][$variable])?true:false;
+		}elseif(isset($_SESSION[CONTROLLER][$variable]) && $_SESSION[CONTROLLER][$variable]==$value)
 			return true;
 		else
 			return false;
@@ -110,8 +110,8 @@ function sessioned($variable,$value=NULL,$global=true){
  */
 function optioned($variable,$value=NULL){
 	if(is_null($value)){
-		return isset($_SESSION[IN_UICE]['option'][$variable])?true:false;
-	}elseif(isset($_SESSION[IN_UICE]['option'][$variable]) && $_SESSION[IN_UICE]['option'][$variable]==$value){
+		return isset($_SESSION[CONTROLLER]['option'][$variable])?true:false;
+	}elseif(isset($_SESSION[CONTROLLER]['option'][$variable]) && $_SESSION[CONTROLLER]['option'][$variable]==$value){
 		return true;
 	}else{
 		return false;
@@ -124,10 +124,10 @@ function optioned($variable,$value=NULL){
 function option($arrayindex,$set_to=NULL){
 	global $_G;
 	if(is_null($set_to)){
-		return array_dir('_SESSION/'.IN_UICE.'/'.METHOD.'/'.$arrayindex);
+		return array_dir('_SESSION/'.CONTROLLER.'/'.METHOD.'/'.$arrayindex);
 
 	}else{
-		return array_dir('_SESSION/'.IN_UICE.'/'.METHOD.'/'.$arrayindex,$set_to);
+		return array_dir('_SESSION/'.CONTROLLER.'/'.METHOD.'/'.$arrayindex,$set_to);
 	}
 }
 
@@ -352,7 +352,7 @@ function forceExport(){
  * 如<input name="client[name]" value="<? displayPost('client/name') ?>" />（见view/client_add.htm）
  */
 function displayPost($fieldName,$strtotime=false,$date_form='Y-m-d'){
-	$val=array_dir('_SESSION/'.IN_UICE.'/post/'.$fieldName);
+	$val=array_dir('_SESSION/'.CONTROLLER.'/post/'.$fieldName);
 	if($strtotime && $val){
 		$val=date($date_form,$val);
 	}
@@ -430,9 +430,9 @@ function displayCheckbox($html,$name,$check_value,$value=NULL,$disabled=false){
 function post($arrayindex){
 	$args=func_get_args();
 	if(count($args)==1){
-		return array_dir('_SESSION/'.IN_UICE.'/post/'.$arrayindex);
+		return array_dir('_SESSION/'.CONTROLLER.'/post/'.$arrayindex);
 	}elseif(count($args)==2){
-		return array_dir('_SESSION/'.IN_UICE.'/post/'.$arrayindex,$args[1]);
+		return array_dir('_SESSION/'.CONTROLLER.'/post/'.$arrayindex,$args[1]);
 	}
 	
 }

@@ -46,7 +46,7 @@ class Express extends SS_controller{
 		
 		if(is_posted('submit')){
 			$submitable=true;
-			$_SESSION[IN_UICE]['post']=array_replace_recursive($_SESSION[IN_UICE]['post'],$_POST);
+			$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$_POST);
 			
 			//将寄件人姓名转换成staff,id
 			$q_staff="SELECT id,name FROM staff WHERE name LIKE '%".post('express_extra/sender_name')."%' LIMIT 2";

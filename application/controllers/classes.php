@@ -62,7 +62,7 @@ class Classes extends SS_controller{
 		if(is_posted('submit')){
 			$submitable=true;
 		
-			$_SESSION[IN_UICE]['post']=array_replace_recursive($_SESSION[IN_UICE]['post'],$_POST);
+			$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$_POST);
 			
 			if(post('class/class_teacher',staff_check(post('class_extra/class_teacher_name')))<0){
 				$submitable=false;
