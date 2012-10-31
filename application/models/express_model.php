@@ -15,7 +15,7 @@ class Express_model extends SS_Model{
 			->join('staff','staff.id=express.sender','left')
 			->where('express.display',1);
 		
-		$this->search(array('num'=>'单号','staff.name'=>'寄送人','destination'=>'寄送地点'));//为当前sql对象添加搜索条件
+		$this->search();//为当前sql对象添加搜索条件
 		$this->orderBy('time_send','DESC');//为当前sql对象添加orderby从句
 		$this->pagination();//为当前sql对象添加limit从句
 		

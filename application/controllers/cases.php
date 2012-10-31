@@ -153,9 +153,9 @@ class Cases extends SS_controller{
 		
 		$table=$this->fetchTableArray($q, $field);
 		
-		$this->data+=compact('table','menu','search_bar');
+		$this->view_data+=compact('table','menu','search_bar');
 		
-		$this->load->view('lists',$this->data);
+		$this->load->view('lists',$this->view_data);
 		$this->main_view_loaded=TRUE;
 		
 		$this->load->view('sidebar_head');
@@ -193,7 +193,7 @@ class Cases extends SS_controller{
 		$my_roles=$this->cases->getMyRoles($case_role);
 		//本人的本案职位
 		
-		$this->data+=compact('case_role','responsible_partner','lawyers','my_roles');
+		$this->view_data+=compact('case_role','responsible_partner','lawyers','my_roles');
 		
 		$submitable=false;
 		
@@ -629,19 +629,19 @@ class Cases extends SS_controller{
 		}
 		
 		//计算本案有效日志总时间
-		$this->data['schedule_time']=$this->schedule->calculateTime(post('cases/id'));
+		$this->view_data['schedule_time']=$this->schedule->calculateTime(post('cases/id'));
 		
-		$this->data['case_status']=$this->cases->getStatusById(post('cases/id'));
+		$this->view_data['case_status']=$this->cases->getStatusById(post('cases/id'));
 		
-		$this->data['case_type_array']=db_enumArray('case','stage');
+		$this->view_data['case_type_array']=db_enumArray('case','stage');
 		
 		if(post('cases/is_query')){
-			$this->data['case_lawyer_role_array']=array('督办合伙人','接洽律师','接洽律师（次要）','律师助理');
+			$this->view_data['case_lawyer_role_array']=array('督办合伙人','接洽律师','接洽律师（次要）','律师助理');
 		}else{
-			$this->data['case_lawyer_role_array']=db_enumArray('case_lawyer','role');
+			$this->view_data['case_lawyer_role_array']=db_enumArray('case_lawyer','role');
 		}
 		
-		$this->data['case_client_table']=$this->cases->getClientList(post('cases/id'),post('cases/client_lock'));
+		$this->view_data['case_client_table']=$this->cases->getClientList(post('cases/id'),post('cases/client_lock'));
 		
 		if(post('cases/is_query')){
 			post('case_client_extra/type','潜在客户');
@@ -649,23 +649,23 @@ class Cases extends SS_controller{
 			post('case_client_extra/type','成交客户');//让案下客户添加默认为成交客户
 		}
 		
-		$this->data['case_staff_table']=$this->cases->getStaffList(post('cases/id'),post('cases/lawyer_lock'),post('cases/timing_fee'));
+		$this->view_data['case_staff_table']=$this->cases->getStaffList(post('cases/id'),post('cases/lawyer_lock'),post('cases/timing_fee'));
 		
-		$this->data['case_fee_table']=$this->cases->getFeeList(post('cases/id'),post('cases/fee_lock'));
+		$this->view_data['case_fee_table']=$this->cases->getFeeList(post('cases/id'),post('cases/fee_lock'));
 		
 		if(post('cases/timing_fee')){
 			$case_fee_timing_string=$this->cases->getTimingFeeString(post('cases/id'));
 		}
 		
-		$this->data['case_fee_misc_table']=$this->cases->getFeeMiscList(post('cases/id'),post('cases/fee_lock'));
+		$this->view_data['case_fee_misc_table']=$this->cases->getFeeMiscList(post('cases/id'),post('cases/fee_lock'));
 		
-		$this->data['case_document_table']=$this->cases->getDocumentList(post('cases/id'),post('cases/apply_file'));
+		$this->view_data['case_document_table']=$this->cases->getDocumentList(post('cases/id'),post('cases/apply_file'));
 		
-		$this->data['case_schedule_table']=$this->cases->getScheduleList(post('cases/id'));
+		$this->view_data['case_schedule_table']=$this->cases->getScheduleList(post('cases/id'));
 		
-		$this->data['case_plan_table']=$this->cases->getPlanList(post('cases/id'));
+		$this->view_data['case_plan_table']=$this->cases->getPlanList(post('cases/id'));
 		
-		$this->load->view('cases/edit',$this->data);
+		$this->load->view('cases/edit',$this->view_data);
 		
 		$this->main_view_loaded=TRUE;
 	}
@@ -746,9 +746,9 @@ class Cases extends SS_controller{
 		
 		$table=$this->fetchTableArray($q, $field);
 		
-		$this->data+=compact('table','menu');
+		$this->view_data+=compact('table','menu');
 		
-		$this->load->view('lists',$this->data);
+		$this->load->view('lists',$this->view_data);
 		
 		require 'view/case_list_sidebar.htm';
 	}

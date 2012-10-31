@@ -3,8 +3,6 @@ class Express extends SS_controller{
 
 	function __construct(){
 		parent::__construct();
-
-		$this->load->library('session');
 	}
 
 	function lists(){
@@ -19,11 +17,16 @@ class Express extends SS_controller{
 			'comment'=>array('title'=>'备注')
 		);
 		
-		$table=$this->express->getList($field);
-
-		$this->data+=compact('table');
+		$this->viewdata->add('search_fields',array('num'=>'单号','staff.name'=>'寄送人','destination'=>'寄送地点'));
 		
-		$this->load->view('lists',$this->data);
+		$this->viewdata->add('table',$this->express->getList($field));
+				
+		$this->load->view('lists',$this->viewdata->get());
+		
+		$this->load->view('sidebar_head');
+		$this->load->view('search');
+		$this->load->view('sidebar_foot');
+		$this->sidebar_loaded=TRUE;
 	}
 	
 	function add(){
@@ -32,7 +35,6 @@ class Express extends SS_controller{
 	
 	function edit($id=NULL){
 		$this->getPostData($id,function($CI){
-			global $_G;
 			post('express/time_send',$CI->config->item('timestamp'));
 		});
 		

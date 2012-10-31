@@ -80,9 +80,9 @@ class Client extends SS_Controller{
 		
 		$table=$this->fetchTableArray($q,$field);
 		
-		$this->data+=compact('table','menu','search_bar');
+		$this->view_data+=compact('table','menu','search_bar');
 		
-		$this->load->view('lists',$this->data);
+		$this->load->view('lists',$this->view_data);
 		$this->main_view_loaded=TRUE;
 		
 		$this->load->view('sidebar_head');

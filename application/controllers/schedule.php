@@ -33,7 +33,7 @@ class Schedule extends SS_controller{
 
 		$sidebar_table=$this->company->$sidebar_function();
 				
-		$this->data=compact('table_news','sidebar_table');
+		$this->view_data=compact('table_news','sidebar_table');
 	}
 	
 	function mine(){
@@ -92,9 +92,9 @@ class Schedule extends SS_controller{
 									
 		$q.=$condition;
 		
-		$this->data['search_bar']=$this->processSearch($q,array('case.name'=>'案件','staff.name'=>'人员'));
+		$this->view_data['search_bar']=$this->processSearch($q,array('case.name'=>'案件','staff.name'=>'人员'));
 		
-		$this->data['date_range_bar']=$this->dateRange($q,'time_start');
+		$this->view_data['date_range_bar']=$this->dateRange($q,'time_start');
 		
 		$q.="
 			GROUP BY schedule.id
@@ -164,7 +164,7 @@ class Schedule extends SS_controller{
 			$listLocator=$this->processMultiPage($q);
 		}
 		
-		$this->data['table']=$this->fetchTableArray($q,$field);
+		$this->view_data['table']=$this->fetchTableArray($q,$field);
 		
 		if(is_posted('export')){
 			$this->load->model('document_model','document');
@@ -179,7 +179,7 @@ class Schedule extends SS_controller{
 			
 			$table = $section->addTable('schedule_billdoc');
 			
-			foreach($this->data['table'] as $line_name=>$line){
+			foreach($this->view_data['table'] as $line_name=>$line){
 				$table->addRow();
 				foreach($line as $cell_name=>$cell){
 					$table->addCell(1750)->addText(strip_tags($cell['html']));
@@ -200,7 +200,7 @@ class Schedule extends SS_controller{
 			$this->main_view_loaded=TRUE;
 		
 		}else{
-			$this->data['menu']=array(
+			$this->view_data['menu']=array(
 			'head'=>'<div class="left">'.
 						(is_logged('partner')?'<input type="submit" name="review_selected" value="审核" />':'').
 						'<input type="submit" name="export" value="导出" />'.
@@ -212,7 +212,7 @@ class Schedule extends SS_controller{
 			
 			$_SESSION['last_list_action']=$_SERVER['REQUEST_URI'];
 			
-			$this->load->view('schedule/lists',$this->data);
+			$this->load->view('schedule/lists',$this->view_data);
 			$this->main_view_loaded=TRUE;
 			
 			$this->load->view('sidebar_head');
@@ -332,7 +332,7 @@ class Schedule extends SS_controller{
 		//准备客户数组
 		$client_array=$this->client->getListByCase(post('schedule/case'));
 		
-		$this->data+=compact('case_array','client_array');
+		$this->view_data+=compact('case_array','client_array');
 		
 		//获得案名
 		$q_case="SELECT name FROM `case` WHERE id='".post('schedule/case')."'";
@@ -416,9 +416,9 @@ class Schedule extends SS_controller{
 		
 		$table=$this->fetchTableArray($q, $field);
 		
-		$this->data+=compact('table','menu');
+		$this->view_data+=compact('table','menu');
 		
-		$this->load->view('lists',$this->data);
+		$this->load->view('lists',$this->view_data);
 	}
 	
 	function readCalendar($id=NULL){
@@ -531,7 +531,7 @@ class Schedule extends SS_controller{
 		
 		$work_hour_stat=$this->fetchTableArray($q,$field);
 		
-		$this->data+=compact('work_hour_stat','chart_staffly_workhours_catogary','chart_staffly_workhours_series');
+		$this->view_data+=compact('work_hour_stat','chart_staffly_workhours_catogary','chart_staffly_workhours_series');
 	}
 	
 	function writeCalendar(){

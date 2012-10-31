@@ -3,7 +3,7 @@ class SS_Controller extends CI_Controller{
 	
 	public $default_method='lists';
 
-	public $data=array();//传递给模板的参数
+	public $view_data=array();//传递给视图的参数
 
 	public $main_view_loaded=FALSE;
 	public $sidebar_loaded=FALSE;
@@ -18,19 +18,41 @@ class SS_Controller extends CI_Controller{
 	
 	function __construct(){
 		parent::__construct();
-
+		
 		global $class,$method;
+		
+		//使用controller中自定义的默认method
+		if($method=='index'){
+			$method=$this->default_method;
+		}
 		
 		//定义$class常量，即控制器的名称
 		define('CONTROLLER',$class);
 		define('METHOD',$method);
 		
+		$this->load->helper('function_common');
+
+		date_default_timezone_set('Asia/Shanghai');//定义时区，windows系统中php不能识别到系统时区
+	
+		session_set_cookie_params(86400); 
+		session_start();
+	
+		//初始化数据库，本系统为了代码书写简便，没有将数据库操作作为类封装，但有大量实用函数在function/function_common.php->db_()
+		$db['host']="localhost";
+		$db['username']="root";
+		$db['password']="";
+		$db['name']='starsys';
+	
+		define('DB_LINK',mysql_connect($db['host'],$db['username'],$db['password']));
+	
+		mysql_select_db($db['name'],DB_LINK);
+
 		$this->config->set_item('timestamp',time());
 		$this->config->set_item('microtime',microtime(true));
 		$this->config->set_item('date',date('Y-m-d',$this->config->item('timestamp')));
 		$this->config->set_item('quarter',date('y',$this->config->item('timestamp')).ceil(date('m',$this->config->item('timestamp'))/3));
 	
-		db_query("SET NAMES 'UTF8'");
+		$this->db->query("SET NAMES 'UTF8'");
 	
 		//获得公司信息，见数据库，company表
 		if($company_info=company_fetchInfo()){
@@ -41,7 +63,7 @@ class SS_Controller extends CI_Controller{
 	
 		//ucenter配置
 		if($this->config->item('ucenter')){
-			require APPPATH.'helpers/config_ucenter.php';
+			$this->load->helper('config_ucenter');
 			require APPPATH.'third_party/client/client.php';
 		}
 
@@ -50,12 +72,6 @@ class SS_Controller extends CI_Controller{
 			redirect('user/login','js',NULL,true);
 		}
 
-			
-		//使用controller中自定义的默认method
-		if($method=='index'){
-			$method=$this->default_method;
-		}
-		
 		//根据controller和method请求决定一些参数
 		//这相当于集中处理了分散的控制器属性，在团队开发中，这不科学。有空应该把这些设置移动到对应的控制器中
 		if(in_array($method,array('add','edit'))){
@@ -97,16 +113,7 @@ class SS_Controller extends CI_Controller{
 			if($method=='script'){
 				$this->action='cron_'.$_GET['script'];
 	
-			}/*else{
-				//imperfect uicestone 2012/8/6 定时任务，尚未处理
-				$q_cron="SELECT name,cycle,nextrun,lastrun cron where 1=1";
-				$r_cron=db_query($q_cron);
-				while($cron=mysql_fetch_array($r_cron)){
-					if($_G['timestamp'] > $cron['next_run']){
-						db_query("UPDATE cron set next_run =".($_G['timestamp']+$cron['cycle'])." WHERE id=".$cron['id']);
-					}
-				}
-			}*/
+			}
 	
 		}elseif($class=='document'){
 			if(is_posted('fileSubmit')){

@@ -31,9 +31,9 @@ class Evaluation extends SS_controller{
 		
 		$table=$this->fetchTableArray($q, $field);
 		
-		$this->data+=compact('table','menu');
+		$this->view_data+=compact('table','menu');
 		
-		$this->load->view('lists',$this->data);
+		$this->load->view('lists',$this->view_data);
 	}
 	
 	function comment(){
@@ -82,9 +82,9 @@ class Evaluation extends SS_controller{
 		
 		$table=$this->fetchTableArray($q, $field);
 		
-		$this->data+=compact('table','menu');
+		$this->view_data+=compact('table','menu');
 		
-		$this->load->view('lists',$this->data);
+		$this->load->view('lists',$this->view_data);
 	}
 	
 	function result(){
@@ -129,9 +129,9 @@ class Evaluation extends SS_controller{
 		
 		$table=$this->fetchTableArray($q, $field);
 		
-		$this->data+=compact('table','menu');
+		$this->view_data+=compact('table','menu');
 		
-		$this->load->view('lists',$this->data);
+		$this->load->view('lists',$this->view_data);
 	}
 	
 	function scoreWrite(){$staff=intval($_GET['staff']);
@@ -203,9 +203,9 @@ class Evaluation extends SS_controller{
 		
 		$table=$this->fetchTableArray($q, $field);
 		
-		$this->data+=compact('table','menu');
+		$this->view_data+=compact('table','menu');
 		
-		$this->load->view('lists',$this->data);
+		$this->load->view('lists',$this->view_data);
 	}
 }
 ?>

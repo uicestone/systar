@@ -199,6 +199,9 @@ body#content::-webkit-scrollbar-thumb{
 	min-width:900px;
 	color:#FFF;
 }
+.contentTableMenu .nav{
+	margin:0;
+}
 .contentTableFoot{
 	margin-top:10px;
 	text-align:center;

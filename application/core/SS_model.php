@@ -4,7 +4,10 @@ class SS_Model extends CI_Model{
 		parent::__construct();
 	}
 	
-	function search(array $search_fields){
+	function search(){
+		
+		$search_fields=$this->viewdata->get('search_fields');
+
 		if($this->input->post('search_cancel')){
 			unset($_SESSION[CONTROLLER][METHOD]['in_search_mod']);
 			unset($_SESSION[CONTROLLER][METHOD]['keyword']);
@@ -19,7 +22,7 @@ class SS_Model extends CI_Model{
 			foreach($search_fields as $search_key => $ui_name){
 				$keyword_array=preg_split('/[\s]+|,/',option('keyword/'.$search_key));
 				foreach($keyword_array as $keyword){
-					$this->db->like($field,$keyword);
+					$this->db->like($search_key,$keyword);
 				}
 			}
 		}
@@ -273,9 +276,9 @@ class SS_Model extends CI_Model{
 
 		//showMessage($this->db->last_query());
 
-		if($result->num_rows()==0){
+		/*if($result->num_rows()==0){
 			return false;
-		}
+		}*/
 		
 		$table=array('_field'=>array());
 

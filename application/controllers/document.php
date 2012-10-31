@@ -86,9 +86,9 @@ class Document extends SS_controller{
 		
 		$table=$this->fetchTableArray($q, $field);
 		
-		$this->data+=compact('table','menu');
+		$this->view_data+=compact('table','menu');
 		
-		$this->load->view('lists',$this->data);
+		$this->load->view('lists',$this->view_data);
 	}
 
 	function createDir(){
