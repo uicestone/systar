@@ -33,13 +33,13 @@ class Express extends SS_controller{
 	}
 	
 	function edit($id=NULL){
+		$this->load->model('staff_model','staff');
+		
 		$this->getPostData($id,function($CI){
 			post('express/time_send',$CI->config->item('timestamp'));
 		});
 		
-		$q_sender_name="SELECT name FROM staff WHERE id='".post('express/sender')."'";
-		$r_sender_name=db_query($q_sender_name);
-		post('express_extra/sender_name',mysql_result($r_sender_name,0,'name'));
+		post('express_extra/sender_name',$this->staff->fetch(post('express/sender'),'name'));
 		
 		post('express_extra/time_send',date('Y-m-d',post('express/time_send')));
 		
@@ -49,15 +49,14 @@ class Express extends SS_controller{
 			$submitable=true;
 			$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$_POST);
 			
-			//将寄件人姓名转换成staff,id
-			$q_staff="SELECT id,name FROM staff WHERE name LIKE '%".post('express_extra/sender_name')."%' LIMIT 2";
-			$r_staff=db_query($q_staff);
-			if(db_rows($r_staff)==0 || db_rows($r_staff)>1){
-				showMessage('寄件人不是职员，或存在多个匹配','warning');
+			//将寄件人姓名转换成staff.id
+			$staff_check=$this->staff->check(post('express_extra/sender_name'),'array');
+			if($staff_check<0){
 				$submitable=false;
+
 			}else{
-				post('express/sender',mysql_result($r_staff,0,'id'));
-				post('express_extra/sender_name',mysql_result($r_staff,0,'name'));
+				post('express/sender',$staff_check['id']);
+				post('express_extra/sender_name',$staff_check['name']);
 			}
 			
 			//将时间转换成timestamp格式

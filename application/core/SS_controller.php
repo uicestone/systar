@@ -17,9 +17,16 @@ class SS_Controller extends CI_Controller{
 		
 		global $class,$method;
 		
+		$this->load->helper('function_common');
+
 		//使用controller中自定义的默认method
 		if($method=='index'){
 			$method=$this->default_method;
+		}
+		
+		if($this->input->post('submit/cancel')){
+			$this->load->require_head=false;
+			$method='cancel';
 		}
 		
 		//定义$class常量，即控制器的名称
@@ -29,8 +36,6 @@ class SS_Controller extends CI_Controller{
 		$this->controller=$class;
 		$this->method=$method;
 		
-		$this->load->helper('function_common');
-
 		date_default_timezone_set('Asia/Shanghai');//定义时区，windows系统中php不能识别到系统时区
 	
 		session_set_cookie_params(86400); 
@@ -234,11 +239,6 @@ class SS_Controller extends CI_Controller{
 			}
 		}
 
-		if(is_posted('submit/cancel')){
-			$this->load->require_head=false;
-			$method='cancel';
-		}
-	
 		$this->load->model('company_model','company');
 		
 		if(is_file(APPPATH.'models/'.$class.'_model.php')){
@@ -285,192 +285,6 @@ class SS_Controller extends CI_Controller{
 		post(CONTROLLER,$this->$class->fetch(post(CONTROLLER.'/id')));
 	}
 
-	/**
-	 * 此方法将被移至SS_Model下
-	 */
-	function fetchTableArray($query,$field){
-
-		$result=db_query($query);
-
-		if($result===false){
-			return false;
-		}
-
-		$table=array('_field'=>array());
-
-		foreach($field as $k=>$v){
-			if(!is_array($v))
-				$table['_field'][$k]=$v;
-			else{
-				$str='';
-				if(isset($v['title'])){
-					$str=$v['title'];
-				}
-				if(isset($v['surround_title'])){
-					$str=$this->surround($str,$v['surround_title']);
-				}elseif(!isset($v['orderby']) || $v['orderby']){
-					$str=$this->surround($str,array('mark'=>'a','href'=>"javascript:postOrderby('".$k."')"));
-				}
-				$table['_field'][$k]['html']=$str;
-				if(isset($v['td_title'])){
-					$table['_field'][$k]['attrib']=$v['td_title'];
-				}
-			}
-		}
-
-		while($data=db_fetch_array($result)){
-			$line_data=array();
-			foreach($field as $k => $v){
-				if(!is_array($v))
-					$line_data[$k]=$this->variableReplace(isset($data[$k])?$data[$k]:NULL,$data);
-				else{
-					$str=isset($v['content']) ? $v['content'] : (isset($data[$k])?$data[$k]:NULL);
-					$str=$this->variableReplace($str,$data);
-					if(isset($v['eval']) && $v['eval']){
-						$str=eval($str);
-					}
-					if(isset($v['surround'])){
-						array_walk($v['surround'],array($this,'variableReplaceSelf'),$data);
-						$str=$this->surround($str,$v['surround']);
-					}
-					$line_data[$k]['html']=$str;
-					if(isset($v['td'])){
-						$line_data[$k]['attrib']=$this->variableReplace($v['td'],$data);
-					}
-				}
-			}
-			$table[]=$line_data;
-		}
-
-		return $table;
-	}
-
-	/*
-	 * 仅用在fetchTableArray中
-	 * 将field->content等值中包含的变量占位替换为数据结果中他们的值
-	 */
-	function variableReplace($content,$data){
-		while(preg_match('/{(\S*?)}/',$content,$match)){
-			if(!isset($data[$match[1]])){
-				$data[$match[1]]=NULL;
-			}
-			$content=str_replace($match[0],$data[$match[1]],$content);
-		}
-		return $content;
-	}
-
-	function variableReplaceSelf(&$content,$key,$data){
-		$content=$this->variableReplace($content,$data);
-	}
-
-	/*
-	 * 包围，生成html标签的时候很有用
-	 * $surround=array(
-	 * 		'mark'=>'div',
-	 * 		'attrib1'=>'value1',
-	 * 		'attrib2'=>'value2'
-	 * );
-	 * 将生成<div attrib1="value1" attrib2="value2">$str</div>
-	 */
-	function surround($str,$surround){
-		if($str=='')
-			return '';
-
-		$mark=$surround['mark'];
-		unset($surround['mark']);
-		$property=db_implode($surround,' ',NULL,'=','"','"','','value',false);
-		return '<'.$mark.' '.$property.'>'.$str.'</'.$mark.'>';
-
-	}
-
-	/*controller/*_list.php类控制单元中用到的处理查询语句并返回相关界面组件的函数集*/
-	/*
-	 * 处理查询语句，添加搜索条件，返回一个搜索表单，配合view/*_*_sidebar.htm使用
-	 */
-	function processSearch(&$q,$fields){
-		if(is_posted('search_cancel')){
-			unset($_SESSION[CONTROLLER][METHOD]['in_search_mod']);
-			unset($_SESSION[CONTROLLER][METHOD]['keyword']);
-		}
-
-		if(is_posted('search')){
-			option('keyword',array_trim($_POST['keyword']));
-			option('in_search_mod',true);
-		}
-
-		if(option('in_search_mod')){
-
-			$condition_search='';
-
-			foreach(option('keyword') as $field => $keywords){
-
-				$condition=preg_split('/[\s]+|,/',option('keyword/'.$field));
-
-				$condition=' AND ('.db_implode($condition,' AND ',db_field_name($field),' LIKE ',"'%","%'",'').')';
-
-				$condition_search.=$condition;
-
-			}
-			$q.=$condition_search;
-		}
-
-		$search_bar='<form method="post" name="search">'.
-			'<table class="contentTable search-bar" cellpadding="0" cellspacing="0" align="center">'.
-				'<thead><tr><td width="80px">搜索</td><td>&nbsp;</td></tr></thead>'.
-				'<tbody>';
-		foreach($fields as $field_table_name => $field_ui_name){
-			$search_bar.='<tr><td>'.
-				'<label>'.$field_ui_name.'：'.'</label></td>'.
-				'<td>'.
-				'<input type="text" name="keyword['.$field_table_name.']" value="'.option('keyword/'.$field_table_name).'" /><br />'.
-				'</td></tr>';
-		}
-
-		$search_bar.='<tr><td colspan="2"><input type="submit" name="search" value="搜索" tabindex="0" />';
-		if(option('in_search_mod')){
-			$search_bar.='<input type="submit" name="search_cancel" value="取消" tabindex="1" />';
-		}
-		$search_bar.='</td></tr></tbody>'.
-				'</table>'.
-			'</form>';
-
-		return $search_bar;
-	}
-
-	/*
-	 * 为sql语句添加排序依据，无反回值
-	 */
-	function processOrderby(&$q,$defaultOrder,$defaultMethod=NULL,$field_need_convert=array(),$only_table_of_the_page=true){
-		if (is_null(option('orderby'))){
-			option('orderby',$defaultOrder);
-		}
-		if (is_null(option('method'))){
-			option('method',is_null($defaultMethod)?'ASC':$defaultMethod);
-		}
-
-		if($only_table_of_the_page && is_posted('orderby') && !is_null(option('orderby')) && $_POST['orderby']==$_SESSION[CONTROLLER][METHOD]['orderby']){
-			if(option('method')=='ASC'){
-				option('method','DESC');
-			}else{
-				option('method','ASC');
-			}
-		}
-
-		if(is_posted('orderby')){
-			option('orderby',$_POST['orderby']);
-		}
-		if(is_posted('method')){
-			option('method',$_POST['method']);
-		}
-
-		$needConvert=in_array(option('orderby'),$field_need_convert);
-
-		$q.= ' ORDER BY '.
-			($needConvert?'convert(':'').
-			db_field_name(option('orderby')).
-			($needConvert?' USING GBK) ':' ').
-			option('method');
-	}
 
 	/*
 	 * 为查询语句加上日期条件
