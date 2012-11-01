@@ -1024,4 +1024,23 @@ function std($data,$avg=null,$is_swatch=false){
 	}else
 		return false;
 }
+
+/*
+ * 仅用在fetchTableArray中
+ * 将field->content等值中包含的变量占位替换为数据结果中他们的值
+ */
+function variableReplace($content,$row){
+	while(preg_match('/{(\S*?)}/',$content,$match)){
+		if(!isset($row[$match[1]])){
+			$row[$match[1]]=NULL;
+		}
+		$content=str_replace($match[0],$row[$match[1]],$content);
+	}
+	return $content;
+}
+
+function variableReplaceSelf(&$content,$key,$row){
+	$content=variableReplace($content,$row);
+}
+
 ?>

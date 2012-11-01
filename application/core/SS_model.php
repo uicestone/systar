@@ -6,7 +6,7 @@ class SS_Model extends CI_Model{
 	
 	function search(){
 		
-		$search_fields=$this->viewdata->get('search_fields');
+		$search_fields=$this->table->search_fields;
 
 		if($this->input->post('search_cancel')){
 			unset($_SESSION[CONTROLLER][METHOD]['in_search_mod']);
@@ -104,21 +104,13 @@ class SS_Model extends CI_Model{
 	/*
 	 * 为sql语句添加排序依据，无反回值
 	 */
-	function orderBy($default_order,$default_method=NULL,$field_need_convert=array(),$only_table_of_the_page=false){
+	function orderBy(){
 		
 		if (is_null(option('orderby'))){
-			option('orderby',$default_order);
+			option('orderby',$this->table->order_by['default_field']);
 		}
 		if (is_null(option('method'))){
-			option('method',is_null($default_method)?'ASC':$default_method);
-		}
-
-		if($only_table_of_the_page && is_posted('orderby') && !is_null(option('orderby')) && $this->input->post('orderby')==$_SESSION[CONTROLLER][METHOD]['orderby']){
-			if(option('method')=='ASC'){
-				option('method','DESC');
-			}else{
-				option('method','ASC');
-			}
+			option('method',$this->table->order_by['default_method']?'ASC':$this->table->order_by['default_method']);
 		}
 
 		if(is_posted('orderby')){
@@ -128,7 +120,7 @@ class SS_Model extends CI_Model{
 			option('method',$this->input->post('method'));
 		}
 
-		$need_convert=in_array(option('orderby'),$field_need_convert);
+		$need_convert=in_array(option('orderby'),$this->table->order_by['field_need_convert']);
 
 		$this->db->order_by(
 			($need_convert?'convert(':'').
@@ -271,62 +263,14 @@ class SS_Model extends CI_Model{
 					)
 			)
 	*/
-	function fetchTable($field){
-		$result=$this->db->get();
+	function fetchTable(){
 
-		//showMessage($this->db->last_query());
-
-		/*if($result->num_rows()==0){
-			return false;
-		}*/
+		$this->search();//为当前sql对象添加搜索条件
+		$this->pagination();//为当前sql对象添加limit从句
+		$this->orderBy();//为当前sql对象添加orderby从句
 		
-		$table=array('_field'=>array());
+		return $this->db->get()->result_array();
 
-		foreach($field as $k=>$v){
-			if(!is_array($v))
-				$table['_field'][$k]=$v;
-			else{
-				$str='';
-				if(isset($v['title'])){
-					$str=$v['title'];
-				}
-				if(isset($v['surround_title'])){
-					$str=$this->surround($str,$v['surround_title']);
-				}elseif(!isset($v['orderby']) || $v['orderby']){
-					$str=$this->surround($str,array('mark'=>'a','href'=>"javascript:postOrderby('".$k."')"));
-				}
-				$table['_field'][$k]['html']=$str;
-				if(isset($v['td_title'])){
-					$table['_field'][$k]['attrib']=$v['td_title'];
-				}
-			}
-		}
-		
-		foreach($result->result_array() as $row){
-			$line_data=array();
-			foreach($field as $k => $v){
-				if(!is_array($v))
-					$line_data[$k]=$this->variableReplace(isset($row[$k])?$row[$k]:NULL,$row);
-				else{
-					$str=isset($v['content']) ? $v['content'] : (isset($row[$k])?$row[$k]:NULL);
-					$str=$this->variableReplace($str,$row);
-					if(isset($v['eval']) && $v['eval']){
-						$str=eval($str);
-					}
-					if(isset($v['surround'])){
-						array_walk($v['surround'],array($this,'variableReplaceSelf'),$row);
-						$str=$this->surround($str,$v['surround']);
-					}
-					$line_data[$k]['html']=$str;
-					if(isset($v['td'])){
-						$line_data[$k]['attrib']=$this->variableReplace($v['td'],$row);
-					}
-				}
-			}
-			$table[]=$line_data;
-		}
-
-		return $table;
 	}
 
 	function fetchTableArray($query,$field){

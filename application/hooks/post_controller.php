@@ -6,7 +6,7 @@ function postController(){
 	
 	if($CI->require_export){
 		if(!$CI->main_view_loaded && is_file(APPPATH.'views/'.$class.'/'.$method.'.php')){
-			$CI->load->view("{$class}/{$method}",$CI->data);
+			$CI->load->view("{$class}/{$method}",$CI->view_data);
 		}
 	
 		if(!$CI->sidebar_loaded && is_file(APPPATH.'views/'.$class.'/'.$method.'_sidebar'.'.php')){

@@ -1,20 +1,21 @@
 <?php
 class SS_Controller extends CI_Controller{
 	
-	public $default_method='lists';
-
-	public $view_data=array();//传递给视图的参数
-
-	public $main_view_loaded=FALSE;
-	public $sidebar_loaded=FALSE;
-
-	public $require_export=true;//页面头尾输出开关（含menu）
-	public $require_menu=true;//顶部蓝条/菜单输出开关
-	public $as_popup_window=false;
-	public $as_controller_default_page=false;
-	public $actual_table='';//借用数据表的controller的实际主读写表，如contact为client,query为cases
+	var $controller;
+	var $method;
 	
-	public $search=array();//列表中需要搜索的字段
+	var $default_method='lists';
+
+	var $view_data=array();//传递给视图的参数
+
+	var $main_view_loaded=FALSE;
+	var $sidebar_loaded=FALSE;
+
+	var $require_export=true;//页面头尾输出开关（含menu）
+	var $require_menu=true;//顶部蓝条/菜单输出开关
+	var $as_popup_window=false;
+	var $as_controller_default_page=false;
+	var $actual_table='';//借用数据表的controller的实际主读写表，如contact为client,query为cases
 	
 	function __construct(){
 		parent::__construct();
@@ -29,6 +30,9 @@ class SS_Controller extends CI_Controller{
 		//定义$class常量，即控制器的名称
 		define('CONTROLLER',$class);
 		define('METHOD',$method);
+		
+		$this->controller=$class;
+		$this->method=$method;
 		
 		$this->load->helper('function_common');
 
@@ -52,7 +56,7 @@ class SS_Controller extends CI_Controller{
 		$this->config->set_item('date',date('Y-m-d',$this->config->item('timestamp')));
 		$this->config->set_item('quarter',date('y',$this->config->item('timestamp')).ceil(date('m',$this->config->item('timestamp'))/3));
 	
-		$this->db->query("SET NAMES 'UTF8'");
+		db_query("SET NAMES 'UTF8'");
 	
 		//获得公司信息，见数据库，company表
 		if($company_info=company_fetchInfo()){
