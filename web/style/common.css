@@ -222,7 +222,7 @@ body#content::-webkit-scrollbar-thumb{
 	color:#FFF;
 	font-size:17px;
 }
-.contentTable thead td{
+.contentTable thead th{
 	padding:2px 7px;
 }
 .contentTable thead a{

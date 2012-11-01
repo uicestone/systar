@@ -6,6 +6,8 @@ class Frame extends SS_Controller{
 	}
 	
 	function index(){
+		$this->load->require_head=FALSE;
+		$this->load->view('head_frame');
 		$this->load->view('frame');
 	}
 }

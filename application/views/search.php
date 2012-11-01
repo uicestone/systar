@@ -1,6 +1,6 @@
 <form method="post" name="search">
 	<table class="contentTable search-bar" cellpadding="0" cellspacing="0" align="center">
-		<thead><tr><td width="80px">搜索</td><td>&nbsp;</td></tr></thead>
+		<thead><tr><th width="80px">搜索</td><td>&nbsp;</th></tr></thead>
 		<tbody>
 <?foreach($search_fields as $field_table_name => $field_ui_name){?>
 			<tr>

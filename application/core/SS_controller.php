@@ -8,11 +8,6 @@ class SS_Controller extends CI_Controller{
 
 	var $view_data=array();//传递给视图的参数
 
-	var $main_view_loaded=FALSE;
-	var $sidebar_loaded=FALSE;
-
-	var $require_export=true;//页面头尾输出开关（含menu）
-	var $require_menu=true;//顶部蓝条/菜单输出开关
 	var $as_popup_window=false;
 	var $as_controller_default_page=false;
 	var $actual_table='';//借用数据表的controller的实际主读写表，如contact为client,query为cases
@@ -83,27 +78,27 @@ class SS_Controller extends CI_Controller{
 		}
 			
 		if(in_array($class,array('frame','nav'))){
-			$this->require_menu=false;
+			$this->load->require_menu=false;
 	
 		}elseif($class=='cases'){
 			$this->actual_table='case';
 			if(($method=='add' || $method=='edit')){
 				$this->as_popup_window=FALSE;
 				if(is_posted('submit/file_document_list')){
-					$this->require_export=false;
+					$this->load->require_head=false;
 				}
 				$this->as_popup_window=FALSE;
 	
 			}elseif($method=='write'){
-				$this->require_export=false;
+				$this->load->require_head=false;
 	
 			}
 		}elseif($class=='client'){
 			if($method=='get_source_lawyer'){
-				$this->require_export=false;
+				$this->load->require_head=false;
 	
 			}elseif($method=='autocomplete'){
-				$this->require_export=false;
+				$this->load->require_head=false;
 	
 			}
 		}elseif($class=='contact'){
@@ -121,16 +116,16 @@ class SS_Controller extends CI_Controller{
 	
 		}elseif($class=='document'){
 			if(is_posted('fileSubmit')){
-				$this->require_export=false;
+				$this->load->require_head=false;
 	
 			}elseif(is_posted('createDirSubmit')){
-				$this->require_export=false;
+				$this->load->require_head=false;
 	
 			}elseif(is_posted('fav')){
-				$this->require_export=false;
+				$this->load->require_head=false;
 	
 			}elseif(is_posted('favDelete')){
-				$this->require_export=false;
+				$this->load->require_head=false;
 	
 			}elseif(($method=='view' || $method=='office_document' || $method=='instrument' || $method=='contact_file' || $method=='rules' || $method=='contract')){//根据目录ID进行定位/文件ID则进行下载
 	
@@ -157,7 +152,7 @@ class SS_Controller extends CI_Controller{
 	
 				if($folder['type']!=''){
 					$this->action="document_download";
-					$this->require_export=false;
+					$this->load->require_head=false;
 				}else{
 					$_SESSION[$class]['upID']=$folder['parent'];
 					$_SESSION[$class]['currentDir']=$folder['name'];
@@ -171,11 +166,11 @@ class SS_Controller extends CI_Controller{
 				$this->as_popup_window=true;
 	
 			}elseif($method=='score_write'){
-				$this->require_export=false;
+				$this->load->require_head=false;
 	
 			}
 		}elseif($class=='misc'){
-			$this->require_export=false;
+			$this->load->require_head=false;
 	
 		}elseif($class=='query'){
 			$this->actual_table='case';
@@ -184,40 +179,40 @@ class SS_Controller extends CI_Controller{
 	
 		}elseif($class=='schedule'){
 			if($method=='readcalendar'){
-				$this->require_export=false;
+				$this->load->require_head=false;
 	
 			}elseif($method=='writecalendar'){
-				$this->require_export=false;
+				$this->load->require_head=false;
 	
 			}elseif(($method=='list' || $method=='mine' || $method=='plan')){
 				if(is_posted('export')){
-					$this->require_export=false;
+					$this->load->require_head=false;
 				}
 	
 			}elseif($method=='listwrite'){//日志列表写入评语/审核时间
-				$this->require_export=false;
+				$this->load->require_head=false;
 	
 			}
 		}elseif($class=='user'){
 			if($method=='login'){
-				$this->require_menu=false;
+				$this->load->require_menu=false;
 	
 			}
 		}elseif($class=='affair'){
 			if($method=='switch'){
-				$this->require_export=false;
+				$this->load->require_head=false;
 	
 			}
 		}elseif($class=='exam'){
 			if($method=='save'){
 				$_G{'action'}=$class.'_list_save';
-				$this->require_export=false;
+				$this->load->require_head=false;
 	
 			}
 		}elseif($class=='student'){
 			$this->as_popup_window=FALSE;
 			if($method=='setclass'){
-				$this->require_export=false;
+				$this->load->require_head=false;
 	
 			}elseif(is_logged('student')){
 				post('student/id',$_SESSION['id']);
@@ -235,12 +230,12 @@ class SS_Controller extends CI_Controller{
 			}
 		}elseif($class=='view_score'){
 			if(is_posted('export_to_excel')){
-				$this->require_export=false;
+				$this->load->require_head=false;
 			}
 		}
 
 		if(is_posted('submit/cancel')){
-			$this->require_export=false;
+			$this->load->require_head=false;
 			$method='cancel';
 		}
 	
@@ -249,21 +244,6 @@ class SS_Controller extends CI_Controller{
 		if(is_file(APPPATH.'models/'.$class.'_model.php')){
 			$this->load->model($class.'_model',$class);
 		}
-	
-		if($this->require_export){
-			if(CONTROLLER=='nav'){
-				$this->load->view('head_nav');
-			}elseif(CONTROLLER=='frame'){
-				$this->load->view('head_frame');
-			}else{
-				$this->load->view('head');
-			}
-	
-			if($this->require_menu){
-				$this->load->view('menu');
-			}
-		}
-		
 	}
 	
 	/*

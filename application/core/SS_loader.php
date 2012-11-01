@@ -1,7 +1,47 @@
 <?php
 class SS_Loader extends CI_Loader{
+	
+	var $main_view_loaded=FALSE;
+	var $sidebar_loaded=FALSE;
+
+	var $require_head=TRUE;//页面头尾输出开关（含menu）
+	var $require_menu=TRUE;//顶部蓝条/菜单输出开关
+	var $view_data=array();//要传递给视图的参数
+	
+	var $sidebar_data='';
+	
 	function __construct(){
 		parent::__construct();
+	}
+
+	function getViewData($param=NULL){
+		if(isset($param)){
+			return $this->view_data[$param];
+		}else{
+			return $this->view_data;
+		}
+	}
+	
+	function addViewData($name,$value){
+		$this->view_data+=array($name=>$value);
+	}
+	
+	function addViewArrayData(array $array){
+		$this->view_data+=$array;
+	}
+	
+	/**
+	 * @param $return: FALSE:进入输出缓存,TRUE:作为字符串返回,'sidebar':加入边栏
+	 */
+	function view($view, array $vars = array(), $return = FALSE){
+		
+		$vars=array_merge($vars,$this->getViewData());//每次载入视图时，都将当前视图数据传递给他一次
+		
+		if($return === 'sidebar'){
+			$this->sidebar_data.=parent::view($view, $vars, TRUE);
+		}else{
+			return parent::view($view, $vars, $return);
+		}
 	}
 
 	/*
@@ -99,10 +139,10 @@ class SS_Loader extends CI_Loader{
 		$fields=$array['_field'];unset($array['_field']);
 
 		foreach($fields as $field_name=>$value){
-			echo '<td field="'.$field_name.'"'.(is_array($value) && isset($value['attrib'])?' '.$value['attrib']:'').'>'.(is_array($value)?$value['html']:$value).'</td>';
+			echo '<th field="'.$field_name.'"'.(is_array($value) && isset($value['attrib'])?' '.$value['attrib']:'').'>'.(is_array($value)?$value['html']:$value).'</td>';
 		}
 
-		echo "	</tr></thead>"."\n";
+		echo "	</th></thead>"."\n";
 
 		echo "	<tbody>"."\n";
 

@@ -3,19 +3,30 @@ function postController(){
 	global $class,$method;
 	
 	$CI=&get_instance();
-	
-	if($CI->require_export){
-		if(!$CI->main_view_loaded && is_file(APPPATH.'views/'.$class.'/'.$method.'.php')){
-			$CI->load->view("{$class}/{$method}",$CI->view_data);
+
+	//自动载入主视图
+	if(!$CI->load->main_view_loaded && is_file(APPPATH.'views/'.$class.'/'.$method.'.php')){
+		$CI->load->view("{$class}/{$method}");
+	}
+
+	//在当前准备好的输出内容基础上加上页头，页尾，并自动加载边栏
+	if($CI->load->require_head){
+
+		if($CI->load->require_menu){
+			$CI->output->prepend_output($CI->load->view('menu',array(),true));
 		}
-	
-		if(!$CI->sidebar_loaded && is_file(APPPATH.'views/'.$class.'/'.$method.'_sidebar'.'.php')){
-			$CI->load->view('sidebar_head');
-			$CI->load->view("{$class}/{$method}_sidebar");
-			$CI->load->view('sidebar_foot');
+
+		$CI->output->prepend_output($CI->load->view('head',array(),true));
+
+		if(!$CI->load->sidebar_loaded){
+			$CI->output->append_output(
+				$CI->load->view('sidebar_head',array(),true).
+				$CI->load->sidebar_data.
+				(is_file(APPPATH.'views/'.$class.'/'.$method.'_sidebar'.'.php')?$CI->load->view("{$class}/{$method}_sidebar",array(),true):'').
+				$CI->load->view('sidebar_foot',array(),true)
+			);
 		}
-		
-		$CI->load->view('foot');
+		$CI->output->append_output($CI->load->view('foot',array(),true));
 	}
 
 }

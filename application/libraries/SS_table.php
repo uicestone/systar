@@ -27,7 +27,7 @@ class SS_Table extends CI_Table{
 	/**
 	 * __get
 	 *
-	 * Allows models to access CI's loaded classes using the same
+	 * Allows tables to access CI's loaded classes using the same
 	 * syntax as controllers.
 	 *
 	 * @param	string
@@ -118,19 +118,27 @@ class SS_Table extends CI_Table{
 			$heading[]=$cell;
 		}
 		$this->set_heading($heading);
+		return $this;
 	}
 	
 	function setMenu($data,$class='right',$position='head'){
 		$this->menu[$position][$class]=$data;
+		return $this;
 	}
 	
 	function setData($data){
 		$this->data=$data;
+		return $this;
 	}
 	
-	function search(array $search_fields){
+	/**
+	 * 为表格指定可供搜索的字段
+	 */
+	function setSearch(array $search_fields){
 		$this->search_fields=$search_fields;
-		$this->viewdata->add('search_fields',$this->search_fields);
+		$this->load->addViewData('search_fields',$this->search_fields);
+		$this->load->view('search',array(),'sidebar');
+		return $this;
 	}
 	
 	function defaultOrderBy($field,$method,$field_need_convert=array()){
@@ -139,6 +147,7 @@ class SS_Table extends CI_Table{
 			'default_method'=>$method,
 			'field_need_convert'=>$field_need_convert
 		);
+		return $this;
 	}
 
 	// --------------------------------------------------------------------
@@ -220,7 +229,7 @@ class SS_Table extends CI_Table{
 		}
 		
 		if($this->surround_box){
-			$this->setMenu($this->load->view('pagination',NULL,true));
+			$this->setMenu($this->load->view('pagination',array(),true));
 		}
 
 		if(isset($this->menu['head'])){

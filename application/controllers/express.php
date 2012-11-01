@@ -4,11 +4,8 @@ class Express extends SS_controller{
 	function __construct(){
 		parent::__construct();
 	}
-
+	
 	function lists(){
-		$this->load->library('table');
-		$this->load->helper('html');
-
 		$field=array(
 			'content'=>array('title'=>'寄送内容','surround'=>array('mark'=>'a','href'=>'/express/edit/{id}'),'td'=>'class="ellipsis" title="{content}"'),
 			'time_send'=>array('title'=>'日期','td_title'=>'width="60px"','eval'=>true,'content'=>"
@@ -20,19 +17,15 @@ class Express extends SS_controller{
 			'comment'=>array('title'=>'备注')
 		);
 		
-		$this->table->setFields($field);
-		$this->table->search(array('num'=>'单号','staff.name'=>'寄送人','destination'=>'寄送地点'));
-		$this->table->defaultOrderBy('time_send','DESC');
-		$this->table->setData($this->express->getList());
+		$table=$this->table->setFields($field)
+			->setSearch(array('num'=>'单号','staff.name'=>'寄送人','destination'=>'寄送地点'))
+			->defaultOrderBy('time_send','DESC')
+			->setData($this->express->getList())
+			->generate();
+		
+		$this->load->addViewData('list',$table);
 
-		$this->viewdata->add('list',$this->table->generate());
-		
-		$this->load->view('list',$this->viewdata->get());
-		
-		$this->load->view('sidebar_head');
-		$this->load->view('search');
-		$this->load->view('sidebar_foot');
-		$this->sidebar_loaded=TRUE;
+		$this->load->view('list');
 	}
 	
 	function add(){
