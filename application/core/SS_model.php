@@ -109,8 +109,17 @@ class SS_Model extends CI_Model{
 		if (is_null(option('orderby'))){
 			option('orderby',$this->table->order_by['default_field']);
 		}
+
 		if (is_null(option('method'))){
 			option('method',$this->table->order_by['default_method']?'ASC':$this->table->order_by['default_method']);
+		}
+
+		if(is_posted('orderby') && !is_null(option('orderby')) && $_POST['orderby']==$_SESSION[CONTROLLER][METHOD]['orderby']){
+			if(option('method')=='ASC'){
+				option('method','DESC');
+			}else{
+				option('method','ASC');
+			}
 		}
 
 		if(is_posted('orderby')){
