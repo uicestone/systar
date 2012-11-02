@@ -18,7 +18,11 @@ class Express_model extends SS_Model{
 		
 		$this->session->set_userdata('last_list_action',$_SERVER['REQUEST_URI']);
 		
-		return $this->fetchTable();
+		$this->search();//为当前sql对象添加搜索条件
+		$this->pagination();//为当前sql对象添加limit从句
+		$this->orderBy();//为当前sql对象添加orderby从句
+		
+		return $this->db->get()->result_array();
 	}
 }
 ?>

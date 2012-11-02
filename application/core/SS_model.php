@@ -199,33 +199,5 @@ class SS_Model extends CI_Model{
 
 		$this->db->limit(option('list/items'),option('list/start'));
 	}
-
-	/**
-		输出一个数组，包含表格中的所有单元格数据
-		$q_data:数据库查询语句,必须包含WHERE条件,留空为WHERE 1=1
-		$field:输出表的列定义
-			array(
-				'查询结果的列名'=>'显示的列名',//此为简写
-				'查询结果的列名'=>array(
-						'title'=>'列的显示标题'
-						'surround_title'=>array(
-								'mark'=>'标签名，如 a',
-								'标签的属性名如href'=>'标签的值如http://www.google.com',
-							)标题单元格文字需要嵌套的HTML标签
-						'surround'
-						'eval'=>false，'是否'将content作为源代码运行
-						'content'=>'显示的内容，可以用如{client}来显示变量，{client}是数据库查询结果的字段名'
-					)
-			)
-	*/
-	function fetchTable(){
-
-		$this->search();//为当前sql对象添加搜索条件
-		$this->pagination();//为当前sql对象添加limit从句
-		$this->orderBy();//为当前sql对象添加orderby从句
-		
-		return $this->db->get()->result_array();
-
-	}
 }
 ?>
