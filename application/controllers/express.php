@@ -18,8 +18,6 @@ class Express extends SS_controller{
 		);
 		
 		$table=$this->table->setFields($field)
-			->setSearch(array('num'=>'单号','staff.name'=>'寄送人','destination'=>'寄送地点'))
-			->defaultOrderBy('time_send','DESC')
 			->setData($this->express->getList())
 			->generate();
 		

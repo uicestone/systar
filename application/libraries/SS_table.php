@@ -3,13 +3,6 @@ class SS_Table extends CI_Table{
 	
 	var $fields;
 	var $data;
-	var $search_fields;
-	var $order_by=array(
-		'default_field'=>'',
-		'default_method'=>'ASC',
-		'field_need_convert'=>array()
-	);
-	var $default_order_by_method;
 	var $menu=array(
 		'head'=>array(),
 		'foot'=>array()
@@ -131,25 +124,6 @@ class SS_Table extends CI_Table{
 		return $this;
 	}
 	
-	/**
-	 * 为表格指定可供搜索的字段
-	 */
-	function setSearch(array $search_fields){
-		$this->search_fields=$search_fields;
-		$this->load->addViewData('search_fields',$this->search_fields);
-		$this->load->view('search',array(),'sidebar');
-		return $this;
-	}
-	
-	function defaultOrderBy($field,$method,$field_need_convert=array()){
-		$this->order_by=array(
-			'default_field'=>$field,
-			'default_method'=>$method,
-			'field_need_convert'=>$field_need_convert
-		);
-		return $this;
-	}
-
 	// --------------------------------------------------------------------
 
 	/**

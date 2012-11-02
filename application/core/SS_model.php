@@ -4,9 +4,10 @@ class SS_Model extends CI_Model{
 		parent::__construct();
 	}
 	
-	function search(){
+	function search($query, array $search_fields){
 		
-		$search_fields=$this->table->search_fields;
+		$this->load->addViewData('search_fields',$search_fields);
+		$this->load->view('search',array(),'sidebar');
 
 		if($this->input->post('search_cancel')){
 			unset($_SESSION[CONTROLLER][METHOD]['in_search_mod']);
@@ -19,19 +20,34 @@ class SS_Model extends CI_Model{
 		}
 
 		if(option('in_search_mod')){
-			foreach($search_fields as $search_key => $ui_name){
+			/*foreach($search_fields as $search_key => $ui_name){
 				$keyword_array=preg_split('/[\s]+|,/',option('keyword/'.$search_key));
 				foreach($keyword_array as $keyword){
-					$this->db->like($search_key,$keyword);
+					$query.=" AND ";
 				}
+			}*/
+			
+			$condition_search='';
+
+			foreach(option('keyword') as $field => $keywords){
+
+				$condition=preg_split('/[\s]+|,/',option('keyword/'.$field));
+
+				$condition=' AND ('.db_implode($condition,' AND ',db_field_name($field),' LIKE ',"'%","%'",'').')';
+
+				$condition_search.=$condition;
+
 			}
+			$query.=$condition_search;
 		}
+		
+		return $query;
 	}
 
 	/*
 	 * 为查询语句加上日期条件
 	 */
-	function dateRange(&$q,$date_field,$date_field_is_timestamp=true){
+	function dateRange($query,$date_field,$date_field_is_timestamp=true){
 		if(is_posted('date_range_cancel')){
 			unset($_SESSION[CONTROLLER][METHOD]['in_date_range']);
 			unset($_SESSION[CONTROLLER][METHOD]['date_range']);
@@ -60,28 +76,12 @@ class SS_Model extends CI_Model{
 				$condition_date_range=" AND (".db_field_name($date_field).">='".option('date_range/from')."' AND ".db_field_name($date_field)."<='".option('date_range/to')."')";
 			}
 
-			$q.=$condition_date_range;
+			$query.=$condition_date_range;
 		}
-
-		$date_range_bar=
-		'<form method="post" name="date_range">'.
-			'<table class="contentTable search-bar" cellpadding="0" cellspacing="0" align="center">'.
-			'<thead><tr><td width="60px">日期</td><td>&nbsp;</td></tr></thead>'.
-			'<tbody>'.
-			'<tr><td>开始：</td><td><input type="text" name="date_from" value="'.option('date_range/from').'" class="date" /></td></tr>'.
-			'<tr><td>结束：</td><td><input type="text" name="date_to" value="'.option('date_range/to').'" class="date" /></td></tr>'.
-			'<input style="display:none;" name="date_field" value="'.$date_field.'" />';
-
-		$date_range_bar.='<tr><td colspan="2"><input type="submit" name="date_range" value="提交" />';
-		if(option('in_date_range')){
-			$date_range_bar.='<input type="submit" name="date_range_cancel" value="取消" tabindex="1" />';
-		}
-		$date_range_bar.='</td></tr></tbody></table></form>';
+		
+		return $query;
 	}
 
-	/*
-	 * TODO 添加addCondition()的描述
-	 */
 	function addCondition(&$q,$condition_array,$unset=array()){
 		foreach($unset as $changed_variable => $unset_variable){
 			if(is_posted($changed_variable)){
@@ -104,14 +104,14 @@ class SS_Model extends CI_Model{
 	/*
 	 * 为sql语句添加排序依据，无反回值
 	 */
-	function orderBy(){
+	function orderBy($query,$default_field,$default_method='ASC',array $field_need_convert=array()){
 		
 		if (is_null(option('orderby'))){
-			option('orderby',$this->table->order_by['default_field']);
+			option('orderby',$default_field);
 		}
 
 		if (is_null(option('method'))){
-			option('method',$this->table->order_by['default_method']?'ASC':$this->table->order_by['default_method']);
+			option('method',$default_method);
 		}
 
 		if(is_posted('orderby') && !is_null(option('orderby')) && $_POST['orderby']==$_SESSION[CONTROLLER][METHOD]['orderby']){
@@ -129,28 +129,29 @@ class SS_Model extends CI_Model{
 			option('method',$this->input->post('method'));
 		}
 
-		$need_convert=in_array(option('orderby'),$this->table->order_by['field_need_convert']);
+		$need_convert=in_array(option('orderby'),$field_need_convert);
 
-		$this->db->order_by(
+		$query.=' ORDER BY'.
 			($need_convert?'convert(':'').
 			db_field_name(option('orderby')).
 			($need_convert?' USING GBK) ':' ').
-			option('method'));
+			option('method');
+		
+		return $query;
 	}
 
 
-	function pagination($query_rows=NULL){
-		if(isset($query_rows)){
+	function pagination($query,$q_rows=NULL){
+		/*if(isset($query_rows)){
 			$rows=db_fetch_field($query_rows);
 
 		}else{
 			$db=clone $this->db;
 			$rows=$db->count_all_results();
-		}
+		}*/
 
-/*
- 		if(is_null($q_rows)){
-			$q_rows=$q;
+		if(is_null($q_rows)){
+			$q_rows=$query;
 			if(preg_match('/GROUP BY[^()]*?[ORDER BY].*?$/',$q_rows)){
 				$q_rows="SELECT COUNT(*) AS number FROM (".$q_rows.")query";
 			}else{
@@ -161,7 +162,6 @@ class SS_Model extends CI_Model{
 		}
 
 		$rows=db_fetch_field($q_rows);
-*/
 		if(option('list/start')>$rows || $rows==0){
 			//已越界或空列表时，列表起点归零
 			option('list/start',0);
@@ -197,7 +197,8 @@ class SS_Model extends CI_Model{
 		
 		option('list/rows',$rows);
 
-		$this->db->limit(option('list/items'),option('list/start'));
+		$query.=' LIMIT '.option('list/start').','.(option('list/items'));
+		return $query;
 	}
 }
 ?>
