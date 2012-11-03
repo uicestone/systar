@@ -7,8 +7,43 @@ class Client extends SS_Controller{
 	function potential(){
 		$this->lists('potential');
 	}
+        
+        function lists($method=NULL){
+            if(is_posted('delete')){
+                    $_POST=array_trim($_POST);
+                    $this->client->delete($_POST['client_check']);
+            }
+            $field=array(
+                    'abbreviation'=>array(
+                        'title'=>'名称',
+                        'content'=>'<input type="checkbox" name="client_check[{id}]" /><a href="javascript:showWindow(\'client/edit/{id}\')" title="{name}">{abbreviation}</a>',
+                        'td'=>'class="ellipsis"'
+                    ),
+                    'phone'=>array(
+                        'title'=>'电话',
+                        'td'=>'class="ellipsis" title="{phone}"'
+                    ),
+                    'address'=>array(
+                        'title'=>'地址',
+                        'td_title'=>'width="240px"',
+                        'td'=>'class="ellipsis" title="{address}"'
+                    ),
+                    'comment'=>array(
+                        'title'=>'备注',
+                        'td'=>'class="ellipsis" title="{comment}"',
+                        'eval'=>true,
+                        'content'=>"return str_getSummary('{comment}',50);"
+                    )
+            );
+            $table=$this->table->setFields($field)
+                    ->setMenu('<input type="submit" name="delete" value="删除" />','left')
+                    ->setData($this->client->getList($method))
+                    ->generate();
+            $this->load->addViewData('list',$table);
+            $this->load->view('list');            
+        }
 	
-	function lists($method=NULL){
+	function _lists($method=NULL){
 		
 		if(is_posted('delete')){
 			$_POST=array_trim($_POST);
