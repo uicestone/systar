@@ -4,8 +4,8 @@ class SS_Table extends CI_Table{
 	var $fields;
 	var $data;
 	var $menu=array(
-		'head'=>array(),
-		'foot'=>array()
+		'head'=>NULL,
+		'foot'=>NULL
 	);
 	var $surround_form=false;
 	var $surround_box=true;
@@ -37,9 +37,9 @@ class SS_Table extends CI_Table{
 	 */
 	protected function _parseAttributesToArray($attributes_string){
 		$attributes_array=array();
-		preg_match('/\S+\=".*"/',$attributes_string,$attributes);
-		foreach($attributes as $attribute){
-			preg_match('/(\S+)\="(.*)"/',$attribute,$match);
+		preg_match_all('/(\S+\="[\s\S]*?")/',$attributes_string,$attributes);
+		foreach($attributes[0] as $attribute){
+			preg_match('/(\S+)\="([\s\S]*?)"/',$attribute,$match);
 			$attribute_name=$match[1];
 			$attribute_value=$match[2];
 			$attributes_array[$attribute_name]=$attribute_value;
@@ -48,23 +48,23 @@ class SS_Table extends CI_Table{
 	}
 	
 	/**
-	 * 根据$fields设置，将$this->data数据导入$heading和$rows
+	 * 根据$fields设置，将$this->data数据导入$rows
 	 */
 	protected function _init(){
 		
-		if(!$this->data){
-			show_error('no data to init, we need to run setData() before _init() - uice 2012/10/31');
+		if(is_null($this->data)){
+			show_error('no data to init, we need to run setData() before _init() - uice 2012/10/31 '.__FILE__.':'.__LINE__);
 		}
 		
-		if(!$this->fields){
-			show_error('i don\'t know how to display data, run setFields() before _init - uice 2012/10/31');
+		if(is_null($this->fields)){
+			show_error('i don\'t know how to display data, run setFields() before _init - uice 2012/10/31 '.__FILE__.':'.__LINE__);
 		}
 		
 		foreach($this->data as $row_data){
 			$row=array();
 			foreach($this->fields as $field_name => $field){
 				if(!is_array($field)){
-					show_error('field option must be an array now, old style has expired -  uice 2012/10/31');
+					show_error('field option must be an array now, old style has expired -  uice 2012/10/31 '.__FILE__.':'.__LINE__);
 				}else{
 					$str=isset($field['content']) ? $field['content'] : (isset($row_data[$field_name])?$row_data[$field_name]:NULL);
 					$str=variableReplace($str,$row_data);
@@ -88,8 +88,26 @@ class SS_Table extends CI_Table{
 			}
 			$this->add_row($row);
 		}
+		//print_r($this->rows);
 	}
 
+	/**
+		$field:输出表的列定义
+			array(
+				'查询结果的列名'=>array(
+						'title'=>'列的显示标题'
+						'surround_title'=>array(
+								'mark'=>'标签名，如 a',
+								'标签的属性名如href'=>'标签的值如http://www.google.com',
+							)标题单元格文字需要嵌套的HTML标签
+						'surround'=>同上
+						'td_title'=>HTML String	该列标题单元格的html属性字符串
+						'td'=>HTML String 该列所有内容单元格的html属性字符串
+						'eval'=>false，'是否'将content作为源代码运行
+						'content'=>'显示的内容，可以用如{client}来显示变量，{client}是数据库查询结果的字段名'
+					)
+			)
+	*/
 	function setFields(array $fields){
 		$this->fields=$fields;
 		$heading=array();
@@ -104,7 +122,7 @@ class SS_Table extends CI_Table{
 			if(isset($field['surround_title'])){
 				$cell['data']=wrap($cell['data'],$v['surround_title']);
 				
-			}elseif(!isset($v['orderby']) || $v['orderby']){
+			}elseif(!isset($field['orderby']) || $field['orderby']){
 				$cell['data']=wrap($cell['data'],array('mark'=>'a','href'=>"javascript:postOrderby('".$field_name."')"));
 			}
 			
@@ -114,8 +132,12 @@ class SS_Table extends CI_Table{
 		return $this;
 	}
 	
-	function setMenu($data,$class='right',$position='head'){
-		$this->menu[$position][$class]=$data;
+	function setMenu($html,$class='right',$position='head'){
+		if(!isset($this->menu[$position][$class])){
+			$this->menu[$position][$class]='';
+		}
+		
+		$this->menu[$position][$class].=$html;
 		return $this;
 	}
 	
@@ -336,6 +358,34 @@ class SS_Table extends CI_Table{
 
 		$out .= $this->template['table_close'];
 
+		if($this->surround_box){
+			$this->setMenu($this->load->view('pagination',array(),true));
+		}
+
+		if($this->surround_box){
+			$out.='</div>'."\n";
+		}
+		
+		if(isset($this->menu['foot'])){
+			$out.='<div class="contentTableMenu"';
+
+			foreach($this->attributes as $attribute_name => $attribute_value){
+				$out.=' '.$attribute_name.'="'.$attribute_value.'"';
+			}
+
+			$out.='>'."\n";
+			
+			foreach($this->menu['foot'] as $menu_div_class=>$menu_data){
+				$out.='<div class="'.$menu_div_class.'">'.$menu_data.'</div>';
+			}
+			
+			$out.='</div>'."\n";
+		}
+
+		if($this->surround_form){
+			$out.='</form>'."\n";
+		}
+		
 		// Clear table class properties before generating the table
 		$this->clear();
 

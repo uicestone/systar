@@ -45,7 +45,7 @@ class Express extends SS_controller{
 		
 		if(is_posted('submit')){
 			$submitable=true;
-			$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$_POST);
+			$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$this->input->post());
 			
 			//将寄件人姓名转换成staff.id
 			$staff_check=$this->staff->check(post('express_extra/sender_name'),'array');
