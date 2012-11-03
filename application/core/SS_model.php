@@ -6,9 +6,6 @@ class SS_Model extends CI_Model{
 	
 	function search($query, array $search_fields){
 		
-		$this->load->addViewData('search_fields',$search_fields);
-		$this->load->view('search',array(),'sidebar');
-
 		if($this->input->post('search_cancel')){
 			unset($_SESSION[CONTROLLER][METHOD]['in_search_mod']);
 			unset($_SESSION[CONTROLLER][METHOD]['keyword']);
@@ -41,6 +38,9 @@ class SS_Model extends CI_Model{
 			$query.=$condition_search;
 		}
 		
+		$this->load->addViewData('search_fields',$search_fields);
+		$this->load->view('search',array(),'sidebar');
+
 		return $query;
 	}
 
