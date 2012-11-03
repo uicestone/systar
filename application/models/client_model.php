@@ -266,9 +266,9 @@ class Client_model extends SS_Model{
 		
 		return $client_array;
 	}
-        
-        function getList($method=NULL){
-  		$q="
+
+	function getList($method=NULL){
+		$q="
 			SELECT client.id,client.name,client.abbreviation,client.time,client.comment,
 				phone.content AS phone,address.content AS address
 			FROM `client` 
@@ -286,6 +286,7 @@ class Client_model extends SS_Model{
 			WHERE display=1 AND classification='客户'
 		";
 		$condition='';
+
 		if($method=='potential'){
 			$condition.=" AND type='潜在客户'";
 		
@@ -293,16 +294,17 @@ class Client_model extends SS_Model{
 			$condition.="
 				AND type='成交客户'
 				AND client.id IN (SELECT client FROM case_client WHERE `case` IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."'))
-		";
+			";
 		}
-                $this->session->set_userdata('last_list_action',$_SERVER['REQUEST_URI']);
-                $search_fields=array('name'=>'姓名','work_for'=>'单位','address'=>'地址','comment'=>'备注');                
-                $condition=$this->search($condition,$search_fields);
-                $condition=$this->orderBy($condition,'time','DESC',array('abbreviation','type','address','comment'));
-                $q.=$condition;
-                $q_rows.=$condition;
-                $this->pagination($q,$q_rows);
-                return $this->db->query($q)->result_array();
-        }
+		
+		$this->session->set_userdata('last_list_action',$_SERVER['REQUEST_URI']);
+		
+		$condition=$this->search($condition,array('name'=>'姓名','work_for'=>'单位','address'=>'地址','comment'=>'备注'));
+		$condition=$this->orderBy($condition,'time','DESC',array('abbreviation','type','address','comment'));
+		$q.=$condition;
+		$q_rows.=$condition;
+		$q=$this->pagination($q,$q_rows);
+		return $this->db->query($q)->result_array();
+}
 }
 ?>
