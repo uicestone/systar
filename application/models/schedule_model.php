@@ -108,5 +108,54 @@ class Schedule_model extends SS_Model{
 		
 		return db_fetch_field($q);
 	}
+	
+	function getList($para=NULL){
+		$q="
+			SELECT
+				schedule.id,schedule.name,schedule.content,schedule.experience, schedule.time_start,schedule.hours_own,schedule.hours_checked,schedule.comment,schedule.place,
+				case.id AS `case`,case.name AS case_name,
+				staff.name AS staff_name,staff.id AS staff,
+				if(MAX(case_lawyer.role)='督办合伙人',1,0) AS review_permission
+		
+				#imperfect 2012/7/13 MAX ENUM排序依据为字符串，并非INDEX
+		
+			FROM schedule INNER JOIN `case` ON schedule.case=case.id
+				INNER JOIN case_lawyer ON case.id=case_lawyer.case
+				LEFT JOIN staff ON staff.id = schedule.uid
+			WHERE case_lawyer.lawyer='".$_SESSION['id']."'
+				AND schedule.display=1 AND schedule.completed=".(got('plan')?'0':'1')."
+		";
+		
+		$condition='';
+		if($para=='mine'){
+			$condition.=" AND schedule.`uid`='".$_SESSION['id']."'";
+		}else{
+			if(got('staff')){
+				$condition.=" AND schedule.`uid`='".intval($_GET['staff'])."'";
+			}
+		}
+
+		if(got('case')){
+			$condition.=" AND schedule.`case`='".intval($_GET['case'])."'";
+		}
+			
+		if(got('client')){
+			$condition.=" AND schedule.client='".intval($_GET['client'])."'";
+		}
+									
+		$q.=$condition;
+		$this->session->set_userdata('last_list_action',$_SERVER['REQUEST_URI']);
+		$q=$this->search($q,array('case.name'=>'案件','staff.name'=>'人员'));
+		$q=$this->dateRange($q,'time_start');
+		$q.="
+			GROUP BY schedule.id
+			ORDER BY FROM_UNIXTIME(time_start,'%Y%m%d') ".(got('plan')?'ASC':'DESC').",schedule.uid,time_start ".(got('plan')?'ASC':'DESC')."
+		";
+		if(!is_posted('export')){
+		    $q=$this->pagination($q);
+		}
+
+		return $this->db->query($q)->result_array();
+	}
 }
 ?>

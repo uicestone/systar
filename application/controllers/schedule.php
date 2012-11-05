@@ -49,58 +49,6 @@ class Schedule extends SS_controller{
 			//在列表中批量审核所选日志
 			$this->schedule->reviewSelected();
 		}
-		
-		$q="
-			SELECT
-				schedule.id,schedule.name,schedule.content,schedule.experience, schedule.time_start,schedule.hours_own,schedule.hours_checked,schedule.comment,schedule.place,
-				case.id AS `case`,case.name AS case_name,
-				staff.name AS staff_name,staff.id AS staff,
-				if(MAX(case_lawyer.role)='督办合伙人',1,0) AS review_permission
-		
-				#imperfect 2012/7/13 MAX ENUM排序依据为字符串，并非INDEX
-		
-			FROM schedule INNER JOIN `case` ON schedule.case=case.id
-				INNER JOIN case_lawyer ON case.id=case_lawyer.case
-				LEFT JOIN staff ON staff.id = schedule.uid
-			WHERE case_lawyer.lawyer='".$_SESSION['id']."'
-				AND schedule.display=1 AND schedule.completed=".(got('plan')?'0':'1')."
-		";
-		
-		//TODO schedule_list列表效率
-		$q_rows="
-			SELECT COUNT(schedule.id) 
-			FROM schedule
-			WHERE 
-		";
-		
-		$condition='';
-		if($para=='mine'){
-			$condition.=" AND schedule.`uid`='".$_SESSION['id']."'";
-		}else{
-			if(got('staff')){
-				$condition.=" AND schedule.`uid`='".intval($_GET['staff'])."'";
-			}
-		}
-
-		if(got('case')){
-			$condition.=" AND schedule.`case`='".intval($_GET['case'])."'";
-		}
-			
-		if(got('client')){
-			$condition.=" AND schedule.client='".intval($_GET['client'])."'";
-		}
-									
-		$q.=$condition;
-		
-		$this->view_data['search_bar']=$this->processSearch($q,array('case.name'=>'案件','staff.name'=>'人员'));
-		
-		$this->view_data['date_range_bar']=$this->dateRange($q,'time_start');
-		
-		$q.="
-			GROUP BY schedule.id
-			ORDER BY FROM_UNIXTIME(time_start,'%Y%m%d') ".(got('plan')?'ASC':'DESC').",schedule.uid,time_start ".(got('plan')?'ASC':'DESC')."
-		";
-		
 		$field=array(
 			'checkbox'=>array('title'=>'<input type="checkbox" name="schedule_checkall">','content'=>'<input type="checkbox" name="schedule_check[{id}]" >','td_title'=>' width=38px','orderby'=>false),
 		
@@ -145,11 +93,9 @@ class Schedule extends SS_controller{
 				
 			",'orderby'=>false)
 		);
-		
 		if($para=='mine'){
 			unset($field['staff_name']);
-		}
-		
+		}		
 		if(is_posted('export')){
 			$field=array(
 				'name'=>array('title'=>'标题'),
@@ -160,13 +106,11 @@ class Schedule extends SS_controller{
 				'hours_own'=>array('title'=>'自报小时'),
 				'staff_name'=>array('title'=>'律师')
 			);
-		}else{
-			$listLocator=$this->processMultiPage($q);
-		}
-		
-		$this->view_data['table']=$this->fetchTableArray($q,$field);
-		
+		}		
+		$this->table->setFields($field)
+			->setData($this->schedule->getList($para));
 		if(is_posted('export')){
+			
 			$this->load->model('document_model','document');
 
 			require APPPATH.'third_party/PHPWord/PHPWord.php';
@@ -179,7 +123,7 @@ class Schedule extends SS_controller{
 			
 			$table = $section->addTable('schedule_billdoc');
 			
-			foreach($this->view_data['table'] as $line_name=>$line){
+			foreach($this->table->data as $line_name=>$line){
 				$table->addRow();
 				foreach($line as $cell_name=>$cell){
 					$table->addCell(1750)->addText(strip_tags($cell['html']));
@@ -200,26 +144,11 @@ class Schedule extends SS_controller{
 			$this->main_view_loaded=TRUE;
 		
 		}else{
-			$this->view_data['menu']=array(
-			'head'=>'<div class="left">'.
-						(is_logged('partner')?'<input type="submit" name="review_selected" value="审核" />':'').
-						'<input type="submit" name="export" value="导出" />'.
-					'</div>'.
-					'<div class="right">'.
-						$listLocator.
-					'</div>'
-			);
-			
-			$_SESSION['last_list_action']=$_SERVER['REQUEST_URI'];
-			
-			$this->load->view('schedule/lists',$this->view_data);
-			$this->main_view_loaded=TRUE;
-			
-			$this->load->view('sidebar_head');
-			$this->load->view('schedule/lists_sidebar');
-			$this->load->view('sidebar_foot');
-			$this->sidebar_loaded=TRUE;
-		}
+			$this->table->setMenu((is_logged('partner')?'<input type="submit" name="review_selected" value="审核" />':'').'<input type="submit" name="export" value="导出" />','left');								
+			$tableView=$this->table->generate();
+			$this->load->addViewData('list',$tableView);
+			$this->load->view('schedule/list');
+		}		
 	}
 	
 	function add(){
