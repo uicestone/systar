@@ -19,7 +19,12 @@ class SS_input extends CI_Input{
 			$post=parent::post($index_array[0], $xss_clean);
 			
 			for($i=1;$i<count($index_array);$i++){
-				$post=$post[$index_array[$i]];
+				if(isset($post[$index_array[$i]])){
+					$post=$post[$index_array[$i]];
+				}else{
+					return false;
+				}
+				
 			}
 			
 			return $post;

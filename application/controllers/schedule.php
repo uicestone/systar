@@ -45,12 +45,12 @@ class Schedule extends SS_controller{
 	}
 	
 	function lists($para=NULL){
-		if(is_posted('review_selected') && is_logged('partner')){
+		if($this->input->post('review_selected') && is_logged('partner')){
 			//在列表中批量审核所选日志
 			$this->schedule->reviewSelected();
 		}
 		$field=array(
-			'checkbox'=>array('title'=>'<input type="checkbox" name="schedule_checkall">','content'=>'<input type="checkbox" name="schedule_check[{id}]" >','td_title'=>' width=38px','orderby'=>false),
+			'checkbox'=>array('title'=>'<input type="checkbox" name="schedule_checkall">','content'=>'<input type="checkbox" name="schedule_check[{id}]" >','td_title'=>' width="38px"','orderby'=>false),
 		
 			'case.id'=>array('title'=>'案件','content'=>'{case_name}<p style="font-size:11px;text-align:right;"><a href="/schedule/lists?case={case}">本案日志</a> <a href="/cases/edit/{case}">案件</a></p>','orderby'=>false),
 		
@@ -96,7 +96,7 @@ class Schedule extends SS_controller{
 		if($para=='mine'){
 			unset($field['staff_name']);
 		}		
-		if(is_posted('export')){
+		if($this->input->post('export')){
 			$field=array(
 				'name'=>array('title'=>'标题'),
 				'content'=>array('title'=>'内容'),
@@ -106,9 +106,10 @@ class Schedule extends SS_controller{
 				'hours_own'=>array('title'=>'自报小时'),
 				'staff_name'=>array('title'=>'律师')
 			);
-		}		
+		}
 		$this->table->setFields($field)
 			->setData($this->schedule->getList($para));
+
 		if(is_posted('export')){
 			
 			$this->load->model('document_model','document');
@@ -140,17 +141,15 @@ class Schedule extends SS_controller{
 			$this->document->exportHead($filename);
 
 			$objWriter->save('php://output');
-
-			$this->main_view_loaded=TRUE;
 		
 		}else{
 			$this->table->setMenu((is_logged('partner')?'<input type="submit" name="review_selected" value="审核" />':'').'<input type="submit" name="export" value="导出" />','left');								
 			$tableView=$this->table->generate();
 			$this->load->addViewData('list',$tableView);
-			$this->load->view('schedule/list');
+			$this->load->view('list');$this->load->main_view_loaded=true;
 		}		
 	}
-	
+
 	function add(){
 		$this->edit();
 	}
