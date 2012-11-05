@@ -5,37 +5,11 @@ class Contact extends SS_controller{
 	}
 	
 	function lists(){
-		$this->load->model('client_model','client');
-		
+		$this->load->model('client_model','client');	    
 		if(is_posted('delete')){
 			$_POST=array_trim($_POST);
-			client_delete($_POST['contact_check']);
+			$this->client->deleteContact($_POST['contact_check']);
 		}
-		
-		$q="SELECT client.id,client.name,client.abbreviation,client.work_for,client.position,client.comment,
-				phone.content AS phone,address.content AS address
-			FROM `client` LEFT JOIN (
-				SELECT client,GROUP_CONCAT(content) AS content FROM client_contact WHERE type IN('手机','固定电话') GROUP BY client
-			)phone ON client.id=phone.client
-			LEFT JOIN (
-				SELECT client,GROUP_CONCAT(content) AS content FROM client_contact WHERE type='地址' GROUP BY client
-			)address ON client.id=address.client
-		
-		 WHERE display=1";
-		
-		if(got('opposite')){
-			$q.=" AND classification='相对方'";
-		
-		}else{
-			$q.=" AND classification='联系人'";
-		}
-		
-		$search_bar=$this->processSearch($q,array('name'=>'姓名','type'=>'类型','work_for'=>'单位','address'=>'地址'));
-		
-		$this->processOrderby($q,'time','DESC',array('abbreviation','address','comment'));
-		
-		$listLocator=$this->processMultiPage($q);
-		
 		$field=array(
 			'abbreviation'=>array('title'=>'名称','content'=>'<input type="checkbox" name="contact_check[{id}]" />
 			<a href="javascript:showWindow(\'contact?edit={id}\')" title="{name}">{abbreviation}</a>',
@@ -52,22 +26,12 @@ class Contact extends SS_controller{
 			",
 			)
 		);
-		$menu=array(
-		'head'=>'<div class="left">'.
-					'<input type="submit" name="delete" value="删除" />'.
-				'</div>'.
-				'<div class="right">'.
-					$listLocator.
-				'</div>'
-		);
-		
-		$_SESSION['last_list_action']=$_SERVER['REQUEST_URI'];
-		
-		$table=$this->fetchTableArray($q, $field);
-		
-		$this->view_data+=compact('table','menu');
-		
-		$this->load->view('lists',$this->view_data);
+		$table=$this->table->setFields($field)
+			->setMenu('<input type="submit" name="delete" value="删除" />','left')
+			->setData($this->contact->getList())
+			->generate();
+		$this->load->addViewData('list',$table);
+		$this->load->view('list');
 	}
 
 	function add(){
