@@ -4,7 +4,7 @@ class Document extends SS_controller{
 		parent::__construct();
 	}
 	
-	function index(){
+	function lists(){
 		if(!sessioned('currentPath',NULL,false))
 			$_SESSION['document']['currentPath']=$this->config->item('document_root');
 		
@@ -16,19 +16,6 @@ class Document extends SS_controller{
 			
 		if(!sessioned('upID',NULL,false))
 			$_SESSION['document']['upID']='';
-		
-		$q="SELECT *
-			FROM `document` 
-			WHERE 1=1 ";
-		
-		$search_bar=$this->processSearch($q,array('name'=>'文件名'));
-		
-		$q.=(option('in_search_mod')?'':"AND parent='".$_SESSION['document']['currentDirID']."'").'';
-		
-		$this->processOrderby($q,'type','ASC');
-			
-		$listLocator=$this->processMultiPage($q);
-		
 		$field=option('in_search_mod')?
 			array(
 				'checkbox'=>array('title'=>'','content'=>'<input type="checkbox" name="document[{id}]" >','td_title'=>'width=38px'),
@@ -48,7 +35,7 @@ class Document extends SS_controller{
 					'td_title'=>'width="70px"'
 				),
 				'name'=>array('title'=>'文件名','td_title'=>'width="150px"','surround'=>array('mark'=>'a','href'=>'/document?view={id}')),
-				'path'=>'路径','comment'=>'备注'
+				'path'=>array('title'=>'路径'),'comment'=>array('title'=>'备注')
 			)
 			:
 			array(
@@ -70,25 +57,16 @@ class Document extends SS_controller{
 				),
 				'name'=>array('title'=>'文件名','td_title'=>'width="150px"','surround'=>array('mark'=>'a','href'=>'/document?view={id}')),
 				'username'=>array('title'=>'上传者','td_title'=>'width="70px"'),
-				'comment'=>'备注'
+				'comment'=>array('title'=>'备注')
 			);
-		
-		$menu=array(
-			'head'=>'<div class="left">'.
-						'<input type="submit" name="fav" value="收藏" />'.
-						($_SESSION['document']['currentDirID']>1?"<button type='button' name='view' value='0' onclick='redirectPara(this)'>顶级</button><button type='button' name='view' value='".$_SESSION['document']['upID']."' onclick='redirectPara(this)'>上级</button>":'').
-						(option('in_search_mod')?'':$_SESSION['document']['currentPath']).
-					'</div>'.
-					'<div class="right">'.
-						$listLocator.
-					'</div>',
-		);
-		
-		$table=$this->fetchTableArray($q, $field);
-		
-		$this->view_data+=compact('table','menu');
-		
-		$this->load->view('lists',$this->view_data);
+		$table=$this->table->setFields($field)
+			->setMenu('<input type="submit" name="fav" value="收藏" />'.
+					($_SESSION['document']['currentDirID']>1?"<button type='button' name='view' value='0' onclick='redirectPara(this)'>顶级</button><button type='button' name='view' value='".$_SESSION['document']['upID']."' onclick='redirectPara(this)'>上级</button>":'').
+					(option('in_search_mod')?'':$_SESSION['document']['currentPath']),'left')
+			->setData($this->document->getList())
+			->generate();
+		$this->load->addViewData('list',$table);
+		$this->load->view('list');
 	}
 
 	function createDir(){
@@ -178,71 +156,6 @@ class Document extends SS_controller{
 			db_insert('document',$fileInfo,false,$db_replace);
 			redirect('document');
 		}
-	}
-	
-	function lists(){
-		if(!sessioned('currentPath',NULL,false))
-			$_SESSION['document']['currentPath']=$this->config->item('document_root');
-		
-		if(!sessioned('currentDir',NULL,false))
-			$_SESSION['document']['currentDir']='root';
-			
-		if(!sessioned('currentDirID',NULL,false))
-			$_SESSION['document']['currentDirID']=1;
-			
-		if(!sessioned('upID',NULL,false))
-			$_SESSION['document']['upID']='';
-		$field=option('in_search_mod')?
-			array(
-				'checkbox'=>array('title'=>'','content'=>'<input type="checkbox" name="document[{id}]" >','td_title'=>'width=38px'),
-				'type'=>array(
-					'title'=>'类型',
-					'eval'=>true,
-					'content'=>"
-						if('{type}'==''){
-							\$image='folder';
-						}elseif(is_file('web/images/file_type/{type}.png')){
-							\$image='{type}';
-						}else{
-							\$image='unknown';
-						}
-						return '<img src=\"images/file_type/'.\$image.'.png\" alt=\"{type}\" />';
-					",
-					'td_title'=>'width="70px"'
-				),
-				'name'=>array('title'=>'文件名','td_title'=>'width="150px"','surround'=>array('mark'=>'a','href'=>'/document?view={id}')),
-				'path'=>array('path'=>'路径'),'comment'=>array('comment'=>'备注')
-			)
-			:
-			array(
-				'checkbox'=>array('title'=>'','content'=>'<input type="checkbox" name="document[{id}]" >','td_title'=>' width=38px'),
-				'type'=>array(
-					'title'=>'类型',
-					'eval'=>true,
-					'content'=>"
-						if('{type}'==''){
-							\$image='folder';
-						}elseif(is_file('images/file_type/{type}.png')){
-							\$image='{type}';
-						}else{
-							\$image='unknown';
-						}
-						return '<img src=\"/images/file_type/'.\$image.'.png\" alt=\"{type}\" />';
-					",
-					'td_title'=>'width="55px"'
-				),
-				'name'=>array('title'=>'文件名','td_title'=>'width="150px"','surround'=>array('mark'=>'a','href'=>'/document?view={id}')),
-				'username'=>array('title'=>'上传者','td_title'=>'width="70px"'),
-				'comment'=>array('comment'=>'备注')
-			);
-		$table=$this->table->setFields($field)
-			->setMenu('<input type="submit" name="fav" value="收藏" />'.
-					($_SESSION['document']['currentDirID']>1?"<button type='button' name='view' value='0' onclick='redirectPara(this)'>顶级</button><button type='button' name='view' value='".$_SESSION['document']['upID']."' onclick='redirectPara(this)'>上级</button>":'').
-					(option('in_search_mod')?'':$_SESSION['document']['currentPath']),'left')
-			->setData($this->document->getList())
-			->generate();
-		$this->load->addViewData('list',$table);
-		$this->load->view('list');
 	}
 }
 ?>
