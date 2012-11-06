@@ -1,6 +1,6 @@
-<? $this->arrayExportTable($table_news,NULL,false,false)?>
-<? foreach($sidebar_table as $sidebar_table_single){?>
+<?=$table_news?>
+<? foreach($sidebar_tables as $sidebar_table){?>
 <div>
-<? $this->arrayExportTable($sidebar_table_single,NULL,false,false)?>
+<?=$this->table->generate($sidebar_table)?>
 </div>
 <? }?>

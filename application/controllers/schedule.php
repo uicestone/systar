@@ -8,12 +8,13 @@ class Schedule extends SS_controller{
 	
 	function calendar(){
 		$this->load->model('achievement_model','achievement');
+		$this->load->model('company_model','company');
+		$this->load->model('news_model','news');
 		
-		$q_news="SELECT * FROM `news` WHERE display=1 AND company='".$this->config->item('company')."' ORDER BY time DESC LIMIT 5";
 		$field_news=array(
 			'title'=>array(
 				'title'=>'公告 <a href="news" style="font-size:14px">更多</a>',
-				'surround'=>array('mark'=>'a','href'=>'javascript:showWindow(\'news?edit={id}\')'),
+				'surround'=>array('mark'=>'a','href'=>'javascript:showWindow(\'news/edit/{id}\')'),
 				'eval'=>true,
 				'content'=>"
 					\$return='{title}';
@@ -26,14 +27,17 @@ class Schedule extends SS_controller{
 			),
 		);
 		
-		$table_news=$this->fetchTableArray($q_news, $field_news);
+		$table_news=$this->table->setFields($field_news)
+			->setData($this->news->getList(5))
+			->wrapBox(false)
+			->generate();
 		
+		$this->load->addViewData('table_news',$table_news);
+
 		$sidebar_table=array();
 		$sidebar_function=$this->config->item('syscode').'_'.'schedule_side_table';
-
-		$sidebar_table=$this->company->$sidebar_function();
-				
-		$this->view_data=compact('table_news','sidebar_table');
+		$sidebar_tables=$this->company->$sidebar_function();
+		$this->load->addViewData('sidebar_tables',$sidebar_tables);
 	}
 	
 	function mine(){

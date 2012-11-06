@@ -26,11 +26,9 @@ class Company_model extends SS_Model{
 	}
 	
 	function starsys_schedule_side_table(){
-		$CI=&get_instance();
-		
 		$sidebar_table=array();
 		$sidebar_table[]=array(
-			'_field'=>array(
+			'_heading'=>array(
 				'field'=>'本年',
 				'total'=>'全所',
 				'my'=>'主办',
@@ -39,65 +37,65 @@ class Company_model extends SS_Model{
 			
 			'contracted'=>array(
 				'field'=>'签约',
-				'total'=>$CI->achievement->sum('contracted'),
-				'my'=>$CI->achievement->sum('contracted','my'),
-				'contribute'=>$CI->achievement->sum('contracted','contribute')
+				'total'=>$this->achievement->sum('contracted'),
+				'my'=>$this->achievement->sum('contracted','my'),
+				'contribute'=>$this->achievement->sum('contracted','contribute')
 			),
 			
 			'estimated'=>array(
 				'field'=>'预计',
-				'total'=>$CI->achievement->sum('estimated'),
-				'my'=>$CI->achievement->sum('estimated','my'),
-				'contribute'=>$CI->achievement->sum('estimated','contribute')
+				'total'=>$this->achievement->sum('estimated'),
+				'my'=>$this->achievement->sum('estimated','my'),
+				'contribute'=>$this->achievement->sum('estimated','contribute')
 			),
 			
 			'collected'=>array(
 				'field'=>'到账',
-				'total'=>$CI->achievement->sum('collected'),
-				'my'=>$CI->achievement->sum('collected','my'),
-				'contribute'=>$CI->achievement->sum('collected','contribute')
+				'total'=>$this->achievement->sum('collected'),
+				'my'=>$this->achievement->sum('collected','my'),
+				'contribute'=>$this->achievement->sum('collected','contribute')
 			)
 		);
 		
-		$month_start_timestamp=strtotime(date('Y-m',$CI->config->item('timestamp')).'-1');
-		$month_end_timestamp=mktime(0,0,0,date('m',$CI->config->item('timestamp'))+1,1,date('Y',$CI->config->item('timestamp')));
+		$month_start_timestamp=strtotime(date('Y-m',$this->config->item('timestamp')).'-1');
+		$month_end_timestamp=mktime(0,0,0,date('m',$this->config->item('timestamp'))+1,1,date('Y',$this->config->item('timestamp')));
 		
 		$sidebar_table[]=array(
-			'_field'=>array(
-				'field'=>'本月',
-				'total'=>'全所',
-				'my'=>'主办',
-				'contribute'=>'贡献'
+			'_heading'=>array(
+				'本月',
+				'全所',
+				'主办',
+				'贡献'
 			),
 			
 			'contracted'=>array(
-				'field'=>'签约',
-				'total'=>$CI->achievement->sum('contracted','total',$month_start_timestamp),
-				'my'=>$CI->achievement->sum('contracted','my',$month_start_timestamp),
-				'contribute'=>$CI->achievement->sum('contracted','contribute',$month_start_timestamp)
+				'签约',
+				$this->achievement->sum('contracted','total',$month_start_timestamp),
+				$this->achievement->sum('contracted','my',$month_start_timestamp),
+				$this->achievement->sum('contracted','contribute',$month_start_timestamp)
 			),
 			
 			'estimated'=>array(
-				'field'=>'预计',
-				'total'=>$CI->achievement->sum('estimated','total',$month_start_timestamp,$month_end_timestamp),
-				'my'=>$CI->achievement->sum('estimated','my',$month_start_timestamp,$month_end_timestamp),
-				'contribute'=>$CI->achievement->sum('estimated','contribute',$month_start_timestamp,$month_end_timestamp)
+				'预计',
+				$this->achievement->sum('estimated','total',$month_start_timestamp,$month_end_timestamp),
+				$this->achievement->sum('estimated','my',$month_start_timestamp,$month_end_timestamp),
+				$this->achievement->sum('estimated','contribute',$month_start_timestamp,$month_end_timestamp)
 			),
 			
 			'collected'=>array(
-				'field'=>'到账',
-				'total'=>$CI->achievement->sum('collected','total',$month_start_timestamp),
-				'my'=>$CI->achievement->sum('collected','my',$month_start_timestamp),
-				'contribute'=>$CI->achievement->sum('collected','contribute',$month_start_timestamp)
+				'到账',
+				$this->achievement->sum('collected','total',$month_start_timestamp),
+				$this->achievement->sum('collected','my',$month_start_timestamp),
+				$this->achievement->sum('collected','contribute',$month_start_timestamp)
 			)
 		);
 		
 		
-		$recent_collect=$CI->achievement->todo('recent');
-		$expired_collect=$CI->achievement->todo('expired');
+		$recent_collect=$this->achievement->todo('recent');
+		$expired_collect=$this->achievement->todo('expired');
 		
 		$sidebar_table[]=array(
-			'_field'=>array(
+			'_heading'=>array(
 				'近期催收',
 				'到期未收'
 			),
@@ -110,7 +108,7 @@ class Company_model extends SS_Model{
 		if(is_logged('manager')){
 			$staff=got('staff')?$_GET['staff']:false;
 			$sidebar_table[]=array(
-				'_field'=>array(
+				'_heading'=>array(
 					'schedule_check'=>'员工日程检阅'
 				),
 				array(

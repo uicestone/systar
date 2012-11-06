@@ -140,7 +140,6 @@ class SS_Model extends CI_Model{
 		return $query;
 	}
 
-
 	function pagination($query,$q_rows=NULL){
 
 		if(is_null($q_rows)){

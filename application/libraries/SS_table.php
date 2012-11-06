@@ -8,7 +8,7 @@ class SS_Table extends CI_Table{
 		'foot'=>NULL
 	);
 	var $surround_form=false;
-	var $surround_box=true;
+	var $surround_box;
 	var $attributes=array();
 	var $show_line_id=false;
 	var $trim_columns=false; 
@@ -52,20 +52,14 @@ class SS_Table extends CI_Table{
 	 */
 	protected function _init(){
 		
-		if(is_null($this->data)){
-			show_error('no data to init, we need to run setData() before _init() - uice 2012/10/31 '.__FILE__.':'.__LINE__);
+		if(is_null($this->surround_box)){
+			$this->surround_box=false;
 		}
 		
-		if(is_null($this->fields)){
-			show_error('i don\'t know how to display data, run setFields() before _init - uice 2012/10/31 '.__FILE__.':'.__LINE__);
-		}
-		
-		foreach($this->data as $row_data){
-			$row=array();
-			foreach($this->fields as $field_name => $field){
-				if(!is_array($field)){
-					show_error('field option must be an array now, old style has expired -  uice 2012/10/31 '.__FILE__.':'.__LINE__);
-				}else{
+		if(!empty($this->fields)){
+			foreach($this->data as $row_data){
+				$row=array();
+				foreach($this->fields as $field_name => $field){
 					$str=isset($field['content']) ? $field['content'] : (isset($row_data[$field_name])?$row_data[$field_name]:NULL);
 					$str=variableReplace($str,$row_data);
 					if(isset($field['eval']) && $field['eval']){
@@ -83,10 +77,24 @@ class SS_Table extends CI_Table{
 					if(isset($field['td'])){
 						$cell+=$this->_parseAttributesToArray(variableReplace($field['td'],$row_data));
 					}
+					$row[]=$cell;
 				}
-				$row[]=$cell;
+				$this->add_row($row);
 			}
-			$this->add_row($row);
+		}else{
+			foreach($this->data as $row_data){
+				$row=array();
+				foreach($row_data as $column_name => $column){
+					$cell=array();
+					if(is_array($column)){
+						$cell['data']=$column['html'];
+					}else{
+						$cell['data']=$column;
+					}
+					$row[]=$cell;
+				}
+				$this->add_row($row);
+			}
 		}
 		//print_r($this->rows);
 	}
@@ -109,6 +117,9 @@ class SS_Table extends CI_Table{
 			)
 	*/
 	function setFields(array $fields){
+		if(is_null($this->surround_box)){
+			$this->surround_box=true;
+		}
 		$this->fields=$fields;
 		$heading=array();
 		foreach($fields as $field_name=>$field){
@@ -120,7 +131,7 @@ class SS_Table extends CI_Table{
 			}
 			
 			if(isset($field['surround_title'])){
-				$cell['data']=wrap($cell['data'],$v['surround_title']);
+				$cell['data']=wrap($cell['data'],$field['surround_title']);
 				
 			}elseif(!isset($field['orderby']) || $field['orderby']){
 				$cell['data']=wrap($cell['data'],array('mark'=>'a','href'=>"javascript:postOrderby('".$field_name."')"));
@@ -152,6 +163,10 @@ class SS_Table extends CI_Table{
 	}
 	
 	function setData($data){
+		if(isset($data['_heading'])){
+			$this->set_heading($data['_heading']);
+			unset($data['_heading']);
+		}
 		$this->data=$data;
 		return $this;
 	}
@@ -167,6 +182,11 @@ class SS_Table extends CI_Table{
 	 */
 	function generate($table_data = NULL)
 	{
+		if(isset($table_data)){
+			$this->setData($table_data);
+		}
+		//print_r($this->heading);
+		
 		$this->_init();
 
 		if($this->trim_columns){
@@ -220,7 +240,7 @@ class SS_Table extends CI_Table{
 			return 'Undefined table data';
 		}
 
-		// Compile and validate the template date
+		// Compile and validate the template data
 		$this->_compile_template();
 
 		// set a custom cell manipulation function to a locally scoped variable so its callable
@@ -401,5 +421,27 @@ class SS_Table extends CI_Table{
 
 		return $out;
 	}
+
+	// --------------------------------------------------------------------
+
+	/**
+	 * Clears the table arrays.  Useful if multiple tables are being generated
+	 *
+	 * @access	public
+	 * @return	void
+	 */
+	function clear()
+	{
+		parent::clear();
+		$this->attributes=array();
+		$this->fields=NULL;
+		$this->data=NULL;
+		$this->menu=NULL;
+		$this->show_line_id=false;
+		$this->surround_box=NULL;
+		$this->surround_form=false;
+		$this->trim_columns=false;
+	}
+
 }
 ?>

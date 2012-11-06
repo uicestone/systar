@@ -4,36 +4,23 @@ class News extends SS_controller{
 		parent::__construct();
 	}
 	
-	function index(){
-		$q="
-			SELECT * FROM news WHERE display=1 AND company='".$this->config->item('company')."'
-		";
-		
-		$this->processOrderby($q,'time','DESC');
-		
-		$listLocator=$this->processMultiPage($q);
-		
+	function lists(){
 		$field=array(
 			'time'=>array('title'=>'日期','td_title'=>'width="80px"','eval'=>true,'content'=>"
 				return date('m-d',{time});
 			"),
-			'title'=>array('title'=>'标题','content'=>'<a href="javascript:showWindow(\'news?edit={id}\')">{title}</a>'),
+			'title'=>array('title'=>'标题','content'=>'<a href="javascript:showWindow(\'news/edit/{id}\')">{title}</a>'),
 			'username'=>array('title'=>'发布人')
 		);
 		
-		$menu=array(
-		'head'=>'<div style="float:right;">'.
-					$listLocator.
-				'</div>'
-		);
+		$list=$this->table->setField($field)
+			->setData($this->news->getList())
+			->generate();
 		
-		$_SESSION['last_list_action']=$_SERVER['REQUEST_URI'];
-		
-		$table=$this->fetchTableArray($q, $field);
-		
-		$this->view_data+=compact('table','menu');
-		
-		$this->load->view('lists',$this->view_data);
+		$this->load->addViewData($list);
+		$this->load->view('list');
+
+		$this->session->set_userdata('last_list_action',$this->input->server('REQUEST_URI'));
 	}
 	
 	function add(){
