@@ -142,13 +142,6 @@ class SS_Model extends CI_Model{
 
 
 	function pagination($query,$q_rows=NULL){
-		/*if(isset($query_rows)){
-			$rows=db_fetch_field($query_rows);
-
-		}else{
-			$db=clone $this->db;
-			$rows=$db->count_all_results();
-		}*/
 
 		if(is_null($q_rows)){
 			$q_rows=$query;

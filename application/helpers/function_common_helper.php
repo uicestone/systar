@@ -504,6 +504,7 @@ function str_textToHtml($str){
  * 递归去除array中的空键
  */
 function array_trim($array){
+	$array=(array)$array;
 	foreach($array as $k => $v){
 		if($v=='' || $v==array()){
 			unset($array[$k]);
@@ -638,7 +639,7 @@ function db_query($query,$show_error=true){
 	$error='';
 	if($error=mysql_error(DB_LINK)){
 		if($show_error){
-			if($CI->require_export){
+			if($CI->load->require_head){
 				showMessage(db_parseError($error),'warning');
 				if($CFG->item('debug_mode')){
 					showMessage('发生错误的sql语句：'.$query,'warning');

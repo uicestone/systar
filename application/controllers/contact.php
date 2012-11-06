@@ -7,8 +7,8 @@ class Contact extends SS_controller{
 	function lists(){
 		$this->load->model('client_model','client');	    
 		if(is_posted('delete')){
-			$_POST=array_trim($_POST);
-			$this->client->deleteContact($_POST['contact_check']);
+			$contacts_to_delete=array_trim($this->input->post('contact_check'));
+			$this->client->delete($contacts_to_delete);
 		}
 		$field=array(
 			'abbreviation'=>array('title'=>'名称','content'=>'<input type="checkbox" name="contact_check[{id}]" />
@@ -28,6 +28,7 @@ class Contact extends SS_controller{
 		);
 		$table=$this->table->setFields($field)
 			->setMenu('<input type="submit" name="delete" value="删除" />','left')
+			->wrapForm()
 			->setData($this->contact->getList())
 			->generate();
 		$this->load->addViewData('list',$table);

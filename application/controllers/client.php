@@ -10,8 +10,8 @@ class Client extends SS_Controller{
 
 	function lists($method=NULL){
 		if(is_posted('delete')){
-			$post=array_trim($this->input->post());
-			$this->client->delete($post['client_check']);
+			$clients_to_delete=array_trim($this->input->post('client_check'));
+			$this->client->delete($clients_to_delete);
 		}
 
 		$field=array(
@@ -34,6 +34,7 @@ class Client extends SS_Controller{
 		
 		$table=$this->table->setFields($field)
 			->setMenu('<input type="submit" name="delete" value="删除" />', 'left')
+			->wrapForm()
 			->setData($this->client->getList($method))
 			->generate();
 		$this->load->addViewData('list', $table);

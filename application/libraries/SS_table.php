@@ -132,6 +132,16 @@ class SS_Table extends CI_Table{
 		return $this;
 	}
 	
+	function wrapBox($surround_box=true){
+		$this->surround_box=$surround_box;
+		return $this;
+	}
+	
+	function wrapForm($surround_form=true){
+		$this->surround_form=$surround_form;
+		return $this;
+	}
+	
 	function setMenu($html,$class='right',$position='head'){
 		if(!isset($this->menu[$position][$class])){
 			$this->menu[$position][$class]='';
