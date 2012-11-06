@@ -19,6 +19,14 @@ class Client_model extends SS_Model{
 		
 	}
 	
+	/**
+	 * 检查客户名，返回错误信息或获取唯一客户的信息
+	 * @param $client_name 要检查的完整或部分客户姓名
+	 * @param $data_type 检查信息唯一时，返回数据内容，'array'为返回整行，其他为指定字段
+	 * @param $show_error 除返回错误外，是否直接使用showMessage()显示错误
+	 * @param $fuzzy 是否使用模糊匹配
+	 * @return 名称唯一的时候，返回指定信息，否则返回错误码	-3:未输入名称，-2存在多个匹配，-1不存在匹配
+	 */
 	function check($client_name,$data_type='id',$show_error=true,$fuzzy=true){
 		//$data_type:id,array
 		
@@ -79,10 +87,16 @@ class Client_model extends SS_Model{
 		return db_insert('client',$data);
 	}
 	
+	/**
+	 * 添加客户相关人
+	 */
 	function addRelated($data){
 		return db_insert('client_client',$data);
 	}
 	
+	/**
+	 * 添加客户联系方式
+	 */
 	function addContact($data){
 		return db_insert('client_contact',$data);
 	}
@@ -139,11 +153,17 @@ class Client_model extends SS_Model{
 		return db_delete('client',$condition);
 	}
 	
+	/**
+	 * 删除相关人
+	 */
 	function deleteRelated($client_clients){
 		$condition = db_implode($client_clients, $glue = ' OR ','id','=',"'","'", '`','key');
 		db_delete('client_client',$condition);
 	}
 	
+	/**
+	 * 删除客户联系方式
+	 */
 	function deleteContact($client_contacts){
 		$condition = db_implode(post('client_contact_check'), $glue = ' OR ','id','=',"'","'", '`','key');
 		db_delete('client_contact',$condition);
