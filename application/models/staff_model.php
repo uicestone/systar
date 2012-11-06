@@ -56,6 +56,21 @@ class Staff_model extends SS_Model{
 		}else{
 			return $manager[$field];
 		}
-	}  
+	}
+	
+	function getList(){
+		$q="SELECT staff.id,staff.name,staff.title,staff.modulus,staff.timing_fee_default,
+				course.name AS course_name,
+				position.ui_name AS position_name
+			FROM staff LEFT JOIN course ON staff.course=course.id
+				LEFT JOIN position ON staff.position=position.id
+			WHERE staff.company='".$this->config->item('company')."'
+		";
+		$this->session->set_userdata('last_list_action',$_SERVER['REQUEST_URI']);
+		$q=$this->search($q,array('name'=>'姓名'));
+		$q=$this->orderBy($q,'staff.id','ASC');
+		$q=$this->pagination($q);
+		return $this->db->query($q)->result_array();
+	}
 }
 ?>

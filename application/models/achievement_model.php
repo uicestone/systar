@@ -269,5 +269,43 @@ class Achievement_model extends SS_Model{
 	
 		return $result_array;
 	}
+	
+	function getList(){
+		$q="
+		SELECT case_fee_collected.*,
+			GROUP_CONCAT(DISTINCT client.abbreviation) AS clients,
+			case.name AS case_name,
+			ROUND(case_fee_collected.collected*case_lawyer.contribute,2) AS contribute_collected,
+			ROUND(case_fee_collected.collected*case_lawyer.contribute*0.15,2) AS bonus,
+			case_lawyer.role
+		FROM
+		(
+			SELECT case_fee.id,case_fee.case,case_fee.type,
+				case_fee.fee,FROM_UNIXTIME(case_fee.pay_time,'%Y-%m-%d') AS pay_time,
+				SUM(account.amount) AS collected,FROM_UNIXTIME(account.time_occur,'%Y-%m-%d') AS time_occur,
+				IF(SUM(account.amount) IS NULL,case_fee.fee,case_fee.fee-SUM(account.amount)) AS uncollected
+			FROM case_fee
+			LEFT JOIN account ON case_fee.id=account.case_fee
+			WHERE case_fee.type<>'办案费'
+		";
+		$this->session->set_userdata('last_list_action',$_SERVER['REQUEST_URI']);
+		$q=$this->dateRange($q,'account.time_occur');
+		$q.="	GROUP BY case_fee.id
+		)case_fee_collected
+			INNER JOIN case_client ON case_fee_collected.case=case_client.case
+			INNER JOIN client ON case_client.client=client.id
+			INNER JOIN case_lawyer ON case_fee_collected.case=case_lawyer.case
+			INNER JOIN case_num ON case_fee_collected.case=case_num.case
+			INNER JOIN `case` ON case_fee_collected.case=case.id
+		WHERE case_lawyer.lawyer='".$_SESSION['id']."'
+			AND client.classification='客户'
+			AND case_lawyer.role NOT IN ('督办合伙人','律师助理')
+		";
+		$q.=' GROUP BY case_fee_collected.id,case_lawyer.lawyer,case_lawyer.role
+			HAVING collected>0';
+		$q=$this->orderBy($q,'case_fee_collected.pay_time','DESC');
+		$q=$this->pagination($q);
+		return $this->db->query($q)->result_array();
+	}
 }
 ?>
