@@ -1,20 +1,28 @@
 <?php
 class SS_Table extends CI_Table{
 	
-	var $fields;
-	var $data;
-	var $menu=array(
-		'head'=>NULL,
-		'foot'=>NULL
-	);
-	var $wrap_form=false;
-	var $wrap_box;
-	var $attributes=array();
-	var $show_line_id=false;
-	var $trim_columns=false; 
+	var $fields;//表格每列的输出方式
+	var $data;//表格的原始数据
+	var $menu;//表格头尾的菜单
+	var $wrap_form;//表格是否包围form标签
+	var $wrap_box;//表格是否包围div class="contentTableBox"标签，若是，表格位置将为absolute
+	var $attributes;//表格、box和首位菜单的html属性
+	var $show_line_id;//是否在表格第一列显示行号
+	var $trim_columns;//是否清空空列
 	
 	function __construct(){
 		parent::__construct();
+		$this->fields=$this->data=NULL;
+		$this->menu=array(
+			'head'=>NULL,
+			'foot'=>NULL
+		);
+		$this->wrap_form=false;
+		$this->wrap_box=NULL;
+		$this->attributes=array();
+		$this->show_line_id=false;
+		$this->trim_columns=false;
+		
 	}
 	
 	/**
@@ -49,13 +57,15 @@ class SS_Table extends CI_Table{
 	
 	/**
 	 * 根据$fields设置，将$this->data数据导入$rows
+	 * 如果没有设置$fields，那么将$this->data全部导入$rows
 	 */
 	protected function _init(){
-		
+		//如果在输出时尚未指定列显示方式$fields，也没有设置wrap_box，那么不包围div class="contentTableBox"
+		//适用于生成表格的简写$this->table->generate($data);
 		if(is_null($this->wrap_box)){
 			$this->wrap_box=false;
 		}
-		
+		//echo 'data:'.print_r($this->data,true);
 		if(!empty($this->fields)){
 			foreach($this->data as $row_data){
 				$row=array();
@@ -81,22 +91,7 @@ class SS_Table extends CI_Table{
 				}
 				$this->add_row($row);
 			}
-		}else{
-			foreach($this->data as $row_data){
-				$row=array();
-				foreach($row_data as $column_name => $column){
-					$cell=array();
-					if(is_array($column)){
-						$cell['data']=$column['html'];
-					}else{
-						$cell['data']=$column;
-					}
-					$row[]=$cell;
-				}
-				$this->add_row($row);
-			}
 		}
-		//print_r($this->rows);
 	}
 
 	/**
@@ -117,6 +112,8 @@ class SS_Table extends CI_Table{
 			)
 	*/
 	function setFields(array $fields){
+		//对于定义列显示方式的表格，默认包围div class="contentTableBox"
+		//适用于完整生成表格的用法
 		if(is_null($this->wrap_box)){
 			$this->wrap_box=true;
 		}
@@ -163,10 +160,6 @@ class SS_Table extends CI_Table{
 	}
 	
 	function setData($data){
-		if(isset($data['_heading'])){
-			$this->set_heading($data['_heading']);
-			unset($data['_heading']);
-		}
 		$this->data=$data;
 		return $this;
 	}
@@ -182,11 +175,6 @@ class SS_Table extends CI_Table{
 	 */
 	function generate($table_data = NULL)
 	{
-		if(isset($table_data)){
-			$this->setData($table_data);
-		}
-		//print_r($this->heading);
-		
 		$this->_init();
 
 		if($this->trim_columns){
@@ -219,39 +207,10 @@ class SS_Table extends CI_Table{
 			}
 		}
 
-		// The table data can optionally be passed to this function
-		// either as a database result object or an array
-		if ( ! is_null($table_data))
-		{
-			if (is_object($table_data))
-			{
-				$this->_set_from_object($table_data);
-			}
-			elseif (is_array($table_data))
-			{
-				$set_heading = (count($this->heading) == 0 AND $this->auto_heading == FALSE) ? FALSE : TRUE;
-				$this->_set_from_array($table_data, $set_heading);
-			}
-		}
-
-		// Is there anything to display?  No?  Smite them!
-		if (count($this->heading) == 0 AND count($this->rows) == 0)
-		{
-			return 'Undefined table data';
-		}
-
-		// Compile and validate the template data
-		$this->_compile_template();
-
-		// set a custom cell manipulation function to a locally scoped variable so its callable
-		$function = $this->function;
-
-		// Build the table!
-		
-		$out='';
+		$prepend=$append='';
 
 		if($this->wrap_form){
-			$out.='<form method="post">'."\n";
+			$prepend.='<form method="post">'."\n";
 		}
 		
 		if($this->wrap_box){
@@ -259,167 +218,55 @@ class SS_Table extends CI_Table{
 		}
 
 		if(isset($this->menu['head'])){
-			$out.='<div class="contentTableMenu"';
+			$prepend.='<div class="contentTableMenu"';
 
 			foreach($this->attributes as $attribute_name => $attribute_value){
-				$out.=' '.$attribute_name.'="'.$attribute_value.'"';
+				$prepend.=' '.$attribute_name.'="'.$attribute_value.'"';
 			}
 
-			$out.='>'."\n";
+			$prepend.='>'."\n";
 			
 			foreach($this->menu['head'] as $menu_div_class=>$menu_data){
-				$out.='<div class="'.$menu_div_class.'">'.$menu_data.'</div>';
+				$prepend.='<div class="'.$menu_div_class.'">'.$menu_data.'</div>';
 			}
 			
-			$out.='</div>'."\n";
+			$prepend.='</div>'."\n";
 		}
 
 		if($this->wrap_box){
-			$out.='<div class="contentTableBox">'."\n";
+			$prepend.='<div class="contentTableBox">'."\n";
 		}
 		
-		$this->template['table_open']='<table class="contentTable" cellpadding="0" cellspacing="0">';
-		$this->template['row_alt_start']='<tr class="oddLine">';
-
-		$out .= $this->template['table_open'];
-		$out .= $this->newline;
-
-		// Add any caption here
-		if ($this->caption)
-		{
-			$out .= $this->newline;
-			$out .= '<caption>' . $this->caption . '</caption>';
-			$out .= $this->newline;
-		}
-
-		// Is there a table heading to display?
-		if (count($this->heading) > 0)
-		{
-			$out .= $this->template['thead_open'];
-			$out .= $this->newline;
-			$out .= $this->template['heading_row_start'];
-			$out .= $this->newline;
-
-			foreach ($this->heading as $heading)
-			{
-				$temp = $this->template['heading_cell_start'];
-
-				foreach ($heading as $key => $val)
-				{
-					if ($key != 'data')
-					{
-						$temp = str_replace('<th', "<th $key=\"$val\"", $temp);
-						
-					}
-				}
-
-				$out .= $temp;
-				$out .= isset($heading['data']) ? $heading['data'] : '';
-				$out .= $this->template['heading_cell_end'];
-			}
-
-			$out .= $this->template['heading_row_end'];
-			$out .= $this->newline;
-			$out .= $this->template['thead_close'];
-			$out .= $this->newline;
-		}
-
-		// Build the table rows
-		if (count($this->rows) > 0)
-		{
-			$out .= $this->template['tbody_open'];
-			$out .= $this->newline;
-
-			$i = 1;
-			foreach ($this->rows as $row)
-			{
-				if ( ! is_array($row))
-				{
-					break;
-				}
-
-				// We use modulus to alternate the row colors
-				$name = (fmod($i++, 2)) ? '' : 'alt_';
-
-				$out .= $this->template['row_'.$name.'start'];
-				$out .= $this->newline;
-
-				foreach ($row as $cell)
-				{
-					$temp = $this->template['cell_'.$name.'start'];
-
-					foreach ($cell as $key => $val)
-					{
-						if ($key != 'data')
-						{
-							$temp = str_replace('<td', "<td $key=\"$val\"", $temp);
-						}
-					}
-
-					$cell = isset($cell['data']) ? $cell['data'] : '';
-					$out .= $temp;
-
-					if ($cell === "" OR $cell === NULL)
-					{
-						$out .= $this->empty_cells;
-					}
-					else
-					{
-						if ($function !== FALSE && is_callable($function))
-						{
-							$out .= call_user_func($function, $cell);
-						}
-						else
-						{
-							$out .= $cell;
-						}
-					}
-
-					$out .= $this->template['cell_'.$name.'end'];
-				}
-
-				$out .= $this->template['row_'.$name.'end'];
-				$out .= $this->newline;
-			}
-
-			$out .= $this->template['tbody_close'];
-			$out .= $this->newline;
-		}
-
-		$out .= $this->template['table_close'];
-
 		if($this->wrap_box){
-			$this->setMenu($this->load->view('pagination',array(),true));
-		}
-
-		if($this->wrap_box){
-			$out.='</div>'."\n";
+			$append.='</div>'."\n";
 		}
 		
 		if(isset($this->menu['foot'])){
-			$out.='<div class="contentTableMenu"';
+			$append.='<div class="contentTableMenu"';
 
 			foreach($this->attributes as $attribute_name => $attribute_value){
-				$out.=' '.$attribute_name.'="'.$attribute_value.'"';
+				$append.=' '.$attribute_name.'="'.$attribute_value.'"';
 			}
 
-			$out.='>'."\n";
+			$append.='>'."\n";
 			
 			foreach($this->menu['foot'] as $menu_div_class=>$menu_data){
-				$out.='<div class="'.$menu_div_class.'">'.$menu_data.'</div>';
+				$append.='<div class="'.$menu_div_class.'">'.$menu_data.'</div>';
 			}
 			
-			$out.='</div>'."\n";
+			$append.='</div>'."\n";
 		}
 
 		if($this->wrap_form){
-			$out.='</form>'."\n";
+			$append.='</form>'."\n";
 		}
-		
-		// Clear table class properties before generating the table
-		$this->clear();
 
-		return $out;
+		$this->template['table_open']='<table class="contentTable" cellpadding="0" cellspacing="0">';
+		$this->template['row_alt_start']='<tr class="oddLine">';
+
+		$table=parent::generate($table_data);
+
+		return $prepend.$table.$append;
 	}
 
 	// --------------------------------------------------------------------
@@ -433,14 +280,7 @@ class SS_Table extends CI_Table{
 	function clear()
 	{
 		parent::clear();
-		$this->attributes=array();
-		$this->fields=NULL;
-		$this->data=NULL;
-		$this->menu=NULL;
-		$this->show_line_id=false;
-		$this->wrap_box=NULL;
-		$this->wrap_form=false;
-		$this->trim_columns=false;
+		$this->__construct();
 	}
 
 }
