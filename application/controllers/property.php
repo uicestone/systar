@@ -27,7 +27,7 @@ class Property extends SS_controller{
 		
 		$field=Array(
 			'property'=>'序号',
-			'name'=>array('title'=>'物品','surround'=>array('mark'=>'a','href'=>'/property?view={property}','target'=>'blank')),
+			'name'=>array('title'=>'物品','wrap'=>array('mark'=>'a','href'=>'/property?view={property}','target'=>'blank')),
 			'time'=>'更新时间','admin'=>'管理人',
 				'status'=>array('title'=>'目前状态','content'=>'{status} <a href="/property?addStatus={property}" style="font-size:10px;">更新</a>'),
 			'usingPerson'=>'经手人',

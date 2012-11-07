@@ -11,8 +11,8 @@ class Query extends SS_controller{
 	function lists($para=NULL){
 		$field=array(
 			'first_contact'=>array('title'=>'日期','td_title'=>'width="95px"'),
-			'num'=>array('title'=>'编号','td_title'=>'width="180px"','surround'=>array('mark'=>'a','href'=>'case?edit={id}')),
-			'client_name'=>array('title'=>'咨询人','surround'=>array('mark'=>'a','href'=>'javascript:showWindow(\'client?edit={client}\')')),
+			'num'=>array('title'=>'编号','td_title'=>'width="180px"','wrap'=>array('mark'=>'a','href'=>'case?edit={id}')),
+			'client_name'=>array('title'=>'咨询人','wrap'=>array('mark'=>'a','href'=>'javascript:showWindow(\'client?edit={client}\')')),
 			'type'=>array('title'=>'方式','td_title'=>'width="80px"'),
 			'source'=>array('title'=>'来源'),
 			'staff_name'=>array('title'=>'接洽人'),

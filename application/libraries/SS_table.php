@@ -7,8 +7,8 @@ class SS_Table extends CI_Table{
 		'head'=>NULL,
 		'foot'=>NULL
 	);
-	var $surround_form=false;
-	var $surround_box;
+	var $wrap_form=false;
+	var $wrap_box;
 	var $attributes=array();
 	var $show_line_id=false;
 	var $trim_columns=false; 
@@ -52,8 +52,8 @@ class SS_Table extends CI_Table{
 	 */
 	protected function _init(){
 		
-		if(is_null($this->surround_box)){
-			$this->surround_box=false;
+		if(is_null($this->wrap_box)){
+			$this->wrap_box=false;
 		}
 		
 		if(!empty($this->fields)){
@@ -65,9 +65,9 @@ class SS_Table extends CI_Table{
 					if(isset($field['eval']) && $field['eval']){
 						$str=eval($str);
 					}
-					if(isset($field['surround'])){
-						array_walk($field['surround'],'variableReplaceSelf',$row_data);
-						$str=wrap($str,$field['surround']);
+					if(isset($field['wrap'])){
+						array_walk($field['wrap'],'variableReplaceSelf',$row_data);
+						$str=wrap($str,$field['wrap']);
 					}
 					if(is_null($str)){
 						$str='&nbsp;';
@@ -104,11 +104,11 @@ class SS_Table extends CI_Table{
 			array(
 				'查询结果的列名'=>array(
 						'title'=>'列的显示标题'
-						'surround_title'=>array(
+						'wrap_title'=>array(
 								'mark'=>'标签名，如 a',
 								'标签的属性名如href'=>'标签的值如http://www.google.com',
 							)标题单元格文字需要嵌套的HTML标签
-						'surround'=>同上
+						'wrap'=>同上
 						'td_title'=>HTML String	该列标题单元格的html属性字符串
 						'td'=>HTML String 该列所有内容单元格的html属性字符串
 						'eval'=>false，'是否'将content作为源代码运行
@@ -117,8 +117,8 @@ class SS_Table extends CI_Table{
 			)
 	*/
 	function setFields(array $fields){
-		if(is_null($this->surround_box)){
-			$this->surround_box=true;
+		if(is_null($this->wrap_box)){
+			$this->wrap_box=true;
 		}
 		$this->fields=$fields;
 		$heading=array();
@@ -130,8 +130,8 @@ class SS_Table extends CI_Table{
 				$cell+=$this->_parseAttributesToArray($field['td_title']);
 			}
 			
-			if(isset($field['surround_title'])){
-				$cell['data']=wrap($cell['data'],$field['surround_title']);
+			if(isset($field['wrap_title'])){
+				$cell['data']=wrap($cell['data'],$field['wrap_title']);
 				
 			}elseif(!isset($field['orderby']) || $field['orderby']){
 				$cell['data']=wrap($cell['data'],array('mark'=>'a','href'=>"javascript:postOrderby('".$field_name."')"));
@@ -143,13 +143,13 @@ class SS_Table extends CI_Table{
 		return $this;
 	}
 	
-	function wrapBox($surround_box=true){
-		$this->surround_box=$surround_box;
+	function wrapBox($wrap_box=true){
+		$this->wrap_box=$wrap_box;
 		return $this;
 	}
 	
-	function wrapForm($surround_form=true){
-		$this->surround_form=$surround_form;
+	function wrapForm($wrap_form=true){
+		$this->wrap_form=$wrap_form;
 		return $this;
 	}
 	
@@ -250,11 +250,11 @@ class SS_Table extends CI_Table{
 		
 		$out='';
 
-		if($this->surround_form){
+		if($this->wrap_form){
 			$out.='<form method="post">'."\n";
 		}
 		
-		if($this->surround_box){
+		if($this->wrap_box){
 			$this->setMenu($this->load->view('pagination',array(),true));
 		}
 
@@ -274,7 +274,7 @@ class SS_Table extends CI_Table{
 			$out.='</div>'."\n";
 		}
 
-		if($this->surround_box){
+		if($this->wrap_box){
 			$out.='<div class="contentTableBox">'."\n";
 		}
 		
@@ -388,11 +388,11 @@ class SS_Table extends CI_Table{
 
 		$out .= $this->template['table_close'];
 
-		if($this->surround_box){
+		if($this->wrap_box){
 			$this->setMenu($this->load->view('pagination',array(),true));
 		}
 
-		if($this->surround_box){
+		if($this->wrap_box){
 			$out.='</div>'."\n";
 		}
 		
@@ -412,7 +412,7 @@ class SS_Table extends CI_Table{
 			$out.='</div>'."\n";
 		}
 
-		if($this->surround_form){
+		if($this->wrap_form){
 			$out.='</form>'."\n";
 		}
 		
@@ -438,8 +438,8 @@ class SS_Table extends CI_Table{
 		$this->data=NULL;
 		$this->menu=NULL;
 		$this->show_line_id=false;
-		$this->surround_box=NULL;
-		$this->surround_form=false;
+		$this->wrap_box=NULL;
+		$this->wrap_form=false;
 		$this->trim_columns=false;
 	}
 

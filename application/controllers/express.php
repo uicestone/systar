@@ -7,7 +7,7 @@ class Express extends SS_controller{
 	
 	function lists(){
 		$field=array(
-			'content'=>array('title'=>'寄送内容','surround'=>array('mark'=>'a','href'=>'/express/edit/{id}'),'td'=>'class="ellipsis" title="{content}"'),
+			'content'=>array('title'=>'寄送内容','wrap'=>array('mark'=>'a','href'=>'/express/edit/{id}'),'td'=>'class="ellipsis" title="{content}"'),
 			'time_send'=>array('title'=>'日期','td_title'=>'width="60px"','eval'=>true,'content'=>"
 				return date('m-d',{time_send});
 			"),

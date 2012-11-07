@@ -154,12 +154,12 @@ class File extends SS_controller{
 		
 		$field=Array(
 			'file'=>array('title'=>'序号','td_title'=>'width=50px'),
-			'case'=>array('title'=>'案件','surround'=>array('mark'=>'a','href'=>'/file?view={file}','target'=>'blank')),
+			'case'=>array('title'=>'案件','wrap'=>array('mark'=>'a','href'=>'/file?view={file}','target'=>'blank')),
 			'client'=>'客户','lawyer'=>'承办律师',
 			'date_start'=>array('title'=>'收案日期','eval'=>true,'content'=>"
 				return date('Y年m月d日',{date_start});
 			"),
-			'status'=>array('title'=>'状态','surround'=>array('mark'=>'a','href'=>"/file?addStatus={file}")),
+			'status'=>array('title'=>'状态','wrap'=>array('mark'=>'a','href'=>"/file?addStatus={file}")),
 			'time'=>array('title'=>'更新时间','eval'=>true,'content'=>"
 				return date('Y年m月d日',{time});
 			"),

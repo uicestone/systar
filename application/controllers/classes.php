@@ -27,7 +27,7 @@ class Classes extends SS_controller{
 		$listLocator=$this->processMultiPage($q);
 		
 		$field=array(
-			'class.id'=>array('title'=>'名称','td'=>'title="编号：{id}"','content'=>'{name}','surround'=>array('mark'=>'a','href'=>'class?edit={id}')),
+			'class.id'=>array('title'=>'名称','td'=>'title="编号：{id}"','content'=>'{name}','wrap'=>array('mark'=>'a','href'=>'class?edit={id}')),
 			'depart'=>array('title'=>'部门'),
 			'extra_course_name'=>array('title'=>'加一'),
 			'class_teacher_name'=>array('title'=>'班主任')

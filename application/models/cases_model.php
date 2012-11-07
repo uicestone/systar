@@ -467,7 +467,7 @@ class Cases_model extends SS_Model{
 				return '<a href=\"javascript:showWindow(\''.('{contact_classification}'=='客户'?'client':'contact').'?edit={contact}\')\">{contact_name}</a>';
 			",'orderby'=>false),
 			'phone'=>array('title'=>'电话','td'=>'class="ellipsis" title="{phone}"'),
-			'email'=>array('title'=>'电邮','surround'=>array('mark'=>'a','href'=>'mailto:{email}','title'=>'{email}','target'=>'_blank'),'td'=>'class="ellipsis"'),
+			'email'=>array('title'=>'电邮','wrap'=>array('mark'=>'a','href'=>'mailto:{email}','title'=>'{email}','target'=>'_blank'),'td'=>'class="ellipsis"'),
 			'role'=>array('title'=>'本案地位','orderby'=>false),
 			'classification'=>array('title'=>'类型','td_title'=>'width="60px"','orderby'=>false)
 		);
@@ -542,7 +542,7 @@ class Cases_model extends SS_Model{
 			'fee'=>array('title'=>'数额','eval'=>true,'content'=>"
 				\$return='{fee}'.('{fee_received}'==''?'':' <span title=\"{fee_received_time}\">（到账：{fee_received}）</span>');
 				if('{reviewed}'){
-					\$return=surround(\$return,array('mark'=>'span','style'=>'color:#080'));
+					\$return=wrap(\$return,array('mark'=>'span','style'=>'color:#080'));
 				}
 				return \$return;
 			",'orderby'=>false),
@@ -622,7 +622,7 @@ class Cases_model extends SS_Model{
 				'td_title'=>'width="70px"',
 				'orderby'=>false
 			),
-			'name'=>array('title'=>'文件名','td_title'=>'width="150px"','surround'=>array('mark'=>'a','href'=>'/cases/documentdownload/{id}'),'orderby'=>false),
+			'name'=>array('title'=>'文件名','td_title'=>'width="150px"','wrap'=>array('mark'=>'a','href'=>'/cases/documentdownload/{id}'),'orderby'=>false),
 			'doctype'=>array('title'=>'类型','td_title'=>'width="80px"'),
 			'comment'=>array('title'=>'备注','orderby'=>false),
 			'time'=>array('title'=>'时间','td_title'=>'width="60px"','eval'=>true,'content'=>"
@@ -662,7 +662,7 @@ class Cases_model extends SS_Model{
 			LIMIT 10";
 		
 		$field=array(
-			'name'=>array('title'=>'标题','td_title'=>'width="150px"','surround'=>array('mark'=>'a','href'=>'javascript:showWindow(\'schedule/edit/{id}\')'),'orderby'=>false),
+			'name'=>array('title'=>'标题','td_title'=>'width="150px"','wrap'=>array('mark'=>'a','href'=>'javascript:showWindow(\'schedule/edit/{id}\')'),'orderby'=>false),
 			'time_start'=>array('title'=>'时间','td_title'=>'width="60px"','eval'=>true,'content'=>"
 				return date('m-d H:i',{time_start});
 			",'orderby'=>false),
@@ -680,7 +680,7 @@ class Cases_model extends SS_Model{
 			LIMIT 10";
 		
 		$field=array(
-			'name'=>array('title'=>'标题','td_title'=>'width="150px"','surround'=>array('mark'=>'a','href'=>'javascript:showWindow(\'schedule/edit/{id}\')'),'orderby'=>false),
+			'name'=>array('title'=>'标题','td_title'=>'width="150px"','wrap'=>array('mark'=>'a','href'=>'javascript:showWindow(\'schedule/edit/{id}\')'),'orderby'=>false),
 			'time_start'=>array('title'=>'时间','td_title'=>'width="60px"','eval'=>true,'content'=>"
 				return date('m-d H:i',{time_start});
 			",'orderby'=>false),

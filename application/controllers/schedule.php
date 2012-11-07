@@ -14,7 +14,7 @@ class Schedule extends SS_controller{
 		$field_news=array(
 			'title'=>array(
 				'title'=>'公告 <a href="news" style="font-size:14px">更多</a>',
-				'surround'=>array('mark'=>'a','href'=>'javascript:showWindow(\'news/edit/{id}\')'),
+				'wrap'=>array('mark'=>'a','href'=>'javascript:showWindow(\'news/edit/{id}\')'),
 				'eval'=>true,
 				'content'=>"
 					\$return='{title}';

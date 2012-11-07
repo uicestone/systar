@@ -17,7 +17,7 @@ class Evaluation extends SS_controller{
 		$listLocator=$this->processMultiPage($q);
 		
 		$field=array(
-			'name'=>array('title'=>'姓名','surround'=>array('mark'=>'a','href'=>'javascript:showWindow(\'evaluation?score&staff={id}\')')),
+			'name'=>array('title'=>'姓名','wrap'=>array('mark'=>'a','href'=>'javascript:showWindow(\'evaluation?score&staff={id}\')')),
 			'position.id'=>array('title'=>'职位','content'=>'{position_name}')
 		);
 		

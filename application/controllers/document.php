@@ -34,7 +34,7 @@ class Document extends SS_controller{
 					",
 					'td_title'=>'width="70px"'
 				),
-				'name'=>array('title'=>'文件名','td_title'=>'width="150px"','surround'=>array('mark'=>'a','href'=>'/document?view={id}')),
+				'name'=>array('title'=>'文件名','td_title'=>'width="150px"','wrap'=>array('mark'=>'a','href'=>'/document?view={id}')),
 				'path'=>array('title'=>'路径'),'comment'=>array('title'=>'备注')
 			)
 			:
@@ -55,7 +55,7 @@ class Document extends SS_controller{
 					",
 					'td_title'=>'width="55px"'
 				),
-				'name'=>array('title'=>'文件名','td_title'=>'width="150px"','surround'=>array('mark'=>'a','href'=>'/document?view={id}')),
+				'name'=>array('title'=>'文件名','td_title'=>'width="150px"','wrap'=>array('mark'=>'a','href'=>'/document?view={id}')),
 				'username'=>array('title'=>'上传者','td_title'=>'width="70px"'),
 				'comment'=>array('title'=>'备注')
 			);

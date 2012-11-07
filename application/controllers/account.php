@@ -31,7 +31,7 @@ class Account extends SS_controller{
 			'time_occur'=>array('title'=>'日期','eval'=>true,'content'=>"
 				return date('Y-m-d',{time_occur});
 			"),
-			'name'=>array('title'=>'名目','surround'=>array('mark'=>'a','href'=>'javascript:showWindow(\'account?edit={id}\')')),
+			'name'=>array('title'=>'名目','wrap'=>array('mark'=>'a','href'=>'javascript:showWindow(\'account?edit={id}\')')),
 			'_type'=>array('title'=>'方向','eval'=>true,'content'=>"
 				if({amount}>0){
 					return '<span style=\"color:#0F0\"><<</span>';

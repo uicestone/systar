@@ -463,7 +463,7 @@ class Student extends SS_controller{
 		$field=array(
 			'date'=>array('title'=>'日期','td_title'=>'width="100px"'),
 			'username'=>array('title'=>'用户','td_title'=>'width="120px"'),
-			'student_name'=>array('title'=>'学生','td_title'=>'width="60px"','surround'=>array('mark'=>'a','href'=>'student?edit={student}')),
+			'student_name'=>array('title'=>'学生','td_title'=>'width="60px"','wrap'=>array('mark'=>'a','href'=>'student?edit={student}')),
 			'title'=>array('title'=>'标题','td_title'=>'width="120px"','td'=>'class="ellipsis" title="{title}"'),
 			'content'=>array('title'=>'内容','td'=>'class="ellipsis" title="{content}"')
 		);

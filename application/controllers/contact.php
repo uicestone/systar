@@ -168,7 +168,7 @@ class Contact extends SS_controller{
 				return '<a href=\"javascript:showWindow(\''.('{classification}'=='客户'?'client':'contact').'?edit={client_right}\')\">{client_right_name}</a>';
 			",'orderby'=>false),
 			'client_right_phone'=>array('title'=>'电话','orderby'=>false),
-			'client_right_email'=>array('title'=>'电邮','surround'=>array('mark'=>'a','href'=>'mailto:{client_right_email}')),
+			'client_right_email'=>array('title'=>'电邮','wrap'=>array('mark'=>'a','href'=>'mailto:{client_right_email}')),
 			'role'=>array('title'=>'关系','orderby'=>false)
 		);
 		
@@ -200,7 +200,7 @@ class Contact extends SS_controller{
 		";
 		
 		$field_contact_case=array(
-			'num'=>array('title'=>'案号','surround'=>array('mark'=>'a','href'=>'javascript:window.rootOpener.location.href=\'case?edit={id}\';window.opener.parent.focus();'),'orderby'=>false),
+			'num'=>array('title'=>'案号','wrap'=>array('mark'=>'a','href'=>'javascript:window.rootOpener.location.href=\'case?edit={id}\';window.opener.parent.focus();'),'orderby'=>false),
 			'case_name'=>array('title'=>'案名','orderby'=>false),
 			'lawyers'=>array('title'=>'主办律师','orderby'=>false)
 		);

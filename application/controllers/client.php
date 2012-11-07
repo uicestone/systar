@@ -184,7 +184,7 @@ class Client extends SS_Controller{
 					\$return.='*';
 				}
 				return \$return;
-			", 'orderby'=>false), 'client_right_phone'=>array('title'=>'电话', 'orderby'=>false), 'client_right_email'=>array('title'=>'电邮', 'surround'=>array('mark'=>'a', 'href'=>'mailto:{client_right_email}')), 'role'=>array('title'=>'关系', 'orderby'=>false));
+			", 'orderby'=>false), 'client_right_phone'=>array('title'=>'电话', 'orderby'=>false), 'client_right_email'=>array('title'=>'电邮', 'wrap'=>array('mark'=>'a', 'href'=>'mailto:{client_right_email}')), 'role'=>array('title'=>'关系', 'orderby'=>false));
 
 		$q_client_contact="
 			SELECT 
@@ -214,7 +214,7 @@ class Client extends SS_Controller{
 		HAVING id IS NOT NULL
 		";
 
-		$field_client_case=array('num'=>array('title'=>'案号', 'surround'=>array('mark'=>'a', 'href'=>'javascript:window.rootOpener.location.href=\'case?edit={id}\';window.opener.parent.focus();'), 'orderby'=>false), 'case_name'=>array('title'=>'案名', 'orderby'=>false), 'lawyers'=>array('title'=>'主办律师', 'orderby'=>false));
+		$field_client_case=array('num'=>array('title'=>'案号', 'wrap'=>array('mark'=>'a', 'href'=>'javascript:window.rootOpener.location.href=\'case?edit={id}\';window.opener.parent.focus();'), 'orderby'=>false), 'case_name'=>array('title'=>'案名', 'orderby'=>false), 'lawyers'=>array('title'=>'主办律师', 'orderby'=>false));
 
 		$data=compact('q_client_client', 'field_client', 'q_client_contact', 'field_client_contact', 'q_client_case', 'field_client_case');
 

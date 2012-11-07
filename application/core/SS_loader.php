@@ -76,7 +76,7 @@ class SS_Loader extends CI_Loader{
 			...
 		)
 	*/
-	function arrayExportTable(array $array,$menu=NULL,$surroundForm=false,$surroundBox=true,array $attributes=array(),$show_line_id=false,$trim_columns=false){
+	function arrayExportTable(array $array,$menu=NULL,$wrapForm=false,$wrapBox=true,array $attributes=array(),$show_line_id=false,$trim_columns=false){
 
 		if($trim_columns){
 			$table_head['_field']=$array['_field'];
@@ -105,7 +105,7 @@ class SS_Loader extends CI_Loader{
 			}
 		}
 
-		if($surroundForm){
+		if($wrapForm){
 			echo '<form method="post">'."\n";
 		}
 
@@ -119,7 +119,7 @@ class SS_Loader extends CI_Loader{
 			echo '>'."\n".$menu['head'].'</div>'."\n";
 		}
 
-		if($surroundBox){
+		if($wrapBox){
 			echo '<div class="contentTableBox">'."\n";
 		}
 
@@ -174,7 +174,7 @@ class SS_Loader extends CI_Loader{
 		echo "	</tbody>"."\n";
 		echo "</table>"."\n";
 
-		if($surroundBox){
+		if($wrapBox){
 			if(isset($menu['foot'])){
 				echo
 				'<div class="contentTableFoot"';
@@ -191,7 +191,7 @@ class SS_Loader extends CI_Loader{
 			echo "</div>"."\n";
 		}
 
-		if($surroundForm){
+		if($wrapForm){
 			echo '</form>'."\n";
 		}
 	}
