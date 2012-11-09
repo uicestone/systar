@@ -325,6 +325,42 @@ class Client_model extends SS_Model{
 		$q_rows.=$condition;
 		$q=$this->pagination($q,$q_rows);
 		return $this->db->query($q)->result_array();
-}
+	}
+	
+	function getClientSource($id){
+		$q_source="SELECT * FROM client_source WHERE id='" . $id . "'";
+		$r_source=db_query($q_source);
+		return db_fetch_array($r_source);
+	}
+	
+	function getRelatedClient(){
+		$q_client_client="
+			SELECT 
+				client_client.id AS id,client_client.role,client_client.client_right,client_client.is_default_contact,
+				client.abbreviation AS client_right_name,client.classification,
+				phone.content AS client_right_phone,email.content AS client_right_email
+			FROM 
+				client_client INNER JOIN client ON client_client.client_right=client.id
+				LEFT JOIN (
+					SELECT client,GROUP_CONCAT(content) AS content FROM client_contact WHERE type IN('手机','固定电话') GROUP BY client
+				)phone ON client.id=phone.client
+				LEFT JOIN (
+					SELECT client,GROUP_CONCAT(content) AS content FROM client_contact WHERE type='电子邮件' GROUP BY client
+				)email ON client.id=email.client
+			WHERE `client_left`='" . post('client/id') . "'
+			ORDER BY role";
+		return $this->db->query($q_client_client)->result_array();
+	}
+	
+	function getRelatedContact(){
+		$q_client_contact="
+			SELECT 
+				client_contact.id,client_contact.comment,client_contact.content,client_contact.type
+			FROM client_contact INNER JOIN client ON client_contact.client=client.id
+			WHERE client_contact.client='" . post('client/id') . "'
+		";
+		return $this->db->query($q_client_contact)->result_array();
+	}
+	
 }
 ?>

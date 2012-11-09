@@ -203,6 +203,22 @@ class Cases_model extends SS_Model{
 		return db_fetch_field("SELECT `case` FROM case_fee WHERE id='".intval($case_fee)."'",'case');
 	}
 	
+	function getListByClient(){
+		$q_client_case="
+		SELECT case.id,case.name AS case_name,case.num,	
+			GROUP_CONCAT(DISTINCT staff.name) AS lawyers
+		FROM `case`
+			LEFT JOIN case_lawyer ON (case.id=case_lawyer.case AND case_lawyer.role='主办律师')
+			LEFT JOIN staff ON staff.id=case_lawyer.lawyer
+		WHERE case.id IN (
+			SELECT `case` FROM case_client WHERE client='" . post('client/id') . "'
+		)
+		GROUP BY case.id
+		HAVING id IS NOT NULL
+		";
+		return $this->db->query($q_client_case)->result_array();
+	}	
+	
 	/*
 		日志添加界面，根据日志类型获得案件列表
 		$schedule_type:0:案件,1:所务,2:营销
