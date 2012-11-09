@@ -43,7 +43,7 @@ class Staff_model extends SS_Model{
 	function fetch($staff_id,$field=NULL){
 		$array=db_fetch_first("SELECT * FROM staff WHERE id='".$staff_id."'");
 		if(isset($field)){
-			return $array[$field];
+			return isset($array[$field])?$array[$field]:false;
 		}else{
 			return $array;
 		}

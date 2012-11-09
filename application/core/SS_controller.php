@@ -253,7 +253,7 @@ class SS_Controller extends CI_Controller{
 	 * @param type $generate_new_id	如果$generate_new_id==false，那么必须在callback中获得post(CONTROLLER/id)，适用于id并非auto increasement，而是链接而来的情况
 	 * @param type $db_table 实际操作的数据表名，默认为控制器名，否则须指定，如contact的表名为client
 	 */
-	function getPostData($id,$callback=NULL,$generate_new_id=true,$db_table=NULL){
+	function getPostData($id,$function_initializing_data=NULL,$generate_new_id=true,$db_table=NULL){
 		if(isset($id)){
 			unset($_SESSION[CONTROLLER]['post']);
 			post(CONTROLLER.'/id',intval($id));
@@ -263,9 +263,9 @@ class SS_Controller extends CI_Controller{
 			
 			post(CONTROLLER,uidTime());
 				
-			if(is_a($callback,'Closure')){
+			if(is_a($function_initializing_data,'Closure')){
 				$CI=&get_instance();
-				$callback($CI);
+				$function_initializing_data($CI);
 			}
 	
 			if($generate_new_id){

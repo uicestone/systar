@@ -46,7 +46,8 @@ class Client extends SS_Controller{
 	}
 
 	function edit($id=NULL){
-		$this->load->model('staff_model');
+		$this->load->model('staff_model','staff');
+		$this->load->model('cases_model','cases');
 
 		$this->getPostData($id, function($CI){
 			post('client/name', $_SESSION['username'] . '的新客户 ' . date('Y-m-d h:i:s', $CI->config->item('timestamp')));
@@ -54,17 +55,15 @@ class Client extends SS_Controller{
 			post('client_extra/source_lawyer_name', $_SESSION['username']);
 		});
 
-		$q_source="SELECT * FROM client_source WHERE id='" . post('client/source') . "'";
-		$r_source=db_query($q_source);
-		post('source', db_fetch_array($r_source));
+		post('source', $this->client->fetchSource(post('client/source')));
 		//取得当前客户的"来源"数据
 
 		if(post('client/source_lawyer')){
-			post('client_extra/source_lawyer_name', db_fetch_field("SELECT name FROM staff WHERE id ='" . post('client/source_lawyer') . "'"));
+			post('client_extra/source_lawyer_name', $this->staff->fetch(post('client/source_lawyer'),'name'));
 		}
 
-		if(is_posted('character')){
-			post('client/character', $_POST['character']);
+		if($this->input->post('character') && in_array($this->input->post('character'),array('自然人','单位'))){
+			post('client/character', $this->input->post('character'));
 		}
 
 		$submitable=false;
@@ -90,7 +89,7 @@ class Client extends SS_Controller{
 
 					$this->model->addContact_phone_email(post('client_client/client_right'), post('client_client_extra/phone'), post('client_client_extra/email'));
 
-					showMessage('<a href="javascript:showWindow(\'client?edit=' . $new_client['id'] . '\')" target="_blank">新客户 ' . $new_client['name'] . ' 已经添加，点击编辑详细信息</a>', 'notice');
+					showMessage('<a href="javascript:showWindow(\'client/edit/' . $new_client['id'] . '\')" target="_blank">新客户 ' . $new_client['name'] . ' 已经添加，点击编辑详细信息</a>', 'notice');
 
 				}else{
 					//除了不存在意外的其他错误，如关键字多个匹配
@@ -159,39 +158,19 @@ class Client extends SS_Controller{
 			$this->processSubmit($submitable);
 		}
 
-		//准备client_add表单中的小表
-		$q_client_client="
-			SELECT 
-				client_client.id AS id,client_client.role,client_client.client_right,client_client.is_default_contact,
-				client.abbreviation AS client_right_name,client.classification,
-				phone.content AS client_right_phone,email.content AS client_right_email
-			FROM 
-				client_client INNER JOIN client ON client_client.client_right=client.id
-				LEFT JOIN (
-					SELECT client,GROUP_CONCAT(content) AS content FROM client_contact WHERE type IN('手机','固定电话') GROUP BY client
-				)phone ON client.id=phone.client
-				LEFT JOIN (
-					SELECT client,GROUP_CONCAT(content) AS content FROM client_contact WHERE type='电子邮件' GROUP BY client
-				)email ON client.id=email.client
-			WHERE `client_left`='" . post('client/id') . "'
-			ORDER BY role";
-
 		$field_client=array('checkbox'=>array('title'=>'<input type="submit" name="submit[client_client_delete]" value="删" />', 'orderby'=>false, 'content'=>'<input type="checkbox" name="client_client_check[{id}]" >', 'td_title'=>' width=60px'), 'client_right_name'=>array('title'=>'名称<input type="submit" name="submit[client_client_set_default]" value="默认" />', 'eval'=>true, 'content'=>"
 				\$return='';
-				\$return.='<a href=\"javascript:showWindow(\''.('{classification}'=='客户'?'client':'contact').'?edit={client_right}\')\">{client_right_name}</a>';
+				\$return.='<a href=\"javascript:showWindow(\''.('{classification}'=='客户'?'client':'contact').'/edit/{client_right}\')\">{client_right_name}</a>';
 				if('{is_default_contact}'){
 					\$return.='*';
 				}
 				return \$return;
 			", 'orderby'=>false), 'client_right_phone'=>array('title'=>'电话', 'orderby'=>false), 'client_right_email'=>array('title'=>'电邮', 'wrap'=>array('mark'=>'a', 'href'=>'mailto:{client_right_email}')), 'role'=>array('title'=>'关系', 'orderby'=>false));
-
-		$q_client_contact="
-			SELECT 
-				client_contact.id,client_contact.comment,client_contact.content,client_contact.type
-			FROM client_contact INNER JOIN client ON client_contact.client=client.id
-			WHERE client_contact.client='" . post('client/id') . "'
-		";
-
+		$related_clients=new SS_Table();
+		$related_clients->setFields($field_client)->setData($this->client->getRelatedClients(post('client/id')));
+		$this->load->addViewData('related_clients',$related_clients);
+		$this->table->clear();
+		
 		$field_client_contact=array('checkbox'=>array('title'=>'<input type="submit" name="submit[client_contact_delete]" value="删" />', 'orderby'=>false, 'content'=>'<input type="checkbox" name="client_contact_check[{id}]" >', 'td_title'=>' width=60px'), 'type'=>array('title'=>'类别', 'orderby'=>false), 'content'=>array('title'=>'内容', 'eval'=>true, 'content'=>"
 				if('{type}'=='电子邮件'){
 					return '<a href=\"mailto:{content}\" target=\"_blank\">{content}</a>';
@@ -199,39 +178,30 @@ class Client extends SS_Controller{
 					return '{content}';
 				}
 			", 'orderby'=>false), 'comment'=>array('title'=>'备注', 'orderby'=>false));
-
-		$q_client_case="
-		SELECT case.id,case.name AS case_name,case.num,	
-			GROUP_CONCAT(DISTINCT staff.name) AS lawyers
-		FROM `case`
-			LEFT JOIN case_lawyer ON (case.id=case_lawyer.case AND case_lawyer.role='主办律师')
-			LEFT JOIN staff ON staff.id=case_lawyer.lawyer
-		WHERE case.id IN (
-			SELECT `case` FROM case_client WHERE client='" . post('client/id') . "'
-		)
-		GROUP BY case.id
-		HAVING id IS NOT NULL
-		";
-
-		$field_client_case=array('num'=>array('title'=>'案号', 'wrap'=>array('mark'=>'a', 'href'=>'javascript:window.rootOpener.location.href=\'case?edit={id}\';window.opener.parent.focus();'), 'orderby'=>false), 'case_name'=>array('title'=>'案名', 'orderby'=>false), 'lawyers'=>array('title'=>'主办律师', 'orderby'=>false));
-
-		$data=compact('q_client_client', 'field_client', 'q_client_contact', 'field_client_contact', 'q_client_case', 'field_client_case');
-
-		$this->load->view('head', $data);
-
+		$contacts=clone $this->table->setFields($field_client_contact)->setData($this->client->getContacts(post('client/id')));
+		$this->load->addViewData('contacts',$contacts);
+		$this->table->clear();
+		
+		$field_client_case=array('num'=>array('title'=>'案号', 'wrap'=>array('mark'=>'a', 'href'=>'javascript:window.rootOpener.location.href=\'cases/edit/{id}\';window.opener.parent.focus();'), 'orderby'=>false), 'case_name'=>array('title'=>'案名', 'orderby'=>false), 'lawyers'=>array('title'=>'主办律师', 'orderby'=>false));
+		$cases=clone $this->table->setFields($field_client_case)->setData($this->cases->getListByClient(post('client/id')));
+		$this->load->addViewData('cases',$cases);
+		$this->table->clear();
+		
 		if(post('client/character') == '单位'){
 			$this->load->view('client/add_artificial');
 
 		}else{
 			$this->load->view('client/add_natural');
 		}
+		$this->load->main_view_loaded=true;
 
 	}
 
-	function autocomplete(){$type=NULL;
-		got('type') && $type=$_GET['type'];
+	function autocomplete(){
+		$type=NULL;
+		got('type') && $type=$this->input->get('type');
 
-		$result=$this->client->match($_POST['term'], 'client', $type);
+		$result=$this->client->match($this->input->post('term'), 'client', $type);
 
 		$array=array();
 
@@ -241,14 +211,5 @@ class Client extends SS_Controller{
 		}
 		echo json_encode($array);
 	}
-
-	function getSourceLawyer(){
-		model('staff');
-		$staff=$this->staff->fetch(client_check($_POST['client_name'], 'source_lawyer'));
-		if($staff){
-			echo $staff['name'];
-		}
-	}
-
 }
 ?>
