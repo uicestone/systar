@@ -152,7 +152,7 @@ class Client extends SS_Controller{
 				$submitable=false;
 			}
 
-			if(post('client/source_lawyer', $this->staff_model->check(post('client_extra/source_lawyer_name'), 'id', true, 'client/source_lawyer')) < 0){
+			if(post('client/source_lawyer', $this->staff->check(post('client_extra/source_lawyer_name'), 'id', true, 'client/source_lawyer')) < 0){
 				$submitable=false;
 			}
 			$this->processSubmit($submitable);

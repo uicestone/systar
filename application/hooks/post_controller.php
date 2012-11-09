@@ -19,12 +19,15 @@ function postController(){
 		$CI->output->prepend_output($CI->load->view('head',array(),true));
 
 		if(!$CI->load->sidebar_loaded){
-			$CI->output->append_output(
-				$CI->load->view('sidebar_head',array(),true).
-				$CI->load->sidebar_data.
-				(is_file(APPPATH.'views/'.$class.'/'.$method.'_sidebar'.'.php')?$CI->load->view("{$class}/{$method}_sidebar",array(),true):'').
-				$CI->load->view('sidebar_foot',array(),true)
-			);
+			$sidebar=$CI->load->sidebar_data.
+				(is_file(APPPATH.'views/'.$class.'/'.$method.'_sidebar'.'.php')?$CI->load->view("{$class}/{$method}_sidebar",array(),true):'');
+			if($sidebar){
+				$CI->output->append_output(
+					$CI->load->view('sidebar_head',array(),true).
+					$sidebar.
+					$CI->load->view('sidebar_foot',array(),true)
+				);
+			}
 		}
 		$CI->output->append_output($CI->load->view('foot',array(),true));
 	}

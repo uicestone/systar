@@ -24,11 +24,6 @@ class SS_Controller extends CI_Controller{
 			$method=$this->default_method;
 		}
 		
-		if($this->input->post('submit/cancel')){
-			$this->load->require_head=false;
-			$method='cancel';
-		}
-		
 		//定义$class常量，即控制器的名称
 		define('CONTROLLER',$class);
 		define('METHOD',$method);
@@ -244,6 +239,12 @@ class SS_Controller extends CI_Controller{
 		if(is_file(APPPATH.'models/'.$class.'_model.php')){
 			$this->load->model($class.'_model',$class);
 		}
+
+		if($this->input->post('submit/cancel')){
+			$this->load->require_head=false;
+			$method='cancel';
+		}
+		
 	}
 	
 	/**
@@ -325,18 +326,18 @@ class SS_Controller extends CI_Controller{
 
 				if(is_posted('submit/'.CONTROLLER)){
 
-					if(!$this->config->item('as_controller_default_page')){
+					if(!$this->as_controller_default_page){
 						unset($_SESSION[CONTROLLER]['post']);
 					}
 
-					if($this->config->item('as_popup_window')){
+					if($this->as_popup_window){
 						refreshParentContentFrame();
 						closeWindow();
 					}else{
-						if($this->config->item('as_controller_default_page')){
+						if($this->as_controller_default_page){
 							showMessage('保存成功~');
 						}else{
-							redirect((sessioned('last_list_action')?$_SESSION['last_list_action']:CONTROLLER));
+							redirect(($this->session->userdata('last_list_action')?$this->session->userdata('last_list_action'):CONTROLLER));
 						}
 					}
 				}
@@ -345,6 +346,7 @@ class SS_Controller extends CI_Controller{
 	}
 
 	function processUidTimeInfo($affair){
+		show_error('Controller::proessUidTimeInfo,此方法已废弃，请使用uidTime()代替');exit;
 		if(!post($affair)){
 			post($affair,array());
 		}
