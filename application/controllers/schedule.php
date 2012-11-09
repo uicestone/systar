@@ -113,7 +113,7 @@ class Schedule extends SS_controller{
 		$this->table->setFields($field)
 			->setData($this->schedule->getList($para));
 
-		if(is_posted('export')){
+		if($this->input->post('export')){
 			
 			$this->load->model('document_model','document');
 
@@ -162,15 +162,15 @@ class Schedule extends SS_controller{
 		$this->load->model('client_model','client');
 		
 		$this->getPostData($id,function(){
-			if(got('case')){
-				post('schedule/case',intval($_GET['case']));
+			if($this->input->get('case')){
+				post('schedule/case',intval($this->input->get('case')));
 			}
-			if(got('client')){
-				post('schedule/client',intval($_GET['client']));
+			if($this->input->get('client')){
+				post('schedule/client',intval($this->input->get('client')));
 			}
 		
-			if(got('completed')){
-				post('schedule/completed',(int)(bool)$_GET['completed']);
+			if($this->input->get('completed')){
+				post('schedule/completed',(int)(bool)$this->input->get('completed'));
 		
 			}else{
 				post('schedule/completed',1);//默认插入的是日志，不是提醒
@@ -185,7 +185,7 @@ class Schedule extends SS_controller{
 		
 		$submitable=false;//可提交性，false则显示form，true则可以跳转
 		
-		if(is_posted('submit')){
+		if($this->input->post('submit')){
 			$submitable=true;
 			
 			$_SESSION['schedule']['post']=array_replace_recursive($_SESSION['schedule']['post'],$_POST);
@@ -283,8 +283,8 @@ class Schedule extends SS_controller{
 	}
 
 	function listWrite(){
-		if(is_posted('schedule_list_comment')){
-			foreach($_POST['schedule_list_comment'] as $id => $comment){
+		if($this->input->post('schedule_list_comment')){
+			foreach($this->input->post('schedule_list_comment') as $id => $comment){
 				$schedule_list_comment_return=$this->schedule->setComment($id,$comment);
 				
 				echo $schedule_list_comment_return['comment'];
@@ -296,8 +296,8 @@ class Schedule extends SS_controller{
 			}
 		}
 		
-		if(is_posted('schedule_list_hours_checked') || is_posted('schedule_list_hours_checked')){
-			foreach($_POST['schedule_list_hours_checked'] as $id => $hours_checked){
+		if($this->input->post('schedule_list_hours_checked') || $this->input->post('schedule_list_hours_checked')){
+			foreach($this->input->post('schedule_list_hours_checked') as $id => $hours_checked){
 				echo $this->schedule->check_hours($id,$hours_checked);
 			}
 		}
@@ -312,14 +312,14 @@ class Schedule extends SS_controller{
 			WHERE schedule.display=1 AND schedule.place<>''
 		";
 		
-		if(got('case') && got('staff')){
-			$q.=" AND schedule.`case`='".$_GET['case']."' AND uid='".$_GET['staff']."'";
+		if($this->input->get('case') && $this->input->get('staff')){
+			$q.=" AND schedule.`case`='".$this->input->get('case')."' AND uid='".$this->input->get('staff')."'";
 		
-		}elseif(got('case')){
-			$q.=" AND schedule.`case`='".$_GET['case']."'";
+		}elseif($this->input->get('case')){
+			$q.=" AND schedule.`case`='".$this->input->get('case')."'";
 		
-		}elseif(got('staff')){
-			$q.=" AND schedule.`uid`='".$_GET['staff']."'";
+		}elseif($this->input->get('staff')){
+			$q.=" AND schedule.`uid`='".$this->input->get('staff')."'";
 		
 		}
 		
@@ -358,8 +358,8 @@ class Schedule extends SS_controller{
 			echo json_encode($this->schedule->fetch_single(intval($id)));
 		
 		}else{
-			//获得当前视图的全部日历，根据$_GET['start'],$_GET['end'](timestamp)
-			echo json_encode($this->schedule->fetch_range($_GET['start'],$_GET['end'],$_GET['staff'],$_GET['case']));
+			//获得当前视图的全部日历，根据$this->input->get('start'),$this->input->get('end')(timestamp)
+			echo json_encode($this->schedule->fetch_range($this->input->get('start'),$this->input->get('end'),$this->input->get('staff'),$this->input->get('case')));
 		}
 	}
 	
@@ -466,36 +466,36 @@ class Schedule extends SS_controller{
 	}
 	
 	function writeCalendar(){
-		if(!is_posted('id')){//插入新的任务
+		if(!$this->input->post('id')){//插入新的任务
 			echo $this->schedule->add($_POST);
 			unset($_SESSION['schedule']['post']);
 			
-		}elseif(is_posted('action','delete')){//删除任务
-			$this->schedule->delete($_POST['id']);
+		}elseif($this->input->post('action')=='delete'){//删除任务
+			$this->schedule->delete($this->input->post('id'));
 		
-		}elseif(is_posted('action','updateContent')){//更新任务内容
-			$this->schedule->update($_POST['id'],array(
-				'content'=>$_POST['content'],
-				'experience'=>$_POST['experience'],
-				'completed'=>$_POST['completed'],
-				'fee'=>(float)$_POST['fee'],
-				'fee_name'=>$_POST['fee_name'],
-				'place'=>$_POST['place']
+		}elseif($this->input->post('action')=='updateContent'){//更新任务内容
+			$this->schedule->update($this->input->post('id'),array(
+				'content'=>$this->input->post('content'),
+				'experience'=>$this->input->post('experience'),
+				'completed'=>$this->input->post('completed'),
+				'fee'=>(float)$this->input->post('fee'),
+				'fee_name'=>$this->input->post('fee_name'),
+				'place'=>$this->input->post('place')
 			));
 		
 		}else{//更新任务时间
-			$timeDelta=intval($_POST['dayDelta'])*86400+intval($_POST['minuteDelta'])*60;
+			$timeDelta=intval($this->input->post('dayDelta'))*86400+intval($this->input->post('minuteDelta'))*60;
 			
-			if(is_posted('action','resize')){
+			if($this->input->post('action')=='resize'){
 				$data['hours_own']="_`hours_own`+'".($timeDelta/3600)."'_";
-			}elseif(is_posted('action','drag')){
+			}elseif($this->input->post('action')=='drag'){
 				$data['time_start']="_`time_start`+'".$timeDelta."'_";
 			}
 			
-			$data['all_day']=(int)$_POST['allDay'];
+			$data['all_day']=(int)$this->input->post('allDay');
 			$data['time_end']="_time_end+'".$timeDelta."'_";
 			
-			$this->schedule->update($_POST['id'],$data);
+			$this->schedule->update($this->input->post('id'),$data);
 		}
 	}
 }

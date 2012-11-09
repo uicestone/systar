@@ -65,7 +65,7 @@ function template($filename){
 
 /*
  * 判断$_GET[$variable]是否定义，或者判断其是否等于$value
- * 比起直接用$_GET['foo']=='bar'来判断,got('foo','bar')更便于书写，而且在foo没有定义的时候不会报错
+ * 比起直接用$this->input->get('foo')=='bar'来判断,got('foo','bar')更便于书写，而且在foo没有定义的时候不会报错
  */
 function got($variable,$value=NULL){
 	if(is_null($value))

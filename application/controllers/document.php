@@ -70,13 +70,13 @@ class Document extends SS_controller{
 	}
 
 	function createDir(){
-		$dirPath=iconv("utf-8","gbk",$_SESSION['document']['currentPath']."/".$_POST['dirName']);
+		$dirPath=iconv("utf-8","gbk",$_SESSION['document']['currentPath']."/".$this->input->post('dirName'));
 		mkdir($dirPath);
 		$dir=array(
-			'name'=>$_POST['dirName'],
+			'name'=>$this->input->post('dirName'),
 			'parent'=>$_SESSION['document']['currentDir'],
 			'level'=>$_SESSION['document']['currentLevel'],
-			'path'=>$_SESSION['document']['currentPath']."/".$_POST['dirName'],
+			'path'=>$_SESSION['document']['currentPath']."/".$this->input->post('dirName'),
 			'parent'=>$_SESSION['document']['currentDirID'],
 			'type'=>''
 		);
@@ -86,7 +86,7 @@ class Document extends SS_controller{
 	}
 
 	function download(){
-		$file=db_fetch_first("SELECT * FROM document WHERE id = '".intval($_GET['view'])."'");
+		$file=db_fetch_first("SELECT * FROM document WHERE id = '".intval($this->input->get('view'))."'");
 		
 		document_exportHead($file['name']);
 		
@@ -98,7 +98,7 @@ class Document extends SS_controller{
 	
 	function favDelete(){
 		$_POST=array_trim($_POST);
-		unset($_POST['favDelete']);
+		unset($this->input->post('favDelete'));
 		print_r($_POST);
 		if(isset($_POST)){
 			$condition = db_implode($_POST, $glue = ' OR ','file','=',"'","'", '`','key');
@@ -112,7 +112,7 @@ class Document extends SS_controller{
 		$_POST=array_trim($_POST);
 		if(isset($_POST)){
 			$glue=$values='';
-			foreach($_POST['document'] as $id=>$status){
+			foreach($this->input->post('document') as $id=>$status){
 				$values.=$glue."('".$id."','".$_SESSION['id']."','".time()."')";
 				$glue=','."\n";
 			}
@@ -148,7 +148,7 @@ class Document extends SS_controller{
 				'size'=>$_FILES["file"]['size'],
 				'parent'=>$_SESSION['document']['currentDirID'],
 				'path'=>$_SESSION['document']['currentPath']."/".$_FILES["file"]["name"],
-				'comment'=>$_POST['comment'],
+				'comment'=>$this->input->post('comment'),
 				'uid'=>$_SESSION['id'],
 				'username'=>$_SESSION['username'],
 				'time'=>$this->config->item('timestamp')

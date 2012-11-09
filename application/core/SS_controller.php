@@ -110,45 +110,45 @@ class SS_Controller extends CI_Controller{
 			//error_reporting('~E_ALL');
 	
 			if($method=='script'){
-				$this->action='cron_'.$_GET['script'];
+				$this->action='cron_'.$this->input->get('script');
 	
 			}
 	
 		}elseif($class=='document'){
-			if(is_posted('fileSubmit')){
+			if($this->input->post('fileSubmit')){
 				$this->load->require_head=false;
 	
-			}elseif(is_posted('createDirSubmit')){
+			}elseif($this->input->post('createDirSubmit')){
 				$this->load->require_head=false;
 	
-			}elseif(is_posted('fav')){
+			}elseif($this->input->post('fav')){
 				$this->load->require_head=false;
 	
-			}elseif(is_posted('favDelete')){
+			}elseif($this->input->post('favDelete')){
 				$this->load->require_head=false;
 	
 			}elseif(($method=='view' || $method=='office_document' || $method=='instrument' || $method=='contact_file' || $method=='rules' || $method=='contract')){//根据目录ID进行定位/文件ID则进行下载
 	
 				if($method=='office_document'){
-					$_GET['view']=869;
+					$this->input->get('view')=869;
 	
 				}elseif($method=='instrument'){
-					$_GET['view']=870;
+					$this->input->get('view')=870;
 	
 				}elseif($method=='contact_file'){
-					$_GET['view']=872;
+					$this->input->get('view')=872;
 	
 				}elseif($method=='rules'){
-					$_GET['view']=874;
+					$this->input->get('view')=874;
 	
 				}elseif($method=='contract'){
-					$_GET['view']=873;
+					$this->input->get('view')=873;
 				}
 	
 	
 				option('in_search_mod',false);
 	
-				$folder=db_fetch_first("SELECT * FROM `document` WHERE id='".intval($_GET['view'])."'");
+				$folder=db_fetch_first("SELECT * FROM `document` WHERE id='".intval($this->input->get('view'))."'");
 	
 				if($folder['type']!=''){
 					$this->action="document_download";
@@ -185,7 +185,7 @@ class SS_Controller extends CI_Controller{
 				$this->load->require_head=false;
 	
 			}elseif(($method=='list' || $method=='mine' || $method=='plan')){
-				if(is_posted('export')){
+				if($this->input->post('export')){
 					$this->load->require_head=false;
 				}
 	
@@ -229,7 +229,7 @@ class SS_Controller extends CI_Controller{
 	
 			}
 		}elseif($class=='view_score'){
-			if(is_posted('export_to_excel')){
+			if($this->input->post('export_to_excel')){
 				$this->load->require_head=false;
 			}
 		}

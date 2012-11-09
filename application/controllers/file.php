@@ -101,8 +101,8 @@ class File extends SS_controller{
 	function addStatus(){
 		$action='addFileStatus';
 		
-		if(is_posted('fileStatusSubmit')){//获取表单数据并校验
-			unset($_POST['fileStatusSubmit']);
+		if($this->input->post('fileStatusSubmit')){//获取表单数据并校验
+			unset($this->input->post('fileStatusSubmit'));
 			$action='insertFileStatus';
 		
 			$_SESSION['file']['post']=$_POST;
@@ -116,7 +116,7 @@ class File extends SS_controller{
 			}
 		
 			if($action=='insertFileStatus'){
-				$_SESSION['file']['post']['file']=$_GET['addStatus'];
+				$_SESSION['file']['post']['file']=$this->input->get('addStatus');
 				$_SESSION['file']['post']['time']=time();
 				db_insert('file_status',$_SESSION['file']['post']);
 				unset($_SESSION['file']['post']);
@@ -266,7 +266,7 @@ class File extends SS_controller{
 		$q="SELECT *,FROM_UNIXTIME(time,'%Y-%m-%d') AS time 
 			FROM `file`,`file_status` 
 			WHERE file.id=file_status.file 
-				AND file.id='".$_GET['view']."'";
+				AND file.id='".$this->input->get('view')."'";
 		
 		$this->processOrderby($q,'time','DESC');
 		

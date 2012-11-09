@@ -5,7 +5,7 @@ class Exam extends SS_controller{
 	}
 	
 	function index(){
-		if(is_posted('allocate_seat')){
+		if($this->input->post('allocate_seat')){
 			exam_allocate_seat();
 		}
 		
@@ -50,9 +50,9 @@ class Exam extends SS_controller{
 	}
 
 	function listSave(){
-		if(got('update') && is_posted('id')){
-			$data=array($_POST['field']=>$_POST['value']);
-			db_update($_POST['table'],$data,"id='".intval($_POST['id'])."'");
+		if($this->input->get('update') && $this->input->post('id')){
+			$data=array($this->input->post('field')=>$this->input->post('value'));
+			db_update($this->input->post('table'),$data,"id='".intval($this->input->post('id'))."'");
 			
 		}elseif(got('action','exam')){
 			$new_exam=array_trim($_POST);
@@ -147,7 +147,7 @@ class Exam extends SS_controller{
 	}
 	
 	function paperList(){
-		post('exam/id',intval($_GET['exam']));
+		post('exam/id',intval($this->input->get('exam')));
 		
 		$q="SELECT 
 				course.id AS course,course.name AS course_name,
@@ -197,7 +197,7 @@ class Exam extends SS_controller{
 	}
 
 	function viewSeat(){
-		$exam=intval($_GET['exam']);
+		$exam=intval($this->input->get('exam'));
 		
 		$q="SELECT 
 				view_student.num,view_student.class_name,view_student.name AS student_name,

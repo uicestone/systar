@@ -8,8 +8,8 @@ class User_model extends SS_Model{
 		global $_G;
 	
 		$q_user="SELECT id,username,password,`group`,lastip,lastlogin,company FROM user 
-				WHERE (username = '".$_POST['username']."' OR alias='".$_POST['username']."')
-					AND (password = '".$_POST['password']."' OR password IS NULL)
+				WHERE (username = '".$this->input->post('username')."' OR alias='".$this->input->post('username')."')
+					AND (password = '".$this->input->post('password')."' OR password IS NULL)
 					AND company='".$_G['company']."'
 			";
 		

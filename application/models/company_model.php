@@ -106,7 +106,7 @@ class Company_model extends SS_Model{
 		);
 		
 		if(is_logged('manager')){
-			$staff=got('staff')?$_GET['staff']:false;
+			$staff=$this->input->get('staff')?$this->input->get('staff'):false;
 			$sidebar_table[]=array(
 				'_heading'=>array(
 					'schedule_check'=>'员工日程检阅'

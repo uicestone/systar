@@ -60,8 +60,8 @@ class Schedule_model extends SS_Model{
 	
 	function reviewSelected(){
 		$_POST=array_trim($_POST);
-		if(isset($_POST['schedule_check'])){
-			$condition = db_implode($_POST['schedule_check'], $glue = ' OR ','id','=',"'","'", '`','key');
+		if(isset($this->input->post('schedule_check'))){
+			$condition = db_implode($this->input->post('schedule_check'), $glue = ' OR ','id','=',"'","'", '`','key');
 			db_update('schedule',array('hours_checked'=>'#hours_own#'),$condition);
 		}
 	}
@@ -123,24 +123,24 @@ class Schedule_model extends SS_Model{
 				INNER JOIN case_lawyer ON case.id=case_lawyer.case
 				LEFT JOIN staff ON staff.id = schedule.uid
 			WHERE case_lawyer.lawyer='".$_SESSION['id']."'
-				AND schedule.display=1 AND schedule.completed=".(got('plan')?'0':'1')."
+				AND schedule.display=1 AND schedule.completed=".($this->input->get('plan')?'0':'1')."
 		";
 		
 		$condition='';
 		if($para=='mine'){
 			$condition.=" AND schedule.`uid`='".$_SESSION['id']."'";
 		}else{
-			if(got('staff')){
-				$condition.=" AND schedule.`uid`='".intval($_GET['staff'])."'";
+			if($this->input->get('staff')){
+				$condition.=" AND schedule.`uid`='".intval($this->input->get('staff'))."'";
 			}
 		}
 
-		if(got('case')){
-			$condition.=" AND schedule.`case`='".intval($_GET['case'])."'";
+		if($this->input->get('case')){
+			$condition.=" AND schedule.`case`='".intval($this->input->get('case'))."'";
 		}
 			
-		if(got('client')){
-			$condition.=" AND schedule.client='".intval($_GET['client'])."'";
+		if($this->input->get('client')){
+			$condition.=" AND schedule.client='".intval($this->input->get('client'))."'";
 		}
 									
 		$q.=$condition;
@@ -149,9 +149,9 @@ class Schedule_model extends SS_Model{
 		$q=$this->dateRange($q,'time_start');
 		$q.="
 			GROUP BY schedule.id
-			ORDER BY FROM_UNIXTIME(time_start,'%Y%m%d') ".(got('plan')?'ASC':'DESC').",schedule.uid,time_start ".(got('plan')?'ASC':'DESC')."
+			ORDER BY FROM_UNIXTIME(time_start,'%Y%m%d') ".($this->input->get('plan')?'ASC':'DESC').",schedule.uid,time_start ".($this->input->get('plan')?'ASC':'DESC')."
 		";
-		if(!is_posted('export')){
+		if(!$this->input->post('export')){
 		    $q=$this->pagination($q);
 		}
 

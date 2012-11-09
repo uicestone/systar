@@ -134,15 +134,15 @@ class Evaluation extends SS_controller{
 		$this->load->view('lists',$this->view_data);
 	}
 	
-	function scoreWrite(){$staff=intval($_GET['staff']);
-		$indicator=intval($_POST['indicator']);
-		//$anonymous=intval($_POST['anonymous']);
+	function scoreWrite(){$staff=intval($this->input->get('staff'));
+		$indicator=intval($this->input->post('indicator'));
+		//$anonymous=intval($this->input->post('anonymous'));
 		
 		$field=$value=NULL;
 		
-		if(is_posted('field') && is_posted('value')){
-			$field=$_POST['field'];
-			$value=$_POST['value'];
+		if($this->input->post('field') && $this->input->post('value')){
+			$field=$this->input->post('field');
+			$value=$this->input->post('value');
 		}
 		
 		if($evaluation_insert_score=evaluation_insert_score($indicator,$staff,$field,$value/*,$anonymous*/)){
@@ -151,7 +151,7 @@ class Evaluation extends SS_controller{
 	}
 	
 	function score(){
-		$staff=intval($_GET['staff']);
+		$staff=intval($this->input->get('staff'));
 		
 		$position=db_fetch_field("SELECT position FROM staff WHERE id='".$staff."'");
 		

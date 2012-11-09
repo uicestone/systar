@@ -5,7 +5,7 @@ class Student extends SS_controller{
 	}
 	
 	function index(){
-		if(got('update')){
+		if($this->input->get('update')){
 			student_update();
 			showMessage('学生视图更新完成');
 		}
@@ -118,7 +118,7 @@ class Student extends SS_controller{
 		isset($student_class['class_teacher_name']) && post('student_extra/class_teacher_name',$student_class['class_teacher_name']);
 		$submitable=false;//可提交性，false则显示form，true则可以跳转
 		
-		if(is_posted('submit')){
+		if($this->input->post('submit')){
 			$submitable=true;
 		
 			$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$_POST);
@@ -266,7 +266,7 @@ class Student extends SS_controller{
 		$classes=2;
 		$subjects=4;
 		
-		if(got('run')){
+		if($this->input->get('run')){
 			set_time_limit(0);
 		
 			$data=db_toArray("
@@ -423,7 +423,7 @@ class Student extends SS_controller{
 	function interactive(){
 		model('user');
 		
-		if(is_posted('submit')){
+		if($this->input->post('submit')){
 			$submitable=true;
 			
 			$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$_POST);
@@ -489,7 +489,7 @@ class Student extends SS_controller{
 		}elseif(is_logged('parent')){
 			$student=$_SESSION['child'];
 		}else{
-			$student=intval($_GET['student']);
+			$student=intval($this->input->get('student'));
 		}
 		
 		$course_array=db_toArray("SELECT id,name,chart_color FROM course",true);

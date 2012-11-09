@@ -21,7 +21,7 @@ class Contact_model extends SS_Model{
 		
 		 WHERE display=1";
 		
-		if(got('opposite')){
+		if($this->input->get('opposite')){
 			$q.=" AND classification='相对方'";
 		
 		}else{

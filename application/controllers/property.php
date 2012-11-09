@@ -56,8 +56,8 @@ class Property extends SS_controller{
 	function add(){
 		$action='addProperty';
 		
-		if(is_posted('propertySubmit')){//获取表单数据并校验
-			unset($_POST['propertySubmit']);
+		if($this->input->post('propertySubmit')){//获取表单数据并校验
+			unset($this->input->post('propertySubmit'));
 			$action='insertProperty';
 		
 			$_SESSION['property']['post']=$_POST;
@@ -92,8 +92,8 @@ class Property extends SS_controller{
 	function addStatus(){
 		$action='addPropertyStatus';
 		
-		if(is_posted('propertyStatusSubmit')){//获取表单数据并校验
-			unset($_POST['propertyStatusSubmit']);
+		if($this->input->post('propertyStatusSubmit')){//获取表单数据并校验
+			unset($this->input->post('propertyStatusSubmit'));
 			$action='insertPropertyStatus';
 		
 			$_SESSION['property']['post']=$_POST;
@@ -107,7 +107,7 @@ class Property extends SS_controller{
 			}
 		
 			if($action=='insertPropertyStatus'){
-				$_SESSION['property']['post']['property']=$_GET['addStatus'];
+				$_SESSION['property']['post']['property']=$this->input->get('addStatus');
 				$_SESSION['property']['post']['time']=time();
 				db_insert('property_status',$_SESSION['property']['post']);
 				unset($_SESSION['property']['post']);
@@ -125,7 +125,7 @@ class Property extends SS_controller{
 		$q="SELECT * 
 			FROM `property`,`property_status` 
 			WHERE property.id=property_status.property 
-				AND property.id='".$_GET['view']."'";
+				AND property.id='".$this->input->get('view')."'";
 		
 		$this->processOrderby($q,'time','DESC');
 		

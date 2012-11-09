@@ -24,9 +24,9 @@ class Score extends SS_controller{
 		
 		$examArray=db_toArray($q_exam);
 		
-		if(got('exam_paper')){
+		if($this->input->get('exam_paper')){
 			foreach($examArray as $exam){
-				if($exam['exam_paper']==intval($_GET['exam_paper'])){
+				if($exam['exam_paper']==intval($this->input->get('exam_paper'))){
 					$currentExam=$exam;
 				}
 			}
@@ -156,7 +156,7 @@ class Score extends SS_controller{
 	}
 
 	function board(){
-		if(is_posted('partChooseSubmit')){
+		if($this->input->post('partChooseSubmit')){
 			//刚从试卷选择界面到登分,界面获得当前大题和所属试卷信息
 			$q_exam_part="SELECT 
 				exam.id AS exam,exam.name AS name,
@@ -168,9 +168,9 @@ class Score extends SS_controller{
 				(
 					(
 						(
-							exam_paper INNER JOIN exam ON (exam_paper.id='".$_POST['exam_paper']."' AND exam_paper.exam=exam.id AND exam_paper.is_scoring=1)
+							exam_paper INNER JOIN exam ON (exam_paper.id='".$this->input->post('exam_paper')."' AND exam_paper.exam=exam.id AND exam_paper.is_scoring=1)
 						)
-						INNER JOIN exam_part ON (exam_part.id='".$_POST['part']."' AND exam_paper.id=exam_part.exam_paper)
+						INNER JOIN exam_part ON (exam_part.id='".$this->input->post('part')."' AND exam_paper.id=exam_part.exam_paper)
 					)
 					INNER JOIN course ON exam_paper.course=course.id
 				)
@@ -185,37 +185,37 @@ class Score extends SS_controller{
 			array_dir('_SESSION/score/currentStudent_id_in_exam',1);
 		}
 		
-		if(is_posted('nextScore') || is_posted('previousScore') || is_posted('backToPartChoose')){
+		if($this->input->post('nextScore') || $this->input->post('previousScore') || $this->input->post('backToPartChoose')){
 			
 			$scoreData=array(
 				'student'=>$_SESSION['score']['currentStudent']['student'],
 				'exam'=>$_SESSION['score']['currentExam']['exam'],
 				'exam_paper'=>$_SESSION['score']['currentExam']['exam_paper'],
 				'exam_part'=>$_SESSION['score']['currentExam']['exam_part'],
-				'score'=>is_posted('is_absent')?'0':$_POST['score'],
-				'is_absent'=>is_posted('is_absent')?'1':'0',
+				'score'=>$this->input->post('is_absent')?'0':$this->input->post('score'),
+				'is_absent'=>$this->input->post('is_absent')?'1':'0',
 				'scorer'=>$_SESSION['id'],
 				'scorer_username'=>$_SESSION['username'],
 				'time'=>$this->config->item('timestamp')
 			);
 			
-			if($_POST['score']!=$_SESSION['score']['currentScore']['score'] || isset($_POST['is_absent'])!=$_SESSION['score']['currentScore']['is_absent'])
+			if($this->input->post('score')!=$_SESSION['score']['currentScore']['score'] || isset($this->input->post('is_absent'))!=$_SESSION['score']['currentScore']['is_absent'])
 				db_insert('score',$scoreData,false,true);//当前学生-大题-分数插入数据表，不返回insertid，使用replace
 			
-			if(is_posted('nextScore'))
+			if($this->input->post('nextScore'))
 				$_SESSION['score']['currentStudent_id_in_exam']++;
-			if(is_posted('previousScore'))
+			if($this->input->post('previousScore'))
 				$_SESSION['score']['currentStudent_id_in_exam']--;
-			if(is_posted('backToPartChoose')){
+			if($this->input->post('backToPartChoose')){
 				unset($_SESSION['score']['currentExam']);
 				redirect('score.php');
 			}
 		}
 		
-		if(is_posted('studentSearch')){
+		if($this->input->post('studentSearch')){
 			$q_student="
 				SELECT * FROM exam_student,view_student 
-				WHERE view_student.num='".$_POST['studentNumForSearch']."'
+				WHERE view_student.num='".$this->input->post('studentNumForSearch')."'
 					AND exam_student.student=view_student.id
 					AND exam_student.exam='".$_SESSION['score']['currentExam']['exam']."'
 			";
@@ -263,9 +263,9 @@ class Score extends SS_controller{
 		
 		$examArray=db_toArray($q_exam);
 		
-		if(got('exam_paper')){
+		if($this->input->get('exam_paper')){
 			foreach($examArray as $exam){
-				if($exam['exam_paper']==$_GET['exam_paper']){
+				if($exam['exam_paper']==$this->input->get('exam_paper')){
 					$currentExam=$exam;
 				}
 			}

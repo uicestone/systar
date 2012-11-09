@@ -44,7 +44,7 @@ class Query extends SS_controller{
 			post('client/gender','男');
 		});
 		
-		if(is_posted('submit')){
+		if($this->input->post('submit')){
 			if(is_posted('submit/advanced')){
 				$case_id=post('query/id');
 				unset($_SESSION[CONTROLLER]['post']);

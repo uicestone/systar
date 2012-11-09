@@ -5,8 +5,8 @@ class Classes extends SS_controller{
 	}
 	
 	function index(){
-		if(is_posted('grade')){
-			option('grade',$_POST['grade']);
+		if($this->input->post('grade')){
+			option('grade',$this->input->post('grade'));
 		}
 		
 		$q="
@@ -59,7 +59,7 @@ class Classes extends SS_controller{
 		
 		$submitable=false;
 		
-		if(is_posted('submit')){
+		if($this->input->post('submit')){
 			$submitable=true;
 		
 			$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$_POST);

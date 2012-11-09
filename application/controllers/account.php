@@ -72,11 +72,11 @@ class Account extends SS_controller{
 		$this->load->model('case_model');
 		
 		$this->getPostData($id,function($CI){
-			if(got('case')){
-				post(CONTROLLER.'/case',intval($_GET['case']));
+			if($this->input->get('case')){
+				post(CONTROLLER.'/case',intval($this->input->get('case')));
 			}
-			if(got('client')){
-				post(CONTROLLER.'/client',intval($_GET['client']));
+			if($this->input->get('client')){
+				post(CONTROLLER.'/client',intval($this->input->get('client')));
 			}
 		
 			post('account/name','律师费');
@@ -86,13 +86,13 @@ class Account extends SS_controller{
 		//转换时间
 		post('account_extra/time_occur',date('Y-m-d',post('account/time_occur')));
 		
-		if(got('case')){
-			post('account/case',intval($_GET['case']));
+		if($this->input->get('case')){
+			post('account/case',intval($this->input->get('case')));
 		}
 		
 		$submitable=false;//可提交性，false则显示form，true则可以跳转
 		
-		if(is_posted('submit')){
+		if($this->input->post('submit')){
 			$submitable=true;
 			
 			$_SESSION['account']['post']=array_replace_recursive($_SESSION['account']['post'],$_POST);

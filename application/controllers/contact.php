@@ -6,7 +6,7 @@ class Contact extends SS_controller{
 	
 	function lists(){
 		$this->load->model('client_model','client');	    
-		if(is_posted('delete')){
+		if($this->input->post('delete')){
 			$contacts_to_delete=array_trim($this->input->post('contact_check'));
 			$this->client->delete($contacts_to_delete);
 		}
@@ -48,13 +48,13 @@ class Contact extends SS_controller{
 			post('contact/abbreviation',$_SESSION['username'].'的新联系人 '.date('Y-m-d h:i:s',$CI->config->item('timestamp')));
 		},true,'client');
 		
-		if(is_posted('character')){
-			post('contact/character',$_POST['character']);
+		if($this->input->post('character')){
+			post('contact/character',$this->input->post('character'));
 		}
 		
 		$submitable=false;//可提交性，false则显示form，true则可以跳转
 		
-		if(is_posted('submit')){
+		if($this->input->post('submit')){
 			$submitable=true;
 		
 			$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$_POST);

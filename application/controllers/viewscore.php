@@ -78,7 +78,7 @@ class ViewScore extends SS_controller{
 			'course_sum_5'=>''
 		);
 		
-		if(is_posted('export_to_excel')){
+		if($this->input->post('export_to_excel')){
 			$field=array(
 				'class'=>array('title'=>'班级','content'=>'{class_name}'),
 				'student_num'=>array('title'=>'学生','content'=>'{student_name}'),
@@ -100,7 +100,7 @@ class ViewScore extends SS_controller{
 		
 		$table=$this->fetchTableArray($q,$field);
 		
-		if(is_posted('export_to_excel')){
+		if($this->input->post('export_to_excel')){
 			model('document');
 			document_exportHead('成绩.xls');
 			arrayExportExcel($table);

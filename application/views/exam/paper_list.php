@@ -16,7 +16,7 @@ $(function(){
 			post.course_name=thisLine.children('.course_name').children('[name="course_name"]').val();
 			post.is_extra_course=thisLine.children('.is_extra_course').children('[name="is_extra_course"]:checked').val();
 			post.is_scoring=thisLine.children('.is_scoring').children('[name="is_scoring"]').val();
-			post.exam=<?php echo intval($_GET['exam']);?>;
+			post.exam=<?php echo intval($this->input->get('exam'));?>;
 
 			$.post('exam.php?save&action=exam_paper',post,function(line){
 				line=$.parseResponse(line);

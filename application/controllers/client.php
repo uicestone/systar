@@ -9,7 +9,7 @@ class Client extends SS_Controller{
 	}
 
 	function lists($method=NULL){
-		if(is_posted('delete')){
+		if($this->input->post('delete')){
 			$clients_to_delete=array_trim($this->input->post('client_check'));
 			$this->client->delete($clients_to_delete);
 		}
@@ -69,7 +69,7 @@ class Client extends SS_Controller{
 		$submitable=false;
 		//可提交性，false则显示form，true则可以跳转
 
-		if(is_posted('submit')){
+		if($this->input->post('submit')){
 			$submitable=true;
 
 			$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'], $_POST);
@@ -206,7 +206,7 @@ class Client extends SS_Controller{
 
 	function autocomplete(){
 		$type=NULL;
-		got('type') && $type=$this->input->get('type');
+		$this->input->get('type') && $type=$this->input->get('type');
 
 		$result=$this->client->match($this->input->post('term'), 'client', $type);
 

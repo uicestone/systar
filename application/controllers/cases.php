@@ -80,7 +80,7 @@ class Cases extends SS_controller{
 		
 		$submitable=false;
 		
-		if(is_posted('submit')){
+		if($this->input->post('submit')){
 			$_SESSION['cases']['post']=array_replace_recursive($_SESSION['cases']['post'],$_POST);
 			$submitable=true;
 			
@@ -637,9 +637,9 @@ class Cases extends SS_controller{
 	}
 	
 	function write(){
-		if(got('case_fee_condition')){
-			$id=intval($_POST['id']);
-			$value=$_POST['value'];
+		if($this->input->get('case_fee_condition')){
+			$id=intval($this->input->post('id'));
+			$value=$this->input->post('value');
 		
 			if($case_feeConditionPrepend=case_feeConditionPrepend($id,$value)){
 				echo json_encode($case_feeConditionPrepend);

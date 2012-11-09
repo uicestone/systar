@@ -43,7 +43,7 @@ class Express extends SS_controller{
 		
 		$submitable=false;//可提交性，false则显示form，true则可以跳转
 		
-		if(is_posted('submit')){
+		if($this->input->post('submit')){
 			$submitable=true;
 			$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$this->input->post());
 			

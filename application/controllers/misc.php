@@ -38,19 +38,19 @@ class Misc extends SS_controller{
 	}
 	
 	function getSelectOption(){
-		$select_type=intval($_POST['select_type']);
+		$select_type=intval($this->input->post('select_type'));
 		
-		$this->load->model($_POST['affair'].'_model',$_POST['affair']);
+		$this->load->model($this->input->post('affair').'_model',$this->input->post('affair'));
 		
 		if($select_type){
-			if(is_callable(array($this->$_POST['affair'],$_POST['method']))){
-				$options=call_user_func(array($this->$_POST['affair'],$_POST['method']),$_POST['active_value']);
+			if(is_callable(array($this->$this->input->post('affair'),$this->input->post('method')))){
+				$options=call_user_func(array($this->$this->input->post('affair'),$this->input->post('method')),$this->input->post('active_value'));
 			}
 			
 			displayOption($options,NULL,true);
 		
 		}else{
-			$q_get_options="SELECT type FROM type WHERE affair='".$_POST['affair']."' AND classification='".$_POST['active_value']."'";
+			$q_get_options="SELECT type FROM type WHERE affair='".$this->input->post('affair')."' AND classification='".$this->input->post('active_value')."'";
 			$options_array=db_toArray($q_get_options);
 			$options=array_sub($options_array,'type');
 			
@@ -63,7 +63,7 @@ class Misc extends SS_controller{
 			echo (bool)array_dir('_SESSION/minimized');
 		}
 		if($var=='scroll'){
-			echo array_dir('_SESSION/'.$_POST['controller'].'/'.$_POST['action'].'/scroll_top');
+			echo array_dir('_SESSION/'.$this->input->post('controller').'/'.$this->input->post('action').'/scroll_top');
 		}
 		if($var=='default_controller'){
 			echo $this->config->item('default_controller');
@@ -71,12 +71,12 @@ class Misc extends SS_controller{
 	}
 	
 	function setSession($action=NULL){
-		if(is_posted('minimized')){
-			array_dir('_SESSION/minimized',(bool)$_POST['minimized']);
+		if($this->input->post('minimized')){
+			array_dir('_SESSION/minimized',(bool)$this->input->post('minimized'));
 			echo 'success';
 
 		}elseif($action=='scroll'){
-			array_dir('_SESSION/'.$_POST['controller'].'/'.$_POST['action'].'/scroll_top',$_POST['scrollTop']);
+			array_dir('_SESSION/'.$this->input->post('controller').'/'.$this->input->post('action').'/scroll_top',$this->input->post('scrollTop'));
 			echo 'success';
 		}
 	}

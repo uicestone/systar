@@ -48,18 +48,18 @@ class SS_Model extends CI_Model{
 	 * 为查询语句加上日期条件
 	 */
 	function dateRange($query,$date_field,$date_field_is_timestamp=true){
-		if(is_posted('date_range_cancel')){
+		if($this->input->post('date_range_cancel')){
 			unset($_SESSION[CONTROLLER][METHOD]['in_date_range']);
 			unset($_SESSION[CONTROLLER][METHOD]['date_range']);
 		}
 
-		if(is_posted('date_range')){
-			if(!strtotime($_POST['date_from']) || !strtotime($_POST['date_to'])){
+		if($this->input->post('date_range')){
+			if(!strtotime($this->input->post('date_from')) || !strtotime($this->input->post('date_to'))){
 				showMessage('日期格式错误','warning');
 
 			}else{
-				option('date_range/from_timestamp',strtotime($_POST['date_from']));
-				option('date_range/to_timestamp',strtotime($_POST['date_to'])+86400);
+				option('date_range/from_timestamp',strtotime($this->input->post('date_from')));
+				option('date_range/to_timestamp',strtotime($this->input->post('date_to'))+86400);
 
 				option('date_range/from',date('Y-m-d',option('date_range/from_timestamp')));
 				option('date_range/to',date('Y-m-d',option('date_range/to_timestamp')-86400));
@@ -114,7 +114,7 @@ class SS_Model extends CI_Model{
 			option('method',$default_method);
 		}
 
-		if(is_posted('orderby') && !is_null(option('orderby')) && $_POST['orderby']==$_SESSION[CONTROLLER][METHOD]['orderby']){
+		if($this->input->post('orderby') && !is_null(option('orderby')) && $this->input->post('orderby')==$_SESSION[CONTROLLER][METHOD]['orderby']){
 			if(option('method')=='ASC'){
 				option('method','DESC');
 			}else{
@@ -122,10 +122,10 @@ class SS_Model extends CI_Model{
 			}
 		}
 
-		if(is_posted('orderby')){
+		if($this->input->post('orderby')){
 			option('orderby',$this->input->post('orderby'));
 		}
-		if(is_posted('method')){
+		if($this->input->post('method')){
 			option('method',$this->input->post('method'));
 		}
 
@@ -164,18 +164,18 @@ class SS_Model extends CI_Model{
 		}
 
 		if(!is_null(option('list/start')) && option('list/items')){
-			if(is_posted('previousPage')){
+			if($this->input->post('previousPage')){
 				option('list/start',option('list/start')-option('list/items'));
 				if(option('list/start')<0){
 					option('list/start',0);
 				}
-			}elseif(is_posted('nextPage')){
+			}elseif($this->input->post('nextPage')){
 				if(option('list/start')+option('list/items')<$rows){
 					option('list/start',option('list/start')+option('list/items'));
 				}
-			}elseif(is_posted('firstPage')){
+			}elseif($this->input->post('firstPage')){
 				option('list/start',0);
-			}elseif(is_posted('finalPage')){
+			}elseif($this->input->post('finalPage')){
 				if($rows % option('list/items')==0){
 					option('list/start',$rows - option('list/items'));
 				}else{

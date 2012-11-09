@@ -21,7 +21,7 @@ class user extends SS_controller{
 			
 			if($this->config->item('ucenter')){
 		
-				$ucenter_user=uc_user_login($_POST['username'],$_POST['password']);//ucenter验证密码
+				$ucenter_user=uc_user_login($this->input->post('username'),$this->input->post('password'));//ucenter验证密码
 				
 				if(!$ucenter_user){
 					showMessage('Ucenter Error','warning');
@@ -37,7 +37,7 @@ class user extends SS_controller{
 				}
 			}else{
 		
-				if($user=$this->model->verify($_POST['username'],$_POST['password'])){
+				if($user=$this->model->verify($this->input->post('username'),$this->input->post('password'))){
 			
 					$_SESSION['id']=$user['id'];
 					$_SESSION['usergroup']=explode(',',$user['group']);
@@ -76,14 +76,14 @@ class user extends SS_controller{
 		
 		$submitable=false;
 		
-		if(is_posted('submit')){
+		if($this->input->post('submit')){
 			
 			$submitable=true;
 			
 			$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$_POST);
 			
 			if($this->config->item('ucenter')){
-				if(uc_user_edit($_SESSION['username'],$_POST['password'],$_POST['password_new'],$_POST['email'])>0){
+				if(uc_user_edit($_SESSION['username'],$this->input->post('password'),$this->input->post('password_new'),$this->input->post('email'))>0){
 					redirect('','js');
 				}
 			}else{

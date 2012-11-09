@@ -5,8 +5,8 @@ class Staff extends SS_controller{
 	}
 	
 	function lists(){
-		if(is_posted('grade')){
-			option('grade',$_POST['grade']);
+		if($this->input->post('grade')){
+			option('grade',$this->input->post('grade'));
 		}
 		if($this->config->item('company_type')=='school'){
 			$field=array(
