@@ -42,8 +42,7 @@
 
 		<div class="item">
 			<div class="title"><label>联系方式</label><label id="clientContactAdd"><? if(post('client_contact_extra/show_add_form'))echo '-';else echo '+'?></label></div>
-
-			<?$contacts->generate()?>
+			<?=$contact_table?>
 			<div id="clientContactAddForm" <? if(!post('client_contact_extra/show_add_form'))echo 'style="display:none"';?>>
 				<select name="client_contact[type]" style="width:30%">
 					<? displayOption(array('_ENUM','client_contact','type'),post('client_contact/type'))?>
@@ -56,12 +55,10 @@
 		 </div>
 
 		<div class="item">
-			<div class="title"><label>相关人</label><label id="clientClientAdd"><? echo post('client_client_extra/show_add_form')?'-':'+'?></label></div>
-
-			<?$related_clients->generate()?>
-
+			<div class="title"><label>相关人</label><label id="clientClientAdd"><?post('client_client_extra/show_add_form')?'-':'+'?></label></div>
+			<?=$client_table?>
 			<div id="clientClientAddForm" <? if(!post('client_client_extra/show_add_form'))echo 'style="display:none"';?>>
-				<input type="text" name="client_client_extra[name]" value="<? displayPost('client_client_extra/name')?>" placeholder="名称" autocomplete="client" autocomplete-input-name="client_client[client_right]" style="width:20%" />
+				<input type="text" name="client_client_extra[name]" value="<?=post('client_client_extra/name')?>" placeholder="名称" autocomplete="client" autocomplete-input-name="client_client[client_right]" style="width:20%" />
 
 				<select name="client_client[role]" style="width:13%">
 					<? displayOption(array('负责人','法务','财务','人事','行政','其他','其他代理人'),post('client_client/role'))?>
@@ -69,8 +66,8 @@
 				<span class="autocomplete-no-result-menu">
 					<? displayCheckbox('单位','client_client_extra[character]',post('client_client_extra/character'),'单位')?>
 		
-					<input type="text" name="client_client_extra[phone]" value="<? displayPost('client_client_extra/phone')?>" placeholder="电话" style="width:20%" />
-					<input type="text" name="client_client_extra[email]" value="<? displayPost('client_client_extra/email')?>" placeholder="电邮" style="width:20%" />
+					<input type="text" name="client_client_extra[phone]" value="<?=post('client_client_extra/phone')?>" placeholder="电话" style="width:20%" />
+					<input type="text" name="client_client_extra[email]" value="<?=post('client_client_extra/email')?>" placeholder="电邮" style="width:20%" />
 				</span>
 				<input type="submit" name="submit[client_client]" value="添加" />
 			</div>
@@ -78,8 +75,7 @@
 
 		<div class="item">
 			<div class="title"><label>相关案件</label></div>
-
-			<?$cases->generate()?>
+			<?=$case_table?>
 		 </div>
 
 		<div class="item">

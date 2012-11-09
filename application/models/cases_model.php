@@ -224,7 +224,7 @@ class Cases_model extends SS_Model{
 		return $this->db->query($query)->result_array();
 
 	}
-	
+
 	/*
 		日志添加界面，根据日志类型获得案件列表
 		$schedule_type:0:案件,1:所务,2:营销

@@ -50,8 +50,7 @@
 
 		<div class="item">
 			<div class="title"><label>联系方式</label><label id="clientContactAdd"><? if(post('client_contact_extra/show_add_form'))echo '-';else echo '+'?></label></div>
-
-			<?$contacts->generate()?>
+			<?=$contact_table?>
 			<div id="clientContactAddForm" <? if(!post('client_contact_extra/show_add_form'))echo 'style="display:none"';?>>
 				<select name="client_contact[type]" style="width:30%">
 					<? displayOption(array('_ENUM','client_contact','type'),post('client_contact/type'))?>
@@ -65,9 +64,7 @@
 
 		<div class="item">
 			<div class="title"><label>相关人</label><label id="clientClientAdd"><? echo post('client_client_extra/show_add_form')?'-':'+'?></label></div>
-
-			<? $related_clients->generate();?>
-
+			<?=$client_table?>
 			<div id="clientClientAddForm" <? if(post('client_client_extra/show_add_form'))echo 'style="display:block"';?>>
 				<input type="text" name="client_client_extra[name]" value="<? displayPost('client_client_extra/name')?>" placeholder="名称" autocomplete="client" autocomplete-input-name="client_client[client_right]" style="width:20%" />
 
@@ -96,8 +93,7 @@
 
 		<div class="item">
 			<div class="title"><label>相关案件</label></div>
-
-			<?$cases->generate()?>
+			<?=$case_table?>
 		 </div>
 
 		<div class="item">

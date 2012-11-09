@@ -77,7 +77,7 @@ class Client extends SS_Controller{
 			if(is_posted('submit/client_client')){
 				post('client_client_extra/show_add_form', true);
 
-				$client_check=client_check(post('client_client_extra/name'), 'array');
+				$client_check=$this->client->check(post('client_client_extra/name'), 'array');
 
 				if($client_check > 0){
 					post('client_client/client_right', $client_check['id']);
@@ -85,9 +85,9 @@ class Client extends SS_Controller{
 
 				}elseif($client_check == -1){//如果client_client添加的客户不存在，则先添加客户
 					$new_client=array('name'=>post('client_client_extra/name'), 'abbreviation'=>post('client_client_extra/name'), 'character'=>post('client_client_extra/character') == '单位' ? '单位' : '自然人', 'classification'=>'客户', 'type'=>'潜在客户', );
-					post('client_client/client_right', client_add($new_client));
+					post('client_client/client_right', $this->client->add($new_client));
 
-					$this->model->addContact_phone_email(post('client_client/client_right'), post('client_client_extra/phone'), post('client_client_extra/email'));
+					$this->client->addContact_phone_email(post('client_client/client_right'), post('client_client_extra/phone'), post('client_client_extra/email'));
 
 					showMessage('<a href="javascript:showWindow(\'client/edit/' . $new_client['id'] . '\')" target="_blank">新客户 ' . $new_client['name'] . ' 已经添加，点击编辑详细信息</a>', 'notice');
 
@@ -98,7 +98,7 @@ class Client extends SS_Controller{
 
 				post('client_client/client_left', post('client/id'));
 
-				if($submitable && $this->model->addRelated(post('client_client'))){
+				if($submitable && $this->client->addRelated(post('client_client'))){
 					unset($_SESSION['client']['post']['client_client']);
 					unset($_SESSION['client']['post']['client_client_extra']);
 				}
@@ -107,7 +107,7 @@ class Client extends SS_Controller{
 			if(is_posted('submit/client_contact')){
 				post('client_contact/client', post('client/id'));
 
-				if($this->model->addContact(post('client_contact'))){
+				if($this->client->addContact(post('client_contact'))){
 					unset($_SESSION['client']['post']['client_contact']);
 				}
 			}
@@ -118,21 +118,21 @@ class Client extends SS_Controller{
 
 				}elseif(count(post('client_client_check') == 1)){
 					$client_client_set_default_keys=array_keys(post('client_client_check'));
-					$this->model->setDefaultRelated($client_client_set_default_keys[0], post('client/id'));
+					$this->client->setDefaultRelated($client_client_set_default_keys[0], post('client/id'));
 
 					showMessage('成功设置默认联系人');
 
 				}elseif(count(post('client_client_check') == 0)){
-					$this->model->clearDefaultRelated(post('client/id'));
+					$this->client->clearDefaultRelated(post('client/id'));
 				}
 			}
 
 			if(is_posted('submit/client_client_delete')){
-				$this->model->deleteRelated(post('client_client_check'));
+				$this->client->deleteRelated(post('client_client_check'));
 			}
 
 			if(is_posted('submit/client_contact_delete')){
-				$this->model->deleteContact(post('client_contact_check'));
+				$this->client->deleteContact(post('client_contact_check'));
 			}
 
 			if(post('client/character') == '自然人'){
@@ -148,7 +148,7 @@ class Client extends SS_Controller{
 				showMessage('请填写客户简称', 'warning');
 			}
 
-			if(!post('client/source', $this->model->setSource(post('source/type'), post('source/detail')))){
+			if(!post('client/source', $this->client->setSource(post('source/type'), post('source/detail')))){
 				$submitable=false;
 			}
 
@@ -158,7 +158,7 @@ class Client extends SS_Controller{
 			$this->processSubmit($submitable);
 		}
 
-		$field_client=array('checkbox'=>array('title'=>'<input type="submit" name="submit[client_client_delete]" value="删" />', 'orderby'=>false, 'content'=>'<input type="checkbox" name="client_client_check[{id}]" >', 'td_title'=>' width=60px'), 'client_right_name'=>array('title'=>'名称<input type="submit" name="submit[client_client_set_default]" value="默认" />', 'eval'=>true, 'content'=>"
+		$field_client=array('checkbox'=>array('title'=>'<input type="submit" name="submit[client_client_delete]" value="删" />', 'orderby'=>false, 'content'=>'<input type="checkbox" name="client_client_check[{id}]" >', 'td_title'=>' width="60px"'), 'client_right_name'=>array('title'=>'名称<input type="submit" name="submit[client_client_set_default]" value="默认" />', 'eval'=>true, 'content'=>"
 				\$return='';
 				\$return.='<a href=\"javascript:showWindow(\''.('{classification}'=='客户'?'client':'contact').'/edit/{client_right}\')\">{client_right_name}</a>';
 				if('{is_default_contact}'){
@@ -166,35 +166,42 @@ class Client extends SS_Controller{
 				}
 				return \$return;
 			", 'orderby'=>false), 'client_right_phone'=>array('title'=>'电话', 'orderby'=>false), 'client_right_email'=>array('title'=>'电邮', 'wrap'=>array('mark'=>'a', 'href'=>'mailto:{client_right_email}')), 'role'=>array('title'=>'关系', 'orderby'=>false));
-		$related_clients=new SS_Table();
-		$related_clients->setFields($field_client)->setData($this->client->getRelatedClients(post('client/id')));
-		$this->load->addViewData('related_clients',$related_clients);
-		$this->table->clear();
-		
-		$field_client_contact=array('checkbox'=>array('title'=>'<input type="submit" name="submit[client_contact_delete]" value="删" />', 'orderby'=>false, 'content'=>'<input type="checkbox" name="client_contact_check[{id}]" >', 'td_title'=>' width=60px'), 'type'=>array('title'=>'类别', 'orderby'=>false), 'content'=>array('title'=>'内容', 'eval'=>true, 'content'=>"
+
+		$field_client_contact=array('checkbox'=>array('title'=>'<input type="submit" name="submit[client_contact_delete]" value="删" />', 'orderby'=>false, 'content'=>'<input type="checkbox" name="client_contact_check[{id}]" >', 'td_title'=>' width="60px"'), 'type'=>array('title'=>'类别', 'orderby'=>false), 'content'=>array('title'=>'内容', 'eval'=>true, 'content'=>"
 				if('{type}'=='电子邮件'){
 					return '<a href=\"mailto:{content}\" target=\"_blank\">{content}</a>';
 				}else{
 					return '{content}';
 				}
 			", 'orderby'=>false), 'comment'=>array('title'=>'备注', 'orderby'=>false));
-		$contacts=clone $this->table->setFields($field_client_contact)->setData($this->client->getContacts(post('client/id')));
-		$this->load->addViewData('contacts',$contacts);
-		$this->table->clear();
+
+		$field_client_case=array('num'=>array('title'=>'案号', 'wrap'=>array('mark'=>'a', 'href'=>'javascript:window.rootOpener.location.href=\'case?edit={id}\';window.opener.parent.focus();'), 'orderby'=>false), 'case_name'=>array('title'=>'案名', 'orderby'=>false), 'lawyers'=>array('title'=>'主办律师', 'orderby'=>false));
+
+		$client_table=$this->table->setFields($field_client)
+					  ->setData($this->client->getRelatedClients(post('client/id')))
+					  ->wrapBox(false)
+					  ->generate();
+
+		$contact_table=$this->table->setFields($field_client_contact)
+					   ->setData($this->client->getContacts(post('client/id')))
+					   ->wrapBox(false)
+					   ->generate();
+
+		$case_table=$this->table->setFields($field_client_case)
+					->setData($this->cases->getListByClient(post('client/id')))
+					->wrapBox(false)
+					->generate();
 		
-		$field_client_case=array('num'=>array('title'=>'案号', 'wrap'=>array('mark'=>'a', 'href'=>'javascript:window.rootOpener.location.href=\'cases/edit/{id}\';window.opener.parent.focus();'), 'orderby'=>false), 'case_name'=>array('title'=>'案名', 'orderby'=>false), 'lawyers'=>array('title'=>'主办律师', 'orderby'=>false));
-		$cases=clone $this->table->setFields($field_client_case)->setData($this->cases->getListByClient(post('client/id')));
-		$this->load->addViewData('cases',$cases);
-		$this->table->clear();
-		
+		$data=compact('client_table','contact_table','case_table');
+		$this->load->addViewArrayData($data);
+
 		if(post('client/character') == '单位'){
 			$this->load->view('client/add_artificial');
 
 		}else{
 			$this->load->view('client/add_natural');
-		}
+		}		
 		$this->load->main_view_loaded=true;
-
 	}
 
 	function autocomplete(){
