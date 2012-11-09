@@ -48,10 +48,9 @@ class Client extends SS_Controller{
 	function edit($id=NULL){
 		$this->load->model('staff_model');
 
-		$this->getPostData($id, function($CFG){
-			post('client/name', $_SESSION['username'] . '的新客户 ' . date('Y-m-d h:i:s', $CFG->item('timestamp')));
-			post('client/abbreviation', $_SESSION['username'] . '的新客户 ' . date('Y-m-d h:i:s', $CFG->item('timestamp')));
-
+		$this->getPostData($id, function($CI){
+			post('client/name', $_SESSION['username'] . '的新客户 ' . date('Y-m-d h:i:s', $CI->config->item('timestamp')));
+			post('client/abbreviation', $_SESSION['username'] . '的新客户 ' . date('Y-m-d h:i:s', $CI->config->item('timestamp')));
 			post('client_extra/source_lawyer_name', $_SESSION['username']);
 		});
 

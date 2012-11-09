@@ -246,8 +246,12 @@ class SS_Controller extends CI_Controller{
 		}
 	}
 	
-	/*
-	 * 在每个add页面之前获得数据ID，插入新数据或者根据数据ID获得数据数组
+	/**
+	 * 在每个add/edit页面之前获得数据ID，插入新数据或者根据数据ID获得数据数组
+	 * @param  $id	需要获得的数据id，如果是添加新数据，那么为NULL
+	 * @param type $callback 对于新增数据，在执行插入操作之前进行一些赋值
+	 * @param type $generate_new_id	如果$generate_new_id==false，那么必须在callback中获得post(CONTROLLER/id)，适用于id并非auto increasement，而是链接而来的情况
+	 * @param type $db_table 实际操作的数据表名，默认为控制器名，否则须指定，如contact的表名为client
 	 */
 	function getPostData($id,$callback=NULL,$generate_new_id=true,$db_table=NULL){
 		if(isset($id)){
@@ -256,9 +260,9 @@ class SS_Controller extends CI_Controller{
 		
 		}elseif(is_null(post(CONTROLLER.'/id'))){
 			unset($_SESSION[CONTROLLER]['post']);
-		
-			$this->processUidTimeInfo(CONTROLLER);
-		
+			
+			post(CONTROLLER,uidTime());
+				
 			if(is_a($callback,'Closure')){
 				$CI=&get_instance();
 				$callback($CI);
@@ -274,145 +278,14 @@ class SS_Controller extends CI_Controller{
 				}
 				post(CONTROLLER.'/id',db_insert($db_table,post(CONTROLLER)));
 			}
-			//如果$generate_new_id==false，那么必须在callback中获得post(CONTROLLER/id)
 		}
 	
 		if(!post(CONTROLLER.'/id')){
-			showMessage('获得信息ID失败','warning');
+			show_error('获得信息ID失败');
 			exit;
 		}
-		global $class;
+		$class=CONTROLLER;
 		post(CONTROLLER,$this->$class->fetch(post(CONTROLLER.'/id')));
-	}
-
-
-	/*
-	 * 为查询语句加上日期条件
-	 */
-	function dateRange(&$q,$date_field,$date_field_is_timestamp=true){
-		if(is_posted('date_range_cancel')){
-			unset($_SESSION[CONTROLLER][METHOD]['in_date_range']);
-			unset($_SESSION[CONTROLLER][METHOD]['date_range']);
-		}
-
-		if(is_posted('date_range')){
-			if(!strtotime($_POST['date_from']) || !strtotime($_POST['date_to'])){
-				showMessage('日期格式错误','warning');
-
-			}else{
-				option('date_range/from_timestamp',strtotime($_POST['date_from']));
-				option('date_range/to_timestamp',strtotime($_POST['date_to'])+86400);
-
-				option('date_range/from',date('Y-m-d',option('date_range/from_timestamp')));
-				option('date_range/to',date('Y-m-d',option('date_range/to_timestamp')-86400));
-
-				option('in_date_range',true);
-			}
-		}
-
-		if(option('in_date_range')){
-
-			if($date_field_is_timestamp){
-			$condition_date_range=" AND (".db_field_name($date_field).">='".option('date_range/from_timestamp')."' AND ".db_field_name($date_field)."<'".option('date_range/to_timestamp')."')";
-			}else{
-				$condition_date_range=" AND (".db_field_name($date_field).">='".option('date_range/from')."' AND ".db_field_name($date_field)."<='".option('date_range/to')."')";
-			}
-
-			$q.=$condition_date_range;
-		}
-
-		$date_range_bar=
-		'<form method="post" name="date_range">'.
-			'<table class="contentTable search-bar" cellpadding="0" cellspacing="0" align="center">'.
-			'<thead><tr><td width="60px">日期</td><td>&nbsp;</td></tr></thead>'.
-			'<tbody>'.
-			'<tr><td>开始：</td><td><input type="text" name="date_from" value="'.option('date_range/from').'" class="date" /></td></tr>'.
-			'<tr><td>结束：</td><td><input type="text" name="date_to" value="'.option('date_range/to').'" class="date" /></td></tr>'.
-			'<input style="display:none;" name="date_field" value="'.$date_field.'" />';
-
-		$date_range_bar.='<tr><td colspan="2"><input type="submit" name="date_range" value="提交" />';
-		if(option('in_date_range')){
-			$date_range_bar.='<input type="submit" name="date_range_cancel" value="取消" tabindex="1" />';
-		}
-		$date_range_bar.='</td></tr></tbody></table></form>';
-
-		return $date_range_bar;
-	}
-
-	/*
-	 * TODO 添加addCondition()的描述
-	 */
-	function addCondition(&$q,$condition_array,$unset=array()){
-		foreach($unset as $changed_variable => $unset_variable){
-			if(is_posted($changed_variable)){
-				unset($_SESSION[CONTROLLER][METHOD][$unset_variable]);
-			}
-		}
-
-		foreach($condition_array as $variable=>$field){
-			if(is_posted($variable)){
-				option($variable,$_POST[$variable]);
-			}
-
-			if(!is_null(option($variable)) && option($variable)!=''){
-				$q.=' AND '.db_field_name($field)."='".option($variable)."'";
-			}
-		}
-		return $q;
-	}
-
-	function processMultiPage(&$q,$q_rows=NULL){
-		if(is_null($q_rows)){
-			$q_rows=$q;
-			if(preg_match('/GROUP BY[^()]*?[ORDER BY].*?$/',$q_rows)){
-				$q_rows="SELECT COUNT(*) AS number FROM (".$q_rows.")query";
-			}else{
-				$q_rows=preg_replace('/^[\s\S]*?FROM /','SELECT COUNT(1) AS number FROM ',$q_rows);
-				$q_rows=preg_replace('/GROUP BY(?![\s\S]*?WHERE)[\s\S]*?$/','',$q_rows);
-				$q_rows=preg_replace('/ORDER BY(?![\s\S]*?WHERE)[\s\S]*?$/','',$q_rows);
-			}
-		}
-
-		$rows=db_fetch_field($q_rows);
-
-		if(option('list/start')>$rows || $rows==0){
-			//已越界或空列表时，列表起点归零
-			option('list/start',0);
-
-		}elseif(option('list/start')+option('list/item')>=$rows && $rows>option('list/items')){
-			//末页且非唯一页时，列表起点定位末页起点
-			option('list/start',$rows - ($rows % option('list/items')));
-		}
-
-		if(!is_null(option('list/start')) && option('list/items')){
-			if(is_posted('previousPage')){
-				option('list/start',option('list/start')-option('list/items'));
-				if(option('list/start')<0){
-					option('list/start',0);
-				}
-			}elseif(is_posted('nextPage')){
-				if(option('list/start')+option('list/items')<$rows){
-					option('list/start',option('list/start')+option('list/items'));
-				}
-			}elseif(is_posted('firstPage')){
-				option('list/start',0);
-			}elseif(is_posted('finalPage')){
-				if($rows % option('list/items')==0){
-					option('list/start',$rows - option('list/items'));
-				}else{
-					option('list/start',$rows - ($rows % option('list/items')));
-				}
-			}
-		}else{
-			option('list/start',0);
-			option('list/items',25);
-		}
-
-		$q.=" LIMIT ".option('list/start').",".option('list/items');
-
-		$listLocator=($rows==0?0:option('list/start')+1)."-".
-		(option('list/start')+option('list/items')<$rows?(option('list/start')+option('list/items')):$rows).'/'.$rows;
-
 	}
 
 	/* 
