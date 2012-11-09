@@ -127,39 +127,6 @@ class SS_Controller extends CI_Controller{
 			}elseif($this->input->post('favDelete')){
 				$this->load->require_head=false;
 	
-			}elseif(($method=='view' || $method=='office_document' || $method=='instrument' || $method=='contact_file' || $method=='rules' || $method=='contract')){//根据目录ID进行定位/文件ID则进行下载
-	
-				if($method=='office_document'){
-					$this->input->get('view')=869;
-	
-				}elseif($method=='instrument'){
-					$this->input->get('view')=870;
-	
-				}elseif($method=='contact_file'){
-					$this->input->get('view')=872;
-	
-				}elseif($method=='rules'){
-					$this->input->get('view')=874;
-	
-				}elseif($method=='contract'){
-					$this->input->get('view')=873;
-				}
-	
-	
-				option('in_search_mod',false);
-	
-				$folder=db_fetch_first("SELECT * FROM `document` WHERE id='".intval($this->input->get('view'))."'");
-	
-				if($folder['type']!=''){
-					$this->action="document_download";
-					$this->load->require_head=false;
-				}else{
-					$_SESSION[$class]['upID']=$folder['parent'];
-					$_SESSION[$class]['currentDir']=$folder['name'];
-					$_SESSION[$class]['currentDirID']=$folder['id'];
-					$_SESSION[$class]['currentPath']=$folder['path'];
-				}
-	
 			}
 		}elseif($class=='evaluation'){
 			if($method=='score'){

@@ -5,6 +5,10 @@ class Document_model extends SS_Model{
 		$this->load->library('filetype');
 	}
 	
+	function fetch($id){
+		return db_fetch_first("SELECT * FROM `document` WHERE id='{$id}'");
+	}
+	
 	function getMime($file_extension){
 		$file_extension=strtolower($file_extension);
 		$filetype=new Filetype();

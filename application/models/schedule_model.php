@@ -60,7 +60,7 @@ class Schedule_model extends SS_Model{
 	
 	function reviewSelected(){
 		$_POST=array_trim($_POST);
-		if(isset($this->input->post('schedule_check'))){
+		if($this->input->post('schedule_check')){
 			$condition = db_implode($this->input->post('schedule_check'), $glue = ' OR ','id','=',"'","'", '`','key');
 			db_update('schedule',array('hours_checked'=>'#hours_own#'),$condition);
 		}

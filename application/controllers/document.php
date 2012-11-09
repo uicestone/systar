@@ -4,7 +4,43 @@ class Document extends SS_controller{
 		parent::__construct();
 	}
 	
-	function lists(){
+	function office_document(){
+		$this->lists(869);
+	}
+	
+	function instrument(){
+		$this->lists(870);
+	}
+	
+	function contact_file(){
+		$this->lists(872);
+	}
+	
+	function rules(){
+		$this->lists(874);
+	}
+	
+	function contract(){
+		$this->lists(874);
+	}
+
+	function lists($folder_id=NULL){
+		if(isset($folder_id)){
+			option('in_search_mod',false);
+
+			$folder=$this->document->fetch($folder_id);
+
+			if($folder['type']!=''){
+				$this->action="document_download";
+				$this->load->require_head=false;
+			}else{
+				$_SESSION[$class]['upID']=$folder['parent'];
+				$_SESSION[$class]['currentDir']=$folder['name'];
+				$_SESSION[$class]['currentDirID']=$folder['id'];
+				$_SESSION[$class]['currentPath']=$folder['path'];
+			}
+		}
+		
 		if(!sessioned('currentPath',NULL,false))
 			$_SESSION['document']['currentPath']=$this->config->item('document_root');
 		
