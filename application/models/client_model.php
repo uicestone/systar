@@ -319,11 +319,11 @@ class Client_model extends SS_Model{
 		
 		$this->session->set_userdata('last_list_action',$_SERVER['REQUEST_URI']);
 		
-		$condition=$this->search($condition,array('name'=>'姓名','work_for'=>'单位','address'=>'地址','comment'=>'备注'));
+		$condition=$this->search($condition,array('name'=>'姓名','phone.content'=>'电话','work_for'=>'单位','address'=>'地址','comment'=>'备注'));
 		$condition=$this->orderBy($condition,'time','DESC',array('abbreviation','type','address','comment'));
 		$q.=$condition;
 		$q_rows.=$condition;
-		$q=$this->pagination($q,$q_rows);
+		$q=$this->pagination($q/*,$q_rows*/);
 		return $this->db->query($q)->result_array();
 	}
 	
