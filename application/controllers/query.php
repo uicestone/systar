@@ -9,6 +9,8 @@ class Query extends SS_controller{
 	}
 	
 	function lists($para=NULL){
+		$this->session->set_userdata('last_list_action',$_SERVER['REQUEST_URI']);
+
 		$field=array(
 			'first_contact'=>array('title'=>'日期','td_title'=>'width="95px"'),
 			'num'=>array('title'=>'编号','td_title'=>'width="180px"','wrap'=>array('mark'=>'a','href'=>'case?edit={id}')),
@@ -22,6 +24,7 @@ class Query extends SS_controller{
 		$table=$this->table->setFields($field)
 			->setData($this->query->getList($para))
 			->generate();
+
 		$this->load->addViewData('list',$table);
 		$this->load->view('list');
 	}

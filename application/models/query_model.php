@@ -24,13 +24,17 @@ class Query_model extends SS_Model{
 				LEFT JOIN client_source ON case.source=client_source.id 
 			WHERE case.company='{$this->config->item('company')}' AND case.display=1 AND case.is_query=1
 		";
-		$q.=" AND case_lawyer.lawyer='".$_SESSION['id']."'";
+		
+		if(!is_logged('service')){//客服可以看到所有咨询
+			$q.=" AND case_lawyer.lawyer='".$_SESSION['id']."'";
+		}
+		
 		if($para=='filed'){
 			$q.=" AND case.filed=1";
 		}else{
 			$q.=" AND case.filed=0";
 		}
-		$this->session->set_userdata('last_list_action',$_SERVER['REQUEST_URI']);
+
 		$q=$this->search($q,array('client.name'=>'咨询人'));
 		$q.=" GROUP BY case.id";
 		$q=$this->orderBy($q,'first_contact','DESC');
