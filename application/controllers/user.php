@@ -83,8 +83,8 @@ class user extends SS_controller{
 			$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$_POST);
 			
 			if($this->config->item('ucenter')){
-				if(uc_user_edit($_SESSION['username'],$this->input->post('password'),$this->input->post('password_new'),$this->input->post('email'))>0){
-					redirect('','js');
+				if(uc_user_edit($_SESSION['username'],post('user_extra/password'),post('user/password_new'),NULL)>0){
+					redirect('','js',NULL,true);
 				}
 			}else{
 				if(!post('user/password_new')){

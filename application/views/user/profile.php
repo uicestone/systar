@@ -16,17 +16,17 @@ $(function(){
 			<div class="title"><label>设置用户名密码</label></div>
 		</div>
 		
+		<?if($this->config->item('ucenter')){?>
 		<div class="item">
 			<div class="title"><label>用户名：</label></div>
 			<input type="text" name="user[username]" value="<? displayPost('user/username')?>" />
 		</div>
+		<?}?>
 
-	   <? if(post('password')){?>
 		<div class="item">
 			<div class="title"><label>旧密码：</label></div>
 			<input type="password" name="user_extra[password]" />
 		</div>
-		<? }?>
 		
 		<div class="item">
 			<div class="title"><label>新密码：</label></div>
