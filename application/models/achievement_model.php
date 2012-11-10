@@ -307,5 +307,189 @@ class Achievement_model extends SS_Model{
 		$q=$this->pagination($q);
 		return $this->db->query($q)->result_array();
 	}
+	
+	function getRecentList(){
+		$q="
+		SELECT case_fee.id,case_fee.type,case_fee.fee,FROM_UNIXTIME(case_fee.pay_time,'%Y-%m-%d') AS pay_time,
+			case.name AS case_name,case.id AS `case`,
+			IF(account_grouped.amount_sum IS NULL,case_fee.fee,case_fee.fee-account_grouped.amount_sum) AS uncollected,
+			clients.clients,
+			lawyers.lawyers
+		FROM case_fee
+			LEFT JOIN (
+		SELECT `case_fee`,SUM(amount) AS amount_sum
+			FROM account
+			GROUP BY `case_fee`
+			)account_grouped#根据case_fee分组求和的account
+			ON case_fee.id=account_grouped.case_fee
+			
+			LEFT JOIN (
+				SELECT case_client.case,GROUP_CONCAT(DISTINCT client.abbreviation) AS clients
+				FROM case_client INNER JOIN client ON case_client.client=client.id
+				WHERE client.classification='客户'
+				GROUP BY case_client.case
+			)clients
+			ON clients.case=case_fee.case
+			
+			LEFT JOIN
+			(
+				SELECT `case`,GROUP_CONCAT(staff.name) AS lawyers
+				FROM case_lawyer,staff
+				WHERE case_lawyer.lawyer=staff.id AND case_lawyer.role='主办律师'
+				GROUP BY case_lawyer.`case`
+			)lawyers
+			ON `case_fee`.case=lawyers.`case`
+		
+			INNER JOIN `case` ON case.id=case_fee.case
+			
+		WHERE case_fee.type<>'办案费'
+			AND case_fee.reviewed=0
+			AND (account_grouped.amount_sum IS NULL OR case_fee.fee-account_grouped.amount_sum>0)#款未到/未到齐
+			AND case_fee.case IN (
+			SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."'
+			)
+			AND case_fee.`case` NOT IN (
+			SELECT id FROM `case` WHERE filed=1
+			)
+			AND FROM_UNIXTIME(pay_time,'%Y-%m-%d')>='".$this->config->item('date')."'
+		";
+		
+		$q=$this->orderBy($q,'case_fee.pay_time'); //添加排序条件
+		
+		$q=$this->pagination($q); //添加分页设置
+		
+		return $this->db->query($q)->result_array();
+		
+	}
+	
+	function getExpiredList(){
+		$q="SELECT case_fee.id,case_fee.type,case_fee.fee,FROM_UNIXTIME(case_fee.pay_time,'%Y-%m-%d') AS pay_time,
+			case.name AS case_name,case.id AS `case`,
+			IF(account_grouped.amount_sum IS NULL,case_fee.fee,case_fee.fee-account_grouped.amount_sum) AS uncollected,
+			clients.clients,
+			lawyers.lawyers
+		FROM case_fee
+			LEFT JOIN (
+				SELECT `case_fee`,SUM(amount) AS amount_sum
+				FROM account
+				GROUP BY `case_fee`
+				)account_grouped#根据case_fee分组求和的account
+			ON case_fee.id=account_grouped.case_fee
+				
+			LEFT JOIN (
+				SELECT case_client.case,GROUP_CONCAT(DISTINCT client.abbreviation) AS clients
+				FROM case_client INNER JOIN client ON case_client.client=client.id
+				WHERE client.classification='客户'
+				GROUP BY case_client.case
+				)clients
+			ON clients.case=case_fee.case
+			
+			INNER JOIN `case` ON case.id=case_fee.case
+			
+			LEFT JOIN
+			(
+				SELECT `case`,GROUP_CONCAT(staff.name) AS lawyers
+				FROM case_lawyer,staff
+				WHERE case_lawyer.lawyer=staff.id AND case_lawyer.role='主办律师'
+				GROUP BY case_lawyer.`case`
+			)lawyers
+			ON `case_fee`.case=lawyers.`case`
+		
+		WHERE case_fee.type<>'办案费'
+			AND case_fee.reviewed=0
+			AND (account_grouped.amount_sum IS NULL OR case_fee.fee-account_grouped.amount_sum>0)#款未到/未到齐
+			AND case_fee.case IN (
+			SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."'
+			)
+			AND case_fee.`case` NOT IN (
+			SELECT id FROM `case` WHERE filed='已归档'
+			)
+			AND FROM_UNIXTIME(pay_time,'%Y-%m-%d')<'".$this->config->item('date')."'
+			AND case.filed<>'已归档'
+		";
+		
+		$q=$this->orderBy($q,'case_fee.pay_time'); //添加排序条件
+		
+		$q=$this->pagination($q); //添加分页设置
+		
+		return $this->db->query($q)->result_array();
+	}
+	
+	function getCaseBonusList(){
+		$q="
+			SELECT staff.name AS staff_name, ROUND(SUM(case_collect.amount*case_contribute.contribute),2) AS contribute_sum,ROUND(SUM(case_collect.amount*case_contribute.contribute*0.15),2) AS bonus_sum
+			FROM (
+				SELECT  `case` , SUM( amount ) amount
+				FROM account
+				WHERE name <> '办案费'
+					AND `case` IN (
+							SELECT id FROM `case` WHERE lawyer_lock=1";
+		if($this->input->get('contribute_type')=='actual'){
+			$q.=" AND case.filed='已归档'";
+			$date_range_bar=$this->dateRange($q,'case.time_end',false);
+		}else{
+			$date_range_bar=$this->dateRange($q,'account.time_occur');
+		}
+		
+		$q.="		)#律师锁定的案子才能计算奖金";
+		
+		$q.="
+			GROUP BY  `case`
+		)case_collect
+		INNER JOIN (
+			SELECT  `case` , lawyer, SUM( contribute ) AS contribute
+			FROM case_lawyer
+			WHERE 1=1
+		";
+		
+		if($this->input->get('contribute_type')=='actual'){
+			$q.=" AND role = '实际贡献'";
+		}else{
+			$q.=" AND role<>'实际贡献'";
+		}
+		
+		$q.="	GROUP BY  `case` , lawyer
+			)case_contribute ON case_collect.case = case_contribute.case
+			INNER JOIN staff ON staff.id = case_contribute.lawyer
+			WHERE case_contribute.contribute>0
+		";
+		
+		$q.="GROUP BY case_contribute.lawyer";
+		
+		$q_rows="SELECT COUNT(id) FROM staff";
+		
+		$q=$this->orderby($q,'staff.id','ASC',array('staff_name'));
+		
+		$q=$this->pagination($q,$q_rows);
+		return $this->db->query($q)->result_array();
+		
+	}
+	
+	function getTeambonusList(){
+		
+		$q="
+		SELECT staff.name AS staff_name,ROUND((account_sum.sum-600000)*0.04*staff.modulus,2) AS bonus_sum
+		FROM staff CROSS JOIN
+		(
+			SELECT SUM(amount) AS sum
+			FROM account
+			WHERE name IN('律师费','顾问费','咨询费')
+		";
+		
+		$date_range_bar=$this->dateRange($q,'time_occur');
+		
+		$q.="
+		)account_sum
+		WHERE (account_sum.sum-600000)*0.04*staff.modulus>0
+		";
+		
+		$q_rows="SELECT COUNT(id) FROM staff WHERE modulus>0";
+		
+		$q=$this->orderby($q,'staff.id','ASC',array('staff_name'));
+		
+		$q=$this->pagination($q,$q_rows);
+		return $this->db->query($q)->result_array();
+		
+	}
 }
 ?>

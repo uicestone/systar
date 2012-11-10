@@ -157,5 +157,35 @@ class Schedule_model extends SS_Model{
 
 		return $this->db->query($q)->result_array();
 	}
+	
+	function getOutPlanList(){
+		
+		$q="
+			SELECT
+				schedule.id AS schedule,schedule.name AS schedule_name,schedule.content AS schedule_content,schedule.experience AS schedule_experience, schedule.time_start,schedule.hours_own,schedule.hours_checked,schedule.comment AS schedule_comment,schedule.place,
+				staff.name AS staff_name,staff.id AS staff
+			FROM schedule LEFT JOIN staff ON staff.id = schedule.uid
+			WHERE schedule.display=1 AND schedule.place<>''
+		";
+		
+		if($this->input->get('case') && $this->input->get('staff')){
+			$q.=" AND schedule.`case`='".$this->input->get('case')."' AND uid='".$this->input->get('staff')."'";
+		
+		}elseif($this->input->get('case')){
+			$q.=" AND schedule.`case`='".$this->input->get('case')."'";
+		
+		}elseif($this->input->get('staff')){
+			$q.=" AND schedule.`uid`='".$this->input->get('staff')."'";
+		
+		}
+		
+		$q=$this->orderby($q,'time_start','DESC',array('place'));
+		
+		$q=$this->search($q,array('staff.name'=>'人员'));
+		
+		$q=$this->pagination($q);
+		
+		return $this->db->query($q)->result_array();
+	}
 }
 ?>
