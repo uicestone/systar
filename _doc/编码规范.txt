@@ -1,0 +1,25 @@
+字符编码：	utf-8
+行尾：		LF（UNIX）
+缩进：		tab＊1
+
+命名：		不使用缩写
+类名：		大写字母开头，加框架前缀（SS_Table）
+类文件名		小写字母，加框架前缀（SS_table.php）
+方法名：		小写字母开头，驼峰分隔（updatePassword()）
+变量名：		小写字母，下划线分隔（$require_head）
+
+空格、空行和换行策略：	倾向于少空格，不出现空两行
+	if($a=='right'){
+		doSomething();
+	}else{
+		doSomethingElse();
+	}
+
+提交策略：	以代码撰写目的为单位进行提交，频繁提交，提交信息须注明撰写目的
+
+数据库修改策略：	在/_doc/upgrade.sql后加入(注意和上文空开两行)
+
+
+	#2012/11/10 uice
+	UPDATE sometable SET `a`='b';#加一个XXX字段
+	#end
