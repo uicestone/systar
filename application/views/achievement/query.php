@@ -7,7 +7,7 @@ $(function(){
 			renderTo: 'chart_monthly_queries'
 		},
 		title: {
-			text: '每月咨询量'
+			text: '每月新增咨询和案件数量'
 		},
 		xAxis: {
 			categories: $.parseJSON('<? echo $chart_monthly_queries_catogary?>')

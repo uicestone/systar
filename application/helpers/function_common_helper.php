@@ -679,8 +679,8 @@ function db_insert_id(){
 /*
  * 从SELECT类query返回的result对象中抓去一行，返回成数组，并将result的指针向下移动一行
  */
-function db_fetch_array($result){
-	$array=mysql_fetch_array($result,MYSQL_ASSOC);
+function db_fetch_array($result,$num_as_line_key=false){
+	$array=mysql_fetch_array($result,$num_as_line_key?MYSQL_NUM:MYSQL_ASSOC);
 	foreach((array)$array as $key => $value){
 		if(!isset($array[$key])){
 			unset($array[$key]);
@@ -900,7 +900,7 @@ function db_field_name($fieldNameStr){
  * 第一层为行号＝>行内容($id_field_as_key==true时，行号＝行内id字段值)
  * 第二层为字段名=>值
  */
-function db_toArray($query,$id_field_as_key=false){
+function db_toArray($query,$id_field_as_key=false,$num_as_line_key=false){
 	$result=db_query($query);
 	
 	if($result===false){
@@ -908,7 +908,7 @@ function db_toArray($query,$id_field_as_key=false){
 	}
 	
 	$array=array();
-	while($a=db_fetch_array($result)){
+	while($a=db_fetch_array($result,$num_as_line_key)){
 		if($id_field_as_key && isset($a['id'])){
 			$array[$a['id']]=$a;
 		}else{

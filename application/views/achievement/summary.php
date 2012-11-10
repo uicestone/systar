@@ -7,7 +7,7 @@ $(function(){
 			renderTo: 'chart'
 		},
 		title: {
-			text: '业绩概览'
+			text: '全所总创收和签约'
 		},
 		xAxis: {
 			categories: $.parseJSON('<? echo $months?>')

@@ -333,7 +333,7 @@ class Achievement extends SS_controller{
 				SELECT FROM_UNIXTIME(time_occur,'%Y-%m') AS `month`,SUM(amount) AS sum
 				FROM account 
 				GROUP BY FROM_UNIXTIME(time_occur,'%Y-%m')
-			)collect INNER JOIN
+			)collect LEFT JOIN
 			(
 				SELECT LEFT(case.time_contract,7) AS month,SUM(case_fee.fee) AS sum
 				FROM case_fee INNER JOIN `case` ON case.id=case_fee.case
@@ -358,9 +358,10 @@ class Achievement extends SS_controller{
 				'data'=>$contract
 			),
 		);
-		
-		$this->view_data['months']=json_encode($months);
-		$this->view_data['series']=json_encode($series,JSON_NUMERIC_CHECK);
+
+		$months=json_encode($months);
+		$series=json_encode($series,JSON_NUMERIC_CHECK);
+		$this->load->addViewArrayData(compact('months','series'));
 		
 	}
 	
@@ -428,6 +429,104 @@ class Achievement extends SS_controller{
 
 		);
 		$chart_personally_type_queries_series=json_encode($chart_personally_type_queries_series,JSON_NUMERIC_CHECK);
+	}
+	
+	function client(){
+		$this_month_beginning=mktime(0,0,0,date('m'),1,date('Y'));
+		$last_month_beginning=mktime(0,0,0,date('m')-1,1,date('Y'));
+		$last_2_month_beginning=mktime(0,0,0,date('m')-2,1,date('Y'));
+
+		$q_staffly_clients="
+		SELECT staff.name AS staff_name,lastmonth.clients AS lastmonth,last2month.clients AS last2month
+		FROM staff INNER JOIN (
+			SELECT source_lawyer,COUNT(client.id) AS clients
+			FROM client
+			WHERE display=1 AND classification='客户' AND time >= '".$last_month_beginning."' AND time < '".($this_month_beginning)."'
+			GROUP BY source_lawyer
+		)lastmonth ON staff.id=lastmonth.source_lawyer
+		INNER JOIN (
+			SELECT source_lawyer,COUNT(client.id) AS clients
+			FROM client
+			WHERE display=1 AND classification='客户' AND time >= '".$last_2_month_beginning."' AND time < '".$last_month_beginning."'
+			GROUP BY source_lawyer
+		)last2month ON staff.id=last2month.source_lawyer
+		ORDER BY lastmonth DESC"
+		;
+
+		$staffly_clients=db_toArray($q_staffly_clients);
+		$chart_staffly_clients_catogary=json_encode(array_sub($staffly_clients,'staff_name'));
+		$chart_staffly_clients_series=array(
+			array('name'=>'上上月','data'=>array_sub($staffly_clients,'last2month')),
+			array('name'=>'上月','data'=>array_sub($staffly_clients,'lastmonth'))
+		);
+		$chart_staffly_clients_series=json_encode($chart_staffly_clients_series,JSON_NUMERIC_CHECK);
+
+		if(date('w')==1){//今天是星期一
+			$start_of_this_week=strtotime($_G['date']);
+		}else{
+			$start_of_this_week=strtotime("-1 Week Monday");
+		}
+		$start_of_this_month=strtotime(date('Y-m',$_G['timestamp']).'-1');
+		$start_of_this_year=strtotime(date('Y',$_G['timestamp']).'-1-1');
+		$start_of_this_term=strtotime(date('Y',$_G['timestamp']).'-'.(floor(date('m',$_G['timestamp'])/3-1)*3+1).'-1');
+
+		$days_passed_this_week=ceil(($_G['timestamp']-$start_of_this_week)/86400);
+		$days_passed_this_month=ceil(($_G['timestamp']-$start_of_this_month)/86400);
+		$days_passed_this_term=ceil(($_G['timestamp']-$start_of_this_term)/86400);
+		$days_passed_this_year=ceil(($_G['timestamp']-$start_of_this_year)/86400);
+
+		$q="
+			SELECT staff.name aS staff_name,
+				this_week.num AS this_week_sum,
+				this_month.num AS this_month_sum,
+				this_term.num AS this_term_sum,
+				this_year.num AS this_year_sum
+			FROM
+			(
+				SELECT source_lawyer,COUNT(id) AS num
+				FROM client
+				WHERE time>='".$start_of_this_week."'
+					AND display=1 AND classification='客户'
+				GROUP BY source_lawyer
+			)this_week
+			INNER JOIN
+			(
+				SELECT source_lawyer,COUNT(id) AS num
+				FROM client
+				WHERE time>='".$start_of_this_month."'
+					AND display=1 AND classification='客户'
+				GROUP BY source_lawyer
+			)this_month USING(source_lawyer)
+			INNER JOIN
+			(
+				SELECT source_lawyer,COUNT(id) AS num
+				FROM client
+				WHERE time>='".$start_of_this_term."'
+					AND display=1 AND classification='客户'
+				GROUP BY source_lawyer
+			)this_term USING(source_lawyer)
+			INNER JOIN
+			(
+				SELECT source_lawyer,COUNT(id) AS num
+				FROM client
+				WHERE time>='".$start_of_this_year."'
+					AND display=1 AND classification='客户'
+				GROUP BY source_lawyer
+			)this_year USING(source_lawyer)
+			INNER JOIN staff ON staff.id=this_week.source_lawyer
+		";
+
+		processOrderBy($q,'this_week_sum','DESC');
+
+		$field=array(
+			'staff_name'=>array('title'=>'姓名'),
+			'this_week_sum'=>array('title'=>'本周','content'=>'{this_week_sum}'),
+			'this_month_sum'=>array('title'=>'本月','content'=>'{this_month_sum}'),
+			'this_term_sum'=>array('title'=>'本季','content'=>'{this_term_sum}'),
+			'this_year_sum'=>array('title'=>'本年','content'=>'{this_year_sum}')
+		);
+
+		$client_collect_stat=fetchTableArray($q,$field);
 	}
 }
 ?>
