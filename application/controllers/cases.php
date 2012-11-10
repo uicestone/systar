@@ -467,7 +467,10 @@ class Cases extends SS_controller{
 				$case_client_role['opposite_name']='<a href="javascript:showWindow(\'client?edit/'.$case_client_role['opposite'].'\')">'.$case_client_role['opposite_name'].'</a>';
 		
 				//更新案名
-				if(post('cases/classification')=='诉讼' && ($case_client_role['client_role']=='原告' || $case_client_role['client_role']=='申请人') && ($case_client_role['opposite_role']=='被告' || $case_client_role['opposite_role']=='被申请人')){
+				if(post('case/is_query')){
+					post('case/name',$case_client_role['client_name'].' 咨询');
+
+				}elseif(post('cases/classification')=='诉讼' && ($case_client_role['client_role']=='原告' || $case_client_role['client_role']=='申请人') && ($case_client_role['opposite_role']=='被告' || $case_client_role['opposite_role']=='被申请人')){
 						post('cases/name',$case_client_role['client_name'].' 诉 '.$case_client_role['opposite_name'].'('.post('cases/type').')');
 						
 				}elseif(post('cases/classification')=='诉讼' && ($case_client_role['client_role']=='被告' || $case_client_role['client_role']=='被申请人') && ($case_client_role['opposite_role']=='原告' || $case_client_role['opposite_role']=='申请人')){
