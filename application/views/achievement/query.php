@@ -20,7 +20,7 @@ $(function(){
 			renderTo: 'chart_personally_queries',type: 'column'
 		},
 		title: {
-			text: '每人咨询量'
+			text: '每人咨询量（今年，按在谈状态）'
 		},
 		xAxis: {
 			categories: $.parseJSON('<? echo $chart_personally_queries_catogary?>')
@@ -47,7 +47,7 @@ $(function(){
 			renderTo: 'chart_personally_type_queries',type: 'column'
 		},
 		title: {
-			text: '每人咨询量'
+			text: '每人咨询量（今年，按咨询方式）'
 		},
 		xAxis: {
 			categories: $.parseJSON('<? echo $chart_personally_type_queries_catogary?>')

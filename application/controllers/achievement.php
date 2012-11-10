@@ -365,65 +365,69 @@ class Achievement extends SS_controller{
 	}
 	
 	function query(){
-		//TODO 新的咨询统计
 		$q_monthly_queries="
-		SELECT month,queries,filed_queries,live_queries,cases
-		FROM (
-			SELECT LEFT(date_start,7) AS month, COUNT(id) AS queries, SUM(IF(filed=1,1,0)) AS filed_queries, SUM(IF(filed='洽谈',1,0)) AS live_queries
-			FROM query 
-			WHERE LEFT(date_start,4)='".date('Y',$this->config->item('timestamp'))."'
-			GROUP BY LEFT(date_start,7)
-		)query INNER JOIN (
-			SELECT LEFT(time_contract,7) AS month, COUNT(id) AS cases
-			FROM `case`
-			WHERE LEFT(time_contract,4)='".date('Y',$this->config->item('timestamp'))."'
-			GROUP BY LEFT(time_contract,7)
-		)`case` USING(month)";
+			SELECT month,queries,filed_queries,live_queries,cases
+			FROM (
+				SELECT LEFT(first_contact,7) AS month, COUNT(id) AS queries, SUM(IF(filed=1,1,0)) AS filed_queries, SUM(IF(filed=0,1,0)) AS live_queries
+				FROM `case` 
+				WHERE is_query=1 AND LEFT(first_contact,4)='".date('Y',$_G['timestamp'])."'
+				GROUP BY LEFT(first_contact,7)
+			)query INNER JOIN (
+				SELECT LEFT(time_contract,7) AS month, COUNT(id) AS cases
+				FROM `case`
+				WHERE is_query=0 AND LEFT(time_contract,4)='".date('Y',$_G['timestamp'])."'
+				GROUP BY LEFT(time_contract,7)
+			)`case` USING(month)
+		";
 		$monthly_queries=db_toArray($q_monthly_queries);
-		$this->view_data['chart_monthly_queries_catogary']=json_encode(array_sub($monthly_queries,'month'));
+		$chart_monthly_queries_catogary=json_encode(array_sub($monthly_queries,'month'));
 		$chart_monthly_queries_series=array(
 			array('name'=>'总量','data'=>array_sub($monthly_queries,'queries')),
 			array('name'=>'归档','color'=>'#AAA','data'=>array_sub($monthly_queries,'filed_queries')),
 			array('name'=>'在谈','data'=>array_sub($monthly_queries,'live_queries')),
 			array('name'=>'新增案件','data'=>array_sub($monthly_queries,'cases'))
-		
+
 		);
-		$this->view_data['chart_monthly_queries_series']=json_encode($chart_monthly_queries_series,JSON_NUMERIC_CHECK);
-		
+		$chart_monthly_queries_series=json_encode($chart_monthly_queries_series,JSON_NUMERIC_CHECK);
+
 		$q_personally_queries="
-			SELECT staff.name AS staff_name, COUNT(query.id) AS queries, SUM(IF(filed='归档',1,0)) AS filed_queries, SUM(IF(filed='洽谈',1,0)) AS live_queries
-			FROM query INNER JOIN staff ON staff.id=query.lawyer
-			WHERE LEFT(date_start,4)='".date('Y',$this->config->item('timestamp'))."'
-			GROUP BY lawyer
+			SELECT staff.name AS staff_name, COUNT(case.id) AS queries, SUM(filed) AS filed_queries, SUM(NOT filed) AS live_queries
+			FROM `case` 
+				INNER JOIN case_lawyer ON case.id=case_lawyer.case 
+				INNER JOIN staff ON staff.id=case_lawyer.lawyer AND case_lawyer.role = '接洽律师'
+			WHERE is_query=1 AND LEFT(first_contact,4)='".date('Y',$_G['timestamp'])."'
+			GROUP BY staff.id
 			ORDER BY live_queries DESC, queries DESC
 		";
 		$personally_queries=db_toArray($q_personally_queries);
-		
-		$this->view_data['chart_personally_queries_catogary']=json_encode(array_sub($personally_queries,'staff_name'));
+
+		$chart_personally_queries_catogary=json_encode(array_sub($personally_queries,'staff_name'));
 		$chart_personally_queries_series=array(
 			array('name'=>'归档','color'=>'#AAA','data'=>array_sub($personally_queries,'filed_queries')),
 			array('name'=>'在谈','data'=>array_sub($personally_queries,'live_queries'))
-		
+
 		);
-		$this->view_data['chart_personally_queries_series']=json_encode($chart_personally_queries_series,JSON_NUMERIC_CHECK);
-		
+		$chart_personally_queries_series=json_encode($chart_personally_queries_series,JSON_NUMERIC_CHECK);
+
 		$q_personally_type_queries="
-			SELECT staff.name AS staff_name, COUNT(query.id) AS queries, SUM(IF(type='面谈咨询',1,0)) AS face_queries, SUM(IF(type='电话咨询',1,0)) AS call_queries, SUM(IF(type='网上咨询',1,0)) AS online_queries
-			FROM query INNER JOIN staff ON staff.id=query.lawyer
-			WHERE LEFT(date_start,4)='".date('Y',$this->config->item('timestamp'))."'
-			GROUP BY lawyer
+			SELECT staff.name AS staff_name, COUNT(case.id) AS queries, SUM(IF(query_type='面谈咨询',1,0)) AS face_queries, SUM(IF(query_type='电话咨询',1,0)) AS call_queries, SUM(IF(query_type='网上咨询',1,0)) AS online_queries
+			FROM `case` 
+				INNER JOIN case_lawyer ON case.id=case_lawyer.case 
+				INNER JOIN staff ON staff.id=case_lawyer.lawyer AND case_lawyer.role = '接洽律师'
+			WHERE is_query=1 AND LEFT(first_contact,4)='".date('Y',$_G['timestamp'])."'
+			GROUP BY staff.id
 			ORDER BY face_queries DESC, call_queries DESC, online_queries DESC
 		";
 		$personally_type_queries=db_toArray($q_personally_type_queries);
-		
-		$this->view_data['chart_personally_type_queries_catogary']=json_encode(array_sub($personally_type_queries,'staff_name'));
+
+		$chart_personally_type_queries_catogary=json_encode(array_sub($personally_type_queries,'staff_name'));
 		$chart_personally_type_queries_series=array(
 			array('name'=>'网上咨询','data'=>array_sub($personally_type_queries,'online_queries')),
 			array('name'=>'电话咨询','data'=>array_sub($personally_type_queries,'call_queries')),
 			array('name'=>'面谈咨询','data'=>array_sub($personally_type_queries,'face_queries'))
-		
+
 		);
-		$this->view_data['chart_personally_type_queries_series']=json_encode($chart_personally_type_queries_series,JSON_NUMERIC_CHECK);
+		$chart_personally_type_queries_series=json_encode($chart_personally_type_queries_series,JSON_NUMERIC_CHECK);
 	}
 }
 ?>
