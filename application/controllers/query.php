@@ -13,11 +13,11 @@ class Query extends SS_controller{
 
 		$field=array(
 			'first_contact'=>array('title'=>'日期','td_title'=>'width="95px"'),
-			'num'=>array('title'=>'编号','td_title'=>'width="180px"','wrap'=>array('mark'=>'a','href'=>'case?edit={id}')),
+			'num'=>array('title'=>'编号','td_title'=>'width="143px"','wrap'=>array('mark'=>'a','href'=>'case?edit={id}')),
 			'client_name'=>array('title'=>'咨询人','wrap'=>array('mark'=>'a','href'=>'javascript:showWindow(\'client?edit={client}\')')),
 			'type'=>array('title'=>'方式','td_title'=>'width="80px"'),
 			'source'=>array('title'=>'来源'),
-			'staff_name'=>array('title'=>'接洽人'),
+			'staff_names'=>array('title'=>'接洽人'),
 			'summary'=>array('title'=>'概况','td'=>'class="ellipsis" title="{summary}"'),
 			'comment'=>array('title'=>'备注','td'=>'class="ellipsis" title="{comment}"')
 		);
@@ -34,9 +34,9 @@ class Query extends SS_controller{
 	}
 
 	function edit($id=NULL){
-		model('client');
-		model('staff');
-		model('case');
+		$this->load->model('client_model','client');
+		$this->load->model('staff_model','staff');
+		$this->load->model('cases_model','cases');
 		
 		$this->getPostData($id,function($CI){
 			post('case_lawyer_extra/partner_name',$CI->staff->getMyManager('name'));
@@ -61,23 +61,31 @@ class Query extends SS_controller{
 						throw new Exception('请填写咨询人');
 					}
 					
-					if(client_check(post('client/name'),'id',false,false)>0){
-						throw new Exception('新咨询人名称与现有客户重复');
+					$client_check=client_check(post('client/name'),'array',false,false);
+
+					if($client_check['id']>0){
+						post('client/id',$client_check['id']);
+						post('client/source_lawyer',$client_check['source_lawyer']);
+						post('query/source',$client_check['source']);
 					}
 				
-					if(post('client/source_lawyer',staff_check(post('client_extra/source_lawyer_name'),'id',false))<0){
+					if(!post('client/source_lawyer') && post('client/source_lawyer',staff_check(post('client_extra/source_lawyer_name'),'id',false))<0){
 						throw new Exception('来源律师名称错误：'.post('client_extra/source_lawyer_name'));
 					}
 		
-					if(!post('query/source',client_setSource(post('source/type'),post('source/detail')))){
+					if(!post('query/source') && !post('query/source',client_setSource(post('source/type'),post('source/detail')))){
 						throw new Exception('客户来源错误');
 					}
 				}
 			
-				if(!post('client_contact_extra/phone') && !post('client_contact_extra/email')){
+				if(!post('client/id') && !post('client_contact_extra/phone') && !post('client_contact_extra/email')){
 					throw new Exception('至少需要填写一种联系方式');
 				}
 				
+				if(!post('query/summary')){
+				  throw new Exception('请填写咨询概况');
+				}
+
 				if((post('case_lawyer_extra/partner_name') && post('case_lawyer_extra/partner',staff_check(post('case_lawyer_extra/partner_name')))<0)
 					|| (post('case_lawyer_extra/lawyer_name') && post('case_lawyer_extra/lawyer',staff_check(post('case_lawyer_extra/lawyer_name')))<0)
 					|| (post('case_lawyer_extra/assistant_name') && post('case_lawyer_extra/assistant',staff_check(post('case_lawyer_extra/assistant_name')))<0)){

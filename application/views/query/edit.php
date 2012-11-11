@@ -15,14 +15,16 @@
 				<div class="title"><label>咨询人：</label></div>
 				
 				<input type="text" name="client[name]" value="<? displayPost('client/name')?>" placeholder="姓名" autocomplete="client" style="width:65%" />
-				<? displayRadio(array('男','女'),'client[gender]',post('client/gender')) ?>
+				<span class="autocomplete-no-result-menu">
+					<? displayRadio(array('男','女'),'client[gender]',post('client/gender')) ?>
+				</span>
 				<select name="query[query_type]" style="width:11%">
 					<? displayOption(array('_ENUM','query','type'),post('query/query_type'))?>
 				</select>
 				<input type="text" name="query[first_contact]" value="<? displayPost('query/first_contact')?>" title="首次接待时间" class="date" style="width:11%" />
 			</div>
 	
-			<div class="item">
+			<div class="item autocomplete-no-result-menu" style="display: block;">
 				<div class="title"><label>来源：</label></div>
 				<select name="source[type]" style="width:33%">
 					<? displayOption(array('_ENUM','client_source','type'),post('source/type'))?>
@@ -31,7 +33,7 @@
 				<input type="text" name="client_extra[source_lawyer_name]" value="<? displayPost('client_extra/source_lawyer_name') ?>" title="来源律师" placeholder="来源律师" style="width:33%" />
 			</div>
 	
-			<div class="item">
+			<div class="item autocomplete-no-result-menu" style="display: block;">
 				<div class="title"><label>联系方式：</label></div>
 				<input type="text" name="client_contact_extra[phone]" value="<? displayPost('client_contact_extra/phone'); ?>" title="电话" placeholder="电话" style="width:49%" />
 				<input type="text" name="client_contact_extra[email]" value="<? displayPost('client_contact_extra/email'); ?>" title="电子邮件" placeholder="电子邮件" style="width:49%" />

@@ -236,7 +236,7 @@ class Cases_model extends SS_Model{
 		$q_option_array="SELECT id,name FROM `case` WHERE display=1";
 		
 		if($schedule_type==0){
-			$q_option_array.=" AND ((id>=20 AND filed IN ('在办','咨询') AND (id IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."') OR uid = '".$_SESSION['id']."')) OR id=10)";
+			$q_option_array.=" AND ((id>=20 AND filed=0 AND (id IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."') OR uid = '".$_SESSION['id']."')) OR id=10)";
 		
 		}elseif($schedule_type==1){
 			$q_option_array.=" AND id<10 AND id>0";
@@ -795,7 +795,7 @@ class Cases_model extends SS_Model{
 		}
 	}
 	
-	function getList($para=NULL){
+	function getList($method=NULL){
 		$q="
 			SELECT
 				case.id,case.name,case.num,case.stage,case.time_contract,
@@ -831,8 +831,7 @@ class Cases_model extends SS_Model{
 				LEFT JOIN
 				(
 					SELECT `case`,GROUP_CONCAT(staff.name) AS lawyers
-					FROM case_lawyer,staff 
-					WHERE case_lawyer.lawyer=staff.id AND case_lawyer.role='主办律师'
+					FROM case_lawyer INNER JOIN staff ON case_lawyer.lawyer=staff.id AND case_lawyer.role='主办律师'
 					GROUP BY case_lawyer.`case`
 				)lawyers
 				ON `case`.id=lawyers.`case`
@@ -871,16 +870,16 @@ class Cases_model extends SS_Model{
 		
 		$condition='';
 		
-		if($para=='host'){
+		if($method=='host'){
 			$condition.="AND case.apply_file=0 AND case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role='主办律师')";
 		
-		}elseif($para=='consultant'){
+		}elseif($method=='consultant'){
 			$condition.="AND case.apply_file=0 AND classification='法律顾问' AND (case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."') OR case.uid='".$_SESSION['id']."')";
 		
-		}elseif($para=='etc'){
+		}elseif($method=='etc'){
 			$condition.="AND case.apply_file=0 AND classification<>'法律顾问' AND (case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role<>'主办律师') OR case.uid='".$_SESSION['id']."')";
 			
-		}elseif($para=='file'){
+		}elseif($method=='file'){
 			$condition.="AND case.apply_file=1 AND classification<>'法律顾问' AND (case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role<>'主办律师') OR case.uid='".$_SESSION['id']."')";
 			
 		}elseif(!is_logged('developer')){

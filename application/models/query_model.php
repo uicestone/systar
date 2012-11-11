@@ -9,27 +9,37 @@ class Query_model extends SS_Model{
 		return db_fetch_first($query,true);
 	}
 	
-	function getList($para=NULL){
+	function getList($method=NULL){
 		$q="
 			SELECT 
 				case.id,case.first_contact,case.num,case.query_type AS type,case.summary,case.comment,
 				client.abbreviation AS client_name,case_client.client,
-				GROUP_CONCAT(staff.name) AS staff_name,
+				staff.names AS staff_names,
 				client_source.type AS source
 			FROM `case`
 				LEFT JOIN case_client ON case.id=case_client.case
+				LEFT JOIN client_source ON case.source=client_source.id
 				LEFT JOIN client ON client.id=case_client.client
-				LEFT JOIN case_lawyer ON case.id=case_lawyer.case
-				LEFT JOIN staff ON staff.id=case_lawyer.lawyer
-				LEFT JOIN client_source ON case.source=client_source.id 
+				INNER JOIN
+				(
+					SELECT `case`,GROUP_CONCAT(DISTINCT staff.name) AS names
+					FROM case_lawyer INNER JOIN staff ON case_lawyer.lawyer=staff.id AND case_lawyer.role ='接洽律师'
+					WHERE TRUE
+					GROUP BY case_lawyer.`case`
+				)staff
+				ON `case`.id=staff.`case`
 			WHERE case.company='{$this->config->item('company')}' AND case.display=1 AND case.is_query=1
 		";
 		
 		if(!is_logged('service')){//客服可以看到所有咨询
-			$q.=" AND case_lawyer.lawyer='".$_SESSION['id']."'";
+			$q.="
+				AND case.id IN (
+					SELECT `case` FROM case_lawyer WHERE lawyer='{$_SESSION['id']}'
+				)
+			";
 		}
 		
-		if($para=='filed'){
+		if($method=='filed'){
 			$q.=" AND case.filed=1";
 		}else{
 			$q.=" AND case.filed=0";

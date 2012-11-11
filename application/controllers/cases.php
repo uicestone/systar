@@ -534,6 +534,8 @@ class Cases extends SS_controller{
 		
 		$this->view_data['case_client_table']=$this->cases->getClientList(post('cases/id'),post('cases/client_lock'));
 		
+		post('case_client_extra/classification','客户');
+		
 		if(post('cases/is_query')){
 			post('case_client_extra/type','潜在客户');
 		}else{
