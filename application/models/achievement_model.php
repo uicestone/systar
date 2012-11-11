@@ -416,22 +416,30 @@ class Achievement_model extends SS_Model{
 	}
 	
 	function getCaseBonusList(){
+		//TODO
+		$q_cases_to_distribute="SELECT id FROM `case` WHERE lawyer_lock=1";
+		
+		if(got('contribute_type','actual')){
+		  $contribute_type='actual';
+		  $q_cases_to_distribute.=" AND case.filed=1";
+		  $date_range_bar=dateRange($q_cases_to_distribute,'case.time_end',false);
+		}else{
+		  $contribute_type='fixed';
+		  $date_range_bar=dateRange($q_cases_to_distribute,'account.time_occur');
+		}
+		
+		if(is_logged('finance') && $this->input->post('distribute')){
+		  db_update('account',array('distributed_'.$contribute_type=>1),"`case` IN (".$q_cases_to_distribute.")");
+		}
+
 		$q="
 			SELECT staff.name AS staff_name, ROUND(SUM(case_collect.amount*case_contribute.contribute),2) AS contribute_sum,ROUND(SUM(case_collect.amount*case_contribute.contribute*0.15),2) AS bonus_sum
 			FROM (
 				SELECT  `case` , SUM( amount ) amount
 				FROM account
 				WHERE name <> '办案费'
-					AND `case` IN (
-							SELECT id FROM `case` WHERE lawyer_lock=1";
-		if($this->input->get('contribute_type')=='actual'){
-			$q.=" AND case.filed='已归档'";
-			$date_range_bar=$this->dateRange($q,'case.time_end',false);
-		}else{
-			$date_range_bar=$this->dateRange($q,'account.time_occur');
-		}
-		
-		$q.="		)#律师锁定的案子才能计算奖金";
+					AND `case` IN (".$q_cases_to_distribute.")";//律师锁定的案子才能计算奖金
+		$q.="  AND distributed_{$contribute_type}=0";
 		
 		$q.="
 			GROUP BY  `case`
