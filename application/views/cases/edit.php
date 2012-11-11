@@ -109,7 +109,8 @@
 		 </div>
 	
 		<div class="item">
-			<div class="title"><label>案件名称：</label><label title="内部ID：<? displayPost('cases/id')?>"><? displayPost('cases/num');?></label></div>
+			<?if(post('cases/num')){?>
+			<div class="title"><label title="内部ID：<? displayPost('cases/id')?>"><? displayPost('cases/num');?></label></div>
 	
 			<div class="field" id="case_name">
 				<span class="right">
@@ -119,7 +120,8 @@
 				<? displayPost('cases/name')?>
 				&nbsp;
 			</div>
-	
+			<?}?>
+			
 			<? if(post('cases/classification')=='内部行政'){?>
 			<span class="field">内部行政</span>
 			<? }else{?>
@@ -183,7 +185,7 @@
 			<div class="title"><label>报价：</label></div>
 			<input type="text" name="cases[quote]" value="<? displayPost('cases/quote') ?>" />
 		</div>
-		<? }else{ ?>
+		<? }?>
 		<div class="item">
 			<div class="title">
 				<label>签约律师费：</label>
@@ -228,16 +230,17 @@
 			<? if(!post('cases/fee_lock')){?>
 			<div id="caseFeeAddForm">
 				<select style="width:25%;" name="case_fee[type]">
-					<? displayOption(array('固定','风险','计时预付'));?>
+					<? displayOption(post('cases/is_query')?array('咨询费'):array('固定','风险','计时预付'));?>
 				</select>
-				<input type="text" name="case_fee[fee]" value="<? displayPost('case_fee/fee');?>" style="width:24%;" />
-				<input type="text" name="case_fee[condition]" value="<? displayPost('case_fee/condition');?>" style="width:24%" />
-				<input type="text" name="case_fee[pay_time]" value="<? displayPost('case_fee/pay_time',true);?>" class="date" style="width:15%" />
+				<input type="text" name="case_fee[fee]" value="<? displayPost('case_fee/fee');?>" placeholder="数额" style="width:24%;" />
+				<input type="text" name="case_fee[condition]" value="<? displayPost('case_fee/condition');?>" placeholder="付款条件" style="width:24%" />
+				<input type="text" name="case_fee[pay_time]" value="<? displayPost('case_fee/pay_time',true);?>" placeholder="预估日期" class="date" style="width:15%" />
 				<input type="submit" name="submit[case_fee]" value="添加" />
 			</div>
 			<? }?>
 		</div>
 	
+		<?if(!post('cases/is_query')){?>
 		<div class="item">
 			<div class="title"><label>办案费约定情况：</label><label id="caseFeeMiscAdd" style="display:none">+</label></div>
 	
@@ -246,16 +249,16 @@
 				<select name="case_fee_misc[receiver]" style="width:25%">
 					<? displayOption(array('承办律师','律所'));?>
 				</select>
-				<input type="text" name="case_fee_misc[fee]" value="<? displayPost('case_fee_misc/fee');?>" style="width:24%;"  />
-				<input type="text" name="case_fee_misc[comment]" value="<? displayPost('case_fee_misc/comment');?>" style="width:24%" />
-				<input type="text" name="case_fee_misc[pay_time]" value="<? displayPost('case_fee_misc/pay_time',true);?>" class="date" style="width:15%" />
+				<input type="text" name="case_fee_misc[fee]" value="<? displayPost('case_fee_misc/fee');?>" placeholder="数额" style="width:24%;"  />
+				<input type="text" name="case_fee_misc[comment]" value="<? displayPost('case_fee_misc/comment');?>" placeholder="付款条件" style="width:24%" />
+				<input type="text" name="case_fee_misc[pay_time]" value="<? displayPost('case_fee_misc/pay_time',true);?>" placeholder="预估日期" class="date" style="width:15%" />
 				<input type="submit" name="submit[case_fee_misc]" value="添加" />
 			</div>
 		</div>
-		<? }?>
+		<?}?>
 	
 		<div class="item">
-			<div class="title"><label>案下文件：</label>
+			<div class="title"><label>文件：</label>
 				<? if(post('cases/apply_file')){ ?>
 				<input type="submit" name="submit[file_document_list]" value="下载目录" />
 				<? } ?>
@@ -268,7 +271,7 @@
 				<select name="case_document[doctype]" style="width:15%">
 				<? displayOption(array('接洽资料','身份资料','聘请委托文书','签约合同（扫描）','办案文书','裁判文书','行政文书','证据材料','其他'),post('case_document/doctype'));?>
 				</select>
-				<label>备注：</label><input name="case_document[comment]" type="text" size="10" style="width:35%" />
+				<input type="text" name="case_document[comment]" placeholder="具体文件名称" style="width:35%" />
 				<input type="submit" name="submit[case_document]" value="上传" />
 			</div>
 		</div>
