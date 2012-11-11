@@ -8,6 +8,26 @@ $(function() {
 			week: "yyyy年 MMMMd日{' - '[MMMM]d日}",
 			day: 'yyyy年 MMMM d日 dddd'
 		},
+		columnFormat:{
+			month: 'ddd',
+			week: 'ddd M/d',
+			day: 'dddd M/d'
+		},
+		buttonText:{
+			prev:'&nbsp;<&nbsp;',  // left triangle
+			next:'&nbsp;>&nbsp;',  // right triangle
+			prevYear:'&nbsp;&lt;&lt;&nbsp;', // <<
+			nextYear:'&nbsp;&gt;&gt;&nbsp;', // >>
+			today:'今天',
+			month:'月',
+			week:'周',
+			day:'日'
+		},
+		monthNames:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],
+		monthNamesShort:this.monthNames,
+		dayNames:['星期日','星期一','星期二','星期三','星期四','星期五','星期六'],
+		dayNamesShort:['日','一','二','三','四','五','六'],
+		allDayText:'全天',
 		firstDay:1,
 		firstHour:9,
 		slotMinutes:15,
@@ -21,7 +41,7 @@ $(function() {
 		select: function(startDate,endDate, allDay) {
 			var dialog=createDialog('新日程');
 
-			$.get('misc/gethtml/schedule/calendar_add',function(schedule_calendar_add_form){
+			$.get('/misc/gethtml/schedule_calendar_add',function(schedule_calendar_add_form){
 
 				//获取表单html
 				dialog.html(schedule_calendar_add_form).find('#combobox').combobox();
@@ -72,7 +92,7 @@ $(function() {
 							var postData=$.extend($('#schedule').serializeJSON(),{time_start:start,time_end:end,all_day:Number(allDay)});
 							delete postData.type;
 
-							$.post("schedule/writecalendar",postData,
+							$.post("/schedule/writecalendar",postData,
 								function(data){
 									if(!isNaN(data) && data!=0){
 										calendar.fullCalendar('renderEvent',
@@ -104,7 +124,7 @@ $(function() {
 		events: location.href+'/readcalendar',
 		
 		eventClick: function(event) {
-			$.get("schedule/readcalendar/"+event.id,function(result){
+			$.get("/schedule/readcalendar/"+event.id,function(result){
 				try{
 					var schedule=$.parseJSON(result);
 				}catch(e){
@@ -130,7 +150,7 @@ $(function() {
 					{
 						text: "编辑",
 						click: function(){
-							$.get('misc/gethtml/schedule/calendar_add?edit',function(html){
+							$.get('/misc/gethtml/schedule_calendar_add?edit',function(html){
 								dialog.html(html);
 								$('[name="name"]').val(schedule.name);
 								$('[name="content"]').val(schedule.content);
@@ -145,7 +165,7 @@ $(function() {
 									{
 										text: "删除",
 										click: function() {
-											$.post("schedule/writecalendar",{id:event.id,action:'delete'},function(result){
+											$.post("/schedule/writecalendar",{id:event.id,action:'delete'},function(result){
 												console.log(result);
 											});
 											$(this).dialog("close");
@@ -156,13 +176,13 @@ $(function() {
 										text: "高级",
 										click: function() {
 											$(this).dialog("close");
-											showWindow('schedule/edit/'+event.id);
+											showWindow('/schedule/edit='+event.id);
 										}
 									},
 									{
 										text: "保存",
 										click: function() {
-											$.post("schedule/writecalendar",{
+											$.post("/schedule/writecalendar",{
 												id:event.id,
 												action:'updateContent',
 												content:$('[name="content"]').val(),
@@ -185,7 +205,7 @@ $(function() {
 			
 		},
 		eventDrop: function(event,dayDelta,minuteDelta,allDay) {
-			$.post("schedule/writecalendar",{id:event.id,action:'drag',dayDelta:dayDelta,minuteDelta:minuteDelta,allDay:Number(allDay)},function(){
+			$.post("/schedule/writecalendar",{id:event.id,action:'drag',dayDelta:dayDelta,minuteDelta:minuteDelta,allDay:Number(allDay)},function(){
 				if(event.start.getTime()>date.getTime()){
 					event.color='#E35B00';
 				}else{
@@ -195,7 +215,7 @@ $(function() {
 			});
 		},
 		eventResize:function(event,dayDelta,minuteDelta){
-			$.post("schedule/writecalendar",{id:event.id,action:'resize',dayDelta:dayDelta,minuteDelta:minuteDelta,allDay:event.allDay},function(result){
+			$.post("/schedule/writecalendar",{id:event.id,action:'resize',dayDelta:dayDelta,minuteDelta:minuteDelta,allDay:event.allDay},function(result){
 				if(result!=''){
 					alert('保存失败了，请联系程序员');
 					console.log(result);
