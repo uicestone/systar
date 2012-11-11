@@ -19,11 +19,13 @@ class ViewScore extends SS_controller{
 			}
 		}
 		
+		addCondition($q,array('class'=>'view_student.class','grade'=>'view_student.grade'),array('grade'=>array('class','exam')));
+		
 		if(!option('exam')){
 			option('exam',db_fetch_field("SELECT id FROM exam WHERE grade='".option('grade')."' ORDER BY id DESC LIMIT 1"));
 		}
 		
-		addCondition($q,array('class'=>'view_student.class','grade'=>'view_student.grade','exam'=>'view_score.exam'),array('grade'=>array('class','exam')));
+		addCondition($q, array('exam'=>'view_score.exam'));
 		
 		$search_bar=$this->processSearch($q,array('view_student.name'=>'学生'));
 		
