@@ -304,30 +304,8 @@ class Schedule extends SS_controller{
 	}
 	
 	function outPlan(){
-		$q="
-			SELECT
-				schedule.id AS schedule,schedule.name AS schedule_name,schedule.content AS schedule_content,schedule.experience AS schedule_experience, schedule.time_start,schedule.hours_own,schedule.hours_checked,schedule.comment AS schedule_comment,schedule.place,
-				staff.name AS staff_name,staff.id AS staff
-			FROM schedule LEFT JOIN staff ON staff.id = schedule.uid
-			WHERE schedule.display=1 AND schedule.place<>''
-		";
 		
-		if($this->input->get('case') && $this->input->get('staff')){
-			$q.=" AND schedule.`case`='".$this->input->get('case')."' AND uid='".$this->input->get('staff')."'";
-		
-		}elseif($this->input->get('case')){
-			$q.=" AND schedule.`case`='".$this->input->get('case')."'";
-		
-		}elseif($this->input->get('staff')){
-			$q.=" AND schedule.`uid`='".$this->input->get('staff')."'";
-		
-		}
-		
-		$this->processOrderby($q,'time_start','DESC',array('place'));
-		
-		$search_bar=$this->processSearch($q,array('staff.name'=>'人员'));
-		
-		$listLocator=$this->processMultiPage($q);
+		$this->session->set_userdata('last_list_action',$_SERVER['REQUEST_URI']);
 		
 		$field=Array(
 			'staff_name'=>array('title'=>'人员','content'=>'<a href="schedule/lists?staff={staff}"> {staff_name}</a>','td_title'=>'width="60px"'),
@@ -339,17 +317,13 @@ class Schedule extends SS_controller{
 			'place'=>array('title'=>'外出地点','td_title'=>'width="25%"')
 		);
 		
-		$menu=array(
-		'head'=>'<div style="float:right;">'.
-					$listLocator.
-				'</div>'
-		);
+		$table=$this->table->setFields($field)
+					->setData($this->schedule->getOutPlanList())
+					->generate();
 		
-		$table=$this->fetchTableArray($q, $field);
+		$this->load->addViewData('list',$table);
 		
-		$this->view_data+=compact('table','menu');
-		
-		$this->load->view('lists',$this->view_data);
+		$this->load->view('list');
 	}
 	
 	function readCalendar($id=NULL){
