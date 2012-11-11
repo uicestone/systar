@@ -220,11 +220,10 @@ class Achievement extends SS_controller{
 		$chart_monthly_queries_series=json_encode($chart_monthly_queries_series,JSON_NUMERIC_CHECK);
 
 		$q_personally_queries="
-			SELECT staff.name AS staff_name, COUNT(case.id) AS queries, SUM(filed) AS filed_queries, SUM(NOT filed) AS live_queries
-			FROM `case` 
+			SELECT staff.name AS staff_name, COUNT(case.id) AS queries, SUM(filed AND is_query) AS filed_queries, SUM(NOT filed AND is_query) AS live_queries, SUM(NOT is_query) AS success_case			FROM `case` 
 				INNER JOIN case_lawyer ON case.id=case_lawyer.case 
 				INNER JOIN staff ON staff.id=case_lawyer.lawyer AND case_lawyer.role = '接洽律师'
-			WHERE is_query=1 AND LEFT(first_contact,4)='".date('Y',$_G['timestamp'])."'
+			WHERE display=1 AND LEFT(first_contact,4)='".date('Y',$this->config->item('timestamp'))."'
 			GROUP BY staff.id
 			ORDER BY live_queries DESC, queries DESC
 		";
@@ -233,6 +232,7 @@ class Achievement extends SS_controller{
 		$chart_personally_queries_catogary=json_encode(array_sub($personally_queries,'staff_name'));
 		$chart_personally_queries_series=array(
 			array('name'=>'归档','color'=>'#AAA','data'=>array_sub($personally_queries,'filed_queries')),
+			array('name'=>'成案','data'=>array_sub($personally_queries,'success_case')),
 			array('name'=>'在谈','data'=>array_sub($personally_queries,'live_queries'))
 
 		);
