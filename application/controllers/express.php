@@ -14,7 +14,7 @@ class Express extends SS_controller{
 			'sender_name'=>array('title'=>'寄送人'),
 			'destination'=>array('title'=>'寄送地点','td'=>'class="ellipsis" title="{destination}"'),
 			'num'=>array('title'=>'单号'),
-			'comment'=>array('title'=>'备注')
+			'comment'=>array('title'=>'备注','td'=>'class="ellipsis"')
 		);
 		
 		$table=$this->table->setFields($field)

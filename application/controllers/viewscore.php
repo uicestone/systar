@@ -4,7 +4,7 @@ class ViewScore extends SS_controller{
 		parent::__construct();
 	}
 	
-	function index(){
+	function lists(){
 		$q="SELECT * FROM view_score INNER JOIN view_student ON view_student.id=view_score.student WHERE 1=1";
 		
 		if(!option('class') && !option('grade')){
@@ -23,7 +23,7 @@ class ViewScore extends SS_controller{
 			option('exam',db_fetch_field("SELECT id FROM exam WHERE grade='".option('grade')."' ORDER BY id DESC LIMIT 1"));
 		}
 		
-		addCondition($q,array('class'=>'view_student.class','grade'=>'view_student.grade','exam'=>'view_score.exam'),array('grade'=>'class'));
+		addCondition($q,array('class'=>'view_student.class','grade'=>'view_student.grade','exam'=>'view_score.exam'),array('grade'=>array('class','exam')));
 		
 		$search_bar=$this->processSearch($q,array('view_student.name'=>'学生'));
 		
@@ -37,6 +37,7 @@ class ViewScore extends SS_controller{
 			'course_3'=>array('title'=>'英语','content'=>'{course_3}<br /><span class="rank">{rank_3}</span>'),
 			'course_4'=>array('title'=>'物理','content'=>'{course_4}<br /><span class="rank">{rank_4}</span>'),
 			'course_5'=>array('title'=>'化学','content'=>'{course_5}<br /><span class="rank">{rank_5}</span>'),
+			'course_6'=>array('title'=>'生物','content'=>'{course_6}<br /><span class="rank">{rank_6}</span>'),
 			'course_8'=>array('title'=>'历史','content'=>'{course_8}<br /><span class="rank">{rank_8}</span>'),
 			'course_7'=>array('title'=>'地理','content'=>'{course_7}<br /><span class="rank">{rank_7}</span>'),
 			'course_9'=>array('title'=>'政治','content'=>'{course_9}<br /><span class="rank">{rank_9}</span>'),
@@ -52,8 +53,9 @@ class ViewScore extends SS_controller{
 			ROUND(AVG(course_3),2) AS course_3,
 			ROUND(AVG(course_4),2) AS course_4,
 			ROUND(AVG(course_5),2) AS course_5,
-			ROUND(AVG(course_8),2) AS course_8,
+			ROUND(AVG(course_6),2) AS course_6,
 			ROUND(AVG(course_7),2) AS course_7,
+			ROUND(AVG(course_8),2) AS course_8,
 			ROUND(AVG(course_9),2) AS course_9,
 			ROUND(AVG(course_10),2) AS course_10,
 			ROUND(AVG(course_sum_3),2) AS course_sum_3,
@@ -70,6 +72,7 @@ class ViewScore extends SS_controller{
 			'course_3'=>'',
 			'course_4'=>'',
 			'course_5'=>'',
+			'course_6'=>'',
 			'course_8'=>'',
 			'course_7'=>'',
 			'course_9'=>'',
@@ -87,6 +90,7 @@ class ViewScore extends SS_controller{
 				'course_3'=>array('title'=>'英语','content'=>'{course_3}'),
 				'course_4'=>array('title'=>'物理','content'=>'{course_4}'),
 				'course_5'=>array('title'=>'化学','content'=>'{course_5}'),
+				'course_6'=>array('title'=>'生物','content'=>'{course_6}'),
 				'course_8'=>array('title'=>'历史','content'=>'{course_8}'),
 				'course_7'=>array('title'=>'政治','content'=>'{course_7}'),
 				'course_9'=>array('title'=>'地理','content'=>'{course_9}'),

@@ -83,9 +83,14 @@ class SS_Model extends CI_Model{
 	}
 
 	function addCondition(&$q,$condition_array,$unset=array()){
-		foreach($unset as $changed_variable => $unset_variable){
-			if(is_posted($changed_variable)){
-				unset($_SESSION[CONTROLLER][METHOD][$unset_variable]);
+		foreach($unset as $changed_variable => $unset_array){
+			if(!is_array($unset_array)){
+			  $unset_array=array($unset_array);
+			}
+			foreach($unset_array as $unset_variable){
+				if(is_posted($changed_variable)){
+					unset($_SESSION[CONTROLLER][METHOD][$unset_variable]);
+				}
 			}
 		}
 
