@@ -359,6 +359,7 @@ class Cases extends SS_controller{
 		
 			if(is_posted('submit/new_case')){
 				post('cases/is_query',0);
+				post('case/filed',0);
 				post('cases/num','');
 				post('cases/time_contract',$this->config->item('date'));
 				post('cases/time_end',date('Y-m-d',$this->config->item('timestamp')+100*86400));
