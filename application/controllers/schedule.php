@@ -352,7 +352,7 @@ class Schedule extends SS_controller{
 			WHERE completed=1 AND schedule.time_start >= '".$last_week_monday."' AND schedule.time_start < '".($last_week_monday+86400*7)."'
 			GROUP BY uid
 		)lastweek ON staff.id=lastweek.uid
-		INNER JOIN (
+		LEFT JOIN (
 			SELECT uid,SUM(IF(schedule.hours_checked IS NULL,schedule.hours_own,schedule.hours_checked)) AS hours
 			FROM schedule
 			WHERE completed=1 AND schedule.time_start >= '".($last_week_monday-86400*7)."' AND schedule.time_start < '".$last_week_monday."'
