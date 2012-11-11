@@ -514,6 +514,10 @@ class Cases extends SS_controller{
 
 		}
 		
+		if(post('case/client_lock')){
+			post('case_client_extra/classification','联系人');
+		}		
+
 		//计算本案有效日志总时间
 		$this->view_data['schedule_time']=$this->schedule->calculateTime(post('cases/id'));
 		

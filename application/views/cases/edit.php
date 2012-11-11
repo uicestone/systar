@@ -52,9 +52,7 @@
 	<div class="contentTable">
 		<div class="item">
 			<div class="title"><label>客户及相关人：</label>
-				<? if(!post('cases/client_lock')){?>
 				<label id="caseClientAdd"><? if(post('case_client_extra/show_add_form'))echo '-';else echo '+'?></label>
-				<? } ?>
 				<? if($responsible_partner==$_SESSION['id'] && !post('cases/client_lock') && post('cases/is_reviewed')){?>
 				<input type="submit" name="submit[lock_client]" value="锁定" />
 				<? }?>
@@ -63,7 +61,7 @@
 				<? } ?>
 			</div>
 		
-			<? if(count($case_client_table)>1)$this->arrayExportTable($case_client_table,NULL,false,false);?>
+			<? if(count($case_client_table)>1)arrayExportTable($case_client_table,NULL,false,false);?>
 	
 			<div id="caseClientAddForm" <? if(!post('case_client_extra/show_add_form'))echo 'style="display:none"';?>>
 				<input type="text" name="case_client_extra[name]" value="<? displayPost('case_client_extra/name')?>" placeholder="名称" autocomplete="client" autocomplete-input-name="case_client[client]" style="width:20%" />
@@ -72,16 +70,16 @@
 					<? displayCheckbox('单位','case_client_extra[character]',post('case_client_extra/character'),'单位')?>
 				
 					<select name="case_client_extra[classification]" disabled="disabled" style="width:15%">
-						<? displayOption(array('客户','相对方','联系人'),post('case_client_extra/classification'));?>
+						<? displayOption(post('cases/client_lock')?array('联系人','相对方'):array('客户','相对方','联系人'),post('case_client_extra/classification'));?>
 					</select>
 		
 					<select name="case_client_extra[type]" disabled="disabled" style="width:15%">
-						<? displayOption('客户',post('case_client_extra/type'),false,'type','classification','type',"affair='client'");?>
+						<? displayOption(post('cases/client_lock')?'联系人':'客户',post('case_client_extra/type'),false,'type','classification','type',"affair='client'");?>
 					</select>
 				</span>
 				
-				<span id="caseClientAddFormForContact" style="display:none">
-					<input type="text" name="case_client_extra[work_for]" placeholder="工作单位" disabled="disabled" style="width:10%" />
+				<span id="caseClientAddFormForContact" <?if(post('case_client_extra/classification')=='客户')echo 'style="display:none"'?>>
+					<input type="text" name="case_client_extra[work_for]" placeholder="工作单位" <?if(post('case_client_extra/classification')=='客户')echo 'disabled="disabled"'?> style="width:10%" />
 				</span>
 	
 				<? if(!post('cases/is_query')){ ?>
@@ -111,14 +109,14 @@
 		 </div>
 	
 		<div class="item">
-			<div class="title"><label>案件名称：</label><label title="内部ID：<? displaypost('cases/id')?>"><? displaypost('cases/num');?></label></div>
+			<div class="title"><label>案件名称：</label><label title="内部ID：<? displayPost('cases/id')?>"><? displayPost('cases/num');?></label></div>
 	
 			<div class="field" id="case_name">
 				<span class="right">
 					<? echo $case_status?>
 				</span>
 	
-				<? displaypost('cases/name')?>
+				<? displayPost('cases/name')?>
 				&nbsp;
 			</div>
 	
@@ -143,17 +141,17 @@
 			<? }?>
 	
 			<? if(post('cases/is_query')){ ?>
-			<input type="text" name="cases[first_contact]" value="<? displaypost('cases/first_contact')?>" placeholder="首次接待日期" title="首次接待日期" class="date" style="width:100px" />
+			<input type="text" name="cases[first_contact]" value="<? displayPost('cases/first_contact')?>" placeholder="首次接待日期" title="首次接待日期" class="date" style="width:100px" />
 			<? }else{ ?>
-			<input type="text" name="cases[time_contract]" value="<? displaypost('cases/time_contract')?>" placeholder="立案日期" title="立案日期" class="date" style="width:100px" <? if(post('cases/is_reviewed'))echo 'disabled="disabled"';?> />
+			<input type="text" name="cases[time_contract]" value="<? displayPost('cases/time_contract')?>" placeholder="立案日期" title="立案日期" class="date" style="width:100px" <? if(post('cases/is_reviewed'))echo 'disabled="disabled"';?> />
 			-
-			<input type="text" name="cases[time_end]" value="<? displaypost('cases/time_end')?>" placeholder="预估结案日期" title="预估结案日期" class="date" style="width:100px" <? if(post('cases/is_reviewed'))echo 'disabled="disabled"';?> />
+			<input type="text" name="cases[time_end]" value="<? displayPost('cases/time_end')?>" placeholder="预估结案日期" title="预估结案日期" class="date" style="width:100px" <? if(post('cases/is_reviewed'))echo 'disabled="disabled"';?> />
 			<? } ?>
 	
 			<? if(!post('cases/num')){?>
 			<input type="submit" name="submit[apply_case_num]" value="获得案号" />
 			<? }else{?>
-			<input type="text" name="cases[name_extra]" style="width:20%" value="<? displaypost('cases/name_extra')?>" placeholder="后缀" />
+			<input type="text" name="cases[name_extra]" style="width:20%" value="<? displayPost('cases/name_extra')?>" placeholder="后缀" />
 			<? }?>
 		</div>
 	
@@ -168,7 +166,7 @@
 				<? } ?>
 			</div>
 	
-			<? if(count($case_staff_table)>1)$this->arrayExportTable($case_staff_table,NULL,false,false);?>
+			<? if(count($case_staff_table)>1)arrayExportTable($case_staff_table,NULL,false,false);?>
 			
 			<div id="caseLawyerAddForm" <? if(!post('case_lawyer_extra/show_add_form'))echo 'style="display:none"';?>>
 				<input type="text" name="case_lawyer_extra[lawyer_name]" value="<? displayPost('case_lawyer_extra/lawyer_name');?>" placeholder="姓名" style="width:45%" />
@@ -183,7 +181,7 @@
 		<? if(post('cases/is_query')){//咨询阶段显示报价情况，不显示律师费和办案费?>
 		<div class="item">
 			<div class="title"><label>报价：</label></div>
-			<input type="text" name="cases[quote]" value="<? displaypost('cases/quote') ?>" />
+			<input type="text" name="cases[quote]" value="<? displayPost('cases/quote') ?>" />
 		</div>
 		<? }else{ ?>
 		<div class="item">
@@ -205,7 +203,7 @@
 				<? } ?>
 				
 				<? if(is_logged('finance')){?>
-				<button type="button" onclick="showWindow('account?add&case=<? displaypost('cases/id')?>')">到账</button>
+				<button type="button" onclick="showWindow('account?add&case=<? displayPost('cases/id')?>')">到账</button>
 				<? }?>
 				
 				<? if(is_logged('finance')){?>
@@ -226,15 +224,15 @@
 				</div>
 			</div>
 	
-			<? if(count($case_fee_table)>1)$this->arrayExportTable($case_fee_table,NULL,false,false,array('name'=>'case_fee'))?>	
+			<? if(count($case_fee_table)>1)arrayExportTable($case_fee_table,NULL,false,false,array('name'=>'case_fee'))?>	
 			<? if(!post('cases/fee_lock')){?>
 			<div id="caseFeeAddForm">
 				<select style="width:25%;" name="case_fee[type]">
 					<? displayOption(array('固定','风险','计时预付'));?>
 				</select>
-				<input type="text" name="case_fee[fee]" value="<? displayPost('case_fee/fee');?>" placeholder="数额" style="width:24%;" />
-				<input type="text" name="case_fee[condition]" value="<? displayPost('case_fee/condition');?>" placeholder="条件" style="width:24%" />
-				<input type="text" name="case_fee[pay_time]" value="<? displayPost('case_fee/pay_time',true);?>" placeholder="预计时间" class="date" style="width:15%" />
+				<input type="text" name="case_fee[fee]" value="<? displayPost('case_fee/fee');?>" style="width:24%;" />
+				<input type="text" name="case_fee[condition]" value="<? displayPost('case_fee/condition');?>" style="width:24%" />
+				<input type="text" name="case_fee[pay_time]" value="<? displayPost('case_fee/pay_time',true);?>" class="date" style="width:15%" />
 				<input type="submit" name="submit[case_fee]" value="添加" />
 			</div>
 			<? }?>
@@ -243,14 +241,14 @@
 		<div class="item">
 			<div class="title"><label>办案费约定情况：</label><label id="caseFeeMiscAdd" style="display:none">+</label></div>
 	
-			<? if(count($case_fee_misc_table)>1)$this->arrayExportTable($case_fee_misc_table,NULL,false,false);?>
+			<? if(count($case_fee_misc_table)>1)arrayExportTable($case_fee_misc_table,NULL,false,false);?>
 			<div id="caseFeeMiscAddForm">
 				<select name="case_fee_misc[receiver]" style="width:25%">
 					<? displayOption(array('承办律师','律所'));?>
 				</select>
-				<input type="text" name="case_fee_misc[fee]" value="<? displayPost('case_fee_misc/fee');?>" placeholder="数额" style="width:24%;"  />
-				<input type="text" name="case_fee_misc[comment]" value="<? displayPost('case_fee_misc/comment');?>" placeholder="备注" style="width:24%" />
-				<input type="text" name="case_fee_misc[pay_time]" value="<? displayPost('case_fee_misc/pay_time',true);?>" placeholder="预计时间" class="date" style="width:15%" />
+				<input type="text" name="case_fee_misc[fee]" value="<? displayPost('case_fee_misc/fee');?>" style="width:24%;"  />
+				<input type="text" name="case_fee_misc[comment]" value="<? displayPost('case_fee_misc/comment');?>" style="width:24%" />
+				<input type="text" name="case_fee_misc[pay_time]" value="<? displayPost('case_fee_misc/pay_time',true);?>" class="date" style="width:15%" />
 				<input type="submit" name="submit[case_fee_misc]" value="添加" />
 			</div>
 		</div>
@@ -263,7 +261,7 @@
 				<? } ?>
 			</div>
 	
-			<? if(count($case_document_table)>1)$this->arrayExportTable($case_document_table,NULL,false,false,array('name'=>'case_fee_misc'));?>
+			<? if(count($case_document_table)>1)arrayExportTable($case_document_table,NULL,false,false,array('name'=>'case_fee_misc'));?>
 
 			<div id="caseDocumentAddForm">
 				<input type="file" name="file" id="file" width="30%" />
@@ -279,42 +277,42 @@
 			<div class="title">
 				<span class="right">
 					<? echo $schedule_time; ?>小时
-					<a href="/schedule/lists?case=<? echo post('cases/id')?>">所有日志>></a>
+					<a href="schedule?list&amp;case=<? echo post('cases/id')?>">所有日志>></a>
 				</span>
 				<label>最新日志：
-					<a href="javascript:showWindow('schedule/add?case=<? echo post('cases/id')?>')">添加>></a>
+					<a href="javascript:showWindow('schedule?add&case=<? echo post('cases/id')?>')">添加>></a>
 				</label>
 			</div>
-			<? if(count($case_schedule_table)>1)$this->arrayExportTable($case_schedule_table,NULL,false,false);?>
+			<? if(count($case_schedule_table)>1)arrayExportTable($case_schedule_table,NULL,false,false);?>
 		</div>
 	
 		<div class="item">
 			<div class="title">
 				<span class="right">
-					<a href="/schedule/plan?case=<? echo post('cases/id')?>">所有计划>></a>
+					<a href="schedule?plan&case=<? echo post('cases/id')?>">所有计划>></a>
 				</span>
 				<label>日程计划：
-					<a href="javascript:showWindow('schedule/add?case=<? echo post('cases/id')?>&completed=0')">添加>></a>
+					<a href="javascript:showWindow('schedule?add&case=<? echo post('cases/id')?>&completed=0')">添加>></a>
 				</label>
 			</div>
-			<? if(count($case_plan_table)>1)$this->arrayExportTable($case_plan_table,NULL,false,false);?>
+			<? if(count($case_plan_table)>1)arrayExportTable($case_plan_table,NULL,false,false);?>
 		</div>
 	
 		<? if(!post('cases/is_query') && post('cases/classification')!='法律顾问'){?>
 		<div class="item">
 			<div class="title"><label>争议焦点：（案件标的）</label></div>
-			<textarea class="item" name="cases[focus]" type="text" rows="2"><? displaypost('cases/focus')?></textarea>
+			<textarea class="item" name="cases[focus]" type="text" rows="2"><? displayPost('cases/focus')?></textarea>
 		</div>
 		<? }?>
 	
 		<div class="item">
 			<div class="title"><label>案情简介：</label></div>
-			<textarea class="item" name="cases[summary]" type="text" rows="4"><? displaypost('cases/summary')?></textarea>
+			<textarea class="item" name="cases[summary]" type="text" rows="4"><? displayPost('cases/summary')?></textarea>
 		</div>
 	
 		<div class="item">
 			<div class="title"><label>备注：</label></div>
-			<textarea class="item" name="cases[comment]" type="text" rows="3"><? displaypost('cases/comment')?></textarea>
+			<textarea class="item" name="cases[comment]" type="text" rows="3"><? displayPost('cases/comment')?></textarea>
 		</div>
 	
 		<div class="submit">
