@@ -514,7 +514,7 @@ class Cases_model extends SS_Model{
 				case_lawyer	INNER JOIN staff ON staff.id=case_lawyer.lawyer
 				LEFT JOIN account ON case_lawyer.case=account.case AND account.name <> '办案费'
 				LEFT JOIN (
-					SELECT uid,SUM(hours_checked) AS hours_sum FROM schedule WHERE schedule.`case`='".$case_id."' AND hours_checked IS NOT NULL GROUP BY uid
+					SELECT uid,SUM(IF(hours_checked IS NULL,hours_own,hours_checked)) AS hours_sum FROM schedule WHERE schedule.`case`='".$case_id."' AND hours_checked IS NOT NULL GROUP BY uid
 				)lawyer_hour
 				ON lawyer_hour.uid=case_lawyer.lawyer
 			WHERE case_lawyer.case='".$case_id."'

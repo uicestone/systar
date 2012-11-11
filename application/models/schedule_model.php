@@ -96,7 +96,7 @@ class Schedule_model extends SS_Model{
 	}
 	
 	function calculateTime($case,$client=NULL,$staff=NULL){
-		$q="SELECT SUM(IF(hours_checked IS NULL,0,hours_checked)) AS time FROM schedule WHERE `case`='".$case."'";
+		$q="SELECT SUM(IF(hours_checked IS NULL,hours_own,hours_checked)) AS time FROM schedule WHERE `case`='".$case."'";
 		
 		if(!is_null($client)){
 			$q.=" `client`='".$client."'";
