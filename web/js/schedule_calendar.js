@@ -1,5 +1,4 @@
 $(function() {
-	var date=new Date();
 	var calendar=$('#calendar').fullCalendar({
 		defaultView: 'agendaWeek',
 		height: $(window).height()-25,
@@ -39,6 +38,7 @@ $(function() {
 		selectable: true,
 		selectHelper: true,
 		select: function(startDate,endDate, allDay) {
+			date = new Date();
 			var dialog=createDialog('新日程');
 
 			$.get('/misc/gethtml/schedule_calendar_add',function(schedule_calendar_add_form){
@@ -205,6 +205,7 @@ $(function() {
 			
 		},
 		eventDrop: function(event,dayDelta,minuteDelta,allDay) {
+			date = new Date();
 			$.post("/schedule/writecalendar",{id:event.id,action:'drag',dayDelta:dayDelta,minuteDelta:minuteDelta,allDay:Number(allDay)},function(){
 				if(event.start.getTime()>date.getTime()){
 					event.color='#E35B00';
@@ -222,5 +223,9 @@ $(function() {
 				}
 			});
 		}
+	});
+	
+	$(window.parent).resize(function(){
+		calendar.fullCalendar('option','height',$(this).height()-25);
 	});
 });
