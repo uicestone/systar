@@ -13,8 +13,8 @@ class Query extends SS_controller{
 
 		$field=array(
 			'first_contact'=>array('title'=>'日期','td_title'=>'width="95px"'),
-			'num'=>array('title'=>'编号','td_title'=>'width="143px"','wrap'=>array('mark'=>'a','href'=>'case?edit={id}')),
-			'client_name'=>array('title'=>'咨询人','wrap'=>array('mark'=>'a','href'=>'javascript:showWindow(\'client?edit={client}\')')),
+			'num'=>array('title'=>'编号','td_title'=>'width="143px"','wrap'=>array('mark'=>'a','href'=>'cases/edit/{id}')),
+			'client_name'=>array('title'=>'咨询人','wrap'=>array('mark'=>'a','href'=>'javascript:showWindow(\'client/edit/{client}\')')),
 			'type'=>array('title'=>'方式','td_title'=>'width="80px"'),
 			'source'=>array('title'=>'来源'),
 			'staff_names'=>array('title'=>'接洽人'),
@@ -61,7 +61,7 @@ class Query extends SS_controller{
 						throw new Exception('请填写咨询人');
 					}
 					
-					$client_check=client_check(post('client/name'),'array',false,false);
+					$client_check=$this->client->check(post('client/name'),'array',false,false);
 
 					if($client_check['id']>0){
 						post('client/id',$client_check['id']);
@@ -69,11 +69,11 @@ class Query extends SS_controller{
 						post('query/source',$client_check['source']);
 					}
 				
-					if(!post('client/source_lawyer') && post('client/source_lawyer',staff_check(post('client_extra/source_lawyer_name'),'id',false))<0){
+					if(!post('client/source_lawyer') && post('client/source_lawyer',$this->staff->check(post('client_extra/source_lawyer_name'),'id',false))<0){
 						throw new Exception('来源律师名称错误：'.post('client_extra/source_lawyer_name'));
 					}
 		
-					if(!post('query/source') && !post('query/source',client_setSource(post('source/type'),post('source/detail')))){
+					if(!post('query/source') && !post('query/source',$this->client->setSource(post('source/type'),post('source/detail')))){
 						throw new Exception('客户来源错误');
 					}
 				}
@@ -86,9 +86,9 @@ class Query extends SS_controller{
 				  throw new Exception('请填写咨询概况');
 				}
 
-				if((post('case_lawyer_extra/partner_name') && post('case_lawyer_extra/partner',staff_check(post('case_lawyer_extra/partner_name')))<0)
-					|| (post('case_lawyer_extra/lawyer_name') && post('case_lawyer_extra/lawyer',staff_check(post('case_lawyer_extra/lawyer_name')))<0)
-					|| (post('case_lawyer_extra/assistant_name') && post('case_lawyer_extra/assistant',staff_check(post('case_lawyer_extra/assistant_name')))<0)){
+				if((post('case_lawyer_extra/partner_name') && post('case_lawyer_extra/partner',$this->staff->check(post('case_lawyer_extra/partner_name')))<0)
+					|| (post('case_lawyer_extra/lawyer_name') && post('case_lawyer_extra/lawyer',$this->staff->check(post('case_lawyer_extra/lawyer_name')))<0)
+					|| (post('case_lawyer_extra/assistant_name') && post('case_lawyer_extra/assistant',$this->staff->check(post('case_lawyer_extra/assistant_name')))<0)){
 					throw new Exception('接待人员名称错误');
 				}
 			
@@ -101,9 +101,9 @@ class Query extends SS_controller{
 						'display'=>1
 					));
 					
-					post('client/id',client_add(post('client')));
+					post('client/id',$this->client->add(post('client')));
 				
-					client_addContact_phone_email(post('client/id'),post('client_contact_extra/phone'),post('client_contact_extra/email'));
+					$this->client->addContact_phone_email(post('client/id'),post('client_contact_extra/phone'),post('client_contact_extra/email'));
 				}
 		
 				
@@ -111,18 +111,18 @@ class Query extends SS_controller{
 					'is_query'=>1
 				)));
 				
-				case_update(post('query/id'),post('case'));
+				$this->cases->update(post('query/id'),post('case'));
 				
 				post('case/id',post('query/id'));
 				
-				case_addClient(post('case/id'),post('client/id'),'');
+				$this->cases->addClient(post('case/id'),post('client/id'),'');
 		        
-				case_addLawyer(post('case/id'),array('lawyer'=>post('case_lawyer_extra/partner'),'role'=>'督办合伙人'));
-				case_addLawyer(post('case/id'),array('lawyer'=>post('case_lawyer_extra/lawyer'),'role'=>'接洽律师'));
-				case_addLawyer(post('case/id'),array('lawyer'=>post('case_lawyer_extra/assistant'),'role'=>'接洽律师（次要）'));
-				case_calcContribute(post('case/id'));
+				$this->cases->addLawyer(post('case/id'),array('lawyer'=>post('case_lawyer_extra/partner'),'role'=>'督办合伙人'));
+				$this->cases->addLawyer(post('case/id'),array('lawyer'=>post('case_lawyer_extra/lawyer'),'role'=>'接洽律师'));
+				$this->cases->addLawyer(post('case/id'),array('lawyer'=>post('case_lawyer_extra/assistant'),'role'=>'接洽律师（次要）'));
+				$this->cases->calcContribute(post('case/id'));
 				
-				post('query/num',case_getNum(post('case')));
+				post('query/num',$this->cases->getNum(post('case')));
 				
 				$new_case_id=post('case/id');
 				
@@ -132,6 +132,7 @@ class Query extends SS_controller{
 				showMessage($e->getMessage(),'warning');
 			}
 		}
+		$this->load->view('query/edit');
 	}
 }
 ?>

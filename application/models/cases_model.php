@@ -608,7 +608,7 @@ class Cases_model extends SS_Model{
 		$case_num=array();
 		
 		if(is_null($case_client_role)){
-			$case_client_role=case_getClientRole($case['id']);
+			$case_client_role=$this->getClientRole($case['id']);
 		}
 		
 		if(!$case['is_query'] && !$case_client_role['client']){

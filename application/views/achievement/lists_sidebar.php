@@ -1,7 +1,6 @@
-<? echo $date_range_bar?>
 <div>
-<? $this->arrayExportTable($achievement_dashboard,NULL,false,false)?>
+<?=$this->table->generate($achievement_dashboard)?>
 </div>
 <div>
-<? $this->arrayExportTable($achievement_sum,NULL,false,false)?>
+<?=$this->table->generate($achievement_sum)?>
 </div>

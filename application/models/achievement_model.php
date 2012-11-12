@@ -414,18 +414,17 @@ class Achievement_model extends SS_Model{
 		
 		return $this->db->query($q)->result_array();
 	}
-	
+
 	function getCaseBonusList(){
-		//TODO
 		$q_cases_to_distribute="SELECT id FROM `case` WHERE lawyer_lock=1";
 		
 		if(got('contribute_type','actual')){
 		  $contribute_type='actual';
 		  $q_cases_to_distribute.=" AND case.filed=1";
-		  $date_range_bar=dateRange($q_cases_to_distribute,'case.time_end',false);
+		  $q_cases_to_distribute=$this->dateRange($q_cases_to_distribute,'case.time_end',false);
 		}else{
 		  $contribute_type='fixed';
-		  $date_range_bar=dateRange($q_cases_to_distribute,'account.time_occur');
+		  $q_cases_to_distribute=$this->dateRange($q_cases_to_distribute,'account.time_occur');
 		}
 		
 		if(is_logged('finance') && $this->input->post('distribute')){
@@ -500,6 +499,94 @@ class Achievement_model extends SS_Model{
 		$q=$this->pagination($q,$q_rows);
 		return $this->db->query($q)->result_array();
 		
+	}
+	
+	//每月的咨询数，统计图用
+	function getMonthlyQueries(){
+		$query="
+			SELECT month,queries,filed_queries,live_queries,cases
+			FROM (
+				SELECT LEFT(first_contact,7) AS month, COUNT(id) AS queries, SUM(IF(filed=1,1,0)) AS filed_queries, SUM(IF(filed=0,1,0)) AS live_queries
+				FROM `case` 
+				WHERE is_query=1 AND LEFT(first_contact,4)='".date('Y',$this->config->item('timestamp'))."'
+				GROUP BY LEFT(first_contact,7)
+			)query INNER JOIN (
+				SELECT LEFT(time_contract,7) AS month, COUNT(id) AS cases
+				FROM `case`
+				WHERE is_query=0 AND LEFT(time_contract,4)='".date('Y',$this->config->item('timestamp'))."'
+				GROUP BY LEFT(time_contract,7)
+			)`case` USING(month)
+		";
+		
+		return $this->db->query($query)->result_array();
+	}
+	
+	//每人咨询数，统计图用
+	function getPersonallyQueries(){
+		$query="
+			SELECT staff.name AS staff_name, COUNT(case.id) AS queries, SUM(filed AND is_query) AS filed_queries, SUM(NOT filed AND is_query) AS live_queries, SUM(NOT is_query) AS success_case			FROM `case` 
+				INNER JOIN case_lawyer ON case.id=case_lawyer.case 
+				INNER JOIN staff ON staff.id=case_lawyer.lawyer AND case_lawyer.role = '接洽律师'
+			WHERE display=1 AND LEFT(first_contact,4)='".date('Y',$this->config->item('timestamp'))."'
+			GROUP BY staff.id
+			ORDER BY live_queries DESC, queries DESC
+		";
+		
+		return $this->db->query($query)->result_array();
+	}
+	
+	//每人咨询分类数，统计图用
+	function getPersonallyTypeQueries(){
+		$query="
+			SELECT staff.name AS staff_name, COUNT(case.id) AS queries, SUM(IF(query_type='面谈咨询',1,0)) AS face_queries, SUM(IF(query_type='电话咨询',1,0)) AS call_queries, SUM(IF(query_type='网上咨询',1,0)) AS online_queries
+			FROM `case` 
+				INNER JOIN case_lawyer ON case.id=case_lawyer.case 
+				INNER JOIN staff ON staff.id=case_lawyer.lawyer AND case_lawyer.role = '接洽律师'
+			WHERE is_query=1 AND LEFT(first_contact,4)='".date('Y',$this->config->item('timestamp'))."'
+			GROUP BY staff.id
+			ORDER BY face_queries DESC, call_queries DESC, online_queries DESC
+		";
+		
+		return $this->db->query($query)->result_array();
+	}
+	
+	//每月创收，统计图用
+	function getMonthlyAchievement(){
+		$query="
+			SELECT month,collect.sum AS collect,contract.sum AS contract
+			FROM(
+				SELECT FROM_UNIXTIME(time_occur,'%Y-%m') AS `month`,SUM(amount) AS sum
+				FROM account 
+				GROUP BY FROM_UNIXTIME(time_occur,'%Y-%m')
+			)collect LEFT JOIN
+			(
+				SELECT LEFT(case.time_contract,7) AS month,SUM(case_fee.fee) AS sum
+				FROM case_fee INNER JOIN `case` ON case.id=case_fee.case
+				GROUP BY LEFT(case.time_contract,7)
+			)contract USING (month)
+			WHERE LEFT(month,4)='".date('Y',$this->config->item('timestamp'))."'
+		";
+		
+		return $this->db->query($query)->result_array();
+	}
+	
+	//案件分类创收数，统计图用
+	function getCaseTypeIncome(){
+		$this_year_beginning=strtotime(date('Y-1-1'));
+		$this_month_beginning=strtotime(date('Y-m-1'));
+
+		$query="
+			SELECT case.type, SUM( amount ) AS sum
+			FROM account
+			INNER JOIN  `case` ON case.id = account.case
+			WHERE account.name <>  '办案费'
+			AND time_occur >= $this_year_beginning
+			AND time_occur < $this_month_beginning
+			GROUP BY case.type
+			ORDER BY sum
+		";
+		
+		return $this->db->query($query)->result_array();
 	}
 }
 ?>

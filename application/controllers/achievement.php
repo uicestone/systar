@@ -125,7 +125,6 @@ class Achievement extends SS_controller{
 			'bonus_sum'=>array('title'=>'合计奖金')
 		);
 		
-		
 		$table=$this->table->setFields($field)
 					->setData($this->achievement->getCaseBonusList())
 					->generate();
@@ -155,22 +154,7 @@ class Achievement extends SS_controller{
 	}
 	
 	function summary(){
-		$q_monthly_achievement="
-			SELECT month,collect.sum AS collect,contract.sum AS contract
-			FROM(
-				SELECT FROM_UNIXTIME(time_occur,'%Y-%m') AS `month`,SUM(amount) AS sum
-				FROM account 
-				GROUP BY FROM_UNIXTIME(time_occur,'%Y-%m')
-			)collect LEFT JOIN
-			(
-				SELECT LEFT(case.time_contract,7) AS month,SUM(case_fee.fee) AS sum
-				FROM case_fee INNER JOIN `case` ON case.id=case_fee.case
-				GROUP BY LEFT(case.time_contract,7)
-			)contract USING (month)
-			WHERE LEFT(month,4)='".date('Y',$this->config->item('timestamp'))."'
-		";
-		
-		$monthly_collect=db_toArray($q_monthly_achievement);
+		$monthly_collect=$this->achievement->getMonthlyAchievement();
 		
 		$months=array_sub($monthly_collect,'month');
 		$collect=array_sub($monthly_collect,'collect');
@@ -190,26 +174,11 @@ class Achievement extends SS_controller{
 		$months=json_encode($months);
 		$series=json_encode($series,JSON_NUMERIC_CHECK);
 		$this->load->addViewArrayData(compact('months','series'));
-		
 	}
 	
 	function query(){
-		$q_monthly_queries="
-			SELECT month,queries,filed_queries,live_queries,cases
-			FROM (
-				SELECT LEFT(first_contact,7) AS month, COUNT(id) AS queries, SUM(IF(filed=1,1,0)) AS filed_queries, SUM(IF(filed=0,1,0)) AS live_queries
-				FROM `case` 
-				WHERE is_query=1 AND LEFT(first_contact,4)='".date('Y',$this->config->item('timestamp'))."'
-				GROUP BY LEFT(first_contact,7)
-			)query INNER JOIN (
-				SELECT LEFT(time_contract,7) AS month, COUNT(id) AS cases
-				FROM `case`
-				WHERE is_query=0 AND LEFT(time_contract,4)='".date('Y',$this->config->item('timestamp'))."'
-				GROUP BY LEFT(time_contract,7)
-			)`case` USING(month)
-		";
-		$monthly_queries=db_toArray($q_monthly_queries);
-		$chart_monthly_queries_catogary=json_encode(array_sub($monthly_queries,'month'));
+		$monthly_queries=$this->achievement->getMonthlyQueries();
+		$this->load->view_data['chart_monthly_queries_catogary']=json_encode(array_sub($monthly_queries,'month'));
 		$chart_monthly_queries_series=array(
 			array('name'=>'总量','data'=>array_sub($monthly_queries,'queries')),
 			array('name'=>'归档','color'=>'#AAA','data'=>array_sub($monthly_queries,'filed_queries')),
@@ -217,144 +186,37 @@ class Achievement extends SS_controller{
 			array('name'=>'新增案件','data'=>array_sub($monthly_queries,'cases'))
 
 		);
-		$chart_monthly_queries_series=json_encode($chart_monthly_queries_series,JSON_NUMERIC_CHECK);
+		$this->load->view_data['chart_monthly_queries_series']=json_encode($chart_monthly_queries_series,JSON_NUMERIC_CHECK);
 
-		$q_personally_queries="
-			SELECT staff.name AS staff_name, COUNT(case.id) AS queries, SUM(filed AND is_query) AS filed_queries, SUM(NOT filed AND is_query) AS live_queries, SUM(NOT is_query) AS success_case			FROM `case` 
-				INNER JOIN case_lawyer ON case.id=case_lawyer.case 
-				INNER JOIN staff ON staff.id=case_lawyer.lawyer AND case_lawyer.role = '接洽律师'
-			WHERE display=1 AND LEFT(first_contact,4)='".date('Y',$this->config->item('timestamp'))."'
-			GROUP BY staff.id
-			ORDER BY live_queries DESC, queries DESC
-		";
-		$personally_queries=db_toArray($q_personally_queries);
-
-		$chart_personally_queries_catogary=json_encode(array_sub($personally_queries,'staff_name'));
+		$personally_queries=$this->achievement->getPersonallyQueries();
+		$this->load->view_data['chart_personally_queries_catogary']=json_encode(array_sub($personally_queries,'staff_name'));
 		$chart_personally_queries_series=array(
 			array('name'=>'归档','color'=>'#AAA','data'=>array_sub($personally_queries,'filed_queries')),
 			array('name'=>'成案','data'=>array_sub($personally_queries,'success_case')),
 			array('name'=>'在谈','data'=>array_sub($personally_queries,'live_queries'))
 
 		);
-		$chart_personally_queries_series=json_encode($chart_personally_queries_series,JSON_NUMERIC_CHECK);
+		$this->load->view_data['chart_personally_queries_series']=json_encode($chart_personally_queries_series,JSON_NUMERIC_CHECK);
 
-		$q_personally_type_queries="
-			SELECT staff.name AS staff_name, COUNT(case.id) AS queries, SUM(IF(query_type='面谈咨询',1,0)) AS face_queries, SUM(IF(query_type='电话咨询',1,0)) AS call_queries, SUM(IF(query_type='网上咨询',1,0)) AS online_queries
-			FROM `case` 
-				INNER JOIN case_lawyer ON case.id=case_lawyer.case 
-				INNER JOIN staff ON staff.id=case_lawyer.lawyer AND case_lawyer.role = '接洽律师'
-			WHERE is_query=1 AND LEFT(first_contact,4)='".date('Y',$this->config->item('timestamp'))."'
-			GROUP BY staff.id
-			ORDER BY face_queries DESC, call_queries DESC, online_queries DESC
-		";
-		$personally_type_queries=db_toArray($q_personally_type_queries);
-
-		$chart_personally_type_queries_catogary=json_encode(array_sub($personally_type_queries,'staff_name'));
+		$personally_type_queries=$this->achievement->getPersonallyTypeQueries();
+		$this->load->view_data['chart_personally_type_queries_catogary']=json_encode(array_sub($personally_type_queries,'staff_name'));
 		$chart_personally_type_queries_series=array(
 			array('name'=>'网上咨询','data'=>array_sub($personally_type_queries,'online_queries')),
 			array('name'=>'电话咨询','data'=>array_sub($personally_type_queries,'call_queries')),
 			array('name'=>'面谈咨询','data'=>array_sub($personally_type_queries,'face_queries'))
 
 		);
-		$chart_personally_type_queries_series=json_encode($chart_personally_type_queries_series,JSON_NUMERIC_CHECK);
+		$this->load->view_data['chart_personally_type_queries_series']=json_encode($chart_personally_type_queries_series,JSON_NUMERIC_CHECK);
 	}
 	
 	function client(){
-		$this_month_beginning=mktime(0,0,0,date('m'),1,date('Y'));
-		$last_month_beginning=mktime(0,0,0,date('m')-1,1,date('Y'));
-		$last_2_month_beginning=mktime(0,0,0,date('m')-2,1,date('Y'));
+		//TODO 新增客户统计
+	}
+	
+	function caseType(){
+		$chart_casetype_income_data=$this->achievement->getCaseTypeIncome();
 
-		$q_staffly_clients="
-		SELECT staff.name AS staff_name,lastmonth.clients AS lastmonth,last2month.clients AS last2month
-		FROM staff INNER JOIN (
-			SELECT source_lawyer,COUNT(client.id) AS clients
-			FROM client
-			WHERE display=1 AND classification='客户' AND time >= '".$last_month_beginning."' AND time < '".($this_month_beginning)."'
-			GROUP BY source_lawyer
-		)lastmonth ON staff.id=lastmonth.source_lawyer
-		INNER JOIN (
-			SELECT source_lawyer,COUNT(client.id) AS clients
-			FROM client
-			WHERE display=1 AND classification='客户' AND time >= '".$last_2_month_beginning."' AND time < '".$last_month_beginning."'
-			GROUP BY source_lawyer
-		)last2month ON staff.id=last2month.source_lawyer
-		ORDER BY lastmonth DESC"
-		;
-
-		$staffly_clients=db_toArray($q_staffly_clients);
-		$chart_staffly_clients_catogary=json_encode(array_sub($staffly_clients,'staff_name'));
-		$chart_staffly_clients_series=array(
-			array('name'=>'上上月','data'=>array_sub($staffly_clients,'last2month')),
-			array('name'=>'上月','data'=>array_sub($staffly_clients,'lastmonth'))
-		);
-		$chart_staffly_clients_series=json_encode($chart_staffly_clients_series,JSON_NUMERIC_CHECK);
-
-		if(date('w')==1){//今天是星期一
-			$start_of_this_week=strtotime($this->config->item('date'));
-		}else{
-			$start_of_this_week=strtotime("-1 Week Monday");
-		}
-		$start_of_this_month=strtotime(date('Y-m',$this->config->item('timestamp')).'-1');
-		$start_of_this_year=strtotime(date('Y',$this->config->item('timestamp')).'-1-1');
-		$start_of_this_term=strtotime(date('Y',$this->config->item('timestamp')).'-'.(floor(date('m',$this->config->item('timestamp'))/3-1)*3+1).'-1');
-
-		$days_passed_this_week=ceil(($this->config->item('timestamp')-$start_of_this_week)/86400);
-		$days_passed_this_month=ceil(($this->config->item('timestamp')-$start_of_this_month)/86400);
-		$days_passed_this_term=ceil(($this->config->item('timestamp')-$start_of_this_term)/86400);
-		$days_passed_this_year=ceil(($this->config->item('timestamp')-$start_of_this_year)/86400);
-
-		$q="
-			SELECT staff.name aS staff_name,
-				this_week.num AS this_week_sum,
-				this_month.num AS this_month_sum,
-				this_term.num AS this_term_sum,
-				this_year.num AS this_year_sum
-			FROM
-			(
-				SELECT source_lawyer,COUNT(id) AS num
-				FROM client
-				WHERE time>='".$start_of_this_week."'
-					AND display=1 AND classification='客户'
-				GROUP BY source_lawyer
-			)this_week
-			INNER JOIN
-			(
-				SELECT source_lawyer,COUNT(id) AS num
-				FROM client
-				WHERE time>='".$start_of_this_month."'
-					AND display=1 AND classification='客户'
-				GROUP BY source_lawyer
-			)this_month USING(source_lawyer)
-			INNER JOIN
-			(
-				SELECT source_lawyer,COUNT(id) AS num
-				FROM client
-				WHERE time>='".$start_of_this_term."'
-					AND display=1 AND classification='客户'
-				GROUP BY source_lawyer
-			)this_term USING(source_lawyer)
-			INNER JOIN
-			(
-				SELECT source_lawyer,COUNT(id) AS num
-				FROM client
-				WHERE time>='".$start_of_this_year."'
-					AND display=1 AND classification='客户'
-				GROUP BY source_lawyer
-			)this_year USING(source_lawyer)
-			INNER JOIN staff ON staff.id=this_week.source_lawyer
-		";
-
-		processOrderBy($q,'this_week_sum','DESC');
-
-		$field=array(
-			'staff_name'=>array('title'=>'姓名'),
-			'this_week_sum'=>array('title'=>'本周','content'=>'{this_week_sum}'),
-			'this_month_sum'=>array('title'=>'本月','content'=>'{this_month_sum}'),
-			'this_term_sum'=>array('title'=>'本季','content'=>'{this_term_sum}'),
-			'this_year_sum'=>array('title'=>'本年','content'=>'{this_year_sum}')
-		);
-
-		$client_collect_stat=fetchTableArray($q,$field);
+		$this->load->view_data['chart_casetype_income_data']=json_encode($chart_casetype_income_data,JSON_NUMERIC_CHECK);
 	}
 }
 ?>

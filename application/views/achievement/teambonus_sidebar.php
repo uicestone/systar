@@ -1,1 +1,0 @@
-<? echo $date_range_bar?>
