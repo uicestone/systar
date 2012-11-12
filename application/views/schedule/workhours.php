@@ -17,7 +17,7 @@ $(function(){
 	}));
 });
 </script>
-<div class="contentTableBox" style="width:100%">
+<div class="contentTableBox">
 	<? $this->arrayExportTable($work_hour_stat,NULL,false,false) ?>
 	<div id="chart_staffly_workhours" style="height:600px;margin:auto"></div>
 </div>

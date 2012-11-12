@@ -476,12 +476,14 @@ class Achievement_model extends SS_Model{
 	function getTeambonusList(){
 		
 		$q="
-		SELECT staff.name AS staff_name,ROUND((account_sum.sum-600000)*0.04*staff.modulus,2) AS bonus_sum
+		SELECT
+			staff.name AS staff_name,
+			ROUND((account_sum.sum-600000)*0.04*staff.modulus/(SELECT SUM(modulus) FROM `staff` WHERE company=1 AND modulus>0),2) AS bonus_sum
 		FROM staff CROSS JOIN
 		(
 			SELECT SUM(amount) AS sum
 			FROM account
-			WHERE name IN('律师费','顾问费','咨询费')
+			WHERE name <> '办案费'
 		";
 		
 		$date_range_bar=$this->dateRange($q,'time_occur');

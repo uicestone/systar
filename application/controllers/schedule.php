@@ -345,20 +345,20 @@ class Schedule extends SS_controller{
 		}
 
 		$q_staffly_workhours="
-		SELECT staff.name AS staff_name,lastweek.hours AS lastweek,last2week.hours AS last2week
-		FROM staff INNER JOIN (
-			SELECT uid,SUM(IF(schedule.hours_checked IS NULL,schedule.hours_own,schedule.hours_checked)) AS hours
-			FROM schedule
-			WHERE completed=1 AND schedule.time_start >= '".$last_week_monday."' AND schedule.time_start < '".($last_week_monday+86400*7)."'
-			GROUP BY uid
-		)lastweek ON staff.id=lastweek.uid
-		LEFT JOIN (
-			SELECT uid,SUM(IF(schedule.hours_checked IS NULL,schedule.hours_own,schedule.hours_checked)) AS hours
-			FROM schedule
-			WHERE completed=1 AND schedule.time_start >= '".($last_week_monday-86400*7)."' AND schedule.time_start < '".$last_week_monday."'
-			GROUP BY uid
-		)last2week ON staff.id=last2week.uid
-		ORDER BY lastweek DESC"
+			SELECT staff.name AS staff_name,lastweek.hours AS lastweek,last2week.hours AS last2week
+			FROM staff INNER JOIN (
+				SELECT uid,SUM(IF(schedule.hours_checked IS NULL,schedule.hours_own,schedule.hours_checked)) AS hours
+				FROM schedule
+				WHERE completed=1 AND schedule.time_start >= '".$last_week_monday."' AND schedule.time_start < '".($last_week_monday+86400*7)."'
+				GROUP BY uid
+			)lastweek ON staff.id=lastweek.uid
+			LEFT JOIN (
+				SELECT uid,SUM(IF(schedule.hours_checked IS NULL,schedule.hours_own,schedule.hours_checked)) AS hours
+				FROM schedule
+				WHERE completed=1 AND schedule.time_start >= '".($last_week_monday-86400*7)."' AND schedule.time_start < '".$last_week_monday."'
+				GROUP BY uid
+			)last2week ON staff.id=last2week.uid
+			ORDER BY lastweek DESC"
 		;
 
 		$staffly_workhours=db_toArray($q_staffly_workhours);
@@ -378,10 +378,10 @@ class Schedule extends SS_controller{
 		$start_of_this_year=strtotime(date('Y',$this->config->item('timestamp')).'-1-1');
 		$start_of_this_term=strtotime(date('Y',$this->config->item('timestamp')).'-'.(floor(date('m',$this->config->item('timestamp'))/3-1)*3+1).'-1');
 
-		$days_passed_this_week=ceil(($this->config->item('timestamp')-$start_of_this_week)/86400);
-		$days_passed_this_month=ceil(($this->config->item('timestamp')-$start_of_this_month)/86400);
-		$days_passed_this_term=ceil(($this->config->item('timestamp')-$start_of_this_term)/86400);
-		$days_passed_this_year=ceil(($this->config->item('timestamp')-$start_of_this_year)/86400);
+		$days_passed_this_week=getWorkingDays($start_of_this_week, $this->config->item('timestamp'));
+		$days_passed_this_month=getWorkingDays($start_of_this_month, $this->config->item('timestamp'));
+		$days_passed_this_term=getWorkingDays($start_of_this_term, $this->config->item('timestamp'));
+		$days_passed_this_year=getWorkingDays($start_of_this_year, $this->config->item('timestamp'));
 
 		$q="
 			SELECT staff.name aS staff_name,
@@ -424,14 +424,23 @@ class Schedule extends SS_controller{
 			INNER JOIN staff ON staff.id=this_week.uid
 		";
 
-		processOrderBy($q,'this_week_sum','DESC');
+		$q="
+			SELECT staff.name AS staff_name,SUM(IF(hours_checked IS NULL,hours_own,hours_checked)) AS sum,
+			  SUM(IF(hours_checked IS NULL,hours_own,hours_checked)/".(getWorkingDays(option('date_range/from'), option('date_range/to'),getHolidays(),getOvertimedays(),false)).") AS avg
+			FROM schedule INNER JOIN staff ON staff.id=schedule.uid
+			WHERE completed=1 AND display=1
+		";
+
+		$date_range_bar=dateRange($q, 'time_start' ,true);
+
+		$q.="  GROUP BY uid";
+
+		processOrderBy($q,'sum','DESC');
 
 		$field=array(
 			'staff_name'=>array('title'=>'姓名'),
-			'this_week_sum'=>array('title'=>'本周','content'=>'{this_week_sum}({this_week_avg})'),
-			'this_month_sum'=>array('title'=>'本月','content'=>'{this_month_sum}({this_month_avg})'),
-			'this_term_sum'=>array('title'=>'本季','content'=>'{this_term_sum}({this_term_avg})'),
-			'this_year_sum'=>array('title'=>'本年','content'=>'{this_year_sum}({this_year_avg})')
+			'sum'=>array('title'=>'总工作时间'),
+			'avg'=>array('title'=>'工作日平均')
 		);
 
 		$work_hour_stat=fetchTableArray($q,$field);
