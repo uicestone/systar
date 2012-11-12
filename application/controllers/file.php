@@ -52,11 +52,11 @@ class File extends SS_controller{
 			(
 				SELECT `case`,IF(amount_sum IS NULL,fee_sum,fee_sum-amount_sum) AS uncollected FROM
 				(
-					SELECT `case`,SUM(fee) AS fee_sum FROM case_fee WHERE type<>'办案费' AND reviewed=0 GROUP BY `case`
+					SELECT `case`,SUM(fee) AS fee_sum FROM case_fee WHERE type<>'办案费' GROUP BY `case`
 				)case_fee_grouped
 				LEFT JOIN
 				(
-					SELECT `case`, SUM(amount) AS amount_sum FROM account WHERE reviewed=0 GROUP BY `case`
+					SELECT `case`, SUM(amount) AS amount_sum FROM account WHERE 1 GROUP BY `case`
 				)account_grouped
 				USING (`case`)
 			)uncollected
@@ -217,11 +217,11 @@ class File extends SS_controller{
 			(
 				SELECT `case`,IF(amount_sum IS NULL,fee_sum,fee_sum-amount_sum) AS uncollected FROM
 				(
-					SELECT `case`,SUM(fee) AS fee_sum FROM case_fee WHERE type<>'办案费' AND reviewed=0 GROUP BY `case`
+					SELECT `case`,SUM(fee) AS fee_sum FROM case_fee WHERE type<>'办案费' AND GROUP BY `case`
 				)case_fee_grouped
 				LEFT JOIN
 				(
-					SELECT `case`, SUM(amount) AS amount_sum FROM account WHERE reviewed=0 GROUP BY `case`
+					SELECT `case`, SUM(amount) AS amount_sum FROM account WHERE 1 GROUP BY `case`
 				)account_grouped
 				USING (`case`)
 			)uncollected
