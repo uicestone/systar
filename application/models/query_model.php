@@ -20,7 +20,7 @@ class Query_model extends SS_Model{
 				LEFT JOIN case_client ON case.id=case_client.case
 				LEFT JOIN client_source ON case.source=client_source.id
 				LEFT JOIN client ON client.id=case_client.client
-				INNER JOIN
+				LEFT JOIN
 				(
 					SELECT `case`,GROUP_CONCAT(DISTINCT staff.name) AS names
 					FROM case_lawyer INNER JOIN staff ON case_lawyer.lawyer=staff.id AND case_lawyer.role ='接洽律师'
