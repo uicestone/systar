@@ -30,15 +30,15 @@ $(function(){
 		//window.parent.location.hash='#'+location.pathname.substr(1)+location.search;
 	}
 
-	if(action.match('[^_]+?$')=='add'){
+	if(action=='add' || action=='edit'){
 		//对于add和edit页面，当鼠标进入submit按钮的时候记录当前页面滚动条位置
-		$.post('/misc/getsession/scroll',{controller:controller,action:action},function(scrollTop){
+		$.post('/misc/getsession/scroll',{controller:controller,method:action},function(scrollTop){
 			$(window).scrollTop(scrollTop);
 		});
 		
 		$('[name^="submit"]').mouseenter(function(){
 			var scrollTop=$(window).scrollTop();
-			$.post('/misc/setsession/scroll',{controller:controller,action:action,scrollTop:scrollTop});
+			$.post('/misc/setsession/scroll',{controller:controller,method:action,scrollTop:scrollTop});
 		});
 	}
 	

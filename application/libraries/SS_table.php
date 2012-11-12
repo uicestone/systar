@@ -91,6 +91,7 @@ class SS_Table extends CI_Table{
 				}
 				$this->add_row($row);
 			}
+			$this->data=NULL;
 		}
 	}
 
@@ -114,9 +115,6 @@ class SS_Table extends CI_Table{
 	function setFields(array $fields){
 		//对于定义列显示方式的表格，默认包围div class="contentTableBox"
 		//适用于完整生成表格的用法
-		if(is_null($this->wrap_box)){
-			$this->wrap_box=true;
-		}
 		$this->fields=$fields;
 		$heading=array();
 		foreach($fields as $field_name=>$field){
@@ -175,6 +173,14 @@ class SS_Table extends CI_Table{
 	 */
 	function generate($table_data = NULL)
 	{
+		if(isset($table_data)){
+			$this->data=$table_data;
+		}
+		
+		if(is_null($this->wrap_box)){
+			$this->wrap_box=!isset($table_data);
+		}
+		
 		$this->_init();
 
 		if($this->trim_columns){
@@ -264,7 +270,7 @@ class SS_Table extends CI_Table{
 		$this->template['table_open']='<table class="contentTable" cellpadding="0" cellspacing="0">';
 		$this->template['row_alt_start']='<tr class="oddLine">';
 
-		$table=parent::generate($table_data);
+		$table=parent::generate($this->data);
 
 		return $prepend.$table.$append;
 	}

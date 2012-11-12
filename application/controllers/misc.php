@@ -63,7 +63,7 @@ class Misc extends SS_controller{
 			echo (bool)array_dir('_SESSION/minimized');
 		}
 		if($var=='scroll'){
-			echo array_dir('_SESSION/'.$this->input->post('controller').'/'.$this->input->post('action').'/scroll_top');
+			echo array_dir('_SESSION/'.$this->input->post('controller').'/'.$this->input->post('method').'/scroll_top');
 		}
 		if($var=='default_controller'){
 			echo $this->config->item('default_controller');
@@ -76,7 +76,7 @@ class Misc extends SS_controller{
 			echo 'success';
 
 		}elseif($action=='scroll'){
-			array_dir('_SESSION/'.$this->input->post('controller').'/'.$this->input->post('action').'/scroll_top',$this->input->post('scrollTop'));
+			array_dir('_SESSION/'.$this->input->post('controller').'/'.$this->input->post('method').'/scroll_top',$this->input->post('scrollTop'));
 			echo 'success';
 		}
 	}

@@ -440,7 +440,7 @@ class Cases_model extends SS_Model{
 		return $my_role;
 	}
 	
-	function getClientList($case_id,$client_lock){
+	function getClientList($case_id){
 	//案件相关人信息
 		$query="
 			SELECT case_client.id,case_client.client,case_client.role,
@@ -476,33 +476,10 @@ class Cases_model extends SS_Model{
 			ORDER BY client.classification
 		";
 		
-		$field=array(
-			'client_name'=>array('title'=>'名称','eval'=>true,'content'=>"
-				\$return='';
-				if(!post('cases/client_lock')){
-					\$return.='<input type=\"checkbox\" name=\"case_client_check[{id}]\" />';
-				}
-				\$return.='<a href=\"javascript:showWindow(\''.('{classification}'=='客户'?'client':'contact').'/edit/{client}\')\">{client_name}</a>';
-				return \$return;
-			",'orderby'=>false),
-			'contact_name'=>array('title'=>'联系人','eval'=>true,'content'=>"
-				return '<a href=\"javascript:showWindow(\''.('{contact_classification}'=='客户'?'client':'contact').'?edit={contact}\')\">{contact_name}</a>';
-			",'orderby'=>false),
-			'phone'=>array('title'=>'电话','td'=>'class="ellipsis" title="{phone}"'),
-			'email'=>array('title'=>'电邮','wrap'=>array('mark'=>'a','href'=>'mailto:{email}','title'=>'{email}','target'=>'_blank'),'td'=>'class="ellipsis"'),
-			'role'=>array('title'=>'本案地位','orderby'=>false),
-			'classification'=>array('title'=>'类型','td_title'=>'width="60px"','orderby'=>false)
-		);
-		
-		if(!$client_lock){
-			//客户锁定时不显示删除按钮
-			$field['client_name']['title']='<input type="submit" name="submit[case_client_delete]" value="删" />'.$field['client_name']['title'];
-		}
-		
-		return $this->fetchTableArray($query,$field);
+		return $this->db->query($query)->result_array();
 	}
 	
-	function getStaffList($case_id,$staff_lock,$timing_fee){
+	function getStaffList($case_id){
 	//案件律师信息
 		$query="
 			SELECT
@@ -522,34 +499,10 @@ class Cases_model extends SS_Model{
 			GROUP BY case_lawyer.id
 			ORDER BY case_lawyer.role";
 		
-		$field=array(
-			'lawyer_name'=>array('title'=>'名称','content'=>'{lawyer_name}','orderby'=>false),
-			'role'=>array('title'=>'本案职位','orderby'=>false)
-		);
-		if($timing_fee){
-			$field['hourly_fee']=array('title'=>'计时收费小时费率','td'=>'class="editable" id="{id}"','orderby'=>false);
-		}
-		
-		$field['contribute']=array('title'=>'贡献','eval'=>true,'content'=>"
-			\$hours_sum_string='';
-			if('{hours_sum}'){
-				\$hours_sum_string='<span class=\"right\">{hours_sum}小时</span>';
-			}
-			
-			return \$hours_sum_string.'<span>{contribute}'.('{contribute_amount}'?' ({contribute_amount})':'').'</span>';
-		",'orderby'=>false);
-		
-		if(!$staff_lock){
-			//律师锁定时不显示删除按钮
-			$field['lawyer_name']['title']='<input type="submit" name="submit[case_lawyer_delete]" value="删" />'.$field['lawyer_name']['title'];
-			$field['lawyer_name']['content']='<input type="checkbox" name="case_lawyer_check[{id}]">'.$field['lawyer_name']['content'];
-		}
-		
-		return $this->fetchTableArray($query,$field);
+		return $this->db->query($query)->result_array();
 	}
 	
-	function getFeeList($case_id,$fee_lock){
-	//案件律师费约定信息
+	function getFeeList($case_id){
 		$query="
 			SELECT case_fee.id,case_fee.type,case_fee.receiver,case_fee.condition,case_fee.pay_time,case_fee.fee,case_fee.reviewed,
 				if(SUM(account.amount) IS NULL,'',SUM(account.amount)) AS fee_received,
@@ -559,39 +512,15 @@ class Cases_model extends SS_Model{
 			WHERE case_fee.case='".$case_id."' AND case_fee.type<>'办案费'
 			GROUP BY case_fee.id";
 		
-		$field=array(
-			'type'=>array('title'=>'类型','td'=>'id="{id}"','content'=>'{type}','orderby'=>false),
-			'fee'=>array('title'=>'数额','eval'=>true,'content'=>"
-				\$return='{fee}'.('{fee_received}'==''?'':' <span title=\"{fee_received_time}\">（到账：{fee_received}）</span>');
-				if('{reviewed}'){
-					\$return=wrap(\$return,array('mark'=>'span','style'=>'color:#080'));
-				}
-				return \$return;
-			",'orderby'=>false),
-			'condition'=>array('title'=>'条件','td'=>'class="ellipsis" title="{condition}"','orderby'=>false),
-			'pay_time'=>array('title'=>'预计时间','eval'=>true,'content'=>"
-				return date('Y-m-d',{pay_time});
-			",'orderby'=>false
-			)
-		);
-		
-		if(!$fee_lock){
-			$field['type']['title']='<input type="submit" name="submit[case_fee_delete]" value="删" />'.$field['type']['title'];
-		}
-	
-		if(!$fee_lock || is_logged('finance')){
-			$field['type']['content']='<input type="checkbox" name="case_fee_check[{id}]" >'.$field['type']['content'];
-		}
-		
-		return $this->fetchTableArray($query,$field);
+		return $this->db->query($query)->result_array();
 	}
 	
 	function getTimingFeeString($case_id){
 		$query="SELECT CONCAT('包含',included_hours,'小时，','账单日：',bill_day,'，付款日：',payment_day,'，付款周期：',payment_cycle,'个月，合同周期：',contract_cycle,'个月，','合同起始日：',FROM_UNIXTIME(time_start,'%Y-%m-%d')) AS case_fee_timing_string FROM case_fee_timing WHERE `case`='".$case_id."'";
-		return db_fetch_field($query);
+		return $this->db->query($query)->result_array();
 	}
 	
-	function getFeeMiscList($case_list,$fee_lock){
+	function getFeeMiscList($case_list){
 		$query="
 			SELECT case_fee.id,case_fee.type,case_fee.receiver,case_fee.comment,case_fee.pay_time,case_fee.fee,
 				if(SUM(account.amount) IS NULL,'',SUM(account.amount)) AS fee_received
@@ -600,66 +529,18 @@ class Cases_model extends SS_Model{
 			WHERE case_fee.case='".post('cases/id')."' AND case_fee.type='办案费'
 			GROUP BY case_fee.id";
 		
-		$field=array(
-			'receiver'=>array('title'=>'收款方','content'=>'{receiver}','orderby'=>false),
-			'fee'=>array('title'=>'数额','eval'=>true,'content'=>"
-				return '{fee}'.('{fee_received}'==''?'':' （到账：{fee_received}）');
-			",'orderby'=>false),
-			'comment'=>array('title'=>'备注','orderby'=>false),
-			'pay_time'=>array('title'=>'预计时间','eval'=>true,'content'=>"
-				return date('Y-m-d',{pay_time});
-			",'orderby'=>false
-			)
-		);
-		
-		if(!$fee_lock){
-			$field['receiver']['title']='<input type="submit" name="submit[case_fee_delete]" value="删" />'.$field['receiver']['title'];
-			$field['receiver']['content']='<input type="checkbox" name="case_fee_check[{id}]" />';
-		}
-		
-		return $this->fetchTableArray($query,$field);
+		return $this->db->query($query)->result_array();
 	}
 	
-	function getDocumentList($case_id,$apply_file=false){
+	function getDocumentList($case_id){
 		$query="
 			SELECT id,name,type,IF(doctype='其他',doctype_other,doctype) AS doctype,comment,time,username
 			FROM 
 				case_document
 			WHERE display=1 AND `case`='".$case_id."'
 			ORDER BY time DESC";
-		$field=array(
-			'type'=>array(
-				'title'=>'',
-				'eval'=>true,
-				'content'=>"
-					if('{type}'==''){
-						\$image='folder';
-					}elseif(is_file('web/images/file_type/{type}.png')){
-						\$image='{type}.png';
-					}else{
-						\$image='unknown';
-					}
-					return '<img src=\"/images/file_type/'.\$image.'.png\" alt=\"{type}\" />';
-				",
-				'td_title'=>'width="70px"',
-				'orderby'=>false
-			),
-			'name'=>array('title'=>'文件名','td_title'=>'width="150px"','wrap'=>array('mark'=>'a','href'=>'/cases/documentdownload/{id}'),'orderby'=>false),
-			'doctype'=>array('title'=>'类型','td_title'=>'width="80px"'),
-			'comment'=>array('title'=>'备注','orderby'=>false),
-			'time'=>array('title'=>'时间','td_title'=>'width="60px"','eval'=>true,'content'=>"
-				return date('m-d H:i',{time});
-			"),
-			'username'=>array('title'=>'上传人','td_title'=>'width="90px"')
-		);
-		
-		if($apply_file){
-			array_splice($field,0,0,array(
-				'id'=>array('title'=>'','td_title'=>'width="37px"','content'=>'<input type="checkbox" name="case_document_check[{id}]" checked="checked" />')
-			));
-		}
-		
-		return $this->fetchTableArray($query,$field);
+
+		return $this->db->query($query)->result_array();
 	}
 	
 	function getDocumentCatalog($case_id,$choosen_documents){
@@ -683,14 +564,7 @@ class Cases_model extends SS_Model{
 			ORDER BY time_start DESC
 			LIMIT 10";
 		
-		$field=array(
-			'name'=>array('title'=>'标题','td_title'=>'width="150px"','wrap'=>array('mark'=>'a','href'=>'javascript:showWindow(\'schedule/edit/{id}\')'),'orderby'=>false),
-			'time_start'=>array('title'=>'时间','td_title'=>'width="60px"','eval'=>true,'content'=>"
-				return date('m-d H:i',{time_start});
-			",'orderby'=>false),
-			'username'=>array('title'=>'填写人','td_title'=>'width="90px"','orderby'=>false)
-		);
-		return $this->fetchTableArray($query,$field);
+		return $this->db->query($query)->result_array();
 	}
 	
 	function getPlanList($case_id){
@@ -701,14 +575,7 @@ class Cases_model extends SS_Model{
 			ORDER BY time_start
 			LIMIT 10";
 		
-		$field=array(
-			'name'=>array('title'=>'标题','td_title'=>'width="150px"','wrap'=>array('mark'=>'a','href'=>'javascript:showWindow(\'schedule/edit/{id}\')'),'orderby'=>false),
-			'time_start'=>array('title'=>'时间','td_title'=>'width="60px"','eval'=>true,'content'=>"
-				return date('m-d H:i',{time_start});
-			",'orderby'=>false),
-			'username'=>array('title'=>'填写人','td_title'=>'width="90px"','orderby'=>false)
-		);
-		return $this->fetchTableArray($query,$field);
+		return $this->db->query($query)->result_array();
 	}
 	
 	function getClientRole($case_id){
