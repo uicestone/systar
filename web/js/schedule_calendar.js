@@ -41,7 +41,7 @@ $(function() {
 			date = new Date();
 			var dialog=createDialog('新日程');
 
-			$.get('/misc/gethtml/schedule_calendar_add',function(schedule_calendar_add_form){
+			$.get('/misc/gethtml/schedule/calendar_add',function(schedule_calendar_add_form){
 
 				//获取表单html
 				dialog.html(schedule_calendar_add_form).find('#combobox').combobox();
@@ -150,7 +150,7 @@ $(function() {
 					{
 						text: "编辑",
 						click: function(){
-							$.get('/misc/gethtml/schedule_calendar_add?edit',function(html){
+							$.get('/misc/gethtml/schedule/calendar_add?edit=true',function(html){
 								dialog.html(html);
 								$('[name="name"]').val(schedule.name);
 								$('[name="content"]').val(schedule.content);

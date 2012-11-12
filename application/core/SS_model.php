@@ -79,6 +79,9 @@ class SS_Model extends CI_Model{
 			$query.=$condition_date_range;
 		}
 		
+		$this->load->addViewData('date_field',$date_field);
+		$this->load->view('daterange',array(),'sidebar');
+
 		return $query;
 	}
 

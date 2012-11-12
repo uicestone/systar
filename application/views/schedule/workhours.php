@@ -11,13 +11,13 @@ $(function(){
 			text: '上周工作时间'
 		},
 		xAxis: {
-			categories: $.parseJSON('<? echo $chart_staffly_workhours_catogary?>')
+			categories: $.parseJSON('<?=$chart_staffly_workhours_catogary?>')
 		},
-		series: $.parseJSON('<? echo $chart_staffly_workhours_series ?>')
+		series: $.parseJSON('<?=$chart_staffly_workhours_series?>')
 	}));
 });
 </script>
 <div class="contentTableBox">
-	<? $this->arrayExportTable($work_hour_stat,NULL,false,false) ?>
+	<?=$work_hour_stat?>
 	<div id="chart_staffly_workhours" style="height:600px;margin:auto"></div>
 </div>

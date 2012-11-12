@@ -199,12 +199,12 @@ class Achievement extends SS_controller{
 			FROM (
 				SELECT LEFT(first_contact,7) AS month, COUNT(id) AS queries, SUM(IF(filed=1,1,0)) AS filed_queries, SUM(IF(filed=0,1,0)) AS live_queries
 				FROM `case` 
-				WHERE is_query=1 AND LEFT(first_contact,4)='".date('Y',$_G['timestamp'])."'
+				WHERE is_query=1 AND LEFT(first_contact,4)='".date('Y',$this->config->item('timestamp'))."'
 				GROUP BY LEFT(first_contact,7)
 			)query INNER JOIN (
 				SELECT LEFT(time_contract,7) AS month, COUNT(id) AS cases
 				FROM `case`
-				WHERE is_query=0 AND LEFT(time_contract,4)='".date('Y',$_G['timestamp'])."'
+				WHERE is_query=0 AND LEFT(time_contract,4)='".date('Y',$this->config->item('timestamp'))."'
 				GROUP BY LEFT(time_contract,7)
 			)`case` USING(month)
 		";
@@ -243,7 +243,7 @@ class Achievement extends SS_controller{
 			FROM `case` 
 				INNER JOIN case_lawyer ON case.id=case_lawyer.case 
 				INNER JOIN staff ON staff.id=case_lawyer.lawyer AND case_lawyer.role = '接洽律师'
-			WHERE is_query=1 AND LEFT(first_contact,4)='".date('Y',$_G['timestamp'])."'
+			WHERE is_query=1 AND LEFT(first_contact,4)='".date('Y',$this->config->item('timestamp'))."'
 			GROUP BY staff.id
 			ORDER BY face_queries DESC, call_queries DESC, online_queries DESC
 		";
@@ -290,18 +290,18 @@ class Achievement extends SS_controller{
 		$chart_staffly_clients_series=json_encode($chart_staffly_clients_series,JSON_NUMERIC_CHECK);
 
 		if(date('w')==1){//今天是星期一
-			$start_of_this_week=strtotime($_G['date']);
+			$start_of_this_week=strtotime($this->config->item('date'));
 		}else{
 			$start_of_this_week=strtotime("-1 Week Monday");
 		}
-		$start_of_this_month=strtotime(date('Y-m',$_G['timestamp']).'-1');
-		$start_of_this_year=strtotime(date('Y',$_G['timestamp']).'-1-1');
-		$start_of_this_term=strtotime(date('Y',$_G['timestamp']).'-'.(floor(date('m',$_G['timestamp'])/3-1)*3+1).'-1');
+		$start_of_this_month=strtotime(date('Y-m',$this->config->item('timestamp')).'-1');
+		$start_of_this_year=strtotime(date('Y',$this->config->item('timestamp')).'-1-1');
+		$start_of_this_term=strtotime(date('Y',$this->config->item('timestamp')).'-'.(floor(date('m',$this->config->item('timestamp'))/3-1)*3+1).'-1');
 
-		$days_passed_this_week=ceil(($_G['timestamp']-$start_of_this_week)/86400);
-		$days_passed_this_month=ceil(($_G['timestamp']-$start_of_this_month)/86400);
-		$days_passed_this_term=ceil(($_G['timestamp']-$start_of_this_term)/86400);
-		$days_passed_this_year=ceil(($_G['timestamp']-$start_of_this_year)/86400);
+		$days_passed_this_week=ceil(($this->config->item('timestamp')-$start_of_this_week)/86400);
+		$days_passed_this_month=ceil(($this->config->item('timestamp')-$start_of_this_month)/86400);
+		$days_passed_this_term=ceil(($this->config->item('timestamp')-$start_of_this_term)/86400);
+		$days_passed_this_year=ceil(($this->config->item('timestamp')-$start_of_this_year)/86400);
 
 		$q="
 			SELECT staff.name aS staff_name,

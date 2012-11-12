@@ -27,7 +27,7 @@ class Evaluation_model extends SS_Model{
 			'company'=>$_G['company'],
 			'uid'=>$_SESSION['id'],
 			'username'=>$_SESSION['username'],
-			'time'=>$_G['timestamp']
+			'time'=>$this->config->item('timestamp')
 		);
 		
 		//$data_score['anonymous']=$anonymous;

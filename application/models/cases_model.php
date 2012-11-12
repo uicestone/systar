@@ -297,7 +297,7 @@ class Cases_model extends SS_Model{
 	function feeConditionPrepend($case_fee_id,$new_condition){
 		global $_G;
 		
-		db_update('case_fee',array('condition'=>"_CONCAT('".$new_condition."\\n',`condition`)_",'uid'=>$_SESSION['id'],'username'=>$_SESSION['username'],'time'=>$_G['timestamp']),"id='".$case_fee_id."'");
+		db_update('case_fee',array('condition'=>"_CONCAT('".$new_condition."\\n',`condition`)_",'uid'=>$_SESSION['id'],'username'=>$_SESSION['username'],'time'=>$this->config->item('timestamp')),"id='".$case_fee_id."'");
 		
 		return db_fetch_field("SELECT `condition` FROM case_fee WHERE id = '".$case_fee_id."'");
 	}

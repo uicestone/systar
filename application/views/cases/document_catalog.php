@@ -17,7 +17,7 @@ foreach($document_catalog as $doctype){
 
 // Save File
 $objWriter = PHPWord_IOFactory::createWriter($PHPWord, 'Word2007');
-$filename=$_SESSION['username'].$_G['timestamp'].'.docx';
+$filename=$_SESSION['username'].$this->config->item('timestamp').'.docx';
 
 $path=iconv('utf-8','gbk','temp/'.$filename);
 

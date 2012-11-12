@@ -43,11 +43,11 @@ class Misc extends SS_controller{
 		$this->load->model($this->input->post('affair').'_model',$this->input->post('affair'));
 		
 		if($select_type){
-			if(is_callable(array($this->$this->input->post('affair'),$this->input->post('method')))){
-				$options=call_user_func(array($this->$this->input->post('affair'),$this->input->post('method')),$this->input->post('active_value'));
+			$call_controller=$this->input->post('affair');
+			if(is_callable(array($this->$call_controller,$this->input->post('method')))){
+				$options=call_user_func(array($this->$call_controller,$this->input->post('method')),$this->input->post('active_value'));
+				displayOption($options,NULL,true);
 			}
-			
-			displayOption($options,NULL,true);
 		
 		}else{
 			$q_get_options="SELECT type FROM type WHERE affair='".$this->input->post('affair')."' AND classification='".$this->input->post('active_value')."'";
@@ -71,7 +71,7 @@ class Misc extends SS_controller{
 	}
 	
 	function setSession($action=NULL){
-		if($this->input->post('minimized')){
+		if(!is_null($this->input->post('minimized'))){
 			array_dir('_SESSION/minimized',(bool)$this->input->post('minimized'));
 			echo 'success';
 

@@ -144,7 +144,6 @@ class Schedule_model extends SS_Model{
 		}
 									
 		$q.=$condition;
-		$this->session->set_userdata('last_list_action',$_SERVER['REQUEST_URI']);
 		$q=$this->search($q,array('case.name'=>'案件','staff.name'=>'人员'));
 		$q=$this->dateRange($q,'time_start');
 		$q.="
@@ -179,13 +178,61 @@ class Schedule_model extends SS_Model{
 		
 		}
 		
-		$q=$this->orderby($q,'time_start','DESC',array('place'));
-		
 		$q=$this->search($q,array('staff.name'=>'人员'));
+		
+		$q=$this->orderby($q,'time_start','DESC',array('place'));
 		
 		$q=$this->pagination($q);
 		
 		return $this->db->query($q)->result_array();
+	}
+	
+	/**
+	 * 获得上周和上上周每个员工的工作时间数据，用于生成HighCharts条形统计图
+	 */
+	function getStafflyWorkHours(){
+		if(date('w')==1){//今天是星期一
+			$last_week_monday=strtotime("-1 Week Monday");
+		}else{
+			$last_week_monday=strtotime("-2 Week Monday");
+		}
+
+		$query="
+			SELECT staff.name AS staff_name,lastweek.hours AS lastweek,last2week.hours AS last2week
+			FROM staff INNER JOIN (
+				SELECT uid,SUM(IF(schedule.hours_checked IS NULL,schedule.hours_own,schedule.hours_checked)) AS hours
+				FROM schedule
+				WHERE completed=1 AND schedule.time_start >= '".$last_week_monday."' AND schedule.time_start < '".($last_week_monday+86400*7)."'
+				GROUP BY uid
+			)lastweek ON staff.id=lastweek.uid
+			LEFT JOIN (
+				SELECT uid,SUM(IF(schedule.hours_checked IS NULL,schedule.hours_own,schedule.hours_checked)) AS hours
+				FROM schedule
+				WHERE completed=1 AND schedule.time_start >= '".($last_week_monday-86400*7)."' AND schedule.time_start < '".$last_week_monday."'
+				GROUP BY uid
+			)last2week ON staff.id=last2week.uid
+			ORDER BY lastweek DESC"
+		;
+		
+		return $this->db->query($query)->result_array();
+	}
+	
+	function getStafflyWorkHoursList($date_from,$date_to){
+		$query="
+			SELECT staff.name AS staff_name,SUM(IF(hours_checked IS NULL,hours_own,hours_checked)) AS sum,
+				ROUND(SUM(IF(hours_checked IS NULL,hours_own,hours_checked)/".(getWorkingDays($date_from, $date_to,getHolidays(),getOvertimedays(),false))."),2) AS avg
+			FROM schedule INNER JOIN staff ON staff.id=schedule.uid
+			WHERE completed=1 AND display=1
+		";
+
+		$query=$this->dateRange($query, 'time_start' ,true);
+
+		$query.="	GROUP BY uid
+		";
+
+		$query=$this->orderBy($query,'sum','DESC');
+
+		return $this->db->query($query)->result_array();
 	}
 }
 ?>

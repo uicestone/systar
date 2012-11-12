@@ -47,7 +47,9 @@ class Schedule extends SS_controller{
 		$this->lists('plan');
 	}
 	
-	function lists($para=NULL){
+	function lists($method=NULL){
+		$this->session->set_userdata('last_list_action',$_SERVER['REQUEST_URI']);
+
 		if($this->input->post('review_selected') && is_logged('partner')){
 			//在列表中批量审核所选日志
 			$this->schedule->reviewSelected();
@@ -96,7 +98,7 @@ class Schedule extends SS_controller{
 				
 			",'orderby'=>false)
 		);
-		if($para=='mine'){
+		if($method=='mine'){
 			unset($field['staff_name']);
 		}		
 		if($this->input->post('export')){
@@ -111,7 +113,7 @@ class Schedule extends SS_controller{
 			);
 		}
 		$this->table->setFields($field)
-			->setData($this->schedule->getList($para));
+			->setData($this->schedule->getList($method));
 
 		if($this->input->post('export')){
 			
@@ -146,10 +148,11 @@ class Schedule extends SS_controller{
 			$objWriter->save('php://output');
 		
 		}else{
-			$this->table->setMenu((is_logged('partner')?'<input type="submit" name="review_selected" value="审核" />':'').'<input type="submit" name="export" value="导出" />','left');								
-			$tableView=$this->table->generate();
+			$tableView=$this->table->setMenu((is_logged('partner')?'<input type="submit" name="review_selected" value="审核" />':'').'<input type="submit" name="export" value="导出" />','left')
+					->wrapForm()
+					->generate();
 			$this->load->addViewData('list',$tableView);
-			$this->load->view('list');$this->load->main_view_loaded=true;
+			$this->load->view('schedule/list');$this->load->main_view_loaded=true;
 		}		
 	}
 
@@ -338,30 +341,7 @@ class Schedule extends SS_controller{
 	}
 	
 	function workHours(){
-		if(date('w')==1){//今天是星期一
-			$last_week_monday=strtotime("-1 Week Monday");
-		}else{
-			$last_week_monday=strtotime("-2 Week Monday");
-		}
-
-		$q_staffly_workhours="
-			SELECT staff.name AS staff_name,lastweek.hours AS lastweek,last2week.hours AS last2week
-			FROM staff INNER JOIN (
-				SELECT uid,SUM(IF(schedule.hours_checked IS NULL,schedule.hours_own,schedule.hours_checked)) AS hours
-				FROM schedule
-				WHERE completed=1 AND schedule.time_start >= '".$last_week_monday."' AND schedule.time_start < '".($last_week_monday+86400*7)."'
-				GROUP BY uid
-			)lastweek ON staff.id=lastweek.uid
-			LEFT JOIN (
-				SELECT uid,SUM(IF(schedule.hours_checked IS NULL,schedule.hours_own,schedule.hours_checked)) AS hours
-				FROM schedule
-				WHERE completed=1 AND schedule.time_start >= '".($last_week_monday-86400*7)."' AND schedule.time_start < '".$last_week_monday."'
-				GROUP BY uid
-			)last2week ON staff.id=last2week.uid
-			ORDER BY lastweek DESC"
-		;
-
-		$staffly_workhours=db_toArray($q_staffly_workhours);
+		$staffly_workhours=$this->schedule->getStafflyWorkHours();
 		$chart_staffly_workhours_catogary=json_encode(array_sub($staffly_workhours,'staff_name'));
 		$chart_staffly_workhours_series=array(
 			array('name'=>'上上周','data'=>array_sub($staffly_workhours,'last2week')),
@@ -370,37 +350,28 @@ class Schedule extends SS_controller{
 		$chart_staffly_workhours_series=json_encode($chart_staffly_workhours_series,JSON_NUMERIC_CHECK);
 
 		if(date('w')==1){//今天是星期一
-			$start_of_this_week=strtotime($_G['date']);
+			$start_of_this_week=strtotime($this->config->item('date'));
 		}else{
 			$start_of_this_week=strtotime("-1 Week Monday");
 		}
 
 		if(!option('date_range/from')){
 			option('date_range/from',date('Y-m-d',$start_of_this_week));
-			option('date_range/to',$_G['date']);
+			option('date_range/to',$this->config->item('date'));
 		}
-
-		$q="
-			SELECT staff.name AS staff_name,SUM(IF(hours_checked IS NULL,hours_own,hours_checked)) AS sum,
-				ROUND(SUM(IF(hours_checked IS NULL,hours_own,hours_checked)/".(getWorkingDays(option('date_range/from'), option('date_range/to'),getHolidays(),getOvertimedays(),false))."),2) AS avg
-			FROM schedule INNER JOIN staff ON staff.id=schedule.uid
-			WHERE completed=1 AND display=1
-		";
-
-		$date_range_bar=dateRange($q, 'time_start' ,true);
-
-		$q.="	GROUP BY uid
-		";
-
-		processOrderBy($q,'sum','DESC');
 
 		$field=array(
 			'staff_name'=>array('title'=>'姓名'),
 			'sum'=>array('title'=>'总工作时间'),
 			'avg'=>array('title'=>'工作日平均')
 		);
+		
+		$work_hour_stat=$this->table->setFields($field)
+				->setData($this->schedule->getStafflyWorkHoursList(option('date/from'),option('date/to')))
+				->wrapBox(false)
+				->generate();
 
-		$work_hour_stat=fetchTableArray($q,$field);
+		$this->load->addViewArrayData(compact('chart_staffly_workhours_catogary','chart_staffly_workhours_series','work_hour_stat'));
 	}
 	
 	function writeCalendar(){

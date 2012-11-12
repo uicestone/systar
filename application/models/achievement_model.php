@@ -231,8 +231,8 @@ class Achievement_model extends SS_Model{
 					AND `case` NOT IN (
 						SELECT id FROM `case` WHERE filed=1
 					)
-					AND FROM_UNIXTIME(pay_time,'%Y-%m-%d')>='".$_G['date']."'
-					AND pay_time<'".($_G['timestamp']+86400*30)."'
+					AND FROM_UNIXTIME(pay_time,'%Y-%m-%d')>='".$this->config->item('date')."'
+					AND pay_time<'".($this->config->item('timestamp')+86400*30)."'
 			";
 		}elseif($type=='expired'){
 			$q="
@@ -253,7 +253,7 @@ class Achievement_model extends SS_Model{
 					AND `case` NOT IN (
 						SELECT id FROM `case` WHERE filed=1
 					)
-					AND FROM_UNIXTIME(pay_time,'%Y-%m-%d')<'".$_G['date']."'
+					AND FROM_UNIXTIME(pay_time,'%Y-%m-%d')<'".$this->config->item('date')."'
 			";
 		}
 	

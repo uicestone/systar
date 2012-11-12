@@ -3,13 +3,13 @@ $(document).ready(function(){
 	//评语保存
 	$('textarea[name^="schedule_list_comment"]').change(function(){
 		var current_schedule_list_comment=$(this);
-		$.post('schedule?listwrite',$(this).serialize(),function(result){
+		$.post('/schedule/listwrite',$(this).serialize(),function(result){
 			showMessage('评语已保存');
 			current_schedule_list_comment.val(result);
 		});
 	});
 
-	$('.editable').editable('misc?editable',{
+	$('.editable').editable('/misc/editable',{
 		onblur:'submit',
 		id:'schedule-id',
 		name:'hours_checked',
