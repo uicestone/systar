@@ -2,30 +2,11 @@
 class Account extends SS_controller{
 	function __construct(){
 		parent::__construct();
-		$this->load->model('account_model','model');
-		$this->load->model('achievement_model');
+		$this->load->model('achievement_model','achievement');
 	}
 	
 	function lists(){
-		$q="
-			SELECT
-				account.id,account.time,account.name,account.amount,account.time_occur,
-				client.abbreviation AS client_name
-			FROM account LEFT JOIN client ON account.client=client.id
-			WHERE amount<>0
-		";
-		
-		if(!is_logged('finance')){
-			$q.=" AND account.case IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role='主办律师')";
-		}
-		
-		$search_bar=$this->processSearch($q,array('client.name'=>'客户','account.name'=>'名目','account.amount'=>'金额'));
-		
-		$date_range_bar=$this->dateRange($q,'account.time_occur');
-		
-		$this->processOrderby($q,'time_occur','DESC');
-		
-		$listLocator=$this->processMultiPage($q);
+		$this->session->set_userdata('last_list_action', $this->input->server('request_uri'));
 		
 		$field=array(
 			'time_occur'=>array('title'=>'日期','eval'=>true,'content'=>"
@@ -43,24 +24,17 @@ class Account extends SS_controller{
 			'client_name'=>array('title'=>'付款/收款人')
 		);
 		
-		$menu=array(
-		'head'=>'<div class="right">'.
-					$listLocator.
-				'</div>'
-		);
+		$list=$this->table->setFields($field)
+				->setData($this->account->getList())
+				->generate();
+		$this->load->addViewData('list', $list);
 		
-		$account_sum=array(
+		$this->load->view_data['account_sum']=array(
 			'_field'=>array('总创收'),
-			array(achievementSum('collected','total',option('date_range/from_timestamp'),option('date_range/to_timestamp'),false))
+			array($this->achievement->sum('collected','total',option('date_range/from_timestamp'),option('date_range/to_timestamp'),false))
 		);
 		
-		$_SESSION['last_list_action']=$_SERVER['REQUEST_URI'];
-		
-		$table=$this->fetchTableArray($q,$field);
-		
-		$data=compact('table','menu');
-		
-		$this->load->view('list',$data);
+		$this->load->view('list');
 	}
 
 	function add(){
@@ -150,84 +124,6 @@ class Account extends SS_controller{
 			//根据案件ID获得收费array
 			$case_fee_array=case_getFeeOptions(post('account/case'));
 		}
-	}
-
-	function caseList(){
-		$this->load->model('case_model');
-			
-		$query="
-		SELECT
-			case.id,case.name,case.num,case.stage,case.time_contract,
-			case.is_reviewed,case.apply_file,case.is_query,
-			case.type_lock*case.client_lock*case.lawyer_lock*case.fee_lock AS locked,
-			case.finance_review,case.info_review,case.manager_review,case.filed,
-			contribute_allocate.contribute_sum,
-			uncollected.uncollected,
-			lawyers.lawyers
-		FROM 
-			`case`
-			LEFT JOIN
-			(
-				SELECT `case`,GROUP_CONCAT(staff.name) AS lawyers
-				FROM case_lawyer,staff 
-				WHERE case_lawyer.lawyer=staff.id AND case_lawyer.role='主办律师'
-				GROUP BY case_lawyer.`case`
-			)lawyers
-			ON `case`.id=lawyers.`case`
-		
-			LEFT JOIN 
-			(
-				SELECT `case`,SUM(contribute) AS contribute_sum
-				FROM case_lawyer
-				GROUP BY `case`
-			)contribute_allocate
-			ON `case`.id=contribute_allocate.case
-			
-			LEFT JOIN
-			(
-				SELECT `case`,IF(amount_sum IS NULL,fee_sum,fee_sum-amount_sum) AS uncollected FROM
-				(
-					SELECT `case`,SUM(fee) AS fee_sum FROM case_fee WHERE type<>'办案费' GROUP BY `case`
-				)case_fee_grouped
-				LEFT JOIN
-				(
-					SELECT `case`, SUM(amount) AS amount_sum FROM account WHERE 1 GROUP BY `case`
-				)account_grouped
-				USING (`case`)
-			)uncollected
-			ON case.id=uncollected.case
-		
-		WHERE case.display=1 AND case.id>=20
-		";
-		
-		$search_bar=$this->processSearch($q,array('num'=>'案号','name'=>'名称','lawyers.lawyers'=>'主办律师'));
-		
-		$this->processOrderby($q,'case.time_contract','DESC',array('case.name','lawyers'));
-		
-		$listLocator=$this->processMultiPage($q);
-		
-		$field=array(
-			'time_contract'=>array('title'=>'案号','td_title'=>'width="180px"','content'=>'<a href="case?edit={id}">{num}</a>'),
-			'name'=>array('title'=>'案名','content'=>'{name}<span class="right"><a href="javascript:showWindow(\'account?add&case={id}\')">+<span>'),
-			'lawyers'=>array('title'=>'主办律师','td_title'=>'width="100px"'),
-			'is_reviewed'=>array('title'=>'状态','td_title'=>'width="75px"','eval'=>true,'content'=>"
-				return case_getStatus('{is_reviewed}','{locked}',{apply_file},{is_query},{finance_review},{info_review},{manager_review},{filed},'{contribute_sum}','{uncollected}').' {status}';
-			")
-		);
-		
-		$submitBar=array(
-		'head'=>'<div class="right">'.
-					$listLocator.
-				'</div>'
-		);
-		
-		$_SESSION['last_list_action']=$_SERVER['REQUEST_URI'];
-		
-		$table=$this->fetchTableArray($q,$field);
-		
-		$data=compact('table','menu');
-		
-		$this->load->view('list',$data);
 	}
 }
 ?>

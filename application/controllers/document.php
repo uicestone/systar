@@ -54,7 +54,7 @@ class Document extends SS_controller{
 			$_SESSION['document']['upID']='';
 		$field=option('in_search_mod')?
 			array(
-				'checkbox'=>array('title'=>'','content'=>'<input type="checkbox" name="document[{id}]" >','td_title'=>'width=38px'),
+				'checkbox'=>array('title'=>'','content'=>'<input type="checkbox" name="document[{id}]" >','td_title'=>'width="38px"'),
 				'type'=>array(
 					'title'=>'类型',
 					'eval'=>true,
@@ -75,7 +75,7 @@ class Document extends SS_controller{
 			)
 			:
 			array(
-				'checkbox'=>array('title'=>'','content'=>'<input type="checkbox" name="document[{id}]" >','td_title'=>' width=38px'),
+				'checkbox'=>array('title'=>'','content'=>'<input type="checkbox" name="document[{id}]" >','td_title'=>' width="38px"'),
 				'type'=>array(
 					'title'=>'类型',
 					'eval'=>true,
@@ -125,7 +125,6 @@ class Document extends SS_controller{
 		$file=db_fetch_first("SELECT * FROM document WHERE id = '".intval($this->input->get('view'))."'");
 		
 		document_exportHead($file['name']);
-		
 		$path=$file['path'];
 		$path=iconv("utf-8","gbk",$path);
 		readfile($path);
@@ -133,10 +132,9 @@ class Document extends SS_controller{
 	}
 	
 	function favDelete(){
-		$_POST=array_trim($_POST);
-		unset($this->input->post('favDelete'));
-		print_r($_POST);
-		if(isset($_POST)){
+		$fav_to_detele=array_trim($this->input->post());
+		unset($fav_to_detele['favDelete']);
+		if(isset($fav_to_detele)){
 			$condition = db_implode($_POST, $glue = ' OR ','file','=',"'","'", '`','key');
 			$q="DELETE FROM document_fav WHERE (".$condition.") AND uid='".$_SESSION['id']."'";
 			db_query($q);

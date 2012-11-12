@@ -8,5 +8,29 @@ class Account_model extends SS_Model{
 		$query="SELECT * FROM account WHERE id='".$id."'";
 		return db_fetch_first($query,true);
 	}
+	
+	function getList(){
+		$query="
+			SELECT
+				account.id,account.time,account.name,account.amount,account.time_occur,
+				client.abbreviation AS client_name
+			FROM account LEFT JOIN client ON account.client=client.id
+			WHERE amount<>0
+		";
+		
+		if(!is_logged('finance')){
+			$query.=" AND account.case IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role='主办律师')";
+		}
+		
+		$query=$this->search($query,array('client.name'=>'客户','account.name'=>'名目','account.amount'=>'金额'));
+		
+		$query=$this->dateRange($query,'account.time_occur');
+		
+		$query=$this->orderby($query,'time_occur','DESC');
+		
+		$query=$this->pagination($query);
+		
+		return $this->db->query($query)->result_array();
+	}
 }
 ?>

@@ -760,5 +760,131 @@ class Cases_model extends SS_Model{
 		$q=$this->pagination($q,$q_rows);
 		return $this->db->query($q)->result_array();
 	}
+	
+	/**
+	 * 已归档案件列表
+	 */
+	function getFiledList(){
+		$query="
+			SELECT
+				case.id,case.name AS case_name,case.stage,case.time_contract,case.time_end,case.num,
+				case.is_reviewed,case.apply_file,case.is_query,
+				case.type_lock*case.client_lock*case.lawyer_lock*case.fee_lock AS locked,
+				case.finance_review,case.info_review,case.manager_review,case.filed,
+				lawyers.lawyers,
+				file_status_grouped.status,file_status_grouped.staff AS staff,FROM_UNIXTIME(file_status_grouped.time,'%Y-%m-%d %H:%i:%s') AS status_time,
+				contribute_allocate.contribute_sum,
+				uncollected.uncollected,
+				staff.name AS staff_name
+			FROM 
+				`case` INNER JOIN case_num ON `case`.id=case_num.`case`
+
+				LEFT JOIN
+				(
+					SELECT `case`,GROUP_CONCAT(staff.name) AS lawyers
+					FROM case_lawyer,staff 
+					WHERE case_lawyer.lawyer=staff.id AND case_lawyer.role='主办律师'
+					GROUP BY case_lawyer.`case`
+				)lawyers
+				ON `case`.id=lawyers.`case`
+
+				LEFT JOIN (
+					SELECT * FROM (
+						SELECT `case`,status,staff,time FROM file_status ORDER BY time DESC
+					)file_status_ordered
+					GROUP BY `case`
+				)file_status_grouped 
+				ON case.id=file_status_grouped.case
+
+				LEFT JOIN staff ON file_status_grouped.staff=staff.id
+
+				LEFT JOIN 
+				(
+					SELECT `case`,SUM(contribute) AS contribute_sum
+					FROM case_lawyer
+					GROUP BY `case`
+				)contribute_allocate
+				ON `case`.id=contribute_allocate.case
+
+				LEFT JOIN
+				(
+					SELECT `case`,IF(amount_sum IS NULL,fee_sum,fee_sum-amount_sum) AS uncollected FROM
+					(
+						SELECT `case`,SUM(fee) AS fee_sum FROM case_fee WHERE type<>'办案费' GROUP BY `case`
+					)case_fee_grouped
+					LEFT JOIN
+					(
+						SELECT `case`, SUM(amount) AS amount_sum FROM account WHERE 1 GROUP BY `case`
+					)account_grouped
+					USING (`case`)
+				)uncollected
+				ON case.id=uncollected.case
+
+			WHERE case.display=1 AND case.id>=20 AND case.filed=1
+		";
+		
+		$query=$this->search($query,array('case_num_grouped.num'=>'案号','case.name'=>'名称','lawyers.lawyers'=>'主办律师'));
+		
+		$query=$this->orderby($query,'time_contract','DESC',array('case.name','lawyers'));
+		
+		$query=$this->pagination($query);
+		
+		return $this->db->query($query)->result_array();
+	}
+	
+	function getTobeFiledList(){
+		$query="
+			SELECT
+				case.id,case.name,case.num,case.stage,case.time_contract,case.time_end,
+				case.is_reviewed,case.apply_file,case.is_query,
+				case.type_lock*case.client_lock*case.lawyer_lock*case.fee_lock AS locked,
+				case.finance_review,case.info_review,case.manager_review,case.filed,
+				contribute_allocate.contribute_sum,
+				uncollected.uncollected,
+				lawyers.lawyers
+
+			FROM 
+				`case` LEFT JOIN
+				(
+					SELECT `case`,GROUP_CONCAT(staff.name) AS lawyers
+					FROM case_lawyer,staff 
+					WHERE case_lawyer.lawyer=staff.id AND case_lawyer.role='主办律师'
+					GROUP BY case_lawyer.`case`
+				)lawyers
+				ON `case`.id=lawyers.`case`
+
+				LEFT JOIN 
+				(
+					SELECT `case`,SUM(contribute) AS contribute_sum
+					FROM case_lawyer
+					GROUP BY `case`
+				)contribute_allocate
+				ON `case`.id=contribute_allocate.case
+
+				LEFT JOIN
+				(
+					SELECT `case`,IF(amount_sum IS NULL,fee_sum,fee_sum-amount_sum) AS uncollected FROM
+					(
+						SELECT `case`,SUM(fee) AS fee_sum FROM case_fee WHERE type<>'办案费' GROUP BY `case`
+					)case_fee_grouped
+					LEFT JOIN
+					(
+						SELECT `case`, SUM(amount) AS amount_sum FROM account WHERE 1 GROUP BY `case`
+					)account_grouped
+					USING (`case`)
+				)uncollected
+				ON case.id=uncollected.case
+
+			WHERE case.display=1 AND case.id>=20 AND case.apply_file=1 AND filed=0
+		";
+		
+		$query=$this->search($query,array('case_num_grouped.num'=>'案号','case.name'=>'名称','lawyers.lawyers'=>'主办律师'));
+		
+		$query=$this->orderby($query,'case.time_contract','ASC',array('case.name','lawyers'));
+		
+		$query=$this->pagination($query);
+		
+		return $this->db->query($query)->result_array();
+	}
 }
 ?>
