@@ -92,46 +92,42 @@ class Evaluation extends SS_controller{
 			SELECT each_other.staff,staff.name AS staff_name,each_other.score AS each_other,each_other.critics,self.score AS self,manager.score AS manager
 			FROM
 			(
+				SELECT staff,SUM(score) AS score
+				FROM `evaluation_score` INNER JOIN evaluation_indicator ON evaluation_score.indicator=evaluation_indicator.id
+				WHERE uid = '6356' AND evaluation_score.quarter='{$_G['quarter']}'
+				GROUP BY uid,staff
+			)manager
+			LEFT JOIN(
 				SELECT staff,AVG(sum_score) AS score,COUNT(sum_score) AS critics
 				FROM (
-				SELECT staff,SUM(score) AS sum_score
-				FROM `evaluation_score` INNER JOIN evaluation_indicator ON evaluation_score.indicator=evaluation_indicator.id
-				WHERE uid <> '6356' AND staff<>uid
-				GROUP BY uid,staff
+					SELECT staff,SUM(score) AS sum_score
+					FROM `evaluation_score` INNER JOIN evaluation_indicator ON evaluation_score.indicator=evaluation_indicator.id
+					WHERE uid <> '6356' AND staff<>uid AND evaluation_score.quarter='{$_G['quarter']}'
+					GROUP BY uid,staff
 				)sum
 				GROUP BY staff
-			)each_other
+			)each_other USING (staff) 
 			LEFT JOIN(
 				SELECT staff,SUM(score) AS score
 				FROM `evaluation_score` INNER JOIN evaluation_indicator ON evaluation_score.indicator=evaluation_indicator.id
-				WHERE uid = '6356'
-				GROUP BY uid,staff
-			)manager USING (staff) 
-			LEFT JOIN(
-				SELECT staff,SUM(score) AS score
-				FROM `evaluation_score` INNER JOIN evaluation_indicator ON evaluation_score.indicator=evaluation_indicator.id
-				WHERE uid = staff
+				WHERE uid = staff AND evaluation_score.quarter='{$_G['quarter']}'
 				GROUP BY uid,staff
 			)self USING(staff)
 			INNER JOIN staff ON staff.id=each_other.staff	
 		";
-		
-		$this->processOrderby($q,'staff');
-		
+
+		processOrderby($q,'staff');
+
 		$field=array(
 			'staff_name'=>array('title'=>'姓名'),
 			'each_other'=>array('title'=>'互评','content'=>'{each_other}({critics})'),
 			'self'=>array('title'=>'自评'),
 			'manager'=>array('title'=>'主管评分')
 		);
-		
+
 		$_SESSION['last_list_action']=$_SERVER['REQUEST_URI'];
-		
-		$table=$this->fetchTableArray($q, $field);
-		
-		$this->view_data+=compact('table','menu');
-		
-		$this->load->view('lists',$this->view_data);
+
+		exportTable($q,$field);
 	}
 	
 	function scoreWrite(){$staff=intval($this->input->get('staff'));
@@ -157,7 +153,7 @@ class Evaluation extends SS_controller{
 		
 		$q="
 		SELECT evaluation_indicator.id,evaluation_indicator.name,evaluation_indicator.weight,
-			evaluation_score.id AS score_id,evaluation_score.score,evaluation_score.comment		#,evaluation_score.anonymous
+			evaluation_score.id AS score_id,evaluation_score.score,evaluation_score.comment
 		FROM evaluation_indicator 
 			LEFT JOIN evaluation_score ON (
 				evaluation_indicator.id=evaluation_score.indicator 
@@ -174,9 +170,6 @@ class Evaluation extends SS_controller{
 		
 		$field=array(
 			'name'=>array('title'=>'考核指标','td'=>'id="{id}"','content'=>'{name}({weight})','td_title'=>'width="20%"'),
-			/*'anonymous'=>array('title'=>'匿名','td_title'=>'width=55px"','td'=>'style="text-align:center"','eval'=>true,'content'=>"
-				return '<input type=\"checkbox\" value=\"1\" '.(!'{score_id}' || '{anonymous}'?'checked=\"checked\"':'').' />';
-			"),*/
 			'score'=>array('title'=>'分数','td_title'=>'width="70px"','eval'=>true,'content'=>"
 				if('{score}'==0){
 					return '<input type=\"text\" style=\"width:50px;\" />';

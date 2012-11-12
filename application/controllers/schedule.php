@@ -370,70 +370,27 @@ class Schedule extends SS_controller{
 		$chart_staffly_workhours_series=json_encode($chart_staffly_workhours_series,JSON_NUMERIC_CHECK);
 
 		if(date('w')==1){//今天是星期一
-			$start_of_this_week=strtotime($this->config->item('date'));
+			$start_of_this_week=strtotime($_G['date']);
 		}else{
 			$start_of_this_week=strtotime("-1 Week Monday");
 		}
-		$start_of_this_month=strtotime(date('Y-m',$this->config->item('timestamp')).'-1');
-		$start_of_this_year=strtotime(date('Y',$this->config->item('timestamp')).'-1-1');
-		$start_of_this_term=strtotime(date('Y',$this->config->item('timestamp')).'-'.(floor(date('m',$this->config->item('timestamp'))/3-1)*3+1).'-1');
 
-		$days_passed_this_week=getWorkingDays($start_of_this_week, $this->config->item('timestamp'));
-		$days_passed_this_month=getWorkingDays($start_of_this_month, $this->config->item('timestamp'));
-		$days_passed_this_term=getWorkingDays($start_of_this_term, $this->config->item('timestamp'));
-		$days_passed_this_year=getWorkingDays($start_of_this_year, $this->config->item('timestamp'));
-
-		$q="
-			SELECT staff.name aS staff_name,
-				this_week.sum AS this_week_sum,ROUND(this_week.avg,2) AS this_week_avg,
-				this_month.sum AS this_month_sum,ROUND(this_month.avg,2) AS this_month_avg,
-				this_term.sum AS this_term_sum,ROUND(this_term.avg,2) AS this_term_avg,
-				this_year.sum AS this_year_sum,ROUND(this_year.avg,2) AS this_year_avg
-			FROM
-			(
-				SELECT uid,SUM(IF(hours_checked IS NULL,hours_own,hours_checked)) AS sum, SUM(hours_own)/".$days_passed_this_week." AS avg
-				FROM schedule 
-				WHERE time_start>='".$start_of_this_week."' AND time_start<'".$this->config->item('timestamp')."' 
-					AND completed=1 AND display=1
-				GROUP BY uid
-			)this_week
-			INNER JOIN
-			(
-				SELECT uid,SUM(IF(hours_checked IS NULL,hours_own,hours_checked)) AS sum, SUM(hours_own)/".$days_passed_this_month." AS avg
-				FROM schedule 
-				WHERE time_start>='".$start_of_this_month."' AND time_start<'".$this->config->item('timestamp')."' 
-					AND completed=1 AND display=1
-				GROUP BY uid
-			)this_month USING(uid)
-			INNER JOIN
-			(
-				SELECT uid,SUM(IF(hours_checked IS NULL,hours_own,hours_checked)) AS sum, SUM(hours_own)/".$days_passed_this_term." AS avg
-				FROM schedule 
-				WHERE time_start>='".$start_of_this_term."' AND time_start<'".$this->config->item('timestamp')."' 
-					AND completed=1 AND display=1
-				GROUP BY uid
-			)this_term USING(uid)
-			INNER JOIN
-			(
-				SELECT uid,SUM(IF(hours_checked IS NULL,hours_own,hours_checked)) AS sum, SUM(hours_own)/".$days_passed_this_year." AS avg
-				FROM schedule 
-				WHERE time_start>='".$start_of_this_year."' AND time_start<'".$this->config->item('timestamp')."' 
-					AND completed=1 AND display=1
-				GROUP BY uid
-			)this_year USING(uid)
-			INNER JOIN staff ON staff.id=this_week.uid
-		";
+		if(!option('date_range/from')){
+			option('date_range/from',date('Y-m-d',$start_of_this_week));
+			option('date_range/to',$_G['date']);
+		}
 
 		$q="
 			SELECT staff.name AS staff_name,SUM(IF(hours_checked IS NULL,hours_own,hours_checked)) AS sum,
-			  SUM(IF(hours_checked IS NULL,hours_own,hours_checked)/".(getWorkingDays(option('date_range/from'), option('date_range/to'),getHolidays(),getOvertimedays(),false)).") AS avg
+				ROUND(SUM(IF(hours_checked IS NULL,hours_own,hours_checked)/".(getWorkingDays(option('date_range/from'), option('date_range/to'),getHolidays(),getOvertimedays(),false))."),2) AS avg
 			FROM schedule INNER JOIN staff ON staff.id=schedule.uid
 			WHERE completed=1 AND display=1
 		";
 
 		$date_range_bar=dateRange($q, 'time_start' ,true);
 
-		$q.="  GROUP BY uid";
+		$q.="	GROUP BY uid
+		";
 
 		processOrderBy($q,'sum','DESC');
 
