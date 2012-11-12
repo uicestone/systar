@@ -12,7 +12,7 @@ class Contact extends SS_controller{
 		}
 		$field=array(
 			'abbreviation'=>array('title'=>'名称','content'=>'<input type="checkbox" name="contact_check[{id}]" />
-			<a href="javascript:showWindow(\'contact?edit={id}\')" title="{name}">{abbreviation}</a>',
+			<a href="javascript:showWindow(\'contact/edit/{id}\')" title="{name}">{abbreviation}</a>',
 				'td'=>'class="ellipsis"'
 			),
 			'work_for'=>array('title'=>'单位'),
@@ -40,10 +40,10 @@ class Contact extends SS_controller{
 	}
 	
 	function edit($id=NULL){
-		model('client');
+		$this->load->model('client_model','client');
+		$this->load->model('cases_model','cases');
 	
 		$this->getPostData($id,function($CI){
-			global $_G;
 			post('contact/name',$_SESSION['username'].'的新联系人 '.date('Y-m-d h:i:s',$CI->config->item('timestamp')));
 			post('contact/abbreviation',$_SESSION['username'].'的新联系人 '.date('Y-m-d h:i:s',$CI->config->item('timestamp')));
 		},true,'client');
@@ -57,7 +57,7 @@ class Contact extends SS_controller{
 		if($this->input->post('submit')){
 			$submitable=true;
 		
-			$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$_POST);
+			$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$this->input->post());
 		
 			if(is_posted('submit/contact_related')){
 				$q_contact="SELECT id,name FROM `client` WHERE display=1 AND (`name` LIKE '%".post('contact_related_extra/name')."%' OR abbreviation LIKE '%".post('contact_related_extra/name')."%')";
@@ -146,23 +146,7 @@ class Contact extends SS_controller{
 		}
 		
 		//准备contact_add表单中的小表
-		$q_contact_related="
-			SELECT 
-				client_client.id AS id,client_client.role,client_client.client_right,
-				client.abbreviation AS client_right_name,client.classification,
-				phone.content AS client_right_phone,email.content AS client_right_email
-			FROM 
-				client_client INNER JOIN client ON client_client.client_right=client.id
-				LEFT JOIN (
-					SELECT client,GROUP_CONCAT(content) AS content FROM client_contact WHERE type IN('手机','固定电话') GROUP BY client
-				)phone ON client.id=phone.client
-				LEFT JOIN (
-					SELECT client,GROUP_CONCAT(content) AS content FROM client_contact WHERE type='电子邮件' GROUP BY client
-				)email ON client.id=email.client
-			WHERE `client_left`='".post('contact/id')."'
-			ORDER BY role";
-		
-		$field_contact_related=array(
+		$fields_contact_related=array(
 			'checkbox'=>array('title'=>'<input type="submit" name="submit[contact_related_delete]" value="删" />','orderby'=>false,'content'=>'<input type="checkbox" name="contact_related_check[{id}]" >','td_title'=>' width=60px'),
 			'client_right_name'=>array('title'=>'名称','eval'=>true,'content'=>"
 				return '<a href=\"javascript:showWindow(\''.('{classification}'=='客户'?'client':'contact').'?edit={client_right}\')\">{client_right_name}</a>';
@@ -171,46 +155,33 @@ class Contact extends SS_controller{
 			'client_right_email'=>array('title'=>'电邮','wrap'=>array('mark'=>'a','href'=>'mailto:{client_right_email}')),
 			'role'=>array('title'=>'关系','orderby'=>false)
 		);
+		$this->load->view_data['contact_related']=$this->table->setFields($fields_contact_related)
+				->generate($this->client->getRelatedClients(post('contact/id')));
 		
-		$q_contact_contact="
-			SELECT 
-				client_contact.id,client_contact.comment,client_contact.content,client_contact.type
-			FROM client_contact INNER JOIN client ON client_contact.client=client.id
-			WHERE client_contact.client='".post('contact/id')."'
-		";
-		
-		$field_contact_contact=array(
+		$fields_contact_contact=array(
 			'checkbox'=>array('title'=>'<input type="submit" name="submit[contact_contact_delete]" value="删" />','orderby'=>false,'content'=>'<input type="checkbox" name="contact_contact_check[{id}]" >','td_title'=>' width=60px'),
 			'type'=>array('title'=>'类别','orderby'=>false),
 			'content'=>array('title'=>'内容','orderby'=>false),
 			'comment'=>array('title'=>'备注','orderby'=>false)
 		);
+		$this->load->view_data['contact_contact']=$this->table->setFields($fields_contact_contact)
+				->generate($this->client->getContacts(post('contact/id')));
 		
-		$q_contact_case="
-		SELECT case.id,case.name AS case_name,case.num,	
-			GROUP_CONCAT(DISTINCT staff.name) AS lawyers
-		FROM `case`
-			LEFT JOIN case_lawyer ON (case.id=case_lawyer.case AND case_lawyer.role='主办律师')
-			LEFT JOIN staff ON staff.id=case_lawyer.lawyer
-		WHERE case.id IN (
-			SELECT `case` FROM case_client WHERE client='".post('contact/id')."'
-		)
-		GROUP BY case.id
-		HAVING id IS NOT NULL
-		";
-		
-		$field_contact_case=array(
+		$fields_contact_case=array(
 			'num'=>array('title'=>'案号','wrap'=>array('mark'=>'a','href'=>'javascript:window.rootOpener.location.href=\'case?edit={id}\';window.opener.parent.focus();'),'orderby'=>false),
 			'case_name'=>array('title'=>'案名','orderby'=>false),
 			'lawyers'=>array('title'=>'主办律师','orderby'=>false)
 		);
+		$this->load->view_data['contact_case']=$this->table->setFields($fields_contact_case)
+				->generate($this->cases->getListByClient(post('contact/id')));
 		
 		if(post('contact/character')=='单位'){
-			require 'view/contact_add_artificial.htm';
+			$this->load->view('contact/add_artificial');
 		
 		}else{
-			require 'view/contact_add_natural.htm';
+			$this->load->view('contact/add_natural');
 		}
+		$this->load->main_view_loaded=true;
 	}
 }
 ?>

@@ -40,7 +40,7 @@
 		<div class="item">
 			<div class="title"><label>联系方式</label><label id="contactContactAdd"><? if(post('contact_contact_extra/show_add_form'))echo '-';else echo '+'?></label></div>
 
-			<? exportTable($q_contact_contact,$field_contact_contact,NULL,false,false);?>
+			<?=$contact_contact?>
 			<div id="contactContactAddForm" <? if(!post('contact_contact_extra/show_add_form'))echo 'style="display:none"';?>>
 				<select name="contact_contact[type]" style="width:30%">
 					<? displayOption(array('_ENUM','client_contact','type'),post('contact_contact/type'))?>
@@ -55,7 +55,7 @@
 		<div class="item">
 			<div class="title"><label>相关人</label><label id="contactRelatedAdd"><? if(post('contact_related_extra/show_add_form'))echo '-';else echo '+'?></label></div>
 
-			<? exportTable($q_contact_related,$field_contact_related,NULL,false,false);?>
+			<?=$contact_related?>
 			
 			<div id="contactRelatedAddForm" <? if(!post('contact_related_extra/show_add_form'))echo 'style="display:none"';?>>
 				<label>名称：<input type="text" name="contact_related_extra[name]" value="<? displayPost('contact_related_extra/name')?>" style="width:20%" /></label>
@@ -83,7 +83,7 @@
 		<div class="item">
 			<div class="title"><label>相关案件</label></div>
 
-			<? exportTable($q_contact_case,$field_contact_case,NULL,false,false);?>
+			<?=$contact_case?>
 		 </div>
 
 		<div class="item">
