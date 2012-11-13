@@ -55,7 +55,7 @@ class Query extends SS_controller{
 				redirect('cases/edit/'.$case_id);
 			}
 			try{
-				$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$_POST);
+				$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$this->input->post());
 				
 				if(!post('client/id')){
 					if(post('client/name')==''){
@@ -63,7 +63,6 @@ class Query extends SS_controller{
 					}
 					
 					$client_check=$this->client->check(post('client/name'),'array',false,false);
-
 					if($client_check['id']>0){
 						post('client/id',$client_check['id']);
 						post('client/source_lawyer',$client_check['source_lawyer']);
@@ -74,7 +73,7 @@ class Query extends SS_controller{
 						throw new Exception('来源律师名称错误：'.post('client_extra/source_lawyer_name'));
 					}
 		
-					if(!post('query/source') && !post('query/source',$this->client->setSource(post('source/type'),post('source/detail')))){
+					if(!post('client/id') && !post('query/source') && !post('query/source',$this->client->setSource(post('source/type'),post('source/detail')))){
 						throw new Exception('客户来源错误');
 					}
 				}
@@ -108,9 +107,7 @@ class Query extends SS_controller{
 				}
 		
 				
-				post('case',array_merge(post('query'),array(
-					'is_query'=>1
-				)));
+				post('case',array_merge(post('query'),array('is_query'=>1)));
 				
 				$this->cases->update(post('query/id'),post('case'));
 				

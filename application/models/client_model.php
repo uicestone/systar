@@ -30,8 +30,6 @@ class Client_model extends SS_Model{
 	function check($client_name,$data_type='id',$show_error=true,$fuzzy=true){
 		//$data_type:id,array
 		
-		global $_G;
-		
 		if(!$client_name){
 			if($show_error){
 				showMessage('请输入客户名称','warning');
@@ -40,9 +38,9 @@ class Client_model extends SS_Model{
 		}
 	
 		if($fuzzy){
-			$q_client="SELECT * FROM `client` WHERE display=1 AND company='".$_G['company']."' AND (`name` LIKE '%".$client_name."%' OR abbreviation LIKE '".$client_name."')";
+			$q_client="SELECT * FROM `client` WHERE display=1 AND company='".$this->config->item('company')."' AND (`name` LIKE '%".$client_name."%' OR abbreviation LIKE '".$client_name."')";
 		}else{
-			$q_client="SELECT * FROM `client` WHERE display=1 AND company='".$_G['company']."' AND (`name` LIKE '".$client_name."' OR abbreviation LIKE '".$client_name."')";
+			$q_client="SELECT * FROM `client` WHERE display=1 AND company='".$this->config->item('company')."' AND (`name` LIKE '".$client_name."' OR abbreviation LIKE '".$client_name."')";
 		}
 		$r_client=db_query($q_client);
 		$num_clients=db_rows($r_client);

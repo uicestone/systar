@@ -10,7 +10,7 @@ class User_model extends SS_Model{
 		$q_user="SELECT id,username,password,`group`,lastip,lastlogin,company FROM user 
 				WHERE (username = '".$this->input->post('username')."' OR alias='".$this->input->post('username')."')
 					AND (password = '".$this->input->post('password')."' OR password IS NULL)
-					AND company='".$_G['company']."'
+					AND company='".$this->config->item('company')."'
 			";
 		
 		$user=db_fetch_first($q_user);
@@ -34,7 +34,7 @@ class User_model extends SS_Model{
 			return -3;
 		}
 	
-		$q="SELECT * FROM `user` WHERE company='".$_G['company']."' AND `username` = '".$username."'";
+		$q="SELECT * FROM `user` WHERE company='".$this->config->item('company')."' AND `username` = '".$username."'";
 		$r=db_query($q);
 		$num_lawyers=db_rows($r);
 	
@@ -63,7 +63,7 @@ class User_model extends SS_Model{
 	
 	function update_login_time(){
 		global $_G;
-		db_update('user',array('lastip'=>getIP(),'lastlogin'=>$this->config->item('timestamp')),"id='".$_SESSION['id']."' AND company='".$_G['company']."'");
+		db_update('user',array('lastip'=>getIP(),'lastlogin'=>$this->config->item('timestamp')),"id='".$_SESSION['id']."' AND company='".$this->config->item('company')."'");
 	}
 	
 	function student_set_session($user_id){

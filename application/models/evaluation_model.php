@@ -24,7 +24,7 @@ class Evaluation_model extends SS_Model{
 			'indicator'=>$indicator,
 			'staff'=>$staff,
 			'quarter'=>$_G['quarter'],
-			'company'=>$_G['company'],
+			'company'=>$this->config->item('company'),
 			'uid'=>$_SESSION['id'],
 			'username'=>$_SESSION['username'],
 			'time'=>$this->config->item('timestamp')
@@ -36,7 +36,7 @@ class Evaluation_model extends SS_Model{
 			$data_score[$field]=$value;
 		}
 		
-		if(!db_update('evaluation_score',$data_score,"indicator='".$indicator."' AND staff='".$staff."' AND quarter='".$_G['quarter']."' AND uid='".$_SESSION['id']."' AND company='".$_G['company']."'")){
+		if(!db_update('evaluation_score',$data_score,"indicator='".$indicator."' AND staff='".$staff."' AND quarter='".$_G['quarter']."' AND uid='".$_SESSION['id']."' AND company='".$this->config->item('company')."'")){
 			return false;
 		}
 		
