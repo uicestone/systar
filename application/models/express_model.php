@@ -5,8 +5,9 @@ class Express_model extends SS_Model{
 	}
 
 	function fetch($id){
-		$result=$this->db->get_where('express',array('id'=>$id))->result_array();
-		return $result[0];
+            $query="SELECT * FROM express WHERE id = '{$id}'";
+            $result=$this->db->query($query)->result_array();
+            return $result[0];
 	}
 	
 	function getList(){
