@@ -4,7 +4,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><![endif]-->
 	<? stylesheet('style/common')?>
-	<? stylesheet('style/redmond/jquery-ui-1.8.21')?>
+	<? stylesheet('style/jquery-ui/jquery-ui')?>
 	<? javascript('jquery')?>
 	<? javascript('jquery-ui')?>
 	<? stylesheet('js/qtip2/jquery.qtip.min')?>
