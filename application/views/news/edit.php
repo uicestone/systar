@@ -19,15 +19,15 @@ $(document).ready(function(){
 	<div class="contentTable">
 		<div class="item">
 			<div class="title"><label>标题：</label></div>
-			<input name="news[title]" value="<? displayPost('news/title');?>" type="text" />
+			<input name="news[title]" value="<?=post('news/title');?>" type="text" />
 		</div>
 
 		<div class="item">
 			<div class="title"><label>内容：</label></div>
 	<? if(post('news/uid')==$_SESSION['id']){?>
-			<textarea name="news[content]" rows="10"><? displayPost('news/content'); ?></textarea>
+			<textarea name="news[content]" rows="10"><?=post('news/content'); ?></textarea>
 	<? }else{?>
-			<div class="content"><? displayPost('news/content'); ?></div>
+			<div class="content"><?=post('news/content'); ?></div>
 	<? }?>
 		</div>
 

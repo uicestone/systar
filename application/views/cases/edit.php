@@ -64,7 +64,7 @@
 			<?=$case_client_table?>
 	
 			<div id="caseClientAddForm" <? if(!post('case_client_extra/show_add_form'))echo 'style="display:none"';?>>
-				<input type="text" name="case_client_extra[name]" value="<? displayPost('case_client_extra/name')?>" placeholder="名称" autocomplete="client" autocomplete-input-name="case_client[client]" style="width:20%" />
+				<input type="text" name="case_client_extra[name]" value="<?=post('case_client_extra/name')?>" placeholder="名称" autocomplete="client" autocomplete-input-name="case_client[client]" style="width:20%" />
 	
 				<span class="autocomplete-no-result-menu">
 					<? displayCheckbox('单位','case_client_extra[character]',post('case_client_extra/character'),'单位')?>
@@ -92,16 +92,16 @@
 				<br class="autocomplete-no-result-menu" />
 				
 				<span class="autocomplete-no-result-menu">
-					<input type="text" name="case_client_extra[phone]" value="<? displayPost('case_client_extra/phone');?>" placeholder="电话" disabled="disabled" style="width:20%" />
-					<input type="text" name="case_client_extra[email]" value="<? displayPost('case_client_extra/email');?>" placeholder="电子邮件" disabled="disabled" style="width:20%" />
+					<input type="text" name="case_client_extra[phone]" value="<?=post('case_client_extra/phone');?>" placeholder="电话" disabled="disabled" style="width:20%" />
+					<input type="text" name="case_client_extra[email]" value="<?=post('case_client_extra/email');?>" placeholder="电子邮件" disabled="disabled" style="width:20%" />
 	
 					<span id="caseClientAddFormForClient" class="autocomplete-no-result-menu">
 						<label>来源：</label>
 						<select name="case_client_extra[source_type]" disabled="disabled" style="width:15%">
 							<? displayOption(array('_ENUM','client_source','type'),post('case_client_extra/source_type'))?>
 						</select>
-						<input type="text" name="case_client_extra[source_detail]" value="<? displayPost('case_client_extra/source_detail')?>" style="width:10%" <? if(!in_array(post('case_client_extra/source_type'),array('其他网络','媒体','老客户介绍','合作单位介绍','其他')))echo 'disabled="disabled"';?> />
-						<input type="text" name="case_client_extra[source_lawyer_name]" placeholder="来源律师" disabled="disabled" value="<? displayPost('case_client_extra/source_lawyer_name')?>" style="width:10%" />
+						<input type="text" name="case_client_extra[source_detail]" value="<?=post('case_client_extra/source_detail')?>" style="width:10%" <? if(!in_array(post('case_client_extra/source_type'),array('其他网络','媒体','老客户介绍','合作单位介绍','其他')))echo 'disabled="disabled"';?> />
+						<input type="text" name="case_client_extra[source_lawyer_name]" placeholder="来源律师" disabled="disabled" value="<?=post('case_client_extra/source_lawyer_name')?>" style="width:10%" />
 					</span>
 				</span>
 				<input type="submit" name="submit[case_client]" value="添加" />
@@ -110,14 +110,14 @@
 	
 		<div class="item">
 			<?if(post('cases/num')){?>
-			<div class="title"><label title="内部ID：<? displayPost('cases/id')?>"><? displayPost('cases/num');?></label></div>
+			<div class="title"><label title="内部ID：<?=post('cases/id')?>"><?=post('cases/num');?></label></div>
 	
 			<div class="field" id="case_name">
 				<span class="right">
 					<? echo $case_status?>
 				</span>
 	
-				<? displayPost('cases/name')?>
+				<?=post('cases/name')?>
 				&nbsp;
 			</div>
 			<?}?>
@@ -143,17 +143,17 @@
 			<? }?>
 	
 			<? if(post('cases/is_query')){ ?>
-			<input type="text" name="cases[first_contact]" value="<? displayPost('cases/first_contact')?>" placeholder="首次接待日期" title="首次接待日期" class="date" style="width:100px" />
+			<input type="text" name="cases[first_contact]" value="<?=post('cases/first_contact')?>" placeholder="首次接待日期" title="首次接待日期" class="date" style="width:100px" />
 			<? }else{ ?>
-			<input type="text" name="cases[time_contract]" value="<? displayPost('cases/time_contract')?>" placeholder="立案日期" title="立案日期" class="date" style="width:100px" <? if(post('cases/is_reviewed'))echo 'disabled="disabled"';?> />
+			<input type="text" name="cases[time_contract]" value="<?=post('cases/time_contract')?>" placeholder="立案日期" title="立案日期" class="date" style="width:100px" <? if(post('cases/is_reviewed'))echo 'disabled="disabled"';?> />
 			-
-			<input type="text" name="cases[time_end]" value="<? displayPost('cases/time_end')?>" placeholder="预估结案日期" title="预估结案日期" class="date" style="width:100px" <? if(post('cases/is_reviewed'))echo 'disabled="disabled"';?> />
+			<input type="text" name="cases[time_end]" value="<?=post('cases/time_end')?>" placeholder="预估结案日期" title="预估结案日期" class="date" style="width:100px" <? if(post('cases/is_reviewed'))echo 'disabled="disabled"';?> />
 			<? } ?>
 	
 			<? if(!post('cases/num')){?>
 			<input type="submit" name="submit[apply_case_num]" value="获得案号" />
 			<? }else{?>
-			<input type="text" name="cases[name_extra]" style="width:20%" value="<? displayPost('cases/name_extra')?>" placeholder="后缀" />
+			<input type="text" name="cases[name_extra]" style="width:20%" value="<?=post('cases/name_extra')?>" placeholder="后缀" />
 			<? }?>
 		</div>
 	
@@ -171,11 +171,11 @@
 			<?=$case_staff_table?>
 			
 			<div id="caseLawyerAddForm" <? if(!post('case_lawyer_extra/show_add_form'))echo 'style="display:none"';?>>
-				<input type="text" name="case_lawyer_extra[lawyer_name]" value="<? displayPost('case_lawyer_extra/lawyer_name');?>" placeholder="姓名" style="width:45%" />
+				<input type="text" name="case_lawyer_extra[lawyer_name]" value="<?=post('case_lawyer_extra/lawyer_name');?>" placeholder="姓名" style="width:45%" />
 				<select style="width:45%" name="case_lawyer[role]">
 					<? displayOption($case_lawyer_role_array,post('case_lawyer/role'));?>
 				</select>
-				<input type="text" name="case_lawyer_extra[actual_contribute]" value="<? displayPost('case_lawyer_extra/actual_contribute')?>" placeholder="%" style="display:none;width:22%;" disabled="disabled" />
+				<input type="text" name="case_lawyer_extra[actual_contribute]" value="<?=post('case_lawyer_extra/actual_contribute')?>" placeholder="%" style="display:none;width:22%;" disabled="disabled" />
 				<input type="submit" name="submit[case_lawyer]" value="添加" />
 			</div>
 		</div>
@@ -183,7 +183,7 @@
 		<? if(post('cases/is_query')){//咨询阶段显示报价情况，不显示律师费和办案费?>
 		<div class="item">
 			<div class="title"><label>报价：</label></div>
-			<input type="text" name="cases[quote]" value="<? displayPost('cases/quote') ?>" />
+			<input type="text" name="cases[quote]" value="<?=post('cases/quote') ?>" />
 		</div>
 		<? }?>
 		<div class="item">
@@ -205,7 +205,7 @@
 				<? } ?>
 				
 				<? if(is_logged('finance')){?>
-				<button type="button" onclick="showWindow('account?add&case=<? displayPost('cases/id')?>')">到账</button>
+				<button type="button" onclick="showWindow('account?add&case=<?=post('cases/id')?>')">到账</button>
 				<? }?>
 				
 				<? if(is_logged('finance')){?>
@@ -216,12 +216,12 @@
 			<div class="title">
 				<div id="caseFeeTimingAddForm" <? if(!post('cases/timing_fee'))echo 'style="display:none"';?>>
 					<? if(isset($case_fee_timing_string) && $case_fee_timing_string!=''){echo $case_fee_timing_string;}else{?>
-					包含：<input type="text" name="case_fee_timing[included_hours]" value="<? displayPost('case_fee_timing/included_hours');?>" style="width:3%" />小时&nbsp;
-					账单起始日：<input type="text" name="case_fee_timing[time_start]" value="<? displayPost('case_fee_timing/time_start',true);?>" class="date" style="width:11%" />&nbsp;
-					账单日：<input type="text" name="case_fee_timing[bill_day]" value="<? displayPost('case_fee_timing/bill_day');?>" style="width:3%;" />日&nbsp;
-					付款日：<input type="text" name="case_fee_timing[payment_day]" value="<? displayPost('case_fee_timing/payment_day');?>" style="width:3%;" />日&nbsp;
-					付款周期：<input type="text" name="case_fee_timing[payment_cycle]" value="<? displayPost('case_fee_timing/payment_cycle');?>" style="width:3%;" />个月&nbsp;
-					合同周期：<input type="text" name="case_fee_timing[contract_cycle]" value="<? displayPost('case_fee_timing/contract_cycle');?>" style="width:3%;" />个月&nbsp;
+					包含：<input type="text" name="case_fee_timing[included_hours]" value="<?=post('case_fee_timing/included_hours');?>" style="width:3%" />小时&nbsp;
+					账单起始日：<input type="text" name="case_fee_timing[time_start]" value="<?=date('Y-m-d',post('case_fee_timing/time_start'));?>" class="date" style="width:11%" />&nbsp;
+					账单日：<input type="text" name="case_fee_timing[bill_day]" value="<?=post('case_fee_timing/bill_day');?>" style="width:3%;" />日&nbsp;
+					付款日：<input type="text" name="case_fee_timing[payment_day]" value="<?=post('case_fee_timing/payment_day');?>" style="width:3%;" />日&nbsp;
+					付款周期：<input type="text" name="case_fee_timing[payment_cycle]" value="<?=post('case_fee_timing/payment_cycle');?>" style="width:3%;" />个月&nbsp;
+					合同周期：<input type="text" name="case_fee_timing[contract_cycle]" value="<?=post('case_fee_timing/contract_cycle');?>" style="width:3%;" />个月&nbsp;
 					<? }?>
 				</div>
 			</div>
@@ -232,9 +232,9 @@
 				<select style="width:25%;" name="case_fee[type]">
 					<? displayOption(post('cases/is_query')?array('咨询费'):array('固定','风险','计时预付'));?>
 				</select>
-				<input type="text" name="case_fee[fee]" value="<? displayPost('case_fee/fee');?>" placeholder="数额" style="width:24%;" />
-				<input type="text" name="case_fee[condition]" value="<? displayPost('case_fee/condition');?>" placeholder="付款条件" style="width:24%" />
-				<input type="text" name="case_fee[pay_time]" value="<? displayPost('case_fee/pay_time',true);?>" placeholder="预估日期" class="date" style="width:15%" />
+				<input type="text" name="case_fee[fee]" value="<?=post('case_fee/fee');?>" placeholder="数额" style="width:24%;" />
+				<input type="text" name="case_fee[condition]" value="<?=post('case_fee/condition');?>" placeholder="付款条件" style="width:24%" />
+				<input type="text" name="case_fee[pay_time]" value="<?=date('Y-m-d',post('case_fee/pay_time'));?>" placeholder="预估日期" class="date" style="width:15%" />
 				<input type="submit" name="submit[case_fee]" value="添加" />
 			</div>
 			<? }?>
@@ -249,9 +249,9 @@
 				<select name="case_fee_misc[receiver]" style="width:25%">
 					<? displayOption(array('承办律师','律所'));?>
 				</select>
-				<input type="text" name="case_fee_misc[fee]" value="<? displayPost('case_fee_misc/fee');?>" placeholder="数额" style="width:24%;"  />
-				<input type="text" name="case_fee_misc[comment]" value="<? displayPost('case_fee_misc/comment');?>" placeholder="付款条件" style="width:24%" />
-				<input type="text" name="case_fee_misc[pay_time]" value="<? displayPost('case_fee_misc/pay_time',true);?>" placeholder="预估日期" class="date" style="width:15%" />
+				<input type="text" name="case_fee_misc[fee]" value="<?=post('case_fee_misc/fee');?>" placeholder="数额" style="width:24%;"  />
+				<input type="text" name="case_fee_misc[comment]" value="<?=post('case_fee_misc/comment');?>" placeholder="付款条件" style="width:24%" />
+				<input type="text" name="case_fee_misc[pay_time]" value="<?=date('Y-m-d',post('case_fee_misc/pay_time'));?>" placeholder="预估日期" class="date" style="width:15%" />
 				<input type="submit" name="submit[case_fee_misc]" value="添加" />
 			</div>
 		</div>
@@ -304,18 +304,18 @@
 		<? if(!post('cases/is_query') && post('cases/classification')!='法律顾问'){?>
 		<div class="item">
 			<div class="title"><label>争议焦点：（案件标的）</label></div>
-			<textarea class="item" name="cases[focus]" type="text" rows="2"><? displayPost('cases/focus')?></textarea>
+			<textarea class="item" name="cases[focus]" type="text" rows="2"><?=post('cases/focus')?></textarea>
 		</div>
 		<? }?>
 	
 		<div class="item">
 			<div class="title"><label>案情简介：</label></div>
-			<textarea class="item" name="cases[summary]" type="text" rows="4"><? displayPost('cases/summary')?></textarea>
+			<textarea class="item" name="cases[summary]" type="text" rows="4"><?=post('cases/summary')?></textarea>
 		</div>
 	
 		<div class="item">
 			<div class="title"><label>备注：</label></div>
-			<textarea class="item" name="cases[comment]" type="text" rows="3"><? displayPost('cases/comment')?></textarea>
+			<textarea class="item" name="cases[comment]" type="text" rows="3"><?=post('cases/comment')?></textarea>
 		</div>
 	
 		<div class="submit">

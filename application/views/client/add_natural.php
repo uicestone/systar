@@ -17,11 +17,11 @@
 
 		<div class="item">
 			<div class="title"><label>姓名：</label></div>
-			<input name="client[name_en]" value="<? displayPost('client/name_en'); ?>" type="text" placeholder="英文" class="right" style="width:49%" />
-			<input name="client[name]" value="<? displayPost('client/name'); ?>" type="text" placeholder="中文" style="width:49%" />
+			<input name="client[name_en]" value="<?=post('client/name_en'); ?>" type="text" placeholder="英文" class="right" style="width:49%" />
+			<input name="client[name]" value="<?=post('client/name'); ?>" type="text" placeholder="中文" style="width:49%" />
 			<br />
-			<input type="text" name="client[birthday]" value="<? displayPost('client/birthday'); ?>" placeholder="生日" class="date right" style="width:49%" />
-			<input type="text" name="client[id_card]" value="<? displayPost('client/id_card'); ?>" placeholder="身份证" style="width:49%" />
+			<input type="text" name="client[birthday]" value="<?=post('client/birthday'); ?>" placeholder="生日" class="date right" style="width:49%" />
+			<input type="text" name="client[id_card]" value="<?=post('client/id_card'); ?>" placeholder="身份证" style="width:49%" />
 		</div>
 
 		<div class="item">
@@ -39,8 +39,8 @@
 			<select name="source[type]" style="width:30%">
 				<? displayOption(array('_ENUM','client_source','type'),post('source/type'))?>
 			</select>
-			<input type="text" name="source[detail]" value="<? displayPost('source/detail')?>" style="width:30%" <? if(!in_array(post('source/type'),array('其他网络','媒体','老客户介绍','合作单位介绍','其他')))echo 'disabled="disabled"';?> />
-			来源律师：<input type="text" name="client_extra[source_lawyer_name]" style="width:20%" value="<? displayPost('client_extra/source_lawyer_name')?>" />
+			<input type="text" name="source[detail]" value="<?=post('source/detail')?>" style="width:30%" <? if(!in_array(post('source/type'),array('其他网络','媒体','老客户介绍','合作单位介绍','其他')))echo 'disabled="disabled"';?> />
+			来源律师：<input type="text" name="client_extra[source_lawyer_name]" style="width:20%" value="<?=post('client_extra/source_lawyer_name')?>" />
 		</div>
 
 		<div class="item">
@@ -55,8 +55,8 @@
 				<select name="client_contact[type]" style="width:30%">
 					<? displayOption(array('_ENUM','client_contact','type'),post('client_contact/type'))?>
 				</select>
-				<input type="text" name="client_contact[content]" value="<? displayPost('client_contact/content')?>" style="width:30%" />
-				<input type="text" name="client_contact[comment]" value="<? displayPost('client_contact/comment')?>" style="width:30%" />
+				<input type="text" name="client_contact[content]" value="<?=post('client_contact/content')?>" style="width:30%" />
+				<input type="text" name="client_contact[comment]" value="<?=post('client_contact/comment')?>" style="width:30%" />
 
 				<input type="submit" name="submit[client_contact]" value="添加" />
 			</div>
@@ -66,7 +66,7 @@
 			<div class="title"><label>相关人</label><label id="clientClientAdd"><? echo post('client_client_extra/show_add_form')?'-':'+'?></label></div>
 			<?=$client_table?>
 			<div id="clientClientAddForm" <? if(post('client_client_extra/show_add_form'))echo 'style="display:block"';?>>
-				<input type="text" name="client_client_extra[name]" value="<? displayPost('client_client_extra/name')?>" placeholder="名称" autocomplete="client" autocomplete-input-name="client_client[client_right]" style="width:20%" />
+				<input type="text" name="client_client_extra[name]" value="<?=post('client_client_extra/name')?>" placeholder="名称" autocomplete="client" autocomplete-input-name="client_client[client_right]" style="width:20%" />
 
 				<select name="client_client[role]" style="width:13%">
 					<? displayOption(array('父','母',(post('client/gender')=='男'?'妻':'夫'),'亲属','朋友','其他','代理人'),post('client_client/role'))?>
@@ -74,8 +74,8 @@
 				<span class="autocomplete-no-result-menu">
 					<? displayCheckbox('单位','client_client_extra[character]',post('client_client_extra/character'),'单位')?>
 		
-					<input type="text" name="client_client_extra[phone]" value="<? displayPost('client_client_extra/phone')?>" placeholder="电话" style="width:20%" />
-					<input type="text" name="client_client_extra[email]" value="<? displayPost('client_client_extra/email')?>" placeholder="电邮" style="width:20%" />
+					<input type="text" name="client_client_extra[phone]" value="<?=post('client_client_extra/phone')?>" placeholder="电话" style="width:20%" />
+					<input type="text" name="client_client_extra[email]" value="<?=post('client_client_extra/email')?>" placeholder="电邮" style="width:20%" />
 				</span>
 				<input type="submit" name="submit[client_client]" value="添加" />
 			</div>
@@ -83,12 +83,12 @@
 
 		<div class="item">
 			<div class="title"><label>单位：</label></div>
-			<input type="text" name="client[work_for]" value="<? displayPost('client/work_for'); ?>" />
+			<input type="text" name="client[work_for]" value="<?=post('client/work_for'); ?>" />
 		</div>
 
 		<div class="item">
 			<div class="title"><label>职位：</label></div>
-			<input type="text" name="client[position]" value="<? displayPost('client/position'); ?>" />
+			<input type="text" name="client[position]" value="<?=post('client/position'); ?>" />
 		</div>
 
 		<div class="item">

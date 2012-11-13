@@ -17,7 +17,7 @@
 
 		<div class="item">
 			<div class="title"><label>名称：</label></div>
-			<input type="text" name="contact[name]" value="<? displayPost('contact/name'); ?>" />
+			<input type="text" name="contact[name]" value="<?=post('contact/name'); ?>" />
 		</div>
 
 		<div class="item">
@@ -33,7 +33,7 @@
 
 		<div class="item">
 			<div class="title"><label>简称：</label></div>
-			<input name="contact[abbreviation]" value="<? displayPost('contact/abbreviation'); ?>" type="text" />
+			<input name="contact[abbreviation]" value="<?=post('contact/abbreviation'); ?>" type="text" />
 		</div>
 
 		<div class="item">
@@ -44,8 +44,8 @@
 				<select name="contact_contact[type]" style="width:30%">
 					<? displayOption(array('_ENUM','client_contact','type'),post('contact_contact/type'))?>
 				</select>
-				<input type="text" name="contact_contact[content]" value="<? displayPost('contact_contact/content')?>" style="width:30%" />
-				<input type="text" name="contact_contact[comment]" value="<? displayPost('contact_contact/comment')?>" style="width:30%" />
+				<input type="text" name="contact_contact[content]" value="<?=post('contact_contact/content')?>" style="width:30%" />
+				<input type="text" name="contact_contact[comment]" value="<?=post('contact_contact/comment')?>" style="width:30%" />
 
 				<input type="submit" name="submit[contact_contact]" value="添加" />
 			</div>
@@ -57,7 +57,7 @@
 			<?=$contact_related?>
 
 			<div id="contactRelatedAddForm" <? if(!post('contact_related_extra/show_add_form'))echo 'style="display:none"';?>>
-				<label>名称：<input type="text" name="contact_related_extra[name]" value="<? displayPost('contact_related_extra/name')?>" style="width:20%" /></label>
+				<label>名称：<input type="text" name="contact_related_extra[name]" value="<?=post('contact_related_extra/name')?>" style="width:20%" /></label>
 
 				<label>关系：</label>
 				<select name="contact_related[role]" style="width:13%">
@@ -68,8 +68,8 @@
 				<br />
 				<? displayCheckbox('单位','contact_related_extra[character]',post('contact_related_extra/character'),'单位')?>
 
-				<label>电话：<input type="text" name="contact_related_extra[phone]" value="<? displayPost('contact_related_extra/phone')?>" style="width:20%" /></label>
-				<label>电邮：<input type="text" name="contact_related_extra[email]" value="<? displayPost('contact_related_extra/email')?>" style="width:20%" /></label>
+				<label>电话：<input type="text" name="contact_related_extra[phone]" value="<?=post('contact_related_extra/phone')?>" style="width:20%" /></label>
+				<label>电邮：<input type="text" name="contact_related_extra[email]" value="<?=post('contact_related_extra/email')?>" style="width:20%" /></label>
 			</div>
 		 </div>
 
@@ -81,7 +81,7 @@
 
 		<div class="item">
 			<div class="title"><label>备注：</label></div>
-			<textarea class="item" name="contact[comment]"><? displayPost('contact/comment'); ?></textarea>
+			<textarea class="item" name="contact[comment]"><?=post('contact/comment'); ?></textarea>
 		</div>
 
 		<div class="submit">

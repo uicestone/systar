@@ -13,11 +13,11 @@
 		<div class="item">
 			<div class="title"><label>基本：</label></div>
 			<div>
-			<input type="text" name="student[id_card]" value="<? displayPost('student/id_card'); ?>" placeholder="身份证" class="right" style="width:39%" />
-			<input type="text" name="student[name]" value="<? displayPost('student/name'); ?>" placeholder="姓名" style="width:59%" />
+			<input type="text" name="student[id_card]" value="<?=post('student/id_card'); ?>" placeholder="身份证" class="right" style="width:39%" />
+			<input type="text" name="student[name]" value="<?=post('student/name'); ?>" placeholder="姓名" style="width:59%" />
 			</div>
-			<input type="text" name="student[birthday]" value="<? displayPost('student/birthday'); ?>" class="birthday right" placeholder="生日" style="width:39%" />
-			<input name="student[race]" value="<? displayPost('student/race'); ?>" type="text" placeholder="民族" class="right" style="width:30%;margin-right:1%" />
+			<input type="text" name="student[birthday]" value="<?=post('student/birthday'); ?>" class="birthday right" placeholder="生日" style="width:39%" />
+			<input name="student[race]" value="<?=post('student/race'); ?>" type="text" placeholder="民族" class="right" style="width:30%;margin-right:1%" />
 			<? displayRadio(array('男','女'),'student[gender]',post('student/gender'))?>
 			&nbsp;&nbsp;
 			<? displayCheckbox('团员','student[youth_league]',post('student/youth_league'),'1')?>
@@ -25,8 +25,8 @@
 
 		<div class="item">
 			<div class="title"><label>生源：</label></div>
-			<label>类别：</label><input name="student[type]" value="<? displayPost('student/type'); ?>" type="text" style="width:40%" disabled="disabled" />
-			<label>初中：</label><input name="student[junior_school]" value="<? displayPost('student/junior_school'); ?>" type="text" style="width:40%" />
+			<label>类别：</label><input name="student[type]" value="<?=post('student/type'); ?>" type="text" style="width:40%" disabled="disabled" />
+			<label>初中：</label><input name="student[junior_school]" value="<?=post('student/junior_school'); ?>" type="text" style="width:40%" />
 		</div>
 
 		<div class="item">
@@ -34,22 +34,22 @@
 			<select name="student_class[class]"<? if(!is_logged('jiaowu'))echo' disabled="disabled"'?> style="width:20%">
 			<? displayOption(NULL,post('student_class/class'),true,'class','grade','name',"grade>='".$_SESSION['global']['highest_grade']."'")?>
 			</select>
-			<input type="text" name="student_class[num_in_class]" title="班中学号" value="<? displayPost('student_class/num_in_class')?>" placeholder="班中学号"<? if(!is_logged('jiaowu'))echo' disabled="disabled"'?> style="width:20%" />
-			<span class="field">班主任：<? displayPost('student_extra/class_teacher_name') ?></span>
+			<input type="text" name="student_class[num_in_class]" title="班中学号" value="<?=post('student_class/num_in_class')?>" placeholder="班中学号"<? if(!is_logged('jiaowu'))echo' disabled="disabled"'?> style="width:20%" />
+			<span class="field">班主任：<?=post('student_extra/class_teacher_name') ?></span>
 		</div>
 
 		<div class="item">
 			<div class="title"><label>联系方式：</label></div>
 			<div>
 			<? displayCheckbox('住宿','student[resident]',post('student/resident'),'1')?>
-			<input type="text" name="student[dormitory]" value="<? displayPost('student/dormitory'); ?>"<? if(!post('student/resident'))echo ' disabled="disabled"'?> placeholder="宿舍" style="width:20%" />
-			<input type="text" name="student[mobile]" value="<? displayPost('student/mobile'); ?>" placeholder="手机" style="width:20%" />
-			<input type="text" name="student[phone]" value="<? displayPost('student/phone'); ?>" placeholder="固定电话" style="width:20%" />
-			<input type="text" name="student[email]" value="<? displayPost('student/email'); ?>" placeholder="电子邮件" style="width:29%" />
+			<input type="text" name="student[dormitory]" value="<?=post('student/dormitory'); ?>"<? if(!post('student/resident'))echo ' disabled="disabled"'?> placeholder="宿舍" style="width:20%" />
+			<input type="text" name="student[mobile]" value="<?=post('student/mobile'); ?>" placeholder="手机" style="width:20%" />
+			<input type="text" name="student[phone]" value="<?=post('student/phone'); ?>" placeholder="固定电话" style="width:20%" />
+			<input type="text" name="student[email]" value="<?=post('student/email'); ?>" placeholder="电子邮件" style="width:29%" />
 			</div>
 			<div>
-			<input type="text" name="student[neighborhood_committees]" value="<? displayPost('student/neighborhood_committees'); ?>" placeholder="居委会" class="right" style="width:15%" />
-			<input type="text" name="student[address]" value="<? displayPost('student/address'); ?>" placeholder="地址" style="width:83%" />
+			<input type="text" name="student[neighborhood_committees]" value="<?=post('student/neighborhood_committees'); ?>" placeholder="居委会" class="right" style="width:15%" />
+			<input type="text" name="student[address]" value="<?=post('student/address'); ?>" placeholder="地址" style="width:83%" />
 			</div>
 		</div>
 
@@ -59,25 +59,25 @@
 			<? exportTable($q_student_relatives,$field_student_relatives,NULL,false,false);?>
 
 			<div id="studentRelativesAddForm">
-				<input type="text" name="student_relatives[name]" value="<? displayPost('student_relatives/name')?>" placeholder="姓名" style="width:20%" />
+				<input type="text" name="student_relatives[name]" value="<?=post('student_relatives/name')?>" placeholder="姓名" style="width:20%" />
 
 				<select name="student_relatives[relationship]" style="width:20%">
 					<? displayOption(array('父','母','其他'),post('student_relatives/relationship'))?>
 				</select>
-				<input type="text" name="student_relatives[contact]" value="<? displayPost('student_relatives/contact')?>" placeholder="联系电话" style="width:25%" />
-				<input type="text" name="student_relatives[work_for]" value="<? displayPost('student_relatives/work_for')?>" placeholder="工作单位" style="width:25%" />
+				<input type="text" name="student_relatives[contact]" value="<?=post('student_relatives/contact')?>" placeholder="联系电话" style="width:25%" />
+				<input type="text" name="student_relatives[work_for]" value="<?=post('student_relatives/work_for')?>" placeholder="工作单位" style="width:25%" />
 				<input type="submit" name="submit[student_relatives]" value="添加" />
 			</div>
 		 </div>
 
 		<div class="item">
 			<div class="title">银行账号：</div>
-			<input type="text" name="student[bank_account]" value="<? displayPost('student/bank_account'); ?>" />
+			<input type="text" name="student[bank_account]" value="<?=post('student/bank_account'); ?>" />
 		</div>
 
 		<div class="item">
 			<div class="title">疾病史：</div>
-			<textarea name="student[disease_history]" rows="2"><? displayPost('student/disease_history'); ?></textarea>
+			<textarea name="student[disease_history]" rows="2"><?=post('student/disease_history'); ?></textarea>
 		</div>
 		
 		<div class="item">
@@ -97,9 +97,9 @@
 				<? displayOption(array('_ENUM','student_behaviour','type'),post('student_behaviour/type')) ?>
 				</select>
 
-				<input type="text" name="student_behaviour[date]" value="<? displayPost('student_behaviour/date')?>" placeholder="日期" class="date" style="width:20%" />
+				<input type="text" name="student_behaviour[date]" value="<?=post('student_behaviour/date')?>" placeholder="日期" class="date" style="width:20%" />
 
-				<input type="text" name="student_behaviour[name]" value="<? displayPost('student_behaviour/name')?>" placeholder="概要" style="width:40%" />
+				<input type="text" name="student_behaviour[name]" value="<?=post('student_behaviour/name')?>" placeholder="概要" style="width:40%" />
 				
 				<select name="student_behaviour[level]" style="width:20%">
 				<? displayOption(array('_ENUM','student_behaviour','level'),post('student_behaviour/level')) ?>
@@ -107,7 +107,7 @@
 
 				<input type="submit" name="submit[student_behaviour]" value="添加" />
 				<br />
-				<textarea name="student_behaviour[content]" placeholder="具体事项记载" rows="1"><? displayPost('student_behaviour/content') ?></textarea>
+				<textarea name="student_behaviour[content]" placeholder="具体事项记载" rows="1"><?=post('student_behaviour/content') ?></textarea>
 			</div>
 			<? } ?>
 		 </div>
@@ -121,11 +121,11 @@
 			<? exportTable($q_student_comment,$field_student_comment,NULL,false,false);?>
 
 			<div id="studentCommentAddForm">
-				<input type="text" name="student_comment[title]" value="<? displayPost('student_comment/title') ?>" placeholder="标题" style="width:80%" />
-				<!--<input type="text" name="student_comment_extra[recipients_name]" value="<? displayPost('student_comment_extra/recipients_name') ?>" placeholder="密送至" title="留空则家长和所有任课老师可见" style="width:10%" />-->
+				<input type="text" name="student_comment[title]" value="<?=post('student_comment/title') ?>" placeholder="标题" style="width:80%" />
+				<!--<input type="text" name="student_comment_extra[recipients_name]" value="<?=post('student_comment_extra/recipients_name') ?>" placeholder="密送至" title="留空则家长和所有任课老师可见" style="width:10%" />-->
 				<input type="submit" name="submit[student_comment]" value="保存" />
 				<br />
-				<textarea name="student_comment[content]" placeholder="正文"><? displayPost('student_comment/content') ?></textarea>
+				<textarea name="student_comment[content]" placeholder="正文"><?=post('student_comment/content') ?></textarea>
 			</div>
 		 </div>
 		 <? } ?>

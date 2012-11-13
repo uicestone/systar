@@ -47,7 +47,7 @@ function stylesheet($stylesheet_path){
 }
 
 /*
- * 试探性地引入免缓存模板。之前的view采用html嵌入<?php ?>方式，比如<input name="client[name]" value="<? displayPost('client/name') ?>" />
+ * 试探性地引入免缓存模板。之前的view采用html嵌入<?php ?>方式，比如<input name="client[name]" value="<?=post('client/name') ?>" />
  * 引入末版体系之后，view文件的书写将采用<input name="client[name]" value="{post client/name}" />
  * 慎用模板引擎，会降低运行效率
  */
@@ -349,7 +349,7 @@ function forceExport(){
  * 用于view视图中，直接将长期当前保存在当前控制器数组下的post数组中的某一项列出
  * 此项一般也是多极数组
  * 与view中input的name配合使用
- * 如<input name="client[name]" value="<? displayPost('client/name') ?>" />（见view/client_add.htm）
+ * 如<input name="client[name]" value="<?=post('client/name') ?>" />（见view/client_add.htm）
  */
 function displayPost($fieldName,$strtotime=false,$date_form='Y-m-d'){
 	$val=array_dir('_SESSION/'.CONTROLLER.'/post/'.$fieldName);

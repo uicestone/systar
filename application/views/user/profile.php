@@ -19,7 +19,7 @@ $(function(){
 		<?if($this->config->item('ucenter')){?>
 		<div class="item">
 			<div class="title"><label>用户名：</label></div>
-			<input type="text" name="user[username]" value="<? displayPost('user/username')?>" />
+			<input type="text" name="user[username]" value="<?=post('user/username')?>" />
 		</div>
 		<?}?>
 

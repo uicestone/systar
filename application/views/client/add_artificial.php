@@ -17,8 +17,8 @@
 
 		<div class="item">
 			<div class="title"><label>名称：</label></div>
-			<input type="text" name="client[abbreviation]" value="<? displayPost('client/abbreviation')?>" class="right" style="width:28%" />
-			<input type="text" name="client[name]" value="<? displayPost('client/name')?>" style="width:70%" />
+			<input type="text" name="client[abbreviation]" value="<?=post('client/abbreviation')?>" class="right" style="width:28%" />
+			<input type="text" name="client[name]" value="<?=post('client/name')?>" style="width:70%" />
 		</div>
 
 		<div class="item">
@@ -36,8 +36,8 @@
 			<select name="source[type]" style="width:30%">
 				<? displayOption(array('_ENUM','client_source','type'),post('source/type'))?>
 			</select>
-			<input type="text" name="source[detail]" value="<? displayPost('source/detail')?>" style="width:30%" <? if(!in_array(post('source/type'),array('其他网络','媒体','老客户介绍','合作单位介绍','其他')))echo 'disabled="disabled"';?> />
-			<label>来源律师：<input type="text" name="client_extra[source_lawyer_name]" style="width:20%;" value="<? displayPost('client_extra/source_lawyer_name')?>" /></label>
+			<input type="text" name="source[detail]" value="<?=post('source/detail')?>" style="width:30%" <? if(!in_array(post('source/type'),array('其他网络','媒体','老客户介绍','合作单位介绍','其他')))echo 'disabled="disabled"';?> />
+			<label>来源律师：<input type="text" name="client_extra[source_lawyer_name]" style="width:20%;" value="<?=post('client_extra/source_lawyer_name')?>" /></label>
 		</div>
 
 		<div class="item">
@@ -47,8 +47,8 @@
 				<select name="client_contact[type]" style="width:30%">
 					<? displayOption(array('_ENUM','client_contact','type'),post('client_contact/type'))?>
 				</select>
-				<input type="text" name="client_contact[content]" value="<? displayPost('client_contact/content')?>" style="width:30%" />
-				<input type="text" name="client_contact[comment]" value="<? displayPost('client_contact/comment')?>" style="width:30%" />
+				<input type="text" name="client_contact[content]" value="<?=post('client_contact/content')?>" style="width:30%" />
+				<input type="text" name="client_contact[comment]" value="<?=post('client_contact/comment')?>" style="width:30%" />
 
 				<input type="submit" name="submit[client_contact]" value="添加" />
 			</div>

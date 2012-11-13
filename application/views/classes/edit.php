@@ -11,12 +11,12 @@
 	<div class="contentTable">
 		<div class="item">
 			<div class="title">名称</div>
-			<div class="field"><? displayPost('class/name') ?></div>
+			<div class="field"><?=post('class/name') ?></div>
 		</div>
 
 		<div class="item">
 			<div class="title">班主任</div>
-			<input type="text" name="class_extra[class_teacher_name]" value="<? displayPost('class_extra/class_teacher_name') ?>" />
+			<input type="text" name="class_extra[class_teacher_name]" value="<?=post('class_extra/class_teacher_name') ?>" />
 		</div>
 
 		<div class="item">
