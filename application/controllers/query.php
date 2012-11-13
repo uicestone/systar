@@ -2,6 +2,7 @@
 class Query extends SS_controller{
 	function __construct(){
 		parent::__construct();
+		$this->actual_table='case';
 	}
 	
 	function filed(){
@@ -51,7 +52,7 @@ class Query extends SS_controller{
 			if(is_posted('submit/advanced')){
 				$case_id=post('query/id');
 				unset($_SESSION[CONTROLLER]['post']);
-				redirect('case?edit='.$case_id);
+				redirect('cases/edit/'.$case_id);
 			}
 			try{
 				$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$_POST);

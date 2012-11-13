@@ -140,7 +140,6 @@ class SS_Controller extends CI_Controller{
 			$this->load->require_head=false;
 	
 		}elseif($class=='query'){
-			$this->actual_table='case';
 			$this->as_popup_window=FALSE;
 			
 	

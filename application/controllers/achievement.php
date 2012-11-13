@@ -85,7 +85,7 @@ class Achievement extends SS_controller{
 					->setData($this->achievement->getRecentList())
 					->generate();
 				
-		$this->main_view_loaded=TRUE;
+		$this->load->main_view_loaded=TRUE;
 		$this->load->addViewData('list',$table);
 
 		$this->load->view('list');	

@@ -695,7 +695,7 @@ class Cases extends SS_controller{
 		
 		$this->load->view('cases/edit',$this->load->view_data);
 		
-		$this->main_view_loaded=TRUE;
+		$this->load->main_view_loaded=TRUE;
 	}
 
 	function documentDownload($case_document_id){

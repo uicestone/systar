@@ -282,7 +282,7 @@ class Schedule extends SS_controller{
 		}
 		
 		$this->load->view('schedule/edit');
-		$this->main_view_loaded=TRUE;
+		$this->load->main_view_loaded=TRUE;
 	}
 
 	function listWrite(){

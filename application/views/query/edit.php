@@ -19,7 +19,7 @@
 					<? displayRadio(array('男','女'),'client[gender]',post('client/gender')) ?>
 				</span>
 				<select name="query[query_type]" style="width:11%">
-					<? displayOption(array('_ENUM','query','type'),post('query/query_type'))?>
+					<? displayOption(array('_ENUM','case','query_type'),post('query/query_type'))?>
 				</select>
 				<input type="text" name="query[first_contact]" value="<? displayPost('query/first_contact')?>" title="首次接待时间" class="date" style="width:11%" />
 			</div>
