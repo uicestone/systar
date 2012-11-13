@@ -6,8 +6,9 @@ class Test extends SS_controller{
 	}
 	
 	function index(){
-		$this->load->library('session');
-		print_r($_SESSION);
+		/*$this->load->library('session');
+		print_r($_SESSION);*/
+		$this->load->view('test');
 	}
 }
 

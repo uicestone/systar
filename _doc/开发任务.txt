@@ -1,0 +1,53 @@
+任务墙
+	1. 前端效果：
+		http://jqueryui.com/sortable/#portlets
+		http://starsys/test
+
+	2. 描述
+		任务墙是对现有“日程”数据的另一种整理方式，与schedule/calendar把每个任务列在日程表中不同，任务墙允许不按时间来排列未完成的任务，可以按照用户意愿自由排列，拍列顺序保存在数据库中。
+		用户点击可以看到任务详情，关联的人，所属的案件（每个任务一定有一个所属案件）或者关联客户。
+		进一步地，用户之间相互提出的需求也会进入对方的任务墙，由需求接受方安排时间、给予回馈。
+		同时，用户自己点击任务，弹出后的菜单中，可以标记任务状态，计划或实际完成时间（自动进入schedule/calendar）
+
+	3. 涉及编码
+		3.1 前端（陆）
+			3.1.2 列表展示视图，将每一列的任务数据输出，视图变量格式如下：
+				$task_board=array(
+					0=>array(
+						0=>array(
+							'title'=>'',
+							'content'=>'',
+						)//一个任务
+						1=>array(...),
+						...
+					)//一列
+					...
+				);
+			3.1.3 拖放操作后向服务器发送最新排列数据
+				请求方式：post
+				字段名：sortData
+				（后台获取方式：$sort_data=json_decode($this->input->post('sortData'))）;
+				数据格式（json）：[[“task_1”,”task_3”],[],[“task_2”],[“task_10”]]
+					此数组表示：墙共有4列，第一列从上到下依次是task_1,task_3，数字代表数据库schedule表中的id
+
+		3.2 后端（胖胖和王淼各自尝试写）
+			3.2.1 数据库：数据库请在本地phpMyAdmin更改，修改表结构的sql语句按照格式粘贴到/_doc/upgrade.sql，按照/_doc/编码规范.txt的提示
+				建立schedule_taskboard表，包含字段至少有：
+					#字段名称（数据类型，索引类型，外键／自增属性）#注释
+					id(int, primary, autoincreased),
+					uid(int, unique, foreign:user.id),
+					sort_data(text),#json方式字符串保存数组
+					time(int, index)
+			3.2.2 任务墙页面：/schedule/taskboard
+				控制器和方法：Schedule::taskBoard()
+				功能：从数据库获得本用户($_SESSION['id'])的任务排列，根据这些排列从schedule表中取得title, content数据，生成3.1.2中声明的视图数据格式
+				牵涉到的文件和方法：
+					/application/controller/schedule.php:taskBoard()
+					/application/controller/schedule_model.php:getTaskBoardSort($uid)
+					/application/controller/schedule_model.php:fetch($id)//如果调用这个方法，那么每个任务需要执行一次sql。可以考虑写一个getList()方法，或者利用现有的getList()方法，写向前兼容的附加功能，如getList($condition=NULL);
+			3.2.3 接受排列数据更新请求：/schedule/settaskboardsort
+				控制器和方法：Schedule:setTaskBoardSort()
+					注意，这是一个ajax响应页面，不需要输出页面，只需要输出数据，因此$this->load->require_head=false;
+					后台获得请求数据的方法：$this->input->post('foo');$this->input->get('bar');
+					后台输出数据交给前端ajax的方法：echo json_encode($array_foo);//将一个数组转化成一个字符串
+				功能：将当前用户给出的任务排列方式存入数据库
