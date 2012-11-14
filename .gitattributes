@@ -6,6 +6,9 @@
 *.html diff=html eol=lf
 *.css eol=lf
 *.js eol=lf
+*.sql eol=lf
+*.txt eol=lf
+
 
 # Standard to msysgit
 *.doc	 diff=astextplain
