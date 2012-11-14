@@ -9,6 +9,8 @@ class Client extends SS_Controller{
 	}
 
 	function lists($method=NULL){
+		$this->session->set_userdata('last_list_action',$this->input->server('request_uri'));
+
 		if($this->input->post('delete')){
 			$clients_to_delete=array_trim($this->input->post('client_check'));
 			$this->client->delete($clients_to_delete);

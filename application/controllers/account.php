@@ -42,8 +42,8 @@ class Account extends SS_controller{
 	}
 
 	function edit($id=NULL){
-		$this->load->model('client_model');
-		$this->load->model('case_model');
+		$this->load->model('client_model','client');
+		$this->load->model('cases_model','cases');
 		
 		$this->getPostData($id,function($CI){
 			if($this->input->get('case')){
@@ -72,7 +72,7 @@ class Account extends SS_controller{
 			$_SESSION['account']['post']=array_replace_recursive($_SESSION['account']['post'],$_POST);
 			
 			if(is_posted('submit/recognizeOldClient')){
-				$client_check=client_check(post('account_extra/client_name'),'array');
+				$client_check=$this->client->check(post('account_extra/client_name'),'array');
 		
 				if($client_check<0){
 					$submitable=false;
@@ -101,7 +101,7 @@ class Account extends SS_controller{
 			}
 			//根据type设置amount的正负号
 		
-			post('account/case',case_getIdByCaseFee(post('account/case_fee')));
+			post('account/case',$this->cases->getIdByCaseFee(post('account/case_fee')));
 			//根据提交的case_fee先找出case.id
 		
 			post('account',array_trim(post('account')));//imperfect 2012/5/25 uicestone 为了让没有case_fee 和case的account能够保存
@@ -111,19 +111,22 @@ class Account extends SS_controller{
 		
 		if(post('account/client')){
 			//若有客户，则获得相关客户的名称
-			post('account_extra/client_name',client_fetch(post('account/client'),'name'));
+			post('account_extra/client_name',$this->client->fetch(post('account/client'),'name'));
 		
 			//根据客户ID获得收费array
-			$case_fee_array=case_getFeeListByClient(post('account/client'));
+			$case_fee_array=$this->cases->getFeeListByClient(post('account/client'));
 		}
 		
 		if(post('account/case')){
 			//指定案件时，根据案件id获得客户array
-			$case_client_array=client_getListByCase(post('account/case'));
+			$case_client_array=$this->client->getListByCase(post('account/case'));
 		
 			//根据案件ID获得收费array
-			$case_fee_array=case_getFeeOptions(post('account/case'));
+			$case_fee_array=$this->cases->getFeeOptions(post('account/case'));
 		}
+		
+		$this->load->view('account/edit');
+		$this->load->main_view_loaded=true;
 	}
 }
 ?>

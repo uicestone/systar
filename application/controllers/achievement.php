@@ -5,6 +5,8 @@ class Achievement extends SS_controller{
 	}
 	
 	function lists(){
+		$this->session->set_userdata('last_list_action',$this->input->server('request_uri'));
+
 		$field=array(
 			'type'=>array('title'=>'类别','td_title'=>'width="85px"'),
 			'case_name'=>array('title'=>'案件','td_title'=>'width="25%"','content'=>'<a href="case?edit={case}" class="right" style="margin-left:10px;">查看</a>{case_name}'),
@@ -68,7 +70,7 @@ class Achievement extends SS_controller{
 
 	function recent(){
 		
-		$this->session->set_userdata('last_list_action',$_SERVER['REQUEST_URI']);
+		$this->session->set_userdata('last_list_action',$this->input->server('request_uri'));
 		
 		$field=array(
 			'type'=>array('title'=>'类别','td_title'=>'width="85px"'),
@@ -93,7 +95,7 @@ class Achievement extends SS_controller{
 	
 	function expired(){
 			
-		$this->session->set_userdata('last_list_action',$_SERVER['REQUEST_URI']);
+		$this->session->set_userdata('last_list_action',$this->input->server('request_uri'));
 		
 		$field=array(
 			'type'=>array('title'=>'类别','td_title'=>'width="85px"'),
@@ -117,7 +119,7 @@ class Achievement extends SS_controller{
 	
 	function caseBonus(){
 		
-		$this->session->set_userdata('last_list_action',$_SERVER['REQUEST_URI']);
+		$this->session->set_userdata('last_list_action',$this->input->server('request_uri'));
 		
 		$field=array(
 			'staff_name'=>array('title'=>'人员'),
@@ -136,7 +138,7 @@ class Achievement extends SS_controller{
 
 	function teambonus(){
 		
-		$this->session->set_userdata('last_list_action',$_SERVER['REQUEST_URI']);
+		$this->session->set_userdata('last_list_action',$this->input->server('request_uri'));
 		
 		$field=array(
 			'staff_name'=>array('title'=>'人员'),

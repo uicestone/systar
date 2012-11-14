@@ -205,7 +205,7 @@
 				<? } ?>
 				
 				<? if(is_logged('finance')){?>
-				<button type="button" onclick="showWindow('account?add&case=<?=post('cases/id')?>')">到账</button>
+				<button type="button" onclick="showWindow('account/add?case=<?=post('cases/id')?>')">到账</button>
 				<? }?>
 				
 				<? if(is_logged('finance')){?>
@@ -215,10 +215,12 @@
 	
 			<div class="title">
 				<div id="caseFeeTimingAddForm" <? if(!post('cases/timing_fee'))echo 'style="display:none"';?>>
-					<? if(isset($case_fee_timing_string) && $case_fee_timing_string!=''){echo $case_fee_timing_string;}else{?>
+					<?if(isset($case_fee_timing_string) && $case_fee_timing_string!=''){?>
+					<?=$case_fee_timing_string?>
+					<?}else{?>
 					包含：<input type="text" name="case_fee_timing[included_hours]" value="<?=post('case_fee_timing/included_hours');?>" style="width:3%" />小时&nbsp;
-					账单起始日：<input type="text" name="case_fee_timing[time_start]" value="<?=date('Y-m-d',post('case_fee_timing/time_start'));?>" class="date" style="width:11%" />&nbsp;
-					账单日：<input type="text" name="case_fee_timing[bill_day]" value="<?=post('case_fee_timing/bill_day');?>" style="width:3%;" />日&nbsp;
+					账单起始日：<input type="text" name="case_fee_timing_extra[time_start]" value="<?=post('case_fee_timing_extra/time_start')?>" class="date" style="width:11%" />&nbsp;
+					账单日：<input type="text" name="case_fee_timing[bill_day]" value="<?=post('case_fee_timing/bill_day')?>" style="width:3%;" />日&nbsp;
 					付款日：<input type="text" name="case_fee_timing[payment_day]" value="<?=post('case_fee_timing/payment_day');?>" style="width:3%;" />日&nbsp;
 					付款周期：<input type="text" name="case_fee_timing[payment_cycle]" value="<?=post('case_fee_timing/payment_cycle');?>" style="width:3%;" />个月&nbsp;
 					合同周期：<input type="text" name="case_fee_timing[contract_cycle]" value="<?=post('case_fee_timing/contract_cycle');?>" style="width:3%;" />个月&nbsp;
@@ -234,7 +236,7 @@
 				</select>
 				<input type="text" name="case_fee[fee]" value="<?=post('case_fee/fee');?>" placeholder="数额" style="width:24%;" />
 				<input type="text" name="case_fee[condition]" value="<?=post('case_fee/condition');?>" placeholder="付款条件" style="width:24%" />
-				<input type="text" name="case_fee[pay_time]" value="<?=date('Y-m-d',post('case_fee/pay_time'));?>" placeholder="预估日期" class="date" style="width:15%" />
+				<input type="text" name="case_fee_extrapay_time]" value="<?=post('case_fee_extra/pay_time')?>" placeholder="预估日期" class="date" style="width:15%" />
 				<input type="submit" name="submit[case_fee]" value="添加" />
 			</div>
 			<? }?>
@@ -251,7 +253,7 @@
 				</select>
 				<input type="text" name="case_fee_misc[fee]" value="<?=post('case_fee_misc/fee');?>" placeholder="数额" style="width:24%;"  />
 				<input type="text" name="case_fee_misc[comment]" value="<?=post('case_fee_misc/comment');?>" placeholder="付款条件" style="width:24%" />
-				<input type="text" name="case_fee_misc[pay_time]" value="<?=date('Y-m-d',post('case_fee_misc/pay_time'));?>" placeholder="预估日期" class="date" style="width:15%" />
+				<input type="text" name="case_fee_misc_extra[pay_time]" value="<?=post('case_fee_misc_extra/pay_time')?>" placeholder="预估日期" class="date" style="width:15%" />
 				<input type="submit" name="submit[case_fee_misc]" value="添加" />
 			</div>
 		</div>
@@ -280,10 +282,10 @@
 			<div class="title">
 				<span class="right">
 					<? echo $schedule_time; ?>小时
-					<a href="schedule?list&amp;case=<? echo post('cases/id')?>">所有日志>></a>
+					<a href="/schedule/lists?case=<? echo post('cases/id')?>">所有日志>></a>
 				</span>
 				<label>最新日志：
-					<a href="javascript:showWindow('schedule?add&case=<? echo post('cases/id')?>')">添加>></a>
+					<a href="javascript:showWindow('schedule/add?case=<? echo post('cases/id')?>')">添加>></a>
 				</label>
 			</div>
 			<?=$case_schedule_table?>
@@ -292,10 +294,10 @@
 		<div class="item">
 			<div class="title">
 				<span class="right">
-					<a href="schedule?plan&case=<? echo post('cases/id')?>">所有计划>></a>
+					<a href="/schedule/plan?case=<? echo post('cases/id')?>">所有计划>></a>
 				</span>
 				<label>日程计划：
-					<a href="javascript:showWindow('schedule?add&case=<? echo post('cases/id')?>&completed=0')">添加>></a>
+					<a href="javascript:showWindow('schedule/add?case=<? echo post('cases/id')?>&completed=0')">添加>></a>
 				</label>
 			</div>
 			<?$case_plan_table?>

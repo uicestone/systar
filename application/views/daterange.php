@@ -7,7 +7,9 @@
 			<input style="display:none;" name="date_field" value="<?=$date_field?>" />
 
 			<tr><td colspan="2"><input type="submit" name="date_range" value="提交" />
+<?if(option('in_date_range')){?>
 				<input type="submit" name="date_range_cancel" value="取消" tabindex="1" />
+<?}?>
 			</td></tr>
 		</tbody>
 	</table>

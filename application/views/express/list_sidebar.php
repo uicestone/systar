@@ -1,1 +1,0 @@
-<? echo $search_bar?>

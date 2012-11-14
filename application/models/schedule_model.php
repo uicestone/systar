@@ -58,11 +58,15 @@ class Schedule_model extends SS_Model{
 		return $scheduleArray;
 	}
 	
-	function reviewSelected(){
-		$_POST=array_trim($_POST);
-		if($this->input->post('schedule_check')){
-			$condition = db_implode($this->input->post('schedule_check'), $glue = ' OR ','id','=',"'","'", '`','key');
+	/**
+	 * 根据post提交的数组，将日志标记为已审核，审核时间为自报时间
+	 */
+	function review($post){
+		$post=array_trim($post);
+		if($post){
+			$condition = db_implode($post, $glue = ' OR ','id','=',"'","'", '`','key');
 			db_update('schedule',array('hours_checked'=>'#hours_own#'),$condition);
+			return true;
 		}
 	}
 	

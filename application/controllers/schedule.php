@@ -48,11 +48,11 @@ class Schedule extends SS_controller{
 	}
 	
 	function lists($method=NULL){
-		$this->session->set_userdata('last_list_action',$_SERVER['REQUEST_URI']);
+		$this->session->set_userdata('last_list_action',$this->input->server('request_uri'));
 
 		if($this->input->post('review_selected') && is_logged('partner')){
 			//在列表中批量审核所选日志
-			$this->schedule->reviewSelected();
+			$this->schedule->review($this->input->post('schedule_check'));
 		}
 		$field=array(
 			'checkbox'=>array('title'=>'<input type="checkbox" name="schedule_checkall">','content'=>'<input type="checkbox" name="schedule_check[{id}]" >','td_title'=>' width="38px"','orderby'=>false),
@@ -129,10 +129,10 @@ class Schedule extends SS_controller{
 			
 			$table = $section->addTable('schedule_billdoc');
 			
-			foreach($this->table->data as $line_name=>$line){
+			foreach($this->table->rows as $line_name=>$line){
 				$table->addRow();
 				foreach($line as $cell_name=>$cell){
-					$table->addCell(1750)->addText(strip_tags($cell['html']));
+					$table->addCell(1750)->addText(strip_tags($cell['data']));
 				}
 			}
 			
@@ -143,9 +143,12 @@ class Schedule extends SS_controller{
 			
 			$path=iconv('utf-8','gbk','temp/'.$filename);
 			
-			$this->document->exportHead($filename);
+			//$this->document->exportHead($filename);
 
 			$objWriter->save('php://output');
+			$this->load->require_head=false;
+			$this->load->main_view_loaded=true;
+			$this->load->sidebar_loaded=true;
 		
 		}else{
 			$tableView=$this->table->setMenu((is_logged('partner')?'<input type="submit" name="review_selected" value="审核" />':'').'<input type="submit" name="export" value="导出" />','left')
@@ -203,11 +206,11 @@ class Schedule extends SS_controller{
 				showMessage('没有选择客户','warning');
 			}
 			
-			if(!strtotime(post('schedule/time_start'))){
+			if(!strtotime(post('schedule_extra/time_start'))){
 				$submitable=false;
 				showMessage('开始时间格式错误','warning');
 			}else{
-				post('schedule/time_start',strtotime(post('schedule/time_start')));
+				post('schedule/time_start',strtotime(post('schedule_extra/time_start')));
 			}
 		
 			post('schedule/time_end',post('schedule/time_start')+post('schedule/hours_own')*3600);
@@ -248,6 +251,10 @@ class Schedule extends SS_controller{
 			$this->processSubmit($submitable);
 		}
 		
+		if(post('schedule/time_start')){
+			post('schedule_extra/time_start',date('Y-m-d H:i:s',post('schedule/time_start')));
+		}
+		
 		//为scheduleType的Radio准备值
 		if(post('schedule/case')<=10 && post('schedule/case')>0){
 			post('schedule_extra/type',1);
@@ -266,15 +273,13 @@ class Schedule extends SS_controller{
 		//准备客户数组
 		$client_array=$this->client->getListByCase(post('schedule/case'));
 		
-		$this->view_data+=compact('case_array','client_array');
+		$this->load->addViewArrayData(compact('case_array','client_array'));
 		
 		//获得案名
-		$q_case="SELECT name FROM `case` WHERE id='".post('schedule/case')."'";
-		post('schedule_extra/case_name',db_fetch_field($q_case));
+		post('schedule_extra/case_name',$this->cases->fetch(post('schedule/case'),'name'));
 		
 		if(post('schedule/client')){
-			$q_client="SELECT abbreviation FROM client WHERE id = '".post('schedule/client')."'";
-			post('schedule_extra/client_name',db_fetch_field($q_client));	
+			post('schedule_extra/client_name',$this->client->fetch(post('schedule/client'),'name'));	
 		}
 		
 		if(post('schedule/document')){
@@ -282,7 +287,7 @@ class Schedule extends SS_controller{
 		}
 		
 		$this->load->view('schedule/edit');
-		$this->load->main_view_loaded=TRUE;
+		$this->load->main_view_loaded=true;
 	}
 
 	function listWrite(){
@@ -308,7 +313,7 @@ class Schedule extends SS_controller{
 	
 	function outPlan(){
 		
-		$this->session->set_userdata('last_list_action',$_SERVER['REQUEST_URI']);
+		$this->session->set_userdata('last_list_action',$this->input->server('request_uri'));
 		
 		$field=Array(
 			'staff_name'=>array('title'=>'人员','content'=>'<a href="schedule/lists?staff={staff}"> {staff_name}</a>','td_title'=>'width="60px"'),

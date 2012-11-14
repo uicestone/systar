@@ -26,6 +26,8 @@ class Cases extends SS_controller{
 	}
 	
 	function lists($para=NULL){
+		$this->session->set_userdata('last_list_action',$this->input->server('request_uri'));
+
 		$field=array(
 			'time_contract'=>array('title'=>'案号','td_title'=>'width="180px"','td'=>'title="立案时间：{time_contract}"','content'=>'<a href="/cases/edit/{id}">{num}</a>'),
 			'name'=>array('title'=>'案名','content'=>'{name}'),
@@ -76,12 +78,12 @@ class Cases extends SS_controller{
 		$my_roles=$this->cases->getMyRoles($case_role);
 		//本人的本案职位
 		
-		$this->load->view_data+=compact('case_role','responsible_partner','lawyers','my_roles');
+		$this->load->addViewArrayData(compact('case_role','responsible_partner','lawyers','my_roles'));
 		
 		$submitable=false;
 		
 		if($this->input->post('submit')){
-			$_SESSION['cases']['post']=array_replace_recursive($_SESSION['cases']['post'],$_POST);
+			$_SESSION['cases']['post']=array_replace_recursive($_SESSION['cases']['post'],$this->input->post());
 			$submitable=true;
 			
 			if(is_posted('submit/case_client')){
@@ -196,7 +198,7 @@ class Cases extends SS_controller{
 			
 			if(is_posted('submit/case_fee')){
 				
-				post('case_fee/pay_time',strtotime(post('case_fee/pay_time')));
+				post('case_fee/pay_time',strtotime(post('case_fee_extra/pay_time')));
 		
 				if(!post('case_fee/fee')){
 					showMessage('请预估收费金额','warning');
@@ -241,9 +243,7 @@ class Cases extends SS_controller{
 				
 				post('case_fee_timing/case',post('cases/id'));
 		
-				post('case_fee_timing/time_start',strtotime(post('case_fee_timing/time_start')));//imperfect 2012/5/23 uicestone
-				
-				post('case_fee_timing/timing_start');
+				post('case_fee_timing/time_start',strtotime(post('case_fee_timing_extra/time_start')));//imperfect 2012/5/23 uicestone
 				
 				post('case_fee_timing/uid',$_SESSION['id']);
 				post('case_fee_timing/time',$this->config->item('timestamp'));
@@ -268,7 +268,7 @@ class Cases extends SS_controller{
 				
 				post('case_fee_misc/type','办案费');
 				
-				post('case_fee_misc/pay_time',strtotime(post('case_fee_misc/pay_time')));
+				post('case_fee_misc/pay_time',strtotime(post('case_fee_misc_extra/pay_time')));
 				
 				if(!post('case_fee_misc/fee')){
 					showMessage('请填写办案费约定金额','warning');
@@ -614,8 +614,15 @@ class Cases extends SS_controller{
 		$this->load->view_data['case_fee_table']=$this->cases->table->setFields($fields_fee)
 				->generate($this->cases->getFeeList(post('cases/id')));
 		
+		if(post('case_fee/pay_time')){
+			post('case_fee_extra/pay_time',date('Y-m-d',post('case_fee/pay_time')));
+		}
+		
 		if(post('cases/timing_fee')){
 			$this->load->view_data['case_fee_timing_string']=$this->cases->getTimingFeeString(post('cases/id'));
+			if(post('case_timing_fee/time_start')){
+				post('case_timing_fee_extra/time_start',date('Y-m-d',post('case_timing_fee/time_start')));
+			}
 		}
 		
 		//办案费列表
@@ -636,6 +643,10 @@ class Cases extends SS_controller{
 		}
 		$this->load->view_data['case_fee_misc_table']=$this->table->setFields($fields_fee_misc)
 				->generate($this->cases->getFeeMiscList(post('cases/id')));
+
+		if(post('case_fee_misc/pay_time')){
+			post('case_fee_misc_extra/pay_time',date('Y-m-d',post('case_fee_misc/pay_time')));
+		}
 		
 		//文件列表
 		$fields_document=array(
@@ -770,7 +781,7 @@ class Cases extends SS_controller{
 				'</div>'
 		);
 		
-		$_SESSION['last_list_action']=$_SERVER['REQUEST_URI'];
+		$_SESSION['last_list_action']=$this->input->server('request_uri');
 		
 		$table=$this->fetchTableArray($q, $field);
 		
