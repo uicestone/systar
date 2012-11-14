@@ -4,17 +4,24 @@ class Client_model extends SS_Model{
 		parent::__construct();
 	}
 	
-	function fetch($id,$data_type='array'){
+	/**
+	 * 抓取一条客户信息
+	 * @param int $id 案件id
+	 * @param mixed $field 需要指定抓取的字段，留空则返回整个数组
+	 * @return 一条信息的数组，或者一个字段的值，如果指定字段且字段不存在，返回false
+	 */
+	function fetch($id,$field=NULL){
 		$query="SELECT * FROM client WHERE id='".$id."'";
-		$data=db_fetch_first($query,true);
-		if(empty($data)){
+		$row=$this->db->query($query)->row_array();
+
+		if(is_null($field)){
+			return $row;
+	
+		}elseif(isset($row[$field])){
+			return $row[$field];
+
+		}else{
 			return false;
-	
-		}elseif($data_type=='array'){
-			return $data;
-	
-		}elseif(isset($data[$data_type])){
-			return $data[$data_type];
 		}
 		
 	}
@@ -315,7 +322,6 @@ class Client_model extends SS_Model{
 			";
 		}
 		
-		$this->session->set_userdata('last_list_action',$_SERVER['REQUEST_URI']);
 		
 		$condition=$this->search($condition,array('name'=>'姓名','phone.content'=>'电话','work_for'=>'单位','address'=>'地址','comment'=>'备注'));
 		$condition=$this->orderBy($condition,'time','DESC',array('abbreviation','type','address','comment'));

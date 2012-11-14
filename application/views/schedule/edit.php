@@ -65,7 +65,7 @@
 			<div class="title"><label>时间：</label></div>
 			<label>
 				开始时间：
-				<input type="text" name="schedule[time_start]" value="<?=date('Y-m-d H:i:s',post('schedule/time_start'))?>" style="width:40%" />
+				<input type="text" name="schedule_extra[time_start]" value="<?=post('schedule_extra/time_start')?>" style="width:40%" />
 			</label>
 
 			<label>

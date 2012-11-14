@@ -27,7 +27,6 @@ class Contact_model extends SS_Model{
 		}else{
 			$q.=" AND classification='联系人'";
 		}
-		$this->session->set_userdata('last_list_action',$_SERVER['REQUEST_URI']);
 		$q=$this->search($q,array('name'=>'姓名','type'=>'类型','work_for'=>'单位','address'=>'地址'));
 		$q=$this->orderBy($q,'time','DESC',array('abbreviation','address','comment'));
 		$q=$this->pagination($q);

@@ -1,4 +1,3 @@
-<? echo $search_bar;?>
 <form method="post" name="createDir">
     <label>创建目录：</label><input type="text" name="dirName" size="10" />
     <input type="submit" name="createDirSubmit" value="创建" />

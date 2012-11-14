@@ -82,8 +82,8 @@ $(function(){
 			$(this).val(ui.item.label);
 			return false;
 		},
-		response: function(event,content){
-			if(content.length==0){
+		response: function(event,ui){
+			if(ui.content.length==0){
 				$('.autocomplete-no-result-menu').show().children('input,select').removeAttr('disabled');
 			}else{
 				$('.autocomplete-no-result-menu').hide().children('input,select').attr('disabled','disabled');

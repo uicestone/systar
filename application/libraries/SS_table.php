@@ -162,6 +162,10 @@ class SS_Table extends CI_Table{
 		return $this;
 	}
 	
+	function generateData(){
+		$this->_init();
+	}
+	
 	// --------------------------------------------------------------------
 
 	/**

@@ -1,1 +1,1 @@
-<? $this->arrayExportTable($evaluation_result,NULL,false,false)?>
+<?=$this->table->generate($evaluation_result)?>

@@ -288,7 +288,6 @@ class Achievement_model extends SS_Model{
 			LEFT JOIN account ON case_fee.id=account.case_fee
 			WHERE case_fee.type<>'办案费'
 		";
-		$this->session->set_userdata('last_list_action',$_SERVER['REQUEST_URI']);
 		$q=$this->dateRange($q,'account.time_occur');
 		$q.="	GROUP BY case_fee.id
 		)case_fee_collected

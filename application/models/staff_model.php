@@ -66,7 +66,6 @@ class Staff_model extends SS_Model{
 				LEFT JOIN position ON staff.position=position.id
 			WHERE staff.company='".$this->config->item('company')."'
 		";
-		$this->session->set_userdata('last_list_action',$_SERVER['REQUEST_URI']);
 		$q=$this->search($q,array('name'=>'姓名'));
 		$q=$this->orderBy($q,'staff.id','ASC');
 		$q=$this->pagination($q);

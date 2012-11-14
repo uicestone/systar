@@ -4,7 +4,13 @@ class Cases_model extends SS_Model{
 		parent::__construct();
 	}
 
-	function fetch($id){
+	/**
+	 * 抓取一条案件信息
+	 * @param int $id 案件id
+	 * @param mixed $field 需要指定抓取的字段，留空则返回整个数组
+	 * @return 一条信息的数组，或者一个字段的值，如果指定字段且字段不存在，返回false
+	 */
+	function fetch($id,$field=NULL){
 		//finance和manager可以看到所有案件，其他律师只能看到自己涉及的案件
 		$query="
 			SELECT * 
@@ -14,7 +20,15 @@ class Cases_model extends SS_Model{
 					SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."'
 				))
 		";
-		return db_fetch_first($query,true);
+		$row=$this->db->query($query)->row_array();
+
+		if(is_null($field)){
+			return $row;
+		}elseif(isset($row[$field])){
+			return $row['field'];
+		}else{
+			return false;
+		}
 	}
 	
 	function add($data){
@@ -517,7 +531,8 @@ class Cases_model extends SS_Model{
 	
 	function getTimingFeeString($case_id){
 		$query="SELECT CONCAT('包含',included_hours,'小时，','账单日：',bill_day,'，付款日：',payment_day,'，付款周期：',payment_cycle,'个月，合同周期：',contract_cycle,'个月，','合同起始日：',FROM_UNIXTIME(time_start,'%Y-%m-%d')) AS case_fee_timing_string FROM case_fee_timing WHERE `case`='".$case_id."'";
-		return $this->db->query($query)->result_array();
+		$row=$this->db->query($query)->row_array();
+		return $row['case_fee_timing_string'];
 	}
 	
 	function getFeeMiscList($case_list){
@@ -752,7 +767,6 @@ class Cases_model extends SS_Model{
 		}elseif(!is_logged('developer')){
 			$condition.="AND (case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role IN ('接洽律师','接洽律师（次要）','主办律师','协办律师','律师助理','督办合伙人')) OR case.uid='".$_SESSION['id']."')";
 		}
-		$this->session->set_userdata('last_list_action',$_SERVER['REQUEST_URI']);
 		$condition=$this->search($condition, array('case.num'=>'案号','case.type'=>'类别','case.name'=>'名称','lawyers.lawyers'=>'主办律师'));
 		$condition=$this->orderBy($condition,'time_contract','DESC',array('case.name','lawyers'));
 		$q.=$condition;

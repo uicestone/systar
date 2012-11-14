@@ -6,6 +6,8 @@ class Express extends SS_controller{
 	}
 	
 	function lists(){
+		$this->session->set_userdata('last_list_action',$this->input->server('request_uri'));
+		
 		$field=array(
 			'content'=>array('title'=>'寄送内容','wrap'=>array('mark'=>'a','href'=>'/express/edit/{id}'),'td'=>'class="ellipsis" title="{content}"'),
 			'time_send'=>array('title'=>'日期','td_title'=>'width="60px"','eval'=>true,'content'=>"

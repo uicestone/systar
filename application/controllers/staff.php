@@ -5,6 +5,8 @@ class Staff extends SS_controller{
 	}
 	
 	function lists(){
+		$this->session->set_userdata('last_list_action',$this->input->server('request_uri'));
+
 		if($this->input->post('grade')){
 			option('grade',$this->input->post('grade'));
 		}
