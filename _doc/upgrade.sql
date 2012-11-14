@@ -26,6 +26,6 @@ INSERT INTO `holidays` (`id`, `date`, `is_overtime`, `staff`) VALUES
 (8, '2012-10-07', 0, NULL),
 (9, '2012-09-29', 1, NULL);
 
-#uice 2012/11/12 废弃“资金－案下资金”权限
+--uice 2012/11/12 废弃“资金－案下资金”权限
 delete from `group` where affair='account' and action='case';
-#end
+--end
