@@ -236,7 +236,7 @@
 				</select>
 				<input type="text" name="case_fee[fee]" value="<?=post('case_fee/fee');?>" placeholder="数额" style="width:24%;" />
 				<input type="text" name="case_fee[condition]" value="<?=post('case_fee/condition');?>" placeholder="付款条件" style="width:24%" />
-				<input type="text" name="case_fee_extrapay_time]" value="<?=post('case_fee_extra/pay_time')?>" placeholder="预估日期" class="date" style="width:15%" />
+				<input type="text" name="case_fee_extra[pay_time]" value="<?=post('case_fee_extra/pay_time')?>" placeholder="预估日期" class="date" style="width:15%" />
 				<input type="submit" name="submit[case_fee]" value="添加" />
 			</div>
 			<? }?>
