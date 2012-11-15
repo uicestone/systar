@@ -284,8 +284,7 @@ class SS_Controller extends CI_Controller{
 		}
 
 		if($submitable){
-			$this->db->where('id',post(CONTROLLER.'/id'));
-			if($this->db->update($update_table,post(CONTROLLER))){
+			if($this->db->update($update_table,post(CONTROLLER),array('id'=>post(CONTROLLER.'/id')))){
 
 				if(is_a($after_update,'Closure')){
 					$after_update();
@@ -312,14 +311,6 @@ class SS_Controller extends CI_Controller{
 		}
 	}
 
-	function processUidTimeInfo($affair){
-		show_error('Controller::proessUidTimeInfo,此方法已废弃，请使用uidTime()代替');exit;
-		if(!post($affair)){
-			post($affair,array());
-		}
-		post($affair,post($affair)+uidTime());
-	}
-	
 	function cancel(){
 		unset($_SESSION[CONTROLLER]['post']);
 		

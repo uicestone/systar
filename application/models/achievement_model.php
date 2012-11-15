@@ -427,7 +427,7 @@ class Achievement_model extends SS_Model{
 		}
 		
 		if(is_logged('finance') && $this->input->post('distribute')){
-		  db_update('account',array('distributed_'.$contribute_type=>1),"`case` IN (".$q_cases_to_distribute.")");
+		  $this->db_update('account',array('distributed_'.$contribute_type=>1),"`case` IN (".$q_cases_to_distribute.")");
 		}
 
 		$q="

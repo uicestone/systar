@@ -153,7 +153,7 @@ class Student extends SS_controller{
 					$submitable=false;
 				}
 			}else{
-				if(!db_update('student_class',post('student_class'),"student='".post('student/id')."' AND term='".$_SESSION['global']['current_term']."'")){
+				if(!$this->db_update('student_class',post('student_class'),"student='".post('student/id')."' AND term='".$_SESSION['global']['current_term']."'")){
 					$submitable=false;
 				}
 			}
@@ -348,7 +348,7 @@ class Student extends SS_controller{
 			
 			foreach($div as $gender_in_array1 => $array1){
 				foreach($array1 as $class=>$array2){
-					db_update('student_classdiv',array('new_class'=>$class),'id IN ('.implode(',',$array2).')');
+					$this->db_update('student_classdiv',array('new_class'=>$class),'id IN ('.implode(',',$array2).')');
 				}
 			}
 		}else{

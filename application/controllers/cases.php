@@ -222,8 +222,8 @@ class Cases extends SS_controller{
 				$condition = db_implode(post('case_fee_check'), $glue = ' OR ','id','=',"'","'", '`','key');
 				$condition_account=db_implode(post('case_fee_check'), $glue = ' OR ','case_fee','=',"'","'", '`','key');
 				
-				if(db_update('case_fee',array('reviewed'=>1),$condition)
-					&& db_update('account',array('reviewed'=>1),$condition_account)
+				if($this->db->update('case_fee',array('reviewed'=>1),$condition)
+					&& $this->db->update('account',array('reviewed'=>1),$condition_account)
 				){
 					showMessage('已完成案件收费到账审核');
 				}

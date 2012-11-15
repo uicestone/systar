@@ -52,7 +52,7 @@ class Exam extends SS_controller{
 	function listSave(){
 		if($this->input->get('update') && $this->input->post('id')){
 			$data=array($this->input->post('field')=>$this->input->post('value'));
-			db_update($this->input->post('table'),$data,"id='".intval($this->input->post('id'))."'");
+			$this->db->update($this->input->post('table'),$data,"id='".intval($this->input->post('id'))."'");
 			
 		}elseif(got('action','exam')){
 			$new_exam=array_trim($_POST);

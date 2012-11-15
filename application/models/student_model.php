@@ -86,7 +86,7 @@ class Student_model extends SS_Model{
 		if($old_class_id!=$new_class_id){
 			$new_num_in_class=db_fetch_field("SELECT MAX(num_in_class)+1 FROM student_class WHERE class='".$new_class_id."' AND term='".$_SESSION['global']['current_term']."'");
 			
-			db_update('student_class',array('num_in_class'=>$new_num_in_class,'class'=>$new_class_id),"student='".$student_id."' AND class='".$old_class_id."' AND term='".$_SESSION['global']['current_term']."'");
+			$this->db_update('student_class',array('num_in_class'=>$new_num_in_class,'class'=>$new_class_id),"student='".$student_id."' AND class='".$old_class_id."' AND term='".$_SESSION['global']['current_term']."'");
 			$new_student_num=$new_class_id.substr($new_num_in_class+100,-2);
 			
 			student_update($student_id);

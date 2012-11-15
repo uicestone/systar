@@ -132,14 +132,14 @@ class Client_model extends SS_Model{
 	function setDefaultRelated($client_client_id,$client){
 		$this->clearDefaultRelated($client);
 		
-		if(db_update('client_client',array('is_default_contact'=>1),"id='".$client_client_id."'")){
+		if($this->db_update('client_client',array('is_default_contact'=>1),"id='".$client_client_id."'")){
 			return true;
 		}
 		return false;
 	}
 	
 	function clearDefaultRelated($client){
-		if(db_update('client_client',array('is_default_contact'=>'_NULL_'),"client_left='".$client."'")){
+		if($this->db_update('client_client',array('is_default_contact'=>'_NULL_'),"client_left='".$client."'")){
 			return true;
 		}
 		return false;

@@ -63,7 +63,7 @@ class User_model extends SS_Model{
 	
 	function update_login_time(){
 		global $_G;
-		db_update('user',array('lastip'=>getIP(),'lastlogin'=>$this->config->item('timestamp')),"id='".$_SESSION['id']."' AND company='".$this->config->item('company')."'");
+		$this->db_update('user',array('lastip'=>getIP(),'lastlogin'=>$this->config->item('timestamp')),"id='".$_SESSION['id']."' AND company='".$this->config->item('company')."'");
 	}
 	
 	function student_set_session($user_id){
@@ -95,7 +95,7 @@ class User_model extends SS_Model{
 	
 	function edit($user_id,$new_password=NULL,$new_username=NULL){
 		if(isset($new_password)){
-			if(db_update('user',array('password'=>$new_password),"id='".$user_id."'")){
+			if($this->db_update('user',array('password'=>$new_password),"id='".$user_id."'")){
 				showMessage('成功修改密码');
 			}else{
 				return false;
@@ -103,7 +103,7 @@ class User_model extends SS_Model{
 		}
 		
 		if(isset($new_username)){
-			if(db_update('user',array('username'=>$new_username),"id='".$user_id."'") && db_affected_rows()){
+			if($this->db_update('user',array('username'=>$new_username),"id='".$user_id."'") && db_affected_rows()){
 				showMessage('成功修改用户名');
 			}else{
 				return false;
