@@ -26,7 +26,7 @@ class Cases extends SS_controller{
 	}
 	
 	function lists($para=NULL){
-		$this->session->set_userdata('last_list_action',$this->input->server('request_uri'));
+		$this->session->set_userdata('last_list_action',$this->input->server('REQUEST_URI'));
 
 		$field=array(
 			'time_contract'=>array('title'=>'案号','td_title'=>'width="180px"','td'=>'title="立案时间：{time_contract}"','content'=>'<a href="/cases/edit/{id}">{num}</a>'),
@@ -781,7 +781,7 @@ class Cases extends SS_controller{
 				'</div>'
 		);
 		
-		$_SESSION['last_list_action']=$this->input->server('request_uri');
+		$_SESSION['last_list_action']=$this->input->server('REQUEST_URI');
 		
 		$table=$this->fetchTableArray($q, $field);
 		

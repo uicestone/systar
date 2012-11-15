@@ -291,7 +291,7 @@ function getIP(){
 }
 
 /*
- * 重定向，对于站内跳转，url写成request_uri即可，如'user?browser'
+ * 重定向，对于站内跳转，url写成REQUEST_URI即可，如'user?browser'
  * 有php和js两种方式
  * 对于php跳转，采用发送301header的方式，因此之前整个系统不能输出任何内容
  * 对于js跳转，输出js代码交给浏览器完成跳转，因此会发生内容输出

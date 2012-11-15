@@ -5,7 +5,7 @@ class Student extends SS_controller{
 	}
 	
 	function lists(){
-		$this->session->set_userdata('last_list_action',$this->input->server('request_uri'));
+		$this->session->set_userdata('last_list_action',$this->input->server('REQUEST_URI'));
 		
 		if($this->input->get('update')){
 			student_update();
@@ -211,7 +211,7 @@ class Student extends SS_controller{
 		);
 		
 		if($this->as_controller_default_page){
-			$_SESSION['last_list_action']=$this->input->server('request_uri');
+			$_SESSION['last_list_action']=$this->input->server('REQUEST_URI');
 		}
 		
 		$scores=student_get_scores(post('student/id'));
@@ -428,7 +428,7 @@ class Student extends SS_controller{
 			'foot'=>template('student_interactive_send')
 		);
 		
-		$_SESSION['last_list_action']=$this->input->server('request_uri');
+		$_SESSION['last_list_action']=$this->input->server('REQUEST_URI');
 		
 		$table=$this->fetchTableArray($q, $field);
 		

@@ -31,7 +31,7 @@ class File extends SS_controller{
 	}
 	
 	function tobe(){
-		$this->session->set_userdata('last_list_action',$this->input->server('request_uri'));
+		$this->session->set_userdata('last_list_action',$this->input->server('REQUEST_URI'));
 		
 		$field=array(
 			'num'=>array('title'=>'案号','content'=>'<a href="case?edit={id}">{num}</a>','td_title'=>'width="180px"'),

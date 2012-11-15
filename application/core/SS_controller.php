@@ -328,7 +328,7 @@ class SS_Controller extends CI_Controller{
 		if($this->as_popup_window){
 			closeWindow();
 		}else{
-			redirect((sessioned('last_list_action')?$_SESSION['last_list_action']:CONTROLLER));
+			redirect(($this->session->userdata('last_list_action')?$this->session->userdata('last_list_action'):CONTROLLER));
 		}
 	}
 

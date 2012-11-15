@@ -6,7 +6,7 @@ class Account extends SS_controller{
 	}
 	
 	function lists(){
-		$this->session->set_userdata('last_list_action', $this->input->server('request_uri'));
+		$this->session->set_userdata('last_list_action', $this->input->server('REQUEST_URI'));
 		
 		$field=array(
 			'time_occur'=>array('title'=>'日期','eval'=>true,'content'=>"
