@@ -173,11 +173,12 @@ function session_login($uid=NULL,$username=NULL){
  * 登出当前用户
  */
 function session_logout(){
-	global $_G;
+	$CI=&get_instance();
 	session_unset();
 	session_destroy();
+	$CI->session->sess_destroy();
 	
-	if($_G['ucenter']){
+	if($CI->config->item('ucenter')){
 		//生成同步退出代码
 		echo uc_user_synlogout();
 	}

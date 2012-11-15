@@ -676,30 +676,41 @@ class Cases_model extends SS_Model{
 	 * 更新案件名称
 	 */
 	function getName($case_client_role,$classification,$type,$is_query=false){
-		$case_name='';
+		$case_name=$case_client_role['client_name'];
+		
 		if($is_query){
-			$case_name=$case_client_role['client_name'].' 咨询';
+			$case_name.=' 咨询';
+			return $case_name;
 
-		}elseif($classification=='诉讼' && ($case_client_role['client_role']=='原告' || $case_client_role['client_role']=='申请人') && ($case_client_role['opposite_role']=='被告' || $case_client_role['opposite_role']=='被申请人')){
-				$case_name=$case_client_role['client_name'].' 诉 '.$case_client_role['opposite_name'].'('.$type.')';
+		}
+		
+		if(isset($case_client_role['opposite_name'])){
+			
+			if($classification=='诉讼' && ($case_client_role['client_role']=='原告' || $case_client_role['client_role']=='申请人') && ($case_client_role['opposite_role']=='被告' || $case_client_role['opposite_role']=='被申请人')){
+					$case_name.=' 诉 '.$case_client_role['opposite_name'].'('.$type.')';
 
-		}elseif($classification=='诉讼' && ($case_client_role['client_role']=='被告' || $case_client_role['client_role']=='被申请人') && ($case_client_role['opposite_role']=='原告' || $case_client_role['opposite_role']=='申请人')){
-				$case_name=$case_client_role['client_name'].' 应诉 '.$case_client_role['opposite_name'].'('.$type.')';
+			}elseif($classification=='诉讼' && ($case_client_role['client_role']=='被告' || $case_client_role['client_role']=='被申请人') && ($case_client_role['opposite_role']=='原告' || $case_client_role['opposite_role']=='申请人')){
+					$case_name.=' 应诉 '.$case_client_role['opposite_name'].'('.$type.')';
 
-		}elseif($classification=='诉讼' && $case_client_role['client_role']=='上诉人'){
-			$case_name=$case_client_role['client_name'].' 上诉 '.$case_client_role['opposite_name'].'('.$type.')';
+			}elseif($classification=='诉讼' && $case_client_role['client_role']=='上诉人'){
+				$case_name.=' 上诉 '.$case_client_role['opposite_name'].'('.$type.')';
 
-		}elseif($classification=='诉讼' && $case_client_role['client_role']=='被上诉人'){
-			$case_name=$case_client_role['client_name'].' 应 '.$case_client_role['opposite_name'].' 上诉('.$type.')';
+			}elseif($classification=='诉讼' && $case_client_role['client_role']=='被上诉人'){
+				$case_name.=' 应 '.$case_client_role['opposite_name'].' 上诉('.$type.')';
 
-		}elseif($classification=='诉讼' && $case_client_role['client_role']=='第三人'){
-			$case_name=$case_client_role['client_name'].' 与 '.$case_client_role['opposite_role'].' '.$case_client_role['opposite_name'].'('.$type.')';
+			}elseif($classification=='诉讼' && ($case_client_role['client_role']=='第三人' || $case_client_role['opposite_role']=='第三人')){
+				$case_name.=' 与 '.$case_client_role['opposite_role'].' '.$case_client_role['opposite_name'].'('.$type.')';
+			}
+			
+			return $case_name;
 
-		}elseif($classification=='法律顾问'){
-			$case_name=$case_client_role['client_name'].'(法律顾问)';
+		}
+		
+		if($classification=='法律顾问'){
+			$case_name.='('.$classification.')';
 
 		}else{
-			$case_name=$case_client_role['client_name'].'('.$type.')';
+			$case_name.='('.$type.')';
 		}
 		
 		return $case_name;
