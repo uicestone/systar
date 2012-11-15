@@ -9,7 +9,7 @@ class Achievement extends SS_controller{
 
 		$field=array(
 			'type'=>array('title'=>'类别','td_title'=>'width="85px"'),
-			'case_name'=>array('title'=>'案件','td_title'=>'width="25%"','content'=>'<a href="case?edit={case}" class="right" style="margin-left:10px;">查看</a>{case_name}'),
+			'case_name'=>array('title'=>'案件','td_title'=>'width="25%"','content'=>'<a href="/cases/edit/{case}" class="right" style="margin-left:10px;">查看</a>{case_name}'),
 			'fee'=>array('title'=>'预估','td_title'=>'width="100px"','td'=>'title="{pay_time}"'),
 			'collected'=>array('title'=>'实收','td_title'=>'width="100px"','td'=>'title="{time_occur}"'),
 			'role'=>array('title'=>'角色'),
@@ -74,7 +74,7 @@ class Achievement extends SS_controller{
 		
 		$field=array(
 			'type'=>array('title'=>'类别','td_title'=>'width="85px"'),
-			'case_name'=>array('title'=>'案件','td_title'=>'width="25%"','content'=>'<a href="case?edit={case}" class="right" style="margin-left:10px;">查看</a>{case_name}'),
+			'case_name'=>array('title'=>'案件','td_title'=>'width="25%"','content'=>'<a href="/cases/edit/{case}" class="right" style="margin-left:10px;">查看</a>{case_name}'),
 			'lawyers'=>array('title'=>'主办律师'),
 			'fee'=>array('title'=>'预估','td_title'=>'width="100px"'),
 			'pay_time'=>array('title'=>'时间','td_title'=>'width="100px"'),
@@ -99,7 +99,7 @@ class Achievement extends SS_controller{
 		
 		$field=array(
 			'type'=>array('title'=>'类别','td_title'=>'width="85px"'),
-			'case_name'=>array('title'=>'案件','td_title'=>'width="25%"','content'=>'<a href="case?edit={case}" class="right" style="margin-left:10px;">查看</a>{case_name}'),
+			'case_name'=>array('title'=>'案件','td_title'=>'width="25%"','content'=>'<a href="/cases/edit/{case}" class="right" style="margin-left:10px;">查看</a>{case_name}'),
 			'lawyers'=>array('title'=>'主办律师'),
 			'fee'=>array('title'=>'预估','td_title'=>'width="100px"'),
 			'pay_time'=>array('title'=>'时间','td_title'=>'width="100px"'),

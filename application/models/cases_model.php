@@ -207,7 +207,7 @@ class Cases_model extends SS_Model{
 	}
 	
 	function reviewMessage($reviewWord,$lawyers){
-		$message='案件[url=http://sys.lawyerstars.com/case?edit='.post('cases/id').']'.strip_tags(post('cases/name')).'[/url]'.$reviewWord.'，"'.post('review_message').'"';
+		$message='案件[url=http://sys.lawyerstars.com/cases/edit/'.post('cases/id').']'.strip_tags(post('cases/name')).'[/url]'.$reviewWord.'，"'.post('review_message').'"';
 		foreach($lawyers as $lawyer){
 			sendMessage($lawyer,$message);
 		}

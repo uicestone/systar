@@ -177,7 +177,7 @@ class Client extends SS_Controller{
 				}
 			", 'orderby'=>false), 'comment'=>array('title'=>'备注', 'orderby'=>false));
 
-		$field_client_case=array('num'=>array('title'=>'案号', 'wrap'=>array('mark'=>'a', 'href'=>'javascript:window.rootOpener.location.href=\'case?edit={id}\';window.opener.parent.focus();'), 'orderby'=>false), 'case_name'=>array('title'=>'案名', 'orderby'=>false), 'lawyers'=>array('title'=>'主办律师', 'orderby'=>false));
+		$field_client_case=array('num'=>array('title'=>'案号', 'wrap'=>array('mark'=>'a', 'href'=>'javascript:window.rootOpener.location.href=\'cases/edit/{id}\';window.opener.parent.focus();'), 'orderby'=>false), 'case_name'=>array('title'=>'案名', 'orderby'=>false), 'lawyers'=>array('title'=>'主办律师', 'orderby'=>false));
 
 		$client_table=$this->table->setFields($field_client)
 					  ->setData($this->client->getRelatedClients(post('client/id')))
@@ -219,6 +219,20 @@ class Client extends SS_Controller{
 			$array[$line_id]['value']=$content_array['id'];
 		}
 		echo json_encode($array);
+	}
+	
+	/**
+	 * ajax响应页面
+	 * 接受客户名称$_POST['client_name']
+	 * 打印出此客户的来源律师名称
+	 */
+	function getSourceLawyer(){
+		$this->load->model('staff_model','staff');
+		$client_name=$this->input->post('client_name');
+		$client_id=$this->client->check($client_name,'id');
+		$source_lawyer=$this->client->fetch($client_id, 'source_lawyer');
+		$source_lawyer_name=$this->staff->fetch($source_lawyer);
+		echo $source_lawyer_name;
 	}
 }
 ?>

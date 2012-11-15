@@ -11,7 +11,7 @@
 		</a>
 		<a href="/user/logout" target="_top">退出</a>
 		<?if($this->config->item('ucenter')){ ?>
-		<a href="javascript:showWindow('schedule?add&case=598')" style="font-size:10px;color:#DDD;">反馈</a>
+		<a href="javascript:showWindow('schedule/add?case=598')" style="font-size:10px;color:#DDD;">反馈</a>
 		<?}?>
 	</div>
 <?}?>

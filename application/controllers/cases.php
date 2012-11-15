@@ -387,7 +387,7 @@ class Cases extends SS_controller{
 			if(is_posted('submit/apply_lock')){
 				//申请锁定，发送一条消息给督办合伙人
 				if($responsible_partner){
-					$apply_lock_message=$_SESSION['username'].'申请锁定'.strip_tags(post('cases/name')).'一案，[url=http://sys.lawyerstars.com/case?edit='.post('cases/id').']点此进入[/url]';
+					$apply_lock_message=$_SESSION['username'].'申请锁定'.strip_tags(post('cases/name')).'一案，[url=http://sys.lawyerstars.com/cases/edit/'.post('cases/id').']点此进入[/url]';
 					sendMessage($responsible_partner,$apply_lock_message,'caseLockApplication');//imperfect
 					showMessage('锁定请求已经发送至本案督办合伙人');
 				}else{
@@ -465,7 +465,7 @@ class Cases extends SS_controller{
 				//TODO 没有填相对方的时候会报错，不过不影响运行
 				$case_client_role['client_name']='<a href="javascript:showWindow(\'client/edit/'.$case_client_role['client'].'\')">'.$case_client_role['client_name'].'</a>';
 		
-				$case_client_role['opposite_name']='<a href="javascript:showWindow(\'client?edit/'.$case_client_role['opposite'].'\')">'.$case_client_role['opposite_name'].'</a>';
+				$case_client_role['opposite_name']='<a href="javascript:showWindow(\'client/edit/'.$case_client_role['opposite'].'\')">'.$case_client_role['opposite_name'].'</a>';
 		
 				//更新案名
 				if(post('cases/is_query')){
@@ -770,7 +770,7 @@ class Cases extends SS_controller{
 		$listLocator=$this->processMultiPage($q);
 		
 		$field=array(
-			'time_contract'=>array('title'=>'案号','td_title'=>'width="180px"','content'=>'<a href="case?edit={id}">{num}</a>'),
+			'time_contract'=>array('title'=>'案号','td_title'=>'width="180px"','content'=>'<a href="/cases/edit/{id}">{num}</a>'),
 			'name'=>array('title'=>'案名','content'=>'{name}'),
 			'lawyers'=>array('title'=>'主办律师','td_title'=>'width="100px"')
 		);
