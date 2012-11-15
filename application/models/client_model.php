@@ -130,7 +130,7 @@ class Client_model extends SS_Model{
 	}
 	
 	function setDefaultRelated($client_client_id,$client){
-		client_clearDefaultRelated($client);
+		$this->clearDefaultRelated($client);
 		
 		if(db_update('client_client',array('is_default_contact'=>1),"id='".$client_client_id."'")){
 			return true;

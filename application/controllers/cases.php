@@ -453,11 +453,15 @@ class Cases extends SS_controller{
 			
 			$case_client_role = $this->cases->getClientRole(post('cases/id'));
 			
-			if(is_posted('submit/apply_case_num') && post('cases/num')==''){
+			if(is_posted('submit/apply_case_num') && !post('cases/num')){
 				//准备插入案号
 				
-				post('cases/num',$this->cases->getNum(post('cases'),$case_client_role));
-				post('cases/type_lock',1);
+				if(!$case['is_query'] && !$case_client_role['client']){
+					showMessage('申请案号前应当至少添加一个客户','warning');
+				}else{
+					post('cases/num',$this->cases->getNum(post('cases'),$case_client_role));
+					post('cases/type_lock',1);
+				}
 			}
 		
 			if(isset($case_client_role['client']) && !post('cases/filed')){

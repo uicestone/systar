@@ -619,62 +619,57 @@ class Cases_model extends SS_Model{
 	 * $case参数为array，需要包含is_query,filed,classification,type,type_lock,first_contact/time_contract键
 	 */
 	function getNum($case,$case_client_role=NULL){
-		global $_G;
 		$case_num=array();
 		
 		if(is_null($case_client_role)){
 			$case_client_role=$this->getClientRole($case['id']);
 		}
 		
-		if(!$case['is_query'] && !$case_client_role['client']){
-			showMessage('申请案号前应当至少添加一个客户','warning');
+		if($case['is_query']){
+			$case_num['classification_code']='询';
+			$case_num['type_code']='';
 		}else{
-			if($case['is_query']){
-				$case_num['classification_code']='询';
-				$case_num['type_code']='';
-			}else{
-				switch($case['classification']){
-					case '诉讼':$case_num['classification_code']='诉';break;
-					case '非诉讼':$case_num['classification_code']='非';break;
-					case '法律顾问':$case_num['classification_code']='顾';break;
-					case '内部行政':$case_num['classification_code']='内';break;
-					default:'';
-				}
-				switch($case['type']){
-					case '房产':$case_num['type_code']='（房）';break;
-					case '公司':$case_num['type_code']='（公）';break;
-					case '婚姻':$case_num['type_code']='（婚）';break;
-					case '劳动':$case_num['type_code']='（劳）';break;
-					case '金融':$case_num['type_code']='（金）';break;
-					case '继承':$case_num['type_code']='（继）';break;
-					case '知产':$case_num['type_code']='（知）';break;
-					case '合同':$case_num['type_code']='（合）';break;
-					case '刑事':$case_num['type_code']='（刑）';break;
-					case '行政':$case_num['type_code']='（行）';break;
-					case '其他':$case_num['type_code']='（他）';break;
-					case '公民个人':$case_num['type_code']='（个）';break;
-					case '侵权':$case_num['type_code']='（侵）';break;
-					case '移民':$case_num['type_code']='（移）';break;
-					case '留学':$case_num['type_code']='（留）';break;
-					case '企业':$case_num['type_code']='（企）';break;
-					case '事业单位':$case_num['type_code']='（事）';break;
-					case '个人事务':$case_num['type_code']='（个）';break;
-					default:$case_num['type_code']='';
-				}
+			switch($case['classification']){
+				case '诉讼':$case_num['classification_code']='诉';break;
+				case '非诉讼':$case_num['classification_code']='非';break;
+				case '法律顾问':$case_num['classification_code']='顾';break;
+				case '内部行政':$case_num['classification_code']='内';break;
+				default:'';
 			}
-			$case_num['case']=$case['id'];
-			$case_num+=uidTime();
-			$case_num['year_code']=substr($case['is_query']?$case['first_contact']:$case['time_contract'],0,4);
-			db_insert('case_num',$case_num,true,true);
-			$case_num['number']=db_fetch_field("SELECT number FROM case_num WHERE `case`='".$case['id']."'");
-			if(!$case['is_query']){
-				post('cases/type_lock',1);//申请正式案号之后不可以再改变案件类别
+			switch($case['type']){
+				case '房产':$case_num['type_code']='（房）';break;
+				case '公司':$case_num['type_code']='（公）';break;
+				case '婚姻':$case_num['type_code']='（婚）';break;
+				case '劳动':$case_num['type_code']='（劳）';break;
+				case '金融':$case_num['type_code']='（金）';break;
+				case '继承':$case_num['type_code']='（继）';break;
+				case '知产':$case_num['type_code']='（知）';break;
+				case '合同':$case_num['type_code']='（合）';break;
+				case '刑事':$case_num['type_code']='（刑）';break;
+				case '行政':$case_num['type_code']='（行）';break;
+				case '其他':$case_num['type_code']='（他）';break;
+				case '公民个人':$case_num['type_code']='（个）';break;
+				case '侵权':$case_num['type_code']='（侵）';break;
+				case '移民':$case_num['type_code']='（移）';break;
+				case '留学':$case_num['type_code']='（留）';break;
+				case '企业':$case_num['type_code']='（企）';break;
+				case '事业单位':$case_num['type_code']='（事）';break;
+				case '个人事务':$case_num['type_code']='（个）';break;
+				default:$case_num['type_code']='';
 			}
-			post('cases/display',1);//申请案号以后案件方可见
-			$num='沪星'.$case_num['classification_code'].$case_num['type_code'].$case_num['year_code'].'第'.$case_num['number'].'号';
-			db_update('case',array('num'=>$num),"id='".$case['id']."'");
-			return $num;
 		}
+		$case_num['case']=$case['id'];
+		$case_num+=uidTime();
+		$case_num['year_code']=substr($case['is_query']?$case['first_contact']:$case['time_contract'],0,4);
+		db_insert('case_num',$case_num,true,true);
+		$case_num['number']=db_fetch_field("SELECT number FROM case_num WHERE `case`='".$case['id']."'");
+		if(!$case['is_query']){
+			post('cases/type_lock',1);//申请正式案号之后不可以再改变案件类别
+		}
+		post('cases/display',1);//申请案号以后案件方可见
+		$num='沪星'.$case_num['classification_code'].$case_num['type_code'].$case_num['year_code'].'第'.$case_num['number'].'号';
+		db_update('case',array('num'=>$num),"id='".$case['id']."'");
+		return $num;
 	}
 
 	/**
