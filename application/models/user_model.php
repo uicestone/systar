@@ -13,7 +13,7 @@ class User_model extends SS_Model{
 					AND company='".$this->config->item('company')."'
 			";
 		
-		$user=db_fetch_first($q_user);
+		$user=$this->db->query($q_user)->row_array();
 		
 		if(empty($user)){
 			return false;
@@ -62,13 +62,12 @@ class User_model extends SS_Model{
 	}
 	
 	function update_login_time(){
-		global $_G;
 		$this->db_update('user',array('lastip'=>getIP(),'lastlogin'=>$this->config->item('timestamp')),"id='".$_SESSION['id']."' AND company='".$this->config->item('company')."'");
 	}
 	
 	function student_set_session($user_id){
-		$q_student="SELECT * from `view_student` WHERE `id`='".$user_id."'";
-		$student=db_fetch_first($q_student);
+		$q_student="SELECT * from `view_student` WHERE `id`='{$user_id}'";
+		$student=$this->db->result($q_student)->row_array();
 	
 		$_SESSION['class']=$student['class'];
 		$_SESSION['class_name']=$student['class_name'];
@@ -77,13 +76,13 @@ class User_model extends SS_Model{
 	}
 	
 	function teacher_set_session($user_id){
-		$q_teacher="SELECT * FROM staff WHERE id = '".$user_id."'";
-		$teacher=db_fetch_first($q_teacher);
+		$q_teacher="SELECT * FROM staff WHERE id = '{$user_id}'";
+		$teacher=$this->db->query($q_teacher)->row_array();
 	
 		$_SESSION['course']=$teacher['course'];
 		$_SESSION['teacher_group']=explode(',',$teacher['group']);
 		
-		if($class=db_fetch_first("SELECT id,grade FROM class WHERE class_teacher='".$_SESSION['id']."'")){
+		if($class=$this->db->query("SELECT id,grade FROM class WHERE class_teacher='{$_SESSION['id']}'")->row_array()){
 			$_SESSION['manage_class']=$class;
 		}
 	}

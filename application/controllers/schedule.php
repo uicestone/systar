@@ -283,7 +283,7 @@ class Schedule extends SS_controller{
 		}
 		
 		if(post('schedule/document')){
-			post('case_document',db_fetch_first("SELECT name,doctype,comment FROM case_document WHERE id = '".post('schedule/document')."'"));
+			post('case_document',$this->cases->fetchDocument(post('schedule/document')));
 		}
 		
 		$this->load->view('schedule/edit');

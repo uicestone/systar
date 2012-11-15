@@ -6,7 +6,7 @@ class Schedule_model extends SS_Model{
 
 	function fetch($id){
 		$query="SELECT * FROM schedule WHERE id='".$id."'";
-		return db_fetch_first($query,true);
+		return $this->db->query($query)->row_array();
 	}
 	
 	function fetch_single($id){
@@ -18,7 +18,7 @@ class Schedule_model extends SS_Model{
 				LEFT JOIN `case` ON case.id=schedule.case
 				LEFT JOIN client ON client.id=schedule.client
 			WHERE schedule.id='".intval($id)."'";
-		$schedule=db_fetch_first($q_schedule);
+		$schedule=$this->db->query($q_schedule)->row_array();
 		$schedule['content_paras']=explode("\n",$schedule['content']);
 		$schedule['experience_paras']=explode("\n",$schedule['experience']);
 		$schedule['time_start']=date('Y-m-d H:i',$schedule['time_start']);

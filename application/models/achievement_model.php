@@ -257,7 +257,7 @@ class Achievement_model extends SS_Model{
 			";
 		}
 	
-		$result_array=db_fetch_first($q);
+		$result_array=$this->db->query($q)->row_array();
 		if(!isset($result_array['sum'])){
 			$result_array['sum']=0;
 		}

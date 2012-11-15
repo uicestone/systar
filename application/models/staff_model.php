@@ -41,7 +41,7 @@ class Staff_model extends SS_Model{
 	}
 
 	function fetch($staff_id,$field=NULL){
-		$array=db_fetch_first("SELECT * FROM staff WHERE id='".$staff_id."'");
+		$array=$this->db->query("SELECT * FROM staff WHERE id='{$staff_id}'")->row_array();
 		if(isset($field)){
 			return isset($array[$field])?$array[$field]:false;
 		}else{
@@ -50,7 +50,7 @@ class Staff_model extends SS_Model{
 	}
 
 	function getMyManager($field=NULL){
-		$manager=db_fetch_first("SELECT * FROM staff WHERE id = (SELECT manager FROM manager_staff WHERE staff = '".$_SESSION['id']."')");
+		$manager=$this->db->query("SELECT * FROM staff WHERE id = (SELECT manager FROM manager_staff WHERE staff = '{$_SESSION['id']}')")->row_array();
 		if(is_null($field)){
 			return $manager['id'];
 		}else{

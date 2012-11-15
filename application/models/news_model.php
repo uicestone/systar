@@ -6,7 +6,7 @@ class News_model extends SS_Model{
 
 	function fetch($id){
 		$query="SELECT * FROM news WHERE id = '".$id."'";
-		return db_fetch_first($query,true);
+		return $this->db->query($query)->row_array();
 	}
 	
 	function getList($rows=NULL){

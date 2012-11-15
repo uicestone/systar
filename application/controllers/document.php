@@ -122,9 +122,9 @@ class Document extends SS_controller{
 	}
 
 	function download(){
-		$file=db_fetch_first("SELECT * FROM document WHERE id = '".intval($this->input->get('view'))."'");
+		$file=$this->document->fetch($this->input->get('view'));
 		
-		document_exportHead($file['name']);
+		$this->document->exportHead($file['name']);
 		$path=$file['path'];
 		$path=iconv("utf-8","gbk",$path);
 		readfile($path);

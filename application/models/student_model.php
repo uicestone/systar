@@ -5,8 +5,24 @@ class Student_model extends SS_Model{
 	}
 
 	function fetch($id){
-		$query="SELECT * FROM student WHERE id='".$id."'";
-		return db_fetch_first($query,true);
+		$query="SELECT * FROM student WHERE id='{$id}'";
+		return $this->db->query($query)->row_array();
+	}
+	
+	function fetchClassInfo($student_id){
+		$q_student_class="
+			SELECT student_class.num_in_class AS num_in_class,
+				CONCAT(RIGHT(10000+class.id,4),num_in_class) AS num,
+				class.id AS class,class.name AS class_name,
+				staff.name AS class_teacher_name
+			FROM student_class
+				INNER JOIN class ON student_class.class=class.id
+				LEFT JOIN staff ON class.class_teacher=staff.id AND staff.company='".$this->config->item('company')."'
+			WHERE student='{$student_id}' 
+				AND term='".$_SESSION['global']['current_term']."'
+		";
+		
+		return $this->db->query($q_student_class)->row_array();
 	}
 	
 	function getList(){

@@ -56,18 +56,7 @@ class Student extends SS_controller{
 			db_insert(CONTROLLER,post(CONTROLLER));
 		},false);
 		
-		$q_student_class="
-			SELECT student_class.num_in_class AS num_in_class,
-				CONCAT(RIGHT(10000+class.id,4),num_in_class) AS num,
-				class.id AS class,class.name AS class_name,
-				staff.name AS class_teacher_name
-			FROM student_class
-				INNER JOIN class ON student_class.class=class.id
-				LEFT JOIN staff ON class.class_teacher=staff.id AND staff.company='".$this->config->item('company')."'
-			WHERE student='".post('student/id')."' 
-				AND term='".$_SESSION['global']['current_term']."'
-		";
-		$student_class=db_fetch_first($q_student_class);
+		$student_class=$this->student->fetchClassInfo(post('student/id'));
 		post('student_class',array('class'=>$student_class['class'],'num_in_class'=>$student_class['num_in_class']));
 		post('class/name',$student_class['class_name']);
 		isset($student_class['class_teacher_name']) && post('student_extra/class_teacher_name',$student_class['class_teacher_name']);

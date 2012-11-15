@@ -234,7 +234,7 @@ class Client_model extends SS_Model{
 	}
 	
 	function fetchSource($source_id){
-		return db_fetch_first("SELECT type,detail FROM client_source WHERE id='".$source_id."'");
+		return $this->db->query("SELECT type,detail FROM client_source WHERE id='{$source_id}'")->row_array();
 	}
 	
 	function getListByCase($case_id){

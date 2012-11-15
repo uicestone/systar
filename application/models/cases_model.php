@@ -177,7 +177,12 @@ class Cases_model extends SS_Model{
 	}
 	
 	function getStatusById($case_id){
-		$case_data=db_fetch_first("SELECT is_reviewed,type_lock,client_lock,lawyer_lock,fee_lock,is_query,apply_file,finance_review,info_review,manager_review,filed FROM `case` WHERE id = '".$case_id."'");
+		$case_data=$this->db->query("
+			SELECT is_reviewed,type_lock,client_lock,lawyer_lock,fee_lock,is_query,apply_file,
+				finance_review,info_review,manager_review,filed
+			FROM `case` 
+			WHERE id = '{$case_id}'
+		")->row_array();
 		extract($case_data);
 		if($type_lock && $client_lock && $lawyer_lock && $fee_lock){
 			$locked=true;
@@ -185,7 +190,7 @@ class Cases_model extends SS_Model{
 			$locked=false;
 		}
 		
-		$uncollected=db_fetch_field("
+		$uncollected=$this->db->query("
 			SELECT IF(amount_sum IS NULL,fee_sum,fee_sum-amount_sum) AS uncollected FROM
 			(
 				SELECT `case`,SUM(fee) AS fee_sum FROM case_fee WHERE type<>'办案费' AND reviewed=0 AND `case`='".$case_id."'
@@ -195,13 +200,13 @@ class Cases_model extends SS_Model{
 				SELECT `case`, SUM(amount) AS amount_sum FROM account WHERE `case`='".$case_id."'
 			)account_grouped
 			USING (`case`)
-		");
+		")->row_array();
 		
-		$contribute_sum=db_fetch_field("
+		$contribute_sum=$this->db->query("
 			SELECT SUM(contribute) AS contribute_sum
 			FROM case_lawyer
 			WHERE `case`='".$case_id."'
-		");
+		")->row->array();
 		
 		return $this->cases->getStatus($is_reviewed,$locked,$apply_file,$is_query,$finance_review,$info_review,$manager_review,$filed,$contribute_sum,$uncollected);
 	}
@@ -547,6 +552,10 @@ class Cases_model extends SS_Model{
 		return $this->db->query($query)->result_array();
 	}
 	
+	function fetchDocument($case_document_id){
+		return $this->db->query("SELECT * FROM document WHERE id = '{$case_document_id}'")->row_array();
+	}
+	
 	function getDocumentList($case_id){
 		$query="
 			SELECT id,name,type,IF(doctype='其他',doctype_other,doctype) AS doctype,comment,time,username
@@ -611,7 +620,7 @@ class Cases_model extends SS_Model{
 				LIMIT 1
 			)opposite
 			ON 1=1";	
-		return db_fetch_first($query);
+		return $this->db->query($query)->row_array();
 	}
 	
 	/*

@@ -6,7 +6,7 @@ class Classes_model extends SS_Model{
 
 	function fetch($id){
 		$query="SELECT * FROM class WHERE id='".$id."'";
-		return db_fetch_first($query,true);
+		return $this->db->query($query)->row_array();
 	}
 	
 	function check($class_name,$data_type='id',$show_error=true,$save_to=NULL){
@@ -51,7 +51,14 @@ class Classes_model extends SS_Model{
 	
 	
 	function fetchByStudentId($student_id){
-		return db_fetch_first("SELECT * FROM class WHERE id = (SELECT class FROM student_class WHERE student = '".$student_id."' AND term='".$_SESSION['global']['current_term']."')");
+		return $this->db->query("
+			SELECT * FROM class 
+			WHERE id = (
+				SELECT class FROM student_class 
+				WHERE student = '{$student_id}'
+					AND term='{$_SESSION['global']['current_term']}'
+			)
+		")->row_array();
 	}
 }
 ?>
