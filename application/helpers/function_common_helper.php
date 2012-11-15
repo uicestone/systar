@@ -298,7 +298,7 @@ function getIP(){
  * 对于js跳转，输出js代码交给浏览器完成跳转，因此会发生内容输出
  * $unsetPara目前只适用于js跳转，用以将原来url中的某个变量去除
  */
-function redirect($url,$method='php',$unsetPara=NULL,$jump_to_top_frame=false){
+function redirect($url='',$method='php',$unsetPara=NULL,$jump_to_top_frame=false){
 	$CI=&get_instance();
 	$base_url=$CI->config->item('base_url');
 	

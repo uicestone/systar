@@ -25,11 +25,11 @@ $(function(){
 			post.term=thisLine.children('.term').children('[name="term"]').val();
 			post.is_on=thisLine.children('.is_on').children('[name="is_on"]').val();
 
-			$.post('exam.php?save&action=exam',post,function(exam){
+			$.post('/exam/listsave?action=exam',post,function(exam){
 				exam=$.parseResponse(exam);
 				thisLine.children().children('input:text').remove();
 				thisLine.children('.id').html(exam.id);
-				thisLine.children('.name').html('<a href="exam.php?exam='+exam.id+'">'+exam.depart+'-'+exam.grade_name+'-'+exam.name+'</a>');
+				thisLine.children('.name').html('<a href="/exam/paperlist/'+exam.id+'">'+exam.depart+'-'+exam.grade_name+'-'+exam.name+'</a>');
 				thisLine.children('.term').html(exam.term);
 			});
 		});
@@ -38,9 +38,10 @@ $(function(){
 	$('[name="is_on"]').change(function(){
 		var is_on=Number($(this).is(':checked'));
 		var id=$(this).attr('id');
-		$.post('exam.php?save&update',{table:'exam',field:'is_on',id:id,value:is_on},function(result){
+		$.post('/exam/listsave?update=1',{table:'exam',field:'is_on',id:id,value:is_on},function(result){
 			showMessage('考试'+id+'已'+(is_on?'激活':'取消激活'));
 		});
 	});
 });
 </script>
+<?=$list?>

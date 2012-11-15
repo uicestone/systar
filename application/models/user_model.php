@@ -61,8 +61,13 @@ class User_model extends SS_Model{
 		}
 	}
 	
-	function update_login_time(){
-		$this->db_update('user',array('lastip'=>getIP(),'lastlogin'=>$this->config->item('timestamp')),"id='".$_SESSION['id']."' AND company='".$this->config->item('company')."'");
+	function updateLoginTime(){
+		$this->db->update('user',
+			array('lastip'=>getIP(),
+				'lastlogin'=>$this->config->item('timestamp')
+			),
+			array('id'=>$_SESSION['id'],'company'=>$this->config->item('company'))
+		);
 	}
 	
 	function student_set_session($user_id){

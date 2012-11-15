@@ -87,6 +87,13 @@ class SS_Controller extends CI_Controller{
 				if(is_posted('submit/file_document_list')){
 					$this->load->require_head=false;
 				}
+	
+			}elseif($method=='write'){
+				$this->load->require_head=false;
+	
+			}
+		}elseif($class=='classes'){
+			if(($method=='add' || $method=='edit')){
 				$this->as_popup_window=FALSE;
 	
 			}elseif($method=='write'){

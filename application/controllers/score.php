@@ -1,28 +1,16 @@
 <?php
 class Score extends SS_controller{
 	function __construct(){
+		$this->default_method='uploadBoard';
 		parent::__construct();
 	}
 	
 	//阅卷结果（分数文件）上传
-	function index(){
-		$q_exam="
-		SELECT 
-			exam.id AS exam,exam.name AS name,
-			exam_paper.id AS exam_paper,exam_paper.is_extra_course AS is_extra_course,
-			if(exam_paper.is_extra_course,course.id,NULL) AS extra_course,
-			grade.name AS grade_name,course.id AS course,course.name AS course_name,
-			exam_paper.students AS students, exam_paper.teacher_group AS teacher_group 
-		FROM 
-			exam_paper 
-			INNER JOIN exam ON (exam_paper.exam=exam.id)
-			INNER JOIN course ON exam_paper.course=course.id
-			INNER JOIN grade ON exam.grade=grade.id
-		WHERE  exam_paper.is_scoring=1 
-			AND exam.is_on=1
-			AND (".db_implode($_SESSION['teacher_group'],' OR ','teacher_group').')';
-		
-		$examArray=db_toArray($q_exam);
+	function uploadBoard(){
+		$this->load->model('exam_model','exam');
+		$examArray=$this->exam->getInfoList();
+
+		$this->load->addViewData('examArray',$examArray);
 		
 		if($this->input->get('exam_paper')){
 			foreach($examArray as $exam){
@@ -37,6 +25,8 @@ class Score extends SS_controller{
 		}else{
 			$currentExam=false;
 		}
+
+		$this->load->addViewData('currentExam',$currentExam);
 		
 		while(is_posted('submit/score_table')){
 			if ($_FILES['score_table']['error'] > 0){
@@ -199,7 +189,7 @@ class Score extends SS_controller{
 				'time'=>$this->config->item('timestamp')
 			);
 			
-			if($this->input->post('score')!=$_SESSION['score']['currentScore']['score'] || isset($this->input->post('is_absent'))!=$_SESSION['score']['currentScore']['is_absent'])
+			if($this->input->post('score')!=$_SESSION['score']['currentScore']['score'] || $this->input->post('is_absent')!=$_SESSION['score']['currentScore']['is_absent'])
 				db_insert('score',$scoreData,false,true);//当前学生-大题-分数插入数据表，不返回insertid，使用replace
 			
 			if($this->input->post('nextScore'))
@@ -275,13 +265,16 @@ class Score extends SS_controller{
 		}else{
 			$currentExam=false;
 		}
-		
+
+		$this->load->addViewData('currentExam',$currentExam);
 		
 		$q_partArray="
 			SELECT * FROM exam_part WHERE exam_paper='".$currentExam['exam_paper']."'
 		";
 		
 		$partArray=db_toArray($q_partArray);
+		
+		$this->load->addViewData('partArray', $partArray);
 		
 		$q_students_left="
 			SELECT *
@@ -292,6 +285,8 @@ class Score extends SS_controller{
 		
 		$r_students_left=mysql_query($q_students_left);
 		$student_left=$currentExam['students']-db_rows($r_students_left);
+		
+		$this->load->addViewData('student_left', $student_left);
 	}
 }
 ?>

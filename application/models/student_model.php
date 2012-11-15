@@ -70,6 +70,47 @@ class Student_model extends SS_Model{
 		return $this->db->query($q)->result_array();
 	}
 	
+	/**
+	 * 获得一个学生的家庭成员列表
+	 */
+	function getRelativeList($student_id){
+		$query="
+			SELECT 
+				id,name,relationship,work_for,contact
+			FROM 
+				student_relatives
+			WHERE company='".$this->config->item('company')."'
+				AND `student`='{$student_id}'
+		";
+		
+		return $this->db->query($query)->result_array();
+	}
+	
+	/**
+	 * 获得一个学生的奖惩记录列表
+	 */
+	function getBehaviourList($student_id){
+		$query="
+			SELECT name,type,date,level,content FROM student_behaviour WHERE student = '{$student_id}'
+			LIMIT 5
+		";
+		
+		return $this->db->query($query)->result_array();
+	}
+	
+	function getCommentList($student_id){
+		$query="
+			SELECT student_comment.title,student_comment.content,
+				FROM_UNIXTIME(time,'%Y-%m-%d') AS time,IF(staff.name IS NULL,student_comment.username,staff.name) AS username 
+			FROM student_comment LEFT JOIN staff ON staff.id=student_comment.uid 
+			WHERE student = '{$student_id}' AND (reply_to IS NULL OR reply_to = '".$_SESSION['id']."' OR uid = '".$_SESSION['id']."')
+			ORDER BY student_comment.time DESC
+			LIMIT 5
+		";
+		
+		return $this->db->query($query)->result_array();
+	}
+	
 	function update($student_id=NULL){
 		db_query("DROP TABLE IF EXISTS view_student");
 		db_query("
@@ -163,29 +204,12 @@ class Student_model extends SS_Model{
 		db_delete('student_relatives',$condition);
 	}
 	
-	function get_scores($student){
+	function getScores($student){
 		$query="SELECT exam_name,course_1,course_2,course_3,course_4,course_5,course_6,course_7,course_8,course_9,course_10,course_sum_3,course_sum_5,course_sum_8,rank_1,rank_2,rank_3,rank_4,rank_5,rank_6,rank_7,rank_8,rank_9,rank_10,rank_sum_3,rank_sum_5,rank_sum_8
 			FROM view_score WHERE student = '".$student."'
 		ORDER BY exam DESC";
 	
-		$field=array(
-			'exam_name'=>array('title'=>'考试'),
-			'course_1'=>array('title'=>'语文','content'=>'{course_1}<span class="rank">{rank_1}</span>'),
-			'course_2'=>array('title'=>'数学','content'=>'{course_2}<span class="rank">{rank_2}</span>'),
-			'course_3'=>array('title'=>'英语','content'=>'{course_3}<span class="rank">{rank_3}</span>'),
-			'course_4'=>array('title'=>'物理','content'=>'{course_4}<span class="rank">{rank_4}</span>'),
-			'course_5'=>array('title'=>'化学','content'=>'{course_5}<span class="rank">{rank_5}</span>'),
-			'course_6'=>array('title'=>'生物','content'=>'{course_6}<span class="rank">{rank_6}</span>'),
-			'course_7'=>array('title'=>'地理','content'=>'{course_7}<span class="rank">{rank_7}</span>'),
-			'course_8'=>array('title'=>'历史','content'=>'{course_8}<span class="rank">{rank_8}</span>'),
-			'course_9'=>array('title'=>'政治','content'=>'{course_9}<span class="rank">{rank_9}</span>'),
-			'course_10'=>array('title'=>'信息','content'=>'{course_10}<span class="rank">{rank_10}</span>'),
-			'course_sum_3'=>array('title'=>'3总','content'=>'{course_sum_3}<span class="rank">{rank_sum_3}</span>'),
-			'course_sum_5'=>array('title'=>'4总/5总','content'=>'{course_sum_5}<span class="rank">{rank_sum_5}</span>'),
-			'course_sum_8'=>array('title'=>'8总','content'=>'{course_sum_8}<span class="rank">{rank_sum_8}</span>')
-		);
-		
-		return $this->fetchTableArray($query,$field);
+		return $this->db->query($query)->result_array();
 	}
 	
 	function testClassDiv($div,$data,$classes,$gender,$showResult=false){

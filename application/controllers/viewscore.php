@@ -5,32 +5,7 @@ class ViewScore extends SS_controller{
 	}
 	
 	function lists(){
-		$q="SELECT * FROM view_score INNER JOIN view_student ON view_student.id=view_score.student WHERE 1=1";
-		
-		if(!option('class') && !option('grade')){
-			$manage_class=db_fetch_first("SELECT id,grade FROM class WHERE class_teacher='".$_SESSION['id']."'");
-			if($manage_class){
-				//将班主任的视图定位到自己班级
-				option('class',$manage_class['id']);
-				option('grade',$manage_class['grade']);
-			}else{
-				//默认显示的年级
-				option('grade',$_SESSION['global']['highest_grade']);
-			}
-		}
-		
-		addCondition($q,array('class'=>'view_student.class','grade'=>'view_student.grade'),array('grade'=>array('class','exam')));
-		
-		if(!option('exam')){
-			option('exam',db_fetch_field("SELECT id FROM exam WHERE grade='".option('grade')."' ORDER BY id DESC LIMIT 1"));
-		}
-		
-		addCondition($q, array('exam'=>'view_score.exam'));
-		
-		$search_bar=$this->processSearch($q,array('view_student.name'=>'学生'));
-		
-		$this->processOrderby($q,'view_student.num');
-		
+		echo '成绩汇总页面正在升级，看到“文件上传成功即表示正确录入分数”';
 		$field=array(
 			'class'=>array('title'=>'班级','td_title'=>'width=103px','content'=>'{class_name}'),
 			'name'=>array('title'=>'学生','content'=>'{name}','td_title'=>'width=61px'),

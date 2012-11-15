@@ -29,3 +29,12 @@ INSERT INTO `holidays` (`id`, `date`, `is_overtime`, `staff`) VALUES
 --uice 2012/11/12 废弃“资金－案下资金”权限
 delete from `group` where affair='account' and action='case';
 --end
+
+
+--uice 2012/11/15
+update affair set name = 'classes' where name = 'class';
+update `group` set affair = 'classes' where affair = 'class';
+update affair set is_on = 0 where name = 'teach'
+update affair set name = 'viewscore' where name ='view_score';
+update `group` set affair = 'viewscore' where affair ='view_score';
+--end

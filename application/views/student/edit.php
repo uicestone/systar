@@ -56,7 +56,7 @@
 		<div class="item">
 			<div class="title"><label>亲属</label></div>
 
-			<? exportTable($q_student_relatives,$field_student_relatives,NULL,false,false);?>
+			<?=$relatives?>
 
 			<div id="studentRelativesAddForm">
 				<input type="text" name="student_relatives[name]" value="<?=post('student_relatives/name')?>" placeholder="姓名" style="width:20%" />
@@ -83,13 +83,13 @@
 		<div class="item">
 			<div class="title"><label>成绩</label>
 			<a href="student?viewscore&student=<? echo post('student/id') ?>" style="font-size:12px">查看详细</a></div>
-			<? $this->arrayExportTable($scores,NULL,false,false,array(),false,true) ?>
+			<?=$scores?>
 		</div>
 
 		<div class="item">
 			<div class="title"><label>奖惩记录</label></div>
 
-			<? exportTable($q_student_behaviour,$field_student_behaviour,NULL,false,false);?>
+			<?=$behaviour?>
 
 			<? if(is_logged('jiaowu')){ ?>
 			<div id="studentBehaviourAddForm">
@@ -118,7 +118,7 @@
 				<a href="student?interactive" style="font-size:12px">查看详细</a>
 			</div>
 
-			<? exportTable($q_student_comment,$field_student_comment,NULL,false,false);?>
+			<?=$comments?>
 
 			<div id="studentCommentAddForm">
 				<input type="text" name="student_comment[title]" value="<?=post('student_comment/title') ?>" placeholder="标题" style="width:80%" />

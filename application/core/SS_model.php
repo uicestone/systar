@@ -140,7 +140,7 @@ class SS_Model extends CI_Model{
 		$need_convert=in_array(option('orderby'),$field_need_convert);
 
 		$query.=' ORDER BY'.
-			($need_convert?'convert(':'').
+			($need_convert?' convert(':'').
 			db_field_name(option('orderby')).
 			($need_convert?' USING GBK) ':' ').
 			option('method');
