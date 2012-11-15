@@ -415,8 +415,6 @@ class Schedule extends SS_controller{
 	
 	function taskBoard()
 	{
-		$this -> load -> model('schedule_model' , 'schedule');
-		
 		$id = $_SESSION['id'];
 		$sort_data = $this -> schedule -> getTaskBoardSort($id);
 		
@@ -446,19 +444,17 @@ class Schedule extends SS_controller{
 			array_push($task_board , $series_array);
 		}
 		
-		return $task_board;
+		$this -> load -> addViewData('schedule/task' , $task_board);
 	}
 	
 	function setTaskBoardSort()
 	{
-		$this -> load -> model('schedule_model' , 'schedule');
-		
 		$sort_data = $this -> input -> post('sortData');
 		$id = $_SESSION['id'];
 		$this -> schedule -> setTaskBoardSort($sort_data , $id);
 		
 		$this -> load -> require_head = false;
-		echo $sort_data;
+		echo "Success!";
 	}
 }
 ?>
