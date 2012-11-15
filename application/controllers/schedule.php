@@ -412,5 +412,7 @@ class Schedule extends SS_controller{
 			$this->schedule->update($this->input->post('id'),$data);
 		}
 	}
+	
+	//some change
 }
 ?>
