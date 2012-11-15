@@ -466,36 +466,10 @@ class Cases extends SS_controller{
 				$case_client_role['client_name']='<a href="javascript:showWindow(\'client/edit/'.$case_client_role['client'].'\')">'.$case_client_role['client_name'].'</a>';
 		
 				$case_client_role['opposite_name']='<a href="javascript:showWindow(\'client/edit/'.$case_client_role['opposite'].'\')">'.$case_client_role['opposite_name'].'</a>';
+				
+				post('cases/name',$this->cases->getName($case_client_role,post('cases/classification'),post('cases/type'),post('cases/is_query')));
 		
-				//更新案名
-				if(post('cases/is_query')){
-					post('cases/name',$case_client_role['client_name'].' 咨询');
-
-				}elseif(post('cases/classification')=='诉讼' && ($case_client_role['client_role']=='原告' || $case_client_role['client_role']=='申请人') && ($case_client_role['opposite_role']=='被告' || $case_client_role['opposite_role']=='被申请人')){
-						post('cases/name',$case_client_role['client_name'].' 诉 '.$case_client_role['opposite_name'].'('.post('cases/type').')');
-						
-				}elseif(post('cases/classification')=='诉讼' && ($case_client_role['client_role']=='被告' || $case_client_role['client_role']=='被申请人') && ($case_client_role['opposite_role']=='原告' || $case_client_role['opposite_role']=='申请人')){
-						post('cases/name',$case_client_role['client_name'].' 应诉 '.$case_client_role['opposite_name'].'('.post('cases/type').')');
-			
-				}elseif(post('cases/classification')=='诉讼' && $case_client_role['client_role']=='上诉人'){
-					post('cases/name',$case_client_role['client_name'].' 上诉 '.$case_client_role['opposite_name'].'('.post('cases/type').')');
-					
-				}elseif(post('cases/classification')=='诉讼' && $case_client_role['client_role']=='被上诉人'){
-					post('cases/name',$case_client_role['client_name'].' 应 '.$case_client_role['opposite_name'].' 上诉('.post('cases/type').')');
-					
-				}elseif(post('cases/classification')=='诉讼' && $case_client_role['client_role']=='第三人'){
-					post('cases/name',$case_client_role['client_name'].' 与 '.$case_client_role['opposite_role'].' '.$case_client_role['opposite_name'].'('.post('cases/type').')');
-					
-				}elseif(post('cases/classification')=='法律顾问'){
-					post('cases/name',$case_client_role['client_name'].'(法律顾问)');
-					
-				}else{
-					post('cases/name',$case_client_role['client_name'].(post('cases/type')?'('.post('cases/type').')':''));
-			
-				}
 			}
-		
-			post('cases/name',post('cases/name'));
 		
 			if(post('cases/name_extra')){
 				post('cases/name',post('cases/name').' '.post('cases/name_extra'));
