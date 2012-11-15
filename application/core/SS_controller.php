@@ -284,7 +284,8 @@ class SS_Controller extends CI_Controller{
 		}
 
 		if($submitable){
-			if(db_update($update_table,post(CONTROLLER),"id='".post(CONTROLLER.'/id')."'")){
+			$this->db->where('id',post(CONTROLLER.'/id'));
+			if($this->db->update($update_table,post(CONTROLLER))){
 
 				if(is_a($after_update,'Closure')){
 					$after_update();

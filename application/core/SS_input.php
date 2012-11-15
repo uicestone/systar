@@ -30,5 +30,13 @@ class SS_input extends CI_Input{
 			return $post;
 		}
 	}
+	
+	function _clean_input_keys($str){   
+		$config = &get_config('config');   
+		if( ! preg_match("/^[".$config['permitted_uri_chars']."]+$/i", rawurlencode($str))){   
+		   exit('Disallowed Key Characters.');   
+		}   
+		return $str;   
+	}  
 }
 ?>

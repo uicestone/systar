@@ -9,6 +9,51 @@ class Student_model extends SS_Model{
 		return db_fetch_first($query,true);
 	}
 	
+	function getList(){
+		$q=
+		"SELECT 
+			student.id,student.name AS name,student.id_card,student.phone,student.mobile,student.address,
+			student_num.num,
+			class.name AS class_name,
+			relatives.contacts AS relatives_contacts
+		FROM 
+			student
+			INNER JOIN (
+				SELECT student,class,
+					right((1000000 + concat(student_class.class,right((100 + student_class.num_in_class),2))),6) AS num
+				FROM student_class
+				WHERE student_class.term = '".$_SESSION['global']['current_term']."'
+			)student_num ON student_num.student=student.id
+			INNER JOIN class ON class.id=student_num.class
+			LEFT JOIN (
+				SELECT student.id AS student,GROUP_CONCAT(student_relatives.contact) AS contacts
+				FROM student INNER JOIN student_relatives ON student_relatives.student=student.id
+				WHERE student_relatives.contact<>''
+				GROUP BY student.id
+			)relatives
+			ON relatives.student=student.id
+		WHERE student.display=1
+			AND (class.id=(SELECT id FROM class WHERE class_teacher='".$_SESSION['id']."')
+				OR '".(is_logged('jiaowu') || is_logged('zhengjiao') || is_logged('health'))."'='1')
+		";
+		//班主任可以看到自己班级的学生，教务和政教可以看到其他班级的学生
+		
+		//将班主任的视图定位到自己班级
+		if(!option('class') && !option('grade') && isset($_SESSION['manage_class'])){
+			option('class',$_SESSION['manage_class']['id']);
+			option('grade',$_SESSION['manage_class']['grade']);
+		}
+		$q=$this->addCondition($q,array('class'=>'class.id','grade'=>'class.grade'),array('grade'=>'class'));
+				
+		$q=$this->search($q,array('num'=>'学号','student.name'=>'姓名'));
+		
+		$q=$this->orderby($q,'num','ASC',array('num','student.name'));
+		
+		$q=$this->pagination($q);
+		
+		return $this->db->query($q)->result_array();
+	}
+	
 	function update($student_id=NULL){
 		db_query("DROP TABLE IF EXISTS view_student");
 		db_query("
