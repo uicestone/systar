@@ -206,9 +206,9 @@ class Cases_model extends SS_Model{
 			SELECT SUM(contribute) AS contribute_sum
 			FROM case_lawyer
 			WHERE `case`='".$case_id."'
-		")->row->array();
+		")->row_array();
 		
-		return $this->cases->getStatus($is_reviewed,$locked,$apply_file,$is_query,$finance_review,$info_review,$manager_review,$filed,$contribute_sum,$uncollected);
+		return $this->getStatus($is_reviewed,$locked,$apply_file,$is_query,$finance_review,$info_review,$manager_review,$filed,$contribute_sum,$uncollected);
 	}
 	
 	function reviewMessage($reviewWord,$lawyers){
