@@ -37,7 +37,6 @@ class Student extends SS_controller{
 				->generate();
 		
 		$this->load->addViewData('list', $list);
-		$this->load->view('list');
 	}
 
 	function add(){
