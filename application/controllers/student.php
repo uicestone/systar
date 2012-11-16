@@ -52,15 +52,15 @@ class Student extends SS_controller{
 		$this->getPostData($id,function($CI){
 			post('student/name','新学生'.$CI->config->item('timestamp'));
 			
-			post(CONTROLLER.'/id',db_insert('user',array('group'=>'student')));
+			post(CONTROLLER.'/id',$CI->db->insert('user',array('group'=>'student')));
 			//先创建用户，再创建学生
 			
-			db_insert(CONTROLLER,post(CONTROLLER));
+			$CI->db->insert(CONTROLLER,post(CONTROLLER));
 		},false);
 		
 		$student_class=$this->student->fetchClassInfo(post('student/id'));
 		post('student_class',array('class'=>$student_class['class'],'num_in_class'=>$student_class['num_in_class']));
-		post('class/name',$student_class['class_name']);
+		post('classes/name',$student_class['class_name']);
 		isset($student_class['class_teacher_name']) && post('student_extra/class_teacher_name',$student_class['class_teacher_name']);
 		$submitable=false;//可提交性，false则显示form，true则可以跳转
 		
@@ -144,7 +144,7 @@ class Student extends SS_controller{
 					$submitable=false;
 				}
 			}else{
-				if(!$this->db_update('student_class',post('student_class'),"student='".post('student/id')."' AND term='".$_SESSION['global']['current_term']."'")){
+				if(!$this->db->update('student_class',post('student_class'),array('student'=>post('student/id'),'term'=>$_SESSION['global']['current_term']))){
 					$submitable=false;
 				}
 			}
@@ -199,13 +199,16 @@ class Student extends SS_controller{
 			'course_9'=>array('title'=>'政治','content'=>'{course_9}<span class="rank">{rank_9}</span>'),
 			'course_10'=>array('title'=>'信息','content'=>'{course_10}<span class="rank">{rank_10}</span>'),
 			'course_sum_3'=>array('title'=>'3总','content'=>'{course_sum_3}<span class="rank">{rank_sum_3}</span>'),
-			'course_sum_5'=>array('title'=>'4/5总','content'=>'{course_sum_5}<span class="rank">{rank_sum_5}</span>'),
+			'course_sum_5'=>array('title'=>'4总/5总','content'=>'{course_sum_5}<span class="rank">{rank_sum_5}</span>'),
 			'course_sum_8'=>array('title'=>'8总','content'=>'{course_sum_8}<span class="rank">{rank_sum_8}</span>')
 		);
 		$scores=$this->table->setFields($fields_scores)
+				->trimColumns()
 				->generate($this->student->getScores(post('student/id')));
 		
 		$this->load->addViewArrayData(compact('relatives','behaviour','comments','scores'));
+		$this->load->view('student/edit');
+		$this->load->main_view_loaded=true;
 	}
 
 	function classDiv(){

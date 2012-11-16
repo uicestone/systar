@@ -162,6 +162,11 @@ class SS_Table extends CI_Table{
 		return $this;
 	}
 	
+	function trimColumns(){
+		$this->trim_columns=true;
+		return $this;
+	}
+	
 	function generateData(){
 		$this->_init();
 	}
@@ -205,7 +210,7 @@ class SS_Table extends CI_Table{
 			foreach($this->rows as $row_id => $row){
 				foreach($row as $column_id => $cell){
 					if($column_is_empty[$column_id]){
-						unset($this->$row[$row_id][$column_id]);
+						unset($this->rows[$row_id][$column_id]);
 					}
 				}
 			}
