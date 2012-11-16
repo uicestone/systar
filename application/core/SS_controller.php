@@ -176,38 +176,12 @@ class SS_Controller extends CI_Controller{
 				$this->load->require_head=false;
 	
 			}
-		}elseif($class=='exam'){
-			if($method=='save'){
-				$_G{'action'}=$class.'_list_save';
-				$this->load->require_head=false;
-	
-			}
 		}elseif($class=='student'){
 			$this->as_popup_window=FALSE;
-			if($method=='setclass'){
-				$this->load->require_head=false;
-	
-			}elseif(is_logged('student')){
-				post('student/id',$_SESSION['id']);
-				$this->as_controller_default_page=true;
-	
-			}elseif(is_logged('parent')){
-				post('student/id',$_SESSION['child']);
-				$this->as_controller_default_page=true;
-	
-			}elseif(is_permitted($class)){//默认action
-							}	
-		}elseif($class=='survey'){
-			if(got('action','homework')){
-	
-			}
-		}elseif($class=='view_score'){
-			if($this->input->post('export_to_excel')){
-				$this->load->require_head=false;
-			}
 		}
 
 		$this->load->model('company_model','company');
+		$this->load->model('user_model','user');
 		
 		if(is_file(APPPATH.'models/'.$class.'_model.php')){
 			$this->load->model($class.'_model',$class);

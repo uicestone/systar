@@ -407,6 +407,7 @@ class Schedule extends SS_controller{
 			}elseif($this->input->post('action')=='drag'){
 				$this->schedule->drag($schedule_id,$time_delta,(int)$this->input->post('allDay'));
 			}
+		}
 			
 	}
 }

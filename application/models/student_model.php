@@ -103,10 +103,34 @@ class Student_model extends SS_Model{
 			SELECT student_comment.title,student_comment.content,
 				FROM_UNIXTIME(time,'%Y-%m-%d') AS time,IF(staff.name IS NULL,student_comment.username,staff.name) AS username 
 			FROM student_comment LEFT JOIN staff ON staff.id=student_comment.uid 
-			WHERE student = '{$student_id}' AND (reply_to IS NULL OR reply_to = '".$_SESSION['id']."' OR uid = '".$_SESSION['id']."')
+			WHERE student = '{$student_id}' AND (reply_to IS NULL OR reply_to = '{$_SESSION['id']}' OR uid = '{$_SESSION['id']}')
 			ORDER BY student_comment.time DESC
 			LIMIT 5
 		";
+		
+		return $this->db->query($query)->result_array();
+	}
+	
+	/**
+	 * 家校互动页面学生评价留言列表
+	 * TODO跟上面的getCommentList合并兼容
+	 */
+	function getInteractiveList(){
+		$query="
+			SELECT student_comment.title,student_comment.content,
+				FROM_UNIXTIME(student_comment.time,'%Y-%m-%d') AS date,student_comment.username,student_comment.student,
+				view_student.name AS student_name
+			FROM student_comment INNER JOIN view_student ON student_comment.student=view_student.id
+			WHERE student_comment.reply_to='{$_SESSION['id']}' 
+				OR student_comment.uid='{$_SESSION['id']}' 
+				OR (
+					'".isset($_SESSION['manage_class'])."' 
+					AND view_student.class='{$_SESSION['manage_class']['id']}'
+				)
+			ORDER BY time DESC
+		";
+		
+		$query=$this->pagination($query);
 		
 		return $this->db->query($query)->result_array();
 	}

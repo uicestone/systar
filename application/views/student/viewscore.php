@@ -1,4 +1,4 @@
-<script type="text/javascript" src="js/highcharts/highcharts.js"></script>
+<?javascript('highcharts/highcharts')?>
 <script type="text/javascript">
 var chart;
 $(function(){
@@ -32,5 +32,5 @@ $(function(){
 </script>
 <div class="contentTableBox">
 	<div id="chart" style="width:900px;height:500px;margin:auto"></div>
-	<? $this->arrayExportTable($scores,NULL,false,false,array(),false,true) ?>
+	<?=$scores?>
 </div>

@@ -8,7 +8,7 @@ class Score_model extends SS_Model{
 		$q="SELECT * FROM view_score INNER JOIN view_student ON view_student.id=view_score.student WHERE 1=1";
 
 		if(!option('class') && !option('grade')){
-			$manage_class=db_fetch_first("SELECT id,grade FROM class WHERE class_teacher='".$_SESSION['id']."'");
+			$manage_class=$this->db->query("SELECT id,grade FROM class WHERE class_teacher='{$_SESSION['id']}'")->row_array();
 			if($manage_class){
 				//将班主任的视图定位到自己班级
 				option('class',$manage_class['id']);

@@ -10,8 +10,6 @@ class user extends SS_controller{
 	}
 	
 	function login(){
-		$this->load->model('user_model','model');
-		
 		if(is_logged()){
 			//用户已登陆，则不显示登录界面
 			redirect('');

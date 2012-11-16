@@ -82,7 +82,7 @@
 		
 		<div class="item">
 			<div class="title"><label>成绩</label>
-			<a href="student?viewscore&student=<? echo post('student/id') ?>" style="font-size:12px">查看详细</a></div>
+			<a href="/student/viewscore?student=<? echo post('student/id') ?>" style="font-size:12px">查看详细</a></div>
 			<?=$scores?>
 		</div>
 

@@ -5,6 +5,23 @@ class Student extends SS_controller{
 	}
 	
 	function lists(){
+		//如果以家长或学生身份登陆，显示的是编辑查看页面，而非列表页面
+		if(is_logged('parent') || is_logged('student')){
+
+			$this->as_controller_default_page=true;
+			
+			if(is_logged('student')){
+				post('student/id',$_SESSION['id']);
+	
+			}elseif(is_logged('parent')){
+				post('student/id',$_SESSION['child']);
+	
+			}
+			
+			$this->edit(post('student/id'));
+			
+			return;
+		}
 		$this->session->set_userdata('last_list_action',$this->input->server('REQUEST_URI'));
 		
 		if($this->input->get('update')){
@@ -17,7 +34,7 @@ class Student extends SS_controller{
 			'student.name'=>array('title'=>'姓名','content'=>'<a href="/student/edit/{id}">{name}</a>'),
 			'student_num.class'=>array('title'=>'班级','content'=>'{class_name}')
 		);
-		
+
 		if(is_logged('health')){
 			$field+=array(
 				'id_card'=>array('title'=>'身份证'),
@@ -158,7 +175,7 @@ class Student extends SS_controller{
 		}
 		
 		$fields_student_relatives=array(
-			'checkbox'=>array('title'=>'<input type="submit" name="submit[student_relatives_delete]" value="删" />','orderby'=>false,'content'=>'<input type="checkbox" name="student_relatives_check[{id}]" >','td_title'=>' width=60px'),
+			'checkbox'=>array('title'=>'<input type="submit" name="submit[student_relatives_delete]" value="删" />','orderby'=>false,'content'=>'<input type="checkbox" name="student_relatives_check[{id}]" >','td_title'=>' width="25px"'),
 			'name'=>array('title'=>'姓名','orderby'=>false),
 			'relationship'=>array('title'=>'关系','orderby'=>false),
 			'contact'=>array('title'=>'电话','orderby'=>false),
@@ -368,45 +385,33 @@ class Student extends SS_controller{
 		}
 	}
 
+	/**
+	 * 家校互动
+	 */
 	function interactive(){
-		model('user');
+		$this->session->set_userdata('last_list_action', $this->input->server('REQUEST_URI'));
 		
 		if($this->input->post('submit')){
 			$submitable=true;
 			
-			$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$_POST);
+			$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$this->input->post());
 			
-			if(post('student_comment/reply_to',user_check(post('student_comment_extra/reply_to_username')))<0){
+			if(post('student_comment/reply_to',$this->user->check(post('student_comment_extra/reply_to_username')))<0){
 				$submitable=false;
 			}
 			
 			if(is_logged('parent')){
-				$student_id=student_getIdByParentUid($_SESSION['id']);
+				$student_id=$this->student->getIdByParentUid($_SESSION['id']);
 			}else{
-				$student_id=student_getIdByParentUid(post('student_comment/reply_to'));
+				$student_id=$this->student->getIdByParentUid(post('student_comment/reply_to'));
 			}
 			
 			if($submitable){
-				student_addComment($student_id,post('student_comment'));
+				$this->student->addComment($student_id,post('student_comment'));
 				unset($_SESSION[CONTROLLER]['post']['student_comment']);
 				unset($_SESSION[CONTROLLER]['post']['student_comment_extra']);
 			}
 		}
-		
-		$q="
-		SELECT student_comment.title,student_comment.content,FROM_UNIXTIME(student_comment.time,'%Y-%m-%d') AS date,student_comment.username,student_comment.student,
-			view_student.name AS student_name
-		FROM student_comment INNER JOIN view_student ON student_comment.student=view_student.id
-		WHERE student_comment.reply_to='".$_SESSION['id']."' 
-			OR student_comment.uid='".$_SESSION['id']."' 
-			OR (
-				'".isset($_SESSION['manage_class'])."' 
-				AND view_student.class='".$_SESSION['manage_class']['id']."'
-			)
-		ORDER BY time DESC
-		";
-		
-		$list_locator=$this->processMultiPage($q);
 		
 		$field=array(
 			'date'=>array('title'=>'日期','td_title'=>'width="100px"'),
@@ -415,19 +420,11 @@ class Student extends SS_controller{
 			'title'=>array('title'=>'标题','td_title'=>'width="120px"','td'=>'class="ellipsis" title="{title}"'),
 			'content'=>array('title'=>'内容','td'=>'class="ellipsis" title="{content}"')
 		);
-		
-		$menu=array(
-			'head'=>'<div class="right">'.$list_locator.'</div>',
-			'foot'=>template('student_interactive_send')
-		);
-		
-		$_SESSION['last_list_action']=$this->input->server('REQUEST_URI');
-		
-		$table=$this->fetchTableArray($q, $field);
-		
-		$this->view_data+=compact('table','menu');
-		
-		$this->load->view('lists',$this->view_data);
+		$list=$this->table->setFields($field)
+			->setMenu(template('student/interactive_send'),'center','foot')
+			->setData($this->student->getInteractiveList())
+			->generate();
+		$this->load->addViewData('list', $list);
 	}
 	
 	function viewScore(){
@@ -469,6 +466,7 @@ class Student extends SS_controller{
 		
 		$series=json_encode($series,JSON_NUMERIC_CHECK);
 		$category=json_encode($category);
+		$this->load->addViewArrayData(compact('series','category'));
 		
 		$fields_scores=array(
 			'exam_name'=>array('title'=>'考试'),
@@ -487,9 +485,9 @@ class Student extends SS_controller{
 			'course_sum_8'=>array('title'=>'8总','content'=>'{course_sum_8}<span class="rank">{rank_sum_8}</span>')
 		);
 
-		$scores=$this->table->setField($fields_scores)
-				->setData($this->student->getScores($student))
-				->generate();
+		$scores=$this->table->setFields($fields_scores)
+			->trimColumns()
+			->generate($this->student->getScores($student));
 		
 		$this->load->addViewData('scores', $scores);
 	}
