@@ -176,7 +176,7 @@ $(function() {
 										text: "高级",
 										click: function() {
 											$(this).dialog("close");
-											showWindow('/schedule/edit='+event.id);
+											showWindow('schedule/edit/'+event.id);
 										}
 									},
 									{

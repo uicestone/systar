@@ -381,7 +381,7 @@ class Schedule extends SS_controller{
 	
 	function writeCalendar(){
 		if(!$this->input->post('id')){//插入新的任务
-			echo $this->schedule->add($_POST);
+			echo $this->schedule->add($this->input->post());
 			unset($_SESSION['schedule']['post']);
 			
 		}elseif($this->input->post('action')=='delete'){//删除任务
@@ -398,19 +398,16 @@ class Schedule extends SS_controller{
 			));
 		
 		}else{//更新任务时间
-			$timeDelta=intval($this->input->post('dayDelta'))*86400+intval($this->input->post('minuteDelta'))*60;
+			$schedule_id=$this->input->post('id');
+			$time_delta=intval($this->input->post('dayDelta'))*86400+intval($this->input->post('minuteDelta'))*60;
 			
 			if($this->input->post('action')=='resize'){
-				$data['hours_own']="_`hours_own`+'".($timeDelta/3600)."'_";
+				$this->schedule->resize($schedule_id,$time_delta,(int)$this->input->post('allDay'));
+				
 			}elseif($this->input->post('action')=='drag'){
-				$data['time_start']="_`time_start`+'".$timeDelta."'_";
+				$this->schedule->drag($schedule_id,$time_delta,(int)$this->input->post('allDay'));
 			}
 			
-			$data['all_day']=(int)$this->input->post('allDay');
-			$data['time_end']="_time_end+'".$timeDelta."'_";
-			
-			$this->schedule->update($this->input->post('id'),$data);
-		}
 	}
 }
 ?>

@@ -96,11 +96,26 @@ class Schedule_model extends SS_Model{
 	}
 	
 	function update($schedule_id,$data){
-		$this->db_update('schedule',$data,"id='".intval($schedule_id)."'");
+		$this->db->update('schedule',$data,"id='".intval($schedule_id)."'");
+	}
+	
+	/**
+	 * 调整calendar页面的日程时长
+	 */
+	function resize($schedule_id,$time_delta){
+		$minites_delta=$time_delta/60;
+		return $this->db->query("UPDATE schedule SET `hours_own` = `hours_own`+'{$minites_delta}', `time_end`=`time_end`+'{$time_delta}' WHERE id='{$schedule_id}'");
+	}
+	
+	/**
+	 * 调整calendar页面的日程开始时间
+	 */
+	function drag($schedule_id,$seconds_delta){
+		return $this->db->query("UPDATE schedule SET `time_start` = `time_start`+'{$seconds_delta}', `time_end`=`time_end`+'{$seconds_delta}' WHERE id='{$schedule_id}'");
 	}
 	
 	function calculateTime($case,$client=NULL,$staff=NULL){
-		$q="SELECT SUM(IF(hours_checked IS NULL,hours_own,hours_checked)) AS time FROM schedule WHERE display=1 AND completed=1 AND `case`='".$case."'";
+		$q="SELECT SUM(IF(hours_checked IS NULL,hours_own,hours_checked)) AS time FROM schedule WHERE display=1 AND completed=1 AND `case`='{$case}'";
 		
 		if(!is_null($client)){
 			$q.=" `client`='".$client."'";

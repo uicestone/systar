@@ -23,7 +23,9 @@ class ViewScore extends SS_controller{
 			'course_sum_5'=>array('title'=>'5总','content'=>'{course_sum_5}<br /><span class="rank">{rank_sum_5}</span>')
 		);
 		$list=$this->table->setFields($field)
+			->trimColumns()
 			->generate($this->score->getList());
+		$this->load->addViewData('list', $list);
 		
 		$field_avg=array(
 			'id'=>array('td_title'=>'width="204px"','content'=>'平均分'),
@@ -40,24 +42,16 @@ class ViewScore extends SS_controller{
 			'course_sum_3'=>'',
 			'course_sum_5'=>''
 		);
-		
-		$table=$this->fetchTableArray($q,$field);
+		$avg=$this->table->setFields($field_avg)
+			->trimColumns()
+			->generate($this->score->getAvg());
+		$this->load->addViewData('avg', $avg);
 		
 		if($this->input->post('export_to_excel')){
 			model('document');
 			document_exportHead('成绩.xls');
 			arrayExportExcel($table);
 			exit;
-		
-			$menu=array(
-			'head'=>'<div class="left">'.
-						'<button type="button" onclick="post(\'updateScore\',true)">更新</button>'.
-						'<button type="button" onclick="post(\'export_to_excel\',true)" disabled="disabled" title="本功能将于近期开放">导出</button>'.
-					'</div>'.
-					'<div class="right">'.
-						$listLocator.
-					'</div>'
-			);
 		}
 	}
 
