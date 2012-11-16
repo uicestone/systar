@@ -4,27 +4,15 @@ class Exam extends SS_controller{
 		parent::__construct();
 	}
 	
-	function index(){
+	function lists(){
 		if($this->input->post('allocate_seat')){
-			exam_allocate_seat();
+			$this->exam->allocate_seat();
 		}
-		
-		$q="SELECT 
-				exam.id AS id,exam.name AS name,exam.term AS term,exam.is_on,exam.seat_allocated,exam.depart,
-				grade.name AS grade_name
-			FROM exam INNER JOIN grade ON exam.grade=grade.id
-			WHERE
-				1=1
-			";
-				
-		$this->processOrderby($q,'exam.id','DESC',array('exam.name'));
-		
-		$listLocator=$this->processMultiPage($q);
 		
 		$field=array(
 			'id'=>array('title'=>'编号','td_title'=>'width="70px"'),
 			'name'=>array('title'=>'考试名称','eval'=>true,'content'=>"
-				return '<a href=\"exam.php?exam={id}\" style=\"float:left;\">{depart}-{grade_name}-{name}</a>'.({seat_allocated}?' <a href=\"exam.php?exam={id}&view_seat\" style=\"float:right;\">座位表</a>':'');
+				return '<a href=\"exam/paperlist/{id}\" style=\"float:left;\">{depart}-{grade_name}-{name}</a>'.({seat_allocated}?' <a href=\"/exam/viewseat/{id}\" style=\"float:right;\">座位表</a>':'');
 			"),
 			'term'=>array('title'=>'学期'),
 			'is_on'=>array('title'=>'激活','eval'=>true,'content'=>"
@@ -32,27 +20,21 @@ class Exam extends SS_controller{
 			")
 		);
 		
-		$menu=array(
-			'head'=>'<div style="float:left;">'.
-						'<button type="button" id="addExam">添加</button>'.
-						'<input type="submit" name="allocate_seat" value="排座位" title="根据当前教室设置，为已激活的考试生成座位表" />'.
-					'</div>'.
-					'<div style="float:right;">'.
-						$listLocator.
-					'</div>'
-		);
-
-		$table=$this->fetchTableArray($q, $field);
+		$list=$this->table->setFields($field)
+			->setData($this->exam->getList())
+			->setMenu('<button type="button" id="addExam">添加</button>'.
+				'<input type="submit" name="allocate_seat" value="排座位" title="根据当前教室设置，为已激活的考试生成座位表" />','left')
+			->wrapForm()
+			->generate();
 		
-		$this->view_data+=compact('table','menu');
-		
-		$this->load->view('lists',$this->view_data);
+		$this->load->addViewData('list', $list);
 	}
 
 	function listSave(){
+		$this->load->require_head=false;
 		if($this->input->get('update') && $this->input->post('id')){
 			$data=array($this->input->post('field')=>$this->input->post('value'));
-			db_update($this->input->post('table'),$data,"id='".intval($this->input->post('id'))."'");
+			$this->db->update($this->input->post('table'),$data,array('id'=>intval($this->input->post('id'))));
 			
 		}elseif(got('action','exam')){
 			$new_exam=array_trim($_POST);
@@ -146,26 +128,8 @@ class Exam extends SS_controller{
 		}
 	}
 	
-	function paperList(){
-		post('exam/id',intval($this->input->get('exam')));
-		
-		$q="SELECT 
-				course.id AS course,course.name AS course_name,
-				exam_paper.id AS id,exam_paper.is_extra_course,exam_paper.students,exam_paper.is_scoring,exam_paper.term,
-				grade.name,
-				staff_group.name AS teacher_group_name
-			FROM exam_paper
-				INNER JOIN course ON course.id=exam_paper.course
-				INNER JOIN exam ON exam_paper.exam=exam.id
-				INNER JOIN grade ON grade.id=exam.grade
-				LEFT JOIN staff_group ON staff_group.id=exam_paper.teacher_group
-			WHERE
-				exam.id='".post('exam/id')."'
-			";
-				
-		$this->processOrderby($q,'course.id');
-		
-		$listLocator=$this->processMultiPage($q);
+	function paperList($exam_id){
+		post('exam/id',intval($exam_id));
 		
 		$field=array(
 			'id'=>array('title'=>'编号','td_title'=>'width="70px"'),
@@ -180,38 +144,16 @@ class Exam extends SS_controller{
 			")
 		);
 		
-		$menu=array(
-			'head'=>'<div class="left">'.
-						'<button type="button" id="addExamPaper">添加</button>'.
-						'<button type="button" onclick="redirectPara(this,\'exam\')">返回</button>'.
-					'</div>'.
-					'<div style="float:right;">'.
-						$listLocator.
-					'</div>'
-		);
-		$table=$this->fetchTableArray($q, $field);
+		$list=$this->table->setFields($field)
+			->setData($this->exam->getPaperList($exam_id))
+			->setMenu('<button type="button" id="addExamPaper">添加</button>'.
+				'<button type="button" onclick="location.href=\'/exam\'">返回</button>', 'left')
+			->generate();
 		
-		$this->view_data+=compact('table','menu');
-		
-		$this->load->view('lists',$this->view_data);
+		$this->load->addViewData('list', $list);
 	}
 
-	function viewSeat(){
-		$exam=intval($this->input->get('exam'));
-		
-		$q="SELECT 
-				view_student.num,view_student.class_name,view_student.name AS student_name,
-				exam_student.room,exam_student.seat,course.name AS course_name
-			FROM exam_student INNER JOIN view_student ON exam_student.student=view_student.id
-				LEFT JOIN course ON exam_student.extra_course=course.id
-			WHERE
-				exam_student.exam='".$exam."'
-		";
-				
-		$this->processOrderby($q,'view_student.num','ASC');
-		
-		$listLocator=$this->processMultiPage($q);
-		
+	function viewSeat($exam_id){
 		$field=array(
 			'num'=>array('title'=>'学号'),
 			'student_name'=>array('title'=>'姓名'),
@@ -220,20 +162,13 @@ class Exam extends SS_controller{
 			'course_name'=>array('title'=>'加科')
 		);
 		
-		$menu=array(
-			'head'=>'<div style="float:left;">'.
-						'<button type="button" onclick="location.href=\'exam.php\'">返回</button>'.
-					'</div>'.
-					'<div style="float:right;">'.
-						$listLocator.
-					'</div>'
-		);
+		$list=$this->table->setFields($field)
+			->setData($this->exam->getSeatList($exam_id))
+			->setMenu('<button type="button" onclick="location.href=\'/exam\'">返回</button>','left')
+			->generate();
 		
-		$table=$this->fetchTableArray($q, $field);
-		
-		$this->view_data+=compact('table','menu');
-		
-		$this->load->view('lists',$this->view_data);
+		$this->load->addViewData('list', $list);
+		$this->load->view('list',$this->view_data);
 
 	}
 }

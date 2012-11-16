@@ -25,7 +25,7 @@ class Misc extends SS_controller{
 		
 		$data=array($field=>$value);
 		
-		db_update($table,$data,"id='".$id."'");
+		$this->db->update($table,$data,"id='".$id."'");
 		
 		echo db_fetch_field("SELECT `".$field."` FROM `".$table."` WHERE id='".$id."'");
 	}
@@ -60,23 +60,28 @@ class Misc extends SS_controller{
 	
 	function getSession($var){
 		if($var=='minimized'){
-			echo (bool)array_dir('_SESSION/minimized');
+			echo (bool)$this->session->userdata('minimized');
 		}
 		if($var=='scroll'){
-			echo array_dir('_SESSION/'.$this->input->post('controller').'/'.$this->input->post('method').'/scroll_top');
+			echo $this->session->userdata($this->input->post('controller').'/'.$this->input->post('method').'/scroll_top');
+
 		}
 		if($var=='default_controller'){
 			echo $this->config->item('default_controller');
 		}
 	}
 	
-	function setSession($action=NULL){
-		if(!is_null($this->input->post('minimized'))){
-			array_dir('_SESSION/minimized',(bool)$this->input->post('minimized'));
+	function setSession($var){
+		if($var=='minimized'){
+			if($this->session->userdata('minimized')===false || $this->session->userdata('minimized')=='minimized'){
+				$this->session->set_userdata('minimized','maximized');
+			}else{
+				$this->session->set_userdata('minimized','minimized');
+			}
 			echo 'success';
 
-		}elseif($action=='scroll'){
-			array_dir('_SESSION/'.$this->input->post('controller').'/'.$this->input->post('method').'/scroll_top',$this->input->post('scrollTop'));
+		}elseif($var=='scroll'){
+			$this->session->set_userdata($this->input->post('controller').'/'.$this->input->post('method').'/scroll_top',$this->input->post('scrollTop'));
 			echo 'success';
 		}
 	}

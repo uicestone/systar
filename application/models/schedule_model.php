@@ -6,7 +6,7 @@ class Schedule_model extends SS_Model{
 
 	function fetch($id){
 		$query="SELECT * FROM schedule WHERE id='".$id."'";
-		return db_fetch_first($query,true);
+		return $this->db->query($query)->row_array();
 	}
 	
 	function fetch_single($id){
@@ -18,7 +18,7 @@ class Schedule_model extends SS_Model{
 				LEFT JOIN `case` ON case.id=schedule.case
 				LEFT JOIN client ON client.id=schedule.client
 			WHERE schedule.id='".intval($id)."'";
-		$schedule=db_fetch_first($q_schedule);
+		$schedule=$this->db->query($q_schedule)->row_array();
 		$schedule['content_paras']=explode("\n",$schedule['content']);
 		$schedule['experience_paras']=explode("\n",$schedule['experience']);
 		$schedule['time_start']=date('Y-m-d H:i',$schedule['time_start']);
@@ -65,20 +65,20 @@ class Schedule_model extends SS_Model{
 		$post=array_trim($post);
 		if($post){
 			$condition = db_implode($post, $glue = ' OR ','id','=',"'","'", '`','key');
-			db_update('schedule',array('hours_checked'=>'#hours_own#'),$condition);
+			$this->db_update('schedule',array('hours_checked'=>'#hours_own#'),$condition);
 			return true;
 		}
 	}
 	
 	function setComment($schedule_id,$comment){
 		$schedule_id=intval($schedule_id);
-		db_update('schedule',array('comment'=>$comment),"id='".$schedule_id."'");
+		$this->db_update('schedule',array('comment'=>$comment),"id='".$schedule_id."'");
 		return db_fetch_first("SELECT * FROM schedule WHERE id='".$schedule_id."'");
 	}
 	
 	function check_hours($schedule_id,$hours_checked){
 		$schedule_id=intval($schedule_id);
-		db_update('schedule',array('hours_checked'=>$hours_checked),"id='".$schedule_id."'");
+		$this->db_update('schedule',array('hours_checked'=>$hours_checked),"id='".$schedule_id."'");
 		return db_fetch_field("SELECT hours_checked FROM schedule WHERE id='".$schedule_id."'");
 	}
 	
@@ -96,11 +96,26 @@ class Schedule_model extends SS_Model{
 	}
 	
 	function update($schedule_id,$data){
-		db_update('schedule',$data,"id='".intval($schedule_id)."'");
+		$this->db->update('schedule',$data,"id='".intval($schedule_id)."'");
+	}
+	
+	/**
+	 * 调整calendar页面的日程时长
+	 */
+	function resize($schedule_id,$time_delta){
+		$minites_delta=$time_delta/60;
+		return $this->db->query("UPDATE schedule SET `hours_own` = `hours_own`+'{$minites_delta}', `time_end`=`time_end`+'{$time_delta}' WHERE id='{$schedule_id}'");
+	}
+	
+	/**
+	 * 调整calendar页面的日程开始时间
+	 */
+	function drag($schedule_id,$seconds_delta){
+		return $this->db->query("UPDATE schedule SET `time_start` = `time_start`+'{$seconds_delta}', `time_end`=`time_end`+'{$seconds_delta}' WHERE id='{$schedule_id}'");
 	}
 	
 	function calculateTime($case,$client=NULL,$staff=NULL){
-		$q="SELECT SUM(IF(hours_checked IS NULL,hours_own,hours_checked)) AS time FROM schedule WHERE display=1 AND completed=1 AND `case`='".$case."'";
+		$q="SELECT SUM(IF(hours_checked IS NULL,hours_own,hours_checked)) AS time FROM schedule WHERE display=1 AND completed=1 AND `case`='{$case}'";
 		
 		if(!is_null($client)){
 			$q.=" `client`='".$client."'";

@@ -10,7 +10,7 @@ class Query extends SS_controller{
 	}
 	
 	function lists($para=NULL){
-		$this->session->set_userdata('last_list_action',$this->input->server('request_uri'));
+		$this->session->set_userdata('last_list_action',$this->input->server('REQUEST_URI'));
 
 		$field=array(
 			'first_contact'=>array('title'=>'日期','td_title'=>'width="95px"'),

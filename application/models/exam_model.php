@@ -1,12 +1,88 @@
 <?php
-class Evaluation extends SS_Model{
+class Exam_model extends SS_Model{
 	function __construct(){
 		parent::__construct();
 	}
+	
+	function getList(){
+		$q="SELECT 
+				exam.id AS id,exam.name AS name,exam.term AS term,exam.is_on,exam.seat_allocated,exam.depart,
+				grade.name AS grade_name
+			FROM exam INNER JOIN grade ON exam.grade=grade.id
+			WHERE
+				1=1
+			";
+				
+		$q=$this->orderby($q,'exam.id','DESC',array('exam.name'));
+		
+		$q=$this->pagination($q);
+		
+		return $this->db->query($q)->result_array();
+	}
+	
+	/**
+	 * 考试相关信息列表，用于阅卷模块
+	 */
+	function getInfoList(){
+		$query="
+		SELECT 
+			exam.id AS exam,exam.name AS name,
+			exam_paper.id AS exam_paper,exam_paper.is_extra_course AS is_extra_course,
+			if(exam_paper.is_extra_course,course.id,NULL) AS extra_course,
+			grade.name AS grade_name,course.id AS course,course.name AS course_name,
+			exam_paper.students AS students, exam_paper.teacher_group AS teacher_group 
+		FROM 
+			exam_paper 
+			INNER JOIN exam ON (exam_paper.exam=exam.id)
+			INNER JOIN course ON exam_paper.course=course.id
+			INNER JOIN grade ON exam.grade=grade.id
+		WHERE  exam_paper.is_scoring=1 
+			AND exam.is_on=1
+			AND (".db_implode($_SESSION['teacher_group'],' OR ','teacher_group').')';
+		
+		return $this->db->query($query)->result_array();
+	}
+	
+	function getPaperList($exam_id){
+		$q="SELECT 
+				course.id AS course,course.name AS course_name,
+				exam_paper.id AS id,exam_paper.is_extra_course,exam_paper.students,exam_paper.is_scoring,exam_paper.term,
+				grade.name,
+				staff_group.name AS teacher_group_name
+			FROM exam_paper
+				INNER JOIN course ON course.id=exam_paper.course
+				INNER JOIN exam ON exam_paper.exam=exam.id
+				INNER JOIN grade ON grade.id=exam.grade
+				LEFT JOIN staff_group ON staff_group.id=exam_paper.teacher_group
+			WHERE
+				exam.id='{$exam_id}'
+			";
+				
+		$q=$this->orderby($q,'course.id');
+		
+		$q=$this->pagination($q);
+		
+		return $this->db->query($q)->result_array();
+	}
+	
+	function getSeatList($exam_id){
+		$q="SELECT 
+				view_student.num,view_student.class_name,view_student.name AS student_name,
+				exam_student.room,exam_student.seat,course.name AS course_name
+			FROM exam_student INNER JOIN view_student ON exam_student.student=view_student.id
+				LEFT JOIN course ON exam_student.extra_course=course.id
+			WHERE
+				exam_student.exam='".$exam_id."'
+		";
+				
+		$q=$this->orderby($q,'view_student.num','ASC');
+		
+		$q=$this->pagination($q);
+		
+		return $this->db->query($q)->result_array();
+	}
 
 	function allocate_seat(){
-		global $_G;
-		
 		set_time_limit(0);
 		
 		$r_active_exam=db_query("SELECT id,depart,grade FROM exam WHERE is_on=1 ORDER BY depart");

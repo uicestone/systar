@@ -6,7 +6,7 @@ class Document_model extends SS_Model{
 	}
 	
 	function fetch($id){
-		return db_fetch_first("SELECT * FROM `document` WHERE id='{$id}'");
+		return $this->db->query("SELECT * FROM `document` WHERE id='{$id}'")->row_array();
 	}
 	
 	function getMime($file_extension){

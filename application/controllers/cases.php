@@ -26,7 +26,7 @@ class Cases extends SS_controller{
 	}
 	
 	function lists($para=NULL){
-		$this->session->set_userdata('last_list_action',$this->input->server('request_uri'));
+		$this->session->set_userdata('last_list_action',$this->input->server('REQUEST_URI'));
 
 		$field=array(
 			'time_contract'=>array('title'=>'案号','td_title'=>'width="180px"','td'=>'title="立案时间：{time_contract}"','content'=>'<a href="/cases/edit/{id}">{num}</a>'),
@@ -222,8 +222,8 @@ class Cases extends SS_controller{
 				$condition = db_implode(post('case_fee_check'), $glue = ' OR ','id','=',"'","'", '`','key');
 				$condition_account=db_implode(post('case_fee_check'), $glue = ' OR ','case_fee','=',"'","'", '`','key');
 				
-				if(db_update('case_fee',array('reviewed'=>1),$condition)
-					&& db_update('account',array('reviewed'=>1),$condition_account)
+				if($this->db->update('case_fee',array('reviewed'=>1),$condition)
+					&& $this->db->update('account',array('reviewed'=>1),$condition_account)
 				){
 					showMessage('已完成案件收费到账审核');
 				}
@@ -387,7 +387,7 @@ class Cases extends SS_controller{
 			if(is_posted('submit/apply_lock')){
 				//申请锁定，发送一条消息给督办合伙人
 				if($responsible_partner){
-					$apply_lock_message=$_SESSION['username'].'申请锁定'.strip_tags(post('cases/name')).'一案，[url=http://sys.lawyerstars.com/case?edit='.post('cases/id').']点此进入[/url]';
+					$apply_lock_message=$_SESSION['username'].'申请锁定'.strip_tags(post('cases/name')).'一案，[url=http://sys.lawyerstars.com/cases/edit/'.post('cases/id').']点此进入[/url]';
 					sendMessage($responsible_partner,$apply_lock_message,'caseLockApplication');//imperfect
 					showMessage('锁定请求已经发送至本案督办合伙人');
 				}else{
@@ -453,11 +453,15 @@ class Cases extends SS_controller{
 			
 			$case_client_role = $this->cases->getClientRole(post('cases/id'));
 			
-			if(is_posted('submit/apply_case_num') && post('cases/num')==''){
+			if(is_posted('submit/apply_case_num') && !post('cases/num')){
 				//准备插入案号
 				
-				post('cases/num',$this->cases->getNum(post('cases'),$case_client_role));
-				post('cases/type_lock',1);
+				if(!$case['is_query'] && !$case_client_role['client']){
+					showMessage('申请案号前应当至少添加一个客户','warning');
+				}else{
+					post('cases/num',$this->cases->getNum(post('cases'),$case_client_role));
+					post('cases/type_lock',1);
+				}
 			}
 		
 			if(isset($case_client_role['client']) && !post('cases/filed')){
@@ -465,37 +469,11 @@ class Cases extends SS_controller{
 				//TODO 没有填相对方的时候会报错，不过不影响运行
 				$case_client_role['client_name']='<a href="javascript:showWindow(\'client/edit/'.$case_client_role['client'].'\')">'.$case_client_role['client_name'].'</a>';
 		
-				$case_client_role['opposite_name']='<a href="javascript:showWindow(\'client?edit/'.$case_client_role['opposite'].'\')">'.$case_client_role['opposite_name'].'</a>';
+				$case_client_role['opposite_name']='<a href="javascript:showWindow(\'client/edit/'.$case_client_role['opposite'].'\')">'.$case_client_role['opposite_name'].'</a>';
+				
+				post('cases/name',$this->cases->getName($case_client_role,post('cases/classification'),post('cases/type'),post('cases/is_query')));
 		
-				//更新案名
-				if(post('cases/is_query')){
-					post('cases/name',$case_client_role['client_name'].' 咨询');
-
-				}elseif(post('cases/classification')=='诉讼' && ($case_client_role['client_role']=='原告' || $case_client_role['client_role']=='申请人') && ($case_client_role['opposite_role']=='被告' || $case_client_role['opposite_role']=='被申请人')){
-						post('cases/name',$case_client_role['client_name'].' 诉 '.$case_client_role['opposite_name'].'('.post('cases/type').')');
-						
-				}elseif(post('cases/classification')=='诉讼' && ($case_client_role['client_role']=='被告' || $case_client_role['client_role']=='被申请人') && ($case_client_role['opposite_role']=='原告' || $case_client_role['opposite_role']=='申请人')){
-						post('cases/name',$case_client_role['client_name'].' 应诉 '.$case_client_role['opposite_name'].'('.post('cases/type').')');
-			
-				}elseif(post('cases/classification')=='诉讼' && $case_client_role['client_role']=='上诉人'){
-					post('cases/name',$case_client_role['client_name'].' 上诉 '.$case_client_role['opposite_name'].'('.post('cases/type').')');
-					
-				}elseif(post('cases/classification')=='诉讼' && $case_client_role['client_role']=='被上诉人'){
-					post('cases/name',$case_client_role['client_name'].' 应 '.$case_client_role['opposite_name'].' 上诉('.post('cases/type').')');
-					
-				}elseif(post('cases/classification')=='诉讼' && $case_client_role['client_role']=='第三人'){
-					post('cases/name',$case_client_role['client_name'].' 与 '.$case_client_role['opposite_role'].' '.$case_client_role['opposite_name'].'('.post('cases/type').')');
-					
-				}elseif(post('cases/classification')=='法律顾问'){
-					post('cases/name',$case_client_role['client_name'].'(法律顾问)');
-					
-				}else{
-					post('cases/name',$case_client_role['client_name'].(post('cases/type')?'('.post('cases/type').')':''));
-			
-				}
 			}
-		
-			post('cases/name',post('cases/name'));
 		
 			if(post('cases/name_extra')){
 				post('cases/name',post('cases/name').' '.post('cases/name_extra'));
@@ -770,7 +748,7 @@ class Cases extends SS_controller{
 		$listLocator=$this->processMultiPage($q);
 		
 		$field=array(
-			'time_contract'=>array('title'=>'案号','td_title'=>'width="180px"','content'=>'<a href="case?edit={id}">{num}</a>'),
+			'time_contract'=>array('title'=>'案号','td_title'=>'width="180px"','content'=>'<a href="/cases/edit/{id}">{num}</a>'),
 			'name'=>array('title'=>'案名','content'=>'{name}'),
 			'lawyers'=>array('title'=>'主办律师','td_title'=>'width="100px"')
 		);
@@ -781,7 +759,7 @@ class Cases extends SS_controller{
 				'</div>'
 		);
 		
-		$_SESSION['last_list_action']=$this->input->server('request_uri');
+		$_SESSION['last_list_action']=$this->input->server('REQUEST_URI');
 		
 		$table=$this->fetchTableArray($q, $field);
 		

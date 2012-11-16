@@ -1,14 +1,14 @@
 <?php
 class SS_Table extends CI_Table{
 	
-	var $fields;//表格每列的输出方式
-	var $data;//表格的原始数据
-	var $menu;//表格头尾的菜单
-	var $wrap_form;//表格是否包围form标签
-	var $wrap_box;//表格是否包围div class="contentTableBox"标签，若是，表格位置将为absolute
-	var $attributes;//表格、box和首位菜单的html属性
-	var $show_line_id;//是否在表格第一列显示行号
-	var $trim_columns;//是否清空空列
+	protected $fields;//表格每列的输出方式
+	protected $data;//表格的原始数据
+	protected $menu;//表格头尾的菜单
+	protected $wrap_form;//表格是否包围form标签
+	protected $wrap_box;//表格是否包围div class="contentTableBox"标签，若是，表格位置将为absolute
+	protected $attributes;//表格、box和首位菜单的html属性
+	protected $show_line_id;//是否在表格第一列显示行号
+	protected $trim_columns;//是否清空空列
 	
 	function __construct(){
 		parent::__construct();
@@ -56,46 +56,6 @@ class SS_Table extends CI_Table{
 	}
 	
 	/**
-	 * 根据$fields设置，将$this->data数据导入$rows
-	 * 如果没有设置$fields，那么将$this->data全部导入$rows
-	 */
-	protected function _init(){
-		//如果在输出时尚未指定列显示方式$fields，也没有设置wrap_box，那么不包围div class="contentTableBox"
-		//适用于生成表格的简写$this->table->generate($data);
-		if(is_null($this->wrap_box)){
-			$this->wrap_box=false;
-		}
-		//echo 'data:'.print_r($this->data,true);
-		if(!empty($this->fields)){
-			foreach($this->data as $row_data){
-				$row=array();
-				foreach($this->fields as $field_name => $field){
-					$str=isset($field['content']) ? $field['content'] : (isset($row_data[$field_name])?$row_data[$field_name]:NULL);
-					$str=variableReplace($str,$row_data);
-					if(isset($field['eval']) && $field['eval']){
-						$str=eval($str);
-					}
-					if(isset($field['wrap'])){
-						array_walk($field['wrap'],'variableReplaceSelf',$row_data);
-						$str=wrap($str,$field['wrap']);
-					}
-					if(is_null($str)){
-						$str='&nbsp;';
-					}
-					$cell=array();
-					$cell['data']=$str;
-					if(isset($field['td'])){
-						$cell+=$this->_parseAttributesToArray(variableReplace($field['td'],$row_data));
-					}
-					$row[]=$cell;
-				}
-				$this->add_row($row);
-			}
-			$this->data=NULL;
-		}
-	}
-
-	/**
 		$field:输出表的列定义
 			array(
 				'查询结果的列名'=>array(
@@ -120,7 +80,8 @@ class SS_Table extends CI_Table{
 		foreach($fields as $field_name=>$field){
 			$cell=array();
 			$cell['data']=$field['title'];
-
+			$cell['field']=$field_name;
+			
 			if(isset($field['td_title'])){
 				$cell+=$this->_parseAttributesToArray($field['td_title']);
 			}
@@ -162,10 +123,52 @@ class SS_Table extends CI_Table{
 		return $this;
 	}
 	
-	function generateData(){
-		$this->_init();
+	function trimColumns(){
+		$this->trim_columns=true;
+		return $this;
 	}
 	
+	/**
+	 * 根据$fields设置，将$this->data数据导入$rows
+	 * 如果没有设置$fields，那么将$this->data全部导入$rows
+	 */
+	function generateData(){
+		//如果在输出时尚未指定列显示方式$fields，也没有设置wrap_box，那么不包围div class="contentTableBox"
+		//适用于生成表格的简写$this->table->generate($data);
+		if(is_null($this->wrap_box)){
+			$this->wrap_box=false;
+		}
+		//echo 'data:'.print_r($this->data,true);
+		if(!empty($this->fields)){
+			foreach($this->data as $row_data){
+				$row=array();
+				foreach($this->fields as $field_name => $field){
+					$str=isset($field['content']) ? $field['content'] : (isset($row_data[$field_name])?$row_data[$field_name]:NULL);
+					$str=variableReplace($str,$row_data);
+					if(isset($field['eval']) && $field['eval']){
+						$str=eval($str);
+					}
+					if(isset($field['wrap'])){
+						array_walk($field['wrap'],'variableReplaceSelf',$row_data);
+						$str=wrap($str,$field['wrap']);
+					}
+					if(is_null($str)){
+						$str='<p></p>';
+					}
+					$cell=array();
+					$cell['data']=$str;
+					$cell['field']=$field_name;
+					if(isset($field['td'])){
+						$cell+=$this->_parseAttributesToArray(variableReplace($field['td'],$row_data));
+					}
+					$row[]=$cell;
+				}
+				$this->add_row($row);
+			}
+			$this->data=NULL;
+		}
+	}
+
 	// --------------------------------------------------------------------
 
 	/**
@@ -185,7 +188,7 @@ class SS_Table extends CI_Table{
 			$this->wrap_box=!isset($table_data);
 		}
 		
-		$this->_init();
+		$this->generateData();
 
 		if($this->trim_columns){
 			$column_is_empty=array();
@@ -205,7 +208,7 @@ class SS_Table extends CI_Table{
 			foreach($this->rows as $row_id => $row){
 				foreach($row as $column_id => $cell){
 					if($column_is_empty[$column_id]){
-						unset($this->$row[$row_id][$column_id]);
+						unset($this->rows[$row_id][$column_id]);
 					}
 				}
 			}
@@ -248,25 +251,25 @@ class SS_Table extends CI_Table{
 		}
 		
 		if($this->wrap_box){
+			if(isset($this->menu['foot'])){
+				$append.='<div class="contentTableFoot"';
+
+				foreach($this->attributes as $attribute_name => $attribute_value){
+					$append.=' '.$attribute_name.'="'.$attribute_value.'"';
+				}
+
+				$append.='>'."\n";
+
+				foreach($this->menu['foot'] as $menu_div_class=>$menu_data){
+					$append.='<div class="'.$menu_div_class.'">'.$menu_data.'</div>';
+				}
+
+				$append.='</div>'."\n";
+			}
+
 			$append.='</div>'."\n";
 		}
 		
-		if(isset($this->menu['foot'])){
-			$append.='<div class="contentTableMenu"';
-
-			foreach($this->attributes as $attribute_name => $attribute_value){
-				$append.=' '.$attribute_name.'="'.$attribute_value.'"';
-			}
-
-			$append.='>'."\n";
-			
-			foreach($this->menu['foot'] as $menu_div_class=>$menu_data){
-				$append.='<div class="'.$menu_div_class.'">'.$menu_data.'</div>';
-			}
-			
-			$append.='</div>'."\n";
-		}
-
 		if($this->wrap_form){
 			$append.='</form>'."\n";
 		}

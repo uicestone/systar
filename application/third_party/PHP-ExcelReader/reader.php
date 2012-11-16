@@ -28,7 +28,7 @@
 
 
 //require_once 'PEAR.php';
-require_once 'plugin/PHP-ExcelReader/oleread.inc.php';
+require_once 'oleread.inc.php';
 //require_once 'OLE.php';
 
 define('SPREADSHEET_EXCEL_READER_BIFF8',             0x600);

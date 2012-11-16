@@ -87,6 +87,13 @@ class SS_Controller extends CI_Controller{
 				if(is_posted('submit/file_document_list')){
 					$this->load->require_head=false;
 				}
+	
+			}elseif($method=='write'){
+				$this->load->require_head=false;
+	
+			}
+		}elseif($class=='classes'){
+			if(($method=='add' || $method=='edit')){
 				$this->as_popup_window=FALSE;
 	
 			}elseif($method=='write'){
@@ -169,38 +176,12 @@ class SS_Controller extends CI_Controller{
 				$this->load->require_head=false;
 	
 			}
-		}elseif($class=='exam'){
-			if($method=='save'){
-				$_G{'action'}=$class.'_list_save';
-				$this->load->require_head=false;
-	
-			}
 		}elseif($class=='student'){
 			$this->as_popup_window=FALSE;
-			if($method=='setclass'){
-				$this->load->require_head=false;
-	
-			}elseif(is_logged('student')){
-				post('student/id',$_SESSION['id']);
-				$this->as_controller_default_page=true;
-	
-			}elseif(is_logged('parent')){
-				post('student/id',$_SESSION['child']);
-				$this->as_controller_default_page=true;
-	
-			}elseif(is_permitted($class)){//默认action
-							}	
-		}elseif($class=='survey'){
-			if(got('action','homework')){
-	
-			}
-		}elseif($class=='view_score'){
-			if($this->input->post('export_to_excel')){
-				$this->load->require_head=false;
-			}
 		}
 
 		$this->load->model('company_model','company');
+		$this->load->model('user_model','user');
 		
 		if(is_file(APPPATH.'models/'.$class.'_model.php')){
 			$this->load->model($class.'_model',$class);
@@ -284,8 +265,7 @@ class SS_Controller extends CI_Controller{
 		}
 
 		if($submitable){
-			$this->db->where('id',post(CONTROLLER.'/id'));
-			if($this->db->update($update_table,post(CONTROLLER))){
+			if($this->db->update($update_table,post(CONTROLLER),array('id'=>post(CONTROLLER.'/id')))){
 
 				if(is_a($after_update,'Closure')){
 					$after_update();
@@ -312,14 +292,6 @@ class SS_Controller extends CI_Controller{
 		}
 	}
 
-	function processUidTimeInfo($affair){
-		show_error('Controller::proessUidTimeInfo,此方法已废弃，请使用uidTime()代替');exit;
-		if(!post($affair)){
-			post($affair,array());
-		}
-		post($affair,post($affair)+uidTime());
-	}
-	
 	function cancel(){
 		unset($_SESSION[CONTROLLER]['post']);
 		
@@ -328,7 +300,7 @@ class SS_Controller extends CI_Controller{
 		if($this->as_popup_window){
 			closeWindow();
 		}else{
-			redirect((sessioned('last_list_action')?$_SESSION['last_list_action']:CONTROLLER));
+			redirect(($this->session->userdata('last_list_action')?$this->session->userdata('last_list_action'):CONTROLLER));
 		}
 	}
 

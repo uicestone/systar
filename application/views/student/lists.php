@@ -1,2 +1,3 @@
 <?javascript('Jeditable/jquery.jeditable.mini')?>
-<? javascript('evaluation_score')?>
+<? javascript('student_list')?>
+<?=$list?>

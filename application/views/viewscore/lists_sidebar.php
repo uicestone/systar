@@ -1,4 +1,3 @@
-<? echo $search_bar?>
 <table class="contentTable search-bar" cellpadding="0" cellspacing="0" align="center">
 	<thead><tr><td>年级班级</td></tr></thead>
 	<tbody>

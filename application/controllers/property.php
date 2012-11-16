@@ -44,7 +44,7 @@ class Property extends SS_controller{
 				'</div>',
 		);
 		
-		$_SESSION['last_list_action']=$this->input->server('request_uri');
+		$_SESSION['last_list_action']=$this->input->server('REQUEST_URI');
 		
 		$table=$this->fetchTableArray($q, $field);
 		

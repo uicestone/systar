@@ -8,7 +8,10 @@
 *.js eol=lf
 *.sql eol=lf
 *.txt eol=lf
+<<<<<<< HEAD
 
+=======
+>>>>>>> master
 
 # Standard to msysgit
 *.doc	 diff=astextplain

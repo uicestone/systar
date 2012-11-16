@@ -5,19 +5,36 @@ class Student extends SS_controller{
 	}
 	
 	function lists(){
-		$this->session->set_userdata('last_list_action',$this->input->server('request_uri'));
+		//如果以家长或学生身份登陆，显示的是编辑查看页面，而非列表页面
+		if(is_logged('parent') || is_logged('student')){
+
+			$this->as_controller_default_page=true;
+			
+			if(is_logged('student')){
+				post('student/id',$_SESSION['id']);
+	
+			}elseif(is_logged('parent')){
+				post('student/id',$_SESSION['child']);
+	
+			}
+			
+			$this->edit(post('student/id'));
+			
+			return;
+		}
+		$this->session->set_userdata('last_list_action',$this->input->server('REQUEST_URI'));
 		
 		if($this->input->get('update')){
-			student_update();
+			$this->student->update();
 			showMessage('学生视图更新完成');
 		}
 		
 		$field=array(
 			'num'=>array('title'=>'学号','td'=>'id="{id}" '),
-			'student.name'=>array('title'=>'姓名','content'=>'<a href="student?edit={id}">{name}</a>'),
+			'student.name'=>array('title'=>'姓名','content'=>'<a href="/student/edit/{id}">{name}</a>'),
 			'student_num.class'=>array('title'=>'班级','content'=>'{class_name}')
 		);
-		
+
 		if(is_logged('health')){
 			$field+=array(
 				'id_card'=>array('title'=>'身份证'),
@@ -32,13 +49,11 @@ class Student extends SS_controller{
 			$field['student_num.class']['td']='class="editable"';
 		}
 		
-		$table=$this->table->setFields($field)
+		$list=$this->table->setFields($field)
 				->setData($this->student->getList())
 				->generate();
 		
-		$this->load->addViewArrayData(compact('table','menu'));
-		
-		$this->load->view('list');
+		$this->load->addViewData('list', $list);
 	}
 
 	function add(){
@@ -46,30 +61,22 @@ class Student extends SS_controller{
 	}
 	
 	function edit($id=NULL){
+		if($this->as_controller_default_page){
+			$this->session->set_userdata('last_list_action', $this->input->server('REQUEST_URI'));
+		}
+		
 		$this->getPostData($id,function($CI){
-			global $_G;
 			post('student/name','新学生'.$CI->config->item('timestamp'));
 			
-			post(CONTROLLER.'/id',db_insert('user',array('group'=>'student')));
+			post(CONTROLLER.'/id',$CI->db->insert('user',array('group'=>'student')));
 			//先创建用户，再创建学生
 			
-			db_insert(CONTROLLER,post(CONTROLLER));
+			$CI->db->insert(CONTROLLER,post(CONTROLLER));
 		},false);
 		
-		$q_student_class="
-			SELECT student_class.num_in_class AS num_in_class,
-				CONCAT(RIGHT(10000+class.id,4),num_in_class) AS num,
-				class.id AS class,class.name AS class_name,
-				staff.name AS class_teacher_name
-			FROM student_class
-				INNER JOIN class ON student_class.class=class.id
-				LEFT JOIN staff ON class.class_teacher=staff.id AND staff.company='".$this->config->item('company')."'
-			WHERE student='".post('student/id')."' 
-				AND term='".$_SESSION['global']['current_term']."'
-		";
-		$student_class=db_fetch_first($q_student_class);
+		$student_class=$this->student->fetchClassInfo(post('student/id'));
 		post('student_class',array('class'=>$student_class['class'],'num_in_class'=>$student_class['num_in_class']));
-		post('class/name',$student_class['class_name']);
+		post('classes/name',$student_class['class_name']);
 		isset($student_class['class_teacher_name']) && post('student_extra/class_teacher_name',$student_class['class_teacher_name']);
 		$submitable=false;//可提交性，false则显示form，true则可以跳转
 		
@@ -79,16 +86,16 @@ class Student extends SS_controller{
 			$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$_POST);
 			
 			if(is_posted('submit/student_relatives')){
-				student_addRelatives(post('student/id'),post('student_relatives'));
+				$this->student->addRelatives(post('student/id'),post('student_relatives'));
 				unset($_SESSION[CONTROLLER]['post']['student_relatives']);
 			}
 			
 			if(is_posted('submit/student_relatives_delete')){
-				student_deleteRelatives(post('student_relatives_check'));
+				$this->student->deleteRelatives(post('student_relatives_check'));
 			}
 			
 			if(is_posted('submit/student_behaviour')){
-				if(student_addBehaviour(post('student/id'),post('student_behaviour'))){
+				if($this->student->addBehaviour(post('student/id'),post('student_behaviour'))){
 					unset($_SESSION[CONTROLLER]['post']['student_behaviour']);
 				}else{
 					$submitable=false;
@@ -100,7 +107,7 @@ class Student extends SS_controller{
 				(post('student_comment/title')!='' || post('student_comment/content')!='')
 			){
 		
-				if(student_addComment(post('student/id'),post('student_comment'))){
+				if($this->student->addComment(post('student/id'),post('student_comment'))){
 					unset($_SESSION[CONTROLLER]['post']['student_comment']);
 				}else{
 					$submitable=false;
@@ -153,7 +160,7 @@ class Student extends SS_controller{
 					$submitable=false;
 				}
 			}else{
-				if(!db_update('student_class',post('student_class'),"student='".post('student/id')."' AND term='".$_SESSION['global']['current_term']."'")){
+				if(!$this->db->update('student_class',post('student_class'),array('student'=>post('student/id'),'term'=>$_SESSION['global']['current_term']))){
 					$submitable=false;
 				}
 			}
@@ -161,60 +168,63 @@ class Student extends SS_controller{
 			$this->processSubmit($submitable,function(){
 				$username=db_fetch_field("SELECT username FROM user WHERE id = '".post(CONTROLLER.'/id')."'");
 				if(!$username){
-					student_update();
+					$this->student->update();
 					db_query("UPDATE user INNER JOIN view_student USING (id) SET user.username=CONCAT(view_student.name,view_student.num),user.alias=view_student.num WHERE view_student.id = '".post(CONTROLLER.'/id')."'");
 				}
 			});
 		}
 		
-		$q_student_relatives="
-			SELECT 
-				id,name,relationship,work_for,contact
-			FROM 
-				student_relatives
-			WHERE company='".$this->config->item('company')."'
-				AND `student`='".post('student/id')."'
-		";
-		
-		$field_student_relatives=array(
-			'checkbox'=>array('title'=>'<input type="submit" name="submit[student_relatives_delete]" value="删" />','orderby'=>false,'content'=>'<input type="checkbox" name="student_relatives_check[{id}]" >','td_title'=>' width=60px'),
+		$fields_student_relatives=array(
+			'checkbox'=>array('title'=>'<input type="submit" name="submit[student_relatives_delete]" value="删" />','orderby'=>false,'content'=>'<input type="checkbox" name="student_relatives_check[{id}]" >','td_title'=>' width="25px"'),
 			'name'=>array('title'=>'姓名','orderby'=>false),
 			'relationship'=>array('title'=>'关系','orderby'=>false),
 			'contact'=>array('title'=>'电话','orderby'=>false),
 			'work_for'=>array('title'=>'单位','orderby'=>false)
 		);
+		$relatives=$this->table->setFields($fields_student_relatives)
+			->generate($this->student->getRelativeList(post('student/id')));
 		
-		$q_student_behaviour="
-			SELECT name,type,date,level,content FROM student_behaviour WHERE student = '".post('student/id')."'
-			LIMIT 5
-		";
-		$field_student_behaviour=array(
+		$fields_student_behaviour=array(
 			'type'=>array('title'=>'类别','td_title'=>'width="10%"','orderby'=>false),
 			'date'=>array('title'=>'日期','orderby'=>false),
 			'name'=>array('title'=>'名称','td_title'=>'width="40%"','td'=>'title="{content}"','orderby'=>false),
 			'level'=>array('title'=>'级别','orderby'=>false)
 		);
+		$behaviour=$this->table->setFields($fields_student_behaviour)
+			->generate($this->student->getBehaviourList(post('student/id')));
 		
-		$q_student_comment="
-			SELECT student_comment.title,student_comment.content,
-				FROM_UNIXTIME(time,'%Y-%m-%d') AS time,IF(staff.name IS NULL,student_comment.username,staff.name) AS username 
-			FROM student_comment LEFT JOIN staff ON staff.id=student_comment.uid 
-			WHERE student = '".post('student/id')."' AND (reply_to IS NULL OR reply_to = '".$_SESSION['id']."' OR uid = '".$_SESSION['id']."')
-			ORDER BY student_comment.time DESC
-			LIMIT 5
-		";
-		$field_student_comment=array(
+		$fields_student_comment=array(
 			'title'=>array('title'=>'标题','orderby'=>false),
 			'content'=>array('title'=>'内容','td_title'=>'width="60%"','orderby'=>false),
 			'username'=>array('title'=>'留言人','orderby'=>false),
 			'time'=>array('title'=>'时间','orderby'=>false)
 		);
+		$comments=$this->table->setFields($fields_student_comment)
+				->generate($this->student->getCommentList(post('student/id')));
 		
-		if($this->as_controller_default_page){
-			$_SESSION['last_list_action']=$this->input->server('request_uri');
-		}
+		$fields_scores=array(
+			'exam_name'=>array('title'=>'考试'),
+			'course_1'=>array('title'=>'语文','content'=>'{course_1}<span class="rank">{rank_1}</span>'),
+			'course_2'=>array('title'=>'数学','content'=>'{course_2}<span class="rank">{rank_2}</span>'),
+			'course_3'=>array('title'=>'英语','content'=>'{course_3}<span class="rank">{rank_3}</span>'),
+			'course_4'=>array('title'=>'物理','content'=>'{course_4}<span class="rank">{rank_4}</span>'),
+			'course_5'=>array('title'=>'化学','content'=>'{course_5}<span class="rank">{rank_5}</span>'),
+			'course_6'=>array('title'=>'生物','content'=>'{course_6}<span class="rank">{rank_6}</span>'),
+			'course_7'=>array('title'=>'地理','content'=>'{course_7}<span class="rank">{rank_7}</span>'),
+			'course_8'=>array('title'=>'历史','content'=>'{course_8}<span class="rank">{rank_8}</span>'),
+			'course_9'=>array('title'=>'政治','content'=>'{course_9}<span class="rank">{rank_9}</span>'),
+			'course_10'=>array('title'=>'信息','content'=>'{course_10}<span class="rank">{rank_10}</span>'),
+			'course_sum_3'=>array('title'=>'3总','content'=>'{course_sum_3}<span class="rank">{rank_sum_3}</span>'),
+			'course_sum_5'=>array('title'=>'4总/5总','content'=>'{course_sum_5}<span class="rank">{rank_sum_5}</span>'),
+			'course_sum_8'=>array('title'=>'8总','content'=>'{course_sum_8}<span class="rank">{rank_sum_8}</span>')
+		);
+		$scores=$this->table->setFields($fields_scores)
+				->trimColumns()
+				->generate($this->student->getScores(post('student/id')));
 		
-		$scores=student_get_scores(post('student/id'));
+		$this->load->addViewArrayData(compact('relatives','behaviour','comments','scores'));
+		$this->load->view('student/edit');
+		$this->load->main_view_loaded=true;
 	}
 
 	function classDiv(){
@@ -348,7 +358,7 @@ class Student extends SS_controller{
 			
 			foreach($div as $gender_in_array1 => $array1){
 				foreach($array1 as $class=>$array2){
-					db_update('student_classdiv',array('new_class'=>$class),'id IN ('.implode(',',$array2).')');
+					$this->db_update('student_classdiv',array('new_class'=>$class),'id IN ('.implode(',',$array2).')');
 				}
 			}
 		}else{
@@ -375,45 +385,33 @@ class Student extends SS_controller{
 		}
 	}
 
+	/**
+	 * 家校互动
+	 */
 	function interactive(){
-		model('user');
+		$this->session->set_userdata('last_list_action', $this->input->server('REQUEST_URI'));
 		
 		if($this->input->post('submit')){
 			$submitable=true;
 			
-			$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$_POST);
+			$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$this->input->post());
 			
-			if(post('student_comment/reply_to',user_check(post('student_comment_extra/reply_to_username')))<0){
+			if(post('student_comment/reply_to',$this->user->check(post('student_comment_extra/reply_to_username')))<0){
 				$submitable=false;
 			}
 			
 			if(is_logged('parent')){
-				$student_id=student_getIdByParentUid($_SESSION['id']);
+				$student_id=$this->student->getIdByParentUid($_SESSION['id']);
 			}else{
-				$student_id=student_getIdByParentUid(post('student_comment/reply_to'));
+				$student_id=$this->student->getIdByParentUid(post('student_comment/reply_to'));
 			}
 			
 			if($submitable){
-				student_addComment($student_id,post('student_comment'));
+				$this->student->addComment($student_id,post('student_comment'));
 				unset($_SESSION[CONTROLLER]['post']['student_comment']);
 				unset($_SESSION[CONTROLLER]['post']['student_comment_extra']);
 			}
 		}
-		
-		$q="
-		SELECT student_comment.title,student_comment.content,FROM_UNIXTIME(student_comment.time,'%Y-%m-%d') AS date,student_comment.username,student_comment.student,
-			view_student.name AS student_name
-		FROM student_comment INNER JOIN view_student ON student_comment.student=view_student.id
-		WHERE student_comment.reply_to='".$_SESSION['id']."' 
-			OR student_comment.uid='".$_SESSION['id']."' 
-			OR (
-				'".isset($_SESSION['manage_class'])."' 
-				AND view_student.class='".$_SESSION['manage_class']['id']."'
-			)
-		ORDER BY time DESC
-		";
-		
-		$list_locator=$this->processMultiPage($q);
 		
 		$field=array(
 			'date'=>array('title'=>'日期','td_title'=>'width="100px"'),
@@ -422,19 +420,11 @@ class Student extends SS_controller{
 			'title'=>array('title'=>'标题','td_title'=>'width="120px"','td'=>'class="ellipsis" title="{title}"'),
 			'content'=>array('title'=>'内容','td'=>'class="ellipsis" title="{content}"')
 		);
-		
-		$menu=array(
-			'head'=>'<div class="right">'.$list_locator.'</div>',
-			'foot'=>template('student_interactive_send')
-		);
-		
-		$_SESSION['last_list_action']=$this->input->server('request_uri');
-		
-		$table=$this->fetchTableArray($q, $field);
-		
-		$this->view_data+=compact('table','menu');
-		
-		$this->load->view('lists',$this->view_data);
+		$list=$this->table->setFields($field)
+			->setMenu(template('student/interactive_send'),'center','foot')
+			->setData($this->student->getInteractiveList())
+			->generate();
+		$this->load->addViewData('list', $list);
 	}
 	
 	function viewScore(){
@@ -476,8 +466,30 @@ class Student extends SS_controller{
 		
 		$series=json_encode($series,JSON_NUMERIC_CHECK);
 		$category=json_encode($category);
+		$this->load->addViewArrayData(compact('series','category'));
 		
-		$scores=student_get_scores($student);
+		$fields_scores=array(
+			'exam_name'=>array('title'=>'考试'),
+			'course_1'=>array('title'=>'语文','content'=>'{course_1}<span class="rank">{rank_1}</span>'),
+			'course_2'=>array('title'=>'数学','content'=>'{course_2}<span class="rank">{rank_2}</span>'),
+			'course_3'=>array('title'=>'英语','content'=>'{course_3}<span class="rank">{rank_3}</span>'),
+			'course_4'=>array('title'=>'物理','content'=>'{course_4}<span class="rank">{rank_4}</span>'),
+			'course_5'=>array('title'=>'化学','content'=>'{course_5}<span class="rank">{rank_5}</span>'),
+			'course_6'=>array('title'=>'生物','content'=>'{course_6}<span class="rank">{rank_6}</span>'),
+			'course_7'=>array('title'=>'地理','content'=>'{course_7}<span class="rank">{rank_7}</span>'),
+			'course_8'=>array('title'=>'历史','content'=>'{course_8}<span class="rank">{rank_8}</span>'),
+			'course_9'=>array('title'=>'政治','content'=>'{course_9}<span class="rank">{rank_9}</span>'),
+			'course_10'=>array('title'=>'信息','content'=>'{course_10}<span class="rank">{rank_10}</span>'),
+			'course_sum_3'=>array('title'=>'3总','content'=>'{course_sum_3}<span class="rank">{rank_sum_3}</span>'),
+			'course_sum_5'=>array('title'=>'4总/5总','content'=>'{course_sum_5}<span class="rank">{rank_sum_5}</span>'),
+			'course_sum_8'=>array('title'=>'8总','content'=>'{course_sum_8}<span class="rank">{rank_sum_8}</span>')
+		);
+
+		$scores=$this->table->setFields($fields_scores)
+			->trimColumns()
+			->generate($this->student->getScores($student));
+		
+		$this->load->addViewData('scores', $scores);
 	}
 }
 ?>

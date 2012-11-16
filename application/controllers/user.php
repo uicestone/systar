@@ -10,8 +10,6 @@ class user extends SS_controller{
 	}
 	
 	function login(){
-		$this->load->model('user_model','model');
-		
 		if(is_logged()){
 			//用户已登陆，则不显示登录界面
 			redirect('');
@@ -28,7 +26,7 @@ class user extends SS_controller{
 		
 				}elseif($ucenter_user[0]>0){
 					if(session_login($ucenter_user[0])){
-						$this->model->update_login_time();
+						$this->user->updateLoginTime();
 						echo uc_user_synlogin($ucenter_user[0]);
 						redirect('','js');
 					}
@@ -37,28 +35,27 @@ class user extends SS_controller{
 				}
 			}else{
 		
-				if($user=$this->model->verify($this->input->post('username'),$this->input->post('password'))){
+				if($user=$this->user->verify($this->input->post('username'),$this->input->post('password'))){
 			
 					$_SESSION['id']=$user['id'];
 					$_SESSION['usergroup']=explode(',',$user['group']);
 					$_SESSION['username']=$user['username'];
 					
 					foreach($_SESSION['usergroup'] as $group){
-						if(function_exists('user_'.$group.'_set_session')){
-							call_user_func('user_'.$group.'_set_session',$_SESSION['id']);
+						if(method_exists($this->user,$group.'_set_session')){
+							call_user_func(array($this->user,$group.'_set_session'),$_SESSION['id']);
 						}
 					}
 					
-					$this->model->update_login_time();
-					
-					if(function_exists($this->config->item('company_type').'_init')){
-						call_user_func($this->config->item('company_type').'_init');
+					$this->user->updateLoginTime();
+					if(method_exists($this->company,$this->config->item('company_type').'_init')){
+						call_user_func(array($this->company,$this->config->item('company_type').'_init'));
 					}
 			
 					if(!isset($user['password'])){
-						redirect('user?profile');
+						redirect('user/profile');
 					}else{
-						redirect('');
+						redirect();
 					}
 			
 				}else{
@@ -95,7 +92,7 @@ class user extends SS_controller{
 					}
 				}
 				
-				if($this->model->edit($_SESSION['id'],post('user/password_new'),post('user/username'))){
+				if($this->user->edit($_SESSION['id'],post('user/password_new'),post('user/username'))){
 					if(post('user/password_new')){
 						post('user/password',post('user/password_new'));
 					}

@@ -130,16 +130,16 @@ class Client_model extends SS_Model{
 	}
 	
 	function setDefaultRelated($client_client_id,$client){
-		client_clearDefaultRelated($client);
+		$this->clearDefaultRelated($client);
 		
-		if(db_update('client_client',array('is_default_contact'=>1),"id='".$client_client_id."'")){
+		if($this->db_update('client_client',array('is_default_contact'=>1),"id='".$client_client_id."'")){
 			return true;
 		}
 		return false;
 	}
 	
 	function clearDefaultRelated($client){
-		if(db_update('client_client',array('is_default_contact'=>'_NULL_'),"client_left='".$client."'")){
+		if($this->db_update('client_client',array('is_default_contact'=>'_NULL_'),"client_left='".$client."'")){
 			return true;
 		}
 		return false;
@@ -234,7 +234,7 @@ class Client_model extends SS_Model{
 	}
 	
 	function fetchSource($source_id){
-		return db_fetch_first("SELECT type,detail FROM client_source WHERE id='".$source_id."'");
+		return $this->db->query("SELECT type,detail FROM client_source WHERE id='{$source_id}'")->row_array();
 	}
 	
 	function getListByCase($case_id){

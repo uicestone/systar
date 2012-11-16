@@ -7,7 +7,7 @@ class File extends SS_controller{
 	
 	function lists(){
 		$field=array(
-			'num'=>array('title'=>'案号','td_title'=>'width="180px"','content'=>'<a href="case?edit={id}">{num}</a>'),
+			'num'=>array('title'=>'案号','td_title'=>'width="180px"','content'=>'<a href="/cases/edit/{id}">{num}</a>'),
 			'case_name'=>array('title'=>'案名'),
 			'time_contract'=>array('title'=>'收案时间'),
 			'time_end'=>array('title'=>'结案时间'),
@@ -31,10 +31,10 @@ class File extends SS_controller{
 	}
 	
 	function tobe(){
-		$this->session->set_userdata('last_list_action',$this->input->server('request_uri'));
+		$this->session->set_userdata('last_list_action',$this->input->server('REQUEST_URI'));
 		
 		$field=array(
-			'num'=>array('title'=>'案号','content'=>'<a href="case?edit={id}">{num}</a>','td_title'=>'width="180px"'),
+			'num'=>array('title'=>'案号','content'=>'<a href="/cases/edit/{id}">{num}</a>','td_title'=>'width="180px"'),
 			'name'=>array('title'=>'案名','content'=>'{name}'),
 			'time_contract'=>array('title'=>'收案时间'),
 			'time_end'=>array('title'=>'结案时间'),

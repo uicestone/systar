@@ -23,6 +23,10 @@ class Document extends SS_controller{
 	function contract(){
 		$this->lists(874);
 	}
+	
+	function view($folder_id){
+		$this->lists($folder_id);
+	}
 
 	function lists($folder_id=NULL){
 		if(isset($folder_id)){
@@ -31,13 +35,14 @@ class Document extends SS_controller{
 			$folder=$this->document->fetch($folder_id);
 
 			if($folder['type']!=''){
-				$this->action="document_download";
+				$this->download($folder['id']);
 				$this->load->require_head=false;
+				return;
 			}else{
-				$_SESSION[$class]['upID']=$folder['parent'];
-				$_SESSION[$class]['currentDir']=$folder['name'];
-				$_SESSION[$class]['currentDirID']=$folder['id'];
-				$_SESSION[$class]['currentPath']=$folder['path'];
+				$_SESSION[CONTROLLER]['upID']=$folder['parent'];
+				$_SESSION[CONTROLLER]['currentDir']=$folder['name'];
+				$_SESSION[CONTROLLER]['currentDirID']=$folder['id'];
+				$_SESSION[CONTROLLER]['currentPath']=$folder['path'];
 			}
 		}
 		
@@ -70,7 +75,7 @@ class Document extends SS_controller{
 					",
 					'td_title'=>'width="70px"'
 				),
-				'name'=>array('title'=>'文件名','td_title'=>'width="150px"','wrap'=>array('mark'=>'a','href'=>'/document?view={id}')),
+				'name'=>array('title'=>'文件名','td_title'=>'width="150px"','wrap'=>array('mark'=>'a','href'=>'/document/view/{id}')),
 				'path'=>array('title'=>'路径'),'comment'=>array('title'=>'备注')
 			)
 			:
@@ -91,13 +96,13 @@ class Document extends SS_controller{
 					",
 					'td_title'=>'width="55px"'
 				),
-				'name'=>array('title'=>'文件名','td_title'=>'width="150px"','wrap'=>array('mark'=>'a','href'=>'/document?view={id}')),
+				'name'=>array('title'=>'文件名','td_title'=>'width="150px"','wrap'=>array('mark'=>'a','href'=>'/document/view/{id}')),
 				'username'=>array('title'=>'上传者','td_title'=>'width="70px"'),
 				'comment'=>array('title'=>'备注')
 			);
 		$table=$this->table->setFields($field)
 			->setMenu('<input type="submit" name="fav" value="收藏" />'.
-					($_SESSION['document']['currentDirID']>1?"<button type='button' name='view' value='0' onclick='redirectPara(this)'>顶级</button><button type='button' name='view' value='".$_SESSION['document']['upID']."' onclick='redirectPara(this)'>上级</button>":'').
+					($_SESSION['document']['currentDirID']>1?'<button type="button" onclick="location.href=\'/document/view/0\'">顶级</button><button type="button" onclick="location.href=\'/document/view/'.$_SESSION['document']['upID'].'\'">上级</button>':'').
 					(option('in_search_mod')?'':$_SESSION['document']['currentPath']),'left')
 			->setData($this->document->getList())
 			->generate();
@@ -121,14 +126,13 @@ class Document extends SS_controller{
 		redirect('document');
 	}
 
-	function download(){
-		$file=db_fetch_first("SELECT * FROM document WHERE id = '".intval($this->input->get('view'))."'");
+	function download($document_id){
+		$file=$this->document->fetch($document_id);
 		
-		document_exportHead($file['name']);
+		$this->document->exportHead($file['name']);
 		$path=$file['path'];
 		$path=iconv("utf-8","gbk",$path);
 		readfile($path);
-		exit;
 	}
 	
 	function favDelete(){

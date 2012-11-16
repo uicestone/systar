@@ -27,7 +27,7 @@ class Evaluation extends SS_controller{
 				'</div>'
 		);
 		
-		$_SESSION['last_list_action']=$this->input->server('request_uri');
+		$_SESSION['last_list_action']=$this->input->server('REQUEST_URI');
 		
 		$table=$this->fetchTableArray($q, $field);
 		
@@ -78,7 +78,7 @@ class Evaluation extends SS_controller{
 					'</div>'
 		);
 		
-		$_SESSION['last_list_action']=$this->input->server('request_uri');
+		$_SESSION['last_list_action']=$this->input->server('REQUEST_URI');
 		
 		$table=$this->fetchTableArray($q, $field);
 		
@@ -125,7 +125,7 @@ class Evaluation extends SS_controller{
 			'manager'=>array('title'=>'主管评分')
 		);
 
-		$_SESSION['last_list_action']=$this->input->server('request_uri');
+		$_SESSION['last_list_action']=$this->input->server('REQUEST_URI');
 
 		exportTable($q,$field);
 	}
@@ -192,7 +192,7 @@ class Evaluation extends SS_controller{
 				'</div>'
 		);
 		
-		$_SESSION['last_list_action']=$this->input->server('request_uri');
+		$_SESSION['last_list_action']=$this->input->server('REQUEST_URI');
 		
 		$table=$this->fetchTableArray($q, $field);
 		

@@ -45,7 +45,7 @@ class Cases_model extends SS_Model{
 	    $data=array_keyfilter($data,$field);
 		$data+=uidTime();
 	    
-		return db_update('case',$data,"id='".$case_id."'");
+		return $this->db_update('case',$data,"id='".$case_id."'");
 	}
 	
 	function addDocument($case,$data){
@@ -154,7 +154,7 @@ class Cases_model extends SS_Model{
 		}else{
 			$status_expression.='<span title="部分未锁定" style="color:#800">锁</span>';
 		}
-		
+
 		if($contribute_sum<0.7){
 			$status_expression.='<span title="贡献已分配'.($contribute_sum*100).'%" style="color:#800">配</span>';
 		}elseif($contribute_sum<1){
@@ -177,7 +177,12 @@ class Cases_model extends SS_Model{
 	}
 	
 	function getStatusById($case_id){
-		$case_data=db_fetch_first("SELECT is_reviewed,type_lock,client_lock,lawyer_lock,fee_lock,is_query,apply_file,finance_review,info_review,manager_review,filed FROM `case` WHERE id = '".$case_id."'");
+		$case_data=$this->db->query("
+			SELECT is_reviewed,type_lock,client_lock,lawyer_lock,fee_lock,is_query,apply_file,
+				finance_review,info_review,manager_review,filed
+			FROM `case` 
+			WHERE id = '{$case_id}'
+		")->row_array();
 		extract($case_data);
 		if($type_lock && $client_lock && $lawyer_lock && $fee_lock){
 			$locked=true;
@@ -185,29 +190,30 @@ class Cases_model extends SS_Model{
 			$locked=false;
 		}
 		
-		$uncollected=db_fetch_field("
+		$uncollected=$this->db->query("
 			SELECT IF(amount_sum IS NULL,fee_sum,fee_sum-amount_sum) AS uncollected FROM
 			(
 				SELECT `case`,SUM(fee) AS fee_sum FROM case_fee WHERE type<>'办案费' AND reviewed=0 AND `case`='".$case_id."'
 			)case_fee_grouped
 			INNER JOIN
 			(
-				SELECT `case`, SUM(amount) AS amount_sum FROM account WHERE `case`='".$case_id."'
+				SELECT `case`, SUM(amount) AS amount_sum FROM account WHERE `case`='{$case_id}'
 			)account_grouped
 			USING (`case`)
-		");
+		")->row_array();
 		
-		$contribute_sum=db_fetch_field("
+		$contribute_sum_result=$this->db->query("
 			SELECT SUM(contribute) AS contribute_sum
 			FROM case_lawyer
-			WHERE `case`='".$case_id."'
-		");
+			WHERE `case`='{$case_id}'
+		")->row_array();
+		$contribute_sum=$contribute_sum_result['contribute_sum'];
 		
-		return $this->cases->getStatus($is_reviewed,$locked,$apply_file,$is_query,$finance_review,$info_review,$manager_review,$filed,$contribute_sum,$uncollected);
+		return $this->getStatus($is_reviewed,$locked,$apply_file,$is_query,$finance_review,$info_review,$manager_review,$filed,$contribute_sum,$uncollected);
 	}
 	
 	function reviewMessage($reviewWord,$lawyers){
-		$message='案件[url=http://sys.lawyerstars.com/case?edit='.post('cases/id').']'.strip_tags(post('cases/name')).'[/url]'.$reviewWord.'，"'.post('review_message').'"';
+		$message='案件[url=http://sys.lawyerstars.com/cases/edit/'.post('cases/id').']'.strip_tags(post('cases/name')).'[/url]'.$reviewWord.'，"'.post('review_message').'"';
 		foreach($lawyers as $lawyer){
 			sendMessage($lawyer,$message);
 		}
@@ -311,7 +317,7 @@ class Cases_model extends SS_Model{
 	function feeConditionPrepend($case_fee_id,$new_condition){
 		global $_G;
 		
-		db_update('case_fee',array('condition'=>"_CONCAT('".$new_condition."\\n',`condition`)_",'uid'=>$_SESSION['id'],'username'=>$_SESSION['username'],'time'=>$this->config->item('timestamp')),"id='".$case_fee_id."'");
+		$this->db_update('case_fee',array('condition'=>"_CONCAT('".$new_condition."\\n',`condition`)_",'uid'=>$_SESSION['id'],'username'=>$_SESSION['username'],'time'=>$this->config->item('timestamp')),"id='".$case_fee_id."'");
 		
 		return db_fetch_field("SELECT `condition` FROM case_fee WHERE id = '".$case_fee_id."'");
 	}
@@ -343,24 +349,24 @@ class Cases_model extends SS_Model{
 		
 		foreach($case_lawyer_array as $id=>$role){
 			if($role=='接洽律师（次要）' && isset($role_count['接洽律师']) && $role_count['接洽律师']==1){
-				db_update('case_lawyer',array('contribute'=>$contribute['接洽']*0.3),"id='".$id."'");
+				$this->db_update('case_lawyer',array('contribute'=>$contribute['接洽']*0.3),"id='".$id."'");
 	
 			}elseif($role=='接洽律师'){
 				if(isset($role_count['接洽律师（次要）']) && $role_count['接洽律师（次要）']==1){
-					db_update('case_lawyer',array('contribute'=>$contribute['接洽']*0.7),"id='".$id."'");
+					$this->db_update('case_lawyer',array('contribute'=>$contribute['接洽']*0.7),"id='".$id."'");
 				}else{
-					db_update('case_lawyer',array('contribute'=>$contribute['接洽']/$role_count[$role]),"id='".$id."'");
+					$this->db_update('case_lawyer',array('contribute'=>$contribute['接洽']/$role_count[$role]),"id='".$id."'");
 				}
 	
 			}elseif($role=='主办律师'){
 				if(isset($role_count['协办律师']) && $role_count['协办律师']){
-					db_update('case_lawyer',array('contribute'=>($contribute['办案']-0.05)/$role_count[$role]),"id='".$id."'");
+					$this->db_update('case_lawyer',array('contribute'=>($contribute['办案']-0.05)/$role_count[$role]),"id='".$id."'");
 				}else{
-					db_update('case_lawyer',array('contribute'=>$contribute['办案']/$role_count[$role]),"id='".$id."'");
+					$this->db_update('case_lawyer',array('contribute'=>$contribute['办案']/$role_count[$role]),"id='".$id."'");
 				}
 	
 			}elseif($role=='协办律师'){
-				db_update('case_lawyer',array('contribute'=>0.05/$role_count[$role]),"id='".$id."'");
+				$this->db_update('case_lawyer',array('contribute'=>0.05/$role_count[$role]),"id='".$id."'");
 			}
 		}
 	}
@@ -547,6 +553,10 @@ class Cases_model extends SS_Model{
 		return $this->db->query($query)->result_array();
 	}
 	
+	function fetchDocument($case_document_id){
+		return $this->db->query("SELECT * FROM document WHERE id = '{$case_document_id}'")->row_array();
+	}
+	
 	function getDocumentList($case_id){
 		$query="
 			SELECT id,name,type,IF(doctype='其他',doctype_other,doctype) AS doctype,comment,time,username
@@ -611,7 +621,7 @@ class Cases_model extends SS_Model{
 				LIMIT 1
 			)opposite
 			ON 1=1";	
-		return db_fetch_first($query);
+		return $this->db->query($query)->row_array();
 	}
 	
 	/*
@@ -619,62 +629,101 @@ class Cases_model extends SS_Model{
 	 * $case参数为array，需要包含is_query,filed,classification,type,type_lock,first_contact/time_contract键
 	 */
 	function getNum($case,$case_client_role=NULL){
-		global $_G;
 		$case_num=array();
 		
 		if(is_null($case_client_role)){
 			$case_client_role=$this->getClientRole($case['id']);
 		}
 		
-		if(!$case['is_query'] && !$case_client_role['client']){
-			showMessage('申请案号前应当至少添加一个客户','warning');
+		if($case['is_query']){
+			$case_num['classification_code']='询';
+			$case_num['type_code']='';
 		}else{
-			if($case['is_query']){
-				$case_num['classification_code']='询';
-				$case_num['type_code']='';
-			}else{
-				switch($case['classification']){
-					case '诉讼':$case_num['classification_code']='诉';break;
-					case '非诉讼':$case_num['classification_code']='非';break;
-					case '法律顾问':$case_num['classification_code']='顾';break;
-					case '内部行政':$case_num['classification_code']='内';break;
-					default:'';
-				}
-				switch($case['type']){
-					case '房产':$case_num['type_code']='（房）';break;
-					case '公司':$case_num['type_code']='（公）';break;
-					case '婚姻':$case_num['type_code']='（婚）';break;
-					case '劳动':$case_num['type_code']='（劳）';break;
-					case '金融':$case_num['type_code']='（金）';break;
-					case '继承':$case_num['type_code']='（继）';break;
-					case '知产':$case_num['type_code']='（知）';break;
-					case '合同':$case_num['type_code']='（合）';break;
-					case '刑事':$case_num['type_code']='（刑）';break;
-					case '行政':$case_num['type_code']='（行）';break;
-					case '其他':$case_num['type_code']='（他）';break;
-					case '公民个人':$case_num['type_code']='（个）';break;
-					case '侵权':$case_num['type_code']='（侵）';break;
-					case '移民':$case_num['type_code']='（移）';break;
-					case '留学':$case_num['type_code']='（留）';break;
-					case '企业':$case_num['type_code']='（企）';break;
-					case '事业单位':$case_num['type_code']='（事）';break;
-					case '个人事务':$case_num['type_code']='（个）';break;
-					default:$case_num['type_code']='';
-				}
+			switch($case['classification']){
+				case '诉讼':$case_num['classification_code']='诉';break;
+				case '非诉讼':$case_num['classification_code']='非';break;
+				case '法律顾问':$case_num['classification_code']='顾';break;
+				case '内部行政':$case_num['classification_code']='内';break;
+				default:'';
 			}
-			$case_num['case']=$case['id'];
-			$case_num+=uidTime();
-			$case_num['year_code']=substr($case['is_query']?$case['first_contact']:$case['time_contract'],0,4);
-			db_insert('case_num',$case_num,true,true);
-			$case_num['number']=db_fetch_field("SELECT number FROM case_num WHERE `case`='".$case['id']."'");
-			if(!$case['is_query']){
-				post('cases/type_lock',1);//申请正式案号之后不可以再改变案件类别
+			switch($case['type']){
+				case '房产':$case_num['type_code']='（房）';break;
+				case '公司':$case_num['type_code']='（公）';break;
+				case '婚姻':$case_num['type_code']='（婚）';break;
+				case '劳动':$case_num['type_code']='（劳）';break;
+				case '金融':$case_num['type_code']='（金）';break;
+				case '继承':$case_num['type_code']='（继）';break;
+				case '知产':$case_num['type_code']='（知）';break;
+				case '合同':$case_num['type_code']='（合）';break;
+				case '刑事':$case_num['type_code']='（刑）';break;
+				case '行政':$case_num['type_code']='（行）';break;
+				case '其他':$case_num['type_code']='（他）';break;
+				case '公民个人':$case_num['type_code']='（个）';break;
+				case '侵权':$case_num['type_code']='（侵）';break;
+				case '移民':$case_num['type_code']='（移）';break;
+				case '留学':$case_num['type_code']='（留）';break;
+				case '企业':$case_num['type_code']='（企）';break;
+				case '事业单位':$case_num['type_code']='（事）';break;
+				case '个人事务':$case_num['type_code']='（个）';break;
+				default:$case_num['type_code']='';
 			}
-			post('cases/display',1);//申请案号以后案件方可见
-			$num='沪星'.$case_num['classification_code'].$case_num['type_code'].$case_num['year_code'].'第'.$case_num['number'].'号';
-			db_update('case',array('num'=>$num),"id='".$case['id']."'");
-			return $num;
 		}
+		$case_num['case']=$case['id'];
+		$case_num+=uidTime();
+		$case_num['year_code']=substr($case['is_query']?$case['first_contact']:$case['time_contract'],0,4);
+		db_insert('case_num',$case_num,true,true);
+		$case_num['number']=db_fetch_field("SELECT number FROM case_num WHERE `case`='".$case['id']."'");
+		if(!$case['is_query']){
+			post('cases/type_lock',1);//申请正式案号之后不可以再改变案件类别
+		}
+		post('cases/display',1);//申请案号以后案件方可见
+		$num='沪星'.$case_num['classification_code'].$case_num['type_code'].$case_num['year_code'].'第'.$case_num['number'].'号';
+		$this->db->update('case',array('num'=>$num),array('id'=>$case['id']));
+		return $num;
+	}
+
+	/**
+	 * 更新案件名称
+	 */
+	function getName($case_client_role,$classification,$type,$is_query=false){
+		$case_name=$case_client_role['client_name'];
+		
+		if($is_query){
+			$case_name.=' 咨询';
+			return $case_name;
+
+		}
+		
+		if(isset($case_client_role['opposite_name'])){
+			
+			if($classification=='诉讼' && ($case_client_role['client_role']=='原告' || $case_client_role['client_role']=='申请人') && ($case_client_role['opposite_role']=='被告' || $case_client_role['opposite_role']=='被申请人')){
+					$case_name.=' 诉 '.$case_client_role['opposite_name'].'('.$type.')';
+
+			}elseif($classification=='诉讼' && ($case_client_role['client_role']=='被告' || $case_client_role['client_role']=='被申请人') && ($case_client_role['opposite_role']=='原告' || $case_client_role['opposite_role']=='申请人')){
+					$case_name.=' 应诉 '.$case_client_role['opposite_name'].'('.$type.')';
+
+			}elseif($classification=='诉讼' && $case_client_role['client_role']=='上诉人'){
+				$case_name.=' 上诉 '.$case_client_role['opposite_name'].'('.$type.')';
+
+			}elseif($classification=='诉讼' && $case_client_role['client_role']=='被上诉人'){
+				$case_name.=' 应 '.$case_client_role['opposite_name'].' 上诉('.$type.')';
+
+			}elseif($classification=='诉讼' && ($case_client_role['client_role']=='第三人' || $case_client_role['opposite_role']=='第三人')){
+				$case_name.=' 与 '.$case_client_role['opposite_role'].' '.$case_client_role['opposite_name'].'('.$type.')';
+			}
+			
+			return $case_name;
+
+		}
+		
+		if($classification=='法律顾问'){
+			$case_name.='('.$classification.')';
+
+		}else{
+			$case_name.='('.$type.')';
+		}
+		
+		return $case_name;
 	}
 	
 	function getList($method=NULL){

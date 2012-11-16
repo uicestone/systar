@@ -257,7 +257,7 @@ class Achievement_model extends SS_Model{
 			";
 		}
 	
-		$result_array=db_fetch_first($q);
+		$result_array=$this->db->query($q)->row_array();
 		if(!isset($result_array['sum'])){
 			$result_array['sum']=0;
 		}
@@ -427,7 +427,7 @@ class Achievement_model extends SS_Model{
 		}
 		
 		if(is_logged('finance') && $this->input->post('distribute')){
-		  db_update('account',array('distributed_'.$contribute_type=>1),"`case` IN (".$q_cases_to_distribute.")");
+		  $this->db_update('account',array('distributed_'.$contribute_type=>1),"`case` IN (".$q_cases_to_distribute.")");
 		}
 
 		$q="

@@ -5,14 +5,11 @@ class Company_model extends SS_Model{
 	}
 
 	function school_init(){
-		/*
-			以8/1和农历新年作为学期的分界线
-		*/
-		require 'class/lunar.php';
+		//以8/1和农历新年作为学期的分界线
+		$this->load->library('Lunar');
 		$year=date('y',$this->config->item('timestamp'));//两位数年份
 		$term_begin_this_year_timestamp=strtotime($year.'-8-1');//今年8/1
-		$lunar=new Lunar();
-		$lunar_this_new_year_timestamp=$lunar->L2S($year.'-1-1');//今年农历新年的公历
+		$lunar_this_new_year_timestamp=$this->lunar->L2S($year.'-1-1');//今年农历新年的公历
 		if($this->config->item('timestamp')>=$term_begin_this_year_timestamp){
 			$term=1;$term_year=$year;
 		}elseif($this->config->item('timestamp')<$lunar_this_new_year_timestamp){

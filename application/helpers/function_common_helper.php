@@ -19,17 +19,9 @@ function uidTime(){
 	return $array;
 }	
 
-/*
- * 载入model的简写
- */
-function model($model_name){
-	if(is_file('model/'.$model_name.'.php')){
-		require 'model/'.$model_name.'.php';
-	}
-}
-
-/*
+/**
  * 在view中载入js的简写
+ * @param string $js_file_path js文件的路径文件名（不含"web/js/"和".js"）
  */
 function javascript($js_file_path){
 	$path='js/'.$js_file_path.'.js';
@@ -37,7 +29,7 @@ function javascript($js_file_path){
 	echo '<script type="text/javascript" src="/'.$path.'?'.$hash.'"></script>'."\n";
 }
 
-/*
+/**
  * 在view中载入外部css链接的简写
  */
 function stylesheet($stylesheet_path){
@@ -46,15 +38,15 @@ function stylesheet($stylesheet_path){
 	echo '<link rel="stylesheet" href="/'.$path.'?'.$hash.'" type="text/css" />'."\n";
 }
 
-/*
+/**Hh
  * 试探性地引入免缓存模板。之前的view采用html嵌入<?php ?>方式，比如<input name="client[name]" value="<?=post('client/name') ?>" />
  * 引入末版体系之后，view文件的书写将采用<input name="client[name]" value="{post client/name}" />
  * 慎用模板引擎，会降低运行效率
  */
 function template($filename){
 	$content='';
-	if(is_file($filename)){
-		$content=file_get_contents('view/'.$filename.'.htm');
+	if(is_file(APPPATH.'/views/'.$filename.'.php')){
+		$content=file_get_contents(APPPATH.'/views/'.$filename.'.php');
 	}
 
 	$content=preg_replace('/{post (.*?)}/e',"post('$1')",$content);
@@ -63,7 +55,7 @@ function template($filename){
 	return $content;
 }
 
-/*
+/**
  * 判断$_GET[$variable]是否定义，或者判断其是否等于$value
  * 比起直接用$this->input->get('foo')=='bar'来判断,got('foo','bar')更便于书写，而且在foo没有定义的时候不会报错
  */
@@ -74,7 +66,7 @@ function got($variable,$value=NULL){
 		return (isset($_GET[$variable]) && $_GET[$variable]==$value)?true:false;
 }
 
-/*
+/**
  * 与got同理
  */
 function is_posted($variableString,$value=NULL){
@@ -84,7 +76,7 @@ function is_posted($variableString,$value=NULL){
 		return (!is_null(array_dir('_POST/'.$variableString)) && array_dir('_POST/'.$variableString)==$value)?true:false;
 }
 
-/*
+/**
  * 此函数已弃用
  */
 function sessioned($variable,$value=NULL,$global=true){
@@ -105,7 +97,7 @@ function sessioned($variable,$value=NULL,$global=true){
 	}
 }
 
-/*
+/**
  * 此函数已弃用
  */
 function optioned($variable,$value=NULL){
@@ -118,7 +110,7 @@ function optioned($variable,$value=NULL){
 	}
 }
 
-/*
+/**
  * 保存控制单元相关配置时候用，比如列表页的页码，搜索的关键词等
  */
 function option($arrayindex,$set_to=NULL){
@@ -147,7 +139,7 @@ function isMobileNumber($number){
 	}
 }
 
-/*
+/**
  * 根据用户名或uid直接为其设置登录状态
  */
 function session_login($uid=NULL,$username=NULL){
@@ -169,21 +161,22 @@ function session_login($uid=NULL,$username=NULL){
 	return false;
 }
 
-/*
+/**
  * 登出当前用户
  */
 function session_logout(){
-	global $_G;
+	$CI=&get_instance();
 	session_unset();
 	session_destroy();
+	$CI->session->sess_destroy();
 	
-	if($_G['ucenter']){
+	if($CI->config->item('ucenter')){
 		//生成同步退出代码
 		echo uc_user_synlogout();
 	}
 }
 
-/*
+/**
  * 判断是否以某用户组登录
  * $check_type要检查的用户组,NULL表示只检查是否登录
  * $refresh_permission会刷新用户权限，只需要在每次请求开头刷新即可
@@ -208,7 +201,7 @@ function is_logged($check_type=NULL,$refresh_permission=false){
 	return true;
 }
 
-/*
+/**
  * 根据当前用户组，将数据库中affair,group两表中的用户权限读入$_SESSION['permission']
  */
 function preparePermission(){
@@ -248,7 +241,7 @@ function preparePermission(){
 	}
 }
 
-/*
+/**
  * 根据已保存的$_SESSION['permission']判断权限
  * $action未定义时，只验证是否具有访问当前controller的权限
  */
@@ -264,7 +257,7 @@ function is_permitted($controller,$action=NULL){
 	}
 }
 
-/*
+/**
  * 调用uc接口发送用户信息
  */
 function sendMessage($receiver,$message,$title='',$sender=NULL){
@@ -277,7 +270,7 @@ function sendMessage($receiver,$message,$title='',$sender=NULL){
 	}
 }
 
-/*
+/**
  * 直接返回客户端ip
  */
 function getIP(){
@@ -290,14 +283,14 @@ function getIP(){
 	}
 }
 
-/*
- * 重定向，对于站内跳转，url写成request_uri即可，如'user?browser'
+/**
+ * 重定向，对于站内跳转，url写成REQUEST_URI即可，如'user?browser'
  * 有php和js两种方式
  * 对于php跳转，采用发送301header的方式，因此之前整个系统不能输出任何内容
  * 对于js跳转，输出js代码交给浏览器完成跳转，因此会发生内容输出
  * $unsetPara目前只适用于js跳转，用以将原来url中的某个变量去除
  */
-function redirect($url,$method='php',$unsetPara=NULL,$jump_to_top_frame=false){
+function redirect($url='',$method='php',$unsetPara=NULL,$jump_to_top_frame=false){
 	$CI=&get_instance();
 	$base_url=$CI->config->item('base_url');
 	
@@ -321,7 +314,7 @@ function redirect($url,$method='php',$unsetPara=NULL,$jump_to_top_frame=false){
 	exit;
 }
 
-/*
+/**
  * 刷新opener内容
  * 例：在弹出窗口中点击'保存'按钮时执行，然后紧接着执行closeWindow()可以在关闭子窗口的同时刷新母窗口
  * 注意区分DOM中的parent和opener这两个概念，前者是上层框架，后者是弹出窗口的打开者
@@ -336,7 +329,7 @@ function closeWindow(){
 	$CI->output->append_output('<script type="text/javascript">window.close();</script>');
 }
 
-/*
+/**
  * 输出1K的空格来强制浏览器输出
  * 使用后在下文执行任何输出，再紧跟flush();即可即时看到
  */
@@ -345,7 +338,7 @@ function forceExport(){
 	echo str_repeat(' ',1024);
 }
 
-/*
+/**
  * 用于view视图中，直接将长期当前保存在当前控制器数组下的post数组中的某一项列出
  * 此项一般也是多极数组
  * 与view中input的name配合使用
@@ -400,7 +393,7 @@ function displayOption($options,$checked=NULL,$array_key_as_option_value=false,$
 	echo html_option($options,$checked,$array_key_as_option_value,$type_table,$classification,$type,$condition);
 }
 
-/*
+/**
  * 生成一组个单选框
  */
 function displayRadio($options,$name,$checked,$array_key_as_option_value=false){
@@ -409,7 +402,7 @@ function displayRadio($options,$name,$checked,$array_key_as_option_value=false){
 	}
 }
 
-/*
+/**
  * 生成一个多选框
  */
 function displayCheckbox($html,$name,$check_value,$value=NULL,$disabled=false){
@@ -419,7 +412,7 @@ function displayCheckbox($html,$name,$check_value,$value=NULL,$disabled=false){
 	echo '<label><input name="'.$name.'" type="checkbox" value="'.$value.'" '.($check_value==$value?'checked="checked"':'').($disabled?' disabled="disabled"':'').' />'.$html.'</label>';
 }
 
-/*
+/**
  * 为了便于读取，和恢复失败的表单提交（如非法值）
  * 每一个controller/*_add.php文件对于表单的处理，都是将$_POST先保存到$_SESSION[当前控制器名]['post']下
  * 因此无论作为显示，还是编辑，还是编辑失败时保留原来提交的数据，都可以直接用post('array/path')来获得返回值
@@ -437,7 +430,7 @@ function post($arrayindex){
 	
 }
 
-/*
+/**
  * 直接在页面输出提示
  * 本系统js下也有一个一样的函数
  */
@@ -460,7 +453,7 @@ function showMessage($message,$type='notice',$direct_export=false){
 }
 
 function str_getSummary($str,$length=28){
-	/*
+	/**
 	 * $length，宽度计量的长度，1为一个ASCII字符的宽度，汉字为2
 	 * $char_length，字符计量的长度，UTF8的汉字为3
 	 */
@@ -488,7 +481,7 @@ function str_getSummary($str,$length=28){
 	}
 }
 
-/*
+/**
  * 此函数已弃用
  */
 function str_textToHtml($str){
@@ -500,7 +493,7 @@ function str_textToHtml($str){
 	return $str_paraed;
 }
 
-/*
+/**
  * 递归去除array中的空键
  */
 function array_trim($array){
@@ -515,7 +508,7 @@ function array_trim($array){
 	return $array;
 }
 
-/*
+/**
  * 此函数已弃用
  */
 function array_numkey_to_strkey($array){
@@ -526,7 +519,7 @@ function array_numkey_to_strkey($array){
 	}
 }
 
-/*
+/**
 	用array_dir('/_SESSION/post/id')来代替$_SESSION['post']['id']
 	**仅适用于全局变量如$_SESSION,$_POST
 	用is_null(array_dir(String $arrayindex))来判断是否存在此变量
@@ -552,7 +545,7 @@ function array_dir($arrayindex){
 	}
 }
 
-/*
+/**
  * php5.3开始已经自带
  */
 if(!function_exists('array_replace_recursive')){
@@ -572,7 +565,7 @@ if(!function_exists('array_replace_recursive')){
 		return $array_target;
 	}
 }
-/*
+/**
  * 将数组的下级数组中的某一key抽出来构成一个新数组
  * $keyname_forkey是母数组中用来作为子数组键名的键值的键名
  */
@@ -590,7 +583,7 @@ function array_sub($array,$keyname,$keyname_forkey=NULL){
 	return $array_new;
 }
 
-/*
+/**
  * 根据一个包含所有合法键作为内容的$legalkeys数组，对一个数组$array进行过滤
  */
 function array_keyfilter($array,$legalkeys){
@@ -602,7 +595,7 @@ function array_keyfilter($array,$legalkeys){
 	return $array;
 }
 
-/*
+/**
  * 判断某个值是否存在与某一数组的子数组下
  * 若指定$key_specified，则要判断子数组们的$key_specified键下是否有指定$needle值
  * 
@@ -654,7 +647,7 @@ function db_query($query,$show_error=true){
 	}
 }
 
-/*
+/**
  * 接受一个SELECT类query返回的result对象
  * 返回结果集行数
  */
@@ -662,21 +655,21 @@ function db_rows($result){
 	return mysql_num_rows($result);
 }
 
-/*
+/**
  * 返回上一条query影响的行数
  */
 function db_affected_rows(){
 	return mysql_affected_rows(DB_LINK);
 }
 
-/*
+/**
  * 返回上一条insert语句插入的行id
  */
 function db_insert_id(){
 	return mysql_insert_id(DB_LINK);
 }
 
-/*
+/**
  * 从SELECT类query返回的result对象中抓去一行，返回成数组，并将result的指针向下移动一行
  */
 function db_fetch_array($result,$num_as_line_key=false){
@@ -689,7 +682,7 @@ function db_fetch_array($result,$num_as_line_key=false){
 	return $array;
 }
 
-/*
+/**
  * 直接抓去sql语句执行结果的第一行的field_name字段的值
  */
 function db_fetch_field($q,$field_name=0){
@@ -706,7 +699,7 @@ function db_fetch_field($q,$field_name=0){
 	return mysql_result($result,0,$field_name);
 }
 
-/*
+/**
  * 执行sql语句并返回第一行
  * $strict: true: 没有数据时警告并中止程序
  */
@@ -727,7 +720,7 @@ function db_fetch_first($query,$strict=false){
 	return $array;
 }
 
-/*
+/**
  * 将一个数组的key，value对应数据表中的字段名和字段值插入
  * 如果replace==true 将执行REPLACE语句，这会首先删除具有重复唯一键的行
  */
@@ -783,7 +776,7 @@ function db_multiinsert($table,array $data){
 	}
 }
 
-/*
+/**
  * 将一个数组的key，value对应数据表中的字段名和字段值更新，务必定义condition
  * $treat_spacial_type是一个神奇的识别，开启后，如果遇上value为'_foo_'的值，将作为sql语句运行
  * 如array('_score+1_','id=1')将被处理为"UPDATE `table` SET `score`=score+1 WHERE id=1"
@@ -832,7 +825,7 @@ function db_delete($table, $condition) {
 	return true;
 }
 
-/*
+/**
  * 内置的implode函数可以把array的值用一个符号一一隔开输出成字符串
  * 这个增强版可以吧数组输出成几乎任意的字符串
  * 对于array('foo'=>'bar','foo1'=>'bar1')
@@ -895,7 +888,7 @@ function db_field_name($fieldNameStr){
 	}
 }
 
-/*
+/**
  * 运行一个sql语句并直接将所有结果返回为数组。
  * 第一层为行号＝>行内容($id_field_as_key==true时，行号＝行内id字段值)
  * 第二层为字段名=>值
@@ -918,7 +911,7 @@ function db_toArray($query,$id_field_as_key=false,$num_as_line_key=false){
 	return $array;
 }
 
-/*
+/**
  * 返回某个字段定义中的ENUM选项
  */
 function db_enumArray($table,$field){
@@ -1005,7 +998,7 @@ function codeLines(){
 	return $lines.' lines';
 }
 
-/*
+/**
  * 标准差
  */
 function std($data,$avg=null,$is_swatch=false){
@@ -1026,7 +1019,7 @@ function std($data,$avg=null,$is_swatch=false){
 		return false;
 }
 
-/*
+/**
  * 仅用在fetchTableArray中
  * 将field->content等值中包含的变量占位替换为数据结果中他们的值
  */

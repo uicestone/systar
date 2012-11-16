@@ -1,1 +1,2 @@
-<? javascript('student_interactive') ?>
+<?javascript('student_interactive')?>
+<?=$list?>

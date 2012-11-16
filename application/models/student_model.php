@@ -5,8 +5,134 @@ class Student_model extends SS_Model{
 	}
 
 	function fetch($id){
-		$query="SELECT * FROM student WHERE id='".$id."'";
-		return db_fetch_first($query,true);
+		$query="SELECT * FROM student WHERE id='{$id}'";
+		return $this->db->query($query)->row_array();
+	}
+	
+	function fetchClassInfo($student_id){
+		$q_student_class="
+			SELECT student_class.num_in_class AS num_in_class,
+				CONCAT(RIGHT(10000+class.id,4),num_in_class) AS num,
+				class.id AS class,class.name AS class_name,
+				staff.name AS class_teacher_name
+			FROM student_class
+				INNER JOIN class ON student_class.class=class.id
+				LEFT JOIN staff ON class.class_teacher=staff.id AND staff.company='".$this->config->item('company')."'
+			WHERE student='{$student_id}' 
+				AND term='".$_SESSION['global']['current_term']."'
+		";
+		
+		return $this->db->query($q_student_class)->row_array();
+	}
+	
+	function getList(){
+		$q=
+		"SELECT 
+			student.id,student.name AS name,student.id_card,student.phone,student.mobile,student.address,
+			student_num.num,
+			class.name AS class_name,
+			relatives.contacts AS relatives_contacts
+		FROM 
+			student
+			INNER JOIN (
+				SELECT student,class,
+					right((1000000 + concat(student_class.class,right((100 + student_class.num_in_class),2))),6) AS num
+				FROM student_class
+				WHERE student_class.term = '".$_SESSION['global']['current_term']."'
+			)student_num ON student_num.student=student.id
+			INNER JOIN class ON class.id=student_num.class
+			LEFT JOIN (
+				SELECT student.id AS student,GROUP_CONCAT(student_relatives.contact) AS contacts
+				FROM student INNER JOIN student_relatives ON student_relatives.student=student.id
+				WHERE student_relatives.contact<>''
+				GROUP BY student.id
+			)relatives
+			ON relatives.student=student.id
+		WHERE student.display=1
+			AND (class.id=(SELECT id FROM class WHERE class_teacher='".$_SESSION['id']."')
+				OR '".(is_logged('jiaowu') || is_logged('zhengjiao') || is_logged('health'))."'='1')
+		";
+		//班主任可以看到自己班级的学生，教务和政教可以看到其他班级的学生
+		
+		//将班主任的视图定位到自己班级
+		if(!option('class') && !option('grade') && isset($_SESSION['manage_class'])){
+			option('class',$_SESSION['manage_class']['id']);
+			option('grade',$_SESSION['manage_class']['grade']);
+		}
+		$q=$this->addCondition($q,array('class'=>'class.id','grade'=>'class.grade'),array('grade'=>'class'));
+				
+		$q=$this->search($q,array('num'=>'学号','student.name'=>'姓名'));
+		
+		$q=$this->orderby($q,'num','ASC',array('num','student.name'));
+		
+		$q=$this->pagination($q);
+		
+		return $this->db->query($q)->result_array();
+	}
+	
+	/**
+	 * 获得一个学生的家庭成员列表
+	 */
+	function getRelativeList($student_id){
+		$query="
+			SELECT 
+				id,name,relationship,work_for,contact
+			FROM 
+				student_relatives
+			WHERE company='".$this->config->item('company')."'
+				AND `student`='{$student_id}'
+		";
+		
+		return $this->db->query($query)->result_array();
+	}
+	
+	/**
+	 * 获得一个学生的奖惩记录列表
+	 */
+	function getBehaviourList($student_id){
+		$query="
+			SELECT name,type,date,level,content FROM student_behaviour WHERE student = '{$student_id}'
+			LIMIT 5
+		";
+		
+		return $this->db->query($query)->result_array();
+	}
+	
+	function getCommentList($student_id){
+		$query="
+			SELECT student_comment.title,student_comment.content,
+				FROM_UNIXTIME(time,'%Y-%m-%d') AS time,IF(staff.name IS NULL,student_comment.username,staff.name) AS username 
+			FROM student_comment LEFT JOIN staff ON staff.id=student_comment.uid 
+			WHERE student = '{$student_id}' AND (reply_to IS NULL OR reply_to = '{$_SESSION['id']}' OR uid = '{$_SESSION['id']}')
+			ORDER BY student_comment.time DESC
+			LIMIT 5
+		";
+		
+		return $this->db->query($query)->result_array();
+	}
+	
+	/**
+	 * 家校互动页面学生评价留言列表
+	 * TODO跟上面的getCommentList合并兼容
+	 */
+	function getInteractiveList(){
+		$query="
+			SELECT student_comment.title,student_comment.content,
+				FROM_UNIXTIME(student_comment.time,'%Y-%m-%d') AS date,student_comment.username,student_comment.student,
+				view_student.name AS student_name
+			FROM student_comment INNER JOIN view_student ON student_comment.student=view_student.id
+			WHERE student_comment.reply_to='{$_SESSION['id']}' 
+				OR student_comment.uid='{$_SESSION['id']}' 
+				OR (
+					'".isset($_SESSION['manage_class'])."' 
+					AND view_student.class='{$_SESSION['manage_class']['id']}'
+				)
+			ORDER BY time DESC
+		";
+		
+		$query=$this->pagination($query);
+		
+		return $this->db->query($query)->result_array();
 	}
 	
 	function getList(){
@@ -86,7 +212,7 @@ class Student_model extends SS_Model{
 		if($old_class_id!=$new_class_id){
 			$new_num_in_class=db_fetch_field("SELECT MAX(num_in_class)+1 FROM student_class WHERE class='".$new_class_id."' AND term='".$_SESSION['global']['current_term']."'");
 			
-			db_update('student_class',array('num_in_class'=>$new_num_in_class,'class'=>$new_class_id),"student='".$student_id."' AND class='".$old_class_id."' AND term='".$_SESSION['global']['current_term']."'");
+			$this->db_update('student_class',array('num_in_class'=>$new_num_in_class,'class'=>$new_class_id),"student='".$student_id."' AND class='".$old_class_id."' AND term='".$_SESSION['global']['current_term']."'");
 			$new_student_num=$new_class_id.substr($new_num_in_class+100,-2);
 			
 			student_update($student_id);
@@ -147,29 +273,12 @@ class Student_model extends SS_Model{
 		db_delete('student_relatives',$condition);
 	}
 	
-	function get_scores($student){
+	function getScores($student){
 		$query="SELECT exam_name,course_1,course_2,course_3,course_4,course_5,course_6,course_7,course_8,course_9,course_10,course_sum_3,course_sum_5,course_sum_8,rank_1,rank_2,rank_3,rank_4,rank_5,rank_6,rank_7,rank_8,rank_9,rank_10,rank_sum_3,rank_sum_5,rank_sum_8
 			FROM view_score WHERE student = '".$student."'
 		ORDER BY exam DESC";
 	
-		$field=array(
-			'exam_name'=>array('title'=>'考试'),
-			'course_1'=>array('title'=>'语文','content'=>'{course_1}<span class="rank">{rank_1}</span>'),
-			'course_2'=>array('title'=>'数学','content'=>'{course_2}<span class="rank">{rank_2}</span>'),
-			'course_3'=>array('title'=>'英语','content'=>'{course_3}<span class="rank">{rank_3}</span>'),
-			'course_4'=>array('title'=>'物理','content'=>'{course_4}<span class="rank">{rank_4}</span>'),
-			'course_5'=>array('title'=>'化学','content'=>'{course_5}<span class="rank">{rank_5}</span>'),
-			'course_6'=>array('title'=>'生物','content'=>'{course_6}<span class="rank">{rank_6}</span>'),
-			'course_7'=>array('title'=>'地理','content'=>'{course_7}<span class="rank">{rank_7}</span>'),
-			'course_8'=>array('title'=>'历史','content'=>'{course_8}<span class="rank">{rank_8}</span>'),
-			'course_9'=>array('title'=>'政治','content'=>'{course_9}<span class="rank">{rank_9}</span>'),
-			'course_10'=>array('title'=>'信息','content'=>'{course_10}<span class="rank">{rank_10}</span>'),
-			'course_sum_3'=>array('title'=>'3总','content'=>'{course_sum_3}<span class="rank">{rank_sum_3}</span>'),
-			'course_sum_5'=>array('title'=>'4总/5总','content'=>'{course_sum_5}<span class="rank">{rank_sum_5}</span>'),
-			'course_sum_8'=>array('title'=>'8总','content'=>'{course_sum_8}<span class="rank">{rank_sum_8}</span>')
-		);
-		
-		return $this->fetchTableArray($query,$field);
+		return $this->db->query($query)->result_array();
 	}
 	
 	function testClassDiv($div,$data,$classes,$gender,$showResult=false){

@@ -5,7 +5,7 @@ class Contact extends SS_controller{
 	}
 	
 	function lists(){
-		$this->session->set_userdata('last_list_action',$this->input->server('request_uri'));
+		$this->session->set_userdata('last_list_action',$this->input->server('REQUEST_URI'));
 		$this->load->model('client_model','client');	    
 		if($this->input->post('delete')){
 			$contacts_to_delete=array_trim($this->input->post('contact_check'));
@@ -82,7 +82,7 @@ class Contact extends SS_controller{
 		
 						client_addContact_phone_email(post('contact_related/client_right'),post('contact_related_extra/phone'),post('contact_related_extra/email'));
 		
-						showMessage('<a href="javascript:showWindow(\'contact?edit='.$new_contact['id'].'\')" target="_blank">新联系人 '.$new_contact['name'].' 已经添加，点击编辑详细信息</a>','notice');
+						showMessage('<a href="javascript:showWindow(\'/contact/edit/'.$new_contact['id'].'\')" target="_blank">新联系人 '.$new_contact['name'].' 已经添加，点击编辑详细信息</a>','notice');
 		
 					}else{
 						$a_contact=mysql_fetch_array($r_contact);
@@ -169,7 +169,7 @@ class Contact extends SS_controller{
 				->generate($this->client->getContacts(post('contact/id')));
 		
 		$fields_contact_case=array(
-			'num'=>array('title'=>'案号','wrap'=>array('mark'=>'a','href'=>'javascript:window.rootOpener.location.href=\'case?edit={id}\';window.opener.parent.focus();'),'orderby'=>false),
+			'num'=>array('title'=>'案号','wrap'=>array('mark'=>'a','href'=>'javascript:window.rootOpener.location.href=\'cases/edit/{id}\';window.opener.parent.focus();'),'orderby'=>false),
 			'case_name'=>array('title'=>'案名','orderby'=>false),
 			'lawyers'=>array('title'=>'主办律师','orderby'=>false)
 		);

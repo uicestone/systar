@@ -13,7 +13,7 @@ class User_model extends SS_Model{
 					AND company='".$this->config->item('company')."'
 			";
 		
-		$user=db_fetch_first($q_user);
+		$user=$this->db->query($q_user)->row_array();
 		
 		if(empty($user)){
 			return false;
@@ -61,14 +61,18 @@ class User_model extends SS_Model{
 		}
 	}
 	
-	function update_login_time(){
-		global $_G;
-		db_update('user',array('lastip'=>getIP(),'lastlogin'=>$this->config->item('timestamp')),"id='".$_SESSION['id']."' AND company='".$this->config->item('company')."'");
+	function updateLoginTime(){
+		$this->db->update('user',
+			array('lastip'=>getIP(),
+				'lastlogin'=>$this->config->item('timestamp')
+			),
+			array('id'=>$_SESSION['id'],'company'=>$this->config->item('company'))
+		);
 	}
 	
 	function student_set_session($user_id){
-		$q_student="SELECT * from `view_student` WHERE `id`='".$user_id."'";
-		$student=db_fetch_first($q_student);
+		$q_student="SELECT * from `view_student` WHERE `id`='{$user_id}'";
+		$student=$this->db->result($q_student)->row_array();
 	
 		$_SESSION['class']=$student['class'];
 		$_SESSION['class_name']=$student['class_name'];
@@ -77,13 +81,13 @@ class User_model extends SS_Model{
 	}
 	
 	function teacher_set_session($user_id){
-		$q_teacher="SELECT * FROM staff WHERE id = '".$user_id."'";
-		$teacher=db_fetch_first($q_teacher);
+		$q_teacher="SELECT * FROM staff WHERE id = '{$user_id}'";
+		$teacher=$this->db->query($q_teacher)->row_array();
 	
 		$_SESSION['course']=$teacher['course'];
 		$_SESSION['teacher_group']=explode(',',$teacher['group']);
 		
-		if($class=db_fetch_first("SELECT id,grade FROM class WHERE class_teacher='".$_SESSION['id']."'")){
+		if($class=$this->db->query("SELECT id,grade FROM class WHERE class_teacher='{$_SESSION['id']}'")->row_array()){
 			$_SESSION['manage_class']=$class;
 		}
 	}
@@ -95,7 +99,7 @@ class User_model extends SS_Model{
 	
 	function edit($user_id,$new_password=NULL,$new_username=NULL){
 		if(isset($new_password)){
-			if(db_update('user',array('password'=>$new_password),"id='".$user_id."'")){
+			if($this->db_update('user',array('password'=>$new_password),"id='".$user_id."'")){
 				showMessage('成功修改密码');
 			}else{
 				return false;
@@ -103,7 +107,7 @@ class User_model extends SS_Model{
 		}
 		
 		if(isset($new_username)){
-			if(db_update('user',array('username'=>$new_username),"id='".$user_id."'") && db_affected_rows()){
+			if($this->db_update('user',array('username'=>$new_username),"id='".$user_id."'") && db_affected_rows()){
 				showMessage('成功修改用户名');
 			}else{
 				return false;

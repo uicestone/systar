@@ -13,7 +13,7 @@ $(function(){
 		if($('#toolBar').hasClass('minimized')){
 			minimized=1;
 		}
-		$.post('/misc/setsession',{minimized:minimized},function(result){
+		$.get('/misc/setsession/minimized',function(result){
 			if(result!='success'){
 				showMessage('与服务器通信失败','warning');
 				console.log(result);
@@ -25,7 +25,7 @@ $(function(){
 	if(window!=window.parent){
 		//设置导航菜单高亮
 		$(window.parent.navFrame.document).find('#navMenu').find('li#nav-'+controller).addClass('activated').siblings('li').removeClass('activated');
-		$(window.parent.navFrame.document).find('#navMenu').find('ul.l1').find('li').removeClass('activated').parent().parent().parent().find('li#nav-'+action).addClass('activated');
+		$(window.parent.navFrame.document).find('#navMenu').find('ul.l1').find('li').removeClass('activated').parent().parent().parent().find('li#nav-'+controller+'-'+action).addClass('activated');
 		//设置顶层框架的hash为当前框架的URI
 		//window.parent.location.hash='#'+location.pathname.substr(1)+location.search;
 	}
