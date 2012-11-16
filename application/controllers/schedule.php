@@ -410,5 +410,49 @@ class Schedule extends SS_controller{
 		}
 			
 	}
+	
+	function taskBoard()
+	{
+		$id = $_SESSION['id'];
+		$sort_data = $this -> schedule -> getTaskBoardSort($id);
+		
+		$task_board = array();
+		//墙的每一列
+		foreach ($sort_data as $series)
+		{
+			$series_array = array();
+			
+			if(is_array($series))
+			{
+				//每一列的每个任务
+				foreach ($series as $task)
+				{
+					$task_array = array();
+					
+					if(is_array($task))
+					{
+						$task_id = str_replace('task_' , '' , $task);
+						$fetch_result = $this -> schedule -> fetch($task_id);
+						$task_array['title'] = $fetch_result['name'];
+						$task_array['content'] = $fetch_result['content'];
+					}
+					array_push($series_array , $task_array);
+				}
+			}
+			array_push($task_board , $series_array);
+		}
+		
+		$this -> load -> addViewData('schedule/task' , $task_board);
+	}
+	
+	function setTaskBoardSort()
+	{
+		$sort_data = $this -> input -> post('sortData');
+		$id = $_SESSION['id'];
+		$this -> schedule -> setTaskBoardSort($sort_data , $id);
+		
+		$this -> load -> require_head = false;
+		echo "Success!";
+	}
 }
 ?>

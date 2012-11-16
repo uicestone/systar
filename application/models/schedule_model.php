@@ -253,5 +253,18 @@ class Schedule_model extends SS_Model{
 
 		return $this->db->query($query)->result_array();
 	}
+	
+	function getTaskBoardSort($uid)
+	{
+		$query = "select sort_data from schedule_taskboard where uid=".$uid;
+		return json_decode($this -> db -> query($query));
+	}
+	
+	function setTaskBoardSort($sort_data , $uid)
+	{
+		$data['sort_data'] = $sort_data;
+		$where = "uid=".$uid;
+		$this -> db -> update('schedule_taskboard' , $data , $where);
+	}
 }
 ?>
