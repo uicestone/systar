@@ -35,8 +35,9 @@ class Document extends SS_controller{
 			$folder=$this->document->fetch($folder_id);
 
 			if($folder['type']!=''){
-				$this->action="document_download";
+				$this->download($folder['id']);
 				$this->load->require_head=false;
+				return;
 			}else{
 				$_SESSION[CONTROLLER]['upID']=$folder['parent'];
 				$_SESSION[CONTROLLER]['currentDir']=$folder['name'];
@@ -125,14 +126,13 @@ class Document extends SS_controller{
 		redirect('document');
 	}
 
-	function download(){
-		$file=$this->document->fetch($this->input->get('view'));
+	function download($document_id){
+		$file=$this->document->fetch($document_id);
 		
 		$this->document->exportHead($file['name']);
 		$path=$file['path'];
 		$path=iconv("utf-8","gbk",$path);
 		readfile($path);
-		exit;
 	}
 	
 	function favDelete(){
