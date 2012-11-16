@@ -154,7 +154,7 @@ class Cases_model extends SS_Model{
 		}else{
 			$status_expression.='<span title="部分未锁定" style="color:#800">锁</span>';
 		}
-		
+
 		if($contribute_sum<0.7){
 			$status_expression.='<span title="贡献已分配'.($contribute_sum*100).'%" style="color:#800">配</span>';
 		}elseif($contribute_sum<1){
@@ -202,11 +202,12 @@ class Cases_model extends SS_Model{
 			USING (`case`)
 		")->row_array();
 		
-		$contribute_sum=$this->db->query("
+		$contribute_sum_result=$this->db->query("
 			SELECT SUM(contribute) AS contribute_sum
 			FROM case_lawyer
-			WHERE `case`='".$case_id."'
+			WHERE `case`='{$case_id}'
 		")->row_array();
+		$contribute_sum=$contribute_sum_result['contribute_sum'];
 		
 		return $this->getStatus($is_reviewed,$locked,$apply_file,$is_query,$finance_review,$info_review,$manager_review,$filed,$contribute_sum,$uncollected);
 	}
