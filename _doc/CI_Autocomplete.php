@@ -53,6 +53,7 @@
 * @property News_model $news
 * @property Query_model $query
 * @property Schedule_model $schedule
+* @property Score_model $score
 * @property Staff_model $staff
 * @property Student_model $student
 * @property User_model $user
@@ -113,6 +114,7 @@ class CI_Controller {};
 * @property News_model $news
 * @property Query_model $query
 * @property Schedule_model $schedule
+* @property Score_model $score
 * @property Staff_model $staff
 * @property Student_model $student
 * @property User_model $user

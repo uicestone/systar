@@ -2,10 +2,10 @@
 class ViewScore extends SS_controller{
 	function __construct(){
 		parent::__construct();
+		$this->load->model('score_model','score');
 	}
 	
 	function lists(){
-		echo '成绩汇总页面正在升级，看到“文件上传成功即表示正确录入分数”';
 		$field=array(
 			'class'=>array('title'=>'班级','td_title'=>'width=103px','content'=>'{class_name}'),
 			'name'=>array('title'=>'学生','content'=>'{name}','td_title'=>'width=61px'),
@@ -22,25 +22,8 @@ class ViewScore extends SS_controller{
 			'course_sum_3'=>array('title'=>'3总','content'=>'{course_sum_3}<br /><span class="rank">{rank_sum_3}</span>'),
 			'course_sum_5'=>array('title'=>'5总','content'=>'{course_sum_5}<br /><span class="rank">{rank_sum_5}</span>')
 		);
-		
-		$q_avg="
-		SELECT *,
-			ROUND(AVG(course_1),2) AS course_1,
-			ROUND(AVG(course_2),2) AS course_2,
-			ROUND(AVG(course_3),2) AS course_3,
-			ROUND(AVG(course_4),2) AS course_4,
-			ROUND(AVG(course_5),2) AS course_5,
-			ROUND(AVG(course_6),2) AS course_6,
-			ROUND(AVG(course_7),2) AS course_7,
-			ROUND(AVG(course_8),2) AS course_8,
-			ROUND(AVG(course_9),2) AS course_9,
-			ROUND(AVG(course_10),2) AS course_10,
-			ROUND(AVG(course_sum_3),2) AS course_sum_3,
-			ROUND(AVG(course_sum_5),2) AS course_sum_5
-		FROM view_score INNER JOIN view_student ON view_student.id=view_score.student
-		WHERE exam IN (SELECT id FROM exam WHERE is_on=1)";
-		
-		addCondition($q_avg,array('class'=>'view_student.class','grade'=>'view_student.grade','exam'=>'view_score.exam'),array('grade'=>'class'));
+		$list=$this->table->setFields($field)
+			->generate($this->score->getList());
 		
 		$field_avg=array(
 			'id'=>array('td_title'=>'width="204px"','content'=>'平均分'),
@@ -58,27 +41,6 @@ class ViewScore extends SS_controller{
 			'course_sum_5'=>''
 		);
 		
-		if($this->input->post('export_to_excel')){
-			$field=array(
-				'class'=>array('title'=>'班级','content'=>'{class_name}'),
-				'student_num'=>array('title'=>'学生','content'=>'{student_name}'),
-				'course_1'=>array('title'=>'语文','content'=>'{course_1}'),
-				'course_2'=>array('title'=>'数学','content'=>'{course_2}'),
-				'course_3'=>array('title'=>'英语','content'=>'{course_3}'),
-				'course_4'=>array('title'=>'物理','content'=>'{course_4}'),
-				'course_5'=>array('title'=>'化学','content'=>'{course_5}'),
-				'course_6'=>array('title'=>'生物','content'=>'{course_6}'),
-				'course_8'=>array('title'=>'历史','content'=>'{course_8}'),
-				'course_7'=>array('title'=>'政治','content'=>'{course_7}'),
-				'course_9'=>array('title'=>'地理','content'=>'{course_9}'),
-				'course_10'=>array('title'=>'信息','content'=>'{course_10}'),
-				'course_sum_3'=>array('title'=>'3总','content'=>'{course_sum_3}'),
-				'course_sum_5'=>array('title'=>'5总','content'=>'{course_sum_5}')
-			);
-		}else{
-			$listLocator=$this->processMultiPage($q);
-		}
-		
 		$table=$this->fetchTableArray($q,$field);
 		
 		if($this->input->post('export_to_excel')){
@@ -87,7 +49,6 @@ class ViewScore extends SS_controller{
 			arrayExportExcel($table);
 			exit;
 		
-		}else{
 			$menu=array(
 			'head'=>'<div class="left">'.
 						'<button type="button" onclick="post(\'updateScore\',true)">更新</button>'.
