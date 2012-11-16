@@ -197,7 +197,7 @@ class Cases_model extends SS_Model{
 			)case_fee_grouped
 			INNER JOIN
 			(
-				SELECT `case`, SUM(amount) AS amount_sum FROM account WHERE `case`='".$case_id."'
+				SELECT `case`, SUM(amount) AS amount_sum FROM account WHERE `case`='{$case_id}'
 			)account_grouped
 			USING (`case`)
 		")->row_array();
@@ -677,7 +677,7 @@ class Cases_model extends SS_Model{
 		}
 		post('cases/display',1);//申请案号以后案件方可见
 		$num='沪星'.$case_num['classification_code'].$case_num['type_code'].$case_num['year_code'].'第'.$case_num['number'].'号';
-		$this->db_update('case',array('num'=>$num),"id='".$case['id']."'");
+		$this->db->update('case',array('num'=>$num),array('id'=>$case['id']));
 		return $num;
 	}
 
