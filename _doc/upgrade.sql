@@ -42,3 +42,31 @@ update `group` set affair = 'viewscore' where affair ='view_score';
 -- uice 2012/11/15
 delete from `group` where action='classdiv';
 -- end
+
+-- uice 2012/11/17
+CREATE TABLE IF NOT EXISTS `schedule_taskboard` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `uid` int(11) DEFAULT NULL,
+  `sort_data` text,
+  `time` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `uid` (`uid`),
+  KEY `time` (`time`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `schedule_taskboard`
+  ADD CONSTRAINT `schedule_taskboard_ibfk_1` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+
+INSERT INTO  `starsys`.`group` (
+`id` ,
+`name` ,
+`affair` ,
+`action` ,
+`display_in_nav` ,
+`affair_ui_name` ,
+`order` ,
+`company`
+)
+VALUES (
+NULL ,  'developer',  'schedule',  'taskboard',  '1',  '任务',  '0',  '1'
+);-- end

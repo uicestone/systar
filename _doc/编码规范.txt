@@ -23,3 +23,11 @@
 	#2012/11/10 uice
 	UPDATE sometable SET `a`='b';#加一个XXX字段
 	#end
+
+SQL语句
+	外围用双引号
+	关键字全部大写
+	数值php变量、可能引入非法值的变量要加引号
+	能不用*就不用
+	变量用{}包围，其他用切断字符串的方式连接
+	"SELECT name FROM client WHERE id='{$client_input_value}' OR '".(needToShowAll())."'";

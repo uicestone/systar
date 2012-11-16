@@ -429,30 +429,29 @@ class Schedule extends SS_controller{
 				{
 					$task_array = array();
 					
-					if(is_array($task))
-					{
-						$task_id = str_replace('task_' , '' , $task);
-						$fetch_result = $this -> schedule -> fetch($task_id);
-						$task_array['title'] = $fetch_result['name'];
-						$task_array['content'] = $fetch_result['content'];
-					}
+					$task_id = str_replace('task_' , '' , $task);
+					$fetch_result = $this -> schedule -> fetch($task_id);
+					$task_array['id']=$task_id;
+					$task_array['title'] = $fetch_result['name'];
+					$task_array['content'] = $fetch_result['content'];
+
 					array_push($series_array , $task_array);
 				}
 			}
 			array_push($task_board , $series_array);
 		}
 		
-		$this -> load -> addViewData('schedule/task' , $task_board);
+		$this -> load -> addViewData('task_board' , $task_board);
 	}
 	
 	function setTaskBoardSort()
 	{
-		$sort_data = $this -> input -> post('sortData');
-		$id = $_SESSION['id'];
-		$this -> schedule -> setTaskBoardSort($sort_data , $id);
+		$sort_data = json_encode($this -> input -> post('sortData'));
+
+		$this -> schedule -> setTaskBoardSort($sort_data , $_SESSION['id']);
 		
 		$this -> load -> require_head = false;
-		echo "Success!";
+		echo "success";
 	}
 }
 ?>

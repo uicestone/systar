@@ -256,15 +256,15 @@ class Schedule_model extends SS_Model{
 	
 	function getTaskBoardSort($uid)
 	{
-		$query = "select sort_data from schedule_taskboard where uid=".$uid;
-		return json_decode($this -> db -> query($query));
+		$query = "SELECT sort_data FROM schedule_taskboard WHERE uid='{$uid}'";
+		$row=$this -> db -> query($query)->row_array();
+		return json_decode($row['sort_data']);
 	}
 	
 	function setTaskBoardSort($sort_data , $uid)
 	{
 		$data['sort_data'] = $sort_data;
-		$where = "uid=".$uid;
-		$this -> db -> update('schedule_taskboard' , $data , $where);
+		$this -> db -> update('schedule_taskboard' , $data , array('uid'=>$uid));
 	}
 }
 ?>

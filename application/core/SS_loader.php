@@ -22,10 +22,19 @@ class SS_Loader extends CI_Loader{
 		}
 	}
 	
+	/**
+	 * 将数据传输给视图
+	 * @param $name 视图中可以调用的变量名
+	 * @param $value 数据
+	 */
 	function addViewData($name,$value){
 		$this->view_data+=array($name=>$value);
 	}
 	
+	/**
+	 * 将数据传输给视图（数组形式）
+	 * @param array $array 数据 Array(视图中可以调用的变量名=>值,..)
+	 */
 	function addViewArrayData(array $array){
 		$this->view_data+=$array;
 	}

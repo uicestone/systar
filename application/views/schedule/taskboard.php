@@ -16,7 +16,9 @@
 				$( ".column").each(function(){
 					taskSort.push($(this).sortable( "toArray"));
 				});
-				console.log(taskSort);
+				$.post('/schedule/settaskboardsort',{sortData:taskSort},function(result){
+					console.log(result);
+				});
 			}
         });
  
@@ -36,49 +38,14 @@
     });
     </script>
 <div class="contentTableBox">
+<?foreach($task_board as $column){?>
 <div class="column">
- 
-    <div class="portlet" id="task_1">
-        <div class="portlet-header">Feeds</div>
-        <div class="portlet-content">Lorem ipsum dolor sit amet, consectetuer adipiscing elit</div>
+ <?foreach($column as $task){?>
+    <div class="portlet" id="task_<?=$task['id']?>">
+        <div class="portlet-header"><?=$task['title']?></div>
+        <div class="portlet-content"><?=$task['content']?></div>
     </div>
- 
-    <div class="portlet"  id="task_2">
-        <div class="portlet-header">News</div>
-        <div class="portlet-content">Lorem ipsum dolor sit amet, consectetuer adipiscing elit</div>
-    </div>
- 
+<?}?>
 </div>
- 
-<div class="column" >
- 
-    <div class="portlet"  id="task_3">
-        <div class="portlet-header">Shopping</div>
-        <div class="portlet-content">Lorem ipsum dolor sit amet, consectetuer adipiscing elit</div>
-    </div>
- 
-</div>
- 
-<div class="column">
- 
-    <div class="portlet"  id="task_4">
-        <div class="portlet-header">Links</div>
-        <div class="portlet-content">Lorem ipsum dolor sit amet, consectetuer adipiscing elit</div>
-    </div>
- 
-    <div class="portlet"  id="task_5">
-        <div class="portlet-header">Images</div>
-        <div class="portlet-content">Lorem ipsum dolor sit amet, consectetuer adipiscing elit</div>
-    </div>
- 
-</div>
-	<div class="column">
-    
- 
-	</div>
-	<div class="column">
-    
- 
-	</div>
-
+ <?}?>
 </div>
