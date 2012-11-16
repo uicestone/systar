@@ -444,7 +444,7 @@ class Schedule extends SS_controller{
 			array_push($task_board , $series_array);
 		}
 		
-		$this -> load -> addViewData('schedule/task' , $task_board);
+		$this -> load -> addViewData('task_board' , $task_board);
 	}
 	
 	function setTaskBoardSort()
@@ -454,7 +454,7 @@ class Schedule extends SS_controller{
 		$this -> schedule -> setTaskBoardSort($sort_data , $id);
 		
 		$this -> load -> require_head = false;
-		echo "Success!";
+		echo "success";
 	}
 }
 ?>
