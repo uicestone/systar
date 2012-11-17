@@ -19,6 +19,7 @@ class Schedule_model extends SS_Model{
 				LEFT JOIN client ON client.id=schedule.client
 			WHERE schedule.id='".intval($id)."'";
 		$schedule=$this->db->query($q_schedule)->row_array();
+
 		$schedule['content_paras']=explode("\n",$schedule['content']);
 		$schedule['experience_paras']=explode("\n",$schedule['experience']);
 		$schedule['time_start']=date('Y-m-d H:i',$schedule['time_start']);
@@ -88,15 +89,16 @@ class Schedule_model extends SS_Model{
 		$data['hours_own'] = round(($data['time_end']-$data['time_start'])/3600,2);
 		$data['display']=1;
 		$data+=uidTime();
-		return db_insert('schedule',$data);
+		$this->db->insert('schedule',$data);
+		return $this->db->insert_id();
 	}
 	
 	function delete($schedule_id){
-		db_delete('schedule',"id='".intval($schedule_id)."' AND uid='".$_SESSION['id']."'");	
+		return $this->db->delete('schedule',array('id'=>intval($schedule_id),'uid'=>$_SESSION['id']));	
 	}
 	
 	function update($schedule_id,$data){
-		$this->db->update('schedule',$data,"id='".intval($schedule_id)."'");
+		return $this->db->update('schedule',$data,array('id'=>intval($schedule_id)));
 	}
 	
 	/**

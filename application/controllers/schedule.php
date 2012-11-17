@@ -379,33 +379,40 @@ class Schedule extends SS_controller{
 		$this->load->addViewArrayData(compact('chart_staffly_workhours_catogary','chart_staffly_workhours_series','work_hour_stat'));
 	}
 	
-	function writeCalendar(){
-		if(!$this->input->post('id')){//插入新的任务
-			echo $this->schedule->add($this->input->post());
-			unset($_SESSION['schedule']['post']);
-			
-		}elseif($this->input->post('action')=='delete'){//删除任务
-			$this->schedule->delete($this->input->post('id'));
+	function writeCalendar($action,$schedule_id=NULL){
 		
-		}elseif($this->input->post('action')=='updateContent'){//更新任务内容
-			$this->schedule->update($this->input->post('id'),array(
+		if($action=='insert'){//插入新的任务
+			echo $this->schedule->add($this->input->post());
+			
+		}elseif($action=='delete'){//删除任务
+			if($this->schedule->delete($schedule_id)){
+				echo 'success';
+			}
+		
+		}elseif($action=='update'){//更新任务内容
+			if($this->schedule->update($schedule_id,array(
 				'content'=>$this->input->post('content'),
 				'experience'=>$this->input->post('experience'),
 				'completed'=>$this->input->post('completed'),
 				'fee'=>(float)$this->input->post('fee'),
 				'fee_name'=>$this->input->post('fee_name'),
 				'place'=>$this->input->post('place')
-			));
+			))){
+				echo 'success';
+			}
 		
-		}else{//更新任务时间
-			$schedule_id=$this->input->post('id');
+		}elseif($action=='resize'){//更新任务时间
 			$time_delta=intval($this->input->post('dayDelta'))*86400+intval($this->input->post('minuteDelta'))*60;
 			
-			if($this->input->post('action')=='resize'){
-				$this->schedule->resize($schedule_id,$time_delta,(int)$this->input->post('allDay'));
-				
-			}elseif($this->input->post('action')=='drag'){
-				$this->schedule->drag($schedule_id,$time_delta,(int)$this->input->post('allDay'));
+			if($this->schedule->resize($schedule_id,$time_delta,(int)$this->input->post('allDay'))){
+				echo 'success';
+			}
+
+		}elseif($action=='drag'){
+			$time_delta=intval($this->input->post('dayDelta'))*86400+intval($this->input->post('minuteDelta'))*60;
+
+			if($this->schedule->drag($schedule_id,$time_delta,(int)$this->input->post('allDay'))){
+				echo 'success';
 			}
 		}
 			
