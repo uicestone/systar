@@ -415,30 +415,31 @@ class Schedule extends SS_controller{
 	{
 		$id = $_SESSION['id'];
 		$sort_data = $this -> schedule -> getTaskBoardSort($id);
-		
 		$task_board = array();
-		//墙的每一列
-		foreach ($sort_data as $series)
-		{
-			$series_array = array();
-			
-			if(is_array($series))
+		
+		if(count($sort_data) != 0)	//若查询结果不为空，即在数据库表中获得当前用户的排列方式
+		{	//墙的每一列
+			foreach ($sort_data as $series)
 			{
-				//每一列的每个任务
-				foreach ($series as $task)
-				{
-					$task_array = array();
-					
-					$task_id = str_replace('task_' , '' , $task);
-					$fetch_result = $this -> schedule -> fetch($task_id);
-					$task_array['id']=$task_id;
-					$task_array['title'] = $fetch_result['name'];
-					$task_array['content'] = $fetch_result['content'];
-
-					array_push($series_array , $task_array);
+				$series_array = array();
+				
+				if(is_array($series))
+				{	//每一列的每个任务
+					foreach ($series as $task)
+					{
+						$task_array = array();
+						
+						$task_id = str_replace('task_' , '' , $task);
+						$fetch_result = $this -> schedule -> fetch($task_id);
+						$task_array['id']=$task_id;
+						$task_array['title'] = $fetch_result['name'];
+						$task_array['content'] = $fetch_result['content'];
+	
+						array_push($series_array , $task_array);
+					}
 				}
+				array_push($task_board , $series_array);
 			}
-			array_push($task_board , $series_array);
 		}
 		
 		$this -> load -> addViewData('task_board' , $task_board);
@@ -449,6 +450,37 @@ class Schedule extends SS_controller{
 		$sort_data = json_encode($this -> input -> post('sortData'));
 
 		$this -> schedule -> setTaskBoardSort($sort_data , $_SESSION['id']);
+		
+		$this -> load -> require_head = false;
+		echo "success";
+	}
+	
+	function addTask($task_id , $uid)
+	{	//获得任务
+		$fetch_result = $this -> schedule -> fetch($task_id);
+			
+		$task_array['id']=$task_id;
+		$task_array['title'] = $fetch_result['name'];
+		$task_array['content'] = $fetch_result['content'];
+		//取第一列任务墙
+		$sort_data = $this -> schedule -> getTaskBoardSort($uid);
+		
+		if(count($sort_data) != 0)
+		{	//将任务加入墙的第一列末尾
+			$first_series = $sort_data[0];
+			array_push($first_series , $task_array);
+			$sort_data[0] = $first_series;
+			
+			$this -> schedule -> setTaskBoardSort(json_encode($sort_data), $uid);
+		}
+		else	//查询结果为空，即数据库表中没有该用户的任务墙记录，则新增一条记录
+		{
+			$first_series = array();
+			array_push($first_series , $task_array);
+			array_push($sort_data , $first_series);
+			
+			$this -> schedule -> addTask(json_encode($sort_data), $uid);
+		}
 		
 		$this -> load -> require_head = false;
 		echo "success";
