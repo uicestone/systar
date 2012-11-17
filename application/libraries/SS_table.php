@@ -295,6 +295,74 @@ class SS_Table extends CI_Table{
 		parent::clear();
 		$this->__construct();
 	}
+	
+	/**
+	 * Generate excel file and output it to browser
+	 * 
+	 * @access public
+	 * @return void
+	 */
+	function generateExcel(){
+	    require_once(APPPATH.'third_party/PHPExcel/PHPExcel.php');
+	    
+	    //create a excel object and make some default settings
+	    $php_excel=new PHPExcel();
+	    $current_sheet=$php_excel->getActiveSheet();
+	    $current_sheet->getDefaultColumnDimension()->setAutoSize(true);
+	    
+	    //create  an array to use as a index-key map,and the index is also used as column index in excel sheet 
+	    $keys=array_keys($this->fields);
+	    //for every row to write data to the corrected column in current excel sheet 
+	    for($row=1;$row<=count($this->data)+1;$row++){
+		//the first row is filled with column name defined in fields[]['title']
+		if($row==1){
+		    for($i=0;$i<count($this->fields);$i++){
+			$current_sheet->setCellValueByColumnAndRow($i,$row,$this->fields[$keys[$i]]['title']);
+			//if the width property of column is defined,then apply it to excel sheet column
+			if(isset($this->fields[$keys[$i]]['width'])){
+			    $current_sheet->getColumnDimensionByColumn($i)->setWidth($this->fields[$keys[$i]]['width']);
+			}
+		    }
+		}
+		//other rows is filled with row data
+		else{
+		    for($i=0;$i<count($this->fields);$i++){
+			//if the content proprty of column is undefined, then use the key of column in fields as its content
+			if(!isset($this->fields[$keys[$i]]['content'])){
+			    $content=$this->data[$row-2][$keys[$i]];
+			}
+			//otherwise, do with content string,and set it to cell value
+			else{
+			    $content=$this->fields[$keys[$i]]['content'];
+			    //search {column name} pattern in content string,and replace it with related row data
+			    $matches=array();
+			    preg_match_all("/(?<={)[a-zA-Z0-9_]+(?=})/",$content,$matches);
+			    foreach($matches[0] as $key){
+				$content=str_replace('{'.$key.'}',$this->data[$row-2][$key],$content);
+			    }
+			    //if the eval property of column is defined, then eval the content string and set the return value to cell value
+			    if(isset($this->fields[$keys[$i]]['eval'])&&$this->fields[$keys[$i]]['eval']){
+				$content=eval($content);
+			    }
+			}
+			$current_sheet->setCellValueByColumnAndRow($i,$row,$content);
+		    }
+		}
+	    }
+	    
+	    //output excel file to browser directly
+	    $excel_writer=PHPExcel_IOFactory::createWriter($php_excel, 'Excel5');
+	    header("Content-Type: application/force-download");
+	    header("Content-Type: application/octet-stream");
+	    header("Content-Type: application/download");
+	    header('Content-Disposition:inline;filename="output.xls"');
+	    header("Content-Transfer-Encoding: binary");
+	    header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
+	    header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
+	    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+	    header("Pragma: no-cache");
+	    $excel_writer->save("php://output");
+	}
 
 }
 ?>
