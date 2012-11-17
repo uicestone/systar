@@ -65,21 +65,21 @@ class Schedule_model extends SS_Model{
 	function review($post){
 		$post=array_trim($post);
 		if($post){
-			$condition = db_implode($post, $glue = ' OR ','id','=',"'","'", '`','key');
-			$this->db_update('schedule',array('hours_checked'=>'#hours_own#'),$condition);
+			$condition = db_implode($post, $glue = ' OR ','id',' = ',"'","'", '`','key');
+			$this->db->query("UPDATE schedule SET `hours_checked` = `hours_own` WHERE ".$condition);
 			return true;
 		}
 	}
 	
 	function setComment($schedule_id,$comment){
 		$schedule_id=intval($schedule_id);
-		$this->db_update('schedule',array('comment'=>$comment),"id='".$schedule_id."'");
+		$this->db->update('schedule',array('comment'=>$comment),"id = '".$schedule_id."'");
 		return db_fetch_first("SELECT * FROM schedule WHERE id='".$schedule_id."'");
 	}
 	
 	function check_hours($schedule_id,$hours_checked){
 		$schedule_id=intval($schedule_id);
-		$this->db_update('schedule',array('hours_checked'=>$hours_checked),"id='".$schedule_id."'");
+		$this->db->update('schedule',array('hours_checked'=>$hours_checked),"id = '".$schedule_id."'");
 		return db_fetch_field("SELECT hours_checked FROM schedule WHERE id='".$schedule_id."'");
 	}
 	

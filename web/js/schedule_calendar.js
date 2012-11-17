@@ -121,7 +121,7 @@ $(function() {
 		},
 		
 		editable: true,
-		events: location.href+'/readcalendar',
+		events: location.pathname+'/readcalendar'+location.search,
 		
 		eventClick: function(event) {
 			$.get("/schedule/readcalendar/"+event.id,function(result){

@@ -246,7 +246,7 @@ class Schedule extends SS_controller{
 			}
 			
 			if(post('schedule/document')){
-				$this->db->update('case_document',post('case_document'),"id='".post('schedule/document')."'");
+				$this->db->update('case_document',post('case_document'),"id = '".post('schedule/document')."'");
 			}
 			$this->processSubmit($submitable);
 		}

@@ -358,7 +358,7 @@ class Student extends SS_controller{
 			
 			foreach($div as $gender_in_array1 => $array1){
 				foreach($array1 as $class=>$array2){
-					$this->db_update('student_classdiv',array('new_class'=>$class),'id IN ('.implode(',',$array2).')');
+					$this->db->update('student_classdiv',array('new_class'=>$class),'id IN ('.implode(',',$array2).')');
 				}
 			}
 		}else{

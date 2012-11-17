@@ -45,7 +45,7 @@ class Cases_model extends SS_Model{
 	    $data=array_keyfilter($data,$field);
 		$data+=uidTime();
 	    
-		return $this->db_update('case',$data,"id='".$case_id."'");
+		return $this->db->update('case',$data,"id = '{$case_id}'");
 	}
 	
 	function addDocument($case,$data){
@@ -315,9 +315,12 @@ class Cases_model extends SS_Model{
 	}
 	
 	function feeConditionPrepend($case_fee_id,$new_condition){
-		global $_G;
-		
-		$this->db_update('case_fee',array('condition'=>"_CONCAT('".$new_condition."\\n',`condition`)_",'uid'=>$_SESSION['id'],'username'=>$_SESSION['username'],'time'=>$this->config->item('timestamp')),"id='".$case_fee_id."'");
+		$this->db->query("UPDATE case_fee 
+			SET `condition`= CONCAT('".$new_condition."\\n',`condition`),
+				`username` = '{$_SESSION['username']}'
+				`time` = '{$this->config->item('timestamp')}'
+			WHERE id='{$case_fee_id}'
+		");
 		
 		return db_fetch_field("SELECT `condition` FROM case_fee WHERE id = '".$case_fee_id."'");
 	}
@@ -349,24 +352,24 @@ class Cases_model extends SS_Model{
 		
 		foreach($case_lawyer_array as $id=>$role){
 			if($role=='接洽律师（次要）' && isset($role_count['接洽律师']) && $role_count['接洽律师']==1){
-				$this->db_update('case_lawyer',array('contribute'=>$contribute['接洽']*0.3),"id='".$id."'");
+				$this->db->update('case_lawyer',array('contribute'=>$contribute['接洽']*0.3),array('id'=>$id));
 	
 			}elseif($role=='接洽律师'){
 				if(isset($role_count['接洽律师（次要）']) && $role_count['接洽律师（次要）']==1){
-					$this->db_update('case_lawyer',array('contribute'=>$contribute['接洽']*0.7),"id='".$id."'");
+					$this->db->update('case_lawyer',array('contribute'=>$contribute['接洽']*0.7),array('id'=>$id));
 				}else{
-					$this->db_update('case_lawyer',array('contribute'=>$contribute['接洽']/$role_count[$role]),"id='".$id."'");
+					$this->db->update('case_lawyer',array('contribute'=>$contribute['接洽']/$role_count[$role]),array('id'=>$id));
 				}
 	
 			}elseif($role=='主办律师'){
 				if(isset($role_count['协办律师']) && $role_count['协办律师']){
-					$this->db_update('case_lawyer',array('contribute'=>($contribute['办案']-0.05)/$role_count[$role]),"id='".$id."'");
+					$this->db->update('case_lawyer',array('contribute'=>($contribute['办案']-0.05)/$role_count[$role]),array('id'=>$id));
 				}else{
-					$this->db_update('case_lawyer',array('contribute'=>$contribute['办案']/$role_count[$role]),"id='".$id."'");
+					$this->db->update('case_lawyer',array('contribute'=>$contribute['办案']/$role_count[$role]),array('id'=>$id));
 				}
 	
 			}elseif($role=='协办律师'){
-				$this->db_update('case_lawyer',array('contribute'=>0.05/$role_count[$role]),"id='".$id."'");
+				$this->db->update('case_lawyer',array('contribute'=>0.05/$role_count[$role]),array('id'=>$id));
 			}
 		}
 	}

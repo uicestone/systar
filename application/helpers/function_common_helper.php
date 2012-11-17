@@ -182,7 +182,6 @@ function session_logout(){
  * $refresh_permission会刷新用户权限，只需要在每次请求开头刷新即可
  */
 function is_logged($check_type=NULL,$refresh_permission=false){
-	global $_G;
 	if(is_null($check_type)){
 		if(!isset($_SESSION['usergroup'])){
 			return false;
@@ -193,7 +192,8 @@ function is_logged($check_type=NULL,$refresh_permission=false){
 
 	if($refresh_permission){
 		preparePermission();
-		if($_G['ucenter']){
+		$CI=&get_instance();
+		if($CI->config->item('ucenter')){
 			$_SESSION['new_messages']=uc_pm_checknew($_SESSION['id']);
 		}
 	}
@@ -261,11 +261,11 @@ function is_permitted($controller,$action=NULL){
  * 调用uc接口发送用户信息
  */
 function sendMessage($receiver,$message,$title='',$sender=NULL){
-	global $_G;
+	global $CFG;
 	if(is_null($sender)){
 		$sender=$_SESSION['id'];
 	}
-	if($_G['ucenter']){
+	if($CFG->item('ucenter')){
 		uc_pm_send($sender,$receiver,$title,$message);
 	}
 }
@@ -836,7 +836,10 @@ function db_delete($table, $condition) {
  * array(1=>'on',5=>'on')转化为`id`='1' OR `id`='5'
  * escape_string操作将给特殊字符加上\转义
  */
-function db_implode($array, $glue = ',',$keyname=NULL,$equalMark='=',$mark_for_v_l="'",$mark_for_v_r="'", $mark_for_k='`',$value_type='value',$db_escape_real_string=true,$treat_special_type=true) {
+function db_implode($array, $glue = ',',$keyname=NULL,$equalMark=' = ',$mark_for_v_l="'",$mark_for_v_r="'", $mark_for_k='`',$value_type='value',$db_escape_real_string=true,$treat_special_type=true) {
+	if($equalMark=='='){
+		$equalMark=' = ';
+	}
 	if(!is_null($keyname)){
 		$keyname_array=explode('.',$keyname);
 		$keyname=$glue_keyname='';

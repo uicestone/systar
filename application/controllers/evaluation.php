@@ -94,7 +94,7 @@ class Evaluation extends SS_controller{
 			(
 				SELECT staff,SUM(score) AS score
 				FROM `evaluation_score` INNER JOIN evaluation_indicator ON evaluation_score.indicator=evaluation_indicator.id
-				WHERE uid = '6356' AND evaluation_score.quarter='{$_G['quarter']}'
+				WHERE uid = '6356' AND evaluation_score.quarter='{$this->config->item('quater')}'
 				GROUP BY uid,staff
 			)manager
 			LEFT JOIN(
@@ -102,7 +102,7 @@ class Evaluation extends SS_controller{
 				FROM (
 					SELECT staff,SUM(score) AS sum_score
 					FROM `evaluation_score` INNER JOIN evaluation_indicator ON evaluation_score.indicator=evaluation_indicator.id
-					WHERE uid <> '6356' AND staff<>uid AND evaluation_score.quarter='{$_G['quarter']}'
+					WHERE uid <> '6356' AND staff<>uid AND evaluation_score.quarter='{$this->config->item('quater')}'
 					GROUP BY uid,staff
 				)sum
 				GROUP BY staff
@@ -110,7 +110,7 @@ class Evaluation extends SS_controller{
 			LEFT JOIN(
 				SELECT staff,SUM(score) AS score
 				FROM `evaluation_score` INNER JOIN evaluation_indicator ON evaluation_score.indicator=evaluation_indicator.id
-				WHERE uid = staff AND evaluation_score.quarter='{$_G['quarter']}'
+				WHERE uid = staff AND evaluation_score.quarter='{$this->config->item('quater')}'
 				GROUP BY uid,staff
 			)self USING(staff)
 			INNER JOIN staff ON staff.id=each_other.staff	
