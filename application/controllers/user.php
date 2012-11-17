@@ -107,5 +107,11 @@ class user extends SS_controller{
 			}
 		}
 	}
+	
+	/**
+	 * ie6跳转提示页面
+	 */
+	function browser(){
+	}
 }
 ?>
