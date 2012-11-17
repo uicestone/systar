@@ -114,7 +114,6 @@ function optioned($variable,$value=NULL){
  * 保存控制单元相关配置时候用，比如列表页的页码，搜索的关键词等
  */
 function option($arrayindex,$set_to=NULL){
-	global $_G;
 	if(is_null($set_to)){
 		return array_dir('_SESSION/'.CONTROLLER.'/'.METHOD.'/'.$arrayindex);
 
@@ -526,8 +525,6 @@ function array_numkey_to_strkey($array){
 	若指定第二个参数$setto,则会改变$arrayindex的值
 */
 function array_dir($arrayindex){
-	global $_G;
-	
 	preg_match('/^[^\/]*/',$arrayindex,$match);
 	$arraystr=$match[0];
 	

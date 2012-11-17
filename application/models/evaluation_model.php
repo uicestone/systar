@@ -5,8 +5,6 @@ class Evaluation_model extends SS_Model{
 	}
 
 	function insert_score($indicator,$staff,$field,$value/*,$anonymous*/){
-		global $_G;
-	
 		if($field=='score'){
 			$weight=db_fetch_field("SELECT weight FROM evaluation_indicator WHERE id = '".$indicator."'");
 			
@@ -52,8 +50,6 @@ class Evaluation_model extends SS_Model{
 	}
 	
 	function getPeer($staff=NULL){
-		global $_G;
-		
 		if(is_null($staff)){
 			$staff=$_SESSION['id'];
 		}
@@ -68,8 +64,6 @@ class Evaluation_model extends SS_Model{
 	}
 	
 	function getSelf($staff=NULL){
-		global $_G;
-		
 		if(is_null($staff)){
 			$staff=$_SESSION['id'];
 		}
@@ -80,8 +74,6 @@ class Evaluation_model extends SS_Model{
 	}
 	
 	function getManager($staff=NULL){
-		global $_G;
-		
 		if(is_null($staff)){
 			$staff=$_SESSION['id'];
 		}

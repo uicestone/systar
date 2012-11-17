@@ -211,7 +211,6 @@ class Achievement_model extends SS_Model{
 		返回一个数组，包含num(总数)和sum(总额)两个键
 		*/
 		
-		global $_G;
 		if($type=='recent'){
 			$q="
 				SELECT COUNT(case_fee.id) AS num,SUM(case_fee.fee) AS sum
