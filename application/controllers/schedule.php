@@ -455,8 +455,12 @@ class Schedule extends SS_controller{
 		echo "success";
 	}
 	
-	function addTask($task_id , $uid)
-	{	//获得任务
+	function addToTaskBoard($task_id , $uid=NULL)
+	{	
+		if(is_null($uid)){
+			$uid=$_SESSION['id'];
+		}
+		//获得任务
 		$fetch_result = $this -> schedule -> fetch($task_id);
 			
 		$task_array['id']=$task_id;
@@ -479,7 +483,7 @@ class Schedule extends SS_controller{
 			array_push($first_series , $task_array);
 			array_push($sort_data , $first_series);
 			
-			$this -> schedule -> addTask(json_encode($sort_data), $uid);
+			$this -> schedule -> createTaskBoard(json_encode($sort_data), $uid);
 		}
 		
 		$this -> load -> require_head = false;

@@ -302,6 +302,7 @@ class SS_Table extends CI_Table{
 	 * @access public
 	 * @return void
 	 */
+	//@TODO 缩进存在空格，建议使用$this->generateData处理根据$fields和$data处理$rows，然后根据后者输出表格。（输出时可以对每格数据执行一下strip_tags()）
 	function generateExcel(){
 	    require_once(APPPATH.'third_party/PHPExcel/PHPExcel.php');
 	    

@@ -275,9 +275,9 @@ class Schedule_model extends SS_Model{
 		$this -> db -> update('schedule_taskboard' , $data , array('uid'=>$uid));
 	}
 	
-	function addTask($sort_data ,$uid)
+	function createTaskBoard($sort_data ,$uid)
 	{
-		$data['id'] = "NULL";
+		//$data['id'] = "NULL";这是？
 		$data['sort_data'] = $sort_data;
 		$data['uid'] = $uid;
 		
