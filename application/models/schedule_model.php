@@ -256,15 +256,32 @@ class Schedule_model extends SS_Model{
 	
 	function getTaskBoardSort($uid)
 	{
-		$query = "SELECT sort_data FROM schedule_taskboard WHERE uid='{$uid}'";
-		$row=$this -> db -> query($query)->row_array();
-		return json_decode($row['sort_data']);
+		$query = $this -> db -> query("SELECT sort_data FROM schedule_taskboard WHERE uid='{$uid}'");
+		
+		if($query -> num_rows() == 0)	//若查询结果为空
+		{
+			return array();
+		}
+		else
+		{
+			$row = $query->row_array();
+			return json_decode($row['sort_data']);
+		}
 	}
 	
 	function setTaskBoardSort($sort_data , $uid)
 	{
 		$data['sort_data'] = $sort_data;
 		$this -> db -> update('schedule_taskboard' , $data , array('uid'=>$uid));
+	}
+	
+	function addTask($sort_data ,$uid)
+	{
+		$data['id'] = "NULL";
+		$data['sort_data'] = $sort_data;
+		$data['uid'] = $uid;
+		
+		$this -> db -> insert('schedule_taskboard' , $data);
 	}
 }
 ?>
