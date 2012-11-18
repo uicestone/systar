@@ -460,27 +460,25 @@ class Schedule extends SS_controller{
 		if(is_null($uid)){
 			$uid=$_SESSION['id'];
 		}
-		//获得任务
-		$fetch_result = $this -> schedule -> fetch($task_id);
-			
-		$task_array['id']=$task_id;
-		$task_array['title'] = $fetch_result['name'];
-		$task_array['content'] = $fetch_result['content'];
+		//单个任务
+		$task = "task_".$task_id;
 		//取第一列任务墙
 		$sort_data = $this -> schedule -> getTaskBoardSort($uid);
 		
 		if(count($sort_data) != 0)
 		{	//将任务加入墙的第一列末尾
+			//echo "update ".$uid." sort_data<br/>";	//调试用
 			$first_series = $sort_data[0];
-			array_push($first_series , $task_array);
+			array_push($first_series , $task);
 			$sort_data[0] = $first_series;
 			
 			$this -> schedule -> setTaskBoardSort(json_encode($sort_data), $uid);
 		}
 		else	//查询结果为空，即数据库表中没有该用户的任务墙记录，则新增一条记录
 		{
+			//echo "insert ".$uid." sort_data<br/>";	//调试用
 			$first_series = array();
-			array_push($first_series , $task_array);
+			array_push($first_series , $task);
 			array_push($sort_data , $first_series);
 			
 			$this -> schedule -> createTaskBoard(json_encode($sort_data), $uid);
