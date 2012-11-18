@@ -446,16 +446,30 @@ class Schedule extends SS_controller{
 	}
 	
 	function setTaskBoardSort()
-	{
-		$sort_data = json_encode($this -> input -> post('sortData'));
-
-		$this -> schedule -> setTaskBoardSort($sort_data , $_SESSION['id']);
+	{	//初始化sort_data
+		$sort_data = array();
+		for($i=0 ; $i<5 ; $i++)
+		{
+			array_push($sort_data , array());
+		}
+		//复制对应列至sort_data
+		$sort_data_pushed = $this -> input -> post('sortData');
+		//echo print_r($sort_data_pushed)."<br/>";
+		$key_array = array_keys($sort_data_pushed);
+		//echo print_r($key_array)."<br/>";
+		foreach ($key_array as $series)
+		{
+			$sort_data[$series] = $sort_data_pushed[$series];
+		}
+		//echo print_r($sort_data)."<br/>";
 		
+		$this -> schedule -> setTaskBoardSort(json_encode($sort_data) , $_SESSION['id']);
+		//echo json_encode($sort_data)."<br/>";
 		$this -> load -> require_head = false;
 		echo "success";
 	}
 	
-	function addToTaskBoard($task_id , $uid=NULL)
+	function addToTaskBoard($task_id , $uid=NULL , $series=NULL)
 	{	
 		if(is_null($uid)){
 			$uid=$_SESSION['id'];
@@ -467,19 +481,31 @@ class Schedule extends SS_controller{
 		
 		if(count($sort_data) != 0)
 		{	//将任务加入墙的第一列末尾
-			//echo "update ".$uid." sort_data<br/>";	//调试用
-			$first_series = $sort_data[0];
-			array_push($first_series , $task);
-			$sort_data[0] = $first_series;
+			echo "update ".$uid." sort_data<br/>";	//调试用
+			if(is_null($series))
+			{
+				$series = 0;
+			}
+			if($series > 4)
+			{
+				$series = 4;
+			}
+			$each_series = $sort_data[$series];
+			array_push($each_series , $task);
+			$sort_data[$series] = $each_series;
 			
 			$this -> schedule -> setTaskBoardSort(json_encode($sort_data), $uid);
 		}
 		else	//查询结果为空，即数据库表中没有该用户的任务墙记录，则新增一条记录
 		{
-			//echo "insert ".$uid." sort_data<br/>";	//调试用
+			echo "insert ".$uid." sort_data<br/>";	//调试用
 			$first_series = array();
 			array_push($first_series , $task);
 			array_push($sort_data , $first_series);
+			for($i=0 ; $i<4 ; $i++)
+			{
+				array_push($sort_data , array());
+			}
 			
 			$this -> schedule -> createTaskBoard(json_encode($sort_data), $uid);
 		}
