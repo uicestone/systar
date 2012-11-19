@@ -297,72 +297,78 @@ class SS_Table extends CI_Table{
 	}
 	
 	/**
-	 * Generate excel file and output it to browser
+	 * 生成exel表格并向浏览器输出
 	 * 
 	 * @access public
 	 * @return void
 	 */
 	//@TODO 缩进存在空格，建议使用$this->generateData处理根据$fields和$data处理$rows，然后根据后者输出表格。（输出时可以对每格数据执行一下strip_tags()）
 	function generateExcel(){
-	    require_once(APPPATH.'third_party/PHPExcel/PHPExcel.php');
-	    
-	    //create a excel object and make some default settings
-	    $php_excel=new PHPExcel();
-	    $current_sheet=$php_excel->getActiveSheet();
-	    $current_sheet->getDefaultColumnDimension()->setAutoSize(true);
-	    
-	    //create  an array to use as a index-key map,and the index is also used as column index in excel sheet 
-	    $keys=array_keys($this->fields);
-	    //for every row to write data to the corrected column in current excel sheet 
-	    for($row=1;$row<=count($this->data)+1;$row++){
-		//the first row is filled with column name defined in fields[]['title']
-		if($row==1){
-		    for($i=0;$i<count($this->fields);$i++){
-			$current_sheet->setCellValueByColumnAndRow($i,$row,$this->fields[$keys[$i]]['title']);
-			//if the width property of column is defined,then apply it to excel sheet column
-			if(isset($this->fields[$keys[$i]]['width'])){
-			    $current_sheet->getColumnDimensionByColumn($i)->setWidth($this->fields[$keys[$i]]['width']);
+		$this->generateData();
+
+		require_once(APPPATH.'third_party/PHPExcel/PHPExcel.php');
+		//创建EXCEL对象，并获取当前的工作表
+		$php_excel=new PHPExcel();
+		$current_sheet=$php_excel->getActiveSheet();
+
+		//列最大字符单元数，用来存储每一列的最大字符单元
+		$column_max_char_units=array_fill(0,count($this->heading),0);
+		
+		//对excel对象的每一行每一列写入相应的数据
+		for($row=1;$row<=count($this->rows)+1;$row++){
+			//第一行写列名
+			if($row==1){
+				foreach($this->heading as $column_index=>$column_array){
+					$cell_value=strip_tags($column_array['data']);
+					$this->compareAndSetColumnMaxCharUnit($column_max_char_units,$column_index,$cell_value);
+					$current_sheet->setCellValueByColumnAndRow($column_index,$row,$cell_value);
+				}
 			}
-		    }
-		}
-		//other rows is filled with row data
-		else{
-		    for($i=0;$i<count($this->fields);$i++){
-			//if the content proprty of column is undefined, then use the key of column in fields as its content
-			if(!isset($this->fields[$keys[$i]]['content'])){
-			    $content=$this->data[$row-2][$keys[$i]];
-			}
-			//otherwise, do with content string,and set it to cell value
+			//其他行写该行每一列的数据
 			else{
-			    $content=$this->fields[$keys[$i]]['content'];
-			    //search {column name} pattern in content string,and replace it with related row data
-			    $matches=array();
-			    preg_match_all("/(?<={)[a-zA-Z0-9_]+(?=})/",$content,$matches);
-			    foreach($matches[0] as $key){
-				$content=str_replace('{'.$key.'}',$this->data[$row-2][$key],$content);
-			    }
-			    //if the eval property of column is defined, then eval the content string and set the return value to cell value
-			    if(isset($this->fields[$keys[$i]]['eval'])&&$this->fields[$keys[$i]]['eval']){
-				$content=eval($content);
-			    }
+				$index_in_rows=$row-2;
+				foreach($this->rows[$index_in_rows] as $column_index=>$cell){
+					$cell_value=strip_tags($cell['data']);
+					$this->compareAndSetColumnMaxCharUnit($column_max_char_units,$column_index,$cell_value);
+					$current_sheet->setCellValueByColumnAndRow($column_index,$row,$cell_value);
+				}		
 			}
-			$current_sheet->setCellValueByColumnAndRow($i,$row,$content);
-		    }
 		}
-	    }
-	    
-	    //output excel file to browser directly
-	    $excel_writer=PHPExcel_IOFactory::createWriter($php_excel, 'Excel5');
-	    header("Content-Type: application/force-download");
-	    header("Content-Type: application/octet-stream");
-	    header("Content-Type: application/download");
-	    header('Content-Disposition:inline;filename="output.xls"');
-	    header("Content-Transfer-Encoding: binary");
-	    header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
-	    header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
-	    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-	    header("Pragma: no-cache");
-	    $excel_writer->save("php://output");
+		//根据最大字符单元和列宽因子计算列宽
+		$widen_factor=2.5;
+		foreach($column_max_char_units as $column_index=>$max_char_unit){
+			$column_width=$max_char_unit*$widen_factor;
+			$current_sheet->getColumnDimensionByColumn($column_index)->setWidth($column_width);
+		}
+
+		//output excel file to browser directly
+		$excel_writer=PHPExcel_IOFactory::createWriter($php_excel, 'Excel5');
+		header("Content-Type: application/force-download");
+		header("Content-Type: application/octet-stream");
+		header("Content-Type: application/download");
+		header('Content-Disposition:inline;filename="output.xls"');
+		header("Content-Transfer-Encoding: binary");
+		header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
+		header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
+		header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+		header("Pragma: no-cache");
+		$excel_writer->save("php://output");
+	}
+	
+	/**
+	 * 和当前的列的最大字符单元数比较，如果比它大就将其覆盖
+	 * @access private
+	 * @param array $column_max_char_units 所有列的最大字符单元
+	 * @param int $column_index 当前列的索引
+	 * @param string $cell_value 单元格的值
+	 * @return void
+	 */
+	private function compareAndSetColumnMaxCharUnit(&$column_max_char_units,$column_index,$cell_value){
+		$encoding=$this->config->item('charset');
+		$char_unit=mb_strlen($cell_value,$encoding);
+		if($char_unit>$column_max_char_units[$column_index]){
+			$column_max_char_units[$column_index]=$char_unit;
+		}	
 	}
 
 }
