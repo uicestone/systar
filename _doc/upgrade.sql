@@ -281,3 +281,4 @@ ALTER TABLE `staff_label`
   ADD CONSTRAINT `staff_label_ibfk_2` FOREIGN KEY (`label`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `staff_label_ibfk_1` FOREIGN KEY (`staff`) REFERENCES `staff` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 --end
+-- iori 2012-11-19 upgrade
