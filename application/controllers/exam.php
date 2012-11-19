@@ -30,6 +30,9 @@ class Exam extends SS_controller{
 		$this->load->addViewData('list', $list);
 	}
 
+	/**
+	 * TODO 网页内阅卷登分，需要重新设计
+	 */
 	function listSave(){
 		$this->load->require_head=false;
 		if($this->input->get('update') && $this->input->post('id')){

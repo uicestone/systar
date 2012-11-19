@@ -719,55 +719,10 @@ class Cases extends SS_controller{
 		readfile($path);
 		exit;
 	}
-
-	function reviewList(){
-		$q="
-			SELECT
-				case.id,case.name,case.num,case.stage,case.stage,
-				lawyers.lawyers
-			FROM 
-				`case`
-			
-				LEFT JOIN
-				(
-					SELECT `case`,GROUP_CONCAT(staff.name) AS lawyers
-					FROM case_lawyer,staff 
-					WHERE case_lawyer.lawyer=staff.id AND case_lawyer.role='主办律师'
-					GROUP BY case_lawyer.`case`
-				)lawyers
-				ON `case`.id=lawyers.`case`
-				WHERE case.display=1 AND case.id>=20 AND case.lawyer_lock=0 AND case.is_reviewed=0
-		";
-		
-		$search_bar=$this->processSearch($q,array('case_num_grouped.num'=>'案号','case.name'=>'名称','lawyers.lawyers'=>'主办律师'));
-		
-		$this->processOrderby($q,'case.time_contract','DESC',array('case.name','lawyers'));
-		
-		$listLocator=$this->processMultiPage($q);
-		
-		$field=array(
-			'time_contract'=>array('title'=>'案号','td_title'=>'width="180px"','content'=>'<a href="/cases/edit/{id}">{num}</a>'),
-			'name'=>array('title'=>'案名','content'=>'{name}'),
-			'lawyers'=>array('title'=>'主办律师','td_title'=>'width="100px"')
-		);
-		
-		$menu=array(
-		'head'=>'<div class="right">'.
-					$listLocator.
-				'</div>'
-		);
-		
-		$_SESSION['last_list_action']=$this->input->server('REQUEST_URI');
-		
-		$table=$this->fetchTableArray($q, $field);
-		
-		$this->load->view_data+=compact('table','menu');
-		
-		$this->load->view('lists',$this->load->view_data);
-		
-		require 'view/case_list_sidebar.htm';
-	}
 	
+	/**
+	 * TODO 准备废弃此方法
+	 */
 	function write(){
 		if($this->input->get('case_fee_condition')){
 			$id=intval($this->input->post('id'));

@@ -5,6 +5,9 @@ class Evaluation extends SS_controller{
 		parent::__construct();
 	}
 	
+	/**
+	 * TODO 此方法需要MC分离
+	 */
 	function staffList(){
 		$q="
 		SELECT staff.id,staff.name,position.ui_name AS position_name
@@ -36,6 +39,9 @@ class Evaluation extends SS_controller{
 		$this->load->view('lists',$this->view_data);
 	}
 	
+	/**
+	 * TODO 此方法需要MC分离
+	 */
 	function comment(){
 		$evaluation_result=array(
 			'_field'=>array(
@@ -87,6 +93,9 @@ class Evaluation extends SS_controller{
 		$this->load->view('lists',$this->view_data);
 	}
 	
+	/**
+	 * TODO 此方法需要MC分离
+	 */
 	function result(){
 		$q="
 			SELECT each_other.staff,staff.name AS staff_name,each_other.score AS each_other,each_other.critics,self.score AS self,manager.score AS manager
@@ -130,7 +139,8 @@ class Evaluation extends SS_controller{
 		exportTable($q,$field);
 	}
 	
-	function scoreWrite(){$staff=intval($this->input->get('staff'));
+	function scoreWrite(){
+		$staff=intval($this->input->get('staff'));
 		$indicator=intval($this->input->post('indicator'));
 		//$anonymous=intval($this->input->post('anonymous'));
 		
@@ -141,11 +151,14 @@ class Evaluation extends SS_controller{
 			$value=$this->input->post('value');
 		}
 		
-		if($evaluation_insert_score=evaluation_insert_score($indicator,$staff,$field,$value/*,$anonymous*/)){
+		if($evaluation_insert_score=$this->evaluation->insert_score($indicator,$staff,$field,$value/*,$anonymous*/)){
 			echo json_encode($evaluation_insert_score);
 		}
 	}
 	
+	/**
+	 * TODO 此方法需要MC分离
+	 */
 	function score(){
 		$staff=intval($this->input->get('staff'));
 		
