@@ -69,4 +69,215 @@ INSERT INTO  `starsys`.`group` (
 )
 VALUES (
 NULL ,  'developer',  'schedule',  'taskboard',  '1',  '任务',  '0',  '1'
-);-- end
+);
+-- end
+
+-- uice 2012/11/19
+-- phpMyAdmin SQL Dump
+-- version 3.5.2.2
+-- http://www.phpmyadmin.net
+--
+-- 主机: 127.0.0.1
+-- 生成日期: 2012 年 11 月 19 日 20:18
+-- 服务器版本: 5.5.27-log
+-- PHP 版本: 5.3.15
+
+SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
+SET time_zone = "+00:00";
+
+--
+-- 数据库: `starsys`
+--
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `account_label`
+--
+
+CREATE TABLE IF NOT EXISTS `account_label` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `account` int(11) NOT NULL,
+  `label` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `account` (`account`),
+  KEY `label` (`label`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `case_label`
+--
+
+CREATE TABLE IF NOT EXISTS `case_label` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `case` int(11) NOT NULL,
+  `label` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `case` (`case`),
+  KEY `label` (`label`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `class_label`
+--
+
+CREATE TABLE IF NOT EXISTS `class_label` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `class` int(11) NOT NULL,
+  `label` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `class` (`class`),
+  KEY `label` (`label`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `client_label`
+--
+
+CREATE TABLE IF NOT EXISTS `client_label` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `client` int(11) NOT NULL,
+  `label` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `client` (`client`),
+  KEY `label` (`label`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `document_label`
+--
+
+CREATE TABLE IF NOT EXISTS `document_label` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `document` int(11) NOT NULL,
+  `label` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `document` (`document`),
+  KEY `label` (`label`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `label`
+--
+
+CREATE TABLE IF NOT EXISTS `label` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `property_label`
+--
+
+CREATE TABLE IF NOT EXISTS `property_label` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `property` int(11) NOT NULL,
+  `label` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `property` (`property`),
+  KEY `label` (`label`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `schedule_label`
+--
+
+CREATE TABLE IF NOT EXISTS `schedule_label` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `schedule` int(11) NOT NULL,
+  `label` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `schedule` (`schedule`),
+  KEY `label` (`label`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `staff_label`
+--
+
+CREATE TABLE IF NOT EXISTS `staff_label` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `staff` int(11) NOT NULL,
+  `label` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `staff` (`staff`),
+  KEY `label` (`label`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+--
+-- 限制导出的表
+--
+
+--
+-- 限制表 `account_label`
+--
+ALTER TABLE `account_label`
+  ADD CONSTRAINT `account_label_ibfk_1` FOREIGN KEY (`account`) REFERENCES `account` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `account_label_ibfk_2` FOREIGN KEY (`label`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+
+--
+-- 限制表 `case_label`
+--
+ALTER TABLE `case_label`
+  ADD CONSTRAINT `case_label_ibfk_2` FOREIGN KEY (`label`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `case_label_ibfk_1` FOREIGN KEY (`case`) REFERENCES `case` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+
+--
+-- 限制表 `class_label`
+--
+ALTER TABLE `class_label`
+  ADD CONSTRAINT `class_label_ibfk_2` FOREIGN KEY (`label`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `class_label_ibfk_1` FOREIGN KEY (`class`) REFERENCES `class` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+
+--
+-- 限制表 `client_label`
+--
+ALTER TABLE `client_label`
+  ADD CONSTRAINT `client_label_ibfk_2` FOREIGN KEY (`label`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `client_label_ibfk_1` FOREIGN KEY (`client`) REFERENCES `client` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+
+--
+-- 限制表 `document_label`
+--
+ALTER TABLE `document_label`
+  ADD CONSTRAINT `document_label_ibfk_2` FOREIGN KEY (`label`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `document_label_ibfk_1` FOREIGN KEY (`document`) REFERENCES `document` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+
+--
+-- 限制表 `property_label`
+--
+ALTER TABLE `property_label`
+  ADD CONSTRAINT `property_label_ibfk_2` FOREIGN KEY (`label`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `property_label_ibfk_1` FOREIGN KEY (`property`) REFERENCES `property` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+
+--
+-- 限制表 `schedule_label`
+--
+ALTER TABLE `schedule_label`
+  ADD CONSTRAINT `schedule_label_ibfk_2` FOREIGN KEY (`label`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `schedule_label_ibfk_1` FOREIGN KEY (`schedule`) REFERENCES `schedule` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+
+--
+-- 限制表 `staff_label`
+--
+ALTER TABLE `staff_label`
+  ADD CONSTRAINT `staff_label_ibfk_2` FOREIGN KEY (`label`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `staff_label_ibfk_1` FOREIGN KEY (`staff`) REFERENCES `staff` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+--end
