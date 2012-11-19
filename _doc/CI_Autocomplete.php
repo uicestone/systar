@@ -2,6 +2,7 @@
 
 /**
 * @property CI_DB_active_record $db
+* @property CI_DB_mysql_driver $db
 * @property CI_DB_forge $dbforge
 * @property CI_Benchmark $benchmark
 * @property CI_Calendar $calendar
@@ -63,6 +64,7 @@ class CI_Controller {};
 
 /**
 * @property CI_DB_active_record $db
+* @property CI_DB_mysql_driver $db
 * @property CI_DB_forge $dbforge
 * @property CI_Benchmark $benchmark
 * @property CI_Calendar $calendar

@@ -5,8 +5,6 @@ class User_model extends SS_Model{
 	}
 	
 	function verify($username,$password){
-		global $_G;
-	
 		$q_user="SELECT id,username,password,`group`,lastip,lastlogin,company FROM user 
 				WHERE (username = '".$this->input->post('username')."' OR alias='".$this->input->post('username')."')
 					AND (password = '".$this->input->post('password')."' OR password IS NULL)
@@ -25,7 +23,6 @@ class User_model extends SS_Model{
 	
 	function check($username,$data_type='id',$show_error=true){
 		//$data_type:id,array
-		global $_G;
 		
 		if(!$username){
 			if($show_error){
@@ -99,7 +96,7 @@ class User_model extends SS_Model{
 	
 	function edit($user_id,$new_password=NULL,$new_username=NULL){
 		if(isset($new_password)){
-			if($this->db_update('user',array('password'=>$new_password),"id='".$user_id."'")){
+			if($this->db->update('user',array('password'=>$new_password),"id = '".$user_id."'")){
 				showMessage('成功修改密码');
 			}else{
 				return false;
@@ -107,7 +104,7 @@ class User_model extends SS_Model{
 		}
 		
 		if(isset($new_username)){
-			if($this->db_update('user',array('username'=>$new_username),"id='".$user_id."'") && db_affected_rows()){
+			if($this->db->update('user',array('username'=>$new_username),"id = '".$user_id."'") && db_affected_rows()){
 				showMessage('成功修改用户名');
 			}else{
 				return false;

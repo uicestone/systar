@@ -5,8 +5,6 @@ class Evaluation_model extends SS_Model{
 	}
 
 	function insert_score($indicator,$staff,$field,$value/*,$anonymous*/){
-		global $_G;
-	
 		if($field=='score'){
 			$weight=db_fetch_field("SELECT weight FROM evaluation_indicator WHERE id = '".$indicator."'");
 			
@@ -23,7 +21,7 @@ class Evaluation_model extends SS_Model{
 		$data=array(
 			'indicator'=>$indicator,
 			'staff'=>$staff,
-			'quarter'=>$_G['quarter'],
+			'quarter'=>$this->config->item('quater'),
 			'company'=>$this->config->item('company'),
 			'uid'=>$_SESSION['id'],
 			'username'=>$_SESSION['username'],
@@ -36,7 +34,7 @@ class Evaluation_model extends SS_Model{
 			$data_score[$field]=$value;
 		}
 		
-		if(!$this->db_update('evaluation_score',$data_score,"indicator='".$indicator."' AND staff='".$staff."' AND quarter='".$_G['quarter']."' AND uid='".$_SESSION['id']."' AND company='".$this->config->item('company')."'")){
+		if(!$this->db->update('evaluation_score',$data_score,"indicator = '{$indicator}' AND staff = '{$staff}' AND quarter = '{$this->config->item('quater')}' AND uid = '{$_SESSION['id']}' AND company = '{$this->config->item('company')}'")){
 			return false;
 		}
 		
@@ -52,15 +50,13 @@ class Evaluation_model extends SS_Model{
 	}
 	
 	function getPeer($staff=NULL){
-		global $_G;
-		
 		if(is_null($staff)){
 			$staff=$_SESSION['id'];
 		}
 		
 		$query="
 			SELECT AVG(score) FROM(
-				SELECT SUM(score) AS score FROM evaluation_score WHERE quarter='".$_G['quarter']."' AND staff='".$staff."' AND uid<>'".$_SESSION['id']."' AND uid<>(SELECT manager FROM manager_staff WHERE staff = '".$staff."') GROUP BY uid
+				SELECT SUM(score) AS score FROM evaluation_score WHERE quarter='".$this->config->item('quater')."' AND staff='".$staff."' AND uid<>'".$_SESSION['id']."' AND uid<>(SELECT manager FROM manager_staff WHERE staff = '".$staff."') GROUP BY uid
 			)score_sum
 		";
 		
@@ -68,25 +64,21 @@ class Evaluation_model extends SS_Model{
 	}
 	
 	function getSelf($staff=NULL){
-		global $_G;
-		
 		if(is_null($staff)){
 			$staff=$_SESSION['id'];
 		}
 		
-		$query="SELECT SUM(score) AS score FROM evaluation_score WHERE quarter='".$_G['quarter']."' AND staff='".$staff."' AND uid='".$staff."'";
+		$query="SELECT SUM(score) AS score FROM evaluation_score WHERE quarter='".$this->config->item('quater')."' AND staff='".$staff."' AND uid='".$staff."'";
 		
 		return round(db_fetch_field($query),2);
 	}
 	
 	function getManager($staff=NULL){
-		global $_G;
-		
 		if(is_null($staff)){
 			$staff=$_SESSION['id'];
 		}
 		
-		$query="SELECT SUM(score) AS score FROM evaluation_score WHERE quarter='".$_G['quarter']."' AND staff='".$staff."' AND uid = (SELECT manager FROM manager_staff WHERE staff = '".$staff."')";
+		$query="SELECT SUM(score) AS score FROM evaluation_score WHERE quarter='".$this->config->item('quater')."' AND staff='".$staff."' AND uid = (SELECT manager FROM manager_staff WHERE staff = '".$staff."')";
 		
 		return round(db_fetch_field($query),2);
 	}

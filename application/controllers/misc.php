@@ -25,7 +25,7 @@ class Misc extends SS_controller{
 		
 		$data=array($field=>$value);
 		
-		$this->db->update($table,$data,"id='".$id."'");
+		$this->db->update($table,$data,"id = '{$id}'");
 		
 		echo db_fetch_field("SELECT `".$field."` FROM `".$table."` WHERE id='".$id."'");
 	}

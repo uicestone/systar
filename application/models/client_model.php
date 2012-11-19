@@ -132,14 +132,14 @@ class Client_model extends SS_Model{
 	function setDefaultRelated($client_client_id,$client){
 		$this->clearDefaultRelated($client);
 		
-		if($this->db_update('client_client',array('is_default_contact'=>1),"id='".$client_client_id."'")){
+		if($this->db->update('client_client',array('is_default_contact'=>1),array('id'=>$client_client_id))){
 			return true;
 		}
 		return false;
 	}
 	
 	function clearDefaultRelated($client){
-		if($this->db_update('client_client',array('is_default_contact'=>'_NULL_'),"client_left='".$client."'")){
+		if($this->db->update('client_client',array('is_default_contact'=>'_NULL_'),array('client_left'=>$client))){
 			return true;
 		}
 		return false;
@@ -200,7 +200,7 @@ class Client_model extends SS_Model{
 		}
 	
 		if($type=='老客户介绍'){
-			$client_check=client_check($detail,'array');
+			$client_check=$this->check($detail,'array');
 			if($client_check<0){
 				return false;
 			}else{
@@ -227,7 +227,7 @@ class Client_model extends SS_Model{
 			}else{
 				post('source/detail','');
 			}
-			$client_source=client_addSource($client_source_array);
+			$client_source=$this->addSource($client_source_array);
 		}
 		
 		return $client_source;

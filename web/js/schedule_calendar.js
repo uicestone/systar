@@ -92,7 +92,7 @@ $(function() {
 							var postData=$.extend($('#schedule').serializeJSON(),{time_start:start,time_end:end,all_day:Number(allDay)});
 							delete postData.type;
 
-							$.post("/schedule/writecalendar",postData,
+							$.post("/schedule/writecalendar/add",postData,
 								function(data){
 									if(!isNaN(data) && data!=0){
 										calendar.fullCalendar('renderEvent',
@@ -108,7 +108,7 @@ $(function() {
 										calendar.fullCalendar('unselect');
 										dialog.dialog('close');
 									}else{
-										alert('添加失败，请勿关闭窗口，联系小陆');
+										showMessage('日程添加失败','notice');
 										console.log(data);
 									}
 								}
@@ -121,15 +121,15 @@ $(function() {
 		},
 		
 		editable: true,
-		events: location.href+'/readcalendar',
+		events: location.pathname+'/readcalendar'+location.search,
 		
 		eventClick: function(event) {
 			$.get("/schedule/readcalendar/"+event.id,function(result){
 				try{
 					var schedule=$.parseJSON(result);
 				}catch(e){
-					alert('程序错误，联系小陆：'+"\n"+e+"\n"+result);
-					console.log('程序错误，联系小陆：'+"\n"+e+"\n"+result);
+					showMessage('无法获得日程条目信息','notice');
+					console.log(result);
 				}
 				var dialog=createDialog(schedule.name)
 				.append('<p>'+schedule.time_start+' ('+schedule.hours_own+'小时)</p>')
@@ -165,7 +165,7 @@ $(function() {
 									{
 										text: "删除",
 										click: function() {
-											$.post("/schedule/writecalendar",{id:event.id,action:'delete'},function(result){
+											$.get("/schedule/writecalendar/delete/"+event.id,function(result){
 												console.log(result);
 											});
 											$(this).dialog("close");
@@ -182,9 +182,7 @@ $(function() {
 									{
 										text: "保存",
 										click: function() {
-											$.post("/schedule/writecalendar",{
-												id:event.id,
-												action:'updateContent',
+											$.post("/schedule/writecalendar/update/"+event.id,{
 												content:$('[name="content"]').val(),
 												experience:$('[name="experience"]').val(),
 												completed:$('input[name="completed"]:radio:checked').val(),
@@ -206,7 +204,7 @@ $(function() {
 		},
 		eventDrop: function(event,dayDelta,minuteDelta,allDay) {
 			date = new Date();
-			$.post("/schedule/writecalendar",{id:event.id,action:'drag',dayDelta:dayDelta,minuteDelta:minuteDelta,allDay:Number(allDay)},function(){
+			$.post("/schedule/writecalendar/drag/"+event.id,{dayDelta:dayDelta,minuteDelta:minuteDelta,allDay:Number(allDay)},function(){
 				if(event.start.getTime()>date.getTime()){
 					event.color='#E35B00';
 				}else{
@@ -216,9 +214,9 @@ $(function() {
 			});
 		},
 		eventResize:function(event,dayDelta,minuteDelta){
-			$.post("/schedule/writecalendar",{id:event.id,action:'resize',dayDelta:dayDelta,minuteDelta:minuteDelta,allDay:event.allDay},function(result){
-				if(result!=''){
-					alert('保存失败了，请联系程序员');
+			$.post("/schedule/writecalendar/resize/"+event.id,{dayDelta:dayDelta,minuteDelta:minuteDelta,allDay:event.allDay},function(result){
+				if(result!='success'){
+					showMessage('日程时间数据保存失败','notice');
 					console.log(result);
 				}
 			});

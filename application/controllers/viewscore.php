@@ -70,7 +70,7 @@ class ViewScore extends SS_controller{
 				UPDATE view_score,
 				(
 					SELECT 
-						student,exam
+						student,exam,
 						course_1,course_2,course_3,course_4,course_5,course_6,course_7,course_8,course_9,course_10
 					FROM
 					(
@@ -141,7 +141,7 @@ class ViewScore extends SS_controller{
 					GROUP BY score_sum.student,exam
 				)score_result
 			");
-			showMessage('各科总分计算完成');
+			echo ('各科总分计算完成');
 		}
 		
 		if($_SESSION['view_score']['update']['step']==2){
@@ -185,7 +185,7 @@ class ViewScore extends SS_controller{
 			)
 			WHERE extra_course<>0 AND exam IN (SELECT id FROM exam WHERE is_on=1)
 			");
-			showMessage('总分计算完成');
+			echo ('总分计算完成');
 		}
 		
 		if($_SESSION['view_score']['update']['step']>=3 && $_SESSION['view_score']['update']['step']<=14){
@@ -212,7 +212,7 @@ class ViewScore extends SS_controller{
 			SET view_score.rank_".$p." = t.rank
 			
 			");
-			showMessage('学科'.$p.'的排名计算完成');
+			echo ('学科'.$p.'的排名计算完成');
 			
 		}
 		

@@ -222,9 +222,7 @@ class Cases extends SS_controller{
 				$condition = db_implode(post('case_fee_check'), $glue = ' OR ','id','=',"'","'", '`','key');
 				$condition_account=db_implode(post('case_fee_check'), $glue = ' OR ','case_fee','=',"'","'", '`','key');
 				
-				if($this->db->update('case_fee',array('reviewed'=>1),$condition)
-					&& $this->db->update('account',array('reviewed'=>1),$condition_account)
-				){
+				if($this->db->update('case_fee',array('reviewed'=>1),$condition)){
 					showMessage('已完成案件收费到账审核');
 				}
 			}
@@ -605,7 +603,7 @@ class Cases extends SS_controller{
 		
 		//办案费列表
 		$fields_fee_misc=array(
-			'receiver'=>array('title'=>'收款方','content'=>'{receiver}','orderby'=>false),
+			'receiver'=>array('title'=>'收款方','orderby'=>false),
 			'fee'=>array('title'=>'数额','eval'=>true,'content'=>"
 				return '{fee}'.('{fee_received}'==''?'':' （到账：{fee_received}）');
 			",'orderby'=>false),
@@ -617,7 +615,7 @@ class Cases extends SS_controller{
 		);
 		if(!post('fee_lock')){
 			$fields_fee_misc['receiver']['title']='<input type="submit" name="submit[case_fee_delete]" value="删" />'.$fields_fee_misc['receiver']['title'];
-			$fields_fee_misc['receiver']['content']='<input type="checkbox" name="case_fee_check[{id}]" />';
+			$fields_fee_misc['receiver']['content']='<input type="checkbox" name="case_fee_check[{id}]" />{receiver}';
 		}
 		$this->load->view_data['case_fee_misc_table']=$this->table->setFields($fields_fee_misc)
 				->generate($this->cases->getFeeMiscList(post('cases/id')));

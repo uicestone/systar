@@ -19,6 +19,7 @@ class Schedule_model extends SS_Model{
 				LEFT JOIN client ON client.id=schedule.client
 			WHERE schedule.id='".intval($id)."'";
 		$schedule=$this->db->query($q_schedule)->row_array();
+
 		$schedule['content_paras']=explode("\n",$schedule['content']);
 		$schedule['experience_paras']=explode("\n",$schedule['experience']);
 		$schedule['time_start']=date('Y-m-d H:i',$schedule['time_start']);
@@ -64,39 +65,50 @@ class Schedule_model extends SS_Model{
 	function review($post){
 		$post=array_trim($post);
 		if($post){
-			$condition = db_implode($post, $glue = ' OR ','id','=',"'","'", '`','key');
-			$this->db_update('schedule',array('hours_checked'=>'#hours_own#'),$condition);
+			$condition = db_implode($post, $glue = ' OR ','id',' = ',"'","'", '`','key');
+			$this->db->query("UPDATE schedule SET `hours_checked` = `hours_own` WHERE ".$condition);
 			return true;
 		}
 	}
 	
 	function setComment($schedule_id,$comment){
 		$schedule_id=intval($schedule_id);
-		$this->db_update('schedule',array('comment'=>$comment),"id='".$schedule_id."'");
+		$this->db->update('schedule',array('comment'=>$comment),"id = '".$schedule_id."'");
 		return db_fetch_first("SELECT * FROM schedule WHERE id='".$schedule_id."'");
 	}
 	
 	function check_hours($schedule_id,$hours_checked){
 		$schedule_id=intval($schedule_id);
-		$this->db_update('schedule',array('hours_checked'=>$hours_checked),"id='".$schedule_id."'");
+		$this->db->update('schedule',array('hours_checked'=>$hours_checked),"id = '".$schedule_id."'");
 		return db_fetch_field("SELECT hours_checked FROM schedule WHERE id='".$schedule_id."'");
 	}
 	
 	function add($data){
 		//插入一条日程，返回插入的id
-		$data['fee'] = (int)$data['fee'];
-		$data['hours_own'] = round(($data['time_end']-$data['time_start'])/3600,2);
+		
+		isset($data['fee']) && $data['fee'] = (int)$data['fee'];
+
+		if(isset($data['time_start']) && isset($data['time_end'])){
+			$data['hours_own'] = round(($data['time_end']-$data['time_start'])/3600,2);
+		}
+
 		$data['display']=1;
 		$data+=uidTime();
-		return db_insert('schedule',$data);
+
+		if($this->db->insert('schedule',$data)){
+			return $this->db->insert_id();
+		}else{
+			return false;
+		}
+		
 	}
 	
 	function delete($schedule_id){
-		db_delete('schedule',"id='".intval($schedule_id)."' AND uid='".$_SESSION['id']."'");	
+		return $this->db->delete('schedule',array('id'=>intval($schedule_id),'uid'=>$_SESSION['id']));	
 	}
 	
 	function update($schedule_id,$data){
-		$this->db->update('schedule',$data,"id='".intval($schedule_id)."'");
+		return $this->db->update('schedule',$data,array('id'=>intval($schedule_id)));
 	}
 	
 	/**
