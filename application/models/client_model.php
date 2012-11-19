@@ -200,7 +200,7 @@ class Client_model extends SS_Model{
 		}
 	
 		if($type=='老客户介绍'){
-			$client_check=client_check($detail,'array');
+			$client_check=$this->check($detail,'array');
 			if($client_check<0){
 				return false;
 			}else{
@@ -227,7 +227,7 @@ class Client_model extends SS_Model{
 			}else{
 				post('source/detail','');
 			}
-			$client_source=client_addSource($client_source_array);
+			$client_source=$this->addSource($client_source_array);
 		}
 		
 		return $client_source;
