@@ -381,7 +381,7 @@ class Schedule extends SS_controller{
 	
 	function writeCalendar($action,$schedule_id=NULL){
 		
-		if($action=='insert'){//插入新的任务
+		if($action=='add'){//插入新的任务
 			echo $this->schedule->add($this->input->post());
 			
 		}elseif($action=='delete'){//删除任务

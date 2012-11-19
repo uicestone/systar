@@ -85,12 +85,22 @@ class Schedule_model extends SS_Model{
 	
 	function add($data){
 		//插入一条日程，返回插入的id
-		$data['fee'] = (int)$data['fee'];
-		$data['hours_own'] = round(($data['time_end']-$data['time_start'])/3600,2);
+		
+		isset($data['fee']) && $data['fee'] = (int)$data['fee'];
+
+		if(isset($data['time_start']) && isset($data['time_end'])){
+			$data['hours_own'] = round(($data['time_end']-$data['time_start'])/3600,2);
+		}
+
 		$data['display']=1;
 		$data+=uidTime();
-		$this->db->insert('schedule',$data);
-		return $this->db->insert_id();
+
+		if($this->db->insert('schedule',$data)){
+			return $this->db->insert_id();
+		}else{
+			return false;
+		}
+		
 	}
 	
 	function delete($schedule_id){
