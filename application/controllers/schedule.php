@@ -483,7 +483,7 @@ class Schedule extends SS_controller{
 		}
 		//单个任务
 		$task = "task_".$task_id;
-		//取第一列任务墙
+		//取一列任务墙
 		$sort_data = $this -> schedule -> getTaskBoardSort($uid);
 		
 		if(count($sort_data) != 0)
@@ -515,6 +515,44 @@ class Schedule extends SS_controller{
 			}
 			
 			$this -> schedule -> createTaskBoard(json_encode($sort_data), $uid);
+		}
+		
+		$this -> load -> require_head = false;
+		echo "success";
+	}
+	
+	function deleteFromTaskBoard($task_id , $uid=NULL)
+	{
+		if(is_null($uid))
+		{
+			$uid=$_SESSION['id'];
+		}
+		//要删除的任务
+		$task = "task_".$task_id;
+		//遍历sort_data
+		$sort_data = $this -> schedule -> getTaskBoardSort($uid);
+		//echo "sort_data = "; echo print_r($sort_data)."<br/>";
+		for ($i=0 ; $i<5 ; $i++)
+		{
+			$series = $sort_data[$i];
+			$key = array_search($task , $series);
+			//echo "key = "; echo print_r($key)."<br/>";
+			if($key!==false && $key!=="")
+			{
+				echo "after delete"."<br/>";
+				$sort_data[$i] = array();
+				$series[$key] = NULL;
+				//echo "series = "; echo print_r($series)."<br/>";
+				$series = array_filter($series);
+				//echo "series = "; echo print_r($series)."<br/>";
+				foreach ($series as $value)
+				{
+					array_push($sort_data[$i] , $value);
+				}
+				//echo "sort_data = "; echo print_r($sort_data)."<br/>";
+				$this -> schedule -> setTaskBoardSort(json_encode($sort_data), $uid);
+				break;
+			}
 		}
 		
 		$this -> load -> require_head = false;
