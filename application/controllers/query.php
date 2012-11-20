@@ -122,9 +122,6 @@ class Query extends SS_controller{
 				
 				post('query/num',$this->cases->getNum(post('case')));
 				
-				$case_client_role=array('client_name'=>post('client/name'));
-				post('query/name',$this->cases->getName($case_client_role,true));
-				
 				$new_case_id=post('case/id');
 				
 				$this->processSubmit(true);

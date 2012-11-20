@@ -464,14 +464,19 @@ class Cases extends SS_controller{
 		
 			if(isset($case_client_role['client']) && !post('cases/filed')){
 				//根据案件类别和客户、相对方更新案名
+				//TODO 没有填相对方的时候会报错，不过不影响运行
 				$case_client_role['client_name']='<a href="javascript:showWindow(\'client/edit/'.$case_client_role['client'].'\')">'.$case_client_role['client_name'].'</a>';
 		
 				$case_client_role['opposite_name']='<a href="javascript:showWindow(\'client/edit/'.$case_client_role['opposite'].'\')">'.$case_client_role['opposite_name'].'</a>';
 				
-				post('cases/name',$this->cases->getName($case_client_role,post('cases/is_query'),post('cases/classification'),post('cases/type'),post('cases/name_extra')));
+				post('cases/name',$this->cases->getName($case_client_role,post('cases/classification'),post('cases/type'),post('cases/is_query')));
 		
 			}
 		
+			if(post('cases/name_extra')){
+				post('cases/name',post('cases/name').' '.post('cases/name_extra'));
+			}
+			
 			if(is_posted('submit/case') && !post('cases/num')){
 				$submitable=false;
 				showMessage('尚未获取案号，请选择案件分类和阶段后获取案号','warning');

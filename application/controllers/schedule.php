@@ -195,7 +195,7 @@ class Schedule extends SS_controller{
 			
 			$_SESSION['schedule']['post']=array_replace_recursive($_SESSION['schedule']['post'],$_POST);
 			
-			if($this->input->post('schedule/name')==''){
+			if(array_dir('_POST/schedule/name')==''){
 				$submitable=false;
 				showMessage('请填写日志名称','warning');
 			}
