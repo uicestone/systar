@@ -25,7 +25,7 @@ class Cases_model extends SS_Model{
 		if(is_null($field)){
 			return $row;
 		}elseif(isset($row[$field])){
-			return $row['field'];
+			return $row[$field];
 		}else{
 			return false;
 		}
@@ -688,7 +688,7 @@ class Cases_model extends SS_Model{
 	/**
 	 * 更新案件名称
 	 */
-	function getName($case_client_role,$classification,$type,$is_query=false){
+	function getName($case_client_role,$is_query=false,$classification=NULL,$type=NULL,$name_extra=NULL){
 		$case_name=$case_client_role['client_name'];
 		
 		if($is_query){
@@ -715,15 +715,17 @@ class Cases_model extends SS_Model{
 				$case_name.=' 与 '.$case_client_role['opposite_role'].' '.$case_client_role['opposite_name'].'('.$type.')';
 			}
 			
-			return $case_name;
-
 		}
 		
-		if($classification=='法律顾问'){
+		if(isset($classification) && $classification=='法律顾问'){
 			$case_name.='('.$classification.')';
 
-		}else{
+		}elseif(isset($type)){
 			$case_name.='('.$type.')';
+		}
+		
+		if(isset($name_extra)){
+			$case_name.=(' '.$name_extra);
 		}
 		
 		return $case_name;

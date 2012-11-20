@@ -166,16 +166,16 @@ class Schedule extends SS_controller{
 	
 	function edit($id=NULL){
 		
-		$this->getPostData($id,function(){
-			if($this->input->get('case')){
-				post('schedule/case',intval($this->input->get('case')));
+		$this->getPostData($id,function($CI){
+			if($CI->input->get('case')){
+				post('schedule/case',intval($CI->input->get('case')));
 			}
-			if($this->input->get('client')){
-				post('schedule/client',intval($this->input->get('client')));
+			if($CI->input->get('client')){
+				post('schedule/client',intval($CI->input->get('client')));
 			}
 		
-			if($this->input->get('completed')){
-				post('schedule/completed',(int)(bool)$this->input->get('completed'));
+			if($CI->input->get('completed')){
+				post('schedule/completed',(int)(bool)$CI->input->get('completed'));
 		
 			}else{
 				post('schedule/completed',1);//默认插入的是日志，不是提醒
@@ -193,9 +193,9 @@ class Schedule extends SS_controller{
 		if($this->input->post('submit')){
 			$submitable=true;
 			
-			$_SESSION['schedule']['post']=array_replace_recursive($_SESSION['schedule']['post'],$_POST);
+			$_SESSION['schedule']['post']=array_replace_recursive($_SESSION['schedule']['post'],$this->input->post());
 			
-			if(array_dir('_POST/schedule/name')==''){
+			if($this->input->post('schedule/name')==''){
 				$submitable=false;
 				showMessage('请填写日志名称','warning');
 			}
