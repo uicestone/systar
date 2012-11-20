@@ -346,7 +346,11 @@ jQuery.fn.editSchedule=function(eventId,calendar){
 						console.log(result);
 					});
 					$(this).dialog("close");
+					if($(calendar).attr('id')=='calendar')
 					calendar.fullCalendar('removeEvents',[eventId]);
+					else if($(calendar).attr('id')=='taskboard'){
+						$("#task_"+eventId).remove();
+					}
 				}
 			},
 			{
