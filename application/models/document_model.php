@@ -6,7 +6,11 @@ class Document_model extends SS_Model{
 	}
 	
 	function fetch($id){
-		return $this->db->query("SELECT * FROM `document` WHERE id='{$id}'")->row_array();
+		$query="
+			SELECT * 
+			FROM `document` 
+			WHERE id='{$id}' AND company='{$this->config->item('company')}'";
+		return $this->db->query($query)->row_array();
 	}
 	
 	function getMime($file_extension){

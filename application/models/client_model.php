@@ -11,7 +11,10 @@ class Client_model extends SS_Model{
 	 * @return 一条信息的数组，或者一个字段的值，如果指定字段且字段不存在，返回false
 	 */
 	function fetch($id,$field=NULL){
-		$query="SELECT * FROM client WHERE id='".$id."'";
+		$query="
+			SELECT * 
+			FROM client 
+			WHERE id='{$id}' AND company='{$this->config->item('company')}'";
 		$row=$this->db->query($query)->row_array();
 
 		if(is_null($field)){

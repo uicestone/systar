@@ -5,7 +5,10 @@ class Query_model extends SS_Model{
 	}
 
 	function fetch($id){
-		$query="SELECT * FROM `case` WHERE id='".$id."'";
+		$query="
+			SELECT * 
+			FROM `case` 
+			WHERE id='{$id}' AND company='{$this->config->item('company')}'";
 		return $this->db->query($query)->row_array();
 	}
 	

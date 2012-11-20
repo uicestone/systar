@@ -41,7 +41,11 @@ class Staff_model extends SS_Model{
 	}
 
 	function fetch($staff_id,$field=NULL){
-		$array=$this->db->query("SELECT * FROM staff WHERE id='{$staff_id}'")->row_array();
+		$query="
+			SELECT * 
+			FROM staff 
+			WHERE id='{$staff_id}' AND company='{$this->config->item('company')}'";
+		$array=$this->db->query($query)->row_array();
 		if(isset($field)){
 			return isset($array[$field])?$array[$field]:false;
 		}else{

@@ -5,7 +5,10 @@ class Schedule_model extends SS_Model{
 	}
 
 	function fetch($id){
-		$query="SELECT * FROM schedule WHERE id='".$id."'";
+		$query="
+			SELECT * 
+			FROM schedule
+			WHERE id='{$id}' AND company='{$this->config->item('company')}'";
 		return $this->db->query($query)->row_array();
 	}
 	
@@ -17,7 +20,8 @@ class Schedule_model extends SS_Model{
 			FROM schedule
 				LEFT JOIN `case` ON case.id=schedule.case
 				LEFT JOIN client ON client.id=schedule.client
-			WHERE schedule.id='".intval($id)."'";
+			WHERE schedule.id='".intval($id)."'
+				AND schedule.company='{$this->config->item('company')}'";
 		$schedule=$this->db->query($q_schedule)->row_array();
 
 		$schedule['content_paras']=explode("\n",$schedule['content']);

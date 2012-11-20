@@ -180,14 +180,88 @@ function keyPressHandler(button,waitKeyCode){
 	}
 }
 	
-function createDialog(title){
+jQuery.fn.createDialog=function(title,html){
 	//$('#dialog').remove();//创建一个对话框的时候，先删除其他对话框
-	var dialog=$('<div id="dialog"></div>').appendTo(document)
+	var dialogs=$('.dialog').length;
+	var dialog=$('<div id="dialog_'+(dialogs+1)+'" class="dialog"></div>').appendTo($(this))
 	.dialog({
-		title:title,autoOpen:false,position:['middle', 200],minHeight:300,minWidth:500,show:'fade',hide:'fade',close:function(){$(this).remove()}
+		title:title,
+		position:['middle', 200],minHeight:300,minWidth:500,
+		autoOpen:false,show:'fade',hide:'fade',
+		close:function(){$(this).remove()}
 	});
 	
+	if(html){
+		dialog.html(html);
+	}
+	
 	return dialog;
+}
+
+jQuery.fn.showSchedule=function(eventId){
+	$.get("/schedule/view/"+eventId,function(schedule){
+		
+		$(this).createDialog(schedule.name,schedule.view)
+		.dialog( "option", "buttons", [
+			{
+				text: "编辑",
+				click: function(){
+					$(this).editSchedule(eventId);
+				}
+			}
+		])
+		.dialog('open');
+	},'json');
+}
+
+jQuery.fn.editSchedule=function(eventId){
+	dialog=$(this);
+	
+	$.get('/schedule/ajaxedit/'+eventId,function(html){
+		dialog.html(html);
+		$('[name="name"]').val(schedule.name);
+		$('[name="content"]').val(schedule.content);
+		$('[name="experience"]').val(schedule.experience);
+		$('[name="place"]').val(schedule.place);
+		$('[name="fee"]').val(schedule.fee);
+		$('[name="fee_name"]').val(schedule.fee_name);
+		//$('[name="name"]').val(schedule.name);
+		$('[name="completed"][value="'+schedule.completed+'"]').attr('checked','checked');
+
+		dialog.dialog( "option", "buttons", [
+			{
+				text: "删除",
+				click: function() {
+					$.get("/schedule/writecalendar/delete/"+eventId,function(result){
+						console.log(result);
+					});
+					$(this).dialog("close");
+					calendar.fullCalendar('removeEvents',[eventId]);
+				}
+			},
+			{
+				text: "高级",
+				click: function() {
+					$(this).dialog("close");
+					showWindow('schedule/edit/'+eventId);
+				}
+			},
+			{
+				text: "保存",
+				click: function() {
+					$.post("/schedule/writecalendar/update/"+eventId,{
+						content:$('[name="content"]').val(),
+						experience:$('[name="experience"]').val(),
+						completed:$('input[name="completed"]:radio:checked').val(),
+						fee:$('[name="fee"]').val(),
+						fee_name:$('input[name="fee_name"]').val(),
+						place:$('input[name="place"]').val()
+					});
+					$(this).dialog("close");
+				}
+			}
+		]);
+	});
 }
 
 jQuery.fn.getOptions=function(affair,method,active_value,select_type,callback){

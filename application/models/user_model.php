@@ -5,10 +5,12 @@ class User_model extends SS_Model{
 	}
 	
 	function verify($username,$password){
-		$q_user="SELECT id,username,password,`group`,lastip,lastlogin,company FROM user 
-				WHERE (username = '".$this->input->post('username')."' OR alias='".$this->input->post('username')."')
-					AND (password = '".$this->input->post('password')."' OR password IS NULL)
-					AND company='".$this->config->item('company')."'
+		$q_user="
+			SELECT id,username,password,`group`,lastip,lastlogin,company
+			FROM user 
+			WHERE (username = '".$this->input->post('username')."' OR alias='".$this->input->post('username')."')
+				AND (password = '".$this->input->post('password')."' OR password IS NULL)
+				AND company='".$this->config->item('company')."'
 			";
 		
 		$user=$this->db->query($q_user)->row_array();

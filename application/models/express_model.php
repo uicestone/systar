@@ -5,7 +5,10 @@ class Express_model extends SS_Model{
 	}
 
 	function fetch($id){
-            $query="SELECT * FROM express WHERE id = '{$id}'";
+            $query="
+				SELECT * 
+				FROM express 
+				WHERE id = '{$id}' AND company='{$this->config->item('company')}'";
             $result=$this->db->query($query)->result_array();
             return $result[0];
 	}

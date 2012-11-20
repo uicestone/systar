@@ -5,7 +5,10 @@ class Contact_model extends SS_Model{
 	}
 
 	function fetch($id){
-		$query="SELECT * FROM client WHERE id = '".$id."' AND classification IN ('相对方','联系人')";
+		$query="
+			SELECT * 
+			FROM client 
+			WHERE id = '{$id}'  AND company='{$this->config->item('company')}' AND classification IN ('相对方','联系人')";
 		return $this->db->query($query)->row_array();
 	}
 	
@@ -19,7 +22,7 @@ class Contact_model extends SS_Model{
 				SELECT client,GROUP_CONCAT(content) AS content FROM client_contact WHERE type='地址' GROUP BY client
 			)address ON client.id=address.client
 		
-		 WHERE display=1";
+		 WHERE display=1 AND company='{$this->config->item('company')}'";
 		
 		if($this->input->get('opposite')){
 			$q.=" AND classification='相对方'";

@@ -181,14 +181,9 @@ var schedule={
 	},
 	view:{
 		url:'/schedule/view/{schedule_id}',
-		get:{
-			
-		},
-		post:{
-			
-		},
 		response:{
-			
+			name:'日志标题',
+			view:'供dialog中显示的日志视图'
 		}
 	},
 	writeCalendar:{

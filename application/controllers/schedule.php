@@ -558,5 +558,31 @@ class Schedule extends SS_controller{
 		$this -> load -> require_head = false;
 		echo "success";
 	}
+	
+	/**
+	 * ajax响应页面，载入dialog内单条日程视图
+	 */
+	function view($schedule_id){
+		$this->load->require_head=false;
+
+		$schedule=$this->schedule->fetch_single($schedule_id);
+		$this->load->addViewData('schedule', $schedule);
+		
+		$view=$this->load->view('schedule/view',array(),true);
+		$this->load->main_view_loaded=true;
+		
+		$name=$schedule['name'];
+		
+		echo json_encode(compact('name','view'));
+	}
+	
+	/**
+	 * ajax响应页面
+	 */
+	function ajaxEdit($schedule_id){
+		$schedule=$this->schedule->fetch($schedule_id);
+		
+		$this->load->view($schedule_id);
+	}
 }
 ?>

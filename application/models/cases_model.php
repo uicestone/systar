@@ -15,7 +15,7 @@ class Cases_model extends SS_Model{
 		$query="
 			SELECT * 
 			FROM `case` 
-			WHERE id='".$id."' 
+			WHERE id='{$id}' AND company='{$this->config->item('company')}'
 				AND ( '".(is_logged('manager') || is_logged('finance') || is_logged('admin'))."'=1 OR uid='".$_SESSION['id']."' OR id IN (
 					SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."'
 				))
