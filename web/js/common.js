@@ -227,7 +227,9 @@ jQuery.fn.showSchedule=function(eventId){
 				click:function(){
 					$.get('/schedule/deletefromtaskboard/'+eventId,function(){
 						dialog.dialog('close');
+						$("#task_"+eventId).remove();
 					});
+					
 				}
 			}].concat(dialog.dialog('option','buttons')));
 		}
