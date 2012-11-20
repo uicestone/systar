@@ -38,93 +38,14 @@ $(function() {
 		selectable: true,
 		selectHelper: true,
 		select: function(startDate,endDate, allDay) {
-			date = new Date();
-			var dialog=createDialog('新日程');
-
-			$.get('/misc/gethtml/schedule/calendar_add',function(schedule_calendar_add_form){
-
-				//获取表单html
-				dialog.html(schedule_calendar_add_form).find('#combobox').combobox();
-
-				//配置type和completed默认值
-				$('input[name="type"][value="0"]').attr('checked','checked');
-				$('input[name="completed"][value="'+(startDate.getTime()<date.getTime()?1:0)+'"]').attr('checked','checked');
-				var typeRadio = $('input[name="type"]');
-				var caseSelect = $('select[name="case"]');
-
-				//监听项目类别变化
-				typeRadio.change(function(){
-					var type=$('input[name="type"]:checked').val();
-
-					caseSelect.getOptions('cases','getListByScheduleType',type,1,function(scheduleCase){
-						caseSelect.trigger('change',{scheduleCase:scheduleCase,type:type});
-					});
-				});
-				
-				//监听案件变化
-				caseSelect.change(function(event,data){
-					if(!data){
-						scheduleCase = $(this).val();
-					}else{
-						scheduleCase = data.scheduleCase;
-					}
-					
-					if((data && data.type==2) || $('input[name="type"]:checked').val()==2){
-						$('#clientSelectBox').show(200).children('select').removeAttr('disabled')
-						.getOptions('client','getListByCase',scheduleCase,1);
-					}else{
-						$('#clientSelectBox,#clientInputBox').hide(200).children('select').attr('disabled','disabled');
-					}
-				});
-				typeRadio.change();
-			});
-			
-			dialog.dialog( "option", "buttons", [
-				{
-					text: "保存",
-					click: function() {
-						if($('input[name="name"]').val()==''){
-							alert('日志名称必填');
-							$('input:[name="name"]').focus();
-						}else{
-							var start=startDate.getTime()/1000;
-							var end=endDate.getTime()/1000;
-							var postData=$.extend($('#schedule').serializeJSON(),{time_start:start,time_end:end,all_day:Number(allDay)});
-							delete postData.type;
-
-							$.post("/schedule/writecalendar/add",postData,
-								function(data){
-									if(!isNaN(data) && data!=0){
-										calendar.fullCalendar('renderEvent',
-											{
-												id:data,
-												title:$('[name="name"]').val(),
-												start: startDate,
-												end: endDate,
-												allDay: allDay,
-												color:startDate.getTime()>date.getTime()?'#E35B00':'#36C'
-											}
-										);
-										calendar.fullCalendar('unselect');
-										dialog.dialog('close');
-									}else{
-										showMessage('日程添加失败','notice');
-										console.log(data);
-									}
-								}
-							);
-						}
-					}
-				}
-			])
-			.dialog('open');
+			$(calendar).createSchedule(startDate,endDate,allDay);
 		},
 		
 		editable: true,
 		events: location.pathname+'/readcalendar'+location.search,
 		
 		eventClick: function(event) {
-			$(document).showSchedule(event.id);
+			$(calendar).showSchedule(event.id);
 		},
 		eventDrop: function(event,dayDelta,minuteDelta,allDay) {
 			date = new Date();

@@ -183,7 +183,7 @@ function keyPressHandler(button,waitKeyCode){
 jQuery.fn.createDialog=function(title,html){
 	//$('#dialog').remove();//创建一个对话框的时候，先删除其他对话框
 	var dialogs=$('.dialog').length;
-	var dialog=$('<div id="dialog_'+(dialogs+1)+'" class="dialog"></div>').appendTo($(this))
+	var dialog=$('<div id="dialog_'+(dialogs+1)+'" class="dialog"></div>').insertAfter($(this))
 	.dialog({
 		title:title,
 		position:['middle', 200],minHeight:300,minWidth:500,
@@ -199,26 +199,133 @@ jQuery.fn.createDialog=function(title,html){
 }
 
 jQuery.fn.showSchedule=function(eventId){
+	var calendar=$(this);
 	$.get("/schedule/view/"+eventId,function(schedule){
 		
-		$(this).createDialog(schedule.name,schedule.view)
+		var dialog=$(this).createDialog(schedule.name,schedule.view)
 		.dialog( "option", "buttons", [
 			{
 				text: "编辑",
 				click: function(){
-					$(this).editSchedule(eventId);
+					$(this).editSchedule(eventId,calendar);
 				}
 			}
-		])
-		.dialog('open');
+		]);
+
+		if($(calendar).attr('id')=='calendar'){
+			dialog.dialog('option','buttons',[{
+				text:'添加至任务墙',
+				click:function(){
+					$.get('/schedule/addtotaskboard/'+eventId,function(){
+						dialog.dialog('close');
+					});
+				}
+			}].concat(dialog.dialog('option','buttons')));
+		}else if($(calendar).attr('id')=='taskboard'){
+			dialog.dialog('option','buttons',[{
+				text:'移出任务墙',
+				click:function(){
+					$.get('/schedule/deletefromtaskboard/'+eventId,function(){
+						dialog.dialog('close');
+					});
+				}
+			}].concat(dialog.dialog('option','buttons')));
+		}
+		
+		dialog.dialog('open');
 	},'json');
 }
 
-jQuery.fn.editSchedule=function(eventId){
+jQuery.fn.createSchedule=function(startDate, endDate, allDay){
+	date = new Date();
+	calendar=$(this);
+	
+	var	dialog=$(this).createDialog('新建日程')
+
+	$.get('/misc/gethtml/schedule/calendar_add',function(schedule_calendar_add_form){
+
+		dialog.html(schedule_calendar_add_form)
+			.find('#combobox')
+			.combobox();
+	
+		//配置type和completed默认值
+		$('input[name="type"][value="0"]').attr('checked','checked');
+		$('input[name="completed"][value="'+(startDate.getTime()<date.getTime()?1:0)+'"]').attr('checked','checked');
+		var typeRadio = $('input[name="type"]');
+		var caseSelect = $('select[name="case"]');
+
+		//监听项目类别变化
+		typeRadio.change(function(){
+			var type=$('input[name="type"]:checked').val();
+
+			caseSelect.getOptions('cases','getListByScheduleType',type,1,function(scheduleCase){
+				caseSelect.trigger('change',{scheduleCase:scheduleCase,type:type});
+			});
+		});
+
+		//监听案件变化
+		caseSelect.change(function(event,data){
+			if(!data){
+				scheduleCase = $(this).val();
+			}else{
+				scheduleCase = data.scheduleCase;
+			}
+
+			if((data && data.type==2) || $('input[name="type"]:checked').val()==2){
+				$('#clientSelectBox').show(200).children('select').removeAttr('disabled')
+				.getOptions('client','getListByCase',scheduleCase,1);
+			}else{
+				$('#clientSelectBox,#clientInputBox').hide(200).children('select').attr('disabled','disabled');
+			}
+		});
+		typeRadio.change();
+	});
+
+	dialog.dialog( "option", "buttons", [{
+		text: "保存",
+		click: function() {
+			if($('input[name="name"]').val()==''){
+				alert('日志名称必填');
+				$('input:[name="name"]').focus();
+			}else{
+				var start=startDate.getTime()/1000;
+				var end=endDate.getTime()/1000;
+				var postData=$.extend($('#schedule').serializeJSON(),{time_start:start,time_end:end,all_day:Number(allDay)});
+				delete postData.type;
+
+				$.post("/schedule/writecalendar/add",postData,
+					function(data){
+						if(!isNaN(data) && data!=0){
+							calendar.fullCalendar('renderEvent',
+								{
+									id:data,
+									title:$('[name="name"]').val(),
+									start: startDate,
+									end: endDate,
+									allDay: allDay,
+									color:startDate.getTime()>date.getTime()?'#E35B00':'#36C'
+								}
+							);
+							calendar.fullCalendar('unselect');
+							dialog.dialog('close');
+						}else{
+							showMessage('日程添加失败','notice');
+							console.log(data);
+						}
+					}
+				);
+			}
+		}
+	}])
+	.dialog('open');
+}
+
+jQuery.fn.editSchedule=function(eventId,calendar){
 	dialog=$(this);
 	
 	$.get('/schedule/ajaxedit/'+eventId,function(html){
 		dialog.html(html);
+		/*
 		$('[name="name"]').val(schedule.name);
 		$('[name="content"]').val(schedule.content);
 		$('[name="experience"]').val(schedule.experience);
@@ -227,6 +334,7 @@ jQuery.fn.editSchedule=function(eventId){
 		$('[name="fee_name"]').val(schedule.fee_name);
 		//$('[name="name"]').val(schedule.name);
 		$('[name="completed"][value="'+schedule.completed+'"]').attr('checked','checked');
+		*/
 
 		dialog.dialog( "option", "buttons", [
 			{

@@ -4,11 +4,12 @@ class Schedule extends SS_controller{
 	function __construct(){
 		$this->default_method='calendar';
 		parent::__construct();
+		$this->load->model('cases_model','cases');
+		$this->load->model('client_model','client');
 	}
 	
 	function calendar(){
 		$this->load->model('achievement_model','achievement');
-		$this->load->model('company_model','company');
 		$this->load->model('news_model','news');
 		
 		$field_news=array(
@@ -164,8 +165,6 @@ class Schedule extends SS_controller{
 	}
 	
 	function edit($id=NULL){
-		$this->load->model('cases_model','cases');
-		$this->load->model('client_model','client');
 		
 		$this->getPostData($id,function(){
 			if($this->input->get('case')){
@@ -580,9 +579,27 @@ class Schedule extends SS_controller{
 	 * ajax响应页面
 	 */
 	function ajaxEdit($schedule_id){
+		
+		$this->load->require_head=false;
+
 		$schedule=$this->schedule->fetch($schedule_id);
 		
-		$this->load->view($schedule_id);
+		post('schedule',$schedule);
+		
+		//为scheduleType的Radio准备值
+		if(post('schedule/case')<=10 && post('schedule/case')>0){
+			post('schedule_extra/type',1);
+		
+		}elseif(post('schedule/case')>10 && post('schedule/case')<20){
+			post('schedule_extra/type',2);
+		
+		}else{
+			post('schedule_extra/type',0);
+		
+		}
+		
+		$this->load->view('schedule/calendar_add');
+		$this->load->main_view_loaded=true;
 	}
 }
 ?>

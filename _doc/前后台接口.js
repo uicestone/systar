@@ -119,6 +119,18 @@ var misc={
 }
 
 var schedule={
+	ajaxEdit:{
+		url:'/schedule/ajaxedit/{schedule_id}',
+		get:{
+			
+		},
+		post:{
+			
+		},
+		response:{
+			
+		}
+	},
 	addToTaskBoard:{
 		url:'/schedule/addtotaskboard/{schedule_id}[/{uid}]',
 		get:{

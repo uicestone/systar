@@ -1,13 +1,13 @@
 <style>
-    .column { width: 170px; float: left; padding-bottom: 100px; }
-    .portlet { margin: 0 1em 1em 0; }
-    .portlet-header { margin: 0.3em; padding-bottom: 4px; padding-left: 0.2em; }
-    .portlet-header .ui-icon { float: right; }
-    .portlet-content { padding: 0.4em; }
-    .ui-sortable-placeholder { border: 1px dotted black; visibility: visible !important; height: 50px !important; }
-    .ui-sortable-placeholder * { visibility: hidden; }
-    </style>
-    <script>
+	.column { width: 170px; float: left; padding-bottom: 100px; }
+	.portlet { margin: 0 1em 1em 0; }
+	.portlet-header { margin: 0.3em; padding-bottom: 4px; padding-left: 0.2em; }
+	.portlet-header .ui-icon { float: right; }
+	.portlet-content { padding: 0.4em; }
+	.ui-sortable-placeholder { border: 1px dotted black; visibility: visible !important; height: 50px !important; }
+	.ui-sortable-placeholder * { visibility: hidden; }
+</style>
+<script>
     $(function() {
         $( ".column" ).sortable({
             connectWith: ".column",
@@ -22,7 +22,10 @@
 			}
         });
  
-        $( ".portlet" ).addClass( "ui-widget ui-widget-content ui-helper-clearfix ui-corner-all" )
+        $( ".portlet" ).click(function(){
+				$('#taskboard').showSchedule($(this).attr('id').replace('task_',''));
+			})
+			.addClass( "ui-widget ui-widget-content ui-helper-clearfix ui-corner-all" )
             .find( ".portlet-header" )
                 .addClass( "ui-widget-header ui-corner-all" )
                 .prepend( "<span class='ui-icon ui-icon-minusthick'></span>")
@@ -37,7 +40,7 @@
         $( ".column" ).disableSelection();
     });
     </script>
-<div class="contentTableBox">
+<div id="taskboard" class="contentTableBox">
 <?foreach($task_board as $column){?>
 <div class="column">
  <?foreach($column as $task){?>
