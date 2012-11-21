@@ -192,6 +192,36 @@ class SS_Controller extends CI_Controller{
 			$method='cancel';
 		}
 		
+		if($this->input->post('date_range')){
+			if(!strtotime($this->input->post('date_from')) || !strtotime($this->input->post('date_to'))){
+				showMessage('日期格式错误','warning');
+
+			}else{
+				option('date_range/from_timestamp',strtotime($this->input->post('date_from')));
+				option('date_range/to_timestamp',strtotime($this->input->post('date_to'))+86400);
+
+				option('date_range/from',date('Y-m-d',option('date_range/from_timestamp')));
+				option('date_range/to',date('Y-m-d',option('date_range/to_timestamp')-86400));
+
+				option('in_date_range',true);
+			}
+		}
+
+		if($this->input->post('date_range_cancel')){
+			unset($_SESSION[CONTROLLER][METHOD]['in_date_range']);
+			unset($_SESSION[CONTROLLER][METHOD]['date_range']);
+		}
+
+		if($this->input->post('search')){
+			option('keyword',array_trim($this->input->post('keyword')));
+			option('in_search_mod',true);
+		}
+
+		if($this->input->post('search_cancel')){
+			unset($_SESSION[CONTROLLER][METHOD]['in_search_mod']);
+			unset($_SESSION[CONTROLLER][METHOD]['keyword']);
+		}
+
 	}
 	
 	/**
