@@ -329,10 +329,10 @@ class Achievement_model extends SS_Model{
 			lawyers.lawyers
 		FROM case_fee
 			LEFT JOIN (
-		SELECT `case_fee`,SUM(amount) AS amount_sum
-			FROM account
-			GROUP BY `case_fee`
-			)account_grouped#根据case_fee分组求和的account
+				SELECT `case_fee`,SUM(amount) AS amount_sum
+				FROM account
+				GROUP BY `case_fee`
+			)account_grouped	-- 根据case_fee分组求和的account
 			ON case_fee.id=account_grouped.case_fee
 			
 			LEFT JOIN (
@@ -356,15 +356,19 @@ class Achievement_model extends SS_Model{
 			
 		WHERE case_fee.type<>'办案费'
 			AND case_fee.reviewed=0
-			AND (account_grouped.amount_sum IS NULL OR case_fee.fee-account_grouped.amount_sum>0)#款未到/未到齐
-			AND case_fee.case IN (
-			SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."'
-			)
+			AND (account_grouped.amount_sum IS NULL OR case_fee.fee-account_grouped.amount_sum>0)	-- 款未到/未到齐
 			AND case_fee.`case` NOT IN (
 			SELECT id FROM `case` WHERE filed=1
 			)
 			AND FROM_UNIXTIME(pay_time,'%Y-%m-%d')>='".$this->config->item('date')."'
 		";
+		
+		if(!is_logged('finance')){
+			$q.="	AND case_fee.case IN (
+					SELECT `case` FROM case_lawyer WHERE lawyer='{$_SESSION['id']}'
+				)
+			";
+		}
 		
 		$q=$this->orderBy($q,'case_fee.pay_time'); //添加排序条件
 		
@@ -410,15 +414,17 @@ class Achievement_model extends SS_Model{
 		WHERE case_fee.type<>'办案费'
 			AND case_fee.reviewed=0
 			AND (account_grouped.amount_sum IS NULL OR case_fee.fee-account_grouped.amount_sum>0)#款未到/未到齐
-			AND case_fee.case IN (
-			SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."'
-			)
-			AND case_fee.`case` NOT IN (
-			SELECT id FROM `case` WHERE filed='已归档'
-			)
 			AND FROM_UNIXTIME(pay_time,'%Y-%m-%d')<'".$this->config->item('date')."'
-			AND case.filed<>'已归档'
+			AND case.filed=0
 		";
+		
+		if(!is_logged('finance')){
+			$q.="
+				AND case_fee.case IN (
+					SELECT `case` FROM case_lawyer WHERE lawyer='{$_SESSION['id']}'
+				)
+			";
+		}
 		
 		$q=$this->orderBy($q,'case_fee.pay_time'); //添加排序条件
 		
