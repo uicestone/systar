@@ -160,22 +160,35 @@ class Client extends SS_Controller{
 			$this->processSubmit($submitable);
 		}
 
-		$field_client=array('checkbox'=>array('title'=>'<input type="submit" name="submit[client_client_delete]" value="删" />', 'orderby'=>false, 'content'=>'<input type="checkbox" name="client_client_check[{id}]" >', 'td_title'=>' width="60px"'), 'client_right_name'=>array('title'=>'名称<input type="submit" name="submit[client_client_set_default]" value="默认" />', 'eval'=>true, 'content'=>"
-				\$return='';
-				\$return.='<a href=\"javascript:showWindow(\''.('{classification}'=='客户'?'client':'contact').'/edit/{client_right}\')\">{client_right_name}</a>';
-				if('{is_default_contact}'){
-					\$return.='*';
-				}
-				return \$return;
-			", 'orderby'=>false), 'client_right_phone'=>array('title'=>'电话', 'orderby'=>false), 'client_right_email'=>array('title'=>'电邮', 'wrap'=>array('mark'=>'a', 'href'=>'mailto:{client_right_email}')), 'role'=>array('title'=>'关系', 'orderby'=>false));
+		$field_client=array(
+			'client_right_name'=>array(
+				'title'=>'<input type="submit" name="submit[client_client_delete]" value="删" />名称<input type="submit" name="submit[client_client_set_default]" value="默认" />', 
+				'eval'=>true, 
+				'content'=>"
+					\$return='<input type=\"checkbox\" name=\"client_client_check[{id}]\" >';
+					\$return.='<a href=\"javascript:showWindow(\''.('{classification}'=='客户'?'client':'contact').'/edit/{client_right}\')\">{client_right_name}</a>';
+					if('{is_default_contact}'){
+						\$return.='*';
+					}
+					return \$return;
+				", 'orderby'=>false
+			), 
+			'client_right_phone'=>array('title'=>'电话', 'orderby'=>false), 
+			'client_right_email'=>array('title'=>'电邮', 'wrap'=>array('mark'=>'a', 'href'=>'mailto:{client_right_email}')), 
+			'role'=>array('title'=>'关系', 'orderby'=>false)
+		);
 
-		$field_client_contact=array('checkbox'=>array('title'=>'<input type="submit" name="submit[client_contact_delete]" value="删" />', 'orderby'=>false, 'content'=>'<input type="checkbox" name="client_contact_check[{id}]" >', 'td_title'=>' width="60px"'), 'type'=>array('title'=>'类别', 'orderby'=>false), 'content'=>array('title'=>'内容', 'eval'=>true, 'content'=>"
+		$field_client_contact=array(
+			'type'=>array('title'=>'<input type="submit" name="submit[client_contact_delete]" value="删" />类别', 'content'=>'<input type="checkbox" name="client_contact_check[{id}]" />{type}', 'orderby'=>false), 
+			'content'=>array('title'=>'内容', 'eval'=>true, 'content'=>"
 				if('{type}'=='电子邮件'){
 					return '<a href=\"mailto:{content}\" target=\"_blank\">{content}</a>';
 				}else{
 					return '{content}';
 				}
-			", 'orderby'=>false), 'comment'=>array('title'=>'备注', 'orderby'=>false));
+			", 'orderby'=>false), 
+			'comment'=>array('title'=>'备注', 'orderby'=>false)
+		);
 
 		$field_client_case=array('num'=>array('title'=>'案号', 'wrap'=>array('mark'=>'a', 'href'=>'javascript:window.rootOpener.location.href=\'/cases/edit/{id}\';window.opener.parent.focus();'), 'orderby'=>false), 'case_name'=>array('title'=>'案名', 'orderby'=>false), 'lawyers'=>array('title'=>'主办律师', 'orderby'=>false));
 
