@@ -318,8 +318,17 @@ class Client_model extends SS_Model{
 		}else{
 			$condition.="
 				AND type='成交客户'
-				AND client.id IN (SELECT client FROM case_client WHERE `case` IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."'))
 			";
+			
+			if(!is_logged('service') && !is_logged('developer')){
+				$condition.="
+					AND client.id IN (
+						SELECT client FROM case_client WHERE `case` IN (
+							SELECT `case` FROM case_lawyer WHERE lawyer='{$_SESSION['id']}'
+						)
+					)
+				";
+			}
 		}
 		
 		
