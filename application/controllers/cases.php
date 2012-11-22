@@ -42,6 +42,19 @@ class Cases extends SS_controller{
 				return \$this->cases->getStatus('{is_reviewed}','{locked}',{apply_file},{is_query},{finance_review},{info_review},{manager_review},{filed},'{contribute_sum}','{uncollected}').' {status}';
 			",'orderby'=>false)
 		);
+		
+		if(!is_logged('lawyer') && is_logged('finance')){
+			$field=array(
+				'time_contract'=>array('title'=>'案号','td_title'=>'width="180px"','td'=>'title="立案时间：{time_contract}"','content'=>'<a href="/cases/edit/{id}">{num}</a>'),
+				'name'=>array('title'=>'案名','content'=>'{name}'),
+				'lawyers'=>array('title'=>'主办律师','td_title'=>'width="100px"'),
+				'is_reviewed'=>array('title'=>'状态','td_title'=>'width="75px"','eval'=>true,'content'=>"
+					return \$this->cases->getStatus('{is_reviewed}','{locked}',{apply_file},{is_query},{finance_review},{info_review},{manager_review},{filed},'{contribute_sum}','{uncollected}').' {status}';
+				",'orderby'=>false)
+			);
+
+		}
+		
 		$table=$this->table->setFields($field)
 			->setData($this->cases->getList($para))
 			->generate();
