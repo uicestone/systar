@@ -40,7 +40,7 @@ class SS_Controller extends CI_Controller{
 		$db['host']="localhost";
 		$db['username']="root";
 		$db['password']="";
-		$db['name']='starsys';
+		$db['name']='syssh';
 	
 		define('DB_LINK',mysql_connect($db['host'],$db['username'],$db['password']));
 	
