@@ -124,9 +124,9 @@ class Account extends SS_controller{
 			//根据案件ID获得收费array
 			$case_fee_array=$this->cases->getFeeOptions(post('account/case'));
 			
-			$this->load->addViewArrayData(compact('case_client_array','case_fee_array'));
 		}
 		
+		$this->load->addViewArrayData(compact('case_client_array','case_fee_array'));
 		$this->load->view('account/edit');
 		$this->load->main_view_loaded=true;
 	}
