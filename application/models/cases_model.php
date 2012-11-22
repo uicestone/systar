@@ -190,7 +190,7 @@ class Cases_model extends SS_Model{
 			$locked=false;
 		}
 		
-		$uncollected=$this->db->query("
+		$result_uncollected=$this->db->query("
 			SELECT IF(amount_sum IS NULL,fee_sum,fee_sum-amount_sum) AS uncollected FROM
 			(
 				SELECT `case`,SUM(fee) AS fee_sum FROM case_fee WHERE type<>'办案费' AND reviewed=0 AND `case`='".$case_id."'
@@ -201,6 +201,8 @@ class Cases_model extends SS_Model{
 			)account_grouped
 			USING (`case`)
 		")->row_array();
+		
+		$uncollected=isset($result_uncollected['uncollected'])?$result_uncollected['uncollected']:0;
 		
 		$contribute_sum_result=$this->db->query("
 			SELECT SUM(contribute) AS contribute_sum
