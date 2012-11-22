@@ -35,8 +35,8 @@ class Achievement_model extends SS_Model{
 					AND `case` IN (
 						SELECT id FROM `case` 
 						WHERE is_reviewed=1
-							AND time_contract>='".$date_start."' 
-							AND time_contract<'".$date_end."'
+							AND time_contract>='$date_start' 
+							AND time_contract<'$date_end'
 					)
 			";
 			
@@ -44,7 +44,7 @@ class Achievement_model extends SS_Model{
 				//我主办的签约
 				$q.=" 
 					AND `case` IN (
-						SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role='主办律师'
+						SELECT `case` FROM case_lawyer WHERE lawyer='{$_SESSION['id']}' AND role='主办律师'
 					)
 				";
 			}
@@ -58,8 +58,8 @@ class Achievement_model extends SS_Model{
 						SELECT case_fee.fee*SUM(case_lawyer.contribute) AS contribute_fee
 						FROM case_fee INNER JOIN case_lawyer USING (`case`)
 						WHERE case_fee.type<>'办案费' 
-							AND `case` IN (SELECT id FROM `case` WHERE is_reviewed=1 AND time_contract>='".$date_start."' AND time_contract<'".$date_end."')
-							AND case_lawyer.lawyer='".$_SESSION['id']."'
+							AND `case` IN (SELECT id FROM `case` WHERE is_reviewed=1 AND time_contract>='$date_start' AND time_contract<'$date_end')
+							AND case_lawyer.lawyer='{$_SESSION['id']}'
 						GROUP BY case_fee.id
 					)case_fee_contribute";
 				}
@@ -70,14 +70,15 @@ class Achievement_model extends SS_Model{
 				FROM case_fee 
 				WHERE type<>'办案费' AND `case` IN (SELECT id FROM `case` WHERE filed=0 AND fee_lock=1)
 					AND reviewed=0
-					AND pay_time>=".$time_start.' 
-					AND pay_time<'.$time_end;
+					AND pay_time>='$time_start'
+					AND pay_time<'$time_end'
+			";
 			
 			if($range=='my'){
 				$q.=" AND `case` IN (
 					SELECT `case` 
 					FROM case_lawyer 
-					WHERE lawyer='".$_SESSION['id']."' AND role='主办律师'
+					WHERE lawyer='{$_SESSION['id']}' AND role='主办律师'
 				)";
 			}
 			
@@ -89,8 +90,8 @@ class Achievement_model extends SS_Model{
 						SELECT case_fee.fee*SUM(case_lawyer.contribute) AS contribute_fee
 						FROM case_fee INNER JOIN case_lawyer USING (`case`)
 						WHERE case_fee.type<>'办案费' 
-							AND case_fee.pay_time>=".$time_start.' AND case_fee.pay_time<'.$time_end."
-							AND case_lawyer.lawyer='".$_SESSION['id']."'
+							AND case_fee.pay_time>='$time_start' AND case_fee.pay_time<'$time_end'
+							AND case_lawyer.lawyer='{$_SESSION['id']}'
 							AND `case` IN (SELECT id FROM `case` WHERE filed=0 AND fee_lock=1
 						) 
 						GROUP BY case_fee.id
@@ -103,11 +104,12 @@ class Achievement_model extends SS_Model{
 				SELECT SUM(amount) AS sum 
 				FROM account 
 				WHERE name <> '办案费'
-					AND time_occur>='".$time_start."'
-					AND time_occur<'".$time_end."'";
+					AND time_occur>='$time_start'
+					AND time_occur<'$time_end'
+			";
 			
 			if($range=='my'){
-				$q.=" AND `case` IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role='主办律师')";
+				$q.=" AND `case` IN (SELECT `case` FROM case_lawyer WHERE lawyer='{$_SESSION['id']}' AND role='主办律师')";
 			}
 			
 			if($range=='contribute'){
@@ -118,9 +120,9 @@ class Achievement_model extends SS_Model{
 						SELECT account.amount*SUM(case_lawyer.contribute) AS contribute_amount
 						FROM account INNER JOIN case_lawyer USING (`case`)
 						WHERE account.name <> '办案费'
-							AND time_occur>=".$time_start."
-							AND time_occur<".$time_end."
-							AND case_lawyer.lawyer='".$_SESSION['id']."'
+							AND time_occur>='$time_start'
+							AND time_occur<'$time_end'
+							AND case_lawyer.lawyer='{$_SESSION['id']}'
 						GROUP BY account.id
 					)account_contribute
 				";
@@ -131,12 +133,13 @@ class Achievement_model extends SS_Model{
 				SELECT SUM(amount) AS sum 
 				FROM account 
 				WHERE name <> '办案费'
-					AND time_occur>=".$time_start."
-					AND time_occur<".$time_end."
-					AND `case` IN (SELECT id FROM `case` WHERE filed=1)";
+					AND time_occur>='$time_start'
+					AND time_occur<'$time_end'
+					AND `case` IN (SELECT id FROM `case` WHERE filed=1)
+			";
 			
 			if($range=='my'){
-				$q.=" AND `case` IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role='主办律师')";
+				$q.=" AND `case` IN (SELECT `case` FROM case_lawyer WHERE lawyer='{$_SESSION['id']}' AND role='主办律师')";
 			}
 			
 			if($range=='contribute'){
@@ -148,17 +151,24 @@ class Achievement_model extends SS_Model{
 						FROM account INNER JOIN case_lawyer USING (`case`)
 							INNER JOIN `case` ON case.id=account.case
 						WHERE account.name <> '办案费'
-							AND time_occur>=".$time_start."
-							AND time_occur<".$time_end."
-							AND case_lawyer.lawyer='".$_SESSION['id']."'
+							AND time_occur>='$time_start'
+							AND time_occur<'$time_end''
+							AND case_lawyer.lawyer='{$_SESSION['id']}'
 							AND case.filed=1
 						GROUP BY account.id
 					)account_contribute";
 			}
 		}elseif($type=='estimated'){
-			$q="
-				SELECT SUM(IF(account.amount IS NULL,case_fee.fee,account.amount)) AS sum
+			//预计-全所
+			 $q="
+				SELECT SUM(
+					IF(account.amount IS NULL,
+						IF(case_fee.reviewed=1 OR case.fee_lock=0,0,case_fee.fee),
+						account.amount
+					)
+				) AS sum
 				FROM case_fee LEFT JOIN account ON case_fee.id=account.case_fee
+					LEFT JOIN `case` ON case_fee.case=case.id
 				WHERE case_fee.pay_time>='$time_start' AND case_fee.pay_time<'$time_end'
 					AND (
 							(account.time_occur>='$time_start' AND account.time_occur<'$time_end')
@@ -166,32 +176,36 @@ class Achievement_model extends SS_Model{
 						)
 			";
 			
+			//预计-我主办的
 			if($range=='my'){
-				$q.=" AND case_fee.case IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role='主办律师')";
+				$q.=" AND case_fee.case IN (SELECT `case` FROM case_lawyer WHERE lawyer='{$_SESSION['id']}' AND role='主办律师')";
 			}
 			
+			//预计-我的贡献
 			if($range=='contribute'){
 				$q="
-				SELECT SUM(estimated.fee*contribute.sum)
-				FROM
-				(
-					SELECT IF(account.amount IS NULL,case_fee.fee,account.amount) AS fee,case_fee.case
-					FROM case_fee LEFT JOIN account ON case_fee.id=account.case_fee
-						INNER JOIN case_lawyer ON case_lawyer.id=case_fee.case
-					WHERE case_fee.pay_time>='$time_start' AND case_fee.pay_time<'$time_end'
-						AND (
-								(account.time_occur>='$time_start' AND account.time_occur<'$time_end')
-								OR account.id IS NULL
-							)
-						AND case_fee.case IN (SELECT id FROM `case` WHERE is_reviewed=1)
-				)estimated
-				INNER JOIN 
-				(
-					SELECT `case`,SUM(contribute) AS sum 
-					FROM case_lawyer 
-					WHERE lawyer='{$_SESSION['id']}' 
-					GROUP BY `case` HAVING sum>0
-				)contribute USING (`case`)
+					SELECT SUM(estimated.fee*contribute.sum)
+					FROM
+					(
+						SELECT IF(account.amount IS NULL,
+								IF(case_fee.reviewed=1 OR case.fee_lock=0,0,case_fee.fee),
+								account.amount
+						) AS fee,case_fee.case
+						FROM case_fee LEFT JOIN account ON case_fee.id=account.case_fee
+							LEFT JOIN `case` ON case_fee.case=case.id
+						WHERE case_fee.pay_time>='$time_start' AND case_fee.pay_time<'$time_end'
+							AND (
+									(account.time_occur>='$time_start' AND account.time_occur<'$time_end')
+									OR account.id IS NULL
+								)
+					)estimated
+					INNER JOIN 
+					(
+						SELECT `case`,SUM(contribute) AS sum 
+						FROM case_lawyer 
+						WHERE lawyer='{$_SESSION['id']}' 
+						GROUP BY `case` HAVING sum>0
+					)contribute USING (`case`)
 				";
 			}
 		}
