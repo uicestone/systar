@@ -233,20 +233,24 @@ class Achievement_model extends SS_Model{
 						SELECT `case_fee`,SUM(amount) AS amount_sum
 						FROM account
 						GROUP BY `case_fee`
-					)account_grouped#根据case_fee分组求和的account
+					)account_grouped	-- 根据case_fee分组求和的account
 					ON case_fee.id=account_grouped.case_fee
 				WHERE case_fee.type<>'办案费'
 					AND case_fee.reviewed=0
-					AND (account_grouped.amount_sum IS NULL OR case_fee.fee-account_grouped.amount_sum>0)#款未到/未到齐
-					AND case_fee.case IN (
-						SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."'
-					)
+					AND (account_grouped.amount_sum IS NULL OR case_fee.fee-account_grouped.amount_sum>0)	-- 款未到/未到齐
 					AND `case` NOT IN (
 						SELECT id FROM `case` WHERE filed=1
 					)
 					AND FROM_UNIXTIME(pay_time,'%Y-%m-%d')>='".$this->config->item('date')."'
 					AND pay_time<'".($this->config->item('timestamp')+86400*30)."'
 			";
+			
+			if(!is_logged('finance')){
+				$q.="	AND case_fee.case IN (
+						SELECT `case` FROM case_lawyer WHERE lawyer='{$_SESSION['id']}'
+					)
+				";
+			}
 		}elseif($type=='expired'){
 			$q="
 				SELECT COUNT(case_fee.id) AS num,SUM(case_fee.fee) AS sum
@@ -260,14 +264,18 @@ class Achievement_model extends SS_Model{
 				WHERE case_fee.type<>'办案费'
 					AND case_fee.reviewed=0
 					AND (account_grouped.amount_sum IS NULL OR case_fee.fee-account_grouped.amount_sum>0)#款未到/未到齐
-					AND case_fee.case IN (
-						SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."'
-					)
 					AND `case` NOT IN (
 						SELECT id FROM `case` WHERE filed=1
 					)
 					AND FROM_UNIXTIME(pay_time,'%Y-%m-%d')<'".$this->config->item('date')."'
 			";
+			
+			if(!is_logged('finance')){
+				$q.="	AND case_fee.case IN (
+						SELECT `case` FROM case_lawyer WHERE lawyer='{$_SESSION['id']}'
+					)
+				";
+			}
 		}
 	
 		$result_array=$this->db->query($q)->row_array();
