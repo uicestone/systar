@@ -193,21 +193,20 @@ class Cases_model extends SS_Model{
 		$uncollected=$this->db->query("
 			SELECT IF(amount_sum IS NULL,fee_sum,fee_sum-amount_sum) AS uncollected FROM
 			(
-				SELECT `case`,SUM(fee) AS fee_sum FROM case_fee WHERE type<>'办案费' AND reviewed=0 AND `case`='".$case_id."'
+				SELECT `case`,SUM(fee) AS fee_sum FROM case_fee WHERE type<>'办案费' AND reviewed=0 AND `case`='{$case_id}'
 			)case_fee_grouped
-			INNER JOIN
+			LEFT JOIN
 			(
 				SELECT `case`, SUM(amount) AS amount_sum FROM account WHERE `case`='{$case_id}'
 			)account_grouped
 			USING (`case`)
-		")->row_array();
-		
-		$contribute_sum_result=$this->db->query("
+		")->row()->uncollected;
+				
+		$contribute_sum=$this->db->query("
 			SELECT SUM(contribute) AS contribute_sum
 			FROM case_lawyer
 			WHERE `case`='{$case_id}'
-		")->row_array();
-		$contribute_sum=$contribute_sum_result['contribute_sum'];
+		")->row()->contribute_sum;
 		
 		return $this->getStatus($is_reviewed,$locked,$apply_file,$is_query,$finance_review,$info_review,$manager_review,$filed,$contribute_sum,$uncollected);
 	}
@@ -727,6 +726,10 @@ class Cases_model extends SS_Model{
 			$case_name.=(' '.$name_extra);
 		}
 		
+		if(isset($name_extra)){
+			$case_name.=(' '.$name_extra);
+		}
+		
 		return $case_name;
 	}
 	
@@ -817,7 +820,7 @@ class Cases_model extends SS_Model{
 		}elseif($method=='file'){
 			$condition.="AND case.apply_file=1 AND classification<>'法律顾问' AND (case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role<>'主办律师') OR case.uid='".$_SESSION['id']."')";
 			
-		}elseif(!is_logged('developer')){
+		}elseif(!is_logged('developer') && !is_logged('finance')){
 			$condition.="AND (case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role IN ('接洽律师','接洽律师（次要）','主办律师','协办律师','律师助理','督办合伙人')) OR case.uid='".$_SESSION['id']."')";
 		}
 		$condition=$this->search($condition, array('case.num'=>'案号','case.type'=>'类别','case.name'=>'名称','lawyers.lawyers'=>'主办律师'));

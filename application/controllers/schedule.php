@@ -166,16 +166,16 @@ class Schedule extends SS_controller{
 	
 	function edit($id=NULL){
 		
-		$this->getPostData($id,function(){
-			if($this->input->get('case')){
-				post('schedule/case',intval($this->input->get('case')));
+		$this->getPostData($id,function($CI){
+			if($CI->input->get('case')){
+				post('schedule/case',intval($CI->input->get('case')));
 			}
-			if($this->input->get('client')){
-				post('schedule/client',intval($this->input->get('client')));
+			if($CI->input->get('client')){
+				post('schedule/client',intval($CI->input->get('client')));
 			}
 		
-			if($this->input->get('completed')){
-				post('schedule/completed',(int)(bool)$this->input->get('completed'));
+			if($CI->input->get('completed')){
+				post('schedule/completed',(int)(bool)$CI->input->get('completed'));
 		
 			}else{
 				post('schedule/completed',1);//默认插入的是日志，不是提醒
@@ -193,7 +193,7 @@ class Schedule extends SS_controller{
 		if($this->input->post('submit')){
 			$submitable=true;
 			
-			$_SESSION['schedule']['post']=array_replace_recursive($_SESSION['schedule']['post'],$_POST);
+			$_SESSION['schedule']['post']=array_replace_recursive($_SESSION['schedule']['post'],$this->input->post());
 			
 			if($this->input->post('schedule/name')==''){
 				$submitable=false;
@@ -345,24 +345,28 @@ class Schedule extends SS_controller{
 	}
 	
 	function workHours(){
-		$staffly_workhours=$this->schedule->getStafflyWorkHours();
-		$chart_staffly_workhours_catogary=json_encode(array_sub($staffly_workhours,'staff_name'));
-		$chart_staffly_workhours_series=array(
-			array('name'=>'上上周','data'=>array_sub($staffly_workhours,'last2week')),
-			array('name'=>'上周','data'=>array_sub($staffly_workhours,'lastweek'))
-		);
-		$chart_staffly_workhours_series=json_encode($chart_staffly_workhours_series,JSON_NUMERIC_CHECK);
 
 		if(date('w')==1){//今天是星期一
 			$start_of_this_week=strtotime($this->config->item('date'));
 		}else{
 			$start_of_this_week=strtotime("-1 Week Monday");
 		}
-
-		if(!option('date_range/from')){
+		
+		if(!option('in_date_range')){
 			option('date_range/from',date('Y-m-d',$start_of_this_week));
 			option('date_range/to',$this->config->item('date'));
+			option('date_range/from_timestamp',$start_of_this_week);
+			option('date_range/to_timestamp',$this->config->item('timestamp'));
+			option('in_date_range',true);
 		}
+		
+		$staffly_workhours=$this->schedule->getStafflyWorkHoursList();
+
+		$chart_staffly_workhours_catogary=json_encode(array_sub($staffly_workhours,'staff_name'));
+		$chart_staffly_workhours_series=array(
+			array('name'=>'工作时间','data'=>array_sub($staffly_workhours,'sum'))
+		);
+		$chart_staffly_workhours_series=json_encode($chart_staffly_workhours_series,JSON_NUMERIC_CHECK);
 
 		$field=array(
 			'staff_name'=>array('title'=>'姓名'),
@@ -371,9 +375,8 @@ class Schedule extends SS_controller{
 		);
 		
 		$work_hour_stat=$this->table->setFields($field)
-				->setData($this->schedule->getStafflyWorkHoursList(option('date/from'),option('date/to')))
 				->wrapBox(false)
-				->generate();
+				->generate($staffly_workhours);
 
 		$this->load->addViewArrayData(compact('chart_staffly_workhours_catogary','chart_staffly_workhours_series','work_hour_stat'));
 	}

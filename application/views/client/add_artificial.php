@@ -55,7 +55,7 @@
 		 </div>
 
 		<div class="item">
-			<div class="title"><label>相关人</label><label id="clientClientAdd"><?post('client_client_extra/show_add_form')?'-':'+'?></label></div>
+			<div class="title"><label>相关人</label><label id="clientClientAdd"><?=post('client_client_extra/show_add_form')?'-':'+'?></label></div>
 			<?=$client_table?>
 			<div id="clientClientAddForm" <? if(!post('client_client_extra/show_add_form'))echo 'style="display:none"';?>>
 				<input type="text" name="client_client_extra[name]" value="<?=post('client_client_extra/name')?>" placeholder="名称" autocomplete="client" autocomplete-input-name="client_client[client_right]" style="width:20%" />
