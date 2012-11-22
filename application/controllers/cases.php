@@ -42,6 +42,19 @@ class Cases extends SS_controller{
 				return \$this->cases->getStatus('{is_reviewed}','{locked}',{apply_file},{is_query},{finance_review},{info_review},{manager_review},{filed},'{contribute_sum}','{uncollected}').' {status}';
 			",'orderby'=>false)
 		);
+		
+		if(!is_logged('lawyer') && is_logged('finance')){
+			$field=array(
+				'time_contract'=>array('title'=>'案号','td_title'=>'width="180px"','td'=>'title="立案时间：{time_contract}"','content'=>'<a href="/cases/edit/{id}">{num}</a>'),
+				'name'=>array('title'=>'案名','content'=>'{name}'),
+				'lawyers'=>array('title'=>'主办律师','td_title'=>'width="100px"'),
+				'is_reviewed'=>array('title'=>'状态','td_title'=>'width="75px"','eval'=>true,'content'=>"
+					return \$this->cases->getStatus('{is_reviewed}','{locked}',{apply_file},{is_query},{finance_review},{info_review},{manager_review},{filed},'{contribute_sum}','{uncollected}').' {status}';
+				",'orderby'=>false)
+			);
+
+		}
+		
 		$table=$this->table->setFields($field)
 			->setData($this->cases->getList($para))
 			->generate();
@@ -290,17 +303,15 @@ class Cases extends SS_controller{
 					showMessage('文件上传错误:'.$_FILES["file"]["error"],'warning');
 		
 				}else{
-					$storePath=iconv("utf-8","gbk",$this->config->item('case_document_path')."/".$_FILES["file"]["name"]);//存储路径转码
-					
-					move_uploaded_file($_FILES['file']['tmp_name'], $storePath);
-				
 					post('case_document/name',$_FILES["file"]["name"]);
 					post('case_document/type',$this->document->getExtension(post('case_document/name')));
 					post('case_document/size',$_FILES["file"]['size']);
 					
-					$_SESSION['case']['post']['case_document']['id']=$this->cases->addDocument(post('cases/id'),post('case_document'));
+					post('case_document/id',$this->cases->addDocument(post('cases/id'),post('case_document')));
 		
-					rename(iconv("utf-8","gbk",$this->config->item('case_document_path')."/".$_FILES["file"]["name"]),iconv("utf-8","gbk",$this->config->item('case_document_path')."/".post('case_document/id')));
+					$store_path=iconv("utf-8","gbk",$this->config->item('case_document_path')."/".post('case_document/id'));//存储路径转码
+					
+					move_uploaded_file($_FILES['file']['tmp_name'], $store_path);
 				}
 				
 				unset($_SESSION['cases']['post']['case_document']);

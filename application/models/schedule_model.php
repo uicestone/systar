@@ -119,8 +119,8 @@ class Schedule_model extends SS_Model{
 	 * 调整calendar页面的日程时长
 	 */
 	function resize($schedule_id,$time_delta){
-		$minites_delta=$time_delta/60;
-		return $this->db->query("UPDATE schedule SET `hours_own` = `hours_own`+'{$minites_delta}', `time_end`=`time_end`+'{$time_delta}' WHERE id='{$schedule_id}'");
+		$hours_delta=$time_delta/3600;
+		return $this->db->query("UPDATE schedule SET `hours_own` = `hours_own`+'{$hours_delta}', `time_end`=`time_end`+'{$time_delta}' WHERE id='{$schedule_id}'");
 	}
 	
 	/**
@@ -252,10 +252,10 @@ class Schedule_model extends SS_Model{
 		return $this->db->query($query)->result_array();
 	}
 	
-	function getStafflyWorkHoursList($date_from,$date_to){
+	function getStafflyWorkHoursList(){
 		$query="
 			SELECT staff.name AS staff_name,SUM(IF(hours_checked IS NULL,hours_own,hours_checked)) AS sum,
-				ROUND(SUM(IF(hours_checked IS NULL,hours_own,hours_checked)/".(getWorkingDays($date_from, $date_to,getHolidays(),getOvertimedays(),false))."),2) AS avg
+				ROUND(SUM(IF(hours_checked IS NULL,hours_own,hours_checked))/".(getWorkingDays(option('date_range/from'),option('date_range/to'),getHolidays(),getOvertimedays(),false)).",2) AS avg
 			FROM schedule INNER JOIN staff ON staff.id=schedule.uid
 			WHERE completed=1 AND display=1
 		";

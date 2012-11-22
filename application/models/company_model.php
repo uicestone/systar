@@ -96,8 +96,8 @@ class Company_model extends SS_Model{
 				'到期未收'
 			),
 			array(
-				'<a href="achievement?recent">'.$recent_collect['num'].'('.$recent_collect['sum'].')'.'</a>',
-				'<a href="achievement?expired">'.$expired_collect['num'].'('.$expired_collect['sum'].')'.'</a>'
+				'<a href="achievement/recent">'.$recent_collect['num'].'('.$recent_collect['sum'].')'.'</a>',
+				'<a href="achievement/expired">'.$expired_collect['num'].'('.$expired_collect['sum'].')'.'</a>'
 			)
 		);
 		
