@@ -115,8 +115,8 @@ class Schedule_model extends SS_Model{
 	 * 调整calendar页面的日程时长
 	 */
 	function resize($schedule_id,$time_delta){
-		$minites_delta=$time_delta/60;
-		return $this->db->query("UPDATE schedule SET `hours_own` = `hours_own`+'{$minites_delta}', `time_end`=`time_end`+'{$time_delta}' WHERE id='{$schedule_id}'");
+		$hours_delta=$time_delta/3600;
+		return $this->db->query("UPDATE schedule SET `hours_own` = `hours_own`+'{$hours_delta}', `time_end`=`time_end`+'{$time_delta}' WHERE id='{$schedule_id}'");
 	}
 	
 	/**
