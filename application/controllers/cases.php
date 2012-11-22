@@ -290,17 +290,15 @@ class Cases extends SS_controller{
 					showMessage('文件上传错误:'.$_FILES["file"]["error"],'warning');
 		
 				}else{
-					$storePath=iconv("utf-8","gbk",$this->config->item('case_document_path')."/".$_FILES["file"]["name"]);//存储路径转码
-					
-					move_uploaded_file($_FILES['file']['tmp_name'], $storePath);
-				
 					post('case_document/name',$_FILES["file"]["name"]);
 					post('case_document/type',$this->document->getExtension(post('case_document/name')));
 					post('case_document/size',$_FILES["file"]['size']);
 					
-					$_SESSION['case']['post']['case_document']['id']=$this->cases->addDocument(post('cases/id'),post('case_document'));
+					post('case_document/id',$this->cases->addDocument(post('cases/id'),post('case_document')));
 		
-					rename(iconv("utf-8","gbk",$this->config->item('case_document_path')."/".$_FILES["file"]["name"]),iconv("utf-8","gbk",$this->config->item('case_document_path')."/".post('case_document/id')));
+					$store_path=iconv("utf-8","gbk",$this->config->item('case_document_path')."/".post('case_document/id'));//存储路径转码
+					
+					move_uploaded_file($_FILES['file']['tmp_name'], $store_path);
 				}
 				
 				unset($_SESSION['cases']['post']['case_document']);
