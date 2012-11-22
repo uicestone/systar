@@ -177,7 +177,7 @@ class Client extends SS_Controller{
 				}
 			", 'orderby'=>false), 'comment'=>array('title'=>'备注', 'orderby'=>false));
 
-		$field_client_case=array('num'=>array('title'=>'案号', 'wrap'=>array('mark'=>'a', 'href'=>'javascript:window.rootOpener.location.href=\'cases/edit/{id}\';window.opener.parent.focus();'), 'orderby'=>false), 'case_name'=>array('title'=>'案名', 'orderby'=>false), 'lawyers'=>array('title'=>'主办律师', 'orderby'=>false));
+		$field_client_case=array('num'=>array('title'=>'案号', 'wrap'=>array('mark'=>'a', 'href'=>'javascript:window.rootOpener.location.href=\'/cases/edit/{id}\';window.opener.parent.focus();'), 'orderby'=>false), 'case_name'=>array('title'=>'案名', 'orderby'=>false), 'lawyers'=>array('title'=>'主办律师', 'orderby'=>false));
 
 		$client_table=$this->table->setFields($field_client)
 					  ->setData($this->client->getRelatedClients(post('client/id')))
