@@ -4,6 +4,15 @@ class Company_model extends SS_Model{
 		parent::__construct();
 	}
 
+	function fetch($id=NULL){
+		$query="
+			SELECT id AS company,name AS company_name,type AS company_type,syscode,sysname,ucenter,default_controller
+			FROM company 
+			WHERE host='{$this->input->server('SERVER_NAME')}' OR syscode='{$this->input->server('SERVER_NAME')}'";
+		
+		return $this->db->query($query)->row_array();
+	}
+
 	function school_init(){
 		//以8/1和农历新年作为学期的分界线
 		$this->load->library('Lunar');
@@ -17,8 +26,8 @@ class Company_model extends SS_Model{
 		}else{
 			$term=2;$term_year=$year-1;
 		}
-		array_dir('_SESSION/global/current_term',$term_year.'-'.$term);//计算当前学期
-		array_dir('_SESSION/global/highest_grade',$term_year-2);//计算当前在校最高年级
+		$this->session->set_userdata('current_term',$term_year.'-'.$term);//计算当前学期
+		$this->session->set_userdata('highest_grade',$term_year-2);//计算当前在校最高年级
 	}
 	
 	function starsys_schedule_side_table(){
