@@ -38,17 +38,26 @@
         });
  
         $( ".column" ).disableSelection();
+
+        $('input[name="add[task]"]').click(function(){
+			$("#taskboard").createSchedule();
+        })
     });
     </script>
-<div id="taskboard" class="contentTableBox">
-<?foreach($task_board as $column){?>
-<div class="column">
- <?foreach($column as $task){?>
-    <div class="portlet" id="task_<?=$task['id']?>">
-        <div class="portlet-header"><?=$task['title']?></div>
-        <div class="portlet-content"><?=$task['content']?></div>
-    </div>
-<?}?>
-</div>
- <?}?>
+<div class="contentTableMenu">
+	<div class="right">
+		<input type="button" name="add[task]" value="添加" />
+			<div id="taskboard" class="contentTableBox">
+				<?foreach($task_board as $column){?>
+				<div class="column">
+				 <?foreach($column as $task){?>
+				    <div class="portlet" id="task_<?=$task['id']?>">
+				        <div class="portlet-header"><?=$task['title']?></div>
+				        <div class="portlet-content"><?=$task['content']?></div>
+				    </div>
+				<?}?>
+				</div>
+				 <?}?>
+			</div>
+	</div>
 </div>

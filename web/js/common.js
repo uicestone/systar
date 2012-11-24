@@ -242,8 +242,16 @@ jQuery.fn.createSchedule=function(startDate, endDate, allDay){
 	date = new Date();
 	calendar=$(this);
 	
-	var	dialog=$(this).createDialog('新建日程')
-
+	
+	if((!startDate) && (!endDate) && (!allDay)){
+		startDate=null;
+		endDate=null;
+		allDay=null;
+		var	dialog=$(this).createDialog('新建任务');
+	}
+	else{
+		var	dialog=$(this).createDialog('新建日程')
+	}
 	$.get('/misc/gethtml/schedule/calendar_add',function(schedule_calendar_add_form){
 
 		dialog.html(schedule_calendar_add_form)
@@ -252,7 +260,9 @@ jQuery.fn.createSchedule=function(startDate, endDate, allDay){
 	
 		//配置type和completed默认值
 		$('input[name="type"][value="0"]').attr('checked','checked');
-		$('input[name="completed"][value="'+(startDate.getTime()<date.getTime()?1:0)+'"]').attr('checked','checked');
+		if(startDate){
+			$('input[name="completed"][value="'+(startDate.getTime()<date.getTime()?1:0)+'"]').attr('checked','checked');
+		}
 		var typeRadio = $('input[name="type"]');
 		var caseSelect = $('select[name="case"]');
 
@@ -290,33 +300,38 @@ jQuery.fn.createSchedule=function(startDate, endDate, allDay){
 				alert('日志名称必填');
 				$('input:[name="name"]').focus();
 			}else{
-				var start=startDate.getTime()/1000;
-				var end=endDate.getTime()/1000;
-				var postData=$.extend($('#schedule').serializeJSON(),{time_start:start,time_end:end,all_day:Number(allDay)});
-				delete postData.type;
-
-				$.post("/schedule/writecalendar/add",postData,
-					function(data){
-						if(!isNaN(data) && data!=0){
-							calendar.fullCalendar('renderEvent',
-								{
-									id:data,
-									title:$('[name="name"]').val(),
-									start: startDate,
-									end: endDate,
-									allDay: allDay,
-									color:startDate.getTime()>date.getTime()?'#E35B00':'#36C'
-								}
-							);
-							calendar.fullCalendar('unselect');
-							dialog.dialog('close');
-						}else{
-							showMessage('日程添加失败','notice');
-							console.log(data);
+				if(startDate && endDate && allDay){
+					var start=startDate.getTime()/1000;
+					var end=endDate.getTime()/1000;
+					var postData=$.extend($('#schedule').serializeJSON(),{time_start:start,time_end:end,all_day:Number(allDay)});
+					delete postData.type;
+					$.post("/schedule/writecalendar/add",postData,
+						function(data){
+							if(!isNaN(data) && data!=0){
+								calendar.fullCalendar('renderEvent',
+									{
+										id:data,
+										title:$('[name="name"]').val(),
+										start: startDate,
+										end: endDate,
+										allDay: allDay,
+										color:startDate.getTime()>date.getTime()?'#E35B00':'#36C'
+									}
+								);
+								calendar.fullCalendar('unselect');
+								dialog.dialog('close');
+							}else{
+								showMessage('日程添加失败','notice');
+								console.log(data);
+							}
 						}
-					}
-				);
-			}
+					);
+				}
+				else{
+					var postData=$('#schedule').serializeJSON();
+					$.post("/schedule/writecalendar/add",postData)
+				}
+				}
 		}
 	}])
 	.dialog('open');
