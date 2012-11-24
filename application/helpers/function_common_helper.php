@@ -2,7 +2,7 @@
 function uidTime(){
 	$CI=&get_instance();
 	$array=array(
-		'uid'=>$_SESSION['id'],
+		'uid'=>$CI->user->id,
 		'username'=>$_SESSION['username'],
 		'time'=>$CI->config->item('timestamp'),
 		'company'=>$CI->config->item('company')

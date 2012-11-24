@@ -43,7 +43,7 @@ class Cases extends SS_controller{
 			",'orderby'=>false)
 		);
 		
-		if(!is_logged('lawyer') && is_logged('finance')){
+		if(!$this->user->isLogged('lawyer') && $this->user->isLogged('finance')){
 			$field=array(
 				'time_contract'=>array('title'=>'案号','td_title'=>'width="180px"','td'=>'title="立案时间：{time_contract}"','content'=>'<a href="/cases/edit/{id}">{num}</a>'),
 				'name'=>array('title'=>'案名','content'=>'{name}'),
@@ -230,7 +230,7 @@ class Cases extends SS_controller{
 				}
 			}
 			
-			if(is_posted('submit/case_fee_review') && is_logged('finance')){
+			if(is_posted('submit/case_fee_review') && $this->user->isLogged('finance')){
 				//财务审核
 				$condition = db_implode(post('case_fee_check'), $glue = ' OR ','id','=',"'","'", '`','key');
 				$condition_account=db_implode(post('case_fee_check'), $glue = ' OR ','case_fee','=',"'","'", '`','key');
@@ -256,7 +256,7 @@ class Cases extends SS_controller{
 		
 				post('case_fee_timing/time_start',strtotime(post('case_fee_timing_extra/time_start')));//imperfect 2012/5/23 uicestone
 				
-				post('case_fee_timing/uid',$_SESSION['id']);
+				post('case_fee_timing/uid',$this->user->id);
 				post('case_fee_timing/time',$this->config->item('timestamp'));
 					
 				if(
@@ -397,7 +397,7 @@ class Cases extends SS_controller{
 				//申请锁定，发送一条消息给督办合伙人
 				if($responsible_partner){
 					$apply_lock_message=$_SESSION['username'].'申请锁定'.strip_tags(post('cases/name')).'一案，[url=http://sys.lawyerstars.com/cases/edit/'.post('cases/id').']点此进入[/url]';
-					sendMessage($responsible_partner,$apply_lock_message,'caseLockApplication');//imperfect
+					$this->user->sendMessage($responsible_partner,$apply_lock_message,'caseLockApplication');//imperfect
 					showMessage('锁定请求已经发送至本案督办合伙人');
 				}else{
 					showMessage('本案没有督办合伙人，无处发送申请','warning');
@@ -590,7 +590,7 @@ class Cases extends SS_controller{
 		if(!post('cases/fee_lock')){
 			$fields_fee['type']['title']='<input type="submit" name="submit[case_fee_delete]" value="删" />'.$fields_fee['type']['title'];
 		}
-		if(!post('cases/fee_lock') || is_logged('finance')){
+		if(!post('cases/fee_lock') || $this->user->isLogged('finance')){
 			$fields_fee['type']['content']='<input type="checkbox" name="case_fee_check[{id}]" >'.$fields_fee['type']['content'];
 		}
 		$this->load->view_data['case_fee_table']=$this->cases->table->setFields($fields_fee)

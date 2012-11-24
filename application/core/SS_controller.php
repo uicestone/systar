@@ -66,7 +66,7 @@ class SS_Controller extends CI_Controller{
 			require APPPATH.'third_party/client/client.php';
 		}
 
-		if($class!='user' && !is_logged(NULL,true)){
+		if($class!='user' && !$this->user->isLogged(NULL,true)){
 			//对于非用户登录/登出界面，检查权限，弹出未登陆（顺便刷新权限）
 			redirect('user/login','js',NULL,true);
 		}
@@ -280,7 +280,7 @@ class SS_Controller extends CI_Controller{
 		}
 
 		if($set_user){
-			post(CONTROLLER.'/uid',$_SESSION['id']);
+			post(CONTROLLER.'/uid',$this->user->id);
 			post(CONTROLLER.'/username',$_SESSION['username']);
 		}
 
@@ -325,7 +325,7 @@ class SS_Controller extends CI_Controller{
 	function cancel(){
 		unset($_SESSION[CONTROLLER]['post']);
 		
-		db_delete($this->actual_table==''?CONTROLLER:$this->actual_table,"uid='".$_SESSION['id']."' AND display=0");//删除本用户的误添加数据
+		db_delete($this->actual_table==''?CONTROLLER:$this->actual_table,"uid={$this->user->id} AND display=0");//删除本用户的误添加数据
 		
 		if($this->as_popup_window){
 			closeWindow();

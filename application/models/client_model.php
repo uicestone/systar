@@ -260,7 +260,7 @@ class Client_model extends SS_Model{
 						SELECT id FROM `case` WHERE filed=1
 							AND id IN (
 								SELECT `case` FROM case_lawyer 
-								WHERE lawyer='".$_SESSION['id']."' OR uid='".$_SESSION['id']."'
+								WHERE lawyer={$this->user->id} OR uid={$this->user->id}
 							)
 					)
 			)";
@@ -268,7 +268,7 @@ class Client_model extends SS_Model{
 		}elseif($case_id==13){
 			//咨询跟踪
 			$q_option_array.="
-				AND id IN (SELECT client FROM query WHERE display=1 AND filed=0 AND (partner='".$_SESSION['id']."' OR lawyer='".$_SESSION['id']."' OR assistant='".$_SESSION['id']."'))
+				AND id IN (SELECT client FROM query WHERE display=1 AND filed=0 AND (partner={$this->user->id} OR lawyer={$this->user->id} OR assistant={$this->user->id}))
 			";
 		}
 		$q_option_array.=" ORDER BY id DESC";
@@ -321,7 +321,7 @@ class Client_model extends SS_Model{
 		}else{
 			$condition.="
 				AND type='成交客户'
-				AND client.id IN (SELECT client FROM case_client WHERE `case` IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."'))
+				AND client.id IN (SELECT client FROM case_client WHERE `case` IN (SELECT `case` FROM case_lawyer WHERE lawyer={$this->user->id}))
 			";
 		}
 		

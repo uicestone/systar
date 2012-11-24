@@ -54,7 +54,7 @@ class Staff_model extends SS_Model{
 	}
 
 	function getMyManager($field=NULL){
-		$manager=$this->db->query("SELECT * FROM staff WHERE id = (SELECT manager FROM manager_staff WHERE staff = '{$_SESSION['id']}')")->row_array();
+		$manager=$this->db->query("SELECT * FROM staff WHERE id = (SELECT manager FROM manager_staff WHERE staff = '{$this->user->id}')")->row_array();
 		if(is_null($field)){
 			return $manager['id'];
 		}else{

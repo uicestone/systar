@@ -5,27 +5,27 @@
 	<div class="right">
 		<input type="submit" name="submit[cases]" value="保存" />
 
-		<? if($responsible_partner==$_SESSION['id'] && !post('cases/is_reviewed') && !post('cases/is_query')){?>
+		<? if($responsible_partner==$this->user->id && !post('cases/is_reviewed') && !post('cases/is_query')){?>
 		<button type="button" name="submit[review]">立案审核</button>
 		<? }?>
 
-		<? if($responsible_partner!=$_SESSION['id'] && !post('cases/client_lock') && post('cases/is_reviewed')){?>
+		<? if($responsible_partner!=$this->user->id && !post('cases/client_lock') && post('cases/is_reviewed')){?>
 		<input type="submit" name="submit[apply_lock]" value="申请锁定" />
 		<? }?>
 
-		<? if(is_logged('finance') && post('cases/apply_file') && !post('cases/finance_review')){?>
+		<? if($this->user->isLogged('finance') && post('cases/apply_file') && !post('cases/finance_review')){?>
 		<input type="submit" name="submit[review_finance]" value="财务审核" />
 		<? }?>
 
-		<? if(is_logged('admin') && post('cases/apply_file') && !post('cases/info_review')){?>
+		<? if($this->user->isLogged('admin') && post('cases/apply_file') && !post('cases/info_review')){?>
 		<input type="submit" name="submit[review_info]" value="信息审核" />
 		<? }?>
 
-		<? if(is_logged('manager') && post('cases/apply_file') && !post('cases/manager_review')){?>
+		<? if($this->user->isLogged('manager') && post('cases/apply_file') && !post('cases/manager_review')){?>
 		<input type="submit" name="submit[review_manager]" value="主管审核" />
 		<? }?>
 		
-		<? if(is_logged('admin') && post('cases/apply_file') && post('cases/finance_review') && post('cases/info_review') && post('cases/manager_review') && !post('cases/filed')){?>
+		<? if($this->user->isLogged('admin') && post('cases/apply_file') && post('cases/finance_review') && post('cases/info_review') && post('cases/manager_review') && !post('cases/filed')){?>
 		<input type="submit" name="submit[file]" value="实体归档" />
 		<? }?>
 		
@@ -53,10 +53,10 @@
 		<div class="item">
 			<div class="title"><label>客户及相关人：</label>
 				<label id="caseClientAdd"><? if(post('case_client_extra/show_add_form'))echo '-';else echo '+'?></label>
-				<? if($responsible_partner==$_SESSION['id'] && !post('cases/client_lock') && post('cases/is_reviewed')){?>
+				<? if($responsible_partner==$this->user->id && !post('cases/client_lock') && post('cases/is_reviewed')){?>
 				<input type="submit" name="submit[lock_client]" value="锁定" />
 				<? }?>
-				<? if($responsible_partner==$_SESSION['id'] && post('cases/client_lock')){ ?>
+				<? if($responsible_partner==$this->user->id && post('cases/client_lock')){ ?>
 				<input type="submit" name="submit[unlock_client]" value="解锁" />
 				<? } ?>
 			</div>
@@ -160,10 +160,10 @@
 		<div class="item">
 			<div class="title"><label>律师：</label>
 				<label id="caseLawyerAdd"><? if(post('case_lawyer_extra/show_add_form'))echo '-';else echo '+'?></label>
-				<? if($responsible_partner==$_SESSION['id'] && !post('cases/lawyer_lock') && post('cases/is_reviewed')){?>
+				<? if($responsible_partner==$this->user->id && !post('cases/lawyer_lock') && post('cases/is_reviewed')){?>
 				<input type="submit" name="submit[lock_lawyer]" value="锁定" />
 				<? }?>
-				<? if($responsible_partner==$_SESSION['id'] && post('cases/lawyer_lock')){ ?>
+				<? if($responsible_partner==$this->user->id && post('cases/lawyer_lock')){ ?>
 				<input type="submit" name="submit[unlock_lawyer]" value="解锁" />
 				<? } ?>
 			</div>
@@ -197,18 +197,18 @@
 					<input type="submit" name="submit[case_fee_timing]" value="保存" />
 				<? }?></label>
 	
-				<? if($responsible_partner==$_SESSION['id'] && !post('cases/fee_lock') && post('cases/is_reviewed')){?>
+				<? if($responsible_partner==$this->user->id && !post('cases/fee_lock') && post('cases/is_reviewed')){?>
 				<input type="submit" name="submit[lock_fee]" value="锁定" />
 				<? }?>
-				<? if($responsible_partner==$_SESSION['id'] && post('cases/fee_lock')){ ?>
+				<? if($responsible_partner==$this->user->id && post('cases/fee_lock')){ ?>
 				<input type="submit" name="submit[unlock_fee]" value="解锁" />
 				<? } ?>
 				
-				<? if(is_logged('finance')){?>
+				<? if($this->user->isLogged('finance')){?>
 				<button type="button" onclick="showWindow('account/add?case=<?=post('cases/id')?>')">到账</button>
 				<? }?>
 				
-				<? if(is_logged('finance')){?>
+				<? if($this->user->isLogged('finance')){?>
 				<input type="submit" name="submit[case_fee_review]" value="忽略" disabled="disabled" style="display:none" />
 				<? }?>
 			</div>

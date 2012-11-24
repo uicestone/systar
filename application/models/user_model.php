@@ -65,7 +65,7 @@ class User_model extends SS_Model{
 			array('lastip'=>$this->session->userdata('ip_address'),
 				'lastlogin'=>$this->config->item('timestamp')
 			),
-			array('id'=>$_SESSION['id'],'company'=>$this->config->item('company'))
+			array('id'=>$this->id,'company'=>$this->config->item('company'))
 		);
 	}
 	
@@ -86,7 +86,7 @@ class User_model extends SS_Model{
 		$this->session->set_userdata('course', $teacher['course']);
 		$this->session->set_userdata('teacher_group', explode(',',$teacher['group']));
 		
-		if($class=$this->db->query("SELECT id,grade FROM class WHERE class_teacher='{$_SESSION['id']}'")->row_array()){
+		if($class=$this->db->query("SELECT id,grade FROM class WHERE class_teacher={$this->id}")->row_array()){
 			$this->session->set_userdata('manage_class', $class);
 		}
 	}
@@ -208,7 +208,7 @@ class User_model extends SS_Model{
 		if($refresh_permission){
 			$this->preparePermission();
 			if($this->config->item('ucenter')){
-				$this->session->set_userdata('new_messages', uc_pm_checknew($_SESSION['id']));
+				$this->session->set_userdata('new_messages', uc_pm_checknew($this->id));
 			}
 		}
 

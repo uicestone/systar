@@ -34,10 +34,10 @@ class Query_model extends SS_Model{
 			WHERE case.company='{$this->config->item('company')}' AND case.display=1 AND case.is_query=1
 		";
 		
-		if(!is_logged('service')){//客服可以看到所有咨询
+		if(!$this->user->isLogged('service')){//客服可以看到所有咨询
 			$q.="
 				AND case.id IN (
-					SELECT `case` FROM case_lawyer WHERE lawyer='{$_SESSION['id']}'
+					SELECT `case` FROM case_lawyer WHERE lawyer='{$this->user->id}'
 				)
 			";
 		}

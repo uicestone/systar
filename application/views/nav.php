@@ -30,7 +30,7 @@ foreach($_SESSION['permission'] as $controller_name => $controller){
         	($has_sub_menu?'<span class="arrow"><img src="images/arrow_r.png" /></span>':'').
             '<a href="'.$controller_name.'" target="contentFrame" class="controller'.($has_sub_menu?'':' dink').'" hidefocus="true">'.$controller['_affair_name'].'</a>';
 		
-		if(isset($controller['_add_action']) && is_permitted($controller_name,'add')){
+		if(isset($controller['_add_action']) && $this->user->isPermitted($controller_name,'add')){
 			echo '<a href="'.$controller['_add_action'].'" target="'.$controller['_add_target'].'" hidefocus="true"> <span style="font-size:12px;color:#CEDDEC">+</span></a>';
 		}
 		if($has_sub_menu){

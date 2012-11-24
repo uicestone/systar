@@ -44,7 +44,7 @@ class Achievement_model extends SS_Model{
 				//我主办的签约
 				$q.=" 
 					AND `case` IN (
-						SELECT `case` FROM case_lawyer WHERE lawyer='{$_SESSION['id']}' AND role='主办律师'
+						SELECT `case` FROM case_lawyer WHERE lawyer='{$this->user->id}' AND role='主办律师'
 					)
 				";
 			}
@@ -59,7 +59,7 @@ class Achievement_model extends SS_Model{
 						FROM case_fee INNER JOIN case_lawyer USING (`case`)
 						WHERE case_fee.type<>'办案费' 
 							AND `case` IN (SELECT id FROM `case` WHERE is_reviewed=1 AND time_contract>='$date_start' AND time_contract<'$date_end')
-							AND case_lawyer.lawyer='{$_SESSION['id']}'
+							AND case_lawyer.lawyer='{$this->user->id}'
 						GROUP BY case_fee.id
 					)case_fee_contribute";
 				}
@@ -78,7 +78,7 @@ class Achievement_model extends SS_Model{
 				$q.=" AND `case` IN (
 					SELECT `case` 
 					FROM case_lawyer 
-					WHERE lawyer='{$_SESSION['id']}' AND role='主办律师'
+					WHERE lawyer='{$this->user->id}' AND role='主办律师'
 				)";
 			}
 			
@@ -91,7 +91,7 @@ class Achievement_model extends SS_Model{
 						FROM case_fee INNER JOIN case_lawyer USING (`case`)
 						WHERE case_fee.type<>'办案费' 
 							AND case_fee.pay_time>='$time_start' AND case_fee.pay_time<'$time_end'
-							AND case_lawyer.lawyer='{$_SESSION['id']}'
+							AND case_lawyer.lawyer='{$this->user->id}'
 							AND `case` IN (SELECT id FROM `case` WHERE filed=0 AND fee_lock=1
 						) 
 						GROUP BY case_fee.id
@@ -109,7 +109,7 @@ class Achievement_model extends SS_Model{
 			";
 			
 			if($range=='my'){
-				$q.=" AND `case` IN (SELECT `case` FROM case_lawyer WHERE lawyer='{$_SESSION['id']}' AND role='主办律师')";
+				$q.=" AND `case` IN (SELECT `case` FROM case_lawyer WHERE lawyer='{$this->user->id}' AND role='主办律师')";
 			}
 			
 			if($range=='contribute'){
@@ -122,7 +122,7 @@ class Achievement_model extends SS_Model{
 						WHERE account.name <> '办案费'
 							AND time_occur>='$time_start'
 							AND time_occur<'$time_end'
-							AND case_lawyer.lawyer='{$_SESSION['id']}'
+							AND case_lawyer.lawyer='{$this->user->id}'
 						GROUP BY account.id
 					)account_contribute
 				";
@@ -139,7 +139,7 @@ class Achievement_model extends SS_Model{
 			";
 			
 			if($range=='my'){
-				$q.=" AND `case` IN (SELECT `case` FROM case_lawyer WHERE lawyer='{$_SESSION['id']}' AND role='主办律师')";
+				$q.=" AND `case` IN (SELECT `case` FROM case_lawyer WHERE lawyer='{$this->user->id}' AND role='主办律师')";
 			}
 			
 			if($range=='contribute'){
@@ -153,7 +153,7 @@ class Achievement_model extends SS_Model{
 						WHERE account.name <> '办案费'
 							AND time_occur>='$time_start'
 							AND time_occur<'$time_end''
-							AND case_lawyer.lawyer='{$_SESSION['id']}'
+							AND case_lawyer.lawyer='{$this->user->id}'
 							AND case.filed=1
 						GROUP BY account.id
 					)account_contribute";
@@ -178,7 +178,7 @@ class Achievement_model extends SS_Model{
 			
 			//预计-我主办的
 			if($range=='my'){
-				$q.=" AND case_fee.case IN (SELECT `case` FROM case_lawyer WHERE lawyer='{$_SESSION['id']}' AND role='主办律师')";
+				$q.=" AND case_fee.case IN (SELECT `case` FROM case_lawyer WHERE lawyer='{$this->user->id}' AND role='主办律师')";
 			}
 			
 			//预计-我的贡献
@@ -203,7 +203,7 @@ class Achievement_model extends SS_Model{
 					(
 						SELECT `case`,SUM(contribute) AS sum 
 						FROM case_lawyer 
-						WHERE lawyer='{$_SESSION['id']}' 
+						WHERE lawyer='{$this->user->id}' 
 						GROUP BY `case` HAVING sum>0
 					)contribute USING (`case`)
 				";
@@ -245,9 +245,9 @@ class Achievement_model extends SS_Model{
 					AND pay_time<'".($this->config->item('timestamp')+86400*30)."'
 			";
 			
-			if(!is_logged('finance')){
+			if(!$this->user->isLogged('finance')){
 				$q.="	AND case_fee.case IN (
-						SELECT `case` FROM case_lawyer WHERE lawyer='{$_SESSION['id']}'
+						SELECT `case` FROM case_lawyer WHERE lawyer='{$this->user->id}'
 					)
 				";
 			}
@@ -270,9 +270,9 @@ class Achievement_model extends SS_Model{
 					AND FROM_UNIXTIME(pay_time,'%Y-%m-%d')<'".$this->config->item('date')."'
 			";
 			
-			if(!is_logged('finance')){
+			if(!$this->user->isLogged('finance')){
 				$q.="	AND case_fee.case IN (
-						SELECT `case` FROM case_lawyer WHERE lawyer='{$_SESSION['id']}'
+						SELECT `case` FROM case_lawyer WHERE lawyer='{$this->user->id}'
 					)
 				";
 			}
@@ -317,7 +317,7 @@ class Achievement_model extends SS_Model{
 			INNER JOIN case_lawyer ON case_fee_collected.case=case_lawyer.case
 			INNER JOIN case_num ON case_fee_collected.case=case_num.case
 			INNER JOIN `case` ON case_fee_collected.case=case.id
-		WHERE case_lawyer.lawyer='".$_SESSION['id']."'
+		WHERE case_lawyer.lawyer={$this->user->id}
 			AND client.classification='客户'
 			AND case_lawyer.role NOT IN ('督办合伙人','律师助理')
 		";
@@ -371,9 +371,9 @@ class Achievement_model extends SS_Model{
 			AND FROM_UNIXTIME(pay_time,'%Y-%m-%d')>='".$this->config->item('date')."'
 		";
 		
-		if(!is_logged('finance')){
+		if(!$this->user->isLogged('finance')){
 			$q.="	AND case_fee.case IN (
-					SELECT `case` FROM case_lawyer WHERE lawyer='{$_SESSION['id']}'
+					SELECT `case` FROM case_lawyer WHERE lawyer='{$this->user->id}'
 				)
 			";
 		}
@@ -426,10 +426,10 @@ class Achievement_model extends SS_Model{
 			AND case.filed=0
 		";
 		
-		if(!is_logged('finance')){
+		if(!$this->user->isLogged('finance')){
 			$q.="
 				AND case_fee.case IN (
-					SELECT `case` FROM case_lawyer WHERE lawyer='{$_SESSION['id']}'
+					SELECT `case` FROM case_lawyer WHERE lawyer='{$this->user->id}'
 				)
 			";
 		}
@@ -453,7 +453,7 @@ class Achievement_model extends SS_Model{
 		  $q_cases_to_distribute=$this->dateRange($q_cases_to_distribute,'account.time_occur');
 		}
 		
-		if(is_logged('finance') && $this->input->post('distribute')){
+		if($this->user->isLogged('finance') && $this->input->post('distribute')){
 		  $this->db->update('account',array('distributed_'.$contribute_type=>1),"`case` IN (".$q_cases_to_distribute.")");
 		}
 

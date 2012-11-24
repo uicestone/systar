@@ -6,14 +6,14 @@ class Student extends SS_controller{
 	
 	function lists(){
 		//如果以家长或学生身份登陆，显示的是编辑查看页面，而非列表页面
-		if(is_logged('parent') || is_logged('student')){
+		if($this->user->isLogged('parent') || $this->user->isLogged('student')){
 
 			$this->as_controller_default_page=true;
 			
-			if(is_logged('student')){
-				post('student/id',$_SESSION['id']);
+			if($this->user->isLogged('student')){
+				post('student/id',$this->user->id);
 	
-			}elseif(is_logged('parent')){
+			}elseif($this->user->isLogged('parent')){
 				post('student/id',$_SESSION['child']);
 	
 			}
@@ -35,7 +35,7 @@ class Student extends SS_controller{
 			'student_num.class'=>array('title'=>'班级','content'=>'{class_name}')
 		);
 
-		if(is_logged('health')){
+		if($this->user->isLogged('health')){
 			$field+=array(
 				'id_card'=>array('title'=>'身份证'),
 				'mobile'=>array('title'=>'手机'),
@@ -45,7 +45,7 @@ class Student extends SS_controller{
 			);
 		}
 		
-		if(is_logged('jiaowu')){
+		if($this->user->isLogged('jiaowu')){
 			$field['student_num.class']['td']='class="editable"';
 		}
 		
@@ -103,7 +103,6 @@ class Student extends SS_controller{
 			}
 			
 			if((is_posted('submit/student_comment') || is_posted('submit/student')) && 
-				is_permitted('student','interactive') && 
 				(post('student_comment/title')!='' || post('student_comment/content')!='')
 			){
 		
@@ -127,7 +126,7 @@ class Student extends SS_controller{
 				unset($_SESSION[CONTROLLER]['post']['student']['birthday']);
 			}
 			
-			if(is_logged('student') && is_posted('submit/student')){
+			if($this->user->isLogged('student') && is_posted('submit/student')){
 				$form_check=array(
 					'birthday'=>'生日',
 					'id_card'=>'身份证号',
@@ -150,7 +149,7 @@ class Student extends SS_controller{
 				}
 			}
 			
-			if(is_logged('student') && db_fetch_field("SELECT COUNT(id) FROM student_relatives WHERE student = '".$_SESSION['id']."'")<2){
+			if($this->user->isLogged('student') && db_fetch_field("SELECT COUNT(id) FROM student_relatives WHERE student = {$this->user->id}")<2){
 				showMessage('请至少输入两位亲属，每输入一行需要点击“添加”按钮');
 				$submitable=false;
 			}
@@ -400,8 +399,8 @@ class Student extends SS_controller{
 				$submitable=false;
 			}
 			
-			if(is_logged('parent')){
-				$student_id=$this->student->getIdByParentUid($_SESSION['id']);
+			if($this->user->isLogged('parent')){
+				$student_id=$this->student->getIdByParentUid($this->user->id);
 			}else{
 				$student_id=$this->student->getIdByParentUid(post('student_comment/reply_to'));
 			}
@@ -429,9 +428,9 @@ class Student extends SS_controller{
 	
 	function viewScore(){
 		//TODO 图与表的sql请求合一
-		if(is_logged('student')){
-			$student=$_SESSION['id'];
-		}elseif(is_logged('parent')){
+		if($this->user->isLogged('student')){
+			$student=$this->user->id;
+		}elseif($this->user->isLogged('parent')){
 			$student=$_SESSION['child'];
 		}else{
 			$student=intval($this->input->get('student'));

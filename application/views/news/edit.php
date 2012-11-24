@@ -9,7 +9,7 @@ $(document).ready(function(){
 <form method="post">
 <div class="contentTableMenu">
     <div class="right">
-        <? if(post('news/uid')==$_SESSION['id']){?>
+        <? if(post('news/uid')==$this->user->id){?>
         <input type="submit" name="submit[news]" value="保存" />
         <? }?>
         <input type="submit" name="submit[cancel]" value="关闭" />
@@ -24,7 +24,7 @@ $(document).ready(function(){
 
 		<div class="item">
 			<div class="title"><label>内容：</label></div>
-	<? if(post('news/uid')==$_SESSION['id']){?>
+	<? if(post('news/uid')==$this->user->id){?>
 			<textarea name="news[content]" rows="10"><?=post('news/content'); ?></textarea>
 	<? }else{?>
 			<div class="content"><?=post('news/content'); ?></div>
@@ -32,7 +32,7 @@ $(document).ready(function(){
 		</div>
 
 		<div class="submit">
-	<? if(post('news/uid')==$_SESSION['id']){?>
+	<? if(post('news/uid')==$this->user->id){?>
 			<input type="submit" name="submit[news]" value="保存" />
 	<? }?>
 			<input type="submit" name="submit[cancel]" value="关闭" />

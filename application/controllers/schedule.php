@@ -51,7 +51,7 @@ class Schedule extends SS_controller{
 	function lists($method=NULL){
 		$this->session->set_userdata('last_list_action',$this->input->server('REQUEST_URI'));
 
-		if($this->input->post('review_selected') && is_logged('partner')){
+		if($this->input->post('review_selected') && $this->user->isLogged('partner')){
 			//在列表中批量审核所选日志
 			$this->schedule->review($this->input->post('schedule_check'));
 		}
@@ -71,7 +71,7 @@ class Schedule extends SS_controller{
 			",'orderby'=>false),
 		
 			'schedule_experience'=>array('title'=>'心得','eval'=>true,'content'=>"
-				return ({review_permission}||\$_SESSION['id']=='{staff}')?'<div title=\"{experience}\">'.str_getSummary('{experience}').'&nbsp;'.'</div>':'-';
+				return ({review_permission}||\$this->user->id=='{staff}')?'<div title=\"{experience}\">'.str_getSummary('{experience}').'&nbsp;'.'</div>':'-';
 			",'orderby'=>false),
 		
 			'time_start'=>array('title'=>'时间','td_title'=>'width="60px"','eval'=>true,'content'=>"
@@ -90,7 +90,7 @@ class Schedule extends SS_controller{
 				if({review_permission}){
 					return '<textarea name=\"schedule_list_comment[{id}]\" style=\"width:95%;height:70%\">{comment}</textarea>';
 				}else{
-					if(\$_SESSION['id']=='{staff}'){
+					if(\$this->user->id=='{staff}'){
 						return '<div title=\"{comment}\">'.str_getSummary('{comment}').'&nbsp;'.'</div>';
 					}else{
 						return '-';
@@ -152,7 +152,7 @@ class Schedule extends SS_controller{
 			$this->load->sidebar_loaded=true;
 		
 		}else{
-			$tableView=$this->table->setMenu((is_logged('partner')?'<input type="submit" name="review_selected" value="审核" />':'').'<input type="submit" name="export" value="导出" />','left')
+			$tableView=$this->table->setMenu(($this->user->isLogged('partner')?'<input type="submit" name="review_selected" value="审核" />':'').'<input type="submit" name="export" value="导出" />','left')
 					->wrapForm()
 					->generate();
 			$this->load->addViewData('list',$tableView);
@@ -296,7 +296,7 @@ class Schedule extends SS_controller{
 				
 				echo $schedule_list_comment_return['comment'];
 				
-				sendMessage($schedule_list_comment_return['uid'],
+				$this->user->sendMessage($schedule_list_comment_return['uid'],
 		
 				$schedule_list_comment_return['comment'].'（日志：'.$schedule_list_comment_return['name'].'收到的点评）',
 				'你的日志："'.$schedule_list_comment_return['name'].'"收到点评');
@@ -422,7 +422,7 @@ class Schedule extends SS_controller{
 	
 	function taskBoard()
 	{
-		$id = $_SESSION['id'];
+		$id = $this->user->id;
 		$sort_data = $this -> schedule -> getTaskBoardSort($id);
 		$task_board = array();
 		
@@ -472,7 +472,7 @@ class Schedule extends SS_controller{
 		}
 		//echo print_r($sort_data)."<br/>";
 		
-		$this -> schedule -> setTaskBoardSort(json_encode($sort_data) , $_SESSION['id']);
+		$this -> schedule -> setTaskBoardSort(json_encode($sort_data) , $this->user->id);
 		//echo json_encode($sort_data)."<br/>";
 		$this -> load -> require_head = false;
 		echo "success";
@@ -481,7 +481,7 @@ class Schedule extends SS_controller{
 	function addToTaskBoard($task_id , $uid=NULL , $series=NULL)
 	{	
 		if(is_null($uid)){
-			$uid=$_SESSION['id'];
+			$uid=$this->user->id;
 		}
 		//单个任务
 		$task = "task_".$task_id;
@@ -527,7 +527,7 @@ class Schedule extends SS_controller{
 	{
 		if(is_null($uid))
 		{
-			$uid=$_SESSION['id'];
+			$uid=$this->user->id;
 		}
 		//要删除的任务
 		$task = "task_".$task_id;

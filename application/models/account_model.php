@@ -22,8 +22,8 @@ class Account_model extends SS_Model{
 			WHERE amount<>0
 		";
 		
-		if(!is_logged('finance')){
-			$query.=" AND account.case IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role='主办律师')";
+		if(!$this->user->isLogged('finance')){
+			$query.=" AND account.case IN (SELECT `case` FROM case_lawyer WHERE lawyer={$this->user->id} AND role='主办律师')";
 		}
 		
 		$query=$this->search($query,array('client.name'=>'客户','account.name'=>'名目','account.amount'=>'金额'));

@@ -5,12 +5,12 @@ class user extends SS_controller{
 	}
 	
 	function logout(){
-		session_logout();
+		$this->user->sessionLogout();
 		redirect('');
 	}
 	
 	function login(){
-		if(is_logged()){
+		if($this->user->isLogged()){
 			//用户已登陆，则不显示登录界面
 			redirect('');
 		}
@@ -25,7 +25,7 @@ class user extends SS_controller{
 					showMessage('Ucenter Error','warning');
 		
 				}elseif($ucenter_user[0]>0){
-					if(session_login($ucenter_user[0])){
+					if($this->sessionLogin($ucenter_user[0])){
 						$this->user->updateLoginTime();
 						echo uc_user_synlogin($ucenter_user[0]);
 						redirect('','js');
@@ -37,13 +37,13 @@ class user extends SS_controller{
 		
 				if($user=$this->user->verify($this->input->post('username'),$this->input->post('password'))){
 			
-					$_SESSION['id']=$user['id'];
-					$_SESSION['usergroup']=explode(',',$user['group']);
-					$_SESSION['username']=$user['username'];
+					$this->session->set_userdata('user/id', $user['id']);
+					$this->session->set_userdata('user/group', explode(',',$user['group']));
+					$this->session->set_userdata('user/group', explode(',',$user['name']));
 					
-					foreach($_SESSION['usergroup'] as $group){
+					foreach($user['group'] as $group){
 						if(method_exists($this->user,$group.'_set_session')){
-							call_user_func(array($this->user,$group.'_set_session'),$_SESSION['id']);
+							call_user_func(array($this->user,$group.'_set_session'),$this->user->id);
 						}
 					}
 					
@@ -67,7 +67,7 @@ class user extends SS_controller{
 	}
 
 	function profile(){
-		$q_user="SELECT * FROM user WHERE id = '".$_SESSION['id']."'";
+		$q_user="SELECT * FROM user WHERE id = {$this->user->id}";
 		$r_user=db_query($q_user);
 		post('user',db_fetch_array($r_user));
 		
@@ -92,7 +92,7 @@ class user extends SS_controller{
 					}
 				}
 				
-				if($this->user->edit($_SESSION['id'],post('user/password_new'),post('user/username'))){
+				if($this->user->edit($this->user->id,post('user/password_new'),post('user/username'))){
 					if(post('user/password_new')){
 						post('user/password',post('user/password_new'));
 					}

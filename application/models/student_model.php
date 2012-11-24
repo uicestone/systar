@@ -52,8 +52,8 @@ class Student_model extends SS_Model{
 			)relatives
 			ON relatives.student=student.id
 		WHERE student.display=1
-			AND (class.id=(SELECT id FROM class WHERE class_teacher='".$_SESSION['id']."')
-				OR '".(is_logged('jiaowu') || is_logged('zhengjiao') || is_logged('health'))."'='1')
+			AND (class.id=(SELECT id FROM class WHERE class_teacher={$this->user->id})
+				OR '".($this->user->isLogged('jiaowu') || $this->user->isLogged('zhengjiao') || $this->user->isLogged('health'))."'='1')
 		";
 		//班主任可以看到自己班级的学生，教务和政教可以看到其他班级的学生
 		
@@ -106,7 +106,7 @@ class Student_model extends SS_Model{
 			SELECT student_comment.title,student_comment.content,
 				FROM_UNIXTIME(time,'%Y-%m-%d') AS time,IF(staff.name IS NULL,student_comment.username,staff.name) AS username 
 			FROM student_comment LEFT JOIN staff ON staff.id=student_comment.uid 
-			WHERE student = '{$student_id}' AND (reply_to IS NULL OR reply_to = '{$_SESSION['id']}' OR uid = '{$_SESSION['id']}')
+			WHERE student = '{$student_id}' AND (reply_to IS NULL OR reply_to = '{$this->user->id}' OR uid = '{$this->user->id}')
 			ORDER BY student_comment.time DESC
 			LIMIT 5
 		";
@@ -124,8 +124,8 @@ class Student_model extends SS_Model{
 				FROM_UNIXTIME(student_comment.time,'%Y-%m-%d') AS date,student_comment.username,student_comment.student,
 				view_student.name AS student_name
 			FROM student_comment INNER JOIN view_student ON student_comment.student=view_student.id
-			WHERE student_comment.reply_to='{$_SESSION['id']}' 
-				OR student_comment.uid='{$_SESSION['id']}' 
+			WHERE student_comment.reply_to='{$this->user->id}' 
+				OR student_comment.uid='{$this->user->id}' 
 				OR (
 					'".isset($_SESSION['manage_class'])."' 
 					AND view_student.class='{$_SESSION['manage_class']['id']}'

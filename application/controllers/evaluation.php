@@ -65,7 +65,7 @@ class Evaluation extends SS_controller{
 			INNER JOIN evaluation_indicator ON evaluation_indicator.id=evaluation_score.indicator AND evaluation_score.quarter='".$this->config->item('quarter')."'
 			INNER JOIN staff ON staff.id=evaluation_score.uid
 			INNER JOIN position ON evaluation_indicator.critic=position.id
-		WHERE comment IS NOT NULL AND staff='".$_SESSION['id']."'
+		WHERE comment IS NOT NULL AND staff={$this->user->id}
 		";
 		
 		$this->processOrderby($q,'evaluation_score.time','DESC');
@@ -171,7 +171,7 @@ class Evaluation extends SS_controller{
 			LEFT JOIN evaluation_score ON (
 				evaluation_indicator.id=evaluation_score.indicator 
 				AND staff='".$staff."' 
-				AND uid='".$_SESSION['id']."'
+				AND uid={$this->user->id}
 			)
 		WHERE critic='".$_SESSION['position']."'
 			AND position='".$position."'

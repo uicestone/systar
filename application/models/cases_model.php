@@ -16,8 +16,8 @@ class Cases_model extends SS_Model{
 			SELECT * 
 			FROM `case` 
 			WHERE id='{$id}' AND company='{$this->config->item('company')}'
-				AND ( '".(is_logged('manager') || is_logged('finance') || is_logged('admin'))."'=1 OR uid='".$_SESSION['id']."' OR id IN (
-					SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."'
+				AND ( '".($this->user->isLogged('manager') || $this->user->isLogged('finance') || $this->user->isLogged('admin'))."'=1 OR uid={$this->user->id} OR id IN (
+					SELECT `case` FROM case_lawyer WHERE lawyer={$this->user->id}
 				))
 		";
 		$row=$this->db->query($query)->row_array();
@@ -214,7 +214,7 @@ class Cases_model extends SS_Model{
 	function reviewMessage($reviewWord,$lawyers){
 		$message='案件[url=http://sys.lawyerstars.com/cases/edit/'.post('cases/id').']'.strip_tags(post('cases/name')).'[/url]'.$reviewWord.'，"'.post('review_message').'"';
 		foreach($lawyers as $lawyer){
-			sendMessage($lawyer,$message);
+			$this->user->sendMessage($lawyer,$message);
 		}
 	}
 	
@@ -255,7 +255,7 @@ class Cases_model extends SS_Model{
 		$q_option_array="SELECT id,name FROM `case` WHERE display=1";
 		
 		if($schedule_type==0){
-			$q_option_array.=" AND ((id>=20 AND filed=0 AND (id IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."') OR uid = '".$_SESSION['id']."')) OR id=10)";
+			$q_option_array.=" AND ((id>=20 AND filed=0 AND (id IN (SELECT `case` FROM case_lawyer WHERE lawyer={$this->user->id}) OR uid = {$this->user->id})) OR id=10)";
 		
 		}elseif($schedule_type==1){
 			$q_option_array.=" AND id<10 AND id>0";
@@ -455,7 +455,7 @@ class Cases_model extends SS_Model{
 		}
 		$my_role=array();
 		foreach($case_role as $lawyer_role){
-			if($lawyer_role['lawyer']==$_SESSION['id']){
+			if($lawyer_role['lawyer']==$this->user->id){
 				$my_role[]=$lawyer_role['role'];
 			}
 		}
@@ -806,19 +806,19 @@ class Cases_model extends SS_Model{
 		$condition='';
 		
 		if($method=='host'){
-			$condition.="AND case.apply_file=0 AND case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role='主办律师')";
+			$condition.="AND case.apply_file=0 AND case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer={$this->user->id} AND role='主办律师')";
 		
 		}elseif($method=='consultant'){
-			$condition.="AND case.apply_file=0 AND classification='法律顾问' AND (case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."') OR case.uid='".$_SESSION['id']."')";
+			$condition.="AND case.apply_file=0 AND classification='法律顾问' AND (case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer={$this->user->id}) OR case.uid={$this->user->id})";
 		
 		}elseif($method=='etc'){
-			$condition.="AND case.apply_file=0 AND classification<>'法律顾问' AND (case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role<>'主办律师') OR case.uid='".$_SESSION['id']."')";
+			$condition.="AND case.apply_file=0 AND classification<>'法律顾问' AND (case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer={$this->user->id} AND role<>'主办律师') OR case.uid={$this->user->id})";
 			
 		}elseif($method=='file'){
-			$condition.="AND case.apply_file=1 AND classification<>'法律顾问' AND (case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role<>'主办律师') OR case.uid='".$_SESSION['id']."')";
+			$condition.="AND case.apply_file=1 AND classification<>'法律顾问' AND (case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer={$this->user->id} AND role<>'主办律师') OR case.uid={$this->user->id})";
 			
-		}elseif(!is_logged('developer') && !is_logged('finance')){
-			$condition.="AND (case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer='".$_SESSION['id']."' AND role IN ('接洽律师','接洽律师（次要）','主办律师','协办律师','律师助理','督办合伙人')) OR case.uid='".$_SESSION['id']."')";
+		}elseif(!$this->user->isLogged('developer') && !$this->user->isLogged('finance')){
+			$condition.="AND (case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer={$this->user->id} AND role IN ('接洽律师','接洽律师（次要）','主办律师','协办律师','律师助理','督办合伙人')) OR case.uid={$this->user->id})";
 		}
 		$condition=$this->search($condition, array('case.num'=>'案号','case.type'=>'类别','case.name'=>'名称','lawyers.lawyers'=>'主办律师'));
 		$condition=$this->orderBy($condition,'time_contract','DESC',array('case.name','lawyers'));
