@@ -15,7 +15,7 @@ class Score_model extends SS_Model{
 				option('grade',$manage_class['grade']);
 			}else{
 				//默认显示的年级
-				option('grade',$_SESSION['global']['highest_grade']);
+				option('grade',$this->school->highest_grade);
 			}
 		}
 

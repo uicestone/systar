@@ -15,8 +15,8 @@
 		var affair='<? echo array_dir('_SESSION/permission/'.CONTROLLER.'/_affair_name')?>';
 		var action='<? echo $this->uri->segment(2)?>';
 		var username='<? echo array_dir('_SESSION/username')?>';
-		var sysname='<? echo $this->config->item('sysname')?>';
+		var sysname='<? echo $this->config->item('company/sysname')?>';
 	</script>
 	<? javascript('contentframe')?>
 </head>
-<body id="content" style="background-image:url('/images/bg_<? echo $this->config->item('syscode')?>.gif') ">
+<body id="content" style="background-image:url('/images/bg_<? echo $this->config->item('company/syscode')?>.gif') ">

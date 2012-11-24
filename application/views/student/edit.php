@@ -32,7 +32,7 @@
 		<div class="item">
 			<div class="title"><label>班级-学号：</label></div>
 			<select name="student_class[class]"<? if(!$this->user->isLogged('jiaowu'))echo' disabled="disabled"'?> style="width:20%">
-			<? displayOption(NULL,post('student_class/class'),true,'class','grade','name',"grade>='".$_SESSION['global']['highest_grade']."'")?>
+			<? displayOption(NULL,post('student_class/class'),true,'class','grade','name',"grade>='".$this->school->highest_grade."'")?>
 			</select>
 			<input type="text" name="student_class[num_in_class]" title="班中学号" value="<?=post('student_class/num_in_class')?>" placeholder="班中学号"<? if(!$this->user->isLogged('jiaowu'))echo' disabled="disabled"'?> style="width:20%" />
 			<span class="field">班主任：<?=post('student_extra/class_teacher_name') ?></span>

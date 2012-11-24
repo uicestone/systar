@@ -12,12 +12,12 @@ class user extends SS_controller{
 	function login(){
 		if($this->user->isLogged()){
 			//用户已登陆，则不显示登录界面
-			redirect('');
+			redirect('','js',NULL,true);
 		}
 		
-		if(is_posted('submit/login')){
+		if($this->input->post('submit/login')){
 			
-			if($this->config->item('ucenter')){
+			if($this->config->item('company/ucenter')){
 		
 				$ucenter_user=uc_user_login($this->input->post('username'),$this->input->post('password'));//ucenter验证密码
 				
@@ -38,19 +38,19 @@ class user extends SS_controller{
 				if($user=$this->user->verify($this->input->post('username'),$this->input->post('password'))){
 			
 					$this->session->set_userdata('user/id', $user['id']);
-					$this->session->set_userdata('user/group', explode(',',$user['group']));
-					$this->session->set_userdata('user/group', explode(',',$user['name']));
+					$this->session->set_userdata('user/name', $user['name']);
+					
+					$user['group']=explode(',',$user['group']);
+					$this->session->set_userdata('user/group', $user['group']);
 					
 					foreach($user['group'] as $group){
-						if(method_exists($this->user,$group.'_set_session')){
+						$company_type=$this->config->item('company/type');
+						if($this->company_type_model_loaded && method_exists($this->$company_type,$group.'_setSession')){
 							call_user_func(array($this->user,$group.'_set_session'),$this->user->id);
 						}
 					}
 					
 					$this->user->updateLoginTime();
-					if(method_exists($this->company,$this->config->item('company_type').'_init')){
-						call_user_func(array($this->company,$this->config->item('company_type').'_init'));
-					}
 			
 					if(!isset($user['password'])){
 						redirect('user/profile');
@@ -79,7 +79,7 @@ class user extends SS_controller{
 			
 			$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$_POST);
 			
-			if($this->config->item('ucenter')){
+			if($this->config->item('company/ucenter')){
 				if(uc_user_edit($_SESSION['username'],post('user_extra/password'),post('user/password_new'),NULL)>0){
 					redirect('','js',NULL,true);
 				}

@@ -8,7 +8,7 @@ class Classes_model extends SS_Model{
 		$query="
 			SELECT * 
 			FROM class 
-			WHERE id='{$id}' AND company='{$this->config->item('company')}'";
+			WHERE id='{$id}' AND company='{$this->config->item('company/id')}'";
 		return $this->db->query($query)->row_array();
 	}
 	
@@ -19,7 +19,7 @@ class Classes_model extends SS_Model{
 			FROM class INNER JOIN grade ON class.grade = grade.id
 				LEFT JOIN course ON course.id = class.extra_course
 				LEFT JOIN staff ON staff.id = class.class_teacher
-			WHERE grade>='".$_SESSION['global']['highest_grade']."'
+			WHERE grade>='".$this->school->highest_grade."'
 		";
 		
 		$q=$this->addCondition($q,array('grade'=>'class.grade'));
@@ -79,7 +79,7 @@ class Classes_model extends SS_Model{
 			WHERE id = (
 				SELECT class FROM student_class 
 				WHERE student = '{$student_id}'
-					AND term='{$_SESSION['global']['current_term']}'
+					AND term='{$this->school->current_term}'
 			)
 		")->row_array();
 	}
@@ -106,7 +106,7 @@ class Classes_model extends SS_Model{
 		$query="
 			SELECT student.name,student_class.position 
 			FROM student INNER JOIN student_class 
-				ON (student.id=student_class.student AND student_class.term='".$_SESSION['global']['current_term']."')
+				ON (student.id=student_class.student AND student_class.term='".$this->school->current_term."')
 			WHERE student_class.class='{$team_id}'
 				AND student_class.position IS NOT NULL
 		";

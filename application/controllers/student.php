@@ -155,11 +155,11 @@ class Student extends SS_controller{
 			}
 			
 			if(empty($student_class)){
-				if(!db_insert('student_class',array('student'=>post('student/id'),'class'=>post('student_class/class'),'num_in_class'=>post('student_class/num_in_class'),'term'=>$_SESSION['global']['current_term']))){
+				if(!db_insert('student_class',array('student'=>post('student/id'),'class'=>post('student_class/class'),'num_in_class'=>post('student_class/num_in_class'),'term'=>$this->school->current_term))){
 					$submitable=false;
 				}
 			}else{
-				if(!$this->db->update('student_class',post('student_class'),array('student'=>post('student/id'),'term'=>$_SESSION['global']['current_term']))){
+				if(!$this->db->update('student_class',post('student_class'),array('student'=>post('student/id'),'term'=>$this->school->current_term))){
 					$submitable=false;
 				}
 			}

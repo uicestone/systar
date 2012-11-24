@@ -8,7 +8,7 @@ class Student_model extends SS_Model{
 		$query="
 			SELECT * 
 			FROM student 
-			WHERE id='{$id}' AND company='{$this->config->item('company')}'";
+			WHERE id='{$id}' AND company='{$this->config->item('company/id')}'";
 		return $this->db->query($query)->row_array();
 	}
 	
@@ -20,9 +20,9 @@ class Student_model extends SS_Model{
 				staff.name AS class_teacher_name
 			FROM student_class
 				INNER JOIN class ON student_class.class=class.id
-				LEFT JOIN staff ON class.class_teacher=staff.id AND staff.company='".$this->config->item('company')."'
+				LEFT JOIN staff ON class.class_teacher=staff.id AND staff.company='".$this->config->item('company/id')."'
 			WHERE student='{$student_id}' 
-				AND term='".$_SESSION['global']['current_term']."'
+				AND term='".$this->school->current_term."'
 		";
 		
 		return $this->db->query($q_student_class)->row_array();
@@ -41,7 +41,7 @@ class Student_model extends SS_Model{
 				SELECT student,class,
 					right((1000000 + concat(student_class.class,right((100 + student_class.num_in_class),2))),6) AS num
 				FROM student_class
-				WHERE student_class.term = '".$_SESSION['global']['current_term']."'
+				WHERE student_class.term = '".$this->school->current_term."'
 			)student_num ON student_num.student=student.id
 			INNER JOIN class ON class.id=student_num.class
 			LEFT JOIN (
@@ -82,7 +82,7 @@ class Student_model extends SS_Model{
 				id,name,relationship,work_for,contact
 			FROM 
 				student_relatives
-			WHERE company='".$this->config->item('company')."'
+			WHERE company='".$this->config->item('company/id')."'
 				AND `student`='{$student_id}'
 		";
 		
@@ -153,7 +153,7 @@ class Student_model extends SS_Model{
 				INNER JOIN class ON student_class.class = class.id
 				INNER JOIN grade ON grade.id = class.grade
 			WHERE
-				student_class.term = '".$_SESSION['global']['current_term']."'
+				student_class.term = '".$this->school->current_term."'
 			ORDER BY num
 		");
 		db_query("ALTER TABLE  `view_student` ADD PRIMARY KEY (  `id` )");
@@ -168,9 +168,9 @@ class Student_model extends SS_Model{
 	
 	function changeClass($student_id,$old_class_id,$new_class_id){
 		if($old_class_id!=$new_class_id){
-			$new_num_in_class=db_fetch_field("SELECT MAX(num_in_class)+1 FROM student_class WHERE class='".$new_class_id."' AND term='".$_SESSION['global']['current_term']."'");
+			$new_num_in_class=db_fetch_field("SELECT MAX(num_in_class)+1 FROM student_class WHERE class='".$new_class_id."' AND term='".$this->school->current_term."'");
 			
-			$this->db->update('student_class',array('num_in_class'=>$new_num_in_class,'class'=>$new_class_id),"student = '".$student_id."' AND class = '".$old_class_id."' AND term = '".$_SESSION['global']['current_term']."'");
+			$this->db->update('student_class',array('num_in_class'=>$new_num_in_class,'class'=>$new_class_id),"student = '".$student_id."' AND class = '".$old_class_id."' AND term = '".$this->school->current_term."'");
 			$new_student_num=$new_class_id.substr($new_num_in_class+100,-2);
 			
 			student_update($student_id);

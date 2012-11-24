@@ -8,7 +8,7 @@ class Account_model extends SS_Model{
 		$query="
 			SELECT * 
 			FROM account 
-			WHERE id='{$id}' AND company='{$this->config->item('company')}'
+			WHERE id='{$id}' AND company='{$this->config->item('company/id')}'
 ";
 		return $this->db->query($query)->row_array();
 	}

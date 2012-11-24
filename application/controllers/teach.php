@@ -14,11 +14,11 @@ class Teach extends SS_controller{
 				teach.term AS term 
 			FROM teach,staff,class,course 
 			WHERE
-				staff.company='".$this->config->item('company')."'
+				staff.company='".$this->config->item('company/id')."'
 				AND staff.id = teach.teacher 
 				AND class.id = teach.class 
 				AND course.id = staff.course 
-				AND class.grade >=".$_SESSION['global']['highest_grade'];
+				AND class.grade >=".$this->school->highest_grade;
 		
 		addCondition($q,array('class'=>'class.id','grade'=>'class.grade','term'=>'teach.term'));
 		

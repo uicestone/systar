@@ -10,7 +10,7 @@ class Staff extends SS_controller{
 		if($this->input->post('grade')){
 			option('grade',$this->input->post('grade'));
 		}
-		if($this->config->item('company_type')=='school'){
+		if($this->config->item('company/type')=='school'){
 			$field=array(
 				'id'=>array('title'=>'姓名','content'=>'{name}'),
 				'course_name'=>array('title'=>'学科'),

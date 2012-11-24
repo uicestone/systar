@@ -2,7 +2,7 @@
 <? if(!$this->as_popup_window && $this->user->isLogged()){?>
 	<div id="topMenu">
 		<a href="/user/profile"><? echo array_dir('_SESSION/username');?></a>
-		<?if($this->config->item('ucenter')){?>
+		<?if($this->config->item('company/ucenter')){?>
 		<a href="http://www.lawyerstars.com/home.php?mod=space&do=pm" target="_blank"><img src="/images/message.png" />
 		<?}?>
 		<?if(array_dir('_SESSION/new_messages')>0){?>
@@ -10,7 +10,7 @@
 		<?}?>
 		</a>
 		<a href="/user/logout" target="_top">退出</a>
-		<?if($this->config->item('ucenter')){ ?>
+		<?if($this->config->item('company/ucenter')){ ?>
 		<a href="javascript:showWindow('schedule/add?case=598')" style="font-size:10px;color:#DDD;">反馈</a>
 		<?}?>
 	</div>

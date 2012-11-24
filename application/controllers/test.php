@@ -6,10 +6,11 @@ class Test extends SS_controller{
 	}
 	
 	function index(){
-		$this->load->library('session');
-		print_r($this->session->all_userdata());
-		//print_r($_SESSION);
 		//$this->load->view('test');
+		//$this->session->sess_destroy();
+		//session_destroy();
+		print_r($this->session->all_userdata());
+		print_r($_SESSION);
 	}
 }
 

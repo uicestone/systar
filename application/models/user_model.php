@@ -1,10 +1,25 @@
 <?php
 class User_model extends SS_Model{
+	
+	var $id;
+	var $name;
+	var $group;
+	var $permission;
+	
+	var $child;
+	var $manage_class;
+	var $teacher_group;
+	var $course;
+	var $class;
+	var $class_name;
+	var $grade;
+	var $grade_name;
+	
 	function __construct(){
 		parent::__construct();
 		$session=$this->session->all_userdata();
 		foreach($session as $key => $value){
-			if(preg_match('/^user\/(.*?)/', $key,$matches)){
+			if(preg_match('/^user\/(.*?)$/', $key,$matches)){
 				$this->$matches[1]=$value;
 			}
 		}
@@ -12,11 +27,11 @@ class User_model extends SS_Model{
 	
 	function verify($username,$password){
 		$q_user="
-			SELECT id,username,password,`group`,lastip,lastlogin,company
+			SELECT id,name,password,`group`,lastip,lastlogin,company
 			FROM user 
-			WHERE (username = '{$this->input->post('username')}' OR alias='{$this->input->post('username')}')
+			WHERE (name = '{$this->input->post('username')}' OR alias='{$this->input->post('username')}')
 				AND (password = '{$this->input->post('password')}' OR password IS NULL)
-				AND company={$this->config->item('company')}
+				AND company={$this->config->item('company/id')}
 			";
 		
 		$user=$this->db->query($q_user)->row_array();
@@ -39,7 +54,7 @@ class User_model extends SS_Model{
 			return -3;
 		}
 	
-		$query="SELECT * FROM `user` WHERE company={$this->config->item('company')} AND `username` = '{$username}'";
+		$query="SELECT * FROM `user` WHERE company={$this->config->item('company/id')} AND `username` = '{$username}'";
 		$result=$this->db->query($query);
 		$num_lawyers=$result->num_rows();
 	
@@ -65,7 +80,7 @@ class User_model extends SS_Model{
 			array('lastip'=>$this->session->userdata('ip_address'),
 				'lastlogin'=>$this->config->item('timestamp')
 			),
-			array('id'=>$this->id,'company'=>$this->config->item('company'))
+			array('id'=>$this->id,'company'=>$this->config->item('company/id'))
 		);
 	}
 	
@@ -73,27 +88,27 @@ class User_model extends SS_Model{
 		$q_student="SELECT * from `view_student` WHERE `id`={$user_id}";
 		$student=$this->db->result($q_student)->row_array();
 	
-		$this->session->set_userdata('class', $student['class']);
-		$this->session->set_userdata('class_name', $student['class_name']);
-		$this->session->set_userdata('grade', $student['grade']);
-		$this->session->set_userdata('grade_name', $student['grade_name']);
+		$this->session->set_userdata('user/class', $student['class']);
+		$this->session->set_userdata('user/class_name', $student['class_name']);
+		$this->session->set_userdata('user/grade', $student['grade']);
+		$this->session->set_userdata('user/grade_name', $student['grade_name']);
 	}
 	
 	function teacher_setSession($user_id){
 		$q_teacher="SELECT * FROM people WHERE id = {$user_id}";
 		$teacher=$this->db->query($q_teacher)->row_array();
 	
-		$this->session->set_userdata('course', $teacher['course']);
-		$this->session->set_userdata('teacher_group', explode(',',$teacher['group']));
+		$this->session->set_userdata('user/course', $teacher['course']);
+		$this->session->set_userdata('user/teacher_group', explode(',',$teacher['group']));
 		
 		if($class=$this->db->query("SELECT id,grade FROM class WHERE class_teacher={$this->id}")->row_array()){
-			$this->session->set_userdata('manage_class', $class);
+			$this->session->set_userdata('user/manage_class', $class);
 		}
 	}
 	
 	function parent_setSession($user_id){
 		$q_child="SELECT id FROM student WHERE parent='$user_id'";
-		$this->session->set_userdata('child', $this->db->query($q_child)->row()->id);
+		$this->session->set_userdata('user/child', $this->db->query($q_child)->row()->id);
 	}
 	
 	function edit($user_id,$new_password=NULL,$new_username=NULL){
@@ -185,7 +200,7 @@ class User_model extends SS_Model{
 		session_destroy();
 		$this->session->sess_destroy();
 
-		if($this->config->item('ucenter')){
+		if($this->config->item('company/ucenter')){
 			//生成同步退出代码
 			echo uc_user_synlogout();
 		}
@@ -207,7 +222,7 @@ class User_model extends SS_Model{
 
 		if($refresh_permission){
 			$this->preparePermission();
-			if($this->config->item('ucenter')){
+			if($this->config->item('company/ucenter')){
 				$this->session->set_userdata('new_messages', uc_pm_checknew($this->id));
 			}
 		}
@@ -228,7 +243,7 @@ class User_model extends SS_Model{
 				affair.add_action,affair.add_target,
 				`group`.action AS `action`, group.display_in_nav AS display
 			FROM affair LEFT JOIN `group` ON affair.name=`group`.affair 
-			WHERE group.company={$this->config->item('company')}
+			WHERE group.company={$this->config->item('company/id')}
 				AND affair.is_on=1
 				AND (".db_implode($this->group, $glue = ' OR ','group.name').") 
 			GROUP BY affair,action

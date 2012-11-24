@@ -19,7 +19,7 @@ $(function(){
 <div id="navMenu">
     <ul class="l0">
 <?php
-foreach($_SESSION['permission'] as $controller_name => $controller){
+foreach($this->user->permission as $controller_name => $controller){
 	if(isset($controller['_display']) && $controller['_display']){
 		if(in_subarray(1,$controller,'_display')!==false){
 			$has_sub_menu=true;

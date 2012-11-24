@@ -11,14 +11,22 @@ class SS_Controller extends CI_Controller{
 	var $as_popup_window=false;
 	var $as_controller_default_page=false;
 	var $actual_table='';//借用数据表的controller的实际主读写表，如contact为client,query为cases
+	var $company_type_model_loaded=false;
 	
 	function __construct(){
 		parent::__construct();
 		
+		date_default_timezone_set('Asia/Shanghai');//定义时区，windows系统中php不能识别到系统时区
+	
+		session_set_cookie_params(86400); 
+		session_start();
+	
+		$this->load->helper('function_common');
+		$this->load->model('company_model','company');
+		$this->load->model('user_model','user');
+		
 		global $class,$method;
 		
-		$this->load->helper('function_common');
-
 		//使用controller中自定义的默认method
 		if($method=='index'){
 			$method=$this->default_method;
@@ -31,10 +39,16 @@ class SS_Controller extends CI_Controller{
 		$this->controller=$class;
 		$this->method=$method;
 		
-		date_default_timezone_set('Asia/Shanghai');//定义时区，windows系统中php不能识别到系统时区
-	
-		session_set_cookie_params(86400); 
-		session_start();
+		//获得公司信息，见数据库，company表
+		if($company_info=$this->company->fetch()){
+			foreach($company_info as $config_name => $config_value){
+				$this->config->set_item('company/'.$config_name, $config_value);
+			}
+		}
+		if(is_file(APPPATH.'models/'.$this->config->item('company/type').'_model.php')){
+			$this->load->model($this->config->item('company/type').'_model',$this->config->item('company/type'));
+			$this->company_type_model_loaded=true;
+		}
 	
 		//初始化数据库，本系统为了代码书写简便，没有将数据库操作作为类封装，但有大量实用函数在function/function_common.php->db_()
 		$db['host']="localhost";
@@ -53,15 +67,8 @@ class SS_Controller extends CI_Controller{
 	
 		db_query("SET NAMES 'UTF8'");
 	
-		//获得公司信息，见数据库，company表
-		if($company_info=company_fetchInfo()){
-			foreach($company_info as $config_name => $config_value){
-				$this->config->set_item($config_name, $config_value);
-			}
-		}
-	
 		//ucenter配置
-		if($this->config->item('ucenter')){
+		if($this->config->item('company/ucenter')){
 			$this->load->helper('config_ucenter');
 			require APPPATH.'third_party/client/client.php';
 		}
@@ -180,9 +187,6 @@ class SS_Controller extends CI_Controller{
 			$this->as_popup_window=FALSE;
 		}
 
-		$this->load->model('company_model','company');
-		$this->load->model('user_model','user');
-		
 		if(is_file(APPPATH.'models/'.$class.'_model.php')){
 			$this->load->model($class.'_model',$class);
 		}
@@ -284,7 +288,7 @@ class SS_Controller extends CI_Controller{
 			post(CONTROLLER.'/username',$_SESSION['username']);
 		}
 
-		post(CONTROLLER.'/company',$this->config->item('company'));
+		post(CONTROLLER.'/company',$this->config->item('company/id'));
 
 		if(is_null($update_table)){
 			if($this->actual_table!=''){

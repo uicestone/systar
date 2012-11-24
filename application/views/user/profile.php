@@ -16,7 +16,7 @@ $(function(){
 			<div class="title"><label>设置用户名密码</label></div>
 		</div>
 		
-		<?if($this->config->item('ucenter')){?>
+		<?if($this->config->item('company/ucenter')){?>
 		<div class="item">
 			<div class="title"><label>用户名：</label></div>
 			<input type="text" name="user[username]" value="<?=post('user/username')?>" />

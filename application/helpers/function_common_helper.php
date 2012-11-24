@@ -5,7 +5,7 @@ function uidTime(){
 		'uid'=>$CI->user->id,
 		'username'=>$_SESSION['username'],
 		'time'=>$CI->config->item('timestamp'),
-		'company'=>$CI->config->item('company')
+		'company'=>$CI->config->item('company/id')
 	);
 	return $array;
 }	

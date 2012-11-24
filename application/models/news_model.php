@@ -8,12 +8,12 @@ class News_model extends SS_Model{
 		$query="
 			SELECT * 
 			FROM news 
-			WHERE id = '{$id}' AND company='{$this->config->item('company')}'";
+			WHERE id = '{$id}' AND company='{$this->config->item('company/id')}'";
 		return $this->db->query($query)->row_array();
 	}
 	
 	function getList($rows=NULL){
-		$q="SELECT * FROM news WHERE display=1 AND company={$this->config->item('company')}";
+		$q="SELECT * FROM news WHERE display=1 AND company={$this->config->item('company/id')}";
 		
 		if(is_null($rows)){
 			$q=$this->search($q,array('title'=>'标题'));		    
