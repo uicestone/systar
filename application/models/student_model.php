@@ -5,10 +5,13 @@ class Student_model extends SS_Model{
 	}
 
 	function fetch($id){
+		$id=intval($id);
+		
 		$query="
 			SELECT * 
-			FROM student 
-			WHERE id='{$id}' AND company='{$this->config->item('company/id')}'";
+			FROM people
+			WHERE id=$id AND company={$this->config->item('company/id')}";
+		
 		return $this->db->query($query)->row_array();
 	}
 	
@@ -20,9 +23,9 @@ class Student_model extends SS_Model{
 				staff.name AS class_teacher_name
 			FROM student_class
 				INNER JOIN class ON student_class.class=class.id
-				LEFT JOIN staff ON class.class_teacher=staff.id AND staff.company='".$this->config->item('company/id')."'
-			WHERE student='{$student_id}' 
-				AND term='".$this->school->current_term."'
+				LEFT JOIN staff ON class.class_teacher=staff.id AND staff.company={$this->config->item('company/id')}
+			WHERE student=$student_id
+				AND term={$this->school->current_term}
 		";
 		
 		return $this->db->query($q_student_class)->row_array();
@@ -31,14 +34,14 @@ class Student_model extends SS_Model{
 	function getList(){
 		$q=
 		"SELECT 
-			student.id,student.name AS name,student.id_card,student.phone,student.mobile,student.address,
+			people.id,people.name AS name,people.id_card,phone.content,mobile.content,address.content,
 			student_num.num,
-			class.name AS class_name,
-			relatives.contacts AS relatives_contacts
+			team.name AS class_name,
+			relative_mobile.content AS relatives_contacts
 		FROM 
-			student
+			people
 			INNER JOIN (
-				SELECT student,class,
+				SELECT people,team,
 					right((1000000 + concat(student_class.class,right((100 + student_class.num_in_class),2))),6) AS num
 				FROM student_class
 				WHERE student_class.term = '".$this->school->current_term."'
