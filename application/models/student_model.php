@@ -16,60 +16,61 @@ class Student_model extends SS_Model{
 	}
 	
 	function fetchClassInfo($student_id){
+		$student_id=intval($student_id);
+		
 		$q_student_class="
-			SELECT student_class.num_in_class AS num_in_class,
-				CONCAT(RIGHT(10000+class.id,4),num_in_class) AS num,
-				class.id AS class,class.name AS class_name,
-				staff.name AS class_teacher_name
-			FROM student_class
-				INNER JOIN class ON student_class.class=class.id
-				LEFT JOIN staff ON class.class_teacher=staff.id AND staff.company={$this->config->item('company/id')}
-			WHERE student=$student_id
-				AND term={$this->school->current_term}
+			SELECT team_people.id_in_team AS num_in_class,
+				CONCAT(RIGHT(10000+team.num,4),team_people.id_in_team) AS num,
+				team.num AS class,team.name AS class_name,
+				people.name AS class_teacher_name
+			FROM team_people
+				INNER JOIN team ON team_people.team=team.id
+				LEFT JOIN people ON team.leader=people.id
+			WHERE team.company={$this->config->item('company/id')}
+				AND team_people.people=$student_id
+				AND team_people.term={$this->school->current_term}
 		";
 		
 		return $this->db->query($q_student_class)->row_array();
 	}
 	
 	function getList(){
-		$q=
-		"SELECT 
-			people.id,people.name AS name,people.id_card,phone.content,mobile.content,address.content,
-			student_num.num,
-			team.name AS class_name,
-			relative_mobile.content AS relatives_contacts
-		FROM 
-			people
-			INNER JOIN (
-				SELECT people,team,
-					right((1000000 + concat(student_class.class,right((100 + student_class.num_in_class),2))),6) AS num
-				FROM student_class
-				WHERE student_class.term = '".$this->school->current_term."'
-			)student_num ON student_num.student=student.id
-			INNER JOIN class ON class.id=student_num.class
-			LEFT JOIN (
-				SELECT student.id AS student,GROUP_CONCAT(student_relatives.contact) AS contacts
-				FROM student INNER JOIN student_relatives ON student_relatives.student=student.id
-				WHERE student_relatives.contact<>''
-				GROUP BY student.id
-			)relatives
-			ON relatives.student=student.id
-		WHERE student.display=1
-			AND (class.id=(SELECT id FROM class WHERE class_teacher={$this->user->id})
-				OR '".($this->user->isLogged('jiaowu') || $this->user->isLogged('zhengjiao') || $this->user->isLogged('health'))."'='1')
+		$q="
+			SELECT 
+				people.id,people.name AS name,people.id_card,
+				student_num.num,
+				team.name AS class_name
+			FROM 
+				people
+				INNER JOIN (
+					SELECT people,team,
+						right((1000000 + CONCAT(team.num,right((100 + team_people.id_in_team),2))),6) AS num
+					FROM team_people INNER JOIN team ON team.id=team_people.team
+					WHERE team_people.term = '{$this->school->current_term}'
+				)student_num ON student_num.people=people.id
+				INNER JOIN team ON team.id=student_num.team
+				INNER JOIN team_relationship ON team.id=team_relationship.relative
+				INNER JOIN (
+					SELECT id,num FROM team WHERE type='grade'
+				)grade ON grade.id=team_relationship.team
+			WHERE people.display=1
+				AND (
+					team.leader={$this->user->id}
+					OR '".($this->user->isLogged('jiaowu') || $this->user->isLogged('zhengjiao') || $this->user->isLogged('health'))."'='1'
+				)
 		";
 		//班主任可以看到自己班级的学生，教务和政教可以看到其他班级的学生
 		
 		//将班主任的视图定位到自己班级
-		if(!option('class') && !option('grade') && isset($_SESSION['manage_class'])){
-			option('class',$_SESSION['manage_class']['id']);
-			option('grade',$_SESSION['manage_class']['grade']);
+		if(!option('class') && !option('grade') && isset($this->user->manage_class)){
+			option('class',$this->user->manage_class['id']);
+			option('grade',$this->user->manage_class['grade']);
 		}
-		$q=$this->addCondition($q,array('class'=>'class.id','grade'=>'class.grade'),array('grade'=>'class'));
+		$q=$this->addCondition($q,array('class'=>'team.id','grade'=>'grade.id'),array('grade'=>'class'));
 				
-		$q=$this->search($q,array('num'=>'学号','student.name'=>'姓名'));
+		$q=$this->search($q,array('student_num.num'=>'学号','people.name'=>'姓名'));
 		
-		$q=$this->orderby($q,'num','ASC',array('num','student.name'));
+		$q=$this->orderby($q,'student_num.num','ASC',array('student_num.num','student.name'));
 		
 		$q=$this->pagination($q);
 		
@@ -80,13 +81,18 @@ class Student_model extends SS_Model{
 	 * 获得一个学生的家庭成员列表
 	 */
 	function getRelativeList($student_id){
+		$student_id=intval($student_id);
+		
 		$query="
 			SELECT 
-				id,name,relationship,work_for,contact
+				id,name,relationship,work_for,contact.content AS contact
 			FROM 
-				student_relatives
-			WHERE company='".$this->config->item('company/id')."'
-				AND `student`='{$student_id}'
+				people
+				INNER JOIN (
+					SELECT people,content FROM people_profile WHERE name='手机'
+				)contact
+				INNER JOIN people_relationship ON people_relationship.relative=people.id AND people_relationship.relation_type='家庭成员'
+			WHERE people_relationship.people=$student_id
 		";
 		
 		return $this->db->query($query)->result_array();
@@ -95,16 +101,20 @@ class Student_model extends SS_Model{
 	/**
 	 * 获得一个学生的奖惩记录列表
 	 */
-	function getBehaviourList($student_id){
+	function getBehaviourList($student_id,$limit=5){
+		$student_id=intval($student_id);
+
 		$query="
-			SELECT name,type,date,level,content FROM student_behaviour WHERE student = '{$student_id}'
-			LIMIT 5
+			SELECT name,type,date,level,content FROM student_behaviour WHERE student = $student_id
+			LIMIT $limit
 		";
 		
 		return $this->db->query($query)->result_array();
 	}
 	
 	function getCommentList($student_id){
+		$student_id=intval($student_id);
+
 		$query="
 			SELECT student_comment.title,student_comment.content,
 				FROM_UNIXTIME(time,'%Y-%m-%d') AS time,IF(staff.name IS NULL,student_comment.username,staff.name) AS username 
@@ -122,6 +132,8 @@ class Student_model extends SS_Model{
 	 * TODO跟上面的getCommentList合并兼容
 	 */
 	function getInteractiveList(){
+		$student_id=intval($student_id);
+
 		$query="
 			SELECT student_comment.title,student_comment.content,
 				FROM_UNIXTIME(student_comment.time,'%Y-%m-%d') AS date,student_comment.username,student_comment.student,
@@ -235,6 +247,8 @@ class Student_model extends SS_Model{
 	}
 	
 	function getScores($student){
+		$student=intval($student);
+
 		$query="SELECT exam_name,course_1,course_2,course_3,course_4,course_5,course_6,course_7,course_8,course_9,course_10,course_sum_3,course_sum_5,course_sum_8,rank_1,rank_2,rank_3,rank_4,rank_5,rank_6,rank_7,rank_8,rank_9,rank_10,rank_sum_3,rank_sum_5,rank_sum_8
 			FROM view_score WHERE student = '".$student."'
 		ORDER BY exam DESC";

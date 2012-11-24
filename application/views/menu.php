@@ -1,12 +1,12 @@
 <div id="topBar">
 <? if(!$this->as_popup_window && $this->user->isLogged()){?>
 	<div id="topMenu">
-		<a href="/user/profile"><? echo array_dir('_SESSION/username');?></a>
+		<a href="/user/profile"><?=$this->user->name?></a>
 		<?if($this->config->item('company/ucenter')){?>
 		<a href="http://www.lawyerstars.com/home.php?mod=space&do=pm" target="_blank"><img src="/images/message.png" />
 		<?}?>
-		<?if(array_dir('_SESSION/new_messages')>0){?>
-			<?echo array_dir('_SESSION/new_messages')?>
+		<?if($this->user->new_messages>0){?>
+			<?=$this->user->new_messages?>
 		<?}?>
 		</a>
 		<a href="/user/logout" target="_top">退出</a>

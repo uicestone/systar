@@ -3,20 +3,20 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><![endif]-->
-	<? stylesheet('style/common')?>
-	<? stylesheet('style/jquery-ui/jquery-ui')?>
-	<? javascript('jquery')?>
-	<? javascript('jquery-ui')?>
-	<? stylesheet('js/qtip2/jquery.qtip.min')?>
-	<? javascript('qtip2/jquery.qtip.min')?>
-	<? javascript('common')?>
+	<?stylesheet('style/common')?>
+	<?stylesheet('style/jquery-ui/jquery-ui')?>
+	<?javascript('jquery')?>
+	<?javascript('jquery-ui')?>
+	<?stylesheet('js/qtip2/jquery.qtip.min')?>
+	<?javascript('qtip2/jquery.qtip.min')?>
+	<?javascript('common')?>
 	<script type="text/javascript">
-		var controller='<? echo CONTROLLER?>';
-		var affair='<? echo array_dir('_SESSION/permission/'.CONTROLLER.'/_affair_name')?>';
-		var action='<? echo $this->uri->segment(2)?>';
-		var username='<? echo array_dir('_SESSION/username')?>';
-		var sysname='<? echo $this->config->item('company/sysname')?>';
+		var controller='<?=CONTROLLER?>';
+		var affair='<?=$this->user->permission[CONTROLLER]['_affair_name']?>';
+		var action='<?=$this->METHOD?>';
+		var username='<?$this->user->name?>';
+		var sysname='<?=$this->config->item('company/sysname')?>';
 	</script>
-	<? javascript('contentframe')?>
+	<?javascript('contentframe')?>
 </head>
-<body id="content" style="background-image:url('/images/bg_<? echo $this->config->item('company/syscode')?>.gif') ">
+<body id="content" style="background-image:url('/images/bg_<?=$this->config->item('company/syscode')?>.gif') ">

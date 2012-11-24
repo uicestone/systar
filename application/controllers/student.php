@@ -5,6 +5,8 @@ class Student extends SS_controller{
 	}
 	
 	function lists(){
+		$this->load->model('classes_model','classes');
+
 		//如果以家长或学生身份登陆，显示的是编辑查看页面，而非列表页面
 		if($this->user->isLogged('parent') || $this->user->isLogged('student')){
 

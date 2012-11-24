@@ -103,15 +103,44 @@ class Classes_model extends SS_Model{
 	}
 	
 	function getLeadersList($team_id){
+		$team_id=intval($team_id);
+		
 		$query="
 			SELECT student.name,student_class.position 
 			FROM student INNER JOIN student_class 
-				ON (student.id=student_class.student AND student_class.term='".$this->school->current_term."')
-			WHERE student_class.class='{$team_id}'
+				ON (student.id=student_class.student AND student_class.term='{$this->school->current_term}')
+			WHERE student_class.class=$team_id
 				AND student_class.position IS NOT NULL
 		";
 		
 		return $this->db->query($query)->result_array();
+	}
+	
+	/**
+	 * 获得一个团队的相关团队
+	 * @param 被关联团队id
+	 * @param 关联名称，如“隶属”
+	 * @return array(related_team_id_1=>related_team_name_1,...)
+	 */
+	function getRelatedTeams($team_id,$relation=NULL){
+		$team_id=intval($team_id);
+		
+		$query="
+			SELECT team.id,team.name 
+			FROM team 
+				INNER JOIN team_relationship ON team.id=team_relationship.relative";
+		
+		if(isset($relation)){
+			$query.=" AND team_relationship.relation='$relation'";
+		}
+		
+		$query.="
+			WHERE display=1 AND team_relationship.team=$team_id
+		";
+		
+		$result=$this->db->query($query)->result_array();
+		
+		return array_sub($result,'name','id');
 	}
 }
 ?>

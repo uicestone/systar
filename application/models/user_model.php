@@ -84,33 +84,6 @@ class User_model extends SS_Model{
 		);
 	}
 	
-	function student_setSession($user_id){
-		$q_student="SELECT * from `view_student` WHERE `id`={$user_id}";
-		$student=$this->db->result($q_student)->row_array();
-	
-		$this->session->set_userdata('user/class', $student['class']);
-		$this->session->set_userdata('user/class_name', $student['class_name']);
-		$this->session->set_userdata('user/grade', $student['grade']);
-		$this->session->set_userdata('user/grade_name', $student['grade_name']);
-	}
-	
-	function teacher_setSession($user_id){
-		$q_teacher="SELECT * FROM people WHERE id = {$user_id}";
-		$teacher=$this->db->query($q_teacher)->row_array();
-	
-		$this->session->set_userdata('user/course', $teacher['course']);
-		$this->session->set_userdata('user/teacher_group', explode(',',$teacher['group']));
-		
-		if($class=$this->db->query("SELECT id,grade FROM class WHERE class_teacher={$this->id}")->row_array()){
-			$this->session->set_userdata('user/manage_class', $class);
-		}
-	}
-	
-	function parent_setSession($user_id){
-		$q_child="SELECT id FROM student WHERE parent='$user_id'";
-		$this->session->set_userdata('user/child', $this->db->query($q_child)->row()->id);
-	}
-	
 	function edit($user_id,$new_password=NULL,$new_username=NULL){
 		if(isset($new_password)){
 			if($this->db->update('user',array('password'=>$new_password),"id = $user_id")){

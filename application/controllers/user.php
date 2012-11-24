@@ -43,10 +43,12 @@ class user extends SS_controller{
 					$user['group']=explode(',',$user['group']);
 					$this->session->set_userdata('user/group', $user['group']);
 					
-					foreach($user['group'] as $group){
+					$this->user->__construct();
+					
+					foreach($this->user->group as $group){
 						$company_type=$this->config->item('company/type');
 						if($this->company_type_model_loaded && method_exists($this->$company_type,$group.'_setSession')){
-							call_user_func(array($this->user,$group.'_set_session'),$this->user->id);
+							call_user_func(array($this->$company_type,$group.'_setSession'),$this->user->id);
 						}
 					}
 					

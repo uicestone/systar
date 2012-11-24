@@ -73,10 +73,10 @@ class Misc extends SS_controller{
 	
 	function setSession($var){
 		if($var=='minimized'){
-			if($this->session->userdata('minimized')===false || $this->session->userdata('minimized')=='minimized'){
-				$this->session->set_userdata('minimized','maximized');
-			}else{
+			if($this->session->userdata('minimized')===false || $this->session->userdata('minimized')=='maximized'){
 				$this->session->set_userdata('minimized','minimized');
+			}else{
+				$this->session->set_userdata('minimized','maximized');
 			}
 			echo 'success';
 

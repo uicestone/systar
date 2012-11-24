@@ -16,15 +16,22 @@ class SS_Controller extends CI_Controller{
 	function __construct(){
 		parent::__construct();
 		
+		/**
+		 * 一些无法写入config.php的配置，要放在最首
+		 */
 		date_default_timezone_set('Asia/Shanghai');//定义时区，windows系统中php不能识别到系统时区
 	
 		session_set_cookie_params(86400); 
 		session_start();
 	
-		$this->load->helper('function_common');
-		$this->load->model('company_model','company');
-		$this->load->model('user_model','user');
+		$this->config->set_item('timestamp',time());
+		$this->config->set_item('microtime',microtime(true));
+		$this->config->set_item('date',date('Y-m-d',$this->config->item('timestamp')));
+		$this->config->set_item('quarter',date('y',$this->config->item('timestamp')).ceil(date('m',$this->config->item('timestamp'))/3));
 		
+		/**
+		 * 处理$class和$method，并定义为常量
+		 */
 		global $class,$method;
 		
 		//使用controller中自定义的默认method
@@ -39,6 +46,13 @@ class SS_Controller extends CI_Controller{
 		$this->controller=$class;
 		$this->method=$method;
 		
+		/**
+		 * 自动载入的资源，没有使用autoload.php是因为后者载入以后不能起简称...
+		 */
+		$this->load->helper('function_common');
+		$this->load->model('company_model','company');
+		$this->load->model('user_model','user');
+		
 		//获得公司信息，见数据库，company表
 		if($company_info=$this->company->fetch()){
 			foreach($company_info as $config_name => $config_value){
@@ -50,7 +64,13 @@ class SS_Controller extends CI_Controller{
 			$this->company_type_model_loaded=true;
 		}
 	
-		//初始化数据库，本系统为了代码书写简便，没有将数据库操作作为类封装，但有大量实用函数在function/function_common.php->db_()
+		if(is_file(APPPATH.'models/'.$class.'_model.php')){
+			$this->load->model($class.'_model',$class);
+		}
+
+		/**
+		 * 初始化老版本数据库，老版本数据库调用方法全部废弃以后，删除本段
+		 */
 		$db['host']="localhost";
 		$db['username']="root";
 		$db['password']="";
@@ -60,26 +80,27 @@ class SS_Controller extends CI_Controller{
 	
 		mysql_select_db($db['name'],DB_LINK);
 
-		$this->config->set_item('timestamp',time());
-		$this->config->set_item('microtime',microtime(true));
-		$this->config->set_item('date',date('Y-m-d',$this->config->item('timestamp')));
-		$this->config->set_item('quarter',date('y',$this->config->item('timestamp')).ceil(date('m',$this->config->item('timestamp'))/3));
-	
 		db_query("SET NAMES 'UTF8'");
 	
-		//ucenter配置
+		/**
+		 * ucenter配置
+		 */
 		if($this->config->item('company/ucenter')){
 			$this->load->helper('config_ucenter');
 			require APPPATH.'third_party/client/client.php';
 		}
 
+		/**
+		 * 弹出未登录用户
+		 */
 		if($class!='user' && !$this->user->isLogged(NULL,true)){
-			//对于非用户登录/登出界面，检查权限，弹出未登陆（顺便刷新权限）
 			redirect('user/login','js',NULL,true);
 		}
 
-		//根据controller和method请求决定一些参数
-		//这相当于集中处理了分散的控制器属性，在团队开发中，这不科学。有空应该把这些设置移动到对应的控制器中
+		/**
+		 * 根据controller和method请求决定一些参数
+		 * 这相当于集中处理了分散的控制器属性，在团队开发中，这不科学。有空应该把这些设置移动到对应的控制器中
+		 */
 		if(in_array($method,array('add','edit'))){
 			$this->as_popup_window=TRUE;
 		}
@@ -185,10 +206,6 @@ class SS_Controller extends CI_Controller{
 			}
 		}elseif($class=='student'){
 			$this->as_popup_window=FALSE;
-		}
-
-		if(is_file(APPPATH.'models/'.$class.'_model.php')){
-			$this->load->model($class.'_model',$class);
 		}
 
 		if($this->input->post('submit/cancel')){

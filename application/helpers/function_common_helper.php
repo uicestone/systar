@@ -212,9 +212,16 @@ function html_option($options,$checked=NULL,$array_key_as_option_value=false,$ty
 			$html_option.='<option value="">全部</option>';
 		}
 
+		$key_field='';
+		if($array_key_as_option_value===true){
+			$key_field='`id`,';
+		}elseif($array_key_as_option_value!==false){
+			$key_field='`'.$array_key_as_option_value.'`, ';
+		}
+		
 		$q_get_option="
-			SELECT ".($array_key_as_option_value?'id,':'')." `".$type."` 
-			FROM `".$type_table."` 
+			SELECT $key_field `$type` 
+			FROM `$type_table` 
 			WHERE 1=1".
 				((is_null($classification) || is_null($options))?'':" AND `".$classification."`='".$options."' ").
 				(is_null($condition)?'':' AND '.$condition)
