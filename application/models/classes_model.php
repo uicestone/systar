@@ -1,5 +1,5 @@
 <?php
-class Classes_model extends SS_Model{
+class Classes_model extends Team_model{
 	function __construct(){
 		parent::__construct();
 	}
@@ -14,19 +14,25 @@ class Classes_model extends SS_Model{
 	
 	function getList(){
 		$q="
-			SELECT class.id, class.name, grade.name AS grade_name, depart, course.name AS extra_course_name,
-				staff.name AS class_teacher_name
-			FROM class INNER JOIN grade ON class.grade = grade.id
+			SELECT class.id, class.name, grade.name AS grade_name, depart.name AS depart, course.name AS extra_course_name,
+				teacher.name AS class_teacher_name
+			FROM team AS class 
+				INNER JOIN team_relationship AS grade_class ON grade_class.relative=class.id
+				INNER JOIN team AS grade ON grade.id=grade_class.team AND grade.type='grade'
+				INNER JOIN team_relationship AS depart_class ON depart_class.relative=class.id
+				INNER JOIN team AS depart ON depart.id=depart_class.team AND depart.type='depart'
 				LEFT JOIN course ON course.id = class.extra_course
-				LEFT JOIN staff ON staff.id = class.class_teacher
-			WHERE grade>='".$this->school->highest_grade."'
+				LEFT JOIN people AS teacher ON teacher.id = class.leader
+			WHERE class.company={$this->config->item('company/id')} AND class.display=1 
+				AND class.type='class'
+				AND grade.num>='".$this->school->highest_grade."'
 		";
 		
-		$q=$this->addCondition($q,array('grade'=>'class.grade'));
+		$q=$this->addCondition($q,array('grade'=>'grade.id'));
 				
-		$q=$this->search($q,array('name'=>'班级','depart'=>'部门'));
+		$q=$this->search($q,array('class.name'=>'班级','depart.name'=>'部门'));
 		
-		$q=$this->orderby($q,'class.id','ASC');
+		$q=$this->orderby($q,'class.num','ASC');
 		
 		$q=$this->pagination($q);
 		
@@ -122,8 +128,8 @@ class Classes_model extends SS_Model{
 	 * @param 关联名称，如“隶属”
 	 * @return array(related_team_id_1=>related_team_name_1,...)
 	 */
-	function getRelatedTeams($team_id,$relation=NULL){
-		$team_id=intval($team_id);
+	function getRelatedTeams($team_id=NULL,$relation=NULL,$type=NULL){
+		isset($team_id) && $team_id=intval($team_id);
 		
 		$query="
 			SELECT team.id,team.name 
@@ -134,10 +140,18 @@ class Classes_model extends SS_Model{
 			$query.=" AND team_relationship.relation='$relation'";
 		}
 		
-		$query.="
-			WHERE display=1 AND team_relationship.team=$team_id
-		";
+		if(isset($type)){
+			$query.=" AND team.type='$type'";
+		}
 		
+		$query.="
+			WHERE team.company={$this->config->item('company/id')} AND  team.display=1 
+		";
+			
+		if(isset($team_id)){
+			$query.=" AND team_relationship.team=$team_id";
+		}
+
 		$result=$this->db->query($query)->result_array();
 		
 		return array_sub($result,'name','id');

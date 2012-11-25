@@ -8,3 +8,19 @@ UPDATE  `syssh`.`team` SET  `num` =  '12' WHERE  `team`.`id` =2;
 ALTER TABLE  `people_relationship` ADD  `relation_type` VARCHAR( 255 ) NOT NULL AFTER  `relation`;
 ALTER TABLE  `people_relationship` ADD INDEX (  `relation_type` );
 ALTER TABLE  `people_relationship` DROP company;
+-- uice tonghepc updated 
+
+-- uice 2012/11/25
+ALTER TABLE  `account` ADD  `time_insert` INT NOT NULL AFTER  `username` ,
+ADD INDEX (  `time_insert` );
+ALTER TABLE  `case` ADD  `time_insert` INT NOT NULL AFTER  `username` ,
+ADD INDEX (  `time_insert` );
+ALTER TABLE  `document` ADD  `time_insert` INT NOT NULL AFTER  `username` ,
+ADD INDEX (  `time_insert` );
+ALTER TABLE  `people` ADD  `time_insert` INT NOT NULL AFTER  `username` ,
+ADD INDEX (  `time_insert` );
+ALTER TABLE  `property` ADD  `time_insert` INT NOT NULL AFTER  `company` ,
+ADD INDEX (  `time_insert` );
+ALTER TABLE  `schedule` ADD  `time_insert` INT NOT NULL AFTER  `username` ,
+ADD INDEX (  `time_insert` );
+-- end uice tonghepc updated

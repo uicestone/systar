@@ -1,5 +1,5 @@
 <?php
-class Student_model extends SS_Model{
+class Student_model extends People_model{
 	function __construct(){
 		parent::__construct();
 	}
@@ -8,9 +8,34 @@ class Student_model extends SS_Model{
 		$id=intval($id);
 		
 		$query="
-			SELECT * 
+			SELECT people.*,
+				`团员`.content,
+				`初中`.content,
+				`生源类别`.content,
+				`住宿`.content,
+				`宿舍`.content,
+				`手机`.content,
+				`电子邮件`.content,
+				`家庭电话`.content,
+				`家庭地址`.content,
+				`居委会`.content,
+				`家庭地址`.content,
+				`银行账号`.content,
+				`疾病史`.content
 			FROM people
-			WHERE id=$id AND company={$this->config->item('company/id')}";
+				INNER JOIN people_profile AS `团员` ON people.id=people_profile.people AND name='团员'
+				INNER JOIN people_profile AS `初中` ON people.id=people_profile.people AND people_profile.name='初中'
+				INNER JOIN people_profile AS `生源类别` ON people.id=people_profile.people AND people_profile.name='生源类别'
+				INNER JOIN people_profile AS `住宿` ON people.id=people_profile.people AND people_profile.name='住宿'
+				INNER JOIN people_profile AS `宿舍` ON people.id=people_profile.people AND people_profile.name='宿舍'
+				INNER JOIN people_profile AS `手机` ON people.id=people_profile.people AND people_profile.name='手机'
+				INNER JOIN people_profile AS `电子邮件` ON people.id=people_profile.people AND people_profile.name='电子邮件'
+				INNER JOIN people_profile AS `家庭电话` ON people.id=people_profile.people AND people_profile.name='家庭电话'
+				INNER JOIN people_profile AS `居委会` ON people.id=people_profile.people AND people_profile.name='居委会'
+				INNER JOIN people_profile AS `家庭地址` ON people.id=people_profile.people AND people_profile.name='家庭地址'
+				INNER JOIN people_profile AS `银行账号` ON people.id=people_profile.people AND people_profile.name='银行账号'
+				INNER JOIN people_profile AS `疾病史` ON people.id=people_profile.people AND people_profile.name='疾病史'
+			WHERE people.id=$id AND company={$this->config->item('company/id')}";
 		
 		return $this->db->query($query)->row_array();
 	}
@@ -21,14 +46,14 @@ class Student_model extends SS_Model{
 		$q_student_class="
 			SELECT team_people.id_in_team AS num_in_class,
 				CONCAT(RIGHT(10000+team.num,4),team_people.id_in_team) AS num,
-				team.num AS class,team.name AS class_name,
+				team.id AS class,team.name AS class_name,
 				people.name AS class_teacher_name
 			FROM team_people
 				INNER JOIN team ON team_people.team=team.id
 				LEFT JOIN people ON team.leader=people.id
 			WHERE team.company={$this->config->item('company/id')}
 				AND team_people.people=$student_id
-				AND team_people.term={$this->school->current_term}
+				AND team_people.term='{$this->school->current_term}'
 		";
 		
 		return $this->db->query($q_student_class)->row_array();
@@ -85,13 +110,14 @@ class Student_model extends SS_Model{
 		
 		$query="
 			SELECT 
-				id,name,relationship,work_for,contact.content AS contact
+				relatives.id,relatives.name,people_relationship.relation,relatives.work_for,relatives_contact.content AS contact
 			FROM 
-				people
+				people AS relatives
 				INNER JOIN (
 					SELECT people,content FROM people_profile WHERE name='手机'
-				)contact
-				INNER JOIN people_relationship ON people_relationship.relative=people.id AND people_relationship.relation_type='家庭成员'
+				)relatives_contact ON relatives_contact.people=relatives.id
+				INNER JOIN people_relationship ON people_relationship.relative=relatives.id 
+					AND people_relationship.relation_type='家庭成员'
 			WHERE people_relationship.people=$student_id
 		";
 		
@@ -103,6 +129,7 @@ class Student_model extends SS_Model{
 	 */
 	function getBehaviourList($student_id,$limit=5){
 		$student_id=intval($student_id);
+		$limit=intval($limit);
 
 		$query="
 			SELECT name,type,date,level,content FROM student_behaviour WHERE student = $student_id
@@ -112,16 +139,17 @@ class Student_model extends SS_Model{
 		return $this->db->query($query)->result_array();
 	}
 	
-	function getCommentList($student_id){
+	function getCommentList($student_id,$limit=5){
 		$student_id=intval($student_id);
+		$limit=intval($limit);
 
 		$query="
 			SELECT student_comment.title,student_comment.content,
-				FROM_UNIXTIME(time,'%Y-%m-%d') AS time,IF(staff.name IS NULL,student_comment.username,staff.name) AS username 
-			FROM student_comment LEFT JOIN staff ON staff.id=student_comment.uid 
-			WHERE student = '{$student_id}' AND (reply_to IS NULL OR reply_to = '{$this->user->id}' OR uid = '{$this->user->id}')
+				FROM_UNIXTIME(student_comment.time,'%Y-%m-%d') AS time,IF(staff.name IS NULL,student_comment.username,staff.name) AS username 
+			FROM student_comment LEFT JOIN people AS staff ON staff.id=student_comment.uid 
+			WHERE student = $student_id AND (student_comment.reply_to IS NULL OR student_comment.reply_to = {$this->user->id} OR student_comment.uid = {$this->user->id})
 			ORDER BY student_comment.time DESC
-			LIMIT 5
+			LIMIT $limit
 		";
 		
 		return $this->db->query($query)->result_array();

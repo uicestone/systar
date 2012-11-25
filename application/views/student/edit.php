@@ -1,11 +1,11 @@
-<? javascript('student_add')?>
+<?javascript('student_add')?>
 <form method="post">
 <div class="contentTableMenu">
 	<div class="right">
 		<input type="submit" name="submit[student]" value="保存" />
-		<? if(!$this->as_controller_default_page){ ?>
+<?if(!$this->as_controller_default_page){ ?>
 		<input type="submit" name="submit[cancel]" value="关闭" />
-		<? } ?>
+<?}?>
 	</div>
 </div>
 <div class="contentTableBox">
@@ -13,8 +13,8 @@
 		<div class="item">
 			<div class="title"><label>基本：</label></div>
 			<div>
-			<input type="text" name="student[id_card]" value="<?=post('student/id_card'); ?>" placeholder="身份证" class="right" style="width:39%" />
-			<input type="text" name="student[name]" value="<?=post('student/name'); ?>" placeholder="姓名" style="width:59%" />
+				<input type="text" name="student[id_card]" value="<?=post('student/id_card'); ?>" placeholder="身份证" class="right" style="width:39%" />
+				<input type="text" name="student[name]" value="<?=post('student/name'); ?>" placeholder="姓名" style="width:59%" />
 			</div>
 			<input type="text" name="student[birthday]" value="<?=post('student/birthday'); ?>" class="birthday right" placeholder="生日" style="width:39%" />
 			<input name="student[race]" value="<?=post('student/race'); ?>" type="text" placeholder="民族" class="right" style="width:30%;margin-right:1%" />
@@ -32,7 +32,7 @@
 		<div class="item">
 			<div class="title"><label>班级-学号：</label></div>
 			<select name="student_class[class]"<? if(!$this->user->isLogged('jiaowu'))echo' disabled="disabled"'?> style="width:20%">
-			<? displayOption(NULL,post('student_class/class'),true,'class','grade','name',"grade>='".$this->school->highest_grade."'")?>
+			<?=html_option($this->classes->getRelatedTeams(NULL,NULL,'class'),post('student_class/class'),true)?>
 			</select>
 			<input type="text" name="student_class[num_in_class]" title="班中学号" value="<?=post('student_class/num_in_class')?>" placeholder="班中学号"<? if(!$this->user->isLogged('jiaowu'))echo' disabled="disabled"'?> style="width:20%" />
 			<span class="field">班主任：<?=post('student_extra/class_teacher_name') ?></span>

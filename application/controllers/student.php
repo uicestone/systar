@@ -2,11 +2,10 @@
 class Student extends SS_controller{
 	function __construct(){
 		parent::__construct();
+		$this->load->model('classes_model','classes');
 	}
 	
 	function lists(){
-		$this->load->model('classes_model','classes');
-
 		//如果以家长或学生身份登陆，显示的是编辑查看页面，而非列表页面
 		if($this->user->isLogged('parent') || $this->user->isLogged('student')){
 
@@ -63,18 +62,7 @@ class Student extends SS_controller{
 	}
 	
 	function edit($id=NULL){
-		if($this->as_controller_default_page){
-			$this->session->set_userdata('last_list_action', $this->input->server('REQUEST_URI'));
-		}
-		
-		$this->getPostData($id,function($CI){
-			post('student/name','新学生'.$CI->config->item('timestamp'));
-			
-			post(CONTROLLER.'/id',$CI->db->insert('user',array('group'=>'student')));
-			//先创建用户，再创建学生
-			
-			$CI->db->insert(CONTROLLER,post(CONTROLLER));
-		},false);
+		post(CONTROLLER,$this->getPostData($id));
 		
 		$student_class=$this->student->fetchClassInfo(post('student/id'));
 		post('student_class',array('class'=>$student_class['class'],'num_in_class'=>$student_class['num_in_class']));
