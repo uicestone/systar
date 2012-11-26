@@ -384,7 +384,15 @@ class Schedule extends SS_controller{
 	function writeCalendar($action,$schedule_id=NULL){
 		
 		if($action=='add'){//插入新的任务
-			echo $this->schedule->add($this->input->post());
+			$postData = $this->input->post();
+			$result['id'] = $this->schedule->add($postData);
+			//前台要求的返回json字段
+			$fetch_result = $this -> schedule -> fetch($post_data['id']);
+			$schedule_data['name'] = $fetch_result['name'];
+			$schedule_data['content'] = $fetch_result['content'];
+			$result['response'] = json_encode($schedule_data);
+			
+			echo $result;
 			
 		}elseif($action=='delete'){//删除任务
 			if($this->schedule->delete($schedule_id)){
