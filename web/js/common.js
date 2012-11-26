@@ -242,15 +242,14 @@ jQuery.fn.createSchedule=function(startDate, endDate, allDay){
 	date = new Date();
 	calendar=$(this);
 	
+	var dialog;
 	
-	if((!startDate) && (!endDate) && (!allDay)){
-		startDate=null;
-		endDate=null;
-		allDay=null;
-		var	dialog=$(this).createDialog('新建任务');
+	if((startDate) && (endDate) && (allDay)){
+		/*javascript 的注释只能用夹心，不能用斜杠，这一点我以前的代码也有很多错误 TODO: xiuzhi uice 11/26*/
+		dialog=$(this).createDialog('新建日程');
 	}
 	else{
-		var	dialog=$(this).createDialog('新建日程')
+		dialog=$(this).createDialog('新建任务')
 	}
 	$.get('/misc/gethtml/schedule/calendar_add',function(schedule_calendar_add_form){
 
@@ -258,7 +257,7 @@ jQuery.fn.createSchedule=function(startDate, endDate, allDay){
 			.find('#combobox')
 			.combobox();
 	
-		//配置type和completed默认值
+		/*配置type和completed默认值*/
 		$('input[name="type"][value="0"]').attr('checked','checked');
 		if(startDate){
 			$('input[name="completed"][value="'+(startDate.getTime()<date.getTime()?1:0)+'"]').attr('checked','checked');
@@ -266,7 +265,7 @@ jQuery.fn.createSchedule=function(startDate, endDate, allDay){
 		var typeRadio = $('input[name="type"]');
 		var caseSelect = $('select[name="case"]');
 
-		//监听项目类别变化
+		/*监听项目类别变化*/
 		typeRadio.change(function(){
 			var type=$('input[name="type"]:checked').val();
 
@@ -275,7 +274,7 @@ jQuery.fn.createSchedule=function(startDate, endDate, allDay){
 			});
 		});
 
-		//监听案件变化
+		/*监听案件变化*/
 		caseSelect.change(function(event,data){
 			if(!data){
 				scheduleCase = $(this).val();
@@ -329,9 +328,19 @@ jQuery.fn.createSchedule=function(startDate, endDate, allDay){
 				}
 				else{
 					var postData=$('#schedule').serializeJSON();
-					$.post("/schedule/writecalendar/add",postData)
+					delete postData.type;
+					$.post("/schedule/writecalendar/add",postData,function(response){
+						/*
+						 * TODO: xiuzhi uice 11/26
+						 * 这里要求胖胖给/schedule/writecalendar/add请求加一个返回值，json格式返回数据库刚刚插入的日程的title和content
+						 * 然后利用$('.column:first').append('<div class='portlet-header'>...</div>');来现场添加
+						 * 不过这里会有一个问题，即现场添加的块块没有经过taskboard.php:25行开始这些js代码绑定过事件，所以再点击，放大缩小之类的就没有效果了
+						 * 这个问题可以用jQuery.live()来搞定，详见手册。
+						 */
+					},'json');
+					dialog.dialog('close');
 				}
-				}
+			}
 		}
 	}])
 	.dialog('open');
