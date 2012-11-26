@@ -218,7 +218,7 @@ class Achievement extends SS_controller{
 	function caseType(){
 		$chart_casetype_income_data=$this->achievement->getCaseTypeIncome();
 
-		$this->load->view_data['chart_casetype_income_data']=json_encode($chart_casetype_income_data,JSON_NUMERIC_CHECK);
+		$this->load->addViewData('chart_casetype_income_data', json_encode($chart_casetype_income_data,JSON_NUMERIC_CHECK));
 	}
 }
 ?>

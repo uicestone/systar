@@ -596,20 +596,29 @@ class Achievement_model extends SS_Model{
 		return $this->db->query($query)->result_array();
 	}
 	
-	//案件分类创收数，统计图用
+	/**
+	 * 案件分类创收数，统计图用
+	 * @return array(
+	 *	array(
+	 *		'name'=>'刑事',
+	 *		'y'=>35000
+	 *	),
+	 *	...
+	 * )
+	 */
 	function getCaseTypeIncome(){
 		$this_year_beginning=strtotime(date('Y-1-1'));
 		$this_month_beginning=strtotime(date('Y-m-1'));
 
 		$query="
-			SELECT case.type, SUM( amount ) AS sum
+			SELECT case.type AS name, SUM( amount ) AS y, TRUE AS sliced
 			FROM account
 			INNER JOIN  `case` ON case.id = account.case
 			WHERE account.name <>  '办案费'
 			AND time_occur >= $this_year_beginning
 			AND time_occur < $this_month_beginning
 			GROUP BY case.type
-			ORDER BY sum
+			ORDER BY y DESC
 		";
 		
 		return $this->db->query($query)->result_array();
