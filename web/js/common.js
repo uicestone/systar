@@ -243,13 +243,11 @@ jQuery.fn.createSchedule=function(startDate, endDate, allDay){
 	calendar=$(this);
 	
 	var dialog;
-	
-	if((startDate) && (endDate) && (allDay)){
-		/*javascript 的注释只能用夹心，不能用斜杠，这一点我以前的代码也有很多错误 TODO: xiuzhi uice 11/26*/
-		dialog=$(this).createDialog('新建日程');
+	if((!startDate) && (!endDate) && (!allDay)){
+		dialog=$(this).createDialog('新建任务');
 	}
 	else{
-		dialog=$(this).createDialog('新建任务')
+		dialog=$(this).createDialog('新建日程')
 	}
 	$.get('/misc/gethtml/schedule/calendar_add',function(schedule_calendar_add_form){
 
@@ -299,7 +297,7 @@ jQuery.fn.createSchedule=function(startDate, endDate, allDay){
 				alert('日志名称必填');
 				$('input:[name="name"]').focus();
 			}else{
-				if(startDate && endDate && allDay){
+				if(startDate && endDate){
 					var start=startDate.getTime()/1000;
 					var end=endDate.getTime()/1000;
 					var postData=$.extend($('#schedule').serializeJSON(),{time_start:start,time_end:end,all_day:Number(allDay)});
@@ -329,18 +327,22 @@ jQuery.fn.createSchedule=function(startDate, endDate, allDay){
 				else{
 					var postData=$('#schedule').serializeJSON();
 					delete postData.type;
-					$.post("/schedule/writecalendar/add",postData,function(response){
-						/*
-						 * TODO: xiuzhi uice 11/26
-						 * 这里要求胖胖给/schedule/writecalendar/add请求加一个返回值，json格式返回数据库刚刚插入的日程的title和content
-						 * 然后利用$('.column:first').append('<div class='portlet-header'>...</div>');来现场添加
-						 * 不过这里会有一个问题，即现场添加的块块没有经过taskboard.php:25行开始这些js代码绑定过事件，所以再点击，放大缩小之类的就没有效果了
-						 * 这个问题可以用jQuery.live()来搞定，详见手册。
-						 */
-					},'json');
+					$.post("/schedule/writecalendar/add",postData,
+						function(response){
+							if(!isNaN(data) && data!=0){
+								$('.column:first').append('<div class='portlet' id='task_'<?='response'['id']?>'>
+															'<div class='portlet-header'><?='response'['title']?></div>'
+															'<div class='portlet-content'><?='response'['content']?></div>'
+															'</div>');
+								/*dialog.dialog('close');*/
+							}else{
+								showMessage('任务添加失败','notice');
+								console.log(data);
+							}
+						},'json');
 					dialog.dialog('close');
 				}
-			}
+				}
 		}
 	}])
 	.dialog('open');
