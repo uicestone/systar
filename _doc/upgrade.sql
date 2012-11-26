@@ -42,3 +42,9 @@ update `group` set affair = 'viewscore' where affair ='view_score';
 -- uice 2012/11/15
 delete from `group` where action='classdiv';
 -- end
+
+
+-- uice 2012/11/26
+UPDATE `group` SET action = 'receivable',affair_ui_name='应收账款' WHERE action = 'recent';
+DELETE FROM `group` WHERE action = 'expired';
+-- end

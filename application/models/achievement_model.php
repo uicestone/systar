@@ -219,65 +219,61 @@ class Achievement_model extends SS_Model{
 		return round($sum,2);
 	}
 	
-	function todo($type){
-		/*未实现的业绩
-		$type:recent(近期催收)，expired(过期未收)
-		返回一个数组，包含num(总数)和sum(总额)两个键
-		*/
+	/**
+	 * 获得应收账款总数
+	 * @param $type 应收账款类型：expired：过期未收，recent：近期催收
+	 * @return 返回一个数组，包含num(总数)和sum(总额)两个键
+	 */
+	function receivableSum($type=NULL,$date_from=NULL,$date_to=NULL){
+
+		$q="
+			SELECT COUNT(case_fee.id) AS num,SUM(case_fee.fee) AS sum
+			FROM case_fee
+				LEFT JOIN (
+					SELECT `case_fee`,SUM(amount) AS amount_sum
+					FROM account
+					GROUP BY `case_fee`
+				)account_grouped -- 根据case_fee分组求和的account
+				ON case_fee.id=account_grouped.case_fee
+				INNER JOIN `case` ON case.id = case_fee.case
+				LEFT JOIN (
+					SELECT `case`, GROUP_CONCAT(DISTINCT staff.name) AS lawyers 
+					FROM case_lawyer 
+						INNER JOIN staff ON staff.id=case_lawyer.lawyer AND case_lawyer.role='主办律师'
+					GROUP BY case_lawyer.case
+				)lawyers ON lawyers.case=case.id
+			WHERE case_fee.type<>'办案费'
+				AND case_fee.reviewed=0
+				AND (account_grouped.amount_sum IS NULL OR case_fee.fee-account_grouped.amount_sum>0) -- 款未到/未到齐
+				AND case.filed=0
+		";
 		
 		if($type=='recent'){
-			$q="
-				SELECT COUNT(case_fee.id) AS num,SUM(case_fee.fee) AS sum
-				FROM case_fee
-					LEFT JOIN (
-						SELECT `case_fee`,SUM(amount) AS amount_sum
-						FROM account
-						GROUP BY `case_fee`
-					)account_grouped	-- 根据case_fee分组求和的account
-					ON case_fee.id=account_grouped.case_fee
-				WHERE case_fee.type<>'办案费'
-					AND case_fee.reviewed=0
-					AND (account_grouped.amount_sum IS NULL OR case_fee.fee-account_grouped.amount_sum>0)	-- 款未到/未到齐
-					AND `case` NOT IN (
-						SELECT id FROM `case` WHERE filed=1
-					)
-					AND FROM_UNIXTIME(pay_time,'%Y-%m-%d')>='".$this->config->item('date')."'
-					AND pay_time<'".($this->config->item('timestamp')+86400*30)."'
-			";
-			
-			if(!is_logged('finance')){
-				$q.="	AND case_fee.case IN (
-						SELECT `case` FROM case_lawyer WHERE lawyer='{$_SESSION['id']}'
-					)
-				";
-			}
+			$q.=" AND FROM_UNIXTIME(pay_time,'%Y-%m-%d')>='{$this->config->item('date')}'";
+		
 		}elseif($type=='expired'){
-			$q="
-				SELECT COUNT(case_fee.id) AS num,SUM(case_fee.fee) AS sum
-				FROM case_fee
-					LEFT JOIN (
-						SELECT `case_fee`,SUM(amount) AS amount_sum
-						FROM account
-						GROUP BY `case_fee`
-					)account_grouped#根据case_fee分组求和的account
-					ON case_fee.id=account_grouped.case_fee
-				WHERE case_fee.type<>'办案费'
-					AND case_fee.reviewed=0
-					AND (account_grouped.amount_sum IS NULL OR case_fee.fee-account_grouped.amount_sum>0)#款未到/未到齐
-					AND `case` NOT IN (
-						SELECT id FROM `case` WHERE filed=1
-					)
-					AND FROM_UNIXTIME(pay_time,'%Y-%m-%d')<'".$this->config->item('date')."'
-			";
-			
-			if(!is_logged('finance')){
-				$q.="	AND case_fee.case IN (
-						SELECT `case` FROM case_lawyer WHERE lawyer='{$_SESSION['id']}'
-					)
-				";
-			}
+			$q.=" AND FROM_UNIXTIME(pay_time,'%Y-%m-%d')<'{$this->config->item('date')}'";
 		}
-	
+		
+		if(isset($date_from)){
+			$q.=" AND FROM_UNIXTIME(pay_time,'%Y-%m-%d')>='$date_from'";
+		}
+		
+		if(isset($date_to)){
+			$q.=" AND FROM_UNIXTIME(pay_time,'%Y-%m-%d')<='$date_to'";
+		}
+
+		if(!is_logged('finance')){
+			$q.=" AND case_fee.case IN (
+					SELECT `case` FROM case_lawyer WHERE lawyer={$_SESSION['id']}
+				)
+			";
+		}
+		
+		$q=$this->search($q,array('case.name'=>'案件','lawyers.names'=>'主办律师'),false);
+		
+		$q=$this->dateRange($q,'pay_time',true,false);
+		
 		$result_array=$this->db->query($q)->row_array();
 		if(!isset($result_array['sum'])){
 			$result_array['sum']=0;
@@ -328,7 +324,11 @@ class Achievement_model extends SS_Model{
 		return $this->db->query($q)->result_array();
 	}
 	
-	function getRecentList(){
+	/**
+	 * 获得应收账款列表
+	 * @param $type 应收账款类型：expired：过期未收，recent：近期催收
+	 */
+	function getReceivableList($type=NULL){
 		$q="
 		SELECT case_fee.id,case_fee.type,case_fee.fee,FROM_UNIXTIME(case_fee.pay_time,'%Y-%m-%d') AS pay_time,
 			case.name AS case_name,case.id AS `case`,
@@ -340,16 +340,10 @@ class Achievement_model extends SS_Model{
 				SELECT `case_fee`,SUM(amount) AS amount_sum
 				FROM account
 				GROUP BY `case_fee`
-			)account_grouped	-- 根据case_fee分组求和的account
+				)account_grouped -- 根据case_fee分组求和的account
 			ON case_fee.id=account_grouped.case_fee
-			
-			LEFT JOIN (
-				SELECT case_client.case,GROUP_CONCAT(DISTINCT client.abbreviation) AS clients
-				FROM case_client INNER JOIN client ON case_client.client=client.id
-				WHERE client.classification='客户'
-				GROUP BY case_client.case
-			)clients
-			ON clients.case=case_fee.case
+				
+			INNER JOIN `case` ON case.id=case_fee.case
 			
 			LEFT JOIN
 			(
@@ -360,46 +354,6 @@ class Achievement_model extends SS_Model{
 			)lawyers
 			ON `case_fee`.case=lawyers.`case`
 		
-			INNER JOIN `case` ON case.id=case_fee.case
-			
-		WHERE case_fee.type<>'办案费'
-			AND case_fee.reviewed=0
-			AND (account_grouped.amount_sum IS NULL OR case_fee.fee-account_grouped.amount_sum>0)	-- 款未到/未到齐
-			AND case_fee.`case` NOT IN (
-			SELECT id FROM `case` WHERE filed=1
-			)
-			AND FROM_UNIXTIME(pay_time,'%Y-%m-%d')>='".$this->config->item('date')."'
-		";
-		
-		if(!is_logged('finance')){
-			$q.="	AND case_fee.case IN (
-					SELECT `case` FROM case_lawyer WHERE lawyer='{$_SESSION['id']}'
-				)
-			";
-		}
-		
-		$q=$this->orderBy($q,'case_fee.pay_time'); //添加排序条件
-		
-		$q=$this->pagination($q); //添加分页设置
-		
-		return $this->db->query($q)->result_array();
-		
-	}
-	
-	function getExpiredList(){
-		$q="SELECT case_fee.id,case_fee.type,case_fee.fee,FROM_UNIXTIME(case_fee.pay_time,'%Y-%m-%d') AS pay_time,
-			case.name AS case_name,case.id AS `case`,
-			IF(account_grouped.amount_sum IS NULL,case_fee.fee,case_fee.fee-account_grouped.amount_sum) AS uncollected,
-			clients.clients,
-			lawyers.lawyers
-		FROM case_fee
-			LEFT JOIN (
-				SELECT `case_fee`,SUM(amount) AS amount_sum
-				FROM account
-				GROUP BY `case_fee`
-				)account_grouped#根据case_fee分组求和的account
-			ON case_fee.id=account_grouped.case_fee
-				
 			LEFT JOIN (
 				SELECT case_client.case,GROUP_CONCAT(DISTINCT client.abbreviation) AS clients
 				FROM case_client INNER JOIN client ON case_client.client=client.id
@@ -408,23 +362,18 @@ class Achievement_model extends SS_Model{
 				)clients
 			ON clients.case=case_fee.case
 			
-			INNER JOIN `case` ON case.id=case_fee.case
-			
-			LEFT JOIN
-			(
-				SELECT `case`,GROUP_CONCAT(staff.name) AS lawyers
-				FROM case_lawyer,staff
-				WHERE case_lawyer.lawyer=staff.id AND case_lawyer.role='主办律师'
-				GROUP BY case_lawyer.`case`
-			)lawyers
-			ON `case_fee`.case=lawyers.`case`
-		
 		WHERE case_fee.type<>'办案费'
 			AND case_fee.reviewed=0
 			AND (account_grouped.amount_sum IS NULL OR case_fee.fee-account_grouped.amount_sum>0)#款未到/未到齐
-			AND FROM_UNIXTIME(pay_time,'%Y-%m-%d')<'".$this->config->item('date')."'
 			AND case.filed=0
 		";
+		
+		if($type=='recent'){
+			$q.=" AND FROM_UNIXTIME(pay_time,'%Y-%m-%d')>={$this->config->item('date')}";
+			
+		}elseif($type=='expired'){
+			$q.=" AND FROM_UNIXTIME(pay_time,'%Y-%m-%d')<{$this->config->item('date')}";
+		}
 		
 		if(!is_logged('finance')){
 			$q.="
@@ -434,10 +383,14 @@ class Achievement_model extends SS_Model{
 			";
 		}
 		
+		$q=$this->search($q,array('case.name'=>'案件','lawyers.lawyers'=>'主办律师'));
+		
+		$q=$this->dateRange($q,'pay_time');
+		
 		$q=$this->orderBy($q,'case_fee.pay_time'); //添加排序条件
 		
 		$q=$this->pagination($q); //添加分页设置
-		
+
 		return $this->db->query($q)->result_array();
 	}
 
