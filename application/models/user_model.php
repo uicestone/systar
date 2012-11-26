@@ -9,9 +9,12 @@ class User_model extends SS_Model{
 			SELECT id,username,password,`group`,lastip,lastlogin,company
 			FROM user 
 			WHERE (username = '".$this->input->post('username')."' OR alias='".$this->input->post('username')."')
-				AND (password = '".$this->input->post('password')."' OR password IS NULL)
 				AND company='".$this->config->item('company')."'
 			";
+		
+			if(!$this->config->item('debug_mode')){
+				$q_user=" AND (password = '".$this->input->post('password')."' OR password IS NULL)";
+			}
 		
 		$user=$this->db->query($q_user)->row_array();
 		
