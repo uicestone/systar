@@ -7,37 +7,19 @@ class Student_model extends People_model{
 	function fetch($id){
 		$id=intval($id);
 		
-		$query="
-			SELECT people.*,
-				`团员`.content,
-				`初中`.content,
-				`生源类别`.content,
-				`住宿`.content,
-				`宿舍`.content,
-				`手机`.content,
-				`电子邮件`.content,
-				`家庭电话`.content,
-				`家庭地址`.content,
-				`居委会`.content,
-				`家庭地址`.content,
-				`银行账号`.content,
-				`疾病史`.content
-			FROM people
-				INNER JOIN people_profile AS `团员` ON people.id=people_profile.people AND name='团员'
-				INNER JOIN people_profile AS `初中` ON people.id=people_profile.people AND people_profile.name='初中'
-				INNER JOIN people_profile AS `生源类别` ON people.id=people_profile.people AND people_profile.name='生源类别'
-				INNER JOIN people_profile AS `住宿` ON people.id=people_profile.people AND people_profile.name='住宿'
-				INNER JOIN people_profile AS `宿舍` ON people.id=people_profile.people AND people_profile.name='宿舍'
-				INNER JOIN people_profile AS `手机` ON people.id=people_profile.people AND people_profile.name='手机'
-				INNER JOIN people_profile AS `电子邮件` ON people.id=people_profile.people AND people_profile.name='电子邮件'
-				INNER JOIN people_profile AS `家庭电话` ON people.id=people_profile.people AND people_profile.name='家庭电话'
-				INNER JOIN people_profile AS `居委会` ON people.id=people_profile.people AND people_profile.name='居委会'
-				INNER JOIN people_profile AS `家庭地址` ON people.id=people_profile.people AND people_profile.name='家庭地址'
-				INNER JOIN people_profile AS `银行账号` ON people.id=people_profile.people AND people_profile.name='银行账号'
-				INNER JOIN people_profile AS `疾病史` ON people.id=people_profile.people AND people_profile.name='疾病史'
-			WHERE people.id=$id AND company={$this->config->item('company/id')}";
+		$base_info=parent::fetch($id);
 		
-		return $this->db->query($query)->row_array();
+		$query="
+			SELECT name,content FROM people_profile
+			WHERE people=$id
+				AND name IN ('youth_league','junior_school','source_type','resident','dormitory','mobile','email','phone','address','community','bank_account','diseases_history')
+		";
+		
+		$result=$this->db->query($query)->result_array();
+		
+		$student_info=$base_info+array_sub($result,'content','name');
+		
+		return $student_info;
 	}
 	
 	function fetchClassInfo($student_id){

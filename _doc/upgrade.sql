@@ -24,3 +24,12 @@ ADD INDEX (  `time_insert` );
 ALTER TABLE  `schedule` ADD  `time_insert` INT NOT NULL AFTER  `username` ,
 ADD INDEX (  `time_insert` );
 -- end uice tonghepc updated
+
+-- uice 2012/11/26
+ALTER TABLE  `property` ADD  `uid` INT NOT NULL AFTER  `company` ,
+ADD  `username` VARCHAR( 255 ) NOT NULL AFTER  `uid` ,
+ADD INDEX (  `uid` );
+ALTER TABLE  `property` ADD  `time` INT NOT NULL;
+ALTER TABLE  `property` ADD INDEX (  `time` );
+-- end
+-- uice air updated 2012/11/26

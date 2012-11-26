@@ -416,9 +416,13 @@ if(!function_exists('array_replace_recursive')){
 		return $array_target;
 	}
 }
+
 /**
  * 将数组的下级数组中的某一key抽出来构成一个新数组
- * $keyname_forkey是母数组中用来作为子数组键名的键值的键名
+ * @param $array
+ * @param $keyname
+ * @param $keyname_forkey 母数组中用来作为子数组键名的键值的键名
+ * @return array
  */
 function array_sub($array,$keyname,$keyname_forkey=NULL){
 	$array_new=array();
