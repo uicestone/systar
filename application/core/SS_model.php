@@ -4,7 +4,7 @@ class SS_Model extends CI_Model{
 		parent::__construct();
 	}
 	
-	function search($query, array $search_fields){
+	function search($query, array $search_fields, $generate_view=true){
 		
 		if(option('in_search_mod')){
 			/*foreach($search_fields as $search_key => $ui_name){
@@ -28,8 +28,10 @@ class SS_Model extends CI_Model{
 			$query.=$condition_search;
 		}
 		
-		$this->load->addViewData('search_fields',$search_fields);
-		$this->load->view('search',array(),'sidebar');
+		if($generate_view){
+			$this->load->addViewData('search_fields',$search_fields);
+			$this->load->view('search',array(),'sidebar');
+		}
 
 		return $query;
 	}
@@ -37,7 +39,7 @@ class SS_Model extends CI_Model{
 	/*
 	 * 为查询语句加上日期条件
 	 */
-	function dateRange($query,$date_field,$date_field_is_timestamp=true){
+	function dateRange($query,$date_field,$date_field_is_timestamp=true, $generate_view=true){
 
 		if(option('in_date_range')){
 
@@ -50,9 +52,11 @@ class SS_Model extends CI_Model{
 			$query.=$condition_date_range;
 		}
 		
-		$this->load->addViewData('date_field',$date_field);
-		$this->load->view('daterange',array(),'sidebar');
-
+		if($generate_view){
+			$this->load->addViewData('date_field',$date_field);
+			$this->load->view('daterange',array(),'sidebar');
+		}
+		
 		return $query;
 	}
 

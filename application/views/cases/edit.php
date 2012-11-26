@@ -197,10 +197,10 @@
 					<input type="submit" name="submit[case_fee_timing]" value="保存" />
 				<? }?></label>
 	
-				<? if($responsible_partner==$_SESSION['id'] && !post('cases/fee_lock') && post('cases/is_reviewed')){?>
+				<? if(($responsible_partner==$_SESSION['id'] || is_logged('finance')) && !post('cases/fee_lock')){?>
 				<input type="submit" name="submit[lock_fee]" value="锁定" />
 				<? }?>
-				<? if($responsible_partner==$_SESSION['id'] && post('cases/fee_lock')){ ?>
+				<? if(($responsible_partner==$_SESSION['id'] || is_logged('finance')) && post('cases/fee_lock')){ ?>
 				<input type="submit" name="submit[unlock_fee]" value="解锁" />
 				<? } ?>
 				

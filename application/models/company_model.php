@@ -87,8 +87,8 @@ class Company_model extends SS_Model{
 		);
 		
 		
-		$recent_collect=$this->achievement->todo('recent');
-		$expired_collect=$this->achievement->todo('expired');
+		$recent_collect=$this->achievement->receivableSum('recent',NULL,date('Y-m-d',$this->config->item('timestamp')+86400*30));
+		$expired_collect=$this->achievement->receivableSum('expired');
 		
 		$sidebar_table[]=array(
 			'_heading'=>array(

@@ -68,7 +68,7 @@ class Achievement extends SS_controller{
 		$this->load->view('list');
 	}
 
-	function recent(){
+	function receivable($method=NULL){
 		
 		$this->session->set_userdata('last_list_action',$this->input->server('REQUEST_URI'));
 		
@@ -82,39 +82,18 @@ class Achievement extends SS_controller{
 			'clients'=>array('title'=>'客户')
 		);
 		
-		
 		$table=$this->table->setFields($field)
-					->setData($this->achievement->getRecentList())
+					->setData($this->achievement->getReceivableList($method))
 					->generate();
 				
 		$this->load->main_view_loaded=TRUE;
 		$this->load->addViewData('list',$table);
 
+		$receivable_sum=$this->achievement->receivableSum($method,option('date_range/from'),option('date_range/to'));
+		$this->load->addViewData('receivable_sum', $receivable_sum['sum']);
+
 		$this->load->view('list');	
-	}
-	
-	function expired(){
-			
-		$this->session->set_userdata('last_list_action',$this->input->server('REQUEST_URI'));
-		
-		$field=array(
-			'type'=>array('title'=>'类别','td_title'=>'width="85px"'),
-			'case_name'=>array('title'=>'案件','td_title'=>'width="25%"','content'=>'<a href="/cases/edit/{case}" class="right" style="margin-left:10px;">查看</a>{case_name}'),
-			'lawyers'=>array('title'=>'主办律师'),
-			'fee'=>array('title'=>'预估','td_title'=>'width="100px"'),
-			'pay_time'=>array('title'=>'时间','td_title'=>'width="100px"'),
-			'uncollected'=>array('title'=>'未收','td_title'=>'width="100px"'),
-			'clients'=>array('title'=>'客户')
-		);
-		
-		$table=$this->table->setFields($field)
-					->setData($this->achievement->getExpiredList())
-					->generate();
-		
-		$this->load->addViewData('list',$table);
-		
-		$this->load->view('list');
-		
+		$this->load->main_view_loaded=true;
 	}
 	
 	function caseBonus(){
@@ -218,7 +197,7 @@ class Achievement extends SS_controller{
 	function caseType(){
 		$chart_casetype_income_data=$this->achievement->getCaseTypeIncome();
 
-		$this->load->view_data['chart_casetype_income_data']=json_encode($chart_casetype_income_data,JSON_NUMERIC_CHECK);
+		$this->load->addViewData('chart_casetype_income_data', json_encode($chart_casetype_income_data,JSON_NUMERIC_CHECK));
 	}
 }
 ?>

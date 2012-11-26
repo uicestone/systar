@@ -283,3 +283,8 @@ ALTER TABLE `staff_label`
 --end
 -- PangPang 2012-11-19 upgrade
 -- Wm 2012-11-19 upgrade
+
+-- uice 2012/11/26
+UPDATE `group` SET action = 'receivable',affair_ui_name='应收账款' WHERE action = 'recent';
+DELETE FROM `group` WHERE action = 'expired';
+-- end
