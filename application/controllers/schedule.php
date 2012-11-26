@@ -385,12 +385,16 @@ class Schedule extends SS_controller{
 		
 		if($action=='add'){//插入新的任务
 			$postData = $this->input->post();
-			$result['id'] = $this->schedule->add($postData);
-			//前台要求的返回json字段
-			$fetch_result = $this -> schedule -> fetch($post_data['id']);
-			$schedule_data['name'] = $fetch_result['name'];
-			$schedule_data['content'] = $fetch_result['content'];
-			$result['response'] = json_encode($schedule_data);
+			
+			$new_schedule=array();
+			$new_schedule['id'] = $this->schedule->add($postData);
+			
+			$fetch_result = $this -> schedule -> fetch($new_schedule['id']);
+			$new_schedule['name'] = $fetch_result['name'];
+			$new_schedule['content'] = $fetch_result['content'];
+			$result['response'] = json_encode($new_schedule);
+			//TODO@pang uice 11/26 我是这个意思，id,name,content本来就是并列的三个字段，没必要分层保存
+			//修改此处以后要相应修改_doc/前后台接口.js，过去看一下我的标注
 			
 			echo $result;
 			

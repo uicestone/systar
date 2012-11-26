@@ -198,16 +198,35 @@ var schedule={
 			view:'供dialog中显示的日志视图'
 		}
 	},
-	writeCalendar:{
-		url:'/schedule/writecalendar',
-		get:{
-			
+	//TODO@xiuzhi@pang uice 11/26 看一下前后台请求规范，以后前后台可以互相在这里申请/反馈数据传输方式
+	writeCalendar:[
+		{
+			url:'/schedule/writecalendar/add',
+			post:{
+				title:'日志标题',//标题
+				content:'日志内容',//内容
+				experience:'日之心得',//心得
+				time_start:1299999900,//开始时间戳
+				time_end:1300000000,//结束时间戳
+				all_day:0,//是否全天
+				fee:10.0,//涉及费用
+				fee_name:'费用用途',
+				place:'外出地点'
+			},
+			response:{
+				id:12321,//新插入日程的id
+				name:'日志标题',//新插入日程存入数据库的标题
+				content:'日志内容'//新插入日程存入数据库的内容
+			}
 		},
-		post:{
-			
+		{
+			url:'/schedule/writecalendar/resize'
 		},
-		response:{
-			
+		{
+			url:'/schedule/writecalendar/drag'
+		},
+		{
+			url:'/schedule/writecalendar/delete'
 		}
-	}
+	]
 }
