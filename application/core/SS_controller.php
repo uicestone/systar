@@ -354,6 +354,25 @@ class SS_Controller extends CI_Controller{
 			redirect(($this->session->userdata('last_list_action')?$this->session->userdata('last_list_action'):CONTROLLER));
 		}
 	}
-
+	
+	function setField(){
+		$this->load->require_head=false;
+		$args=func_get_args();
+		$id=$args[0];
+		
+		$post=$this->input->post();
+		$value=$post['value'];
+		
+		$post_key_name_array=array_splice($args, 1);
+		$post_key_name=implode('/',$post_key_name_array);
+		
+		post($post_key_name,$value);
+		echo 'success';
+	}
+	
+	function submit(){
+		$this->load->require_head=false;
+		echo 'success';
+	}
 }
 ?>

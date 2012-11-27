@@ -111,4 +111,29 @@ $(function(){
 	}).mouseleave(function(){
 		$(this).children('input:submit').qtip('hide');
     });*/
+
+	$('form[name="'+controller+'"]').find('input,select').change(function(){
+		var value=$(this).val();
+		if($(this).is(':checkbox') && !$(this).is(':checked')){
+			value=0;
+		}
+		var id = $('form[name="'+controller+'"]').attr('id');
+		var name = $(this).attr('name').replace('[','/').replace(']','');
+		$.post('/'+controller+'/setfield/'+id+'/'+name,{value:value});
+	});
+	
+	$('form[name="'+controller+'"]').submit(function(){
+		$.get('/'+controller+'/submit/'+$(this).attr('id'),function(response){
+			if(response=='success'){
+				if(asPopupWindow){
+					window.close();
+				}else{
+					location.href=location.protocol+'//'+location.host+lastListAction;
+				}
+			}else{
+				showMessage('保存失败','warning');
+			}
+		});
+		return false;
+	});
 });

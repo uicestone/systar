@@ -16,6 +16,8 @@
 		var action='<?=$this->METHOD?>';
 		var username='<?$this->user->name?>';
 		var sysname='<?=$this->config->item('company/sysname')?>';
+		var lastListAction='<?=$this->session->userdata('last_list_action')?>';
+		var asPopupWindow=<?=intval($this->as_popup_window)?>;
 	</script>
 	<?javascript('contentframe')?>
 </head>

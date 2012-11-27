@@ -1,5 +1,5 @@
 <?javascript('student_add')?>
-<form method="post">
+<form method="post" name="<?=CONTROLLER?>" id="<?=post(CONTROLLER.'/id')?>">
 <div class="contentTableMenu">
 	<div class="right">
 		<input type="submit" name="submit[student]" value="保存" />
