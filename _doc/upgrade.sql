@@ -33,3 +33,4 @@ ALTER TABLE  `property` ADD  `time` INT NOT NULL;
 ALTER TABLE  `property` ADD INDEX (  `time` );
 -- end
 -- uice air updated 2012/11/26
+-- iori updated 2012/11/27
