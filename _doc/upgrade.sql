@@ -41,3 +41,4 @@ ALTER TABLE  `account` ADD  `name` VARCHAR( 255 ) NOT NULL AFTER  `id`;
 ALTER TABLE  `team` ADD  `time_insert` INT NOT NULL AFTER  `username` ,
 ADD INDEX (  `time_insert` );
 -- end uice air updated
+-- iori 2012/11/27 updated
