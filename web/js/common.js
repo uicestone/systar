@@ -243,11 +243,11 @@ jQuery.fn.createSchedule=function(startDate, endDate, allDay){
 	calendar=$(this);
 	
 	var dialog;
-	if((!startDate) && (!endDate) && (!allDay)){
-		dialog=$(this).createDialog('新建任务');
+	if(startDate&& endDate){
+		dialog=$(this).createDialog('新建日程');
 	}
 	else{
-		dialog=$(this).createDialog('新建日程')
+		dialog=$(this).createDialog('新建任务')
 	}
 	$.get('/misc/gethtml/schedule/calendar_add',function(schedule_calendar_add_form){
 
@@ -303,11 +303,11 @@ jQuery.fn.createSchedule=function(startDate, endDate, allDay){
 					var postData=$.extend($('#schedule').serializeJSON(),{time_start:start,time_end:end,all_day:Number(allDay)});
 					delete postData.type;
 					$.post("/schedule/writecalendar/add",postData,
-						function(data){
-							if(!isNaN(data) && data!=0){
+						function(response){
+							if(!isNaN(response) && response!=0){
 								calendar.fullCalendar('renderEvent',
 									{
-										id:data,
+										id:response['id'],
 										title:$('[name="name"]').val(),
 										start: startDate,
 										end: endDate,
@@ -329,10 +329,10 @@ jQuery.fn.createSchedule=function(startDate, endDate, allDay){
 					delete postData.type;
 					$.post("/schedule/writecalendar/add",postData,
 						function(response){
-							if(!isNaN(data) && data!=0){
-								$('.column:first').append('<div class='portlet' id='task_'<?='response'['id']?>'>
-															'<div class='portlet-header'><?='response'['title']?></div>'
-															'<div class='portlet-content'><?='response'['content']?></div>'
+							if(!isNaN(response) && response!=0){
+								$('.column:first').append('<div class="portlet" id="task_'+response['id']+'">'
+															'<div class="portlet-header">'+response['name']+'</div>'
+															'<div class="portlet-content">'+response['content']+'</div>'
 															'</div>');
 								/*dialog.dialog('close');*/
 							}else{
