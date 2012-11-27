@@ -243,7 +243,7 @@ jQuery.fn.createSchedule=function(startDate, endDate, allDay){
 	calendar=$(this);
 	
 	var dialog;
-	if(startDate&& endDate){
+	if(startDate && endDate){
 		dialog=$(this).createDialog('新建日程');
 	}
 	else{
@@ -294,7 +294,10 @@ jQuery.fn.createSchedule=function(startDate, endDate, allDay){
 		text: "保存",
 		click: function() {
 			if($('input[name="name"]').val()==''){
-				alert('日志名称必填');
+				if(startDate){
+					alert('日志名称必填');
+				}
+				else alert('任务名称必填');
 				$('input:[name="name"]').focus();
 			}else{
 				if(startDate && endDate){
@@ -304,7 +307,7 @@ jQuery.fn.createSchedule=function(startDate, endDate, allDay){
 					delete postData.type;
 					$.post("/schedule/writecalendar/add",postData,
 						function(response){
-							if(!isNaN(response) && response!=0){
+							if(isNaN(response) && response !=null){
 								calendar.fullCalendar('renderEvent',
 									{
 										id:response['id'],
@@ -317,31 +320,43 @@ jQuery.fn.createSchedule=function(startDate, endDate, allDay){
 								);
 								calendar.fullCalendar('unselect');
 								dialog.dialog('close');
+								
 							}else{
 								showMessage('日程添加失败','notice');
-								console.log(data);
+								console.log(response);
 							}
 						}
 					);
-				}
-				else{
-					var postData=$('#schedule').serializeJSON();
-					delete postData.type;
-					$.post("/schedule/writecalendar/add",postData,
-						function(response){
-							if(!isNaN(response) && response!=0){
-								$('.column:first').append('<div class="portlet" id="task_'+response['id']+'">'
-															'<div class="portlet-header">'+response['name']+'</div>'
-															'<div class="portlet-content">'+response['content']+'</div>'
-															'</div>');
-								/*dialog.dialog('close');*/
-							}else{
-								showMessage('任务添加失败','notice');
-								console.log(data);
-							}
-						},'json');
-					dialog.dialog('close');
-				}
+				}else{
+						var postData=$('#schedule').serializeJSON();
+						delete postData.type;
+						$.post("/schedule/writecalendar/add",postData,
+							function(response){
+								$('.column:first').append('<div class="portlet" id="task_'+response['id']+'">'+
+																'<div class="portlet-header">'+response['name']+'</div>'+
+																'<div class="portlet-content">'+response['content']+'</div>'+
+																'</div>')
+								$(".portlet" ).click(function(){
+										$('#taskboard').showSchedule($(this).attr('id').replace('task_',''));
+								})
+								$('.column:first')
+								.find( ".portlet:last" ).
+									addClass( "ui-widget ui-widget-content ui-helper-clearfix ui-corner-all" )
+					            .find( ".portlet-header" )
+					                .addClass( "ui-widget-header ui-corner-all" )
+					                .prepend( "<span class='ui-icon ui-icon-minusthick'></span>")
+					                .end()
+					            .find( ".portlet-content" );
+								
+								$( ".portlet-header .ui-icon" ).click(function(){
+						            $( this ).toggleClass( "ui-icon-minusthick" ).toggleClass( "ui-icon-plusthick" );
+						            $( this ).parents( ".portlet:first" ).find( ".portlet-content" ).toggle();
+						        });
+								
+								dialog.dialog('close');
+							});
+						
+					}
 				}
 		}
 	}])
