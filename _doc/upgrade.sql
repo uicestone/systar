@@ -34,3 +34,10 @@ ALTER TABLE  `property` ADD INDEX (  `time` );
 -- end
 -- uice air updated 2012/11/26
 -- iori updated 2012/11/27
+
+
+-- uice 2012/11/27
+ALTER TABLE  `account` ADD  `name` VARCHAR( 255 ) NOT NULL AFTER  `id`;
+ALTER TABLE  `team` ADD  `time_insert` INT NOT NULL AFTER  `username` ,
+ADD INDEX (  `time_insert` );
+-- end uice air updated
