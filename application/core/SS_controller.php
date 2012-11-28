@@ -17,6 +17,11 @@ class SS_Controller extends CI_Controller{
 	var $actual_table;
 	var $company_type_model_loaded=false;
 	
+	/**
+	 * edit表单id，当前edit页面所编辑的对象的id
+	 */
+	var $form_id;
+	
 	function __construct(){
 		parent::__construct();
 		
@@ -256,7 +261,6 @@ class SS_Controller extends CI_Controller{
 	 * @param $callback 对于新增数据，在执行插入操作之前进行一些赋值
 	 */
 	function getPostData($id=NULL,$function_initializing_data=NULL){
-		unset($_SESSION[CONTROLLER]['post']);
 		$class=CONTROLLER;
 		
 		if(!$id){
@@ -302,7 +306,7 @@ class SS_Controller extends CI_Controller{
 
 		if($set_user){
 			post(CONTROLLER.'/uid',$this->user->id);
-			post(CONTROLLER.'/username',$_SESSION['username']);
+			post(CONTROLLER.'/username',$this->user->name);
 		}
 
 		post(CONTROLLER.'/company',$this->config->item('company/id'));
@@ -322,23 +326,7 @@ class SS_Controller extends CI_Controller{
 					$after_update();
 				}
 
-				if(is_posted('submit/'.CONTROLLER)){
-
-					if(!$this->as_controller_default_page){
-						unset($_SESSION[CONTROLLER]['post']);
-					}
-
-					if($this->as_popup_window){
-						refreshParentContentFrame();
-						closeWindow();
-					}else{
-						if($this->as_controller_default_page){
-							showMessage('保存成功~');
-						}else{
-							redirect(($this->session->userdata('last_list_action')?$this->session->userdata('last_list_action'):CONTROLLER));
-						}
-					}
-				}
+				return true;
 			}
 		}
 	}
@@ -359,6 +347,7 @@ class SS_Controller extends CI_Controller{
 		$this->load->require_head=false;
 		$args=func_get_args();
 		$id=$args[0];
+		$this->form_id=$id;
 		
 		$post=$this->input->post();
 		$value=$post['value'];
@@ -370,9 +359,5 @@ class SS_Controller extends CI_Controller{
 		echo 'success';
 	}
 	
-	function submit(){
-		$this->load->require_head=false;
-		echo 'success';
-	}
 }
 ?>

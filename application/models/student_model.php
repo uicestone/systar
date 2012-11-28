@@ -1,13 +1,12 @@
 <?php
 class Student_model extends People_model{
+	
 	function __construct(){
 		parent::__construct();
 	}
 
-	function fetch($id){
+	function fetchProfile($id){
 		$id=intval($id);
-		
-		$base_info=parent::fetch($id);
 		
 		$query="
 			SELECT name,content FROM people_profile
@@ -15,11 +14,7 @@ class Student_model extends People_model{
 				AND name IN ('youth_league','junior_school','source_type','resident','dormitory','mobile','email','phone','address','community','bank_account','diseases_history')
 		";
 		
-		$result=$this->db->query($query)->result_array();
-		
-		$student_info=$base_info+array_sub($result,'content','name');
-		
-		return $student_info;
+		return array_sub($this->db->query($query)->result_array(),'content','name');
 	}
 	
 	function fetchClassInfo($student_id){

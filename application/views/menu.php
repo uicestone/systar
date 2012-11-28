@@ -5,7 +5,7 @@
 <?	if($this->config->item('company/ucenter')){?>
 		<a href="http://www.lawyerstars.com/home.php?mod=space&do=pm" target="_blank"><img src="/images/message.png" />
 <?	}?>
-<?	if($this->user->new_messages>0){?>
+<?	if($this->config->item('company/ucenter') && $this->user->new_messages>0){?>
 		<?=$this->user->new_messages?>
 <?	}?>
 		<a href="/user/logout" target="_top">退出</a>

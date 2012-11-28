@@ -275,10 +275,13 @@ function displayCheckbox($html,$name,$check_value,$value=NULL,$disabled=false){
  */
 function post($arrayindex){
 	$args=func_get_args();
+	
+	$CI=&get_instance();
+	
 	if(count($args)==1){
-		return array_dir('_SESSION/'.CONTROLLER.'/post/'.$arrayindex);
+		return array_dir('_SESSION/'.CONTROLLER.'/post/'.$CI->form_id.'/'.$arrayindex);
 	}elseif(count($args)==2){
-		return array_dir('_SESSION/'.CONTROLLER.'/post/'.$arrayindex,$args[1]);
+		return array_dir('_SESSION/'.CONTROLLER.'/post/'.$CI->form_id.'/'.$arrayindex,$args[1]);
 	}
 	
 }

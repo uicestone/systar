@@ -3,6 +3,7 @@ class Student extends SS_controller{
 	function __construct(){
 		parent::__construct();
 		$this->load->model('classes_model','classes');
+		$this->actual_table='people';
 	}
 	
 	function lists(){
@@ -61,107 +62,97 @@ class Student extends SS_controller{
 		$this->edit();
 	}
 	
-	function edit($id=NULL){
-		post(CONTROLLER,$this->getPostData($id));
+	function submit($submit,$id){
+		$this->load->require_head=false;
 		
+		$this->form_id=$id;
+		
+		$submitable=true;
+
+		if($submit=='student_relatives'){
+			$this->student->addRelatives(post('student/id'),post('student_relatives'));
+			unset($_SESSION[CONTROLLER]['post']['student_relatives']);
+		}
+
+		if($submit=='student_relatives_delete'){
+			$this->student->deleteRelatives(post('student_relatives_check'));
+		}
+
+		if($submit=='student_behaviour'){
+			if($this->student->addBehaviour(post('student/id'),post('student_behaviour'))){
+				unset($_SESSION[CONTROLLER]['post']['student_behaviour']);
+			}else{
+				$submitable=false;
+			}
+		}
+
+		if(($submit=='student_comment' || $submit=='student') && 
+			(post('student_comment/title')!='' || post('student_comment/content')!='')
+		){
+
+			if($this->student->addComment(post('student/id'),post('student_comment'))){
+				unset($_SESSION[CONTROLLER]['post']['student_comment']);
+			}else{
+				$submitable=false;
+			}
+		}
+
+		if($this->user->isLogged('student') && is_posted('submit/student')){
+			$form_check=array(
+				'birthday'=>'生日',
+				'id_card'=>'身份证号',
+				'race'=>'民族',
+				'junior_school'=>'初中',
+				'mobile'=>'手机',
+				'phone'=>'固定电话',
+				'email'=>'电子邮箱',
+				'address'=>'地址',
+				'neighborhood_committees'=>'居委会',
+				'bank_account'=>'银行卡号'
+
+			);
+
+			foreach($form_check as $item => $warning){
+				if(!post(CONTROLLER.'/'.$item)){
+					showMessage('请输入'.$warning,'warning');
+					$submitable=false;
+				}
+			}
+		}
+
+		if($this->user->isLogged('student') && db_fetch_field("SELECT COUNT(id) FROM student_relatives WHERE student = {$this->user->id}")<2){
+			showMessage('请至少输入两位亲属，每输入一行需要点击“添加”按钮');
+			$submitable=false;
+		}
+
+		if(!(post('student_class'))){
+			if(!db_insert('student_class',array('student'=>post('student/id'),'class'=>post('student_class/class'),'num_in_class'=>post('student_class/num_in_class'),'term'=>$this->school->current_term))){
+				$submitable=false;
+			}
+		}else{
+			if(!$this->db->update('team_people',post('student_class'),array('people'=>post('student/id'),'term'=>$this->school->current_term))){
+				$submitable=false;
+			}
+		}
+
+		if($this->processSubmit($submitable)){
+			echo 'success';
+		}
+	}
+	
+	function edit($id=NULL){
+		$post_data=$this->getPostData($id);
+		
+		$this->form_id=$post_data['id'];
+		
+		post(CONTROLLER,$post_data);
+		
+		post('student_profile',$this->student->fetchProfile(post('student/id')));
 		$student_class=$this->student->fetchClassInfo(post('student/id'));
-		post('student_class',array('class'=>$student_class['class'],'num_in_class'=>$student_class['num_in_class']));
+		post('student_class',array('team'=>$student_class['class'],'id_in_team'=>$student_class['num_in_class']));
 		post('classes/name',$student_class['class_name']);
 		isset($student_class['class_teacher_name']) && post('student_extra/class_teacher_name',$student_class['class_teacher_name']);
 		$submitable=false;//可提交性，false则显示form，true则可以跳转
-		
-		if($this->input->post('submit')){
-			$submitable=true;
-		
-			$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$_POST);
-			
-			if(is_posted('submit/student_relatives')){
-				$this->student->addRelatives(post('student/id'),post('student_relatives'));
-				unset($_SESSION[CONTROLLER]['post']['student_relatives']);
-			}
-			
-			if(is_posted('submit/student_relatives_delete')){
-				$this->student->deleteRelatives(post('student_relatives_check'));
-			}
-			
-			if(is_posted('submit/student_behaviour')){
-				if($this->student->addBehaviour(post('student/id'),post('student_behaviour'))){
-					unset($_SESSION[CONTROLLER]['post']['student_behaviour']);
-				}else{
-					$submitable=false;
-				}
-			}
-			
-			if((is_posted('submit/student_comment') || is_posted('submit/student')) && 
-				(post('student_comment/title')!='' || post('student_comment/content')!='')
-			){
-		
-				if($this->student->addComment(post('student/id'),post('student_comment'))){
-					unset($_SESSION[CONTROLLER]['post']['student_comment']);
-				}else{
-					$submitable=false;
-				}
-			}
-		
-			if(!is_posted('student/youth_league')){
-				post('student/youth_league',0);
-			}
-			
-			if(!is_posted('student/resident')){
-				post('student/resident',0);
-				post('student/dormitory','');
-			}
-			
-			if(post('student/birthday')==''){
-				unset($_SESSION[CONTROLLER]['post']['student']['birthday']);
-			}
-			
-			if($this->user->isLogged('student') && is_posted('submit/student')){
-				$form_check=array(
-					'birthday'=>'生日',
-					'id_card'=>'身份证号',
-					'race'=>'民族',
-					'junior_school'=>'初中',
-					'mobile'=>'手机',
-					'phone'=>'固定电话',
-					'email'=>'电子邮箱',
-					'address'=>'地址',
-					'neighborhood_committees'=>'居委会',
-					'bank_account'=>'银行卡号'
-					
-				);
-				
-				foreach($form_check as $item => $warning){
-					if(!post(CONTROLLER.'/'.$item)){
-						showMessage('请输入'.$warning,'warning');
-						$submitable=false;
-					}
-				}
-			}
-			
-			if($this->user->isLogged('student') && db_fetch_field("SELECT COUNT(id) FROM student_relatives WHERE student = {$this->user->id}")<2){
-				showMessage('请至少输入两位亲属，每输入一行需要点击“添加”按钮');
-				$submitable=false;
-			}
-			
-			if(empty($student_class)){
-				if(!db_insert('student_class',array('student'=>post('student/id'),'class'=>post('student_class/class'),'num_in_class'=>post('student_class/num_in_class'),'term'=>$this->school->current_term))){
-					$submitable=false;
-				}
-			}else{
-				if(!$this->db->update('student_class',post('student_class'),array('student'=>post('student/id'),'term'=>$this->school->current_term))){
-					$submitable=false;
-				}
-			}
-			
-			$this->processSubmit($submitable,function(){
-				$username=db_fetch_field("SELECT username FROM user WHERE id = '".post(CONTROLLER.'/id')."'");
-				if(!$username){
-					$this->student->update();
-					db_query("UPDATE user INNER JOIN view_student USING (id) SET user.username=CONCAT(view_student.name,view_student.num),user.alias=view_student.num WHERE view_student.id = '".post(CONTROLLER.'/id')."'");
-				}
-			});
-		}
 		
 		$fields_student_relatives=array(
 			'checkbox'=>array('title'=>'<input type="submit" name="submit[student_relatives_delete]" value="删" />','orderby'=>false,'content'=>'<input type="checkbox" name="student_relatives_check[{id}]" >','td_title'=>' width="25px"'),

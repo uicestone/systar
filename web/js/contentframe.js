@@ -112,6 +112,9 @@ $(function(){
 		$(this).children('input:submit').qtip('hide');
     });*/
 
+	/**
+	 * edit表单元素更改时实时提交到后台
+	 */
 	$('form[name="'+controller+'"]').find('input,select').change(function(){
 		var value=$(this).val();
 		if($(this).is(':checkbox') && !$(this).is(':checked')){
@@ -122,8 +125,14 @@ $(function(){
 		$.post('/'+controller+'/setfield/'+id+'/'+name,{value:value});
 	});
 	
-	$('form[name="'+controller+'"]').submit(function(){
-		$.get('/'+controller+'/submit/'+$(this).attr('id'),function(response){
+	/**
+	 * edit表单提交事件
+	 */
+	$('form[name="'+controller+'"]').find('input:submit').click(function(){
+		var id = $('form[name="'+controller+'"]').attr('id');
+		var submit = $(this).attr('name').replace('submit[','').replace(']','');
+		
+		$.get('/'+controller+'/submit/'+submit+'/'+id,function(response){
 			if(response=='success'){
 				if(asPopupWindow){
 					window.close();
