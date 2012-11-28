@@ -278,10 +278,12 @@ function post($arrayindex){
 	
 	$CI=&get_instance();
 	
+	$controller=CONTROLLER;
+	
 	if(count($args)==1){
-		return array_dir('_SESSION/'.CONTROLLER.'/post/'.$CI->form_id.'/'.$arrayindex);
+		return array_dir('_SESSION/'.CONTROLLER.'/post/'.$CI->$controller->id.'/'.$arrayindex);
 	}elseif(count($args)==2){
-		return array_dir('_SESSION/'.CONTROLLER.'/post/'.$CI->form_id.'/'.$arrayindex,$args[1]);
+		return array_dir('_SESSION/'.CONTROLLER.'/post/'.$CI->$controller->id.'/'.$arrayindex,$args[1]);
 	}
 	
 }

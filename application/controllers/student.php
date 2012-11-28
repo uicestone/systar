@@ -65,7 +65,8 @@ class Student extends SS_controller{
 	function submit($submit,$id){
 		$this->load->require_head=false;
 		
-		$this->form_id=$id;
+		$controller=CONTROLLER;
+		$this->$controller->id=$id;
 		
 		$submitable=true;
 
@@ -141,18 +142,16 @@ class Student extends SS_controller{
 	}
 	
 	function edit($id=NULL){
-		$post_data=$this->getPostData($id);
-		
-		$this->form_id=$post_data['id'];
-		
-		post(CONTROLLER,$post_data);
+		post(CONTROLLER,$this->getPostData($id));
 		
 		post('student_profile',$this->student->fetchProfile(post('student/id')));
+		
 		$student_class=$this->student->fetchClassInfo(post('student/id'));
 		post('student_class',array('team'=>$student_class['class'],'id_in_team'=>$student_class['num_in_class']));
+		
 		post('classes/name',$student_class['class_name']);
+		
 		isset($student_class['class_teacher_name']) && post('student_extra/class_teacher_name',$student_class['class_teacher_name']);
-		$submitable=false;//可提交性，false则显示form，true则可以跳转
 		
 		$fields_student_relatives=array(
 			'checkbox'=>array('title'=>'<input type="submit" name="submit[student_relatives_delete]" value="删" />','orderby'=>false,'content'=>'<input type="checkbox" name="student_relatives_check[{id}]" >','td_title'=>' width="25px"'),

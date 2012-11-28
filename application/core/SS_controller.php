@@ -17,11 +17,6 @@ class SS_Controller extends CI_Controller{
 	var $actual_table;
 	var $company_type_model_loaded=false;
 	
-	/**
-	 * edit表单id，当前edit页面所编辑的对象的id
-	 */
-	var $form_id;
-	
 	function __construct(){
 		parent::__construct();
 		
@@ -283,7 +278,9 @@ class SS_Controller extends CI_Controller{
 			}
 		}
 	
-		if(!$id){
+		if($id){
+			$this->$class->id=$id;
+		}else{
 			show_error('获得数据条目id失败');
 			exit;
 		}
@@ -347,7 +344,9 @@ class SS_Controller extends CI_Controller{
 		$this->load->require_head=false;
 		$args=func_get_args();
 		$id=$args[0];
-		$this->form_id=$id;
+		
+		$controller=CONTROLLER;
+		$this->$controller->id=$id;
 		
 		$post=$this->input->post();
 		$value=$post['value'];

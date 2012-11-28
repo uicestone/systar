@@ -1,5 +1,11 @@
 <?php
 class People_model extends SS_Model{
+	
+	/**
+	 * 当前编辑的“人”对象的id
+	 */
+	var $id;
+	
 	function __construct() {
 		parent::__construct();
 	}
