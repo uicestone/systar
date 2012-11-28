@@ -11,11 +11,12 @@ begin
 	truncate keywords_table;
 
 	create temporary table if not exists CD_table(
-		id int(11) primary key,
+		id int(11),
 		name varchar(255),
 		column_name varchar(255),
 		degree float default 0,
 		matches int default 0,
+		primary key(id,column_name),
 		key degree(degree),
 		key matches(matches)
 	);
