@@ -70,6 +70,11 @@ class Student extends SS_controller{
 	function submit($submit,$id){
 		$this->load->require_head=false;
 		
+		if(parent::submit($submit)){
+			echo 'success';
+			return;
+		}
+		
 		$this->student->id=$id;
 
 		$this->load->helper(array('form','url'));
@@ -147,14 +152,14 @@ class Student extends SS_controller{
 	 * $id==NULL时，自动添加一条新纪录，然后开始编辑
 	 */
 	function edit($id=NULL){
-		post(CONTROLLER,$this->student->getPostData($id));
+		$_POST['student']=$this->student->getPostData($id);
 		
-		$student_class=$this->student->fetchClassInfo($this->student->id);
-		post('student_class',array('team'=>$student_class['class'],'id_in_team'=>$student_class['num_in_class']));
+		$student_class_data=$this->student->fetchClassInfo($this->student->id);
+		$_POST['student_class']=array('team'=>$student_class['class'],'id_in_team'=>$student_class_data['num_in_class']);
 		
-		post('classes/name',$student_class['class_name']);
+		$_POST['classes']['name']=$student_class_data['class_name'];
 		
-		isset($student_class['class_teacher_name']) && post('student_extra/class_teacher_name',$student_class['class_teacher_name']);
+		isset($student_class_data['class_teacher_name']) && $_POST['student_extra']['class_teacher_name']=$student_class_data['class_teacher_name'];
 		
 		$fields_student_relatives=array(
 			'checkbox'=>array('title'=>'<input type="submit" name="submit[student_relatives_delete]" value="删" />','orderby'=>false,'content'=>'<input type="checkbox" name="student_relatives_check[{id}]" >','td_title'=>' width="25px"'),

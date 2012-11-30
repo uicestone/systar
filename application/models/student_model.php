@@ -78,7 +78,9 @@ class Student_model extends People_model{
 		
 		//$this->db->where(array('people'=>$this->id))->update_batch('people_profile', $student_profile_batch_data, 'name');
 		
-		$this->db->insert_batch('people_profile', $student_profile_batch_data);
+		if($student_profile_batch_data){
+			$this->db->insert_batch('people_profile', $student_profile_batch_data);
+		}
 		
 		return true;
 	}
@@ -250,7 +252,7 @@ class Student_model extends People_model{
 	}
 	
 	function addRelatives($student,$data){
-		$fields=array('name','relationship','contact','work_for');
+		$fields=array('name','relation','contact','work_for');
 		
 		$relatives=array('student',$student);
 		
@@ -262,7 +264,7 @@ class Student_model extends People_model{
 
 		$relatives+=uidTime();
 		
-		if($this->db->insert('student_relatives',$relatives)){
+		if($this->db->insert('people_relationship',$relatives)){
 			unset($_SESSION[CONTROLLER]['post']['student_relatives']);
 			return $this->db->insert_id();
 		}else{

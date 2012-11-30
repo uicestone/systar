@@ -13,7 +13,7 @@
 		<div class="item">
 			<div class="title"><label>基本：</label></div>
 			<div>
-				<input type="text" name="student[id_card]" value="<?=post('student/id_card'); ?>" placeholder="身份证" class="right" style="width:39%" />
+				<input type="text" name="student[id_card]" value="<?=set_value('student/id_card'); ?>" placeholder="身份证" class="right" style="width:39%" />
 				<input type="text" name="student[name]" value="<?=post('student/name'); ?>" placeholder="姓名" style="width:59%" />
 			</div>
 			<input type="text" name="student[birthday]" value="<?=post('student/birthday'); ?>" class="birthday right" placeholder="生日" style="width:39%" />

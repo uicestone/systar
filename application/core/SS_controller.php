@@ -295,18 +295,18 @@ class SS_Controller extends CI_Controller{
 		}
 	}
 
-	function cancel(){
-		unset($_SESSION[CONTROLLER]['post']);
-		
-		db_delete($this->actual_table==''?CONTROLLER:$this->actual_table,"uid={$this->user->id} AND display=0");//删除本用户的误添加数据
-		
-		if($this->as_popup_window){
-			closeWindow();
-		}else{
-			redirect(($this->session->userdata('last_list_action')?$this->session->userdata('last_list_action'):CONTROLLER));
+	function submit($submit){
+		if($submit=='cancel'){
+			unset($_SESSION[CONTROLLER]['post']);
+			$this->db->delete($this->actual_table==''?CONTROLLER:$this->actual_table,"uid = {$this->user->id} AND display = 0");//删除本用户的误添加数据
+			return true;
 		}
 	}
 	
+	/**
+	 * ajax响应页面，在一个form中，用户修改任何input/select值时，就发送一个请求，设置到$_SESSION中
+	 * 到发生保存请求时，只需要把$_SESSION中的新值保存即可
+	 */
 	function setField(){
 		$this->load->require_head=false;
 		$args=func_get_args();
@@ -315,8 +315,7 @@ class SS_Controller extends CI_Controller{
 		$controller=CONTROLLER;
 		$this->$controller->id=$id;
 		
-		$post=$this->input->post();
-		$value=$post['value'];
+		$value=$this->input->post('value');
 		
 		$post_key_name_array=array_splice($args, 1);
 		$post_key_name=implode('/',$post_key_name_array);
