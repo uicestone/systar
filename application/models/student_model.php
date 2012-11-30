@@ -1,22 +1,43 @@
 <?php
 class Student_model extends People_model{
 	
+	var $profile=array(
+		'youth_league'=>'团员',
+		'junior_school'=>'初中',
+		'source_type'=>'生源类型',
+		'resident'=>'住校',
+		'dormitory'=>'宿舍',
+		'mobile'=>'手机',
+		'email'=>'电子邮箱',
+		'phone'=>'家庭电话',
+		'address'=>'家庭地址',
+		'community'=>'居委会',
+		'bank_account'=>'银行帐号',
+		'diseases_history'=>'疾病史'
+	);
+	
 	function __construct(){
 		parent::__construct();
 	}
-
-	function fetchProfile($id){
+	
+	function fetch($id){
 		$id=intval($id);
 		
-		$query="
-			SELECT name,content FROM people_profile
-			WHERE people=$id
-				AND name IN ('youth_league','junior_school','source_type','resident','dormitory','mobile','email','phone','address','community','bank_account','diseases_history')
-		";
+		$people_info=parent::fetch($id);
 		
-		return array_sub($this->db->query($query)->result_array(),'content','name');
+		$query="SELECT name,content FROM people_profile WHERE people=$id";
+		
+		//获得此人的全部资料项
+		//尽管people_profile采取保存所有历史更改不删除的方式，但转化成数组时此人的旧信息项会被最新的替换
+		$profile_all=array_sub($this->db->query($query)->result_array(),'content','name');
+
+		$student_profile=array_intersect_key($profile_all, $this->profile);
+		
+		$student_info=$people_info+$student_profile;
+		
+		return $student_info;
 	}
-	
+
 	function fetchClassInfo($student_id){
 		$student_id=intval($student_id);
 		
@@ -34,6 +55,32 @@ class Student_model extends People_model{
 		";
 		
 		return $this->db->query($q_student_class)->row_array();
+	}
+	
+	function updateClass($people,$team,$id_in_team,$term){
+		$this->db->update('team_people',compact('people','team','id_in_team','term'),array('people'=>$people,'team'=>$team,'term'=>$term));
+
+		if($this->db->affected_rows()==0){
+			$this->db->insert('team_people',compact('people','team','id_in_team','term'));
+		}
+	}
+	
+	function update($student,$data){
+		
+		$student_profile=array_intersect_key($data, $this->profile);
+		
+		$student_profile_batch_data=array();
+		foreach($student_profile as $profile_field => $profile_value){
+			$student_profile_batch_data[]=array('name'=>$profile_field,'content'=>$profile_value,'people'=>$this->id);
+		}
+		
+		parent::update($student,$data);
+		
+		//$this->db->where(array('people'=>$this->id))->update_batch('people_profile', $student_profile_batch_data, 'name');
+		
+		$this->db->insert_batch('people_profile', $student_profile_batch_data);
+		
+		return true;
 	}
 	
 	function getList(){
@@ -158,7 +205,7 @@ class Student_model extends People_model{
 		return $this->db->query($query)->result_array();
 	}
 	
-	function update($student_id=NULL){
+	function updateView($student_id=NULL){
 		db_query("DROP TABLE IF EXISTS view_student");
 		db_query("
 			CREATE TABLE view_student
@@ -202,48 +249,67 @@ class Student_model extends People_model{
 		}
 	}
 	
-	function addRelatives($student,$relative_data){
-		$relatives=array(
-			'student'=>$student,
-			'name'=>$relative_data['name'],
-			'relationship'=>$relative_data['relationship'],
-			'contact'=>$relative_data['contact'],
-			'work_for'=>$relative_data['work_for']
-		);
+	function addRelatives($student,$data){
+		$fields=array('name','relationship','contact','work_for');
 		
+		$relatives=array('student',$student);
+		
+		foreach($fields as $field){
+			if(isset($data[$field])){
+				$relatives[$field]=$data[$field];
+			}
+		}
+
 		$relatives+=uidTime();
 		
-		return db_insert('student_relatives',$relatives);
+		if($this->db->insert('student_relatives',$relatives)){
+			unset($_SESSION[CONTROLLER]['post']['student_relatives']);
+			return $this->db->insert_id();
+		}else{
+			return false;
+		}
 	}
 	
 	function addBehaviour($student,$data){
-		$behaviour=array(
-			'student'=>$student,
-			'name'=>$data['name'],
-			'date'=>$data['date'],
-			'type'=>$data['type'],
-			'level'=>$data['level'],
-			'content'=>$data['content']
-		);
+		$fields=array('name','date','type','level','content');
 		
+		$behaviour=array('student'=>$student);
+		
+		foreach($fields as $field){
+			if(isset($data[$field])){
+				$behaviour[$field]=$data[$field];
+			}
+		}
+
 		$behaviour+=uidTime();
 		
-		return db_insert('student_behaviour',$behaviour);
+		if($this->db->insert('student_behaviour',$behaviour)){
+			unset($_SESSION[CONTROLLER]['post']['student_behaviour']);
+			return $this->db->insert_id();
+		}else{
+			return false;
+		}
 	}
 	
 	function addComment($student,$data){
-		$field=array('title','content','reply_to');
-		foreach($data as $key => $value){
-			if(!in_array($key,$field)){
-				unset($data[$key]);
+		$fields=array('title','content','reply_to');
+		
+		$comment=array('student',$student);
+		
+		foreach($fields as $field){
+			if(isset($data[$field])){
+				$comment[$field]=$data[$field];
 			}
 		}
+
+		$comment+=uidTime();
 		
-		$data['student']=$student;
-		
-		$data+=uidTime();
-		
-		return db_insert('student_comment',$data);
+		if($this->db->insert('student_comment',$comment)){
+			unset($_SESSION[CONTROLLER]['post']['student_comment']);
+			return $this->db->insert_id();
+		}else{
+			return false;
+		}
 	}
 	
 	function deleteRelatives($student_relatives){

@@ -1,5 +1,5 @@
 <?php
-class Client_model extends SS_Model{
+class Client_model extends People_model{
 	function __construct(){
 		parent::__construct();
 	}

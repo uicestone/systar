@@ -1,5 +1,8 @@
 <?php
 class Cases_model extends SS_Model{
+	
+	var $id;
+	
 	function __construct(){
 		parent::__construct();
 	}

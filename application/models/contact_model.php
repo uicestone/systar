@@ -1,5 +1,5 @@
 <?php
-class Contact_model extends SS_Model{
+class Contact_model extends People_model{
 	function __construct(){
 		parent::__construct();
 	}

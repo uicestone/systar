@@ -171,5 +171,41 @@ class SS_Model extends CI_Model{
 		$query.=' LIMIT '.option('list/start').','.(option('list/items'));
 		return $query;
 	}
+	
+	/**
+	 * 在每个add/edit页面之前获得数据ID，插入新数据或者根据数据ID获得数据数组
+	 * @param $id 需要获得的数据id，如果是添加新数据，那么为NULL
+	 * @param $callback 对于新增数据，在执行插入操作之前进行一些赋值
+	 */
+	function getPostData($id=NULL,$function_initializing_data=NULL){
+		if(!$id){
+			if(is_a($function_initializing_data,'Closure')){
+				$CI=&get_instance();
+				$function_initializing_data($CI);
+			}
+	
+			if(isset($this->actual_table)){
+				$db_table=$this->actual_table;
+			}else{
+				$db_table=CONTROLLER;
+			}
+
+			if(is_callable(array($this),'add')){
+				$id=$this->add();
+			}else{
+				post(CONTROLLER,uidTime());
+				$id=db_insert($db_table,post(CONTROLLER));
+			}
+		}
+	
+		if($id){
+			$this->id=$id;
+		}else{
+			show_error('获得数据条目id失败');
+			exit;
+		}
+		
+		return $this->fetch($id);
+	}
 }
 ?>

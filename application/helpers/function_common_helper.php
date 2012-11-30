@@ -3,7 +3,7 @@ function uidTime(){
 	$CI=&get_instance();
 	$array=array(
 		'uid'=>$CI->user->id,
-		'username'=>$_SESSION['username'],
+		'username'=>$CI->user->name,
 		'time'=>$CI->config->item('timestamp'),
 		'company'=>$CI->config->item('company/id')
 	);
@@ -279,6 +279,11 @@ function post($arrayindex){
 	$CI=&get_instance();
 	
 	$controller=CONTROLLER;
+	
+	if(is_null($CI->$controller->id)){
+		show_error('调用post方法时，必须定义当前控制器对应model的id属性，如$this->student->id——uice');
+		exit;
+	}
 	
 	if(count($args)==1){
 		return array_dir('_SESSION/'.CONTROLLER.'/post/'.$CI->$controller->id.'/'.$arrayindex);

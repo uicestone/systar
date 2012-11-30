@@ -20,13 +20,13 @@
 			<input name="student[race]" value="<?=post('student/race'); ?>" type="text" placeholder="民族" class="right" style="width:30%;margin-right:1%" />
 			<? displayRadio(array('男','女'),'student[gender]',post('student/gender'))?>
 			&nbsp;&nbsp;
-			<? displayCheckbox('团员','student_profile[youth_league]',post('student_profile/youth_league'),'1')?>
+			<? displayCheckbox('团员','student[youth_league]',post('student/youth_league'),'1')?>
 		</div>
 
 		<div class="item">
 			<div class="title"><label>生源：</label></div>
-			<label>类别：</label><input name="student_profile[type]" value="<?=post('student_profile/type'); ?>" type="text" style="width:40%" disabled="disabled" />
-			<label>初中：</label><input name="student_profile[junior_school]" value="<?=post('student_profile/junior_school'); ?>" type="text" style="width:40%" />
+			<label>类别：</label><input name="student[type]" value="<?=post('student/type'); ?>" type="text" style="width:40%" disabled="disabled" />
+			<label>初中：</label><input name="student[junior_school]" value="<?=post('student/junior_school'); ?>" type="text" style="width:40%" />
 		</div>
 
 		<div class="item">
@@ -41,15 +41,15 @@
 		<div class="item">
 			<div class="title"><label>联系方式：</label></div>
 			<div>
-			<? displayCheckbox('住宿','student_profile[resident]',post('student_profile/resident'),'1')?>
-			<input type="text" name="student_profile[dormitory]" value="<?=post('student_profile/dormitory'); ?>"<? if(!post('student/resident'))echo ' disabled="disabled"'?> placeholder="宿舍" style="width:20%" />
-			<input type="text" name="student_profile[mobile]" value="<?=post('student_profile/mobile'); ?>" placeholder="手机" style="width:20%" />
-			<input type="text" name="student_profile[phone]" value="<?=post('student_profile/phone'); ?>" placeholder="固定电话" style="width:20%" />
-			<input type="text" name="student_profile[email]" value="<?=post('student_profile/email'); ?>" placeholder="电子邮件" style="width:29%" />
+			<? displayCheckbox('住宿','student[resident]',post('student/resident'),'1')?>
+			<input type="text" name="student[dormitory]" value="<?=post('student/dormitory'); ?>"<? if(!post('student/resident'))echo ' disabled="disabled"'?> placeholder="宿舍" style="width:20%" />
+			<input type="text" name="student[mobile]" value="<?=post('student/mobile'); ?>" placeholder="手机" style="width:20%" />
+			<input type="text" name="student[phone]" value="<?=post('student/phone'); ?>" placeholder="固定电话" style="width:20%" />
+			<input type="text" name="student[email]" value="<?=post('student/email'); ?>" placeholder="电子邮件" style="width:29%" />
 			</div>
 			<div>
-			<input type="text" name="student_profile[neighborhood_committees]" value="<?=post('student_profile/neighborhood_committees'); ?>" placeholder="居委会" class="right" style="width:15%" />
-			<input type="text" name="student_profile[address]" value="<?=post('student_profile/address'); ?>" placeholder="地址" style="width:83%" />
+			<input type="text" name="student[neighborhood_committees]" value="<?=post('student/neighborhood_committees'); ?>" placeholder="居委会" class="right" style="width:15%" />
+			<input type="text" name="student[address]" value="<?=post('student/address'); ?>" placeholder="地址" style="width:83%" />
 			</div>
 		</div>
 

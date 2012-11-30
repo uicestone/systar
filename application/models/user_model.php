@@ -1,5 +1,5 @@
 <?php
-class User_model extends SS_Model{
+class User_model extends People_model{
 	
 	var $id;
 	var $name;

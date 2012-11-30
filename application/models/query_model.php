@@ -1,5 +1,5 @@
 <?php
-class Query_model extends SS_Model{
+class Query_model extends Cases_model{
 	function __construct(){
 		parent::__construct();
 	}

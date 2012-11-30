@@ -140,7 +140,7 @@ $(function(){
 					location.href=location.protocol+'//'+location.host+lastListAction;
 				}
 			}else{
-				showMessage('保存失败','warning');
+				showMessage(response,'warning');
 			}
 		});
 		return false;

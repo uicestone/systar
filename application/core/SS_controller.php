@@ -17,6 +17,11 @@ class SS_Controller extends CI_Controller{
 	var $actual_table;
 	var $company_type_model_loaded=false;
 	
+	/**
+	 * 在ajax响应页面中，用来保存错误信息的数组
+	 */
+	var $json_error_message=array();
+	
 	function __construct(){
 		parent::__construct();
 		
@@ -250,44 +255,6 @@ class SS_Controller extends CI_Controller{
 
 	}
 	
-	/**
-	 * 在每个add/edit页面之前获得数据ID，插入新数据或者根据数据ID获得数据数组
-	 * @param $id 需要获得的数据id，如果是添加新数据，那么为NULL
-	 * @param $callback 对于新增数据，在执行插入操作之前进行一些赋值
-	 */
-	function getPostData($id=NULL,$function_initializing_data=NULL){
-		$class=CONTROLLER;
-		
-		if(!$id){
-			if(is_a($function_initializing_data,'Closure')){
-				$CI=&get_instance();
-				$function_initializing_data($CI);
-			}
-	
-			if(isset($this->actual_table)){
-				$db_table=$this->actual_table;
-			}else{
-				$db_table=CONTROLLER;
-			}
-
-			if(is_callable(array($this->$class),'add')){
-				$id=$this->$class->add();
-			}else{
-				post(CONTROLLER,uidTime());
-				$id=db_insert($db_table,post(CONTROLLER));
-			}
-		}
-	
-		if($id){
-			$this->$class->id=$id;
-		}else{
-			show_error('获得数据条目id失败');
-			exit;
-		}
-		
-		return $this->$class->fetch($id);
-	}
-
 	/* 
 	 * $extra_action 是一个数组，接受除了返回列表/关闭窗口之外的其他提交后动作
 	 * $after_update为数据库更新成功后，跳转前需要的额外操作

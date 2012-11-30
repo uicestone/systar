@@ -42,3 +42,8 @@ ALTER TABLE  `team` ADD  `time_insert` INT NOT NULL AFTER  `username` ,
 ADD INDEX (  `time_insert` );
 -- end uice air updated
 -- iori 2012/11/27 updated
+
+
+-- uice 2012/11/30
+ALTER TABLE  `people_profile` ADD INDEX (  `name` );
+-- end uice air updated
