@@ -31,6 +31,10 @@ begin
 	insert into matchdegree_table select mt.id,mt.matches/at.alltags,mt.matches from matches_table mt,alltags_table at where mt.id=at.id;
 	-- 计算并存储新鲜度
 	insert into freshdegree_table select mt.id,(now()-c.time)/(now()-c.time_insert) from matches_table mt,`schedule` c where mt.id=c.id;
+	-- 找出查询用户所在的组和其相关组
+	insert into team1_table select tp.team from team_people tp where tp.people=query_user_id;
+	insert ignore into team1_relative_team_table select tr.team from team_relationship tr,team1_table tt where tr.relative=tt.id;
+	insert ignore into team1_relative_team_table select tr.relative from team_relationship tr,team1_table tt where tr.team=tt.id;
 	-- 打开游标，并获取游标中的每一个记录（条目id，条目创建者id），并利用查询者id计算本人相关度
 	open cur;
 	fetch cur into item_id,creator_id;
@@ -46,15 +50,12 @@ begin
 				insert into peopledegree_table values(item_id,0.3);
 			else
 				-- 判断是否是同组
-				insert into team1_table select tp.team from team_people tp where tp.people=query_user_id;
 				select count(*) into count_item from team1_table tt,team_people tp where tt.id=tp.team and tp.people=creator_id;
 				if count_item>0 then
 					-- 同组，则本人相关度为0.2
 					insert into peopledegree_table values(item_id,0.2);
 				else
 					-- 判断是否是相关组
-					insert ignore into team1_relative_team_table select tr.team from team_relationship tr,team1_table tt where tr.relative=tt.id;
-					insert ignore into team1_relative_team_table select tr.relative from team_relationship tr,team1_table tt where tr.team=tt.id;
 					select count(*) into count_item from team1_relative_team_table trtt,team_people tp where trtt.id=tp.team and tp.people=creator_id;
 					if count_item>0 then
 						-- 是相关组，则本人相关度为0.1
@@ -116,6 +117,10 @@ begin
 	insert into matchdegree_table select mt.id,mt.matches/at.alltags,mt.matches from matches_table mt,alltags_table at where mt.id=at.id;
 	-- 计算并存储新鲜度
 	insert into freshdegree_table select mt.id,(now()-c.time)/(now()-c.time_insert) from matches_table mt,`case` c where mt.id=c.id;
+	-- 找出查询用户所在的组和其相关组
+	insert into team1_table select tp.team from team_people tp where tp.people=query_user_id;
+	insert ignore into team1_relative_team_table select tr.team from team_relationship tr,team1_table tt where tr.relative=tt.id;
+	insert ignore into team1_relative_team_table select tr.relative from team_relationship tr,team1_table tt where tr.team=tt.id;
 	-- 打开游标，并获取游标中的每一个记录（条目id，条目创建者id），并利用查询者id计算本人相关度
 	open cur;
 	fetch cur into item_id,creator_id;
@@ -131,15 +136,12 @@ begin
 				insert into peopledegree_table values(item_id,0.3);
 			else
 				-- 判断是否是同组
-				insert into team1_table select tp.team from team_people tp where tp.people=query_user_id;
 				select count(*) into count_item from team1_table tt,team_people tp where tt.id=tp.team and tp.people=creator_id;
 				if count_item>0 then
 					-- 同组，则本人相关度为0.2
 					insert into peopledegree_table values(item_id,0.2);
 				else
 					-- 判断是否是相关组
-					insert ignore into team1_relative_team_table select tr.team from team_relationship tr,team1_table tt where tr.relative=tt.id;
-					insert ignore into team1_relative_team_table select tr.relative from team_relationship tr,team1_table tt where tr.team=tt.id;
 					select count(*) into count_item from team1_relative_team_table trtt,team_people tp where trtt.id=tp.team and tp.people=creator_id;
 					if count_item>0 then
 						-- 是相关组，则本人相关度为0.1
@@ -201,6 +203,10 @@ begin
 	insert into matchdegree_table select mt.id,mt.matches/at.alltags,mt.matches from matches_table mt,alltags_table at where mt.id=at.id;
 	-- 计算并存储新鲜度
 	insert into freshdegree_table select mt.id,(now()-c.time)/(now()-c.time_insert) from matches_table mt,`people` c where mt.id=c.id;
+	-- 找出查询用户所在的组和其相关组
+	insert into team1_table select tp.team from team_people tp where tp.people=query_user_id;
+	insert ignore into team1_relative_team_table select tr.team from team_relationship tr,team1_table tt where tr.relative=tt.id;
+	insert ignore into team1_relative_team_table select tr.relative from team_relationship tr,team1_table tt where tr.team=tt.id;
 	-- 打开游标，并获取游标中的每一个记录（条目id，条目创建者id），并利用查询者id计算本人相关度
 	open cur;
 	fetch cur into item_id,creator_id;
@@ -216,15 +222,12 @@ begin
 				insert into peopledegree_table values(item_id,0.3);
 			else
 				-- 判断是否是同组
-				insert into team1_table select tp.team from team_people tp where tp.people=query_user_id;
 				select count(*) into count_item from team1_table tt,team_people tp where tt.id=tp.team and tp.people=creator_id;
 				if count_item>0 then
 					-- 同组，则本人相关度为0.2
 					insert into peopledegree_table values(item_id,0.2);
 				else
 					-- 判断是否是相关组
-					insert ignore into team1_relative_team_table select tr.team from team_relationship tr,team1_table tt where tr.relative=tt.id;
-					insert ignore into team1_relative_team_table select tr.relative from team_relationship tr,team1_table tt where tr.team=tt.id;
 					select count(*) into count_item from team1_relative_team_table trtt,team_people tp where trtt.id=tp.team and tp.people=creator_id;
 					if count_item>0 then
 						-- 是相关组，则本人相关度为0.1
@@ -286,6 +289,10 @@ begin
 	insert into matchdegree_table select mt.id,mt.matches/at.alltags,mt.matches from matches_table mt,alltags_table at where mt.id=at.id;
 	-- 计算并存储新鲜度
 	insert into freshdegree_table select mt.id,(now()-c.time)/(now()-c.time_insert) from matches_table mt,`property` c where mt.id=c.id;
+	-- 找出查询用户所在的组和其相关组
+	insert into team1_table select tp.team from team_people tp where tp.people=query_user_id;
+	insert ignore into team1_relative_team_table select tr.team from team_relationship tr,team1_table tt where tr.relative=tt.id;
+	insert ignore into team1_relative_team_table select tr.relative from team_relationship tr,team1_table tt where tr.team=tt.id;
 	-- 打开游标，并获取游标中的每一个记录（条目id，条目创建者id），并利用查询者id计算本人相关度
 	open cur;
 	fetch cur into item_id,creator_id;
@@ -301,15 +308,12 @@ begin
 				insert into peopledegree_table values(item_id,0.3);
 			else
 				-- 判断是否是同组
-				insert into team1_table select tp.team from team_people tp where tp.people=query_user_id;
 				select count(*) into count_item from team1_table tt,team_people tp where tt.id=tp.team and tp.people=creator_id;
 				if count_item>0 then
 					-- 同组，则本人相关度为0.2
 					insert into peopledegree_table values(item_id,0.2);
 				else
 					-- 判断是否是相关组
-					insert ignore into team1_relative_team_table select tr.team from team_relationship tr,team1_table tt where tr.relative=tt.id;
-					insert ignore into team1_relative_team_table select tr.relative from team_relationship tr,team1_table tt where tr.team=tt.id;
 					select count(*) into count_item from team1_relative_team_table trtt,team_people tp where trtt.id=tp.team and tp.people=creator_id;
 					if count_item>0 then
 						-- 是相关组，则本人相关度为0.1
@@ -371,6 +375,10 @@ begin
 	insert into matchdegree_table select mt.id,mt.matches/at.alltags,mt.matches from matches_table mt,alltags_table at where mt.id=at.id;
 	-- 计算并存储新鲜度
 	insert into freshdegree_table select mt.id,(now()-c.time)/(now()-c.time_insert) from matches_table mt,`account` c where mt.id=c.id;
+	-- 找出查询用户所在的组和其相关组
+	insert into team1_table select tp.team from team_people tp where tp.people=query_user_id;
+	insert ignore into team1_relative_team_table select tr.team from team_relationship tr,team1_table tt where tr.relative=tt.id;
+	insert ignore into team1_relative_team_table select tr.relative from team_relationship tr,team1_table tt where tr.team=tt.id;
 	-- 打开游标，并获取游标中的每一个记录（条目id，条目创建者id），并利用查询者id计算本人相关度
 	open cur;
 	fetch cur into item_id,creator_id;
@@ -386,15 +394,12 @@ begin
 				insert into peopledegree_table values(item_id,0.3);
 			else
 				-- 判断是否是同组
-				insert into team1_table select tp.team from team_people tp where tp.people=query_user_id;
 				select count(*) into count_item from team1_table tt,team_people tp where tt.id=tp.team and tp.people=creator_id;
 				if count_item>0 then
 					-- 同组，则本人相关度为0.2
 					insert into peopledegree_table values(item_id,0.2);
 				else
 					-- 判断是否是相关组
-					insert ignore into team1_relative_team_table select tr.team from team_relationship tr,team1_table tt where tr.relative=tt.id;
-					insert ignore into team1_relative_team_table select tr.relative from team_relationship tr,team1_table tt where tr.team=tt.id;
 					select count(*) into count_item from team1_relative_team_table trtt,team_people tp where trtt.id=tp.team and tp.people=creator_id;
 					if count_item>0 then
 						-- 是相关组，则本人相关度为0.1
@@ -456,6 +461,10 @@ begin
 	insert into matchdegree_table select mt.id,mt.matches/at.alltags,mt.matches from matches_table mt,alltags_table at where mt.id=at.id;
 	-- 计算并存储新鲜度
 	insert into freshdegree_table select mt.id,(now()-c.time)/(now()-c.time_insert) from matches_table mt,`team` c where mt.id=c.id;
+	-- 找出查询用户所在的组和其相关组
+	insert into team1_table select tp.team from team_people tp where tp.people=query_user_id;
+	insert ignore into team1_relative_team_table select tr.team from team_relationship tr,team1_table tt where tr.relative=tt.id;
+	insert ignore into team1_relative_team_table select tr.relative from team_relationship tr,team1_table tt where tr.team=tt.id;
 	-- 打开游标，并获取游标中的每一个记录（条目id，条目创建者id），并利用查询者id计算本人相关度
 	open cur;
 	fetch cur into item_id,creator_id;
@@ -471,15 +480,12 @@ begin
 				insert into peopledegree_table values(item_id,0.3);
 			else
 				-- 判断是否是同组
-				insert into team1_table select tp.team from team_people tp where tp.people=query_user_id;
 				select count(*) into count_item from team1_table tt,team_people tp where tt.id=tp.team and tp.people=creator_id;
 				if count_item>0 then
 					-- 同组，则本人相关度为0.2
 					insert into peopledegree_table values(item_id,0.2);
 				else
 					-- 判断是否是相关组
-					insert ignore into team1_relative_team_table select tr.team from team_relationship tr,team1_table tt where tr.relative=tt.id;
-					insert ignore into team1_relative_team_table select tr.relative from team_relationship tr,team1_table tt where tr.team=tt.id;
 					select count(*) into count_item from team1_relative_team_table trtt,team_people tp where trtt.id=tp.team and tp.people=creator_id;
 					if count_item>0 then
 						-- 是相关组，则本人相关度为0.1
@@ -541,6 +547,10 @@ begin
 	insert into matchdegree_table select mt.id,mt.matches/at.alltags,mt.matches from matches_table mt,alltags_table at where mt.id=at.id;
 	-- 计算并存储新鲜度
 	insert into freshdegree_table select mt.id,(now()-c.time)/(now()-c.time_insert) from matches_table mt,`document` c where mt.id=c.id;
+	-- 找出查询用户所在的组和其相关组
+	insert into team1_table select tp.team from team_people tp where tp.people=query_user_id;
+	insert ignore into team1_relative_team_table select tr.team from team_relationship tr,team1_table tt where tr.relative=tt.id;
+	insert ignore into team1_relative_team_table select tr.relative from team_relationship tr,team1_table tt where tr.team=tt.id;
 	-- 打开游标，并获取游标中的每一个记录（条目id，条目创建者id），并利用查询者id计算本人相关度
 	open cur;
 	fetch cur into item_id,creator_id;
@@ -556,15 +566,12 @@ begin
 				insert into peopledegree_table values(item_id,0.3);
 			else
 				-- 判断是否是同组
-				insert into team1_table select tp.team from team_people tp where tp.people=query_user_id;
 				select count(*) into count_item from team1_table tt,team_people tp where tt.id=tp.team and tp.people=creator_id;
 				if count_item>0 then
 					-- 同组，则本人相关度为0.2
 					insert into peopledegree_table values(item_id,0.2);
 				else
 					-- 判断是否是相关组
-					insert ignore into team1_relative_team_table select tr.team from team_relationship tr,team1_table tt where tr.relative=tt.id;
-					insert ignore into team1_relative_team_table select tr.relative from team_relationship tr,team1_table tt where tr.team=tt.id;
 					select count(*) into count_item from team1_relative_team_table trtt,team_people tp where trtt.id=tp.team and tp.people=creator_id;
 					if count_item>0 then
 						-- 是相关组，则本人相关度为0.1
