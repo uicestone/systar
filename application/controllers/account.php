@@ -30,7 +30,7 @@ class Account extends SS_controller{
 		$this->load->addViewData('list', $list);
 		
 		$this->load->view_data['account_sum']=array(
-			'_field'=>array('总创收'),
+			'_heading'=>array('总创收'),
 			array($this->achievement->sum('collected','total',option('date_range/from_timestamp'),option('date_range/to_timestamp'),false))
 		);
 		
