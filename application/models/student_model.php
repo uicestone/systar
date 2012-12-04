@@ -58,20 +58,35 @@ class Student_model extends People_model{
 	}
 	
 	function updateClass($people,$team,$id_in_team,$term){
-		$this->db->update('team_people',compact('people','team','id_in_team','term'),array('people'=>$people,'team'=>$team,'term'=>$term));
+		$team_people=array();
+		
+		isset($team) && $team_people['team']=$team;
+		isset($id_in_team) && $team_people['id_in_team']=$id_in_team;
+		
+		$team_people && $this->db->update('team_people',$team_people,array('people'=>$people,'term'=>$term,'relation'=>'就读'));
 
 		if($this->db->affected_rows()==0){
-			$this->db->insert('team_people',compact('people','team','id_in_team','term'));
+			$relation='就读';
+			$this->db->insert('team_people',compact('people','team','id_in_team','term','relation'));
 		}
 	}
 	
 	function update($student,$data){
 		
-		$student_profile=array_intersect_key($data, $this->profile);
+		if(is_null($data)){
+			return true;
+		}
+		
+		$student_profile=array();
+		
+		if($data){//排除$data为NULL的情况
+			$student_profile=array_intersect_key($data, $this->profile);
+		}
 		
 		$student_profile_batch_data=array();
 		foreach($student_profile as $profile_field => $profile_value){
 			$student_profile_batch_data[]=array('name'=>$profile_field,'content'=>$profile_value,'people'=>$this->id);
+			$student_profile_batch_data[count($student_profile_batch_data)-1]+=uidTime(false);
 		}
 		
 		parent::update($student,$data);
@@ -252,21 +267,13 @@ class Student_model extends People_model{
 	}
 	
 	function addRelatives($student,$data){
-		$fields=array('name','relation','contact','work_for');
+		$relative_id=$this->add($data);
 		
-		$relatives=array('student',$student);
+		$this->addProfile($relative_id,'mobile',$data['contact']);
 		
-		foreach($fields as $field){
-			if(isset($data[$field])){
-				$relatives[$field]=$data[$field];
-			}
-		}
-
-		$relatives+=uidTime();
-		
-		if($this->db->insert('people_relationship',$relatives)){
-			unset($_SESSION[CONTROLLER]['post']['student_relatives']);
-			return $this->db->insert_id();
+		if($people_relationship_id=$this->addRelationship($student, $relative_id, $data['relationship'])){
+			unset($_SESSION[CONTROLLER]['post'][$this->id]['student_relatives']);
+			return $people_relationship_id;
 		}else{
 			return false;
 		}
@@ -286,7 +293,7 @@ class Student_model extends People_model{
 		$behaviour+=uidTime();
 		
 		if($this->db->insert('student_behaviour',$behaviour)){
-			unset($_SESSION[CONTROLLER]['post']['student_behaviour']);
+			unset($_SESSION[CONTROLLER]['post'][$this->id]['student_behaviour']);
 			return $this->db->insert_id();
 		}else{
 			return false;
@@ -307,7 +314,7 @@ class Student_model extends People_model{
 		$comment+=uidTime();
 		
 		if($this->db->insert('student_comment',$comment)){
-			unset($_SESSION[CONTROLLER]['post']['student_comment']);
+			unset($_SESSION[CONTROLLER]['post'][$this->id]['student_comment']);
 			return $this->db->insert_id();
 		}else{
 			return false;

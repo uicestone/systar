@@ -1,9 +1,14 @@
 <?php
 class SS_Form_validation extends CI_Form_validation{
-	function __construct($rules = array()) {
+	function __construct($rules = array()){
 		parent::__construct();
 		$controller=CONTROLLER;
-		isset($_SESSION[CONTROLLER]['post']) && $_POST=$_SESSION[CONTROLLER]['post'][$this->CI->$controller->id];
+
+		$_POST+=$this->CI->input->post();
+		
+		if(isset($_SESSION[CONTROLLER]['post'])){
+			$_POST=array_merge_recursive($_POST,$_SESSION[CONTROLLER]['post'][$this->CI->$controller->id]);
+		}
 	}
 }
 

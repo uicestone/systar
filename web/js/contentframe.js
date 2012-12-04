@@ -132,7 +132,7 @@ $(function(){
 		var id = $('form[name="'+controller+'"]').attr('id');
 		var submit = $(this).attr('name').replace('submit[','').replace(']','');
 		
-		$.get('/'+controller+'/submit/'+submit+'/'+id,function(response){
+		$.post('/'+controller+'/submit/'+submit+'/'+id,$('form[name="'+controller+'"]').serialize(),function(response){
 			if(response=='success'){
 				if(asPopupWindow){
 					window.close();

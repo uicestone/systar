@@ -52,6 +52,34 @@ class SS_Loader extends CI_Loader{
 			return parent::view($view, $vars, $return);
 		}
 	}
+	
+	function set_value($index){
+		if(!is_null(post($index))){
+			return post($index);
+		}else{
+			$CI=&get_instance();
+
+			$view_data=$CI->load->view_data;
+
+			$index_array=explode('/',$index);
+
+			if(isset($view_data[$index_array[0]])){
+				$value=$view_data[$index_array[0]];
+			}else{
+				return;
+			}
+
+			for($i=1;$i<count($index_array);$i++){
+				if(isset($value[$index_array[$i]])){
+					$value=$value[$index_array[$i]];
+				}else{
+					return;
+				}
+			}
+
+			return $value;
+		}
+	}
 
 	function arrayExportExcel(array $array){
 		//TODO arrayExportExcel

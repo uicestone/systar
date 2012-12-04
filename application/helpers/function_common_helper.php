@@ -1,12 +1,16 @@
 <?php
-function uidTime(){
+function uidTime($company=true){
 	$CI=&get_instance();
 	$array=array(
 		'uid'=>$CI->user->id,
 		'username'=>$CI->user->name,
 		'time'=>$CI->config->item('timestamp'),
-		'company'=>$CI->config->item('company/id')
 	);
+	
+	if($company){
+		$array['company']=$CI->config->item('company/id');
+	}
+	
 	return $array;
 }	
 

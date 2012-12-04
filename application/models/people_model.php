@@ -40,15 +40,55 @@ class People_model extends SS_Model{
 	}
 	
 	function add(array $data=array()){
-		
+		$data=array_intersect_key($data,$this->fields);
+		$data+=uidTime();
 		$this->db->insert('people',$data);
+		return $this->db->insert_id();
 	}
 	
-	function update($people,array $data=array()){
+	function update($people,$data){
+		
+		if(is_null($data)){
+			return true;
+		}
 		
 		$people_data=array_intersect_key($data, $this->fields);
 		
+		$people_data['display']=1;
+		
+		$people_data+=uidTime();
+		
+		$people_data['company']=$this->config->item('company/id');
+
 		return $this->db->update('people',$people_data,array('id'=>$people));
+	}
+	
+	function addProfile($people,$profile_name,$profile_content){
+		$data=array(
+			'people'=>$people,
+			'name'=>$profile_name,
+			'content'=>$profile_content
+		);
+		
+		$data+=uidTime(false);
+		
+		$this->db->insert('people_profile',$data);
+		
+		return $this->db->insert_id();
+	}
+	
+	function addRelationship($people,$relative,$relation=NULL){
+		$data=array(
+			'people'=>$people,
+			'relative'=>$relative,
+			'relation'=>$relation
+		);
+		
+		$data+=uidTime(false);
+		
+		$this->db->insert('people_relationship',$data);
+		
+		return $this->db->insert_id();
 	}
 }
 ?>

@@ -77,12 +77,11 @@ class Student extends SS_controller{
 		
 		$this->student->id=$id;
 
-		$this->load->helper(array('form','url'));
 		$this->load->library('form_validation');
 		
 		$this->form_validation->set_rules('student[name]','姓名','required');
 		
-		if($this->user->isLogged('student') && is_posted('submit/student')){
+		if($this->user->isLogged('student') && $submit=='student'){
 			$this->form_validation->set_rules('student[birthday]','生日','required');
 			$this->form_validation->set_rules('student[id_card]','身份证号','required');
 			$this->form_validation->set_rules('student[race]','民族','required');
@@ -125,20 +124,17 @@ class Student extends SS_controller{
 
 			$this->student->updateClass($this->student->id,post('student_class/class'),post('student_class/num_in_class'),$this->school->current_term);
 			
-			post(CONTROLLER.'/display',1);
-
-			post(CONTROLLER,post(CONTROLLER)+uidTime());
-
-			post(CONTROLLER.'/company',$this->config->item('company/id'));
-
 			if($this->json_error_message){
 				throw new Exception($this->json_error_message);
 			}
 			
-			if($this->student->update($this->student->id,post(CONTROLLER))){
-				echo 'success';
-			}else{
-				echo '保存失败';
+			if($submit=='student'){
+				if($this->student->update($this->student->id,post(CONTROLLER))){
+					unset($_SESSION[CONTROLLER]['post']);
+					echo 'success';
+				}else{
+					echo '保存失败';
+				}
 			}
 
 		}catch(Exception $e){
@@ -152,14 +148,21 @@ class Student extends SS_controller{
 	 * $id==NULL时，自动添加一条新纪录，然后开始编辑
 	 */
 	function edit($id=NULL){
-		$_POST['student']=$this->student->getPostData($id);
+
+		$student=$this->student->getPostData($id);
 		
 		$student_class_data=$this->student->fetchClassInfo($this->student->id);
-		$_POST['student_class']=array('team'=>$student_class['class'],'id_in_team'=>$student_class_data['num_in_class']);
 		
-		$_POST['classes']['name']=$student_class_data['class_name'];
+		if(isset($student_class_data['class'])){
+			$student_class=array('class'=>$student_class_data['class'],'num_in_class'=>$student_class_data['num_in_class']);
+			$class['name']=$student_class_data['class_name'];
+		}
 		
-		isset($student_class_data['class_teacher_name']) && $_POST['student_extra']['class_teacher_name']=$student_class_data['class_teacher_name'];
+		if(isset($student_class_data['class_teacher_name'])){
+			$student_extra['class_teacher_name']=$student_class_data['class_teacher_name'];
+		}
+		
+		$this->load->addViewArrayData(compact('student','student_class','class','student_extra'));
 		
 		$fields_student_relatives=array(
 			'checkbox'=>array('title'=>'<input type="submit" name="submit[student_relatives_delete]" value="删" />','orderby'=>false,'content'=>'<input type="checkbox" name="student_relatives_check[{id}]" >','td_title'=>' width="25px"'),
