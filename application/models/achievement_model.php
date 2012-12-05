@@ -252,7 +252,6 @@ class Achievement_model extends SS_Model{
 					FROM case_people 
 						INNER JOIN people staff ON staff.id=case_people.people AND case_people.type='lawyer' AND case_people.role='主办律师'
 					GROUP BY case_people.case
-				)lawyers ON lawyers.case=case.id
 			WHERE case_fee.type<>'办案费'
 				AND case_fee.reviewed=0
 				AND (account_grouped.amount_sum IS NULL OR case_fee.fee-account_grouped.amount_sum>0) -- 款未到/未到齐
@@ -274,9 +273,9 @@ class Achievement_model extends SS_Model{
 			$q.=" AND pay_date<='$date_to'";
 		}
 
-		if(!$this->user->isLogged('finance')){
+		if(!is_logged('finance')){
 			$q.=" AND case_fee.case IN (
-					SELECT `case` FROM case_people WHERE type='lawyer' AND people={$this->user->id}
+					SELECT `case` FROM case_lawyer WHERE lawyer={$_SESSION['id']}
 				)
 			";
 		}
@@ -284,7 +283,7 @@ class Achievement_model extends SS_Model{
 		$q=$this->search($q,array('case.name'=>'案件','lawyers.names'=>'主办律师'),false);
 		
 		$q=$this->dateRange($q,'pay_date',true,false);
-		
+
 		$result_array=$this->db->query($q)->row_array();
 		if(!isset($result_array['sum'])){
 			$result_array['sum']=0;
