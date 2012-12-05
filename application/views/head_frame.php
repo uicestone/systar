@@ -4,10 +4,10 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><![endif]-->
 	<link rel="shortcut icon" href="/images/favicon.ico" />
-	<? stylesheet('style/common') ?>
-	<title><? echo array_dir('_SESSION/username');?> - <? echo $this->config->item('sysname')?></title>
-	<? javascript('jquery')?>
-	<? javascript('common')?>
-	<? javascript('frame')?>
+	<?stylesheet('style/common') ?>
+	<title><?=$this->user->name?> - <?=$this->company->sysname?></title>
+	<?javascript('jquery')?>
+	<?javascript('common')?>
+	<?javascript('frame')?>
 </head>
 <body id="frame" scroll="no" style="overflow-y:hidden">

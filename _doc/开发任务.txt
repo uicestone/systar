@@ -40,7 +40,7 @@
 					time(int, index)
 			3.2.2 任务墙页面：/schedule/taskboard
 				控制器和方法：Schedule::taskBoard()
-				功能：从数据库获得本用户($_SESSION['id'])的任务排列，根据这些排列从schedule表中取得title, content数据，生成3.1.2中声明的视图数据格式
+				功能：从数据库获得本用户($this->user->id)的任务排列，根据这些排列从schedule表中取得title, content数据，生成3.1.2中声明的视图数据格式
 				牵涉到的文件和方法：
 					/application/controller/schedule.php:taskBoard()
 					/application/controller/schedule_model.php:getTaskBoardSort($uid)

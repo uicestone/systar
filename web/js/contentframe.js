@@ -111,4 +111,38 @@ $(function(){
 	}).mouseleave(function(){
 		$(this).children('input:submit').qtip('hide');
     });*/
+
+	/**
+	 * edit表单元素更改时实时提交到后台
+	 */
+	$('form[name="'+controller+'"]').find('input,select').change(function(){
+		var value=$(this).val();
+		if($(this).is(':checkbox') && !$(this).is(':checked')){
+			value=0;
+		}
+		var id = $('form[name="'+controller+'"]').attr('id');
+		var name = $(this).attr('name').replace('[','/').replace(']','');
+		$.post('/'+controller+'/setfield/'+id+'/'+name,{value:value});
+	});
+	
+	/**
+	 * edit表单提交事件
+	 */
+	$('form[name="'+controller+'"]').find('input:submit').click(function(){
+		var id = $('form[name="'+controller+'"]').attr('id');
+		var submit = $(this).attr('name').replace('submit[','').replace(']','');
+		
+		$.post('/'+controller+'/submit/'+submit+'/'+id,$('form[name="'+controller+'"]').serialize(),function(response){
+			if(response=='success'){
+				if(asPopupWindow){
+					window.close();
+				}else{
+					location.href=location.protocol+'//'+location.host+lastListAction;
+				}
+			}else{
+				showMessage(response,'warning');
+			}
+		});
+		return false;
+	});
 });

@@ -1,21 +1,16 @@
 <?php
-function company_fetchInfo(){
-	$company_info=db_fetch_first("SELECT id AS company,name AS company_name,type AS company_type,syscode,sysname,ucenter,default_controller FROM company WHERE host='".$_SERVER['SERVER_NAME']."' OR syscode='{$_SERVER['SERVER_NAME']}'");
-	if(is_array($company_info)){
-		return $company_info;
-	}else{
-		return false;
-	}
-}
-
-function uidTime(){
+function uidTime($company=true){
 	$CI=&get_instance();
 	$array=array(
-		'uid'=>$_SESSION['id'],
-		'username'=>$_SESSION['username'],
+		'uid'=>$CI->user->id,
+		'username'=>$CI->user->name,
 		'time'=>$CI->config->item('timestamp'),
-		'company'=>$CI->config->item('company')
 	);
+	
+	if($company){
+		$array['company']=$CI->config->item('company/id');
+	}
+	
 	return $array;
 }	
 
@@ -139,150 +134,6 @@ function isMobileNumber($number){
 }
 
 /**
- * 根据用户名或uid直接为其设置登录状态
- */
-function session_login($uid=NULL,$username=NULL){
-	if(isset($uid)){
-		$q_user="SELECT user.id,user.`group`,user.username,staff.position FROM user LEFT JOIN staff ON user.id=staff.id WHERE user.id='".$uid."'";
-
-	}elseif(!is_null($username)){
-		$q_user="SELECT user.id,user.`group`,user.username,staff.position FROM user LEFT JOIN staff ON user.id=staff.id WHERE user.username='".$username."'";
-	}
-	$r_user=db_query($q_user);
-
-	if($user=mysql_fetch_array($r_user)){
-		$_SESSION['id']=$user['id'];
-		$_SESSION['usergroup']=explode(',',$user['group']);
-		$_SESSION['username']=$user['username'];
-		$_SESSION['position']=$user['position'];
-		return true;
-	}
-	return false;
-}
-
-/**
- * 登出当前用户
- */
-function session_logout(){
-	$CI=&get_instance();
-	session_unset();
-	session_destroy();
-	$CI->session->sess_destroy();
-	
-	if($CI->config->item('ucenter')){
-		//生成同步退出代码
-		echo uc_user_synlogout();
-	}
-}
-
-/**
- * 判断是否以某用户组登录
- * $check_type要检查的用户组,NULL表示只检查是否登录
- * $refresh_permission会刷新用户权限，只需要在每次请求开头刷新即可
- */
-function is_logged($check_type=NULL,$refresh_permission=false){
-	if(is_null($check_type)){
-		if(!isset($_SESSION['usergroup'])){
-			return false;
-		}
-	}elseif(!isset($_SESSION['usergroup']) || !in_array($check_type,$_SESSION['usergroup'])){
-		return false;
-	}
-
-	if($refresh_permission){
-		preparePermission();
-		$CI=&get_instance();
-		if($CI->config->item('ucenter')){
-			$_SESSION['new_messages']=uc_pm_checknew($_SESSION['id']);
-		}
-	}
-
-	return true;
-}
-
-/**
- * 根据当前用户组，将数据库中affair,group两表中的用户权限读入$_SESSION['permission']
- */
-function preparePermission(){
-	//准备权限参数，写入session
-	
-	global $CFG;
-	
-	$q_affair="
-		SELECT
-			affair.name AS affair,
-			IF(group.affair_ui_name<>'', group.affair_ui_name, affair.ui_name) AS affair_name,
-			affair.add_action,affair.add_target,
-			`group`.action AS `action`, group.display_in_nav AS display
-		FROM affair LEFT JOIN `group` ON affair.name=`group`.affair 
-		WHERE group.company='".$CFG->item('company')."'
-			AND affair.is_on=1
-			AND (".db_implode($_SESSION['usergroup'], $glue = ' OR ',$keyname='group.name').") 
-		GROUP BY affair,action
-		ORDER BY affair.order,group.order
-	";
-
-	$r_affair=db_query($q_affair);
-	
-	$_SESSION['permission']=array();
-	while($a=mysql_fetch_array($r_affair)){
-		if(!isset($_SESSION['permission'][$a['affair']])){
-			$_SESSION['permission'][$a['affair']]=array();
-		}
-		if($a['action']==''){
-			//一级菜单
-			$_SESSION['permission'][$a['affair']]
-			=array_replace_recursive($_SESSION['permission'][$a['affair']],array('_affair_name'=>$a['affair_name'],'_add_action'=>$a['add_action'],'_add_target'=>$a['add_target'],'_display'=>$a['display']));
-		}else{
-			//二级菜单
-			$_SESSION['permission'][$a['affair']][$a['action']]=array('_affair_name'=>$a['affair_name'],'_display'=>$a['display']);
-		}
-	}
-}
-
-/**
- * 根据已保存的$_SESSION['permission']判断权限
- * $action未定义时，只验证是否具有访问当前controller的权限
- */
-function is_permitted($controller,$action=NULL){
-	if(isset($_SESSION['permission'][$controller])){
-		if(is_null($action)){
-			return true;
-		}else{
-			return isset($_SESSION['permission'][$controller][$action])?true:false;
-		}
-	}else{
-		return false;
-	}
-}
-
-/**
- * 调用uc接口发送用户信息
- */
-function sendMessage($receiver,$message,$title='',$sender=NULL){
-	global $CFG;
-	if(is_null($sender)){
-		$sender=$_SESSION['id'];
-	}
-	if($CFG->item('ucenter')){
-		uc_pm_send($sender,$receiver,$title,$message);
-	}
-}
-
-/**
- * 直接返回客户端ip
- */
-function getIP(){
-	if(isset($_SERVER['HTTP_CLIENT_IP'])){
-		 return $_SERVER['HTTP_CLIENT_IP'];
-	}elseif(isset($_SERVER['HTTP_X_FORWARDED_FOR'])){
-		return $_SERVER['HTTP_X_FORWARDED_FOR'];
-	}else{
-		 return $_SERVER['REMOTE_ADDR'];
-	}
-}
-
-/**
  * 重定向，对于站内跳转，url写成REQUEST_URI即可，如'user?browser'
  * 有php和js两种方式
  * 对于php跳转，采用发送301header的方式，因此之前整个系统不能输出任何内容
@@ -365,9 +216,16 @@ function html_option($options,$checked=NULL,$array_key_as_option_value=false,$ty
 			$html_option.='<option value="">全部</option>';
 		}
 
+		$key_field='';
+		if($array_key_as_option_value===true){
+			$key_field='`id`,';
+		}elseif($array_key_as_option_value!==false){
+			$key_field='`'.$array_key_as_option_value.'`, ';
+		}
+		
 		$q_get_option="
-			SELECT ".($array_key_as_option_value?'id,':'')." `".$type."` 
-			FROM `".$type_table."` 
+			SELECT $key_field `$type` 
+			FROM `$type_table` 
 			WHERE 1=1".
 				((is_null($classification) || is_null($options))?'':" AND `".$classification."`='".$options."' ").
 				(is_null($condition)?'':' AND '.$condition)
@@ -421,10 +279,20 @@ function displayCheckbox($html,$name,$check_value,$value=NULL,$disabled=false){
  */
 function post($arrayindex){
 	$args=func_get_args();
+	
+	$CI=&get_instance();
+	
+	$controller=CONTROLLER;
+	
+	if(is_null($CI->$controller->id)){
+		show_error('调用post方法时，必须定义当前控制器对应model的id属性，如$this->student->id	——uice');
+		exit;
+	}
+	
 	if(count($args)==1){
-		return array_dir('_SESSION/'.CONTROLLER.'/post/'.$arrayindex);
+		return array_dir('_SESSION/'.CONTROLLER.'/post/'.$CI->$controller->id.'/'.$arrayindex);
 	}elseif(count($args)==2){
-		return array_dir('_SESSION/'.CONTROLLER.'/post/'.$arrayindex,$args[1]);
+		return array_dir('_SESSION/'.CONTROLLER.'/post/'.$CI->$controller->id.'/'.$arrayindex,$args[1]);
 	}
 	
 }
@@ -562,9 +430,13 @@ if(!function_exists('array_replace_recursive')){
 		return $array_target;
 	}
 }
+
 /**
  * 将数组的下级数组中的某一key抽出来构成一个新数组
- * $keyname_forkey是母数组中用来作为子数组键名的键值的键名
+ * @param $array
+ * @param $keyname
+ * @param $keyname_forkey 母数组中用来作为子数组键名的键值的键名
+ * @return array
  */
 function array_sub($array,$keyname,$keyname_forkey=NULL){
 	$array_new=array();

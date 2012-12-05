@@ -3,12 +3,12 @@
 	<tbody>
 		<tr><td>
 			<select name="grade" class="filter">
-			<? displayOption(NULL,option('grade'),true,'grade',NULL,'name',"id>='".$_SESSION['global']['highest_grade']."'")?>
+			<?=html_option(NULL,option('grade'),true,'team',NULL,'name',"type='grade' AND num>={$this->school->highest_grade}")?>
 			</select>
 		</td></tr>
 		<tr><td>
 			<select name="class" class="filter">
-			<? displayOption(option('grade'),option('class'),true,'class','grade','name',"grade>='".$_SESSION['global']['highest_grade']."'")?>
+			<?=html_option($this->classes->getRelatedTeams(option('grade')),option('class'),true)?>
 			</select>
 		</td></tr>
 	</tbody>

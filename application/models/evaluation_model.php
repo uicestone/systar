@@ -22,8 +22,8 @@ class Evaluation_model extends SS_Model{
 			'indicator'=>$indicator,
 			'staff'=>$staff,
 			'quarter'=>$this->config->item('quater'),
-			'company'=>$this->config->item('company'),
-			'uid'=>$_SESSION['id'],
+			'company'=>$this->company->id,
+			'uid'=>$this->user->id,
 			'username'=>$_SESSION['username'],
 			'time'=>$this->config->item('timestamp')
 		);
@@ -34,7 +34,7 @@ class Evaluation_model extends SS_Model{
 			$data_score[$field]=$value;
 		}
 		
-		if(!$this->db->update('evaluation_score',$data_score,"indicator = '{$indicator}' AND staff = '{$staff}' AND quarter = '{$this->config->item('quater')}' AND uid = '{$_SESSION['id']}' AND company = '{$this->config->item('company')}'")){
+		if(!$this->db->update('evaluation_score',$data_score,"indicator = '{$indicator}' AND staff = '{$staff}' AND quarter = '{$this->config->item('quater')}' AND uid = '{$this->user->id}' AND company = '{$this->company->id}'")){
 			return false;
 		}
 		
@@ -51,12 +51,12 @@ class Evaluation_model extends SS_Model{
 	
 	function getPeer($staff=NULL){
 		if(is_null($staff)){
-			$staff=$_SESSION['id'];
+			$staff=$this->user->id;
 		}
 		
 		$query="
 			SELECT AVG(score) FROM(
-				SELECT SUM(score) AS score FROM evaluation_score WHERE quarter='".$this->config->item('quater')."' AND staff='".$staff."' AND uid<>'".$_SESSION['id']."' AND uid<>(SELECT manager FROM manager_staff WHERE staff = '".$staff."') GROUP BY uid
+				SELECT SUM(score) AS score FROM evaluation_score WHERE quarter='".$this->config->item('quater')."' AND staff='".$staff."' AND uid<>{$this->user->id} AND uid<>(SELECT manager FROM manager_staff WHERE staff = '".$staff."') GROUP BY uid
 			)score_sum
 		";
 		
@@ -65,7 +65,7 @@ class Evaluation_model extends SS_Model{
 	
 	function getSelf($staff=NULL){
 		if(is_null($staff)){
-			$staff=$_SESSION['id'];
+			$staff=$this->user->id;
 		}
 		
 		$query="SELECT SUM(score) AS score FROM evaluation_score WHERE quarter='".$this->config->item('quater')."' AND staff='".$staff."' AND uid='".$staff."'";
@@ -75,7 +75,7 @@ class Evaluation_model extends SS_Model{
 	
 	function getManager($staff=NULL){
 		if(is_null($staff)){
-			$staff=$_SESSION['id'];
+			$staff=$this->user->id;
 		}
 		
 		$query="SELECT SUM(score) AS score FROM evaluation_score WHERE quarter='".$this->config->item('quater')."' AND staff='".$staff."' AND uid = (SELECT manager FROM manager_staff WHERE staff = '".$staff."')";

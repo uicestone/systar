@@ -8,7 +8,7 @@ class Schedule_model extends SS_Model{
 		$query="
 			SELECT * 
 			FROM schedule
-			WHERE id='{$id}' AND company='{$this->config->item('company')}'";
+			WHERE id='{$id}' AND company='{$this->company->id}'";
 		return $this->db->query($query)->row_array();
 	}
 	
@@ -21,7 +21,7 @@ class Schedule_model extends SS_Model{
 				LEFT JOIN `case` ON case.id=schedule.case
 				LEFT JOIN client ON client.id=schedule.client
 			WHERE schedule.id='".intval($id)."'
-				AND schedule.company='{$this->config->item('company')}'";
+				AND schedule.company='{$this->company->id}'";
 		$schedule=$this->db->query($q_schedule)->row_array();
 
 		$schedule['content_paras']=explode("\n",$schedule['content']);
@@ -39,7 +39,7 @@ class Schedule_model extends SS_Model{
 		if($staff){
 			$q_calendar.=" AND `uid`='".intval($staff)."'";
 		}else{
-			$q_calendar.=" AND `uid`='".$_SESSION['id']."'";
+			$q_calendar.=" AND `uid`={$this->user->id}";
 		}
 		
 		if($case){
@@ -108,7 +108,7 @@ class Schedule_model extends SS_Model{
 	}
 	
 	function delete($schedule_id){
-		return $this->db->delete('schedule',array('id'=>intval($schedule_id),'uid'=>$_SESSION['id']));	
+		return $this->db->delete('schedule',array('id'=>intval($schedule_id),'uid'=>$this->user->id));	
 	}
 	
 	function update($schedule_id,$data){
@@ -157,13 +157,13 @@ class Schedule_model extends SS_Model{
 			FROM schedule INNER JOIN `case` ON schedule.case=case.id
 				INNER JOIN case_lawyer ON case.id=case_lawyer.case
 				LEFT JOIN staff ON staff.id = schedule.uid
-			WHERE case_lawyer.lawyer='".$_SESSION['id']."'
+			WHERE case_lawyer.lawyer={$this->user->id}
 				AND schedule.display=1 AND schedule.completed=".($this->input->get('plan')?'0':'1')."
 		";
 		
 		$condition='';
 		if($para=='mine'){
-			$condition.=" AND schedule.`uid`='".$_SESSION['id']."'";
+			$condition.=" AND schedule.`uid`={$this->user->id}";
 		}else{
 			if($this->input->get('staff')){
 				$condition.=" AND schedule.`uid`='".intval($this->input->get('staff'))."'";

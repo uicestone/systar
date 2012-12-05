@@ -74,16 +74,19 @@ if($action == 'test') {
 
 	//同步登录 API 接口
 	$uid = intval($get['uid']);
-	if(session_login($uid))
+	$CI=&get_instance();
+	if($CI->user->sessionLogin($uid))
 		header('P3P: CP="CURa ADMa DEVa PSAo PSDo OUR BUS UNI PUR INT DEM STA PRE COM NAV OTC NOI DSP COR"');
 
 } elseif($action == 'synlogout') {
 
 	!API_SYNLOGOUT && exit(API_RETURN_FORBIDDEN);
 
+	$CI=&get_instance();
+
 	//同步登出 API 接口
 	header('P3P: CP="CURa ADMa DEVa PSAo PSDo OUR BUS UNI PUR INT DEM STA PRE COM NAV OTC NOI DSP COR"');
-	session_logout();
+	$CI->user->sessionLogout();
 
 } elseif($action == 'updatebadwords') {
 

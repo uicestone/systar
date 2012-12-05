@@ -1,5 +1,8 @@
 <?php
 class Document_model extends SS_Model{
+	
+	var $id;
+	
 	function __construct(){
 		parent::__construct();
 		$this->load->library('filetype');
@@ -9,7 +12,7 @@ class Document_model extends SS_Model{
 		$query="
 			SELECT * 
 			FROM `document` 
-			WHERE id='{$id}' AND company='{$this->config->item('company')}'";
+			WHERE id='{$id}' AND company='{$this->company->id}'";
 		return $this->db->query($query)->row_array();
 	}
 	

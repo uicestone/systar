@@ -1,24 +1,35 @@
 <?php
 class Company_model extends SS_Model{
+	
+	var $id;
+	var $name;
+	var $type;
+	var $host;
+	var $syscode;
+	var $sysname;
+	var $ucenter;
+	var $default_controller;
+	
 	function __construct(){
 		parent::__construct();
+		$this->recognize($this->input->server('SERVER_NAME'));
 	}
 
-	function school_init(){
-		//以8/1和农历新年作为学期的分界线
-		$this->load->library('Lunar');
-		$year=date('y',$this->config->item('timestamp'));//两位数年份
-		$term_begin_this_year_timestamp=strtotime($year.'-8-1');//今年8/1
-		$lunar_this_new_year_timestamp=$this->lunar->L2S($year.'-1-1');//今年农历新年的公历
-		if($this->config->item('timestamp')>=$term_begin_this_year_timestamp){
-			$term=1;$term_year=$year;
-		}elseif($this->config->item('timestamp')<$lunar_this_new_year_timestamp){
-			$term=1;$term_year=$year-1;
-		}else{
-			$term=2;$term_year=$year-1;
+	function recognize($host_name){
+		$query="
+			SELECT id,name,type,syscode,sysname,ucenter,default_controller
+			FROM company 
+			WHERE host='$host_name' OR syscode='$host_name'";
+		
+		$row_array=$this->db->query($query)->row_array();
+		
+		if(!$row_array){
+			show_error('不存在此域名对应的公司');
 		}
-		array_dir('_SESSION/global/current_term',$term_year.'-'.$term);//计算当前学期
-		array_dir('_SESSION/global/highest_grade',$term_year-2);//计算当前在校最高年级
+		
+		foreach($row_array as $key => $value){
+			$this->$key=$value;
+		}
 	}
 	
 	function starsys_schedule_side_table(){
@@ -101,7 +112,7 @@ class Company_model extends SS_Model{
 			)
 		);
 		
-		if(is_logged('manager')){
+		if($this->user->isLogged('manager')){
 			$staff=$this->input->get('staff')?$this->input->get('staff'):false;
 			$sidebar_table[]=array(
 				'_heading'=>array(
@@ -109,7 +120,7 @@ class Company_model extends SS_Model{
 				),
 				array(
 					'schedule_check'=>'<select name="staff" class="filter" method="get">'
-						.html_option(false,$staff,true,'staff',NULL,'name',"id IN (SELECT staff FROM manager_staff WHERE manager='".$_SESSION['id']."') AND position IS NOT NULL")
+						.html_option(false,$staff,true,'staff',NULL,'name',"id IN (SELECT staff FROM manager_staff WHERE manager={$this->user->id}) AND position IS NOT NULL")
 						.'</select>'
 				)
 			);

@@ -1,6 +1,7 @@
 <?php
 class Misc extends SS_controller{
 	function __construct(){
+		$this->require_permission_check=false;
 		parent::__construct();
 	}
 	
@@ -73,10 +74,10 @@ class Misc extends SS_controller{
 	
 	function setSession($var){
 		if($var=='minimized'){
-			if($this->session->userdata('minimized')===false || $this->session->userdata('minimized')=='minimized'){
-				$this->session->set_userdata('minimized','maximized');
-			}else{
+			if($this->session->userdata('minimized')===false || $this->session->userdata('minimized')=='maximized'){
 				$this->session->set_userdata('minimized','minimized');
+			}else{
+				$this->session->set_userdata('minimized','maximized');
 			}
 			echo 'success';
 

@@ -89,4 +89,4 @@ SET student_classdiv.extra_course_score=b.score
 WHERE student_classdiv.extra_course_score IS NULL
 
 --拉出提高班
-UPDATE student_classdiv SET new_class=1201 WHERE extra_course=4 ORDER BY course_1+course_2+course_3+extra_course DESC LIMIT 44
+UPDATE student_classdiv SET new_class=1201 WHERE extra_course=4 ORDER BY course_1+course_2+course_3+extra_course DESC LIMIT 44;

@@ -10,17 +10,9 @@
 |
 */
 
-$hook['pre_controller']=array(
-	'function'=>'preController',
-	'filename'=>'pre_controller.php',
-	'filepath'=>'hooks'
-);
+$hook['pre_controller']=array();
 
-$hook['post_controller_constructor']=array(
-	'function'=>'postControllerConstructor',
-	'filename'=>'post_controller_constructor.php',
-	'filepath'=>'hooks'
-);
+$hook['post_controller_constructor']=array();
 
 $hook['post_controller']=array(
 	'function'=>'postController',

@@ -3,7 +3,6 @@
 	云南省曲靖师范学院计算机科学与工程学院-杨海熙编写
 	2009-9-3
 */	
-error_reporting(0);//uicestone 2012/5/2 225行报错，目测不影响使用
 class Lunar
 {
 	private  $_SMDay = array(1 => 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);//定义公历月分天数
@@ -220,7 +219,7 @@ class Lunar
 		$Larray = $this->_LMDay[$year - $this->_LStart];
 		if($type == 1 && count($Larray)<=12 ) return false;//要求查询闰，但查无闰月
 		//如果查询的农历是闰月并该年度农历数组存在闰月数据就获取
-		if($Larray[$month]>30 && $type == 1 && count($Larray) >=13)	$day = $Larray[13] + $day;
+		if(@$Larray[$month]>30 && $type == 1 && count($Larray) >=13)	$day = $Larray[13] + $day;
 		//获取该年农历日期到公历1月1日的天数
 		$days = $day;
 		for($i=0;$i<=$month-1;$i++)

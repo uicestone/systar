@@ -1,5 +1,5 @@
 <?php
-class Classes_model extends SS_Model{
+class Classes_model extends Team_model{
 	function __construct(){
 		parent::__construct();
 	}
@@ -8,25 +8,60 @@ class Classes_model extends SS_Model{
 		$query="
 			SELECT * 
 			FROM class 
-			WHERE id='{$id}' AND company='{$this->config->item('company')}'";
+			WHERE id='{$id}' AND company='{$this->company->id}'";
 		return $this->db->query($query)->row_array();
+	}
+	
+	/**
+	 * 根据学生id返回本学期所在班级的信息
+	 * @param int $student_id
+	 * @return array array(
+	 *	num_in_class=>班中学号
+	 *	num=>学号
+	 *	class_name=>班级名称
+	 *	class_teacher_name=>班主任姓名
+	 * )
+	 */
+	function fetchByStudent($student_id){
+		$student_id=intval($student_id);
+		
+		$q_student_class="
+			SELECT team_people.id_in_team AS num_in_class,
+				CONCAT(RIGHT(10000+team.num,4),team_people.id_in_team) AS num,
+				team.id AS class,team.name AS class_name,
+				people.name AS class_teacher_name
+			FROM team_people
+				INNER JOIN team ON team_people.team=team.id
+				LEFT JOIN people ON team.leader=people.id
+			WHERE team.company={$this->company->id}
+				AND team_people.people=$student_id
+				AND team_people.term='{$this->school->current_term}'
+		";
+		
+		return $this->db->query($q_student_class)->row_array();
 	}
 	
 	function getList(){
 		$q="
-			SELECT class.id, class.name, grade.name AS grade_name, depart, course.name AS extra_course_name,
-				staff.name AS class_teacher_name
-			FROM class INNER JOIN grade ON class.grade = grade.id
+			SELECT class.id, class.name, grade.name AS grade_name, depart.name AS depart, course.name AS extra_course_name,
+				teacher.name AS class_teacher_name
+			FROM team AS class 
+				INNER JOIN team_relationship AS grade_class ON grade_class.relative=class.id
+				INNER JOIN team AS grade ON grade.id=grade_class.team AND grade.type='grade'
+				INNER JOIN team_relationship AS depart_class ON depart_class.relative=class.id
+				INNER JOIN team AS depart ON depart.id=depart_class.team AND depart.type='depart'
 				LEFT JOIN course ON course.id = class.extra_course
-				LEFT JOIN staff ON staff.id = class.class_teacher
-			WHERE grade>='".$_SESSION['global']['highest_grade']."'
+				LEFT JOIN people AS teacher ON teacher.id = class.leader
+			WHERE class.company={$this->company->id} AND class.display=1 
+				AND class.type='class'
+				AND grade.num>='".$this->school->highest_grade."'
 		";
 		
-		$q=$this->addCondition($q,array('grade'=>'class.grade'));
+		$q=$this->addCondition($q,array('grade'=>'grade.id'));
 				
-		$q=$this->search($q,array('name'=>'班级','depart'=>'部门'));
+		$q=$this->search($q,array('class.name'=>'班级','depart.name'=>'部门'));
 		
-		$q=$this->orderby($q,'class.id','ASC');
+		$q=$this->orderby($q,'class.num','ASC');
 		
 		$q=$this->pagination($q);
 		
@@ -79,7 +114,7 @@ class Classes_model extends SS_Model{
 			WHERE id = (
 				SELECT class FROM student_class 
 				WHERE student = '{$student_id}'
-					AND term='{$_SESSION['global']['current_term']}'
+					AND term='{$this->school->current_term}'
 			)
 		")->row_array();
 	}
@@ -103,15 +138,52 @@ class Classes_model extends SS_Model{
 	}
 	
 	function getLeadersList($team_id){
+		$team_id=intval($team_id);
+		
 		$query="
 			SELECT student.name,student_class.position 
 			FROM student INNER JOIN student_class 
-				ON (student.id=student_class.student AND student_class.term='".$_SESSION['global']['current_term']."')
-			WHERE student_class.class='{$team_id}'
+				ON (student.id=student_class.student AND student_class.term='{$this->school->current_term}')
+			WHERE student_class.class=$team_id
 				AND student_class.position IS NOT NULL
 		";
 		
 		return $this->db->query($query)->result_array();
+	}
+	
+	/**
+	 * 获得一个团队的相关团队
+	 * @param 被关联团队id
+	 * @param 关联名称，如“隶属”
+	 * @return array(related_team_id_1=>related_team_name_1,...)
+	 */
+	function getRelatedTeams($team_id=NULL,$relation=NULL,$type=NULL){
+		isset($team_id) && $team_id=intval($team_id);
+		
+		$query="
+			SELECT team.id,team.name 
+			FROM team 
+				INNER JOIN team_relationship ON team.id=team_relationship.relative";
+		
+		if(isset($relation)){
+			$query.=" AND team_relationship.relation='$relation'";
+		}
+		
+		if(isset($type)){
+			$query.=" AND team.type='$type'";
+		}
+		
+		$query.="
+			WHERE team.company={$this->company->id} AND  team.display=1 
+		";
+			
+		if(isset($team_id)){
+			$query.=" AND team_relationship.team=$team_id";
+		}
+
+		$result=$this->db->query($query)->result_array();
+		
+		return array_sub($result,'name','id');
 	}
 }
 ?>

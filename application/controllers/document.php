@@ -140,7 +140,7 @@ class Document extends SS_controller{
 		unset($fav_to_detele['favDelete']);
 		if(isset($fav_to_detele)){
 			$condition = db_implode($_POST, $glue = ' OR ','file','=',"'","'", '`','key');
-			$q="DELETE FROM document_fav WHERE (".$condition.") AND uid='".$_SESSION['id']."'";
+			$q="DELETE FROM document_fav WHERE (".$condition.") AND uid={$this->user->id}";
 			db_query($q);
 		}
 		redirect('document');
@@ -151,7 +151,7 @@ class Document extends SS_controller{
 		if(isset($_POST)){
 			$glue=$values='';
 			foreach($this->input->post('document') as $id=>$status){
-				$values.=$glue."('".$id."','".$_SESSION['id']."','".time()."')";
+				$values.=$glue."('".$id."',{$this->user->id},'".time()."')";
 				$glue=','."\n";
 			}
 			$q="REPLACE INTO document_fav (file,uid,time) values ".$values;
@@ -187,7 +187,7 @@ class Document extends SS_controller{
 				'parent'=>$_SESSION['document']['currentDirID'],
 				'path'=>$_SESSION['document']['currentPath']."/".$_FILES["file"]["name"],
 				'comment'=>$this->input->post('comment'),
-				'uid'=>$_SESSION['id'],
+				'uid'=>$this->user->id,
 				'username'=>$_SESSION['username'],
 				'time'=>$this->config->item('timestamp')
 			);

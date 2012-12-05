@@ -10,7 +10,7 @@
     <input type="submit" name="fileSubmit" value="上传" />
 </form>
 <?php
-$q="SELECT * FROM `document` WHERE id IN (SELECT file FROM document_fav WHERE uid='".$_SESSION['id']."') ORDER BY name";
+$q="SELECT * FROM `document` WHERE id IN (SELECT file FROM document_fav WHERE uid={$this->user->id}) ORDER BY name";
 $field=array(
 	'checkbox'=>array('title'=>'<input type="submit" name="favDelete" value="删" />','orderby'=>false,'content'=>'<input type="checkbox" name="{id}" >','td_title'=>' width=40px'),
 	'file'=>array('title'=>'收藏','content'=>'<a href="/document?view={id}">{name}</a>'));

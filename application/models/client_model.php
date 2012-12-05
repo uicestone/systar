@@ -1,5 +1,5 @@
 <?php
-class Client_model extends SS_Model{
+class Client_model extends People_model{
 	function __construct(){
 		parent::__construct();
 	}
@@ -14,7 +14,7 @@ class Client_model extends SS_Model{
 		$query="
 			SELECT * 
 			FROM client 
-			WHERE id='{$id}' AND company='{$this->config->item('company')}'";
+			WHERE id='{$id}' AND company='{$this->company->id}'";
 		$row=$this->db->query($query)->row_array();
 
 		if(is_null($field)){
@@ -48,9 +48,9 @@ class Client_model extends SS_Model{
 		}
 	
 		if($fuzzy){
-			$q_client="SELECT * FROM `client` WHERE display=1 AND company='".$this->config->item('company')."' AND (`name` LIKE '%".$client_name."%' OR abbreviation LIKE '".$client_name."')";
+			$q_client="SELECT * FROM `client` WHERE display=1 AND company='".$this->company->id."' AND (`name` LIKE '%".$client_name."%' OR abbreviation LIKE '".$client_name."')";
 		}else{
-			$q_client="SELECT * FROM `client` WHERE display=1 AND company='".$this->config->item('company')."' AND (`name` LIKE '".$client_name."' OR abbreviation LIKE '".$client_name."')";
+			$q_client="SELECT * FROM `client` WHERE display=1 AND company='".$this->company->id."' AND (`name` LIKE '".$client_name."' OR abbreviation LIKE '".$client_name."')";
 		}
 		$r_client=db_query($q_client);
 		$num_clients=db_rows($r_client);
@@ -260,7 +260,7 @@ class Client_model extends SS_Model{
 						SELECT id FROM `case` WHERE filed=1
 							AND id IN (
 								SELECT `case` FROM case_lawyer 
-								WHERE lawyer='".$_SESSION['id']."' OR uid='".$_SESSION['id']."'
+								WHERE lawyer={$this->user->id} OR uid={$this->user->id}
 							)
 					)
 			)";
@@ -268,7 +268,7 @@ class Client_model extends SS_Model{
 		}elseif($case_id==13){
 			//咨询跟踪
 			$q_option_array.="
-				AND id IN (SELECT client FROM query WHERE display=1 AND filed=0 AND (partner='".$_SESSION['id']."' OR lawyer='".$_SESSION['id']."' OR assistant='".$_SESSION['id']."'))
+				AND id IN (SELECT client FROM query WHERE display=1 AND filed=0 AND (partner={$this->user->id} OR lawyer={$this->user->id} OR assistant={$this->user->id}))
 			";
 		}
 		$q_option_array.=" ORDER BY id DESC";
@@ -321,6 +321,7 @@ class Client_model extends SS_Model{
 		}else{
 			$condition.="
 				AND type='成交客户'
+				AND client.id IN (SELECT client FROM case_client WHERE `case` IN (SELECT `case` FROM case_lawyer WHERE lawyer={$this->user->id}))
 			";
 			
 			if(!is_logged('service') && !is_logged('developer')){

@@ -6,19 +6,48 @@ class SS_Controller extends CI_Controller{
 	
 	var $default_method='lists';
 
-	var $view_data=array();//传递给视图的参数
+	/**
+	 * 传递给视图的参数
+	 */
+	var $view_data=array();
 
 	var $as_popup_window=false;
 	var $as_controller_default_page=false;
-	var $actual_table='';//借用数据表的controller的实际主读写表，如contact为client,query为cases
+	
+	var $require_permission_check=true;
+	
+	/**
+	 * 实际主读写表，如client为people,query为case
+	 */
+	var $actual_table;
+	var $company_type_model_loaded=false;
+	
+	/**
+	 * 在ajax响应页面中，用来保存错误信息的数组
+	 */
+	var $json_error_message=array();
 	
 	function __construct(){
 		parent::__construct();
 		
+		/**
+		 * 一些无法写入config.php的配置，要放在最首
+		 */
+		date_default_timezone_set('Asia/Shanghai');//定义时区，windows系统中php不能识别到系统时区
+	
+		session_set_cookie_params(86400); 
+		session_start();
+	
+		$this->config->set_item('timestamp',time());
+		$this->config->set_item('microtime',microtime(true));
+		$this->config->set_item('date',date('Y-m-d',$this->config->item('timestamp')));
+		$this->config->set_item('quarter',date('y',$this->config->item('timestamp')).ceil(date('m',$this->config->item('timestamp'))/3));
+		
+		/**
+		 * 处理$class和$method，并定义为常量
+		 */
 		global $class,$method;
 		
-		$this->load->helper('function_common');
-
 		//使用controller中自定义的默认method
 		if($method=='index'){
 			$method=$this->default_method;
@@ -31,12 +60,25 @@ class SS_Controller extends CI_Controller{
 		$this->controller=$class;
 		$this->method=$method;
 		
-		date_default_timezone_set('Asia/Shanghai');//定义时区，windows系统中php不能识别到系统时区
+		/**
+		 * 自动载入的资源，没有使用autoload.php是因为后者载入以后不能起简称...
+		 */
+		$this->load->helper('function_common');
+		$this->load->model('company_model','company');
+		$this->load->model('user_model','user');
+		
+		if(is_file(APPPATH.'models/'.$class.'_model.php')){
+			$this->load->model($class.'_model',$class);
+		}
+
+		if(is_file(APPPATH.'models/'.$this->company->type.'_model.php')){
+			$this->load->model($this->company->type.'_model',$this->company->type);
+			$this->company_type_model_loaded=true;
+		}
 	
-		session_set_cookie_params(86400); 
-		session_start();
-	
-		//初始化数据库，本系统为了代码书写简便，没有将数据库操作作为类封装，但有大量实用函数在function/function_common.php->db_()
+		/**
+		 * 初始化老版本数据库，老版本数据库调用方法全部废弃以后，删除本段
+		 */
 		$db['host']="localhost";
 		$db['username']="root";
 		$db['password']="";
@@ -46,33 +88,34 @@ class SS_Controller extends CI_Controller{
 	
 		mysql_select_db($db['name'],DB_LINK);
 
-		$this->config->set_item('timestamp',time());
-		$this->config->set_item('microtime',microtime(true));
-		$this->config->set_item('date',date('Y-m-d',$this->config->item('timestamp')));
-		$this->config->set_item('quarter',date('y',$this->config->item('timestamp')).ceil(date('m',$this->config->item('timestamp'))/3));
-	
 		db_query("SET NAMES 'UTF8'");
 	
-		//获得公司信息，见数据库，company表
-		if($company_info=company_fetchInfo()){
-			foreach($company_info as $config_name => $config_value){
-				$this->config->set_item($config_name, $config_value);
-			}
-		}
-	
-		//ucenter配置
-		if($this->config->item('ucenter')){
+		/**
+		 * ucenter配置
+		 */
+		if($this->company->ucenter){
 			$this->load->helper('config_ucenter');
 			require APPPATH.'third_party/client/client.php';
 		}
 
-		if($class!='user' && !is_logged(NULL,true)){
-			//对于非用户登录/登出界面，检查权限，弹出未登陆（顺便刷新权限）
+		/**
+		 * 弹出未登录用户
+		 */
+		if(!$this->user->isLogged(NULL) && $class!='user'){
 			redirect('user/login','js',NULL,true);
 		}
+		
+		/**
+		 * 屏蔽无权限用户
+		 */
+		if($this->require_permission_check && !$this->user->isPermitted($class)){
+			show_error('权限不足，无法访问');
+		}
 
-		//根据controller和method请求决定一些参数
-		//这相当于集中处理了分散的控制器属性，在团队开发中，这不科学。有空应该把这些设置移动到对应的控制器中
+		/**
+		 * 根据controller和method请求决定一些参数
+		 * 这相当于集中处理了分散的控制器属性，在团队开发中，这不科学。有空应该把这些设置移动到对应的控制器中
+		 */
 		if(in_array($method,array('add','edit'))){
 			$this->as_popup_window=TRUE;
 		}
@@ -180,13 +223,6 @@ class SS_Controller extends CI_Controller{
 			$this->as_popup_window=FALSE;
 		}
 
-		$this->load->model('company_model','company');
-		$this->load->model('user_model','user');
-		
-		if(is_file(APPPATH.'models/'.$class.'_model.php')){
-			$this->load->model($class.'_model',$class);
-		}
-
 		if($this->input->post('submit/cancel')){
 			$this->load->require_head=false;
 			$method='cancel';
@@ -224,48 +260,6 @@ class SS_Controller extends CI_Controller{
 
 	}
 	
-	/**
-	 * 在每个add/edit页面之前获得数据ID，插入新数据或者根据数据ID获得数据数组
-	 * @param  $id	需要获得的数据id，如果是添加新数据，那么为NULL
-	 * @param type $callback 对于新增数据，在执行插入操作之前进行一些赋值
-	 * @param type $generate_new_id	如果$generate_new_id==false，那么必须在callback中获得post(CONTROLLER/id)，适用于id并非auto increasement，而是链接而来的情况
-	 * @param type $db_table 实际操作的数据表名，默认为控制器名，否则须指定，如contact的表名为client
-	 */
-	function getPostData($id,$function_initializing_data=NULL,$generate_new_id=true,$db_table=NULL){
-		if(isset($id)){
-			unset($_SESSION[CONTROLLER]['post']);
-			post(CONTROLLER.'/id',intval($id));
-		
-		}elseif(is_null(post(CONTROLLER.'/id'))){
-			unset($_SESSION[CONTROLLER]['post']);
-			
-			post(CONTROLLER,uidTime());
-				
-			if(is_a($function_initializing_data,'Closure')){
-				$CI=&get_instance();
-				$function_initializing_data($CI);
-			}
-	
-			if($generate_new_id){
-				if(is_null($db_table)){
-					if($this->actual_table!=''){
-						$db_table=$this->actual_table;
-					}else{
-						$db_table=CONTROLLER;
-					}
-				}
-				post(CONTROLLER.'/id',db_insert($db_table,post(CONTROLLER)));
-			}
-		}
-	
-		if(!post(CONTROLLER.'/id')){
-			show_error('获得信息ID失败');
-			exit;
-		}
-		$class=CONTROLLER;
-		post(CONTROLLER,$this->$class->fetch(post(CONTROLLER.'/id')));
-	}
-
 	/* 
 	 * $extra_action 是一个数组，接受除了返回列表/关闭窗口之外的其他提交后动作
 	 * $after_update为数据库更新成功后，跳转前需要的额外操作
@@ -280,11 +274,11 @@ class SS_Controller extends CI_Controller{
 		}
 
 		if($set_user){
-			post(CONTROLLER.'/uid',$_SESSION['id']);
-			post(CONTROLLER.'/username',$_SESSION['username']);
+			post(CONTROLLER.'/uid',$this->user->id);
+			post(CONTROLLER.'/username',$this->user->name);
 		}
 
-		post(CONTROLLER.'/company',$this->config->item('company'));
+		post(CONTROLLER.'/company',$this->company->id);
 
 		if(is_null($update_table)){
 			if($this->actual_table!=''){
@@ -301,38 +295,39 @@ class SS_Controller extends CI_Controller{
 					$after_update();
 				}
 
-				if(is_posted('submit/'.CONTROLLER)){
-
-					if(!$this->as_controller_default_page){
-						unset($_SESSION[CONTROLLER]['post']);
-					}
-
-					if($this->as_popup_window){
-						refreshParentContentFrame();
-						closeWindow();
-					}else{
-						if($this->as_controller_default_page){
-							showMessage('保存成功~');
-						}else{
-							redirect(($this->session->userdata('last_list_action')?$this->session->userdata('last_list_action'):CONTROLLER));
-						}
-					}
-				}
+				return true;
 			}
 		}
 	}
 
-	function cancel(){
-		unset($_SESSION[CONTROLLER]['post']);
-		
-		db_delete($this->actual_table==''?CONTROLLER:$this->actual_table,"uid='".$_SESSION['id']."' AND display=0");//删除本用户的误添加数据
-		
-		if($this->as_popup_window){
-			closeWindow();
-		}else{
-			redirect(($this->session->userdata('last_list_action')?$this->session->userdata('last_list_action'):CONTROLLER));
+	function submit($submit){
+		if($submit=='cancel'){
+			unset($_SESSION[CONTROLLER]['post']);
+			$this->db->delete($this->actual_table==''?CONTROLLER:$this->actual_table,"uid = {$this->user->id} AND display = 0");//删除本用户的误添加数据
+			return true;
 		}
 	}
-
+	
+	/**
+	 * ajax响应页面，在一个form中，用户修改任何input/select值时，就发送一个请求，设置到$_SESSION中
+	 * 到发生保存请求时，只需要把$_SESSION中的新值保存即可
+	 */
+	function setField(){
+		$this->load->require_head=false;
+		$args=func_get_args();
+		$id=$args[0];
+		
+		$controller=CONTROLLER;
+		$this->$controller->id=$id;
+		
+		$value=$this->input->post('value');
+		
+		$post_key_name_array=array_splice($args, 1);
+		$post_key_name=implode('/',$post_key_name_array);
+		
+		post($post_key_name,$value);
+		echo 'success';
+	}
+	
 }
 ?>

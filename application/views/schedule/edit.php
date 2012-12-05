@@ -2,7 +2,7 @@
 <form method="post" enctype="multipart/form-data">
 <div class="contentTableMenu">
 	<div class="right">
-		<? if(post('schedule/uid')==$_SESSION['id']){?>
+		<? if(post('schedule/uid')==$this->user->id){?>
 		<input type="submit" name="submit[schedule]" value="保存" />
 		<? }?>
 		<input type="submit" name="submit[cancel]" value="关闭" />
@@ -48,7 +48,7 @@
 		</div>
 
 		<? if(!got('completed',0)){?>
-			<? if(post('schedule/uid')==$_SESSION['id']){?>
+			<? if(post('schedule/uid')==$this->user->id){?>
 		<div class="item">
 			<div class="title"><label>心得体会：</label></div>
 			<textarea class="item" name="schedule[experience]" rows="5"><?=post('schedule/experience'); ?></textarea>
@@ -86,7 +86,7 @@
 		  <label>费用名称：<input name="schedule[fee_name]" value="<?=post('schedule/fee_name');?>" type="text" style="width:20%" /></label>
 		</div>
 		
-		<? if(post('schedule/document') || $_SESSION['id']==post('schedule/uid')){ ?>
+		<? if(post('schedule/document') || $this->user->id==post('schedule/uid')){ ?>
 		<div class="item">
 			<div class="title">相关文件</div>
 			<? if(post('schedule/document')){ ?>
@@ -102,7 +102,7 @@
 		<? } ?>
 		
 		<div class="submit">
-			<? if( post('schedule/uid')==$_SESSION['id']){?>
+			<? if( post('schedule/uid')==$this->user->id){?>
 			<input class="submit" type="submit" name="submit[schedule]" value="保存" />
 			<? }?>
 			<input class="submit" type="submit" name="submit[cancel]" value="关闭" />

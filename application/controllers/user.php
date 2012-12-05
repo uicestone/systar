@@ -1,23 +1,24 @@
 <?php
 class user extends SS_controller{
 	function __construct(){
+		$this->require_permission_check=false;
 		parent::__construct();
 	}
 	
 	function logout(){
-		session_logout();
+		$this->user->sessionLogout();
 		redirect('');
 	}
 	
 	function login(){
-		if(is_logged()){
+		if($this->user->isLogged()){
 			//用户已登陆，则不显示登录界面
-			redirect('');
+			redirect('','js',NULL,true);
 		}
 		
-		if(is_posted('submit/login')){
+		if($this->input->post('submit/login')){
 			
-			if($this->config->item('ucenter')){
+			if($this->company->ucenter){
 		
 				$ucenter_user=uc_user_login($this->input->post('username'),$this->input->post('password'));//ucenter验证密码
 				
@@ -25,7 +26,7 @@ class user extends SS_controller{
 					showMessage('Ucenter Error','warning');
 		
 				}elseif($ucenter_user[0]>0){
-					if(session_login($ucenter_user[0])){
+					if($this->sessionLogin($ucenter_user[0])){
 						$this->user->updateLoginTime();
 						echo uc_user_synlogin($ucenter_user[0]);
 						redirect('','js');
@@ -37,20 +38,22 @@ class user extends SS_controller{
 		
 				if($user=$this->user->verify($this->input->post('username'),$this->input->post('password'))){
 			
-					$_SESSION['id']=$user['id'];
-					$_SESSION['usergroup']=explode(',',$user['group']);
-					$_SESSION['username']=$user['username'];
+					$this->session->set_userdata('user/id', $user['id']);
+					$this->session->set_userdata('user/name', $user['name']);
 					
-					foreach($_SESSION['usergroup'] as $group){
-						if(method_exists($this->user,$group.'_set_session')){
-							call_user_func(array($this->user,$group.'_set_session'),$_SESSION['id']);
+					$user['group']=explode(',',$user['group']);
+					$this->session->set_userdata('user/group', $user['group']);
+					
+					$this->user->__construct();
+					
+					foreach($this->user->group as $group){
+						$company_type=$this->company->type;
+						if($this->company_type_model_loaded && method_exists($this->$company_type,$group.'_setSession')){
+							call_user_func(array($this->$company_type,$group.'_setSession'),$this->user->id);
 						}
 					}
 					
 					$this->user->updateLoginTime();
-					if(method_exists($this->company,$this->config->item('company_type').'_init')){
-						call_user_func(array($this->company,$this->config->item('company_type').'_init'));
-					}
 			
 					if(!isset($user['password'])){
 						redirect('user/profile');
@@ -67,7 +70,7 @@ class user extends SS_controller{
 	}
 
 	function profile(){
-		$q_user="SELECT * FROM user WHERE id = '".$_SESSION['id']."'";
+		$q_user="SELECT * FROM user WHERE id = {$this->user->id}";
 		$r_user=db_query($q_user);
 		post('user',db_fetch_array($r_user));
 		
@@ -79,7 +82,7 @@ class user extends SS_controller{
 			
 			$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$_POST);
 			
-			if($this->config->item('ucenter')){
+			if($this->company->ucenter){
 				if(uc_user_edit($_SESSION['username'],post('user_extra/password'),post('user/password_new'),NULL)>0){
 					redirect('','js',NULL,true);
 				}
@@ -92,7 +95,7 @@ class user extends SS_controller{
 					}
 				}
 				
-				if($this->user->edit($_SESSION['id'],post('user/password_new'),post('user/username'))){
+				if($this->user->edit($this->user->id,post('user/password_new'),post('user/username'))){
 					if(post('user/password_new')){
 						post('user/password',post('user/password_new'));
 					}

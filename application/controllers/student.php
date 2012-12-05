@@ -2,18 +2,21 @@
 class Student extends SS_controller{
 	function __construct(){
 		parent::__construct();
+		$this->load->model('classes_model','classes');
+		$this->actual_table='people';
 	}
 	
 	function lists(){
+		
 		//如果以家长或学生身份登陆，显示的是编辑查看页面，而非列表页面
-		if(is_logged('parent') || is_logged('student')){
+		if($this->user->isLogged('parent') || $this->user->isLogged('student')){
 
 			$this->as_controller_default_page=true;
 			
-			if(is_logged('student')){
-				post('student/id',$_SESSION['id']);
+			if($this->user->isLogged('student')){
+				post('student/id',$this->user->id);
 	
-			}elseif(is_logged('parent')){
+			}elseif($this->user->isLogged('parent')){
 				post('student/id',$_SESSION['child']);
 	
 			}
@@ -22,10 +25,11 @@ class Student extends SS_controller{
 			
 			return;
 		}
+		
 		$this->session->set_userdata('last_list_action',$this->input->server('REQUEST_URI'));
 		
 		if($this->input->get('update')){
-			$this->student->update();
+			$this->student->updateView();
 			showMessage('学生视图更新完成');
 		}
 		
@@ -35,20 +39,6 @@ class Student extends SS_controller{
 			'student_num.class'=>array('title'=>'班级','content'=>'{class_name}')
 		);
 
-		if(is_logged('health')){
-			$field+=array(
-				'id_card'=>array('title'=>'身份证'),
-				'mobile'=>array('title'=>'手机'),
-				'relatives_contacts'=>array('title'=>'亲属电话'),
-				'phone'=>array('title'=>'家庭电话'),
-				'address'=>array('title'=>'家庭地址')
-			);
-		}
-		
-		if(is_logged('jiaowu')){
-			$field['student_num.class']['td']='class="editable"';
-		}
-		
 		$list=$this->table->setFields($field)
 				->setData($this->student->getList())
 				->generate();
@@ -60,129 +50,36 @@ class Student extends SS_controller{
 		$this->edit();
 	}
 	
+	/**
+	 * 编辑／添加／查看页面
+	 * $id==NULL时，自动添加一条新纪录，然后开始编辑
+	 */
 	function edit($id=NULL){
-		if($this->as_controller_default_page){
-			$this->session->set_userdata('last_list_action', $this->input->server('REQUEST_URI'));
+
+		$student=$this->student->getPostData($id);
+		
+		$student_class_data=$this->classes->fetchByStudent($this->student->id);
+		
+		if(isset($student_class_data['class'])){
+			$student_class=array('class'=>$student_class_data['class'],'num_in_class'=>$student_class_data['num_in_class']);
+			$class['name']=$student_class_data['class_name'];
 		}
 		
-		$this->getPostData($id,function($CI){
-			post('student/name','新学生'.$CI->config->item('timestamp'));
-			
-			post(CONTROLLER.'/id',$CI->db->insert('user',array('group'=>'student')));
-			//先创建用户，再创建学生
-			
-			$CI->db->insert(CONTROLLER,post(CONTROLLER));
-		},false);
-		
-		$student_class=$this->student->fetchClassInfo(post('student/id'));
-		post('student_class',array('class'=>$student_class['class'],'num_in_class'=>$student_class['num_in_class']));
-		post('classes/name',$student_class['class_name']);
-		isset($student_class['class_teacher_name']) && post('student_extra/class_teacher_name',$student_class['class_teacher_name']);
-		$submitable=false;//可提交性，false则显示form，true则可以跳转
-		
-		if($this->input->post('submit')){
-			$submitable=true;
-		
-			$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$_POST);
-			
-			if(is_posted('submit/student_relatives')){
-				$this->student->addRelatives(post('student/id'),post('student_relatives'));
-				unset($_SESSION[CONTROLLER]['post']['student_relatives']);
-			}
-			
-			if(is_posted('submit/student_relatives_delete')){
-				$this->student->deleteRelatives(post('student_relatives_check'));
-			}
-			
-			if(is_posted('submit/student_behaviour')){
-				if($this->student->addBehaviour(post('student/id'),post('student_behaviour'))){
-					unset($_SESSION[CONTROLLER]['post']['student_behaviour']);
-				}else{
-					$submitable=false;
-				}
-			}
-			
-			if((is_posted('submit/student_comment') || is_posted('submit/student')) && 
-				is_permitted('student','interactive') && 
-				(post('student_comment/title')!='' || post('student_comment/content')!='')
-			){
-		
-				if($this->student->addComment(post('student/id'),post('student_comment'))){
-					unset($_SESSION[CONTROLLER]['post']['student_comment']);
-				}else{
-					$submitable=false;
-				}
-			}
-		
-			if(!is_posted('student/youth_league')){
-				post('student/youth_league',0);
-			}
-			
-			if(!is_posted('student/resident')){
-				post('student/resident',0);
-				post('student/dormitory','');
-			}
-			
-			if(post('student/birthday')==''){
-				unset($_SESSION[CONTROLLER]['post']['student']['birthday']);
-			}
-			
-			if(is_logged('student') && is_posted('submit/student')){
-				$form_check=array(
-					'birthday'=>'生日',
-					'id_card'=>'身份证号',
-					'race'=>'民族',
-					'junior_school'=>'初中',
-					'mobile'=>'手机',
-					'phone'=>'固定电话',
-					'email'=>'电子邮箱',
-					'address'=>'地址',
-					'neighborhood_committees'=>'居委会',
-					'bank_account'=>'银行卡号'
-					
-				);
-				
-				foreach($form_check as $item => $warning){
-					if(!post(CONTROLLER.'/'.$item)){
-						showMessage('请输入'.$warning,'warning');
-						$submitable=false;
-					}
-				}
-			}
-			
-			if(is_logged('student') && db_fetch_field("SELECT COUNT(id) FROM student_relatives WHERE student = '".$_SESSION['id']."'")<2){
-				showMessage('请至少输入两位亲属，每输入一行需要点击“添加”按钮');
-				$submitable=false;
-			}
-			
-			if(empty($student_class)){
-				if(!db_insert('student_class',array('student'=>post('student/id'),'class'=>post('student_class/class'),'num_in_class'=>post('student_class/num_in_class'),'term'=>$_SESSION['global']['current_term']))){
-					$submitable=false;
-				}
-			}else{
-				if(!$this->db->update('student_class',post('student_class'),array('student'=>post('student/id'),'term'=>$_SESSION['global']['current_term']))){
-					$submitable=false;
-				}
-			}
-			
-			$this->processSubmit($submitable,function(){
-				$username=db_fetch_field("SELECT username FROM user WHERE id = '".post(CONTROLLER.'/id')."'");
-				if(!$username){
-					$this->student->update();
-					db_query("UPDATE user INNER JOIN view_student USING (id) SET user.username=CONCAT(view_student.name,view_student.num),user.alias=view_student.num WHERE view_student.id = '".post(CONTROLLER.'/id')."'");
-				}
-			});
+		if(isset($student_class_data['class_teacher_name'])){
+			$student_extra['class_teacher_name']=$student_class_data['class_teacher_name'];
 		}
+		
+		$this->load->addViewArrayData(compact('student','student_class','class','student_extra'));
 		
 		$fields_student_relatives=array(
 			'checkbox'=>array('title'=>'<input type="submit" name="submit[student_relatives_delete]" value="删" />','orderby'=>false,'content'=>'<input type="checkbox" name="student_relatives_check[{id}]" >','td_title'=>' width="25px"'),
 			'name'=>array('title'=>'姓名','orderby'=>false),
-			'relationship'=>array('title'=>'关系','orderby'=>false),
+			'relation'=>array('title'=>'关系','orderby'=>false),
 			'contact'=>array('title'=>'电话','orderby'=>false),
 			'work_for'=>array('title'=>'单位','orderby'=>false)
 		);
 		$relatives=$this->table->setFields($fields_student_relatives)
-			->generate($this->student->getRelativeList(post('student/id')));
+			->generate($this->student->getRelativeList($this->student->id));
 		
 		$fields_student_behaviour=array(
 			'type'=>array('title'=>'类别','td_title'=>'width="10%"','orderby'=>false),
@@ -191,7 +88,7 @@ class Student extends SS_controller{
 			'level'=>array('title'=>'级别','orderby'=>false)
 		);
 		$behaviour=$this->table->setFields($fields_student_behaviour)
-			->generate($this->student->getBehaviourList(post('student/id')));
+			->generate($this->student->getBehaviourList($this->student->id));
 		
 		$fields_student_comment=array(
 			'title'=>array('title'=>'标题','orderby'=>false),
@@ -200,7 +97,7 @@ class Student extends SS_controller{
 			'time'=>array('title'=>'时间','orderby'=>false)
 		);
 		$comments=$this->table->setFields($fields_student_comment)
-				->generate($this->student->getCommentList(post('student/id')));
+				->generate($this->student->getCommentList($this->student->id));
 		
 		$fields_scores=array(
 			'exam_name'=>array('title'=>'考试'),
@@ -220,13 +117,94 @@ class Student extends SS_controller{
 		);
 		$scores=$this->table->setFields($fields_scores)
 				->trimColumns()
-				->generate($this->student->getScores(post('student/id')));
+				->generate($this->student->getScores($this->student->id));
 		
 		$this->load->addViewArrayData(compact('relatives','behaviour','comments','scores'));
 		$this->load->view('student/edit');
 		$this->load->main_view_loaded=true;
 	}
 
+	/**
+	 * 点击提交按钮，包括编辑页总保存按钮和编辑页小表添加按钮
+	 * @param $submit 提交按钮的名称如student,或student_relatives
+	 * @param $id
+	 */
+	function submit($submit,$id){
+		$this->load->require_head=false;
+		
+		if(parent::submit($submit)){
+			echo 'success';
+			return;
+		}
+		
+		$this->student->id=$id;
+
+		$this->load->library('form_validation');
+		
+		$this->form_validation->set_rules('student[name]','姓名','required');
+		
+		if($this->user->isLogged('student') && $submit=='student'){
+			$this->form_validation->set_rules('student[birthday]','生日','required');
+			$this->form_validation->set_rules('student[id_card]','身份证号','required');
+			$this->form_validation->set_rules('student[race]','民族','required');
+			$this->form_validation->set_rules('student[junior_school]','初中','required');
+			$this->form_validation->set_rules('student[mobile]','手机','required');
+			$this->form_validation->set_rules('student[phone]','固定电话','required');
+			$this->form_validation->set_rules('student[email]','电子邮箱','required');
+			$this->form_validation->set_rules('student[address]','地址','required');
+			$this->form_validation->set_rules('student[neighborhood_committees]','居委会','required');
+			$this->form_validation->set_rules('student[bank_account]','银行卡号','required');
+		}
+
+		if(!$this->form_validation->run()){
+			echo validation_errors();
+			return;
+		}
+		
+		try{
+			if($submit=='student_relatives'){
+				$this->student->addRelatives($this->student->id,post('student_relatives'));
+			}
+
+			if($submit=='student_relatives_delete'){
+				$this->student->deleteRelatives($this->input->post('student_relatives_check'));
+			}
+
+			if($submit=='student_behaviour'){
+				$this->student->addBehaviour($this->student->id,post('student_behaviour'));
+			}
+
+			if(($submit=='student_comment' || $submit=='student') && 
+				(post('student_comment/title')!='' || post('student_comment/content')!='')
+			){
+				$this->student->addComment($this->student->id,post('student_comment'));
+			}
+
+			if($this->user->isLogged('student') && db_fetch_field("SELECT COUNT(id) FROM student_relatives WHERE student = {$this->user->id}")<2){
+				$this->json_error_message('请至少输入两位亲属，每输入一行需要点击“添加”按钮');
+			}
+
+			$this->student->updateClass($this->student->id,post('student_class/class'),post('student_class/num_in_class'),$this->school->current_term);
+			
+			if($this->json_error_message){
+				throw new Exception($this->json_error_message);
+			}
+			
+			if($submit=='student'){
+				if($this->student->update($this->student->id,post(CONTROLLER))){
+					unset($_SESSION[CONTROLLER]['post']);
+					echo 'success';
+				}else{
+					echo '保存失败';
+				}
+			}
+
+		}catch(Exception $e){
+			echo json_encode($e->getMessage());
+		}
+
+	}
+	
 	function classDiv(){
 		$classes=2;
 		$subjects=4;
@@ -400,8 +378,8 @@ class Student extends SS_controller{
 				$submitable=false;
 			}
 			
-			if(is_logged('parent')){
-				$student_id=$this->student->getIdByParentUid($_SESSION['id']);
+			if($this->user->isLogged('parent')){
+				$student_id=$this->student->getIdByParentUid($this->user->id);
 			}else{
 				$student_id=$this->student->getIdByParentUid(post('student_comment/reply_to'));
 			}
@@ -429,9 +407,9 @@ class Student extends SS_controller{
 	
 	function viewScore(){
 		//TODO 图与表的sql请求合一
-		if(is_logged('student')){
-			$student=$_SESSION['id'];
-		}elseif(is_logged('parent')){
+		if($this->user->isLogged('student')){
+			$student=$this->user->id;
+		}elseif($this->user->isLogged('parent')){
 			$student=$_SESSION['child'];
 		}else{
 			$student=intval($this->input->get('student'));

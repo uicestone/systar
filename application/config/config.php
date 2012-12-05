@@ -366,5 +366,19 @@ $config['document_root']="D:/files";
 $config['case_document_path']="D:/case_document";
 
 $config['debug_mode']=true;
+
+/**
+ * 启用php5风格的autoloader
+ * 从此不再需要$this->load->model('company_model','company')
+ * 只需要$this->company=new Company_model();
+ */
+function __autoload($class) {  
+	if (file_exists(APPPATH."models/".strtolower($class).EXT)) {  
+		require_once APPPATH."models/".strtolower($class).EXT;  
+	}elseif(file_exists(APPPATH.'libraries/.'.strtolower($class).EXT)){
+		require_once APPPATH."libraries/".strtolower($class).EXT;  
+	}
+}  
+
 /* End of file config.php */
 /* Location: ./application/config/config.php */
