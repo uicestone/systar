@@ -14,7 +14,7 @@ class Teach extends SS_controller{
 				teach.term AS term 
 			FROM teach,staff,class,course 
 			WHERE
-				staff.company='".$this->config->item('company/id')."'
+				staff.company='".$this->company->id."'
 				AND staff.id = teach.teacher 
 				AND class.id = teach.class 
 				AND course.id = staff.course 

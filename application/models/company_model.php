@@ -1,18 +1,37 @@
 <?php
 class Company_model extends SS_Model{
+	
+	var $id;
+	var $name;
+	var $type;
+	var $host;
+	var $syscode;
+	var $sysname;
+	var $ucenter;
+	var $default_controller;
+	
 	function __construct(){
 		parent::__construct();
+		$this->recognize($this->input->server('SERVER_NAME'));
 	}
 
-	function fetch($id=NULL){
+	function recognize($host_name){
 		$query="
 			SELECT id,name,type,syscode,sysname,ucenter,default_controller
 			FROM company 
-			WHERE host='{$this->input->server('SERVER_NAME')}' OR syscode='{$this->input->server('SERVER_NAME')}'";
+			WHERE host='$host_name' OR syscode='$host_name'";
 		
-		return $this->db->query($query)->row_array();
+		$row_array=$this->db->query($query)->row_array();
+		
+		if(!$row_array){
+			show_error('不存在此域名对应的公司');
+		}
+		
+		foreach($row_array as $key => $value){
+			$this->$key=$value;
+		}
 	}
-
+	
 	function starsys_schedule_side_table(){
 		$sidebar_table=array();
 		$sidebar_table[]=array(

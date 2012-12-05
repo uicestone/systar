@@ -8,7 +8,7 @@ class Express_model extends SS_Model{
             $query="
 				SELECT * 
 				FROM express 
-				WHERE id = '{$id}' AND company='{$this->config->item('company/id')}'";
+				WHERE id = '{$id}' AND company='{$this->company->id}'";
             $result=$this->db->query($query)->result_array();
             return $result[0];
 	}

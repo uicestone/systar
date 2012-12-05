@@ -74,7 +74,7 @@ class Student extends SS_controller{
 		$fields_student_relatives=array(
 			'checkbox'=>array('title'=>'<input type="submit" name="submit[student_relatives_delete]" value="删" />','orderby'=>false,'content'=>'<input type="checkbox" name="student_relatives_check[{id}]" >','td_title'=>' width="25px"'),
 			'name'=>array('title'=>'姓名','orderby'=>false),
-			'relationship'=>array('title'=>'关系','orderby'=>false),
+			'relation'=>array('title'=>'关系','orderby'=>false),
 			'contact'=>array('title'=>'电话','orderby'=>false),
 			'work_for'=>array('title'=>'单位','orderby'=>false)
 		);

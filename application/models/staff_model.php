@@ -13,7 +13,7 @@ class Staff_model extends SS_Model{
 			return -3;
 		}
 
-		$q_lawyer="SELECT * FROM `staff` WHERE company='".$this->config->item('company/id')."' AND `name` LIKE '%".$staff_name."%'";
+		$q_lawyer="SELECT * FROM `staff` WHERE company='".$this->company->id."' AND `name` LIKE '%".$staff_name."%'";
 		$r_lawyer=db_query($q_lawyer);
 		$num_lawyers=db_rows($r_lawyer);
 
@@ -44,7 +44,7 @@ class Staff_model extends SS_Model{
 		$query="
 			SELECT * 
 			FROM staff 
-			WHERE id='{$staff_id}' AND company='{$this->config->item('company/id')}'";
+			WHERE id='{$staff_id}' AND company='{$this->company->id}'";
 		$array=$this->db->query($query)->row_array();
 		if(isset($field)){
 			return isset($array[$field])?$array[$field]:false;
@@ -68,7 +68,7 @@ class Staff_model extends SS_Model{
 				position.ui_name AS position_name
 			FROM staff LEFT JOIN course ON staff.course=course.id
 				LEFT JOIN position ON staff.position=position.id
-			WHERE staff.company='".$this->config->item('company/id')."'
+			WHERE staff.company='".$this->company->id."'
 		";
 		$q=$this->search($q,array('name'=>'姓名'));
 		$q=$this->orderBy($q,'staff.id','ASC');

@@ -3,8 +3,8 @@ class User_model extends People_model{
 	
 	var $id;
 	var $name;
-	var $group;
-	var $permission;
+	var $group=array();
+	var $permission=array();
 	
 	var $child;
 	var $manage_class;
@@ -17,6 +17,7 @@ class User_model extends People_model{
 	
 	function __construct(){
 		parent::__construct();
+		$this->preparePermission();
 		$session=$this->session->all_userdata();
 		foreach($session as $key => $value){
 			if(preg_match('/^user\/(.*?)$/', $key,$matches)){
@@ -31,7 +32,7 @@ class User_model extends People_model{
 			FROM user 
 			WHERE (name = '{$this->input->post('username')}' OR alias='{$this->input->post('username')}')
 				AND (password = '{$this->input->post('password')}' OR password IS NULL)
-				AND company={$this->config->item('company/id')}
+				AND company={$this->company->id}
 			";
 		
 		$user=$this->db->query($q_user)->row_array();
@@ -54,7 +55,7 @@ class User_model extends People_model{
 			return -3;
 		}
 	
-		$query="SELECT * FROM `user` WHERE company={$this->config->item('company/id')} AND `username` = '{$username}'";
+		$query="SELECT * FROM `user` WHERE company={$this->company->id} AND `username` = '{$username}'";
 		$result=$this->db->query($query);
 		$num_lawyers=$result->num_rows();
 	
@@ -80,7 +81,7 @@ class User_model extends People_model{
 			array('lastip'=>$this->session->userdata('ip_address'),
 				'lastlogin'=>$this->config->item('timestamp')
 			),
-			array('id'=>$this->id,'company'=>$this->config->item('company/id'))
+			array('id'=>$this->id,'company'=>$this->company->id)
 		);
 	}
 	
@@ -173,7 +174,7 @@ class User_model extends People_model{
 		session_destroy();
 		$this->session->sess_destroy();
 
-		if($this->config->item('company/ucenter')){
+		if($this->company->ucenter){
 			//生成同步退出代码
 			echo uc_user_synlogout();
 		}
@@ -184,20 +185,13 @@ class User_model extends People_model{
 	 * $check_type要检查的用户组,NULL表示只检查是否登录
 	 * $refresh_permission会刷新用户权限，只需要在每次请求开头刷新即可
 	 */
-	function isLogged($check_type=NULL,$refresh_permission=false){
+	function isLogged($check_type=NULL){
 		if(is_null($check_type)){
 			if(!isset($this->group)){
 				return false;
 			}
 		}elseif(!isset($this->group) || !in_array($check_type,$this->group)){
 			return false;
-		}
-
-		if($refresh_permission){
-			$this->preparePermission();
-			if($this->config->item('company/ucenter')){
-				$this->session->set_userdata('new_messages', uc_pm_checknew($this->id));
-			}
 		}
 
 		return true;
@@ -207,23 +201,28 @@ class User_model extends People_model{
 	 * 根据当前用户组，将数据库中affair,group两表中的用户权限读入$_SESSION['permission']
 	 */
 	function preparePermission(){
-		//准备权限参数，写入session
 
-		$q_affair="
+		$query="
 			SELECT
 				affair.name AS affair,
 				IF(group.affair_ui_name<>'', group.affair_ui_name, affair.ui_name) AS affair_name,
 				affair.add_action,affair.add_target,
 				`group`.action AS `action`, group.display_in_nav AS display
 			FROM affair LEFT JOIN `group` ON affair.name=`group`.affair 
-			WHERE group.company={$this->config->item('company/id')}
+			WHERE group.company={$this->company->id}
 				AND affair.is_on=1
-				AND (".db_implode($this->group, $glue = ' OR ','group.name').") 
+		";
+		
+		if($this->group){
+			$query.="AND (".db_implode($this->group, $glue = ' OR ','group.name').") ";
+		}
+				
+		$query.="
 			GROUP BY affair,action
 			ORDER BY affair.order,group.order
 		";
 
-		$result_array=$this->db->query($q_affair)->result_array();
+		$result_array=$this->db->query($query)->result_array();
 
 		$permission=array();
 		foreach($result_array as $a){
@@ -239,7 +238,7 @@ class User_model extends People_model{
 				$permission[$a['affair']][$a['action']]=array('_affair_name'=>$a['affair_name'],'_display'=>$a['display']);
 			}
 		}
-		$this->session->set_userdata('user/permission', $permission);
+		$this->permission=$permission;
 	}
 
 	/**

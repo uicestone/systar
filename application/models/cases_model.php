@@ -18,7 +18,7 @@ class Cases_model extends SS_Model{
 		$query="
 			SELECT * 
 			FROM `case` 
-			WHERE id='{$id}' AND company='{$this->config->item('company/id')}'
+			WHERE id='{$id}' AND company='{$this->company->id}'
 				AND ( '".($this->user->isLogged('manager') || $this->user->isLogged('finance') || $this->user->isLogged('admin'))."'=1 OR uid={$this->user->id} OR id IN (
 					SELECT `case` FROM case_lawyer WHERE lawyer={$this->user->id}
 				))
@@ -796,14 +796,14 @@ class Cases_model extends SS_Model{
 				)uncollected
 				ON case.id=uncollected.case
 				
-			WHERE case.company='{$this->config->item('company/id')}' AND case.display=1 AND is_query=0 AND case.filed=0 AND case.id>=20
+			WHERE case.company='{$this->company->id}' AND case.display=1 AND is_query=0 AND case.filed=0 AND case.id>=20
 		";
 		$q_rows="
 			SELECT
 				COUNT(id)
 			FROM 
 				`case`
-			WHERE case.company='{$this->config->item('company/id')}' AND case.display=1 AND is_query=0 AND case.filed=0 AND case.id>=20
+			WHERE case.company='{$this->company->id}' AND case.display=1 AND is_query=0 AND case.filed=0 AND case.id>=20
 		";
 		
 		$condition='';

@@ -141,7 +141,7 @@ class Student_model extends People_model{
 			FROM 
 				people AS relatives
 				INNER JOIN (
-					SELECT people,content FROM people_profile WHERE name='手机'
+					SELECT people,content FROM people_profile WHERE name='mobile'
 				)relatives_contact ON relatives_contact.people=relatives.id
 				INNER JOIN people_relationship ON people_relationship.relative=relatives.id 
 					AND people_relationship.relation_type='家庭成员'

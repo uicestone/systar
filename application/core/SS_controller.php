@@ -67,19 +67,12 @@ class SS_Controller extends CI_Controller{
 		$this->load->model('company_model','company');
 		$this->load->model('user_model','user');
 		
-		//获得公司信息，见数据库，company表
-		if($company_info=$this->company->fetch()){
-			foreach($company_info as $config_name => $config_value){
-				$this->config->set_item('company/'.$config_name, $config_value);
-			}
-		}
-		
 		if(is_file(APPPATH.'models/'.$class.'_model.php')){
 			$this->load->model($class.'_model',$class);
 		}
 
-		if(is_file(APPPATH.'models/'.$this->config->item('company/type').'_model.php')){
-			$this->load->model($this->config->item('company/type').'_model',$this->config->item('company/type'));
+		if(is_file(APPPATH.'models/'.$this->company->type.'_model.php')){
+			$this->load->model($this->company->type.'_model',$this->company->type);
 			$this->company_type_model_loaded=true;
 		}
 	
@@ -100,7 +93,7 @@ class SS_Controller extends CI_Controller{
 		/**
 		 * ucenter配置
 		 */
-		if($this->config->item('company/ucenter')){
+		if($this->company->ucenter){
 			$this->load->helper('config_ucenter');
 			require APPPATH.'third_party/client/client.php';
 		}
@@ -108,7 +101,7 @@ class SS_Controller extends CI_Controller{
 		/**
 		 * 弹出未登录用户
 		 */
-		if($class!='user' && !$this->user->isLogged(NULL,true)){
+		if(!$this->user->isLogged(NULL) && $class!='user'){
 			redirect('user/login','js',NULL,true);
 		}
 		
@@ -285,7 +278,7 @@ class SS_Controller extends CI_Controller{
 			post(CONTROLLER.'/username',$this->user->name);
 		}
 
-		post(CONTROLLER.'/company',$this->config->item('company/id'));
+		post(CONTROLLER.'/company',$this->company->id);
 
 		if(is_null($update_table)){
 			if($this->actual_table!=''){

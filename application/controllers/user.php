@@ -18,7 +18,7 @@ class user extends SS_controller{
 		
 		if($this->input->post('submit/login')){
 			
-			if($this->config->item('company/ucenter')){
+			if($this->company->ucenter){
 		
 				$ucenter_user=uc_user_login($this->input->post('username'),$this->input->post('password'));//ucenter验证密码
 				
@@ -47,7 +47,7 @@ class user extends SS_controller{
 					$this->user->__construct();
 					
 					foreach($this->user->group as $group){
-						$company_type=$this->config->item('company/type');
+						$company_type=$this->company->type;
 						if($this->company_type_model_loaded && method_exists($this->$company_type,$group.'_setSession')){
 							call_user_func(array($this->$company_type,$group.'_setSession'),$this->user->id);
 						}
@@ -82,7 +82,7 @@ class user extends SS_controller{
 			
 			$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$_POST);
 			
-			if($this->config->item('company/ucenter')){
+			if($this->company->ucenter){
 				if(uc_user_edit($_SESSION['username'],post('user_extra/password'),post('user/password_new'),NULL)>0){
 					redirect('','js',NULL,true);
 				}

@@ -14,7 +14,7 @@ class Client_model extends People_model{
 		$query="
 			SELECT * 
 			FROM client 
-			WHERE id='{$id}' AND company='{$this->config->item('company/id')}'";
+			WHERE id='{$id}' AND company='{$this->company->id}'";
 		$row=$this->db->query($query)->row_array();
 
 		if(is_null($field)){
@@ -48,9 +48,9 @@ class Client_model extends People_model{
 		}
 	
 		if($fuzzy){
-			$q_client="SELECT * FROM `client` WHERE display=1 AND company='".$this->config->item('company/id')."' AND (`name` LIKE '%".$client_name."%' OR abbreviation LIKE '".$client_name."')";
+			$q_client="SELECT * FROM `client` WHERE display=1 AND company='".$this->company->id."' AND (`name` LIKE '%".$client_name."%' OR abbreviation LIKE '".$client_name."')";
 		}else{
-			$q_client="SELECT * FROM `client` WHERE display=1 AND company='".$this->config->item('company/id')."' AND (`name` LIKE '".$client_name."' OR abbreviation LIKE '".$client_name."')";
+			$q_client="SELECT * FROM `client` WHERE display=1 AND company='".$this->company->id."' AND (`name` LIKE '".$client_name."' OR abbreviation LIKE '".$client_name."')";
 		}
 		$r_client=db_query($q_client);
 		$num_clients=db_rows($r_client);

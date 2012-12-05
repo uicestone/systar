@@ -8,7 +8,7 @@ class Query_model extends Cases_model{
 		$query="
 			SELECT * 
 			FROM `case` 
-			WHERE id='{$id}' AND company='{$this->config->item('company/id')}'";
+			WHERE id='{$id}' AND company='{$this->company->id}'";
 		return $this->db->query($query)->row_array();
 	}
 	
@@ -31,7 +31,7 @@ class Query_model extends Cases_model{
 					GROUP BY case_lawyer.`case`
 				)staff
 				ON `case`.id=staff.`case`
-			WHERE case.company='{$this->config->item('company/id')}' AND case.display=1 AND case.is_query=1
+			WHERE case.company='{$this->company->id}' AND case.display=1 AND case.is_query=1
 		";
 		
 		if(!$this->user->isLogged('service')){//客服可以看到所有咨询

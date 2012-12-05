@@ -8,7 +8,7 @@ class Classes_model extends Team_model{
 		$query="
 			SELECT * 
 			FROM class 
-			WHERE id='{$id}' AND company='{$this->config->item('company/id')}'";
+			WHERE id='{$id}' AND company='{$this->company->id}'";
 		return $this->db->query($query)->row_array();
 	}
 	
@@ -33,7 +33,7 @@ class Classes_model extends Team_model{
 			FROM team_people
 				INNER JOIN team ON team_people.team=team.id
 				LEFT JOIN people ON team.leader=people.id
-			WHERE team.company={$this->config->item('company/id')}
+			WHERE team.company={$this->company->id}
 				AND team_people.people=$student_id
 				AND team_people.term='{$this->school->current_term}'
 		";
@@ -52,7 +52,7 @@ class Classes_model extends Team_model{
 				INNER JOIN team AS depart ON depart.id=depart_class.team AND depart.type='depart'
 				LEFT JOIN course ON course.id = class.extra_course
 				LEFT JOIN people AS teacher ON teacher.id = class.leader
-			WHERE class.company={$this->config->item('company/id')} AND class.display=1 
+			WHERE class.company={$this->company->id} AND class.display=1 
 				AND class.type='class'
 				AND grade.num>='".$this->school->highest_grade."'
 		";
@@ -174,7 +174,7 @@ class Classes_model extends Team_model{
 		}
 		
 		$query.="
-			WHERE team.company={$this->config->item('company/id')} AND  team.display=1 
+			WHERE team.company={$this->company->id} AND  team.display=1 
 		";
 			
 		if(isset($team_id)){

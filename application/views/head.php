@@ -15,10 +15,10 @@
 		var affair='<?=$this->user->permission[CONTROLLER]['_affair_name']?>';
 		var action='<?=METHOD?>';
 		var username='<?$this->user->name?>';
-		var sysname='<?=$this->config->item('company/sysname')?>';
+		var sysname='<?=$this->company->sysname?>';
 		var lastListAction='<?=$this->session->userdata('last_list_action')?>';
 		var asPopupWindow=<?=intval($this->as_popup_window)?>;
 	</script>
 	<?javascript('contentframe')?>
 </head>
-<body id="content" style="background-image:url('/images/bg_<?=$this->config->item('company/syscode')?>.gif') ">
+<body id="content" style="background-image:url('/images/bg_<?=$this->company->syscode?>.gif') ">

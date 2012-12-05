@@ -5,7 +5,7 @@
 	<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><![endif]-->
 	<link rel="shortcut icon" href="/images/favicon.ico" />
 	<?stylesheet('style/common') ?>
-	<title><?=$this->user->name?> - <?=$this->config->item('company/sysname')?></title>
+	<title><?=$this->user->name?> - <?=$this->company->sysname?></title>
 	<?javascript('jquery')?>
 	<?javascript('common')?>
 	<?javascript('frame')?>

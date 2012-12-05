@@ -33,7 +33,7 @@ class People_model extends SS_Model{
 		$query="
 			SELECT * 
 			FROM people
-			WHERE company={$this->config->item('company/id')}
+			WHERE company={$this->company->id}
 				AND id=$id";
 		
 		return $this->db->query($query)->row_array();
@@ -58,7 +58,7 @@ class People_model extends SS_Model{
 		
 		$people_data+=uidTime();
 		
-		$people_data['company']=$this->config->item('company/id');
+		$people_data['company']=$this->company->id;
 
 		return $this->db->update('people',$people_data,array('id'=>$people));
 	}
