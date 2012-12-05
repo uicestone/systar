@@ -9,7 +9,7 @@ $(document).ready(function(){
 <form method="post">
 <div class="contentTableMenu">
     <div class="right">
-        <? if(post('news/uid')==$this->user->id){?>
+        <? if($this->value('news/uid')==$this->user->id){?>
         <input type="submit" name="submit[news]" value="保存" />
         <? }?>
         <input type="submit" name="submit[cancel]" value="关闭" />
@@ -19,20 +19,20 @@ $(document).ready(function(){
 	<div class="contentTable">
 		<div class="item">
 			<div class="title"><label>标题：</label></div>
-			<input name="news[title]" value="<?=post('news/title');?>" type="text" />
+			<input name="news[title]" value="<?=$this->value('news/title');?>" type="text" />
 		</div>
 
 		<div class="item">
 			<div class="title"><label>内容：</label></div>
-	<? if(post('news/uid')==$this->user->id){?>
-			<textarea name="news[content]" rows="10"><?=post('news/content'); ?></textarea>
+	<? if($this->value('news/uid')==$this->user->id){?>
+			<textarea name="news[content]" rows="10"><?=$this->value('news/content'); ?></textarea>
 	<? }else{?>
-			<div class="content"><?=post('news/content'); ?></div>
+			<div class="content"><?=$this->value('news/content'); ?></div>
 	<? }?>
 		</div>
 
 		<div class="submit">
-	<? if(post('news/uid')==$this->user->id){?>
+	<? if($this->value('news/uid')==$this->user->id){?>
 			<input type="submit" name="submit[news]" value="保存" />
 	<? }?>
 			<input type="submit" name="submit[cancel]" value="关闭" />

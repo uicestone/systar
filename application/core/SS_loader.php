@@ -53,7 +53,7 @@ class SS_Loader extends CI_Loader{
 		}
 	}
 	
-	function set_value($index){
+	function value($index){
 		if(!is_null(post($index))){
 			return post($index);
 		}else{

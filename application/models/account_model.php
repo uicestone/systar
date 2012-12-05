@@ -1,5 +1,8 @@
 <?php
 class Account_model extends SS_Model{
+	
+	var $id;
+	
 	function __construct(){
 		parent::__construct();
 	}

@@ -249,9 +249,9 @@ class Achievement_model extends SS_Model{
 				INNER JOIN `case` ON case.id = case_fee.case
 				LEFT JOIN (
 					SELECT `case`, GROUP_CONCAT(DISTINCT staff.name) AS lawyers 
-					FROM case_lawyer 
-						INNER JOIN staff ON staff.id=case_lawyer.lawyer AND case_lawyer.role='主办律师'
-					GROUP BY case_lawyer.case
+					FROM case_people 
+						INNER JOIN people staff ON staff.id=case_people.people AND case_people.type='lawyer' AND case_people.role='主办律师'
+					GROUP BY case_people.case
 				)lawyers ON lawyers.case=case.id
 			WHERE case_fee.type<>'办案费'
 				AND case_fee.reviewed=0
@@ -274,9 +274,9 @@ class Achievement_model extends SS_Model{
 			$q.=" AND pay_date<='$date_to'";
 		}
 
-		if(!is_logged('finance')){
+		if(!$this->user->isLogged('finance')){
 			$q.=" AND case_fee.case IN (
-					SELECT `case` FROM case_lawyer WHERE lawyer={$this->user->id}
+					SELECT `case` FROM case_people WHERE type='lawyer' AND people={$this->user->id}
 				)
 			";
 		}
@@ -385,7 +385,7 @@ class Achievement_model extends SS_Model{
 			$q.=" AND pay_date<{$this->config->item('date')}";
 		}
 		
-		if(!is_logged('finance')){
+		if(!$this->user->isLogged('finance')){
 			$q.="
 				AND case_fee.case IN (
 					SELECT `case` FROM case_lawyer WHERE lawyer='{$this->user->id}'

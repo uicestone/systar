@@ -249,7 +249,7 @@ jQuery.fn.createSchedule=function(startDate, endDate, allDay){
 	else{
 		dialog=$(this).createDialog('新建任务')
 	}
-	$.get('/misc/gethtml/schedule/calendar_add',function(schedule_calendar_add_form){
+	$.get('/schedule/ajaxedit',function(schedule_calendar_add_form){
 
 		dialog.html(schedule_calendar_add_form)
 			.find('#combobox')

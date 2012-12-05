@@ -11,12 +11,12 @@
 	<div class="contentTable">
 		<div class="item">
 			<div class="title">名称</div>
-			<div class="field"><?=post('classes/name') ?></div>
+			<div class="field"><?=$this->value('classes/name') ?></div>
 		</div>
 
 		<div class="item">
 			<div class="title">班主任</div>
-			<input type="text" name="classes_extra[class_teacher_name]" value="<?=post('classes_extra/class_teacher_name') ?>" />
+			<input type="text" name="classes_extra[class_teacher_name]" value="<?=$this->value('classes_extra/class_teacher_name') ?>" />
 		</div>
 
 		<div class="item">

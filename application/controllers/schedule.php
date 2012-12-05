@@ -502,7 +502,6 @@ class Schedule extends SS_controller{
 		
 		if(count($sort_data) != 0)
 		{	//将任务加入墙的第一列末尾
-			echo "update ".$uid." sort_data<br/>";	//调试用
 			if(is_null($series))
 			{
 				$series = 0;
@@ -519,7 +518,6 @@ class Schedule extends SS_controller{
 		}
 		else	//查询结果为空，即数据库表中没有该用户的任务墙记录，则新增一条记录
 		{
-			echo "insert ".$uid." sort_data<br/>";	//调试用
 			$first_series = array();
 			array_push($first_series , $task);
 			array_push($sort_data , $first_series);
@@ -593,26 +591,34 @@ class Schedule extends SS_controller{
 	/**
 	 * ajax响应页面
 	 */
-	function ajaxEdit($schedule_id){
-		
+	function ajaxEdit($schedule_id=NULL){
 		$this->load->require_head=false;
-
-		$schedule=$this->schedule->fetch($schedule_id);
 		
-		post('schedule',$schedule);
-		
-		//为scheduleType的Radio准备值
-		if(post('schedule/case')<=10 && post('schedule/case')>0){
-			post('schedule_extra/type',1);
-		
-		}elseif(post('schedule/case')>10 && post('schedule/case')<20){
-			post('schedule_extra/type',2);
-		
-		}else{
-			post('schedule_extra/type',0);
-		
+		$edit_mode=true;
+		if(is_null($schedule_id)){
+			$edit_mode=false;
 		}
 		
+		$this->load->addViewData('edit_mode', $edit_mode);
+
+		if(isset($schedule_id)){
+			$schedule=$this->schedule->fetch($schedule_id);
+			post('schedule',$schedule);
+		
+			//为scheduleType的Radio准备值
+			if(post('schedule/case')<=10 && post('schedule/case')>0){
+				post('schedule_extra/type',1);
+
+			}elseif(post('schedule/case')>10 && post('schedule/case')<20){
+				post('schedule_extra/type',2);
+
+			}else{
+				post('schedule_extra/type',0);
+
+			}
+		
+		}
+
 		$this->load->view('schedule/calendar_add');
 		$this->load->main_view_loaded=true;
 	}

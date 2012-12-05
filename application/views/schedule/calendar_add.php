@@ -1,19 +1,19 @@
 <form id="schedule">
-<?if(METHOD!='ajaxedit'){?>
-	<input type="text" name="name" placeholder="标题" value="<?=post('schedule/name')?>" style="width:98%" />
+<?if(!$edit_mode){?>
+	<input type="text" name="name" placeholder="标题" value="<?=$this->value('schedule/name')?>" style="width:98%" />
 <?}?>
-	<textarea name="content" placeholder="内容" rows="7" style="width:98%"><?=post('schedule/content')?></textarea>
-	<textarea name="experience" placeholder="心得" rows="4" style="width:98%"><?=post('schedule/experience')?></textarea>
-<?if(METHOD!='ajaxedit'){?>
+	<textarea name="content" placeholder="内容" rows="7" style="width:98%"><?=$this->value('schedule/content')?></textarea>
+	<textarea name="experience" placeholder="心得" rows="4" style="width:98%"><?=$this->value('schedule/experience')?></textarea>
+<?if(!$edit_mode){?>
 	<label>项目：</label>
 	<span>
-		<?displayRadio(array(0=>'案件',1=>'所务',2=>'营销'), 'type', intval(post('schedule_extra/type')),true)?>
+		<?displayRadio(array(0=>'案件',1=>'所务',2=>'营销'), 'type', intval($this->value('schedule_extra/type')),true)?>
 	</span>
 <?}?>
 	<span class="right">
-		<?displayRadio(array(1=>'日志',0=>'提醒'), 'completed', post('schedule/completed'),true)?>
+		<?displayRadio(array(1=>'日志',0=>'提醒'), 'completed', $this->value('schedule/completed'),true)?>
 	</span>
-<?if(METHOD!='ajaxedit'){?>
+<?if(!$edit_mode){?>
 	<div id="caseSelectBox" class="ui-widget"><label>案件：</label><select id="combobox" name="case" style="width:97%"></select></div>
 	<div id="clientSelectBox" class="ui-widget" style="display:none"><label>客户：</label><select id="combobox" name="client" disabled="disabled"></select></div>
 <?}?>

@@ -20,7 +20,7 @@ class Cases_model extends SS_Model{
 			FROM `case` 
 			WHERE id='{$id}' AND company='{$this->company->id}'
 				AND ( '".($this->user->isLogged('manager') || $this->user->isLogged('finance') || $this->user->isLogged('admin'))."'=1 OR uid={$this->user->id} OR id IN (
-					SELECT `case` FROM case_lawyer WHERE lawyer={$this->user->id}
+					SELECT `case` FROM case_people WHERE type='lawyer' AND people={$this->user->id}
 				))
 		";
 		$row=$this->db->query($query)->row_array();
@@ -258,7 +258,7 @@ class Cases_model extends SS_Model{
 		$q_option_array="SELECT id,name FROM `case` WHERE display=1";
 		
 		if($schedule_type==0){
-			$q_option_array.=" AND ((id>=20 AND filed=0 AND (id IN (SELECT `case` FROM case_lawyer WHERE lawyer={$this->user->id}) OR uid = {$this->user->id})) OR id=10)";
+			$q_option_array.=" AND ((id>=20 AND filed=0 AND (id IN (SELECT `case` FROM case_people WHERE type='lawyer' AND people={$this->user->id}) OR uid = {$this->user->id})) OR id=10)";
 		
 		}elseif($schedule_type==1){
 			$q_option_array.=" AND id<10 AND id>0";
@@ -269,8 +269,8 @@ class Cases_model extends SS_Model{
 		}
 		
 		$q_option_array.=" ORDER BY time_contract DESC";
-		
-		$option_array=db_toArray($q_option_array);
+		echo $q_option_array;
+		$option_array=$this->db->query($q_option_array)->result_array();
 		$option_array=array_sub($option_array,'name','id');
 		
 		foreach($option_array as $case_id => $case_name){

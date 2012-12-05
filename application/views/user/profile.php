@@ -19,7 +19,7 @@ $(function(){
 		<?if($this->company->ucenter){?>
 		<div class="item">
 			<div class="title"><label>用户名：</label></div>
-			<input type="text" name="user[username]" value="<?=post('user/username')?>" />
+			<input type="text" name="user[username]" value="<?=$this->value('user/username')?>" />
 		</div>
 		<?}?>
 

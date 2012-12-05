@@ -1,27 +1,38 @@
 <?php
 class Schedule_model extends SS_Model{
+	
+	var $id;
+	
 	function __construct(){
 		parent::__construct();
 	}
 
 	function fetch($id){
+		$id=intval($id);
+		
 		$query="
 			SELECT * 
 			FROM schedule
-			WHERE id='{$id}' AND company='{$this->company->id}'";
-		return $this->db->query($query)->row_array();
+			WHERE id={$id} AND company={$this->company->id}";
+		
+			return $this->db->query($query)->row_array();
 	}
 	
 	function fetch_single($id){
+		$id=intval($id);
+
 		$q_schedule="
-			SELECT schedule.id,schedule.name,schedule.content,schedule.experience,schedule.time_start,schedule.time_end,schedule.hours_own,
-				client.abbreviation AS client_name,client.id AS client,schedule.place,schedule.fee,schedule.fee_name,schedule.completed,
+			SELECT schedule.id,schedule.name,schedule.content,schedule.experience,
+				schedule.time_start,schedule.time_end,schedule.hours_own,
+				schedule.place,schedule.fee,schedule.fee_name,schedule.completed,
+				client.abbreviation AS client_name,client.id AS client,
 				case.name AS case_name,case.id AS `case`
 			FROM schedule
 				LEFT JOIN `case` ON case.id=schedule.case
-				LEFT JOIN client ON client.id=schedule.client
-			WHERE schedule.id='".intval($id)."'
+				LEFT JOIN people client ON client.id=schedule.people
+			WHERE schedule.id=$id
 				AND schedule.company='{$this->company->id}'";
+		
 		$schedule=$this->db->query($q_schedule)->row_array();
 
 		$schedule['content_paras']=explode("\n",$schedule['content']);
@@ -100,7 +111,7 @@ class Schedule_model extends SS_Model{
 		$data+=uidTime();
 
 		if($this->db->insert('schedule',$data)){
-			return $this->db->insert_id();
+			return $this->fetch($this->db->insert_id());
 		}else{
 			return false;
 		}
@@ -150,14 +161,14 @@ class Schedule_model extends SS_Model{
 				schedule.id,schedule.name,schedule.content,schedule.experience, schedule.time_start,schedule.hours_own,schedule.hours_checked,schedule.comment,schedule.place,
 				case.id AS `case`,case.name AS case_name,
 				staff.name AS staff_name,staff.id AS staff,
-				if(MAX(case_lawyer.role)='督办合伙人',1,0) AS review_permission
+				if(MAX(case_people.role)='督办合伙人',1,0) AS review_permission
 		
 				#imperfect 2012/7/13 MAX ENUM排序依据为字符串，并非INDEX
 		
 			FROM schedule INNER JOIN `case` ON schedule.case=case.id
-				INNER JOIN case_lawyer ON case.id=case_lawyer.case
-				LEFT JOIN staff ON staff.id = schedule.uid
-			WHERE case_lawyer.lawyer={$this->user->id}
+				INNER JOIN case_people ON case.id=case_people.case AND case_people.type='lawyer'
+				LEFT JOIN people staff ON staff.id = schedule.uid
+			WHERE case_people.people={$this->user->id}
 				AND schedule.display=1 AND schedule.completed=".($this->input->get('plan')?'0':'1')."
 		";
 		
@@ -198,7 +209,7 @@ class Schedule_model extends SS_Model{
 			SELECT
 				schedule.id AS schedule,schedule.name AS schedule_name,schedule.content AS schedule_content,schedule.experience AS schedule_experience, schedule.time_start,schedule.hours_own,schedule.hours_checked,schedule.comment AS schedule_comment,schedule.place,
 				staff.name AS staff_name,staff.id AS staff
-			FROM schedule LEFT JOIN staff ON staff.id = schedule.uid
+			FROM schedule LEFT JOIN people staff ON staff.id = schedule.uid
 			WHERE schedule.display=1 AND schedule.place<>''
 		";
 		
