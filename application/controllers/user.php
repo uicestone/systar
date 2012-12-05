@@ -1,6 +1,7 @@
 <?php
 class user extends SS_controller{
 	function __construct(){
+		$this->require_permission_check=false;
 		parent::__construct();
 	}
 	

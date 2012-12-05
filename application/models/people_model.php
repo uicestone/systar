@@ -90,5 +90,22 @@ class People_model extends SS_Model{
 		
 		return $this->db->insert_id();
 	}
+	
+	function addLabel($people,$label_name,$type=NULL){
+		$result=$this->db->get_where('label',array('name'=>$label_name));
+		
+		$label_id=0;
+		
+		if($result->num_rows()==0){
+			$this->db->insert('label',array('name'=>$label_name));
+			$label_id=$this->db->insert_id();
+		}else{
+			$label_id=$result->row()->id;
+		}
+		
+		$this->db->insert('people_label',array('people'=>$people,'label'=>$label_id));
+		
+		return $this->db->insert_id();
+	}
 }
 ?>

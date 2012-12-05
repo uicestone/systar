@@ -7,6 +7,7 @@ class Student extends SS_controller{
 	}
 	
 	function lists(){
+		
 		//如果以家长或学生身份登陆，显示的是编辑查看页面，而非列表页面
 		if($this->user->isLogged('parent') || $this->user->isLogged('student')){
 
@@ -24,10 +25,11 @@ class Student extends SS_controller{
 			
 			return;
 		}
+		
 		$this->session->set_userdata('last_list_action',$this->input->server('REQUEST_URI'));
 		
 		if($this->input->get('update')){
-			$this->student->update();
+			$this->student->updateView();
 			showMessage('学生视图更新完成');
 		}
 		
@@ -37,20 +39,6 @@ class Student extends SS_controller{
 			'student_num.class'=>array('title'=>'班级','content'=>'{class_name}')
 		);
 
-		if($this->user->isLogged('health')){
-			$field+=array(
-				'id_card'=>array('title'=>'身份证'),
-				'mobile'=>array('title'=>'手机'),
-				'relatives_contacts'=>array('title'=>'亲属电话'),
-				'phone'=>array('title'=>'家庭电话'),
-				'address'=>array('title'=>'家庭地址')
-			);
-		}
-		
-		if($this->user->isLogged('jiaowu')){
-			$field['student_num.class']['td']='class="editable"';
-		}
-		
 		$list=$this->table->setFields($field)
 				->setData($this->student->getList())
 				->generate();
@@ -62,6 +50,80 @@ class Student extends SS_controller{
 		$this->edit();
 	}
 	
+	/**
+	 * 编辑／添加／查看页面
+	 * $id==NULL时，自动添加一条新纪录，然后开始编辑
+	 */
+	function edit($id=NULL){
+
+		$student=$this->student->getPostData($id);
+		
+		$student_class_data=$this->classes->fetchByStudent($this->student->id);
+		
+		if(isset($student_class_data['class'])){
+			$student_class=array('class'=>$student_class_data['class'],'num_in_class'=>$student_class_data['num_in_class']);
+			$class['name']=$student_class_data['class_name'];
+		}
+		
+		if(isset($student_class_data['class_teacher_name'])){
+			$student_extra['class_teacher_name']=$student_class_data['class_teacher_name'];
+		}
+		
+		$this->load->addViewArrayData(compact('student','student_class','class','student_extra'));
+		
+		$fields_student_relatives=array(
+			'checkbox'=>array('title'=>'<input type="submit" name="submit[student_relatives_delete]" value="删" />','orderby'=>false,'content'=>'<input type="checkbox" name="student_relatives_check[{id}]" >','td_title'=>' width="25px"'),
+			'name'=>array('title'=>'姓名','orderby'=>false),
+			'relationship'=>array('title'=>'关系','orderby'=>false),
+			'contact'=>array('title'=>'电话','orderby'=>false),
+			'work_for'=>array('title'=>'单位','orderby'=>false)
+		);
+		$relatives=$this->table->setFields($fields_student_relatives)
+			->generate($this->student->getRelativeList($this->student->id));
+		
+		$fields_student_behaviour=array(
+			'type'=>array('title'=>'类别','td_title'=>'width="10%"','orderby'=>false),
+			'date'=>array('title'=>'日期','orderby'=>false),
+			'name'=>array('title'=>'名称','td_title'=>'width="40%"','td'=>'title="{content}"','orderby'=>false),
+			'level'=>array('title'=>'级别','orderby'=>false)
+		);
+		$behaviour=$this->table->setFields($fields_student_behaviour)
+			->generate($this->student->getBehaviourList($this->student->id));
+		
+		$fields_student_comment=array(
+			'title'=>array('title'=>'标题','orderby'=>false),
+			'content'=>array('title'=>'内容','td_title'=>'width="60%"','orderby'=>false),
+			'username'=>array('title'=>'留言人','orderby'=>false),
+			'time'=>array('title'=>'时间','orderby'=>false)
+		);
+		$comments=$this->table->setFields($fields_student_comment)
+				->generate($this->student->getCommentList($this->student->id));
+		
+		$fields_scores=array(
+			'exam_name'=>array('title'=>'考试'),
+			'course_1'=>array('title'=>'语文','content'=>'{course_1}<span class="rank">{rank_1}</span>'),
+			'course_2'=>array('title'=>'数学','content'=>'{course_2}<span class="rank">{rank_2}</span>'),
+			'course_3'=>array('title'=>'英语','content'=>'{course_3}<span class="rank">{rank_3}</span>'),
+			'course_4'=>array('title'=>'物理','content'=>'{course_4}<span class="rank">{rank_4}</span>'),
+			'course_5'=>array('title'=>'化学','content'=>'{course_5}<span class="rank">{rank_5}</span>'),
+			'course_6'=>array('title'=>'生物','content'=>'{course_6}<span class="rank">{rank_6}</span>'),
+			'course_7'=>array('title'=>'地理','content'=>'{course_7}<span class="rank">{rank_7}</span>'),
+			'course_8'=>array('title'=>'历史','content'=>'{course_8}<span class="rank">{rank_8}</span>'),
+			'course_9'=>array('title'=>'政治','content'=>'{course_9}<span class="rank">{rank_9}</span>'),
+			'course_10'=>array('title'=>'信息','content'=>'{course_10}<span class="rank">{rank_10}</span>'),
+			'course_sum_3'=>array('title'=>'3总','content'=>'{course_sum_3}<span class="rank">{rank_sum_3}</span>'),
+			'course_sum_5'=>array('title'=>'4总/5总','content'=>'{course_sum_5}<span class="rank">{rank_sum_5}</span>'),
+			'course_sum_8'=>array('title'=>'8总','content'=>'{course_sum_8}<span class="rank">{rank_sum_8}</span>')
+		);
+		$scores=$this->table->setFields($fields_scores)
+				->trimColumns()
+				->generate($this->student->getScores($this->student->id));
+		
+		$this->load->addViewArrayData(compact('relatives','behaviour','comments','scores'));
+		$this->load->view('student/edit');
+		$this->load->main_view_loaded=true;
+	}
+
 	/**
 	 * 点击提交按钮，包括编辑页总保存按钮和编辑页小表添加按钮
 	 * @param $submit 提交按钮的名称如student,或student_relatives
@@ -143,80 +205,6 @@ class Student extends SS_controller{
 
 	}
 	
-	/**
-	 * 编辑／添加／查看页面
-	 * $id==NULL时，自动添加一条新纪录，然后开始编辑
-	 */
-	function edit($id=NULL){
-
-		$student=$this->student->getPostData($id);
-		
-		$student_class_data=$this->student->fetchClassInfo($this->student->id);
-		
-		if(isset($student_class_data['class'])){
-			$student_class=array('class'=>$student_class_data['class'],'num_in_class'=>$student_class_data['num_in_class']);
-			$class['name']=$student_class_data['class_name'];
-		}
-		
-		if(isset($student_class_data['class_teacher_name'])){
-			$student_extra['class_teacher_name']=$student_class_data['class_teacher_name'];
-		}
-		
-		$this->load->addViewArrayData(compact('student','student_class','class','student_extra'));
-		
-		$fields_student_relatives=array(
-			'checkbox'=>array('title'=>'<input type="submit" name="submit[student_relatives_delete]" value="删" />','orderby'=>false,'content'=>'<input type="checkbox" name="student_relatives_check[{id}]" >','td_title'=>' width="25px"'),
-			'name'=>array('title'=>'姓名','orderby'=>false),
-			'relationship'=>array('title'=>'关系','orderby'=>false),
-			'contact'=>array('title'=>'电话','orderby'=>false),
-			'work_for'=>array('title'=>'单位','orderby'=>false)
-		);
-		$relatives=$this->table->setFields($fields_student_relatives)
-			->generate($this->student->getRelativeList($this->student->id));
-		
-		$fields_student_behaviour=array(
-			'type'=>array('title'=>'类别','td_title'=>'width="10%"','orderby'=>false),
-			'date'=>array('title'=>'日期','orderby'=>false),
-			'name'=>array('title'=>'名称','td_title'=>'width="40%"','td'=>'title="{content}"','orderby'=>false),
-			'level'=>array('title'=>'级别','orderby'=>false)
-		);
-		$behaviour=$this->table->setFields($fields_student_behaviour)
-			->generate($this->student->getBehaviourList($this->student->id));
-		
-		$fields_student_comment=array(
-			'title'=>array('title'=>'标题','orderby'=>false),
-			'content'=>array('title'=>'内容','td_title'=>'width="60%"','orderby'=>false),
-			'username'=>array('title'=>'留言人','orderby'=>false),
-			'time'=>array('title'=>'时间','orderby'=>false)
-		);
-		$comments=$this->table->setFields($fields_student_comment)
-				->generate($this->student->getCommentList($this->student->id));
-		
-		$fields_scores=array(
-			'exam_name'=>array('title'=>'考试'),
-			'course_1'=>array('title'=>'语文','content'=>'{course_1}<span class="rank">{rank_1}</span>'),
-			'course_2'=>array('title'=>'数学','content'=>'{course_2}<span class="rank">{rank_2}</span>'),
-			'course_3'=>array('title'=>'英语','content'=>'{course_3}<span class="rank">{rank_3}</span>'),
-			'course_4'=>array('title'=>'物理','content'=>'{course_4}<span class="rank">{rank_4}</span>'),
-			'course_5'=>array('title'=>'化学','content'=>'{course_5}<span class="rank">{rank_5}</span>'),
-			'course_6'=>array('title'=>'生物','content'=>'{course_6}<span class="rank">{rank_6}</span>'),
-			'course_7'=>array('title'=>'地理','content'=>'{course_7}<span class="rank">{rank_7}</span>'),
-			'course_8'=>array('title'=>'历史','content'=>'{course_8}<span class="rank">{rank_8}</span>'),
-			'course_9'=>array('title'=>'政治','content'=>'{course_9}<span class="rank">{rank_9}</span>'),
-			'course_10'=>array('title'=>'信息','content'=>'{course_10}<span class="rank">{rank_10}</span>'),
-			'course_sum_3'=>array('title'=>'3总','content'=>'{course_sum_3}<span class="rank">{rank_sum_3}</span>'),
-			'course_sum_5'=>array('title'=>'4总/5总','content'=>'{course_sum_5}<span class="rank">{rank_sum_5}</span>'),
-			'course_sum_8'=>array('title'=>'8总','content'=>'{course_sum_8}<span class="rank">{rank_sum_8}</span>')
-		);
-		$scores=$this->table->setFields($fields_scores)
-				->trimColumns()
-				->generate($this->student->getScores($this->student->id));
-		
-		$this->load->addViewArrayData(compact('relatives','behaviour','comments','scores'));
-		$this->load->view('student/edit');
-		$this->load->main_view_loaded=true;
-	}
-
 	function classDiv(){
 		$classes=2;
 		$subjects=4;

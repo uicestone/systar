@@ -12,6 +12,35 @@ class Classes_model extends Team_model{
 		return $this->db->query($query)->row_array();
 	}
 	
+	/**
+	 * 根据学生id返回本学期所在班级的信息
+	 * @param int $student_id
+	 * @return array array(
+	 *	num_in_class=>班中学号
+	 *	num=>学号
+	 *	class_name=>班级名称
+	 *	class_teacher_name=>班主任姓名
+	 * )
+	 */
+	function fetchByStudent($student_id){
+		$student_id=intval($student_id);
+		
+		$q_student_class="
+			SELECT team_people.id_in_team AS num_in_class,
+				CONCAT(RIGHT(10000+team.num,4),team_people.id_in_team) AS num,
+				team.id AS class,team.name AS class_name,
+				people.name AS class_teacher_name
+			FROM team_people
+				INNER JOIN team ON team_people.team=team.id
+				LEFT JOIN people ON team.leader=people.id
+			WHERE team.company={$this->config->item('company/id')}
+				AND team_people.people=$student_id
+				AND team_people.term='{$this->school->current_term}'
+		";
+		
+		return $this->db->query($q_student_class)->row_array();
+	}
+	
 	function getList(){
 		$q="
 			SELECT class.id, class.name, grade.name AS grade_name, depart.name AS depart, course.name AS extra_course_name,

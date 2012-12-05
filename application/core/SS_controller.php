@@ -6,10 +6,15 @@ class SS_Controller extends CI_Controller{
 	
 	var $default_method='lists';
 
-	var $view_data=array();//传递给视图的参数
+	/**
+	 * 传递给视图的参数
+	 */
+	var $view_data=array();
 
 	var $as_popup_window=false;
 	var $as_controller_default_page=false;
+	
+	var $require_permission_check=true;
 	
 	/**
 	 * 实际主读写表，如client为people,query为case
@@ -105,6 +110,13 @@ class SS_Controller extends CI_Controller{
 		 */
 		if($class!='user' && !$this->user->isLogged(NULL,true)){
 			redirect('user/login','js',NULL,true);
+		}
+		
+		/**
+		 * 屏蔽无权限用户
+		 */
+		if($this->require_permission_check && !$this->user->isPermitted($class)){
+			show_error('权限不足，无法访问');
 		}
 
 		/**
