@@ -17,13 +17,15 @@ class User_model extends People_model{
 	
 	function __construct(){
 		parent::__construct();
-		$this->preparePermission();
+		
 		$session=$this->session->all_userdata();
 		foreach($session as $key => $value){
 			if(preg_match('/^user\/(.*?)$/', $key,$matches)){
 				$this->$matches[1]=$value;
 			}
 		}
+
+		$this->preparePermission();
 	}
 	
 	function verify($username,$password){
@@ -187,10 +189,10 @@ class User_model extends People_model{
 	 */
 	function isLogged($check_type=NULL){
 		if(is_null($check_type)){
-			if(!isset($this->group)){
+			if(empty($this->group)){
 				return false;
 			}
-		}elseif(!isset($this->group) || !in_array($check_type,$this->group)){
+		}elseif(empty($this->group) || !in_array($check_type,$this->group)){
 			return false;
 		}
 
@@ -215,6 +217,8 @@ class User_model extends People_model{
 		
 		if($this->group){
 			$query.="AND (".db_implode($this->group, $glue = ' OR ','group.name').") ";
+		}else{
+			$query.="AND FALSE";
 		}
 				
 		$query.="
