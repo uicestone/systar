@@ -437,6 +437,37 @@ jQuery.fn.getOptions=function(affair,method,active_value,select_type,callback){
 	return $(this);
 }
 
+jQuery.fn.addRow=function(rowData){
+	if(!$(this).is('.contentTable')){
+		console.error('addRow方法调用错误，只有.contenTable才能addRow');
+		return false;
+	}
+	
+	var fields=[];
+	
+	$(this).find('thead>tr>th').each(function(){
+		fields.push($(this).attr('field'));
+	});
+	
+	var newRow='';
+	
+	$.map(fields,function(field){
+		newRow+='<td field="'+field+'">'+rowData[field]+'</td>';
+	});
+	
+	newRow=$('<tr style="opacity: 1; visibility: visible;">'+newRow+'</tr>');
+	
+	var currentRows=$(this).find('tbody>tr').length;
+	
+	if(currentRows%2==1){
+		newRow.addClass('oddLine');
+	}
+	
+	$(this).find('tbody').append(newRow);
+	
+	return true;
+}
+
 jQuery.fn.serializeJSON=function() {
 	var json = {};
 	jQuery.map($(this).serializeArray(), function(n, i){
