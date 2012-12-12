@@ -111,36 +111,6 @@ class User_model extends People_model{
 		return true;
 	}
 	
-	function getRegionByIdcard($idcard){
-		$query="SELECT name FROM user_idcard_region WHERE num = '".substr($idcard,0,6)."'";
-		$region = $this->db->query($query)->row()->name;
-		if($region){
-			return $region;
-		}else{
-			return false;
-		}
-	}
-	
-	function verifyIdCard($idcard){
-		if(!is_string($idcard) || strlen($idcard)!=18){
-			return false;
-		}
-		$sum=$idcard[0]*7+$idcard[1]*9+$idcard[2]*10+$idcard[3]*5+$idcard[4]*8+$idcard[5]*4+$idcard[6]*2+$idcard[7]+$idcard[8]*6+$idcard[9]*3+$idcard[10]*7+$idcard[11]*9+$idcard[12]*10+$idcard[13]*5+$idcard[14]*8+$idcard[15]*4+$idcard[16]*2;
-		$mod = $sum % 11;
-		$vericode_dic=array(1, 0, 'x', 9, 8, 7, 6, 5, 4, 3, 2);
-		if($vericode_dic[$mod] == strtolower($idcard[17])){
-			return true;
-		}
-	}
-	
-	function getGenderByIdcard($idcard){
-		if(is_string($idcard) && strlen($idcard)==18){
-			return $idcard[16] % 2 == 1 ? '男' : '女';
-		}else{
-			return false;
-		}
-	}
-
 	/**
 	 * 根据用户名或uid直接为其设置登录状态
 	 */

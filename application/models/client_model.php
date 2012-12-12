@@ -118,7 +118,7 @@ class Client_model extends People_model{
 		if($phone){
 			$new_client_contact[]=array(
 				'client'=>$client,
-				'type'=>isMobileNumber($phone)?'手机':'固定电话',
+				'type'=>$this->isMobileNumber($phone)?'手机':'固定电话',
 				'content'=>$phone,
 			);
 		}
