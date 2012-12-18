@@ -67,6 +67,41 @@ class Test extends SS_controller{
 		$this->load->main_view_loaded=true;
 		$this->load->sidebar_loaded=true;
 	}
+	
+	function pscws(){
+		$pscws_path=APPPATH.'third_party/pscws4/';
+		require_once($pscws_path.'pscws4.class.php');
+		$pscws=new PSCWS4('utf8');
+		$pscws->set_dict($pscws_path.'dict.utf8.xdb');
+		$pscws->set_rule($pscws_path.'etc/rules.utf8.ini');
+		$pscws->set_ignore(true);
+		$text='我是华东政法大学的学生';
+		echo $text;
+		$pscws->send_text($text);
+		$words=array();
+		while($some=$pscws->get_result()){
+			foreach($some as $one){
+				array_push($words,$one['word']);
+			}
+		}
+		var_dump($words);
+		$display_text=implode(' ',$words);
+		echo $display_text;
+		$pscws->close();
+		$this->load->require_head=false;
+		$this->load->main_view_loaded=true;
+		$this->load->sidebar_loaded=true;
+	}
+	
+	function labelSearch(){
+		$label_string="一审婚姻法律";
+		$this->load->model('Label_model','label_model');
+		$sorted_results=$this->label_model->search($label_string);
+		var_dump($sorted_results);
+		$this->load->require_head=false;
+		$this->load->main_view_loaded=true;
+		$this->load->sidebar_loaded=true;
+	}
 }
 
 ?>
