@@ -47,3 +47,12 @@ ADD INDEX (  `time_insert` );
 -- uice 2012/11/30
 ALTER TABLE  `people_profile` ADD INDEX (  `name` );
 -- end uice air updated
+
+-- uice 2012/12/7
+ALTER TABLE  `document` ADD  `extname` CHAR( 8 ) NOT NULL AFTER  `name`;
+ALTER TABLE  `people` ADD  `type` VARCHAR( 255 ) NOT NULL AFTER  `abbreviation`;
+-- end
+
+-- uice 2012/12/9
+ALTER TABLE  `case_people` CHANGE  `type`  `type` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
+-- end

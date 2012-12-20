@@ -6,7 +6,6 @@
  *	指定$affair值时，优先根据$affair获得第一个classfication
  */
 function options($options,$checked=NULL,$array_key_as_option_value=false,$type_table='type',$classification='classification',$type='type',$condition=NULL){
-	 $options='';
 	if(!is_array($options)){
 		//$options 作为形成选项的因子
 		if(is_null($options) || is_null($checked)){
@@ -39,7 +38,7 @@ function options($options,$checked=NULL,$array_key_as_option_value=false,$type_t
 		$value=$array_key_as_option_value?$option_key:$option;
 		$options.='<option value="'.$value.'"'.($value==$checked?' selected="selected"':'').'>'.$option.'</option>';
 	}
-	
+
 	return $options;
 }
 
@@ -59,9 +58,9 @@ function radio($options,$name,$checked,$array_key_as_option_value=false){
 /**
  * 生成一个多选框
  */
-function checkbox($html,$name,$check_value,$value=NULL,$disabled=false){
+function checkbox($html,$name,$check_value,$value=NULL,$attribute=''){
 	if(is_null($value)){
 		$value=$html;
 	}
-	return '<label><input name="'.$name.'" type="checkbox" value="'.$value.'" '.($check_value==$value?'checked="checked"':'').($disabled?' disabled':'').' />'.$html.'</label>';
+	return "<label $attribute><input name=\"$name\" type=\"checkbox\" value=\"$value\" ".($check_value==$value?'checked="checked"':'')." />$html</label>";
 }?>

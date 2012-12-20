@@ -76,7 +76,7 @@ class Client extends SS_Controller{
 
 			$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'], $_POST);
 
-			if(is_posted('submit/client_client')){
+			if($submit=='client_client'){
 				post('client_client_extra/show_add_form', true);
 
 				$client_check=$this->client->check(post('client_client_extra/name'), 'array');
@@ -106,7 +106,7 @@ class Client extends SS_Controller{
 				}
 			}
 
-			if(is_posted('submit/client_contact')){
+			if($submit=='client_contact'){
 				post('client_contact/client', post('client/id'));
 
 				if($this->client->addContact(post('client_contact'))){
@@ -114,7 +114,7 @@ class Client extends SS_Controller{
 				}
 			}
 
-			if(is_posted('submit/client_client_set_default')){
+			if($submit=='client_client_set_default'){
 				if(count(post('client_client_check')) > 1){
 					showMessage('你可能试图设置多个默认联系人，这是不被允许的', 'warning');
 
@@ -129,11 +129,11 @@ class Client extends SS_Controller{
 				}
 			}
 
-			if(is_posted('submit/client_client_delete')){
+			if($submit=='client_client_delete'){
 				$this->client->deleteRelated(post('client_client_check'));
 			}
 
-			if(is_posted('submit/client_contact_delete')){
+			if($submit=='client_contact_delete'){
 				$this->client->deleteContact(post('client_contact_check'));
 			}
 
@@ -219,17 +219,24 @@ class Client extends SS_Controller{
 		$this->load->main_view_loaded=true;
 	}
 
-	function autocomplete(){
-		$type=NULL;
-		$this->input->get('type') && $type=$this->input->get('type');
+	/**
+	 * ajax响应页面，根据请求的字符串返回匹配的客户id和名称
+	 * @param $term 请求字符串
+	 */
+	function match(){
+		$this->load->require_head=false;
 
-		$result=$this->client->match($this->input->post('term'), 'client', $type);
+		$term=$this->input->post('term');
+		
+		$result=$this->client->match($term);
 
 		$array=array();
 
-		foreach ($result as $line_id=>$content_array){
-			$array[$line_id]['label']=$content_array['name'];
-			$array[$line_id]['value']=$content_array['id'];
+		foreach ($result as $row){
+			$array[]=array(
+				'label'=>$row['name'],
+				'value'=>$row['id']
+			);
 		}
 		echo json_encode($array);
 	}

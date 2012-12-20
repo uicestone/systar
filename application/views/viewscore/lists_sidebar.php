@@ -3,12 +3,12 @@
 	<tbody>
 		<tr><td>
 			<select name="grade" class="filter">
-			<? displayOption(false,option('grade'),true,'grade',NULL,'name',"id>='".$this->school->highest_grade."'")?>
+			<?=options(false,option('grade'),true,'grade',NULL,'name',"id>='".$this->school->highest_grade."'")?>
 			</select>
 		</td></tr>
 		<tr><td>
 			<select name="class" class="filter">
-			<? displayOption(option('grade'),option('class'),true,'class','grade','name',"grade>='".$this->school->highest_grade."'")?>
+			<?=options(option('grade'),option('class'),true,'class','grade','name',"grade>='".$this->school->highest_grade."'")?>
 			</select>
 		</td></tr>
 	</tbody>
@@ -18,7 +18,7 @@
 	<tbody>
 		<tr><td>
 			<select name="exam" class="filter">
-			<? displayOption(false,option('exam'),true,'exam',NULL,'name',"grade='".option('grade')."' ORDER BY id DESC")?>
+			<?=options(false,option('exam'),true,'exam',NULL,'name',"grade='".option('grade')."' ORDER BY id DESC")?>
 			</select>
 		</td></tr>
 	</tbody>

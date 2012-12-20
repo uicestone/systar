@@ -66,12 +66,11 @@ $(function(){
 	});
 	
 	//案下客户名称自动完成
-	$('[autocomplete=client]').autocomplete({
+	$('[autocomplete-model=client]').autocomplete({
 		source: function(request, response){
-			$.post('/client/autocomplete',{term:request.term},function(data){
-				data=$.parseResponse(data);
+			$.post('/client/match',{term:request.term},function(data){
 				response(data);
-			});
+			},'json');
 		},
 		select: function(event,ui){
 			$(this).val(ui.item.label)
@@ -79,25 +78,38 @@ $(function(){
 			return false;
 		},
 		focus: function(event,ui){
-			$(this).val(ui.item.label);
+			$(this).val(ui.item.label)
+			.siblings('[name="'+$(this).attr('autocomplete-input-name')+'"]');
 			return false;
 		},
 		response: function(event,ui){
 			if(ui.content.length==0){
-				$('.autocomplete-no-result-menu').show().children('input,select').removeAttr('disabled');
+				$('[display-for~="new"]').trigger('enable');
 			}else{
-				$('.autocomplete-no-result-menu').hide().children('input,select').attr('disabled','disabled');
+				$('.for-new').trigger('disable');
 			}
 		}
-	}).bind('input.autocomplete', function(){
+	})
+	/*.bind('input.autocomplete', function(){
 		//修正firefox下中文不自动search的bug
 		$(this).trigger('keydown.autocomplete'); 
-	})/*.after(function(){
-		return '<input name="'+$(this).attr('autocomplete-input-name')+'" disabled="disabled" style="display:none" />';
-	})*/.autocomplete('search');
+	})*/
+	.autocomplete('search');
 
-	$('[placeholder]').placeholder();
-
+	$('[placeholder]').placeholder()
+	
+	$('.item>.title>.toggle-add-form').click(function(){
+		//响应每一栏标题上的"+"并显示/隐藏添加菜单
+		var form=$(this).parent().siblings('.add-form');
+		if(form.is(':hidden')){
+			form.show(200);
+			$(this).html('-');
+		}else{
+			form.hide(200);
+			$(this).html('+');
+		}
+	});
+	
 	//多项表单添加按钮提示
 	/*$('.inputTable').find('.contentTable').siblings('[id$="AddForm"]').children('input:submit').qtip({
 		content:'点这里来保存这一条信息。你还可以添加更多哦',
@@ -134,15 +146,23 @@ $(function(){
 		
 		$.post('/'+controller+'/submit/'+submit+'/'+id,$('form[name="'+controller+'"]').serialize(),function(response){
 			if(response=='success'){
-				if(asPopupWindow){
-					window.close();
-				}else{
-					location.href=location.protocol+'//'+location.host+lastListAction;
-				}
+				$.get('/case/asa/html',function(html){
+					$('contentTable').html(html);
+				});
 			}else{
 				showMessage(response,'warning');
 			}
 		});
 		return false;
+	});
+	
+	$('[display-for]').hide();
+	
+	$('[display-for]').on('enable',function(){
+		$(this).show();
+		if($(this).is('input,select')){
+			$(this).removeAttr('disabled');
+		}
+		$(this).find('input,select').removeAttr('disabled');
 	});
 });

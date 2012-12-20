@@ -27,25 +27,25 @@
 		<div class="item">
 			<div class="title"><label>分类：</label></div>
 			<select name="client[type]" class="right" style="width:49%">
-				<? displayOption($this->value('client/classification'),$this->value('client/type'))?>
+				<?=options($this->value('client/classification'),$this->value('client/type'))?>
 			</select>
 			<select name="client[classification]" style="width:50%">
-				<? displayOption(array('_ENUM','client','classification'),$this->value('client/classification'))?>
+				<?=options(array('_ENUM','client','classification'),$this->value('client/classification'))?>
 			</select>
 		</div>
 
 		<div class="item">
 			<div class="title"><label>来源：</label></div>
 			<select name="source[type]" style="width:30%">
-				<? displayOption(array('_ENUM','client_source','type'),$this->value('source/type'))?>
+				<?=options(array('_ENUM','client_source','type'),$this->value('source/type'))?>
 			</select>
-			<input type="text" name="source[detail]" value="<?=$this->value('source/detail')?>" style="width:30%" <? if(!in_array($this->value('source/type'),array('其他网络','媒体','老客户介绍','合作单位介绍','其他')))echo 'disabled="disabled"';?> />
+			<input type="text" name="source[detail]" value="<?=$this->value('source/detail')?>" style="width:30%" <? if(!in_array($this->value('source/type'),array('其他网络','媒体','老客户介绍','合作单位介绍','其他')))echo 'disabled';?> />
 			来源律师：<input type="text" name="client_extra[source_lawyer_name]" style="width:20%" value="<?=$this->value('client_extra/source_lawyer_name')?>" />
 		</div>
 
 		<div class="item">
 			<div class="title"><label>性别：</label></div>
-			<? displayRadio(array('男','女'),'client[gender]',$this->value('client/gender'))?>
+			<?=radio(array('男','女'),'client[gender]',$this->value('client/gender'))?>
 		</div>
 
 		<div class="item">
@@ -53,7 +53,7 @@
 			<?=$contact_table?>
 			<div id="clientContactAddForm" <? if(!$this->value('client_contact_extra/show_add_form'))echo 'style="display:none"';?>>
 				<select name="client_contact[type]" style="width:30%">
-					<? displayOption(array('_ENUM','client_contact','type'),$this->value('client_contact/type'))?>
+					<?=options(array('_ENUM','client_contact','type'),$this->value('client_contact/type'))?>
 				</select>
 				<input type="text" name="client_contact[content]" value="<?=$this->value('client_contact/content')?>" style="width:30%" />
 				<input type="text" name="client_contact[comment]" value="<?=$this->value('client_contact/comment')?>" style="width:30%" />
@@ -69,10 +69,10 @@
 				<input type="text" name="client_client_extra[name]" value="<?=$this->value('client_client_extra/name')?>" placeholder="名称" autocomplete="client" autocomplete-input-name="client_client[client_right]" style="width:20%" />
 
 				<select name="client_client[role]" style="width:13%">
-					<? displayOption(array('父','母',($this->value('client/gender')=='男'?'妻':'夫'),'亲属','朋友','其他','代理人'),$this->value('client_client/role'))?>
+					<?=options(array('父','母',($this->value('client/gender')=='男'?'妻':'夫'),'亲属','朋友','其他','代理人'),$this->value('client_client/role'))?>
 				</select>
 				<span class="autocomplete-no-result-menu">
-					<? displayCheckbox('单位','client_client_extra[character]',$this->value('client_client_extra/character'),'单位')?>
+					<?=checkbox('单位','client_client_extra[character]',$this->value('client_client_extra/character'),'单位')?>
 		
 					<input type="text" name="client_client_extra[phone]" value="<?=$this->value('client_client_extra/phone')?>" placeholder="电话" style="width:20%" />
 					<input type="text" name="client_client_extra[email]" value="<?=$this->value('client_client_extra/email')?>" placeholder="电邮" style="width:20%" />

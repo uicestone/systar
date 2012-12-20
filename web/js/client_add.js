@@ -3,18 +3,6 @@ $(function(){
 		$('[name="client[type]"]').getOptions('client',$(this).val());
 	});
 	
-	$('#clientClientAdd,#clientContactAdd').click(function(){
-		//响应每一栏标题上的"+"并显示/隐藏添加菜单
-		var form=$('#'+$(this).attr('id')+'Form');
-		if(form.is(':hidden')){
-			form.show(200);
-			$(this).html('-');
-		}else{
-			form.hide(200);
-			$(this).html('+');
-		}
-	});
-
 	$('select[name="source[type]"]').change(function(){
 		//响应客户来源选项
 		if(jQuery.inArray($(this).val(),['其他网络','媒体','老客户介绍','合作单位介绍','其他'])==-1){

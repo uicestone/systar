@@ -71,7 +71,7 @@ class Account extends SS_controller{
 			
 			$_SESSION['account']['post']=array_replace_recursive($_SESSION['account']['post'],$_POST);
 			
-			if(is_posted('submit/recognizeOldClient')){
+			if($submit=='recognizeOldClient'){
 				$client_check=$this->client->check(post('account_extra/client_name'),'array');
 		
 				if($client_check<0){

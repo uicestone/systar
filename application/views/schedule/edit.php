@@ -13,7 +13,7 @@
 		<div class="item">
 			<div class="title">
 				<? if(!$this->value('schedule/case')){?>
-				<? displayRadio(array(0=>'案件',1=>'所务',2=>'营销'),'type',$this->value('schedule_extra/type'),true)?>
+				<?=radio(array(0=>'案件',1=>'所务',2=>'营销'),'type',$this->value('schedule_extra/type'),true)?>
 				<? }else{?>
 				<button type="button" onclick="javascript:window.opener.parent.focus();window.rootOpener.location.href='/cases/edit/<?=$this->value('schedule/case')?>'">查看</button>
 				<? }?>
@@ -21,7 +21,7 @@
 
 			<? if(!$this->value('schedule/case')){?>
 			<select name="schedule[case]">
-				<? displayOption($case_array,$this->value('schedule/case'),true)?>
+				<?=options($case_array,$this->value('schedule/case'),true)?>
 			</select>
 			<? }else{?>
 			<div class="field"><?=$this->value('schedule_extra/case_name')?></div>
@@ -30,10 +30,10 @@
 			<? if($this->value('schedule/client')){?>
 			<div class="field"><?=$this->value('schedule_extra/client_name')?></div>
 			<? }else{?>
-			<select name="schedule[client]"<? if($this->value('schedule_extra/type')!=2)echo ' disabled="disabled" style="display:none"'?>>
-				<? displayOption($client_array,$this->value('schedule/client'),true);?>
+			<select name="schedule[client]"<? if($this->value('schedule_extra/type')!=2)echo ' disabled style="display:none"'?>>
+				<?=options($client_array,$this->value('schedule/client'),true);?>
 			</select>
-			<input type="text" name="schedule[client]" autocomplete="client"<? if($this->value('schedule_extra/type')!=2)echo ' disabled="disabled" style="display:none"'?> />
+			<input type="text" name="schedule[client]" autocomplete="client"<? if($this->value('schedule_extra/type')!=2)echo ' disabled style="display:none"'?> />
 			<? }?>
 		</div>
 
@@ -47,7 +47,7 @@
 			<textarea class="item" name="schedule[content]" rows="7"><?=$this->value('schedule/content'); ?></textarea>
 		</div>
 
-		<? if(!got('completed',0)){?>
+		<? if($this->input->get('completed')!==0){?>
 			<? if($this->value('schedule/uid')==$this->user->id){?>
 		<div class="item">
 			<div class="title"><label>心得体会：</label></div>
@@ -95,7 +95,7 @@
 			<input type="file" name="file" id="file" width="30%" />
 			<? } ?>
 			<select name="case_document[doctype]" style="width:15%">
-			<? displayOption(array('_ENUM','case_document','doctype'),$this->value('case_document/doctype'));?>
+			<?=options(array('_ENUM','case_document','doctype'),$this->value('case_document/doctype'));?>
 			</select>
 			<label>备注：</label><input type="text" name="case_document[comment]" value="<?=$this->value('case_document/comment') ?>" style="width:35%" />
 		</div>

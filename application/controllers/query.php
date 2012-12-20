@@ -49,7 +49,7 @@ class Query extends SS_controller{
 		});
 		
 		if($this->input->post('submit')){
-			if(is_posted('submit/advanced')){
+			if($submit=='advanced'){
 				$case_id=post('query/id');
 				unset($_SESSION[CONTROLLER]['post']);
 				redirect('cases/edit/'.$case_id);

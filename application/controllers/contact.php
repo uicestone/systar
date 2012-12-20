@@ -60,7 +60,7 @@ class Contact extends SS_controller{
 		
 			$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$this->input->post());
 		
-			if(is_posted('submit/contact_related')){
+			if($submit=='contact_related'){
 				$q_contact="SELECT id,name FROM `client` WHERE display=1 AND (`name` LIKE '%".post('contact_related_extra/name')."%' OR abbreviation LIKE '%".post('contact_related_extra/name')."%')";
 				$r_contact=db_query($q_contact);
 				$contacts=db_rows($r_contact);
@@ -105,7 +105,7 @@ class Contact extends SS_controller{
 				}
 			}
 			
-			if(is_posted('submit/contact_contact')){
+			if($submit=='contact_contact'){
 				post('contact_contact/client',post('contact/id'));
 				
 				if(db_insert('client_contact',post('contact_contact'))){
@@ -115,7 +115,7 @@ class Contact extends SS_controller{
 				}
 			}
 			
-			if(is_posted('submit/contact_related_delete')){
+			if($submit=='contact_related_delete'){
 		
 				$condition = db_implode(post('contact_related_check'), $glue = ' OR ','id','=',"'","'", '`','key');
 		
@@ -124,7 +124,7 @@ class Contact extends SS_controller{
 				db_query($q);
 			}
 		
-			if(is_posted('submit/contact_contact_delete')){
+			if($submit=='contact_contact_delete'){
 		
 				$condition = db_implode(post('contact_contact_check'), $glue = ' OR ','id','=',"'","'", '`','key');
 		

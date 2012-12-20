@@ -28,7 +28,7 @@ class Score extends SS_controller{
 
 		$this->load->addViewData('currentExam',$currentExam);
 		
-		while(is_posted('submit/score_table')){
+		while($submit=='score_table'){
 			if ($_FILES['score_table']['error'] > 0){
 				showMessage('文件上错错误：错误代码: '.$_FILES['score_table']['error'],'warning');break;
 			}

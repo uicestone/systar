@@ -23,10 +23,10 @@
 		<div class="item">
 			<div class="title"><label>分类：</label></div>
 			<select name="contact[type]" class="right" style="width:49%">
-				<? displayOption($this->value('contact/classification'),$this->value('contact/type'))?>
+				<?=options($this->value('contact/classification'),$this->value('contact/type'))?>
 			</select>
 			<select name="contact[classification]" style="width:50%">
-				<? displayOption(array('_ENUM','client','classification'),$this->value('contact/classification'))?>
+				<?=options(array('_ENUM','client','classification'),$this->value('contact/classification'))?>
 			</select>
 			</select>
 		</div>
@@ -42,7 +42,7 @@
 			<?=contact_contact?>
 			<div id="contactContactAddForm" <? if(!$this->value('contact_contact_extra/show_add_form'))echo 'style="display:none"';?>>
 				<select name="contact_contact[type]" style="width:30%">
-					<? displayOption(array('_ENUM','client_contact','type'),$this->value('contact_contact/type'))?>
+					<?=options(array('_ENUM','client_contact','type'),$this->value('contact_contact/type'))?>
 				</select>
 				<input type="text" name="contact_contact[content]" value="<?=$this->value('contact_contact/content')?>" style="width:30%" />
 				<input type="text" name="contact_contact[comment]" value="<?=$this->value('contact_contact/comment')?>" style="width:30%" />
@@ -61,12 +61,12 @@
 
 				<label>关系：</label>
 				<select name="contact_related[role]" style="width:13%">
-					<? displayOption(array('负责人','法务','财务','人事','行政','其他','其他代理人'),$this->value('contact_related/role'))?>
+					<?=options(array('负责人','法务','财务','人事','行政','其他','其他代理人'),$this->value('contact_related/role'))?>
 				</select>
 				<input type="submit" name="submit[contact_related]" value="添加" />
 
 				<br />
-				<? displayCheckbox('单位','contact_related_extra[character]',$this->value('contact_related_extra/character'),'单位')?>
+				<?=checkbox('单位','contact_related_extra[character]',$this->value('contact_related_extra/character'),'单位')?>
 
 				<label>电话：<input type="text" name="contact_related_extra[phone]" value="<?=$this->value('contact_related_extra/phone')?>" style="width:20%" /></label>
 				<label>电邮：<input type="text" name="contact_related_extra[email]" value="<?=$this->value('contact_related_extra/email')?>" style="width:20%" /></label>

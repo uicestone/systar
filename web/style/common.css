@@ -33,6 +33,12 @@ table, td, th {
 .placeholder{
 	color:#888;
 }
+.hidden{
+	display:none;
+}
+.disabled{
+	display:none;
+}
 .ui-autocomplete {
 	max-height: 200px;
 	overflow-y:scroll;

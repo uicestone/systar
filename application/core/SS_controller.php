@@ -127,7 +127,7 @@ class SS_Controller extends CI_Controller{
 			$this->actual_table='case';
 			if(($method=='add' || $method=='edit')){
 				$this->as_popup_window=FALSE;
-				if(is_posted('submit/file_document_list')){
+				if($this->input->post('file_document_list')!==false){
 					$this->load->require_head=false;
 				}
 	

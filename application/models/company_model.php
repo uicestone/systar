@@ -120,7 +120,7 @@ class Company_model extends SS_Model{
 				),
 				array(
 					'schedule_check'=>'<select name="staff" class="filter" method="get">'
-						.html_option(false,$staff,true,'staff',NULL,'name',"id IN (SELECT staff FROM manager_staff WHERE manager={$this->user->id}) AND position IS NOT NULL")
+						.options(false,$staff,true,'staff',NULL,'name',"id IN (SELECT staff FROM manager_staff WHERE manager={$this->user->id}) AND position IS NOT NULL")
 						.'</select>'
 				)
 			);

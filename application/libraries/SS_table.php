@@ -56,6 +56,23 @@ class SS_Table extends CI_Table{
 	}
 	
 	/**
+	 * 将field->content等值中包含的变量占位替换为数据结果中他们的值
+	 */
+	protected function _variableReplace($content,$row){
+		while(preg_match('/{(\S*?)}/',$content,$match)){
+			if(!isset($row[$match[1]])){
+				$row[$match[1]]=NULL;
+			}
+			$content=str_replace($match[0],$row[$match[1]],$content);
+		}
+		return $content;
+	}
+
+	protected function _variableReplaceSelf(&$content,$key,$row){
+		$content=$this->_variableReplace($content,$row);
+	}
+	
+	/**
 		$field:输出表的列定义
 			array(
 				'查询结果的列名'=>array(
@@ -144,12 +161,12 @@ class SS_Table extends CI_Table{
 				$row=array();
 				foreach($this->fields as $field_name => $field){
 					$str=isset($field['content']) ? $field['content'] : (isset($row_data[$field_name])?$row_data[$field_name]:NULL);
-					$str=variableReplace($str,$row_data);
+					$str=$this->_variableReplace($str,$row_data);
 					if(isset($field['eval']) && $field['eval']){
 						$str=eval($str);
 					}
 					if(isset($field['wrap'])){
-						array_walk($field['wrap'],'variableReplaceSelf',$row_data);
+						array_walk($field['wrap'],array($this,'_variableReplaceSelf'),$row_data);
 						$str=wrap($str,$field['wrap']);
 					}
 					if(is_null($str)){
@@ -159,7 +176,7 @@ class SS_Table extends CI_Table{
 					$cell['data']=$str;
 					$cell['field']=$field_name;
 					if(isset($field['td'])){
-						$cell+=$this->_parseAttributesToArray(variableReplace($field['td'],$row_data));
+						$cell+=$this->_parseAttributesToArray($this->_variableReplace($field['td'],$row_data));
 					}
 					$row[]=$cell;
 				}

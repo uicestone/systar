@@ -39,7 +39,7 @@ class Exam extends SS_controller{
 			$data=array($this->input->post('field')=>$this->input->post('value'));
 			$this->db->update($this->input->post('table'),$data,array('id'=>intval($this->input->post('id'))));
 			
-		}elseif(got('action','exam')){
+		}elseif($this->input->get('action')=='exam'){
 			$new_exam=array_trim($_POST);
 			
 			if(is_numeric($new_exam['grade_name'])){
@@ -69,7 +69,7 @@ class Exam extends SS_controller{
 					echo json_encode($exam);
 				}
 			}
-		}elseif(got('action','exam_paper')){
+		}elseif($this->input->get('action')=='exam_paper'){
 			$new_line=array_trim($_POST);
 		
 			$r_course=db_query("SELECT id FROM course WHERE name LIKE '".$new_line['course_name']."'");

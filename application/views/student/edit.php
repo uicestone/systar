@@ -18,31 +18,31 @@
 			</div>
 			<input type="text" name="student[birthday]" value="<?=$this->value('student/birthday'); ?>" class="birthday right" placeholder="生日" style="width:39%" />
 			<input name="student[race]" value="<?=$this->value('student/race'); ?>" type="text" placeholder="民族" class="right" style="width:30%;margin-right:1%" />
-			<? displayRadio(array('男','女'),'student[gender]',$this->value('student/gender'))?>
+			<?=radio(array('男','女'),'student[gender]',$this->value('student/gender'))?>
 			&nbsp;&nbsp;
-			<? displayCheckbox('团员','student[youth_league]',$this->value('student/youth_league'),'1')?>
+			<?=checkbox('团员','student[youth_league]',$this->value('student/youth_league'),'1')?>
 		</div>
 
 		<div class="item">
 			<div class="title"><label>生源：</label></div>
-			<label>类别：</label><input name="student[type]" value="<?=$this->value('student/type'); ?>" type="text" style="width:40%" disabled="disabled" />
+			<label>类别：</label><input name="student[type]" value="<?=$this->value('student/type'); ?>" type="text" style="width:40%" disabled />
 			<label>初中：</label><input name="student[junior_school]" value="<?=$this->value('student/junior_school'); ?>" type="text" style="width:40%" />
 		</div>
 
 		<div class="item">
 			<div class="title"><label>班级-学号：</label></div>
-			<select name="student_class[class]"<? if(!$this->user->isLogged('jiaowu'))echo' disabled="disabled"'?> style="width:20%">
-			<?=html_option($this->classes->getRelatedTeams(NULL,NULL,'class'),$this->value('student_class/class'),true)?>
+			<select name="student_class[class]"<? if(!$this->user->isLogged('jiaowu'))echo' disabled'?> style="width:20%">
+			<?=options($this->classes->getRelatedTeams(NULL,NULL,'class'),$this->value('student_class/class'),true)?>
 			</select>
-			<input type="text" name="student_class[num_in_class]" title="班中学号" value="<?=$this->value('student_class/num_in_class')?>" placeholder="班中学号"<? if(!$this->user->isLogged('jiaowu'))echo' disabled="disabled"'?> style="width:20%" />
+			<input type="text" name="student_class[num_in_class]" title="班中学号" value="<?=$this->value('student_class/num_in_class')?>" placeholder="班中学号"<? if(!$this->user->isLogged('jiaowu'))echo' disabled'?> style="width:20%" />
 			<span class="field">班主任：<?=$this->value('student_extra/class_teacher_name') ?></span>
 		</div>
 
 		<div class="item">
 			<div class="title"><label>联系方式：</label></div>
 			<div>
-			<? displayCheckbox('住宿','student[resident]',$this->value('student/resident'),'1')?>
-			<input type="text" name="student[dormitory]" value="<?=$this->value('student/dormitory'); ?>"<? if(!$this->value('student/resident'))echo ' disabled="disabled"'?> placeholder="宿舍" style="width:20%" />
+			<?=checkbox('住宿','student[resident]',$this->value('student/resident'),'1')?>
+			<input type="text" name="student[dormitory]" value="<?=$this->value('student/dormitory'); ?>"<? if(!$this->value('student/resident'))echo ' disabled'?> placeholder="宿舍" style="width:20%" />
 			<input type="text" name="student[mobile]" value="<?=$this->value('student/mobile'); ?>" placeholder="手机" style="width:20%" />
 			<input type="text" name="student[phone]" value="<?=$this->value('student/phone'); ?>" placeholder="固定电话" style="width:20%" />
 			<input type="text" name="student[email]" value="<?=$this->value('student/email'); ?>" placeholder="电子邮件" style="width:29%" />
@@ -62,7 +62,7 @@
 				<input type="text" name="student_relatives[name]" value="<?=$this->value('student_relatives/name')?>" placeholder="姓名" style="width:20%" />
 
 				<select name="student_relatives[relationship]" style="width:20%">
-					<? displayOption(array('父','母','其他'),$this->value('student_relatives/relationship'))?>
+					<?=options(array('父','母','其他'),$this->value('student_relatives/relationship'))?>
 				</select>
 				<input type="text" name="student_relatives[contact]" value="<?=$this->value('student_relatives/contact')?>" placeholder="联系电话" style="width:25%" />
 				<input type="text" name="student_relatives[work_for]" value="<?=$this->value('student_relatives/work_for')?>" placeholder="工作单位" style="width:25%" />
@@ -94,7 +94,7 @@
 			<? if($this->user->isLogged('jiaowu')){ ?>
 			<div id="studentBehaviourAddForm">
 				<select name="student_behaviour[type]" style="width:10%">
-				<? displayOption(array('_ENUM','student_behaviour','type'),$this->value('student_behaviour/type')) ?>
+				<?=options(array('_ENUM','student_behaviour','type'),$this->value('student_behaviour/type')) ?>
 				</select>
 
 				<input type="text" name="student_behaviour[date]" value="<?=$this->value('student_behaviour/date')?>" placeholder="日期" class="date" style="width:20%" />
@@ -102,7 +102,7 @@
 				<input type="text" name="student_behaviour[name]" value="<?=$this->value('student_behaviour/name')?>" placeholder="概要" style="width:40%" />
 				
 				<select name="student_behaviour[level]" style="width:20%">
-				<? displayOption(array('_ENUM','student_behaviour','level'),$this->value('student_behaviour/level')) ?>
+				<?=options(array('_ENUM','student_behaviour','level'),$this->value('student_behaviour/level')) ?>
 				</select>
 
 				<input type="submit" name="submit[student_behaviour]" value="添加" />

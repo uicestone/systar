@@ -14,14 +14,20 @@ class Cases_model extends SS_Model{
 	 * @return 一条信息的数组，或者一个字段的值，如果指定字段且字段不存在，返回false
 	 */
 	function fetch($id,$field=NULL){
+		$id=intval($id);
+		
 		//finance和manager可以看到所有案件，其他律师只能看到自己涉及的案件
 		$query="
 			SELECT * 
 			FROM `case` 
-			WHERE id='{$id}' AND company='{$this->company->id}'
-				AND ( '".($this->user->isLogged('manager') || $this->user->isLogged('finance') || $this->user->isLogged('admin'))."'=1 OR uid={$this->user->id} OR id IN (
-					SELECT `case` FROM case_people WHERE type='lawyer' AND people={$this->user->id}
-				))
+			WHERE id=$id AND company={$this->company->id}
+				AND (
+					'".($this->user->isLogged('manager') || $this->user->isLogged('finance') || $this->user->isLogged('admin'))."'='1' 
+					OR uid={$this->user->id} 
+					OR id IN (
+						SELECT `case` FROM case_people WHERE type='lawyer' AND people={$this->user->id}
+					)
+				)
 		";
 		$row=$this->db->query($query)->row_array();
 
@@ -35,37 +41,49 @@ class Cases_model extends SS_Model{
 	}
 	
 	function add($data){
+		post('cases/time_contract',$this->config->item('date'));
+		post('cases/time_end',date('Y-m-d',$this->config->item('timestamp')+100*86400));
+		//默认签约时间和结案时间
+		
 		$field=db_list_fields('case');
-	    $data=array_keyfilter($data,$field);
+	    $data=array_filter_key($data,$field);
 	    $data['display']=1;
 	    $data+=uidTime();
 	
-	    return db_insert('case',$data);
+	    $this->db->insert('case',$data);
+		return $this->db->insert_id();
 	}
 	
-	function update($case_id,$data){
+	function update($id,$data){
+		$id=intval($id);
+		
 		$field=db_list_fields('case');
-	    $data=array_keyfilter($data,$field);
+	    $data=array_filter_key($data,$field);
 		$data+=uidTime();
 	    
-		return $this->db->update('case',$data,"id = '{$case_id}'");
+		return $this->db->update('case',$data,array('id'=>$id));
 	}
 	
 	function addDocument($case,$data){
-		$field=array('name','type','doctype','doctype_other','size','comment');
-		$data=array_keyfilter($data,$field);
+		$case=intval($case);
+		
+		$field=array('name','type','size','comment');
+		$data=array_filter_key($data,$field);
 		$data['case']=$case;
 		$data+=uidTime();
 		
-		return db_insert('case_document',$data);
+		$this->db->insert('case_document',$data);
+		return $this->db->insert_id();
 	}
 	
 	function addFee($case,$data){
-	    $field=array('fee','type','receiver','condition','pay_time','comment');
-		$data=array_keyfilter($data,$field);
+	    $field=array('fee','type','receiver','condition','pay_date','comment');
+		$data=array_filter_key($data,$field);
 		$data['case']=$case;
 		$data+=uidTime();
-		return db_insert('case_fee',$data);
+		
+		$this->db->insert('case_fee',$data);
+		return $this->db->insert_id();
 	}
 	
 	function addFeeTiming($case,$data){
@@ -77,7 +95,7 @@ class Cases_model extends SS_Model{
 			return false;
 		}
 		
-		$field=array('lawyer','role','hourly_fee','contribute');
+		$field=array('people','role','hourly_fee','contribute');
 		foreach($data as $key => $value){
 			if(!in_array($key,$field)){
 				unset($data[$key]);
@@ -88,7 +106,7 @@ class Cases_model extends SS_Model{
 		
 		$data+=uidTime();
 		
-		return db_insert('case_lawyer',$data);
+		return db_insert('case_people',$data);
 	}
 	function getStatus($is_reviewed,$locked,$apply_file,$is_query,$finance_review,$info_review,$manager_review,$filed,$contribute_sum,$uncollected){
 		$status_expression='';
@@ -207,8 +225,8 @@ class Cases_model extends SS_Model{
 				
 		$contribute_sum=$this->db->query("
 			SELECT SUM(contribute) AS contribute_sum
-			FROM case_lawyer
-			WHERE `case`='{$case_id}'
+			FROM case_people
+			WHERE type='lawyer' AND `case`=$case_id
 		")->row()->contribute_sum;
 		
 		return $this->getStatus($is_reviewed,$locked,$apply_file,$is_query,$finance_review,$info_review,$manager_review,$filed,$contribute_sum,$uncollected);
@@ -235,10 +253,10 @@ class Cases_model extends SS_Model{
 			SELECT case.id,case.name AS case_name,case.num,	
 				GROUP_CONCAT(DISTINCT staff.name) AS lawyers
 			FROM `case`
-				LEFT JOIN case_lawyer ON (case.id=case_lawyer.case AND case_lawyer.role='主办律师')
-				LEFT JOIN staff ON staff.id=case_lawyer.lawyer
+				LEFT JOIN case_people ON case.id=case_people.case AND case_people.type='lawyer' AND case_people.role='主办律师'
+				LEFT JOIN people staff ON staff.id=case_people.people
 			WHERE case.id IN (
-				SELECT `case` FROM case_client WHERE client='{$client_id}'
+				SELECT `case` FROM case_people WHERE type='client' AND people=$client_id
 			)
 			GROUP BY case.id
 			HAVING id IS NOT NULL
@@ -269,7 +287,6 @@ class Cases_model extends SS_Model{
 		}
 		
 		$q_option_array.=" ORDER BY time_contract DESC";
-		echo $q_option_array;
 		$option_array=$this->db->query($q_option_array)->result_array();
 		$option_array=array_sub($option_array,'name','id');
 		
@@ -285,14 +302,14 @@ class Cases_model extends SS_Model{
 		$option_array=array();
 		
 		$q_option_array="
-			SELECT case_fee.id,case_fee.type,case_fee.fee,case_fee.pay_time,case_fee.receiver,case.name
+			SELECT case_fee.id,case_fee.type,case_fee.fee,case_fee.pay_date,case_fee.receiver,case.name
 			FROM case_fee INNER JOIN `case` ON case_fee.case=case.id
 			WHERE case.id IN (SELECT `case` FROM case_client WHERE client='".$client_id."')";
 		
-		$r_option_array=db_query($q_option_array);
+		$r_option_array=$this->db->query($q_option_array);
 		
-		while($a_option_array=mysql_fetch_array($r_option_array)){
-			$option_array[$a_option_array['id']]=strip_tags($a_option_array['name']).'案 '.$a_option_array['type'].' ￥'.$a_option_array['fee'].' '.date('Y-m-d',$a_option_array['pay_time']).($a_option_array['type']=='办案费'?' '.$a_option_array['receiver'].'收':'');
+		foreach($r_option_array->result_array() as $a_option_array){
+			$option_array[$a_option_array['id']]=strip_tags($a_option_array['name']).'案 '.$a_option_array['type'].' ￥'.$a_option_array['fee'].' '.$a_option_array['pay_date'].($a_option_array['type']=='办案费'?' '.$a_option_array['receiver'].'收':'');
 		}
 	
 		return $option_array;	
@@ -303,14 +320,14 @@ class Cases_model extends SS_Model{
 		$option_array=array();
 		
 		$q_option_array="
-			SELECT case_fee.id,case_fee.type,case_fee.fee,case_fee.pay_time,case_fee.receiver,case.name
+			SELECT case_fee.id,case_fee.type,case_fee.fee,case_fee.pay_date,case_fee.receiver,case.name
 			FROM case_fee INNER JOIN `case` ON case_fee.case=case.id
 			WHERE case.id='".$case_id."'";
 		
 		$r_option_array=db_query($q_option_array);
 		
 		while($a_option_array=db_fetch_array($r_option_array)){
-			$option_array[$a_option_array['id']]=strip_tags($a_option_array['name']).'案 '.$a_option_array['type'].' ￥'.$a_option_array['fee'].' '.date('Y-m-d',$a_option_array['pay_time']).($a_option_array['type']=='办案费'?' '.$a_option_array['receiver'].'收':'');
+			$option_array[$a_option_array['id']]=strip_tags($a_option_array['name']).'案 '.$a_option_array['type'].' ￥'.$a_option_array['fee'].' '.date('Y-m-d',$a_option_array['pay_date']).($a_option_array['type']=='办案费'?' '.$a_option_array['receiver'].'收':'');
 		}
 	
 		return $option_array;	
@@ -333,7 +350,11 @@ class Cases_model extends SS_Model{
 	
 	//增减案下律师的时候自动计算贡献
 	function calcContribute($case_id){
-		$case_lawyer_array=db_toArray("SELECT id,lawyer,role FROM case_lawyer WHERE `case`='".$case_id."'");
+		$case_id=intval($case_id);
+		
+		$query="SELECT id,people lawyer,role FROM case_people WHERE type='lawyer' `case`=$case_id";
+		
+		$case_lawyer_array=$this->db->query($query)->result_array();
 		
 		$case_lawyer_array=array_sub($case_lawyer_array,'role','id');
 	
@@ -354,35 +375,37 @@ class Cases_model extends SS_Model{
 		
 		foreach($case_lawyer_array as $id=>$role){
 			if($role=='接洽律师（次要）' && isset($role_count['接洽律师']) && $role_count['接洽律师']==1){
-				$this->db->update('case_lawyer',array('contribute'=>$contribute['接洽']*0.3),array('id'=>$id));
+				$this->db->update('case_people',array('contribute'=>$contribute['接洽']*0.3),array('id'=>$id));
 	
 			}elseif($role=='接洽律师'){
 				if(isset($role_count['接洽律师（次要）']) && $role_count['接洽律师（次要）']==1){
-					$this->db->update('case_lawyer',array('contribute'=>$contribute['接洽']*0.7),array('id'=>$id));
+					$this->db->update('case_people',array('contribute'=>$contribute['接洽']*0.7),array('id'=>$id));
 				}else{
-					$this->db->update('case_lawyer',array('contribute'=>$contribute['接洽']/$role_count[$role]),array('id'=>$id));
+					$this->db->update('case_people',array('contribute'=>$contribute['接洽']/$role_count[$role]),array('id'=>$id));
 				}
 	
 			}elseif($role=='主办律师'){
 				if(isset($role_count['协办律师']) && $role_count['协办律师']){
-					$this->db->update('case_lawyer',array('contribute'=>($contribute['办案']-0.05)/$role_count[$role]),array('id'=>$id));
+					$this->db->update('case_people',array('contribute'=>($contribute['办案']-0.05)/$role_count[$role]),array('id'=>$id));
 				}else{
-					$this->db->update('case_lawyer',array('contribute'=>$contribute['办案']/$role_count[$role]),array('id'=>$id));
+					$this->db->update('case_people',array('contribute'=>$contribute['办案']/$role_count[$role]),array('id'=>$id));
 				}
 	
 			}elseif($role=='协办律师'){
-				$this->db->update('case_lawyer',array('contribute'=>0.05/$role_count[$role]),array('id'=>$id));
+				$this->db->update('case_people',array('contribute'=>0.05/$role_count[$role]),array('id'=>$id));
 			}
 		}
 	}
 	
 	function lawyerRoleCheck($case_id,$new_role,$actual_contribute=NULL){
-		if(strpos($new_role,'信息提供')!==false && db_fetch_field("SELECT SUM(contribute) FROM case_lawyer WHERE role LIKE '信息提供%' AND `case`='".$case_id."'")+substr($new_role,15,2)/100>0.2){
+		$case_id=intval($case_id);
+		
+		if(strpos($new_role,'信息提供')!==false && $this->db->query("SELECT SUM(contribute) sum FROM case_people WHERE type='lawyer' AND role LIKE '信息提供%' AND `case`=$case_id")->row()->sum+substr($new_role,15,2)/100>0.2){
 			//信息贡献已达到20%
 			showMessage('信息提供贡献已满额','warning');
 			return false;
 			
-		}elseif(strpos($new_role,'接洽律师')!==false && db_fetch_field("SELECT COUNT(id) FROM case_lawyer WHERE role LIKE '接洽律师%' AND `case`='".$case_id."'")>=2){
+		}elseif(strpos($new_role,'接洽律师')!==false && $this->db->query("SELECT COUNT(id) num FROM case_people WHERE type='lawyer' AND role LIKE '接洽律师%' AND `case`=$case_id")->row()->num>=2){
 			//接洽律师已达到2名
 			showMessage('接洽律师不能超过2位','warning');
 			return false;
@@ -399,7 +422,7 @@ class Cases_model extends SS_Model{
 			
 			if(!$actual_contribute){
 				$actual_contribute_left=
-					0.3-db_fetch_field("SELECT SUM(contribute) FROM case_lawyer WHERE `case`='".$case_id."' AND role='实际贡献'");
+					0.3-$this->db->query("SELECT SUM(contribute) sum FROM case_people WHERE type='lawyer' AND `case`=$case_id AND role='实际贡献'")->row()->sum;
 				if($actual_contribute_left>0){
 					return $actual_contribute_left;
 				}else{
@@ -407,7 +430,7 @@ class Cases_model extends SS_Model{
 					return false;
 				}
 				
-			}elseif(db_fetch_field("SELECT SUM(contribute) FROM case_lawyer WHERE `case`='".$case_id."' AND role='实际贡献'")+($actual_contribute/100)>0.3){
+			}elseif($this->db->query("SELECT SUM(contribute) sum FROM case_people WHERE type='lawyer' AND `case`=$case_id AND role='实际贡献'")->row()->sum+($actual_contribute/100)>0.3){
 				showMessage('实际贡献总数不能超过30%','warning');
 				return false;
 	
@@ -420,7 +443,9 @@ class Cases_model extends SS_Model{
 	}
 	
 	function getRoles($case_id){
-		if($case_role=db_toArray("SELECT lawyer,role FROM case_lawyer WHERE `case`='".$case_id."'")){
+		$case_id=intval($case_id);
+		
+		if($case_role=$this->db->query("SELECT people lawyer,role FROM case_people WHERE type='lawyer' AND `case`=$case_id")->result_array()){
 			return $case_role;
 		}else{
 			return false;
@@ -465,73 +490,55 @@ class Cases_model extends SS_Model{
 		return $my_role;
 	}
 	
-	function getClientList($case_id){
-	//案件相关人信息
+	function getClientList($case_id,$relation='客户'){
+		$case_id=intval($case_id);
+		
+		//TODO 一个相关人有多个手机时会显示多行
 		$query="
-			SELECT case_client.id,case_client.client,case_client.role,
-				client.abbreviation AS client_name,client.classification,
-				default_contact.contact,default_contact.name AS contact_name,default_contact.classification AS contact_classification,
-				if(LENGTH(default_contact.phone),default_contact.phone,phone.content) AS phone,
-				if(LENGTH(default_contact.email),default_contact.email,email.content) AS email
-			FROM 
-				case_client INNER JOIN client ON (case_client.client=client.id)
-		
-				LEFT JOIN (
-					SELECT client,GROUP_CONCAT(content) AS content FROM client_contact WHERE type IN('手机','固定电话') GROUP BY client
-				)phone ON client.id=phone.client
-		
-				LEFT JOIN (
-					SELECT client,GROUP_CONCAT(content) AS content FROM client_contact WHERE type='电子邮件' GROUP BY client
-				)email ON client.id=email.client
-		
-				LEFT JOIN(
-					SELECT client_client.client_left AS client,client_client.client_right AS contact,client.abbreviation AS name,client.classification,phone.content AS phone,email.content AS email
-					FROM client_client
-						INNER JOIN client ON client_client.client_right=client.id AND client_client.is_default_contact=1
-						LEFT JOIN (
-								SELECT client,GROUP_CONCAT(content) AS content FROM client_contact WHERE type IN('手机','固定电话') GROUP BY client
-						)phone ON client.id=phone.client
-						LEFT JOIN (
-								SELECT client,GROUP_CONCAT(content) AS content FROM client_contact WHERE type='电子邮件' GROUP BY client
-						)email ON client.id=email.client
-				)default_contact
-				ON client.id=default_contact.client
-		
-			WHERE case_client.`case`='".$case_id."'
-			ORDER BY client.classification
+			SELECT case_people.type,case_people.role,people.name,phone.content AS phone,email.content AS email
+			FROM case_people
+				INNER JOIN people ON people.id=case_people.people
+				LEFT JOIN people_profile phone ON phone.name IN ('手机','固定电话') AND phone.people=people.id
+				LEFT JOIN people_profile email ON email.name IN ('电子邮件') AND email.people=people.id
+			WHERE case_people.case=$case_id
 		";
+		
+		if(isset($relation)){
+			$query.=" AND case_people.type='$relation'";
+		}
 		
 		return $this->db->query($query)->result_array();
 	}
 	
 	function getStaffList($case_id){
-	//案件律师信息
+		$case_id=intval($case_id);
+		
 		$query="
 			SELECT
-				case_lawyer.id,case_lawyer.role,case_lawyer.hourly_fee,CONCAT(TRUNCATE(case_lawyer.contribute*100,1),'%') AS contribute,
+				case_people.id,case_people.role,case_people.hourly_fee,CONCAT(TRUNCATE(case_people.contribute*100,1),'%') AS contribute,
 				staff.name AS lawyer_name,
 				TRUNCATE(SUM(account.amount)*contribute,2) AS contribute_amount,
 				lawyer_hour.hours_sum
 			FROM 
-				case_lawyer	INNER JOIN staff ON staff.id=case_lawyer.lawyer
-				LEFT JOIN account ON case_lawyer.case=account.case AND account.name <> '办案费'
+				case_people INNER JOIN people staff ON staff.id=case_people.people AND case_people.type='lawyer'
+				LEFT JOIN account ON case_people.case=account.case AND account.name <> '办案费'
 				LEFT JOIN (
 					SELECT uid,SUM(IF(hours_checked IS NULL,hours_own,hours_checked)) AS hours_sum FROM schedule WHERE schedule.`case`='".$case_id."' AND display=1 AND completed=1 GROUP BY uid
 				)lawyer_hour
-				ON lawyer_hour.uid=case_lawyer.lawyer
-			WHERE case_lawyer.case='".$case_id."'
+				ON lawyer_hour.uid=case_people.people
+			WHERE case_people.case=$case_id
 				
-			GROUP BY case_lawyer.id
-			ORDER BY case_lawyer.role";
+			GROUP BY case_people.id
+			ORDER BY case_people.role";
 		
 		return $this->db->query($query)->result_array();
 	}
 	
 	function getFeeList($case_id){
 		$query="
-			SELECT case_fee.id,case_fee.type,case_fee.receiver,case_fee.condition,case_fee.pay_time,case_fee.fee,case_fee.reviewed,
+			SELECT case_fee.id,case_fee.type,case_fee.receiver,case_fee.condition,case_fee.pay_date,case_fee.fee,case_fee.reviewed,
 				if(SUM(account.amount) IS NULL,'',SUM(account.amount)) AS fee_received,
-				FROM_UNIXTIME(MAX(account.time_occur),'%Y-%m-%d') AS fee_received_time
+				MAX(account.date) AS fee_received_time
 			FROM 
 				case_fee LEFT JOIN account ON case_fee.id=account.case_fee
 			WHERE case_fee.case='".$case_id."' AND case_fee.type<>'办案费'
@@ -548,7 +555,7 @@ class Cases_model extends SS_Model{
 	
 	function getFeeMiscList($case_list){
 		$query="
-			SELECT case_fee.id,case_fee.type,case_fee.receiver,case_fee.comment,case_fee.pay_time,case_fee.fee,
+			SELECT case_fee.id,case_fee.type,case_fee.receiver,case_fee.comment,case_fee.pay_date,case_fee.fee,
 				if(SUM(account.amount) IS NULL,'',SUM(account.amount)) AS fee_received
 			FROM 
 				case_fee LEFT JOIN account ON case_fee.id=account.case_fee
@@ -564,9 +571,15 @@ class Cases_model extends SS_Model{
 	
 	function getDocumentList($case_id){
 		$query="
-			SELECT id,name,type,IF(doctype='其他',doctype_other,doctype) AS doctype,comment,time,username
+			SELECT id,document.name,extname,type.name,comment,time,username
 			FROM 
-				case_document
+				document
+				LEFT JOIN (
+					SELECT label.name,document_label.document
+					FROM document_label 
+						INNER JOIN label ON document_label.label=label.id
+					WHERE document_label.type='type'
+				)type ON document.id=type.document
 			WHERE display=1 AND `case`='".$case_id."'
 			ORDER BY time DESC";
 
@@ -613,15 +626,15 @@ class Cases_model extends SS_Model{
 		$query="
 			SELECT * FROM
 			(
-				SELECT case_client.client,client.abbreviation AS client_name,role AS client_role 
-				FROM case_client INNER JOIN client ON case_client.client=client.id 
+				SELECT case_client.people,client.abbreviation AS client_name,role AS client_role 
+				FROM case_client INNER JOIN client ON case_client.people=client.id 
 				WHERE client.classification='客户' AND `case`='".$case_id."'
 				ORDER BY case_client.id
 				LIMIT 1
 			)client LEFT JOIN
 			(
 				SELECT client AS opposite,client.abbreviation AS opposite_name,role AS opposite_role 
-				FROM case_client LEFT JOIN client ON case_client.client=client.id 
+				FROM case_client LEFT JOIN client ON case_client.people=client.id 
 				WHERE client.classification='相对方' AND `case`='".$case_id."'
 				LIMIT 1
 			)opposite
@@ -736,18 +749,17 @@ class Cases_model extends SS_Model{
 	function getList($method=NULL){
 		$q="
 			SELECT
-				case.id,case.name,case.num,case.stage,case.time_contract,
+				case.id,case.name,case.num,case.time_contract,
 				case.is_reviewed,case.apply_file,case.is_query,
 				case.type_lock*case.client_lock*case.lawyer_lock*case.fee_lock AS locked,
 				case.finance_review,case.info_review,case.manager_review,case.filed,
-				contribute_allocate.contribute_sum,
 				uncollected.uncollected,
 				schedule_grouped.id AS schedule,schedule_grouped.name AS schedule_name,schedule_grouped.time_start,schedule_grouped.username AS schedule_username,
 				plan_grouped.id AS plan,plan_grouped.name AS plan_name,FROM_UNIXTIME(plan_grouped.time_start,'%m-%d') AS plan_time,plan_grouped.username AS plan_username,
 				lawyers.lawyers
 			FROM 
 				`case`
-			
+				
 				LEFT JOIN
 				(
 					SELECT * FROM(
@@ -769,15 +781,16 @@ class Cases_model extends SS_Model{
 				LEFT JOIN
 				(
 					SELECT `case`,GROUP_CONCAT(staff.name) AS lawyers
-					FROM case_lawyer INNER JOIN staff ON case_lawyer.lawyer=staff.id AND case_lawyer.role='主办律师'
-					GROUP BY case_lawyer.`case`
+					FROM case_people INNER JOIN people staff ON case_people.type='lawyer' AND case_people.people=staff.id AND case_people.role='主办律师'
+					GROUP BY case_people.`case`
 				)lawyers
 				ON `case`.id=lawyers.`case`
 				
 				LEFT JOIN 
 				(
 					SELECT `case`,SUM(contribute) AS contribute_sum
-					FROM case_lawyer
+					FROM case_people
+					WHERE type='lawyer'
 					GROUP BY `case`
 				)contribute_allocate
 				ON `case`.id=contribute_allocate.case
@@ -809,19 +822,19 @@ class Cases_model extends SS_Model{
 		$condition='';
 		
 		if($method=='host'){
-			$condition.="AND case.apply_file=0 AND case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer={$this->user->id} AND role='主办律师')";
+			$condition.="AND case.apply_file=0 AND case.id IN (SELECT `case` FROM case_people WHERE type='lawyer' AND people={$this->user->id} AND role='主办律师')";
 		
 		}elseif($method=='consultant'){
-			$condition.="AND case.apply_file=0 AND classification='法律顾问' AND (case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer={$this->user->id}) OR case.uid={$this->user->id})";
+			$condition.="AND case.apply_file=0 AND classification='法律顾问' AND (case.id IN (SELECT `case` FROM case_people WHERE type='lawyer' AND people={$this->user->id}) OR case.uid={$this->user->id})";
 		
 		}elseif($method=='etc'){
-			$condition.="AND case.apply_file=0 AND classification<>'法律顾问' AND (case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer={$this->user->id} AND role<>'主办律师') OR case.uid={$this->user->id})";
+			$condition.="AND case.apply_file=0 AND classification<>'法律顾问' AND (case.id IN (SELECT `case` FROM case_people WHERE type='lawyer' AND people={$this->user->id} AND role<>'主办律师') OR case.uid={$this->user->id})";
 			
 		}elseif($method=='file'){
-			$condition.="AND case.apply_file=1 AND classification<>'法律顾问' AND (case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer={$this->user->id} AND role<>'主办律师') OR case.uid={$this->user->id})";
+			$condition.="AND case.apply_file=1 AND classification<>'法律顾问' AND (case.id IN (SELECT `case` FROM case_people WHERE type='lawyer' AND people={$this->user->id} AND role<>'主办律师') OR case.uid={$this->user->id})";
 			
 		}elseif(!$this->user->isLogged('developer') && !$this->user->isLogged('finance')){
-			$condition.="AND (case.id IN (SELECT `case` FROM case_lawyer WHERE lawyer={$this->user->id} AND role IN ('接洽律师','接洽律师（次要）','主办律师','协办律师','律师助理','督办合伙人')) OR case.uid={$this->user->id})";
+			$condition.="AND (case.id IN (SELECT `case` FROM case_people WHERE type='lawyer' AND people={$this->user->id} AND role IN ('接洽律师','接洽律师（次要）','主办律师','协办律师','律师助理','督办合伙人')) OR case.uid={$this->user->id})";
 		}
 		$condition=$this->search($condition, array('case.num'=>'案号','case.type'=>'类别','case.name'=>'名称','lawyers.lawyers'=>'主办律师'));
 		$condition=$this->orderBy($condition,'time_contract','DESC',array('case.name','lawyers'));
@@ -852,9 +865,8 @@ class Cases_model extends SS_Model{
 				LEFT JOIN
 				(
 					SELECT `case`,GROUP_CONCAT(staff.name) AS lawyers
-					FROM case_lawyer,staff 
-					WHERE case_lawyer.lawyer=staff.id AND case_lawyer.role='主办律师'
-					GROUP BY case_lawyer.`case`
+					FROM case_people INNER JOIN people staff ON case_people.people=staff.id AND case_people.type='lawyer' AND case_people.role='主办律师'
+					GROUP BY case_people.`case`
 				)lawyers
 				ON `case`.id=lawyers.`case`
 
@@ -871,7 +883,8 @@ class Cases_model extends SS_Model{
 				LEFT JOIN 
 				(
 					SELECT `case`,SUM(contribute) AS contribute_sum
-					FROM case_lawyer
+					FROM case_people
+					WHERE case_people.type='lawyer'
 					GROUP BY `case`
 				)contribute_allocate
 				ON `case`.id=contribute_allocate.case
@@ -917,16 +930,16 @@ class Cases_model extends SS_Model{
 				`case` LEFT JOIN
 				(
 					SELECT `case`,GROUP_CONCAT(staff.name) AS lawyers
-					FROM case_lawyer,staff 
-					WHERE case_lawyer.lawyer=staff.id AND case_lawyer.role='主办律师'
-					GROUP BY case_lawyer.`case`
+					FROM case_people INNER JOIN staff ON case_people.people=staff.id AND case_people.type='lawyer' AND case_people.role='主办律师'
+					GROUP BY case_people.`case`
 				)lawyers
 				ON `case`.id=lawyers.`case`
 
 				LEFT JOIN 
 				(
 					SELECT `case`,SUM(contribute) AS contribute_sum
-					FROM case_lawyer
+					FROM case_people
+					WHERE type='lawyer'
 					GROUP BY `case`
 				)contribute_allocate
 				ON `case`.id=contribute_allocate.case

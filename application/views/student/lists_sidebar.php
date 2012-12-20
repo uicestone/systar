@@ -3,12 +3,12 @@
 	<tbody>
 		<tr><td>
 			<select name="grade" class="filter">
-			<?=html_option(NULL,option('grade'),true,'team',NULL,'name',"type='grade' AND num>={$this->school->highest_grade}")?>
+			<?=options(NULL,option('grade'),true,'team',NULL,'name',"type='grade' AND num>={$this->school->highest_grade}")?>
 			</select>
 		</td></tr>
 		<tr><td>
 			<select name="class" class="filter">
-			<?=html_option($this->classes->getRelatedTeams(option('grade')),option('class'),true)?>
+			<?=options($this->classes->getRelatedTeams(option('grade')),option('class'),true)?>
 			</select>
 		</td></tr>
 	</tbody>

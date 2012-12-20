@@ -61,19 +61,22 @@ class SS_Model extends CI_Model{
 	}
 
 	function addCondition(&$q,$condition_array,$unset=array()){
+		
+		$method=METHOD;
+		
 		foreach($unset as $changed_variable => $unset_array){
 			if(!is_array($unset_array)){
 			  $unset_array=array($unset_array);
 			}
 			foreach($unset_array as $unset_variable){
-				if(is_posted($changed_variable)){
-					unset($_SESSION[CONTROLLER][METHOD][$unset_variable]);
+				if($this->input->post($changed_variable)!==false){
+					unset($_SESSION[CONTROLLER][METHOD][$this->$method->id][$unset_variable]);
 				}
 			}
 		}
 
 		foreach($condition_array as $variable=>$field){
-			if(is_posted($variable)){
+			if($this->input->post($variable)!==false){
 				option($variable,$_POST[$variable]);
 			}
 
@@ -197,8 +200,7 @@ class SS_Model extends CI_Model{
 			if(is_callable(array($this),'add')){
 				$id=$this->add();
 			}else{
-				post(CONTROLLER,uidTime());
-				$id=db_insert($db_table,post(CONTROLLER));
+				show_error('对应model的add()不可访问');
 			}
 		}
 	

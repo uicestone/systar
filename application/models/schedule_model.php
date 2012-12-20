@@ -196,9 +196,8 @@ class Schedule_model extends SS_Model{
 			GROUP BY schedule.id
 			ORDER BY FROM_UNIXTIME(time_start,'%Y%m%d') ".($this->input->get('plan')?'ASC':'DESC').",schedule.uid,time_start ".($this->input->get('plan')?'ASC':'DESC')."
 		";
-		if(!$this->input->post('export')){
-		    $q=$this->pagination($q);
-		}
+
+		$q=$this->pagination($q);
 
 		return $this->db->query($q)->result_array();
 	}
@@ -267,13 +266,13 @@ class Schedule_model extends SS_Model{
 		$query="
 			SELECT staff.name AS staff_name,SUM(IF(hours_checked IS NULL,hours_own,hours_checked)) AS sum,
 				ROUND(SUM(IF(hours_checked IS NULL,hours_own,hours_checked))/".(getWorkingDays(option('date_range/from'),option('date_range/to'),getHolidays(),getOvertimedays(),false)).",2) AS avg
-			FROM schedule INNER JOIN staff ON staff.id=schedule.uid
-			WHERE completed=1 AND display=1
+			FROM schedule INNER JOIN people staff ON staff.id=schedule.uid
+			WHERE completed=1 AND schedule.display=1
 		";
 
 		$query=$this->dateRange($query, 'time_start' ,true);
 
-		$query.="	GROUP BY uid
+		$query.="	GROUP BY schedule.uid
 		";
 
 		$query=$this->orderBy($query,'sum','DESC');

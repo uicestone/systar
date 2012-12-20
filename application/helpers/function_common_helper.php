@@ -394,4 +394,52 @@ function db_parseError($error){
 	
 	return $error;
 }
+
+/**
+ * 标准差
+ */
+function std($data,$avg=null,$is_swatch=false){
+	if(is_null($avg))
+		$avg=array_sum($data)/count($data);
+
+	$arrayCount=count($data);
+	if($arrayCount==1 && $is_swatch)
+		return false;
+	elseif($arrayCount>0){
+		$total_var=0;
+		foreach($data as $lv)
+			$total_var+=pow(($lv-$avg),2);
+		if($arrayCount==1 && $is_swatch)
+			return false;
+		return $is_swatch?($total_var/(count($data)-1)):($total_var/count($data));
+	}else
+		return false;
+}
+
+function codeLines(){
+	$dir='../';
+	$src = APPPATH.'third_party/line-counter/';
+	require $src . 'Folder.php';
+	require $src . 'File.php';
+	require $src . 'Option.php';
+	require $src . 'Html.php';
+	
+	//Use GET so this script could be reused elsewhere
+	//Set to user defined options or default one
+	$options = array(
+		'ignoreFolders' => explode(',','_doc,system,class,third_party,redmond,fullcalendar,Jeditable,jHtmlArea,qtip2,highcharts'),
+		'ignoreFiles' => explode(',','jquery-ui.js,jquery.js'),
+		'extensions' => explode(',','php,js,css')
+	);
+	
+	//Scan user defined directory
+	$folder = new Folder($dir, new Option($options));
+	$folder->init();
+	
+	$lines = $folder->getLines();
+	$whitespace = $folder->getWhitespace();
+	$comments = $folder->getComments();
+	
+	return $lines.' lines';
+}
 ?>

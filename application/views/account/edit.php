@@ -28,7 +28,7 @@
 			<div class="title"><label>客户：</label></div>
 			<? if(isset($case_client_array)){?>
 			<select name="account[client]">
-				<? displayOption($case_client_array,$this->value('account/client'),true)?>
+				<?=options($case_client_array,$this->value('account/client'),true)?>
 			</select>
 			<? }else{?>
 			<input type="text" name="account_extra[client_name]" value="<?=$this->value('account_extra/client_name');?>" autocomplete="client" style="width:90%" />
@@ -40,7 +40,7 @@
 			<div class="title"><label>收费：</label></div>
 			<? if(!empty($case_fee_array)){?>
 			<select name="account[case_fee]">
-				<? displayOption($case_fee_array,$this->value('account/case_fee'),true)?>
+				<?=options($case_fee_array,$this->value('account/case_fee'),true)?>
 			</select>
 			<? }?>
 		</div>

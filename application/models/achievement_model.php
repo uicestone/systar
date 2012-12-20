@@ -247,11 +247,6 @@ class Achievement_model extends SS_Model{
 				)account_grouped -- 根据case_fee分组求和的account
 				ON case_fee.id=account_grouped.case_fee
 				INNER JOIN `case` ON case.id = case_fee.case
-				LEFT JOIN (
-					SELECT `case`, GROUP_CONCAT(DISTINCT staff.name) AS lawyers 
-					FROM case_people 
-						INNER JOIN people staff ON staff.id=case_people.people AND case_people.type='lawyer' AND case_people.role='主办律师'
-					GROUP BY case_people.case
 			WHERE case_fee.type<>'办案费'
 				AND case_fee.reviewed=0
 				AND (account_grouped.amount_sum IS NULL OR case_fee.fee-account_grouped.amount_sum>0) -- 款未到/未到齐
@@ -273,9 +268,9 @@ class Achievement_model extends SS_Model{
 			$q.=" AND pay_date<='$date_to'";
 		}
 
-		if(!is_logged('finance')){
+		if(!$this->user->isLogged('finance')){
 			$q.=" AND case_fee.case IN (
-					SELECT `case` FROM case_lawyer WHERE lawyer={$_SESSION['id']}
+					SELECT `case` FROM case_people WHERE type='lawyer' AND people={$this->user->id}
 				)
 			";
 		}
@@ -406,7 +401,7 @@ class Achievement_model extends SS_Model{
 	function getCaseBonusList(){
 		$q_cases_to_distribute="SELECT id FROM `case` WHERE lawyer_lock=1";
 		
-		if(got('contribute_type','actual')){
+		if($this->input->get('contribute_type')=='actual'){
 		  $contribute_type='actual';
 		  $q_cases_to_distribute.=" AND case.filed=1";
 		  $q_cases_to_distribute=$this->dateRange($q_cases_to_distribute,'case.time_end',false);

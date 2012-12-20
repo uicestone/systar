@@ -279,20 +279,22 @@ class Client_model extends People_model{
 		return $option_array;	
 	}
 	
-	function match($part_of_name,$classification='client'){
-		$query="SELECT id,name FROM client WHERE display=1 AND name LIKE '%".$part_of_name."%' OR abbreviation LIKE '".$part_of_name."'OR name_en LIKE '%".$part_of_name."%'";
+	/**
+	 * 根据部分客户名称返回匹配的客户id和名称列表
+	 * @param $part_of_name
+	 * @return array
+	 */
+	function match($part_of_name){
+		$query="
+			SELECT people.id,people.name 
+			FROM people
+				INNER JOIN people_label ON people_label.people=people.id AND people_label.label=(SELECT id FROM label WHERE name='客户')
+			WHERE people.company={$this->company->id} AND people.display=1 
+				AND (name LIKE '%$part_of_name%' OR abbreviation LIKE '$part_of_name' OR name_en LIKE '%$part_of_name%')
+			ORDER BY people.id DESC
+			";
 		
-		switch($classification){
-			case 'client': $query.=" AND classification='客户'";break;
-			case 'contact': $query.=" AND classification='联系人'";break;
-			case 'opposite': $query.=" AND classification='相对方'";break;
-		}
-		
-		$query.=" ORDER BY time DESC";
-		
-		$client_array=db_toArray($query);
-		
-		return $client_array;
+		return $this->db->query($query)->result_array();
 	}
 
 	function getList($method=NULL){

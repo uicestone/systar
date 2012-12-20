@@ -8,42 +8,42 @@
 	.ui-sortable-placeholder * { visibility: hidden; }
 </style>
 <script>
-    $(function() {
-        $( ".column" ).sortable({
-            connectWith: ".column",
-			stop:function(event,ui){
-				var taskSort=[];
-				$( ".column").each(function(){
-					taskSort.push($(this).sortable( "toArray"));
-				});
-				$.post('/schedule/settaskboardsort',{sortData:taskSort},function(result){
-					console.log(result);
-				});
-			}
-        });
+$(function() {
+	$( ".column" ).sortable({
+		connectWith: ".column",
+		stop:function(event,ui){
+			var taskSort=[];
+			$( ".column").each(function(){
+				taskSort.push($(this).sortable( "toArray"));
+			});
+			$.post('/schedule/settaskboardsort',{sortData:taskSort},function(result){
+				console.log(result);
+			});
+		}
+	});
  
-        $( ".portlet" ).click(function(){
-				$('#taskboard').showSchedule($(this).attr('id').replace('task_',''));
-			})
-			.addClass( "ui-widget ui-widget-content ui-helper-clearfix ui-corner-all" )
-            .find( ".portlet-header" )
-                .addClass( "ui-widget-header ui-corner-all" )
-                .prepend( "<span class='ui-icon ui-icon-minusthick'></span>")
-                .end()
-            .find( ".portlet-content" );
- 
-        $( ".portlet-header .ui-icon" ).click(function(){
-            $( this ).toggleClass( "ui-icon-minusthick" ).toggleClass( "ui-icon-plusthick" );
-            $( this ).parents( ".portlet:first" ).find( ".portlet-content" ).toggle();
-        });
+	$( ".portlet" ).click(function(){
+		$('#taskboard').showSchedule($(this).attr('id').replace('task_',''));
+	})
+	.addClass( "ui-widget ui-widget-content ui-helper-clearfix ui-corner-all" )
+	.find( ".portlet-header" )
+		.addClass( "ui-widget-header ui-corner-all" )
+		.prepend( "<span class='ui-icon ui-icon-minusthick'></span>")
+		.end()
+	.find( ".portlet-content" );
 
-		$('input[name="add[task]"]').click(function(){
-			$("#taskboard").createSchedule();
-		})
-        
-        $( ".column" ).disableSelection();
-    });
-    </script>
+	$( ".portlet-header .ui-icon" ).click(function(){
+		$( this ).toggleClass( "ui-icon-minusthick" ).toggleClass( "ui-icon-plusthick" );
+		$( this ).parents( ".portlet:first" ).find( ".portlet-content" ).toggle();
+	});
+
+	$('input[name="add[task]"]').click(function(){
+		$("#taskboard").createSchedule();
+	})
+
+	$( ".column" ).disableSelection();
+});
+</script>
 </div>
 <div class="contentTableMenu">
 	<div class="right">
