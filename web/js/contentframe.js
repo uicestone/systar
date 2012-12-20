@@ -86,7 +86,7 @@ $(function(){
 			if(ui.content.length==0){
 				$('[display-for~="new"]').trigger('enable');
 			}else{
-				$('.for-new').trigger('disable');
+				$('[display-for~="new"]').trigger('disable');
 			}
 		}
 	})
@@ -165,4 +165,13 @@ $(function(){
 		}
 		$(this).find('input,select').removeAttr('disabled');
 	});
+	
+	$('[display-for]').on('disable',function(){
+		$(this).hide();
+		if($(this).is('input,select')){
+			$(this).attr('disabled','disabled');
+		}
+		$(this).find('input,select').attr('disabled','disabled');
+	});
+	
 });
