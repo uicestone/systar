@@ -7,9 +7,11 @@ class Frame extends SS_Controller{
 	}
 	
 	function index(){
-		$this->load->require_head=FALSE;
-		$this->load->view('head_frame');
+		$this->load->view('head');
+		$this->load->view('nav');
 		$this->load->view('frame');
+		$this->load->main_view_loaded=true;
+		$this->load->view('foot');
 	}
 }
 ?>

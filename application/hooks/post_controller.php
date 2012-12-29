@@ -12,11 +12,13 @@ function postController(){
 	//在当前准备好的输出内容基础上加上页头，页尾，并自动加载边栏
 	if($CI->load->require_head){
 
+		$CI->load->view('pagehead');
+
 		if($CI->load->require_menu){
 			$CI->output->prepend_output($CI->load->view('menu',array(),true));
 		}
 
-		$CI->output->prepend_output($CI->load->view('head',array(),true));
+		//$CI->output->prepend_output($CI->load->view('head',array(),true));
 
 		if(!$CI->load->sidebar_loaded){
 			$sidebar=$CI->load->sidebar_data.
@@ -29,7 +31,7 @@ function postController(){
 				);
 			}
 		}
-		$CI->output->append_output($CI->load->view('foot',array(),true));
+		//$CI->output->append_output($CI->load->view('foot',array(),true));
 	}
 
 }

@@ -33,10 +33,7 @@ table, td, th {
 .placeholder{
 	color:#888;
 }
-.hidden{
-	display:none;
-}
-.disabled{
+[display-for],.hidden,.disabled{
 	display:none;
 }
 .ui-autocomplete {
@@ -48,20 +45,33 @@ body,input,select,button,textarea{
 	font-size:13px;
 	line-height:1.5;
 }
+input,select,textarea{
+	margin:2px;
+	padding:2px;
+}
+
+button,input:submit{
+	background-color: #FFF;
+}
 
 /*框架*/
-#contentFrame{
-	position:absolute;left:120px;top:0;
-	box-shadow: -2px 0 5px #000;
+body{
+	background:#CEDDEC;
 }
-body#nav{
+
+#page{
+	position:absolute;left:120px;top:0;right:0;bottom:0;
+	box-shadow: -2px 0 5px #000;
+	overflow-x:hidden;
+}
+nav{
 	/*导航菜单框架*/
+	position:absolute;left:0;top:0;bottom:0;
+	width:120px;
 	background:#113C68;
 	overflow-x:hidden;
 }
-body#content{
-	background:#CEDDEC;	
-
+#page{
 	/*ie主框架内滚动条着色*/
 	scrollbar-arrow-color: #CEDDEC;
 	scrollbar-face-color: #BCD7DF;
@@ -73,7 +83,7 @@ body#content{
 	scrollbar-base-color:#CEDDEC;
 }
 /*ie滚动条*/
-html#nav{
+nav{
 	scrollbar-arrow-color: #CEDDEC;
 	scrollbar-face-color: #0D2D4B;
 	scrollbar-3dlight-color: #0D2D4B;
@@ -83,7 +93,7 @@ html#nav{
 	scrollbar-track-color: #113C68;
 	scrollbar-base-color:#0D2D4B;
 }
-html#content{
+#page{
 	scrollbar-arrow-color: #CEDDEC;
 	scrollbar-face-color: #113C68;
 	scrollbar-3dlight-color: #113C68;
@@ -104,15 +114,15 @@ html#content{
 	-webkit-box-shadow:0 0 3px rgba(0,0,0,0.5);
 	background:#BCD7DF;
 }
-body#nav::-webkit-scrollbar{
+nav::-webkit-scrollbar{
 	/*导航菜单框架滚动条*/
 	width:0;
 }
-body#content::-webkit-scrollbar{
+#page::-webkit-scrollbar{
 	/*内容框架滚动条*/
 	background:#CEDDEC;
 }
-body#content::-webkit-scrollbar-thumb{
+#page::-webkit-scrollbar-thumb{
 	/*内容框架滚动条滑块*/
 	background:#113C68;
 }
@@ -135,7 +145,7 @@ body#content::-webkit-scrollbar-thumb{
 
 /*menu*/
 #topBar{
-	position:fixed;top:0;width:100%;height:25px;z-index:10;
+	position:fixed;top:0;left:0;right:0;height:25px;z-index:10;
 	text-align:right;color:#FFF;
 	background:#113C68;
 	box-shadow: 0 2px 5px #000;
@@ -201,7 +211,7 @@ body#content::-webkit-scrollbar-thumb{
 
 /*内容表*/
 .contentTableMenu{
-	position:fixed;width:79%;left:0;top:0;z-index:15;
+	position:fixed;left:120px;top:0;right:250px;z-index:15;
 	min-width:900px;
 	color:#FFF;
 }
@@ -213,7 +223,7 @@ body#content::-webkit-scrollbar-thumb{
 	text-align:center;
 }
 .contentTableBox{
-	position:absolute;top:25px;left:0;width:79%;z-index:0;
+	position:absolute;top:25px;left:0;right:250px;z-index:0;
 	min-width:900px;
 }
 .contentTable{
@@ -240,8 +250,6 @@ body#content::-webkit-scrollbar-thumb{
 }
 .contentTable tbody tr{
 	background:#FFF;
-	visibility:hidden;
-	visibility:visible\9;
 }
 .contentTable tbody td{
 	border-right:1px solid #69C;
@@ -256,8 +264,8 @@ body#content::-webkit-scrollbar-thumb{
 .contentTable tbody td{
 	padding:6px 7px;
 }
-.contentTable td input[type=text]{
-	width:99%;
+.contentTable td input[type="text"]{
+	width:95%;
 }
 .contentTable td .rank{
 	color:#888;
@@ -279,9 +287,9 @@ body#content::-webkit-scrollbar-thumb{
 
 /*右侧工具栏*/
 #toolBar{
-	position:fixed;right:0;top:25px;z-index:1;
-	width:20%;
-	min-width:240px;
+	float:right;margin-top:25px;
+	z-index:1;
+	width:240px;
 	text-align:right;
 }
 #toolBar.minimized{
@@ -340,8 +348,8 @@ body#content::-webkit-scrollbar-thumb{
 	background:#FFF;
 	border:#999 1px solid;
 }
-.contentTable .item input[type=text],
-.contentTable .item input[type=password],
+.contentTable .item input[type="text"],
+.contentTable .item input[type="password"],
 .contentTable .item textarea,
 .contentTable .item select{
 	width:99.6%;
@@ -365,7 +373,4 @@ body#content::-webkit-scrollbar-thumb{
 }
 .contentTable .submit{
 	text-align:center;
-}
-.autocomplete-no-result-menu{
-	display:none;
 }

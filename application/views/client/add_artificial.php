@@ -1,4 +1,4 @@
-<? javascript('client_add')?>
+<?=javascript('client_add')?>
 <form method="post">
 <div class="contentTableMenu">
 	<div class="right">

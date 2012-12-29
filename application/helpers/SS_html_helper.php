@@ -6,7 +6,7 @@
 function javascript($js_file_path){
 	$path='js/'.$js_file_path.'.js';
 	$hash=filemtime($path);
-	echo '<script type="text/javascript" src="/'.$path.'?'.$hash.'"></script>'."\n";
+	return '<script type="text/javascript" src="/'.$path.'?'.$hash.'"></script>'."\n";
 }
 
 /**
@@ -15,7 +15,7 @@ function javascript($js_file_path){
 function stylesheet($stylesheet_path){
 	$path=$stylesheet_path.'.css';
 	$hash=filemtime($path);
-	echo '<link rel="stylesheet" href="/'.$path.'?'.$hash.'" type="text/css" />'."\n";
+	return '<link rel="stylesheet" href="/'.$path.'?'.$hash.'" type="text/css" />'."\n";
 }
 
 /**Hh

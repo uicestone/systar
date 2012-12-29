@@ -22,11 +22,6 @@ class SS_Controller extends CI_Controller{
 	var $actual_table;
 	var $company_type_model_loaded=false;
 	
-	/**
-	 * 在ajax响应页面中，用来保存错误信息的数组
-	 */
-	var $json_error_message=array();
-	
 	function __construct(){
 		parent::__construct();
 		
@@ -309,23 +304,22 @@ class SS_Controller extends CI_Controller{
 	}
 	
 	/**
-	 * ajax响应页面，在一个form中，用户修改任何input/select值时，就发送一个请求，设置到$_SESSION中
+	 * ajax响应页面，在一个form中，用户修改任何input/select值时，就发送一个请求，保存到$_SESSION中
 	 * 到发生保存请求时，只需要把$_SESSION中的新值保存即可
 	 */
-	function setField(){
+	function setFields($item_id){
 		$this->load->require_head=false;
-		$args=func_get_args();
-		$id=$args[0];
-		
+
 		$controller=CONTROLLER;
-		$this->$controller->id=$id;
+		$this->$controller->id=$item_id;
 		
-		$value=$this->input->post('value');
-		
-		$post_key_name_array=array_splice($args, 1);
-		$post_key_name=implode('/',$post_key_name_array);
-		
-		post($post_key_name,$value);
+		if(!is_array($this->input->post())){
+			echo 'invalid post data';
+			return;
+		}
+		foreach($this->input->post() as $field_name=>$value){
+			post($field_name,$value);
+		}
 		echo 'success';
 	}
 	

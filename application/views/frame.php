@@ -1,2 +1,1 @@
-<iframe name="navFrame" id="navFrame" src="nav" width="120px" frameborder="0"></iframe>
-<iframe name="contentFrame" id="contentFrame" src="<?=$this->company->default_controller?>" frameborder="0"></iframe>
+	<div id="page" default-controller="<?=$this->company->default_controller?>"></div>

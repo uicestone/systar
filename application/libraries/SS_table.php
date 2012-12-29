@@ -126,6 +126,11 @@ class SS_Table extends CI_Table{
 		return $this;
 	}
 	
+	function setAttribute($name,$value){
+		$this->attributes[$name]=$value;
+		return $this;
+	}
+	
 	function setMenu($html,$class='right',$position='head'){
 		if(!isset($this->menu[$position][$class])){
 			$this->menu[$position][$class]='';
@@ -291,7 +296,7 @@ class SS_Table extends CI_Table{
 			$append.='</form>'."\n";
 		}
 
-		$this->template['table_open']='<table class="contentTable" cellpadding="0" cellspacing="0">';
+		$this->template['table_open']='<table class="contentTable" cellpadding="0" cellspacing="0"'.(isset($this->attributes['name'])?' name="'.$this->attributes['name'].'"':'').'>';
 		$this->template['row_alt_start']='<tr class="oddLine">';
 
 		$table=parent::generate($this->data);

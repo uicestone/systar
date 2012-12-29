@@ -5,9 +5,19 @@ $(function(){
 		$('[name="case[type]"]').getOptions('case',$(this).val());
 	});*/
 	
-	//案下客户类别联动
-	$('[name="case_client_extra[classification]"]').change(function(){
+	$('[name="case_client_extra[classification]"]').on('enable change',function(){
+		
+		//案下客户类别联动
 		$('[name="case_client_extra[type]"]').getOptions('client',$(this).val());
+		
+		var addForm=$(this).parents('.add-form:first');
+		if($(this).val()=='客户'){
+			addForm.find('[display-for~="client"]').trigger('enable');
+			addForm.find('[display-for~="non-client"]').trigger('disable');
+		}else{
+			addForm.find('[display-for~="non-client"]').trigger('enable');
+			addForm.find('[display-for~="client"]').trigger('disable');
+		}
 	});
 	
 	//响应每一栏标题上的"+"并显示/隐藏添加菜单
@@ -100,11 +110,11 @@ $(function(){
 	});
 	
 	//响应客户来源选项
-	$('select[name="case_client_extra[source_type]"]').change(function(){
-		if(jQuery.inArray($(this).val(),['其他网络','媒体','老客户介绍','合作单位介绍','其他'])==-1){
-			$('[name="case_client_extra[source_detail]"]').hide().attr('disabled','disabled').val('');
+	$('select[name="case_client_extra[source_type]"]').on('enable change',function(){
+		if($.inArray($(this).val(),['其他网络','媒体','老客户介绍','合作单位介绍','其他'])==-1){
+			$('[name="case_client_extra[source_detail]"]').trigger('disble').val('');
 		}else{
-			$('[name="case_client_extra[source_detail]"]').show().removeAttr('disabled');
+			$('[name="case_client_extra[source_detail]"]').trigger('enable');
 		}
 	});
 	

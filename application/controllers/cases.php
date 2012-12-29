@@ -66,6 +66,197 @@ class Cases extends SS_controller{
 		$this->edit();
 	}
 	
+	function subList($item,$case_id=false,$para=array()){
+		if($case_id){
+			$case=$this->cases->getPostData($case_id);
+		}
+		
+		if($item=='client'){
+			if(!isset($para['client_lock'])){
+				$para['client_lock']=$case['client_lock'];
+			}
+		
+			$fields=array(
+				'name'=>array('title'=>'名称','eval'=>true,'content'=>"
+					\$return='';
+					if(!post('cases/client_lock')){
+						\$return.='<input type=\"checkbox\" name=\"case_client_check[{id}]\" />';
+					}
+					\$return.='<a href=\"javascript:showWindow(\''.('{type}'=='客户'?'client':'contact').'/edit/{client}\')\">{name}</a>';
+					return \$return;
+				",'orderby'=>false),
+				'phone'=>array('title'=>'电话','td'=>'class="ellipsis" title="{phone}"'),
+				'email'=>array('title'=>'电邮','wrap'=>array('mark'=>'a','href'=>'mailto:{email}','title'=>'{email}','target'=>'_blank'),'td'=>'class="ellipsis"'),
+				'role'=>array('title'=>'本案地位','orderby'=>false),
+				'type'=>array('title'=>'类型','td_title'=>'width="60px"','orderby'=>false)
+			);
+			if(!$para['client_lock']){
+				//客户锁定时不显示删除按钮
+				$fields['name']['title']='<input type="submit" name="submit[case_client_delete]" value="删" />'.$fields['name']['title'];
+			}
+			$list=$this->table->setFields($fields)
+				->setAttribute('name',$item)
+				->generate($this->cases->getClientList($this->cases->id));
+		}
+		elseif($item=='staff'){
+			if(!isset($para['timing_fee'])){
+				$para['timing_fee']=$case['timing_fee'];
+			}
+			
+			if(!isset($para['staff_lock'])){
+				$para['staff_lock']=$case['staff_lock'];
+			}
+			
+			$fields=array(
+				'lawyer_name'=>array('title'=>'名称','content'=>'{lawyer_name}','orderby'=>false),
+				'role'=>array('title'=>'本案职位','orderby'=>false),
+				'contribute'=>array('title'=>'贡献','eval'=>true,'content'=>"
+					\$hours_sum_string='';
+					if('{hours_sum}'){
+						\$hours_sum_string='<span class=\"right\">{hours_sum}小时</span>';
+					}
+
+					return \$hours_sum_string.'<span>{contribute}'.('{contribute_amount}'?' ({contribute_amount})':'').'</span>';
+				",'orderby'=>false)
+			);
+			if($para['timing_fee']){
+				$fields['hourly_fee']=array('title'=>'计时收费小时费率','td'=>'class="editable" id="{id}"','orderby'=>false);
+			}
+			if(!$para['staff_lock']){
+				//律师锁定时不显示删除按钮
+				$fields['lawyer_name']['title']='<input type="submit" name="submit[case_lawyer_delete]" value="删" />'.$fields['lawyer_name']['title'];
+				$fields['lawyer_name']['content']='<input type="checkbox" name="case_lawyer_check[{id}]">'.$fields['lawyer_name']['content'];
+			}
+			$list=$this->cases->table->setFields($fields)
+				->setAttribute('name',$item)
+				->generate($this->cases->getStaffList($this->cases->id));
+
+		}
+		elseif($item=='fee'){
+			if(!isset($para['fee_lock'])){
+				$para['fee_lock']=$case['fee_lock'];
+			}
+			
+			$fields=array(
+				'type'=>array('title'=>'类型','td'=>'id="{id}"','content'=>'{type}','orderby'=>false),
+				'fee'=>array('title'=>'数额','eval'=>true,'content'=>"
+					\$return='{fee}'.('{fee_received}'==''?'':' <span title=\"{fee_received_time}\">（到账：{fee_received}）</span>');
+					if('{reviewed}'){
+						\$return=wrap(\$return,array('mark'=>'span','style'=>'color:#080'));
+					}
+					return \$return;
+				",'orderby'=>false),
+				'condition'=>array('title'=>'条件','td'=>'class="ellipsis" title="{condition}"','orderby'=>false),
+				'pay_time'=>array('title'=>'预计时间','eval'=>true,'content'=>"
+					return date('Y-m-d',{pay_time});
+				",'orderby'=>false
+				)
+			);
+			if(!$para['fee_lock']){
+				$fields['type']['title']='<input type="submit" name="submit[case_fee_delete]" value="删" />'.$fields['type']['title'];
+			}
+			if(!$para['fee_lock'] || $this->user->isLogged('finance')){
+				$fields['type']['content']='<input type="checkbox" name="case_fee_check[{id}]" >'.$fields['type']['content'];
+			}
+			$list=$this->cases->table->setFields($fields)
+					->setAttribute('name',$item)
+					->generate($this->cases->getFeeList($this->cases->id));
+		}
+		elseif($item=='miscfee'){
+			if(!isset($para['fee_lock'])){
+				$para['fee_lock']=$case['fee_lock'];
+			}
+			
+			$fields=array(
+				'receiver'=>array('title'=>'收款方','orderby'=>false),
+				'fee'=>array('title'=>'数额','eval'=>true,'content'=>"
+					return '{fee}'.('{fee_received}'==''?'':' （到账：{fee_received}）');
+				",'orderby'=>false),
+				'comment'=>array('title'=>'备注','orderby'=>false),
+				'pay_time'=>array('title'=>'预计时间','eval'=>true,'content'=>"
+					return date('Y-m-d',{pay_time});
+				",'orderby'=>false
+				)
+			);
+			if(!$para['fee_lock']){
+				$fields['receiver']['title']='<input type="submit" name="submit[case_fee_delete]" value="删" />'.$fields['receiver']['title'];
+				$fields['receiver']['content']='<input type="checkbox" name="case_fee_check[{id}]" />{receiver}';
+			}
+			$list=$this->table->setFields($fields)
+					->setAttribute('name',$item)
+					->generate($this->cases->getFeeMiscList($this->cases->id));
+		}
+		elseif($item=='schedule'){
+			$fields=array(
+				'name'=>array('title'=>'标题','td_title'=>'width="150px"','wrap'=>array('mark'=>'a','href'=>'javascript:showWindow(\'schedule/edit/{id}\')'),'orderby'=>false),
+				'time_start'=>array('title'=>'时间','td_title'=>'width="60px"','eval'=>true,'content'=>"
+					return date('m-d H:i',{time_start});
+				",'orderby'=>false),
+				'username'=>array('title'=>'填写人','td_title'=>'width="90px"','orderby'=>false)
+			);
+			$list=$this->table->setFields($fields)
+					->setAttribute('name',$item)
+					->generate($this->cases->getScheduleList($this->cases->id));
+		}
+		elseif($item=='plan'){
+			$fields=array(
+				'name'=>array('title'=>'标题','td_title'=>'width="150px"','wrap'=>array('mark'=>'a','href'=>'javascript:showWindow(\'schedule/edit/{id}\')'),'orderby'=>false),
+				'time_start'=>array('title'=>'时间','td_title'=>'width="60px"','eval'=>true,'content'=>"
+					return date('m-d H:i',{time_start});
+				",'orderby'=>false),
+				'username'=>array('title'=>'填写人','td_title'=>'width="90px"','orderby'=>false)
+			);
+			$list=$this->table->setFields($fields)
+					->setAttribute('name',$item)
+					->generate($this->cases->getPlanList($this->cases->id));
+		}
+		elseif($item=='document'){
+			if(!isset($para['apply_file'])){
+				$para['apply_file']=$case['apply_file'];
+			}
+			
+			$fields=array(
+				'type'=>array(
+					'title'=>'',
+					'eval'=>true,
+					'content'=>"
+						if('{type}'==''){
+							\$image='folder';
+						}elseif(is_file('web/images/file_type/{type}.png')){
+							\$image='{type}.png';
+						}else{
+							\$image='unknown';
+						}
+						return '<img src=\"/images/file_type/'.\$image.'.png\" alt=\"{type}\" />';
+					",
+					'td_title'=>'width="70px"',
+					'orderby'=>false
+				),
+				'name'=>array('title'=>'文件名','td_title'=>'width="150px"','wrap'=>array('mark'=>'a','href'=>'/cases/documentdownload/{id}'),'orderby'=>false),
+				'doctype'=>array('title'=>'类型','td_title'=>'width="80px"'),
+				'comment'=>array('title'=>'备注','orderby'=>false),
+				'time'=>array('title'=>'时间','td_title'=>'width="60px"','eval'=>true,'content'=>"
+					return date('m-d H:i',{time});
+				"),
+				'username'=>array('title'=>'上传人','td_title'=>'width="90px"')
+			);
+			if($para['apply_file']){
+				array_splice($fields,0,0,array(
+					'id'=>array('title'=>'','td_title'=>'width="37px"','content'=>'<input type="checkbox" name="case_document_check[{id}]" checked="checked" />')
+				));
+			}
+			$list=$this->table->setFields($fields)
+					->setAttribute('name',$item)
+					->generate($this->cases->getDocumentList($this->cases->id));
+		}
+		
+		if(!$case_id){//没有指定$case_id，是在edit方法内调用
+			$this->load->addViewData($item.'_list', $list);
+		}else{
+			return array('item'=>$item,'list'=>$list);
+		}
+	}
+
 	function edit($id=NULL){
 		$this->load->model('staff_model','staff');
 		$this->load->model('client_model','client');
@@ -86,7 +277,7 @@ class Cases extends SS_controller{
 		
 		$this->load->addViewArrayData(compact('case','case_role','responsible_partner','lawyers','my_roles'));
 		
-		if(post('cases/client_lock')){
+		if($case['client_lock']){
 			post('case_client_extra/classification','联系人');
 		}		
 
@@ -103,29 +294,9 @@ class Cases extends SS_controller{
 			$this->load->view_data['case_lawyer_role_array']=array('督办合伙人','信息提供（20%）','信息提供（10%）','接洽律师','接洽律师（次要）','律师助理','实际贡献');
 		}
 		
-		//案下客户列表
-		$fields_client=array(
-			'name'=>array('title'=>'名称','eval'=>true,'content'=>"
-				\$return='';
-				if(!post('cases/client_lock')){
-					\$return.='<input type=\"checkbox\" name=\"case_client_check[{id}]\" />';
-				}
-				\$return.='<a href=\"javascript:showWindow(\''.('{type}'=='客户'?'client':'contact').'/edit/{client}\')\">{name}</a>';
-				return \$return;
-			",'orderby'=>false),
-			'phone'=>array('title'=>'电话','td'=>'class="ellipsis" title="{phone}"'),
-			'email'=>array('title'=>'电邮','wrap'=>array('mark'=>'a','href'=>'mailto:{email}','title'=>'{email}','target'=>'_blank'),'td'=>'class="ellipsis"'),
-			'role'=>array('title'=>'本案地位','orderby'=>false),
-			'type'=>array('title'=>'类型','td_title'=>'width="60px"','orderby'=>false)
-		);
-		if(!post('cases/client/lock')){
-			//客户锁定时不显示删除按钮
-			$fields_client['name']['title']='<input type="submit" name="submit[case_client_delete]" value="删" />'.$fields_client['name']['title'];
-		}
-		$this->load->view_data['case_client_table']=$this->table->setFields($fields_client)
-			->generate($this->cases->getClientList($this->cases->id));
+		$this->subList('client',false,array('client_lock'=>$case['client_lock']));
 		
-		post('case_client_extra/classification','客户');
+		//post('case_client_extra/classification','客户');
 		
 		if(post('cases/is_query')){
 			post('case_client_extra/type','潜在客户');
@@ -133,54 +304,9 @@ class Cases extends SS_controller{
 			post('case_client_extra/type','成交客户');//让案下客户添加默认为成交客户
 		}
 		
-		//案下职员列表
-		$fields_staff=array(
-			'lawyer_name'=>array('title'=>'名称','content'=>'{lawyer_name}','orderby'=>false),
-			'role'=>array('title'=>'本案职位','orderby'=>false),
-			'contribute'=>array('title'=>'贡献','eval'=>true,'content'=>"
-				\$hours_sum_string='';
-				if('{hours_sum}'){
-					\$hours_sum_string='<span class=\"right\">{hours_sum}小时</span>';
-				}
-
-				return \$hours_sum_string.'<span>{contribute}'.('{contribute_amount}'?' ({contribute_amount})':'').'</span>';
-			",'orderby'=>false)
-		);
-		if(post('cases/timing_fee')){
-			$fields_staff['hourly_fee']=array('title'=>'计时收费小时费率','td'=>'class="editable" id="{id}"','orderby'=>false);
-		}
-		if(!post('cases/staff_lock')){
-			//律师锁定时不显示删除按钮
-			$fields_staff['lawyer_name']['title']='<input type="submit" name="submit[case_lawyer_delete]" value="删" />'.$fields_staff['lawyer_name']['title'];
-			$fields_staff['lawyer_name']['content']='<input type="checkbox" name="case_lawyer_check[{id}]">'.$fields_staff['lawyer_name']['content'];
-		}
-		$this->load->view_data['case_staff_table']=$this->cases->table->setFields($fields_staff)
-				->generate($this->cases->getStaffList($this->cases->id));
+		$this->subList('staff',false,array('staff_lock'=>$case['staff_lock'],'timing_fee'=>$case['timing_fee']));
 		
-		//案下收费列表
-		$fields_fee=array(
-			'type'=>array('title'=>'类型','td'=>'id="{id}"','content'=>'{type}','orderby'=>false),
-			'fee'=>array('title'=>'数额','eval'=>true,'content'=>"
-				\$return='{fee}'.('{fee_received}'==''?'':' <span title=\"{fee_received_time}\">（到账：{fee_received}）</span>');
-				if('{reviewed}'){
-					\$return=wrap(\$return,array('mark'=>'span','style'=>'color:#080'));
-				}
-				return \$return;
-			",'orderby'=>false),
-			'condition'=>array('title'=>'条件','td'=>'class="ellipsis" title="{condition}"','orderby'=>false),
-			'pay_time'=>array('title'=>'预计时间','eval'=>true,'content'=>"
-				return date('Y-m-d',{pay_time});
-			",'orderby'=>false
-			)
-		);
-		if(!post('cases/fee_lock')){
-			$fields_fee['type']['title']='<input type="submit" name="submit[case_fee_delete]" value="删" />'.$fields_fee['type']['title'];
-		}
-		if(!post('cases/fee_lock') || $this->user->isLogged('finance')){
-			$fields_fee['type']['content']='<input type="checkbox" name="case_fee_check[{id}]" >'.$fields_fee['type']['content'];
-		}
-		$this->load->view_data['case_fee_table']=$this->cases->table->setFields($fields_fee)
-				->generate($this->cases->getFeeList($this->cases->id));
+		$this->subList('fee',false,array('fee_lock'=>$case['fee_lock']));
 		
 		if(post('case_fee/pay_time')){
 			post('case_fee_extra/pay_time',date('Y-m-d',post('case_fee/pay_time')));
@@ -193,88 +319,20 @@ class Cases extends SS_controller{
 			}
 		}
 		
-		//办案费列表
-		$fields_fee_misc=array(
-			'receiver'=>array('title'=>'收款方','orderby'=>false),
-			'fee'=>array('title'=>'数额','eval'=>true,'content'=>"
-				return '{fee}'.('{fee_received}'==''?'':' （到账：{fee_received}）');
-			",'orderby'=>false),
-			'comment'=>array('title'=>'备注','orderby'=>false),
-			'pay_time'=>array('title'=>'预计时间','eval'=>true,'content'=>"
-				return date('Y-m-d',{pay_time});
-			",'orderby'=>false
-			)
-		);
-		if(!post('fee_lock')){
-			$fields_fee_misc['receiver']['title']='<input type="submit" name="submit[case_fee_delete]" value="删" />'.$fields_fee_misc['receiver']['title'];
-			$fields_fee_misc['receiver']['content']='<input type="checkbox" name="case_fee_check[{id}]" />{receiver}';
-		}
-		$this->load->view_data['case_fee_misc_table']=$this->table->setFields($fields_fee_misc)
-				->generate($this->cases->getFeeMiscList($this->cases->id));
-
+		$this->subList('miscfee',false,array('fee_lock'=>$case['fee_lock']));
+		
 		if(post('case_fee_misc/pay_time')){
 			post('case_fee_misc_extra/pay_time',date('Y-m-d',post('case_fee_misc/pay_time')));
 		}
 		
-		//文件列表
-		$fields_document=array(
-			'type'=>array(
-				'title'=>'',
-				'eval'=>true,
-				'content'=>"
-					if('{type}'==''){
-						\$image='folder';
-					}elseif(is_file('web/images/file_type/{type}.png')){
-						\$image='{type}.png';
-					}else{
-						\$image='unknown';
-					}
-					return '<img src=\"/images/file_type/'.\$image.'.png\" alt=\"{type}\" />';
-				",
-				'td_title'=>'width="70px"',
-				'orderby'=>false
-			),
-			'name'=>array('title'=>'文件名','td_title'=>'width="150px"','wrap'=>array('mark'=>'a','href'=>'/cases/documentdownload/{id}'),'orderby'=>false),
-			'doctype'=>array('title'=>'类型','td_title'=>'width="80px"'),
-			'comment'=>array('title'=>'备注','orderby'=>false),
-			'time'=>array('title'=>'时间','td_title'=>'width="60px"','eval'=>true,'content'=>"
-				return date('m-d H:i',{time});
-			"),
-			'username'=>array('title'=>'上传人','td_title'=>'width="90px"')
-		);
-		if(post('cases/apply_file')){
-			array_splice($fields_document,0,0,array(
-				'id'=>array('title'=>'','td_title'=>'width="37px"','content'=>'<input type="checkbox" name="case_document_check[{id}]" checked="checked" />')
-			));
-		}
-		$this->load->view_data['case_document_table']=$this->table->setFields($fields_document)
-				->generate($this->cases->getDocumentList($this->cases->id));
+		$this->subList('schedule');
 		
-		//日程列表
-		$fields_schedule=array(
-			'name'=>array('title'=>'标题','td_title'=>'width="150px"','wrap'=>array('mark'=>'a','href'=>'javascript:showWindow(\'schedule/edit/{id}\')'),'orderby'=>false),
-			'time_start'=>array('title'=>'时间','td_title'=>'width="60px"','eval'=>true,'content'=>"
-				return date('m-d H:i',{time_start});
-			",'orderby'=>false),
-			'username'=>array('title'=>'填写人','td_title'=>'width="90px"','orderby'=>false)
-		);
-		$this->load->view_data['case_schedule_table']=$this->table->setFields($fields_schedule)
-				->generate($this->cases->getScheduleList($this->cases->id));
+		$this->subList('plan');
 		
-		//计划列表
-		$fields_plan=array(
-			'name'=>array('title'=>'标题','td_title'=>'width="150px"','wrap'=>array('mark'=>'a','href'=>'javascript:showWindow(\'schedule/edit/{id}\')'),'orderby'=>false),
-			'time_start'=>array('title'=>'时间','td_title'=>'width="60px"','eval'=>true,'content'=>"
-				return date('m-d H:i',{time_start});
-			",'orderby'=>false),
-			'username'=>array('title'=>'填写人','td_title'=>'width="90px"','orderby'=>false)
-		);
-		$this->load->view_data['case_plan_table']=$this->table->setFields($fields_plan)
-				->generate($this->cases->getPlanList($this->cases->id));
+		$this->subList('document',false,array('apply_file'=>$case['apply_file']));
 		
-		$this->load->view('cases/edit',$this->load->view_data);
-		
-		$this->load->main_view_loaded=TRUE;
+		$this->load->view('cases/edit');
+		$this->load->main_view_loaded=true;
 	}
 
 	function submit($submit,$id){
@@ -294,12 +352,15 @@ class Cases extends SS_controller{
 		try{
 		
 			if($submit=='case_client'){
-				if(!post('client/id')){//如果case_client添加的客户不存在，则先添加客户
+				if(post('case_client/client')){//autocomplete搜索到已有客户
+					$this->load->message('系统中已经存在 '.post('case_client_extra/client_name').'，已自动识别');
+				}
+				/*
+				else{//添加新客户
 					$new_client=array(
 						'name'=>post('case_client_extra/name'),
 						'character'=>post('case_client_extra/character')=='单位'?'单位':'自然人',
-						'classification'=>post('case_client_extra/classification'),
-						'type'=>post('case_client_extra/type')
+						'labels'=>array('classification'=>post('case_client_extra/classification'),'type'=>post('case_client_extra/type'))
 					);
 
 					if(post('case_client_extra/classification')=='客户'){//客户必须输入来源
@@ -308,7 +369,7 @@ class Cases extends SS_controller{
 						$staff_check=$this->staff->check(post('case_client_extra/source_lawyer_name'),'id',false);
 
 						if($staff_check<0){
-							showMessage('请输入正确的来源律师','warning');
+							$this->json_error_message('请输入正确的来源律师');
 						}
 
 						if($staff_check>0 && $client_source>0){
@@ -318,18 +379,17 @@ class Cases extends SS_controller{
 								post('cases/source',$client_source);
 							}
 						}else{
-							$submitable=false;
+							$this->json_error_message('客户来源识别错误');
 						}
 					}else{//非客户必须输入工作单位
 						if(post('case_client_extra/work_for')){
 							$new_client['work_for']=post('case_client_extra/work_for');
 						}else{
-							showMessage('请输入工作单位','warning');
-							$submitable=false;
+							$this->json_error_message('请输入工作单位','warning');
 						}
 					}
 
-					if($submitable && $new_client_id=$this->client->add($new_client)){
+					if($new_client_id=$this->client->add($new_client)){
 						post('case_client/client',$new_client_id);
 
 						$this->client->addContact_phone_email(post('case_client/client'),post('case_client_extra/phone'),post('case_client_extra/email'));
@@ -342,27 +402,23 @@ class Cases extends SS_controller{
 							' 已经添加，点击编辑详细信息</a>',
 						'notice');
 					}
-
-				}elseif($client_check>0){
-					post('case_client/client',$client_check['id']);
-					if(!post('cases/source')){
-						post('cases/source',$client_check['source']);
-					}
-					showMessage('系统中已经存在 '.$client_check['name'].'，已自动识别');
-				}else{
-					//除了不存在意外的其他错误，如关键字多个匹配
-					$submitable=false;
 				}
-
-				if($submitable && $this->cases->addClient($this->cases->id,post('case_client/client'),post('case_client/role'))){
+				*/
+				if($this->cases->addPeople($this->cases->id,post('case_client/client'),post('case_client/role'))){
 					unset($_SESSION['cases']['post']['case_client']);
 					unset($_SESSION['cases']['post']['case_client_extra']);
-					post('case_client_extra/show_add_form',false);
+					
+					$client_list=$this->subList('client',$this->cases->id);
+					echo json_encode(array('message'=>$this->load->message)+$client_list);
 				}
-
-				post('case_client_extra/show_add_form',true);//无论插入是否成功，刷新后继续显示添加客户表单
 			}
 
+			elseif($submit=='case_client_delete'){
+				if($this->cases->removePeople($this->cases->id,$this->input->post('case_client_check'))){
+					echo json_encode($this->subList('client',$this->cases->id));
+				}
+			}
+			
 			elseif($submit=='case_lawyer'){
 				if(post('case_lawyer/lawyer',$this->staff->check(post('case_lawyer_extra/lawyer_name'),'id'))<0){
 					//查找职员并保存至session，捕获错误
@@ -516,20 +572,6 @@ class Cases extends SS_controller{
 				$this->load->view('case/document_catalog');
 			}
 			
-			elseif($submit=='case_client_delete'){
-
-				$condition = db_implode(post('case_client_check'), $glue = ' OR ','id','=',"'","'", '`','key');
-
-				$q="DELETE FROM case_client WHERE (".$condition.")";
-
-				db_query($q);
-
-				if(post('cases/is_reviewed')){
-					post('cases/is_reviewed',0);
-					showMessage('案件关键信息已经更改，需要重新审核');
-				}
-			}
-			
 			elseif($submit=='case_lawyer_delete'){
 
 				$condition = db_implode(post('case_lawyer_check'), $glue = ' OR ','id','=',"'","'", '`','key');
@@ -605,7 +647,7 @@ class Cases extends SS_controller{
 			}
 			
 			elseif($submit=='lock_lawyer'){
-				post('cases/lawyer_lock',1);
+				post('cases/staff_lock',1);
 			}
 			
 			elseif($submit=='lock_fee'){
@@ -617,7 +659,7 @@ class Cases extends SS_controller{
 			}
 			
 			elseif($submit=='unlock_lawyer'){
-				post('cases/lawyer_lock',0);
+				post('cases/staff_lock',0);
 			}
 			
 			elseif($submit=='unlock_fee'){
@@ -683,7 +725,7 @@ class Cases extends SS_controller{
 				showMessage('请填写案件争议焦点','warning');
 			}
 		}catch(Exception $e){
-			
+			showMessage($e->getMessage());
 		}
 	}
 	

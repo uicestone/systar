@@ -199,13 +199,13 @@ class Cases_model extends SS_Model{
 	
 	function getStatusById($case_id){
 		$case_data=$this->db->query("
-			SELECT is_reviewed,type_lock,client_lock,lawyer_lock,fee_lock,is_query,apply_file,
+			SELECT is_reviewed,type_lock,client_lock,staff_lock,fee_lock,is_query,apply_file,
 				finance_review,info_review,manager_review,filed
 			FROM `case` 
 			WHERE id = '{$case_id}'
 		")->row_array();
 		extract($case_data);
-		if($type_lock && $client_lock && $lawyer_lock && $fee_lock){
+		if($type_lock && $client_lock && $staff_lock && $fee_lock){
 			$locked=true;
 		}else{
 			$locked=false;
@@ -344,8 +344,20 @@ class Cases_model extends SS_Model{
 		return db_fetch_field("SELECT `condition` FROM case_fee WHERE id = '".$case_fee_id."'");
 	}
 	
-	function addClient($case_id,$client_id,$role){
-		return db_insert('case_client',array('case'=>$case_id,'client'=>$client_id,'role'=>$role));
+	function addPeople($case_id,$people_id,$role){
+		$this->db->insert('case_people',array(
+			'case'=>$case_id,
+			'people'=>$people_id,
+			'type'=>'客户',
+			'role'=>$role
+		));
+		
+		return $this->db->insert_id();
+	}
+	
+	function removePeople($case_id,array $case_people_ids){
+		$condition = db_implode($case_people_ids, $glue = ' OR ','id',' = ',"'","'", '`','key');
+		return $this->db->delete('case_people',$condition);
 	}
 	
 	//增减案下律师的时候自动计算贡献
@@ -495,7 +507,7 @@ class Cases_model extends SS_Model{
 		
 		//TODO 一个相关人有多个手机时会显示多行
 		$query="
-			SELECT case_people.type,case_people.role,people.name,phone.content AS phone,email.content AS email
+			SELECT case_people.id,case_people.type,case_people.role,people.name,phone.content AS phone,email.content AS email
 			FROM case_people
 				INNER JOIN people ON people.id=case_people.people
 				LEFT JOIN people_profile phone ON phone.name IN ('手机','固定电话') AND phone.people=people.id
@@ -623,19 +635,21 @@ class Cases_model extends SS_Model{
 	
 	function getClientRole($case_id){
 		//获得当前案件的客户-相对方名称
+		$case_id=intval($case_id);
+		
 		$query="
 			SELECT * FROM
 			(
-				SELECT case_client.people,client.abbreviation AS client_name,role AS client_role 
-				FROM case_client INNER JOIN client ON case_client.people=client.id 
-				WHERE client.classification='客户' AND `case`='".$case_id."'
-				ORDER BY case_client.id
+				SELECT case_people.people,people.abbreviation AS client_name,role AS client_role 
+				FROM case_people INNER JOIN people ON case_people.type='客户' AND case_people.people=people.id 
+				WHERE `case`=$case_id
+				ORDER BY case_people.id
 				LIMIT 1
 			)client LEFT JOIN
 			(
-				SELECT client AS opposite,client.abbreviation AS opposite_name,role AS opposite_role 
-				FROM case_client LEFT JOIN client ON case_client.people=client.id 
-				WHERE client.classification='相对方' AND `case`='".$case_id."'
+				SELECT case_people.people AS opposite,people.abbreviation AS opposite_name,role AS opposite_role 
+				FROM case_people INNER JOIN people ON case_people.type='相对方' AND case_people.people=people.id 
+				WHERE `case`=$case_id
 				LIMIT 1
 			)opposite
 			ON 1=1";	
@@ -751,7 +765,7 @@ class Cases_model extends SS_Model{
 			SELECT
 				case.id,case.name,case.num,case.time_contract,
 				case.is_reviewed,case.apply_file,case.is_query,
-				case.type_lock*case.client_lock*case.lawyer_lock*case.fee_lock AS locked,
+				case.type_lock*case.client_lock*case.staff_lock*case.fee_lock AS locked,
 				case.finance_review,case.info_review,case.manager_review,case.filed,
 				uncollected.uncollected,
 				schedule_grouped.id AS schedule,schedule_grouped.name AS schedule_name,schedule_grouped.time_start,schedule_grouped.username AS schedule_username,
@@ -852,7 +866,7 @@ class Cases_model extends SS_Model{
 			SELECT
 				case.id,case.name AS case_name,case.stage,case.time_contract,case.time_end,case.num,
 				case.is_reviewed,case.apply_file,case.is_query,
-				case.type_lock*case.client_lock*case.lawyer_lock*case.fee_lock AS locked,
+				case.type_lock*case.client_lock*case.staff_lock*case.fee_lock AS locked,
 				case.finance_review,case.info_review,case.manager_review,case.filed,
 				lawyers.lawyers,
 				file_status_grouped.status,file_status_grouped.staff AS staff,FROM_UNIXTIME(file_status_grouped.time,'%Y-%m-%d %H:%i:%s') AS status_time,
@@ -920,7 +934,7 @@ class Cases_model extends SS_Model{
 			SELECT
 				case.id,case.name,case.num,case.stage,case.time_contract,case.time_end,
 				case.is_reviewed,case.apply_file,case.is_query,
-				case.type_lock*case.client_lock*case.lawyer_lock*case.fee_lock AS locked,
+				case.type_lock*case.client_lock*case.staff_lock*case.fee_lock AS locked,
 				case.finance_review,case.info_review,case.manager_review,case.filed,
 				contribute_allocate.contribute_sum,
 				uncollected.uncollected,

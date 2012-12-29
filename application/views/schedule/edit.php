@@ -1,4 +1,4 @@
-<? javascript('schedule_add')?>
+<?=javascript('schedule_add')?>
 <form method="post" enctype="multipart/form-data">
 <div class="contentTableMenu">
 	<div class="right">

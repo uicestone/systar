@@ -56,3 +56,11 @@ ALTER TABLE  `people` ADD  `type` VARCHAR( 255 ) NOT NULL AFTER  `abbreviation`;
 -- uice 2012/12/9
 ALTER TABLE  `case_people` CHANGE  `type`  `type` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
 -- end
+
+-- uice 2012/12/24
+ALTER TABLE  `people` CHANGE  `abbreviation`  `abbreviation` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
+-- end
+
+-- uice 2012/12/26
+ALTER TABLE  `case` CHANGE  `lawyer_lock`  `staff_lock` TINYINT( 1 ) NOT NULL DEFAULT  '0';
+-- end

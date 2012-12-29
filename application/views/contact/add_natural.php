@@ -1,4 +1,4 @@
-<? javascript('contact_add')?>
+<?=javascript('contact_add')?>
 <form method="post">
 <div class="contentTableMenu">
 	<div class="right">

@@ -3,22 +3,20 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><![endif]-->
-	<?stylesheet('style/common')?>
-	<?stylesheet('style/jquery-ui/jquery-ui')?>
-	<?javascript('jquery')?>
-	<?javascript('jquery-ui')?>
-	<?stylesheet('js/qtip2/jquery.qtip.min')?>
-	<?javascript('qtip2/jquery.qtip.min')?>
-	<?javascript('common')?>
+	<?=stylesheet('style/common')?>
+	<?=stylesheet('style/jquery-ui/jquery-ui')?>
 	<script type="text/javascript">
 		var controller='<?=CONTROLLER?>';
-		var affair='<?=$this->user->permission[CONTROLLER]['_affair_name']?>';
+		var affair='<?=@$this->user->permission[CONTROLLER]['_affair_name']?>';
 		var action='<?=METHOD?>';
-		var username='<?$this->user->name?>';
+		var username='<?=$this->user->name?>';
 		var sysname='<?=$this->company->sysname?>';
 		var lastListAction='<?=$this->session->userdata('last_list_action')?>';
 		var asPopupWindow=<?=intval($this->as_popup_window)?>;
 	</script>
-	<?javascript('contentframe')?>
+	<?=javascript('jquery')?>
+	<?=javascript('jquery-ui')?>
+	<?=javascript('common')?>
+	<title></title>
 </head>
-<body id="content" style="background-image:url('/images/bg_<?=$this->company->syscode?>.gif') ">
+<body style="background-image:url('/images/bg_<?=$this->company->syscode?>.gif')">

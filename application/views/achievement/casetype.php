@@ -1,4 +1,4 @@
-<? javascript('highcharts/highcharts') ?>
+<?=javascript('highcharts/highcharts') ?>
 <script type="text/javascript">
 var chart_casetype_income;
 $(function(){

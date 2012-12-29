@@ -1,3 +1,236 @@
+/*跳转IE6用户*/
+if($.browser.msie && $.browser.version<7 && !(controller=='user' && action=='browser')){
+	/*跳转到浏览器推荐页面*/
+	window.location.href='/user/browser';
+	/*停止载入页面*/
+	if (window.stop){
+		window.stop();
+	}else{
+		document.execCommand("Stop");
+	}
+}
+	
+$(document).ready(function(){
+
+	/*导航栏配置*/
+	$('#navMenu>.l0>li>a,controller').click(function(){
+		$(this).parent().children('ul:hidden').show();
+		$(this).siblings('.arrow').children('img').rotate({animateTo:90,duration:200});
+	});
+	$('#navMenu>.l0>li>.arrow').click(function(){
+		var subMenu=$(this).siblings('.l1');
+		if(subMenu.is(':hidden')){
+			subMenu.show(200);
+			$(this).children('img').rotate({animateTo:90,duration:200});
+		}else{
+			$(this).children('img').rotate({animateTo:0,duration:200});
+			subMenu.hide(200);
+		}
+	});
+	
+	//载入默认页面，如果有hash则根据hash载入页面
+	if(window.location.hash){
+		var pageURI=window.location.hash.substr(1)
+	}else{
+		var pageURI=$('#page').attr('default-controller');
+	}
+	$('#page').load(pageURI,function(){
+		$(this).trigger('pageLoaded');
+
+	});
+})
+/*主体页面加载事件*/
+.on('pageLoaded','#page',function(){
+	$('[placeholder]').placeholder()
+	$('.date').datepicker();
+	
+	$('.birthday').datepicker({
+		changeMonth: true,
+		changeYear: true,
+		defaultDate:'1997-1-1'
+	});
+	
+	$('[display-for]').attr('disabled','disabled');
+
+	$('title').html(affair+' - '+(username?username+' - ':'')+sysname);
+
+	//设置导航菜单高亮
+	$('#navMenu li#nav-'+controller).addClass('activated').siblings('li').removeClass('activated');
+	$('#navMenu ul.l1 li').removeClass('activated').parent().parent().parent().find('li#nav-'+controller+'-'+action).addClass('activated');
+
+	if(!$.browser.msie){
+		$('.contentTable:not(.search-bar)').children('tbody').children('tr').each(function(index){
+			$(this).delay(15*index).css('opacity',0).css('visibility','visible').animate({opacity:'1'},500);
+		});
+	}
+})
+/*编辑页的提交按钮点击事件，提交数据到后台，在页面上反馈数据和提示*/
+.on('click','#page>form input:submit',function(){
+	var id = $('form[name="'+controller+'"]').attr('id');
+	var submit = $(this).attr('name').replace('submit[','').replace(']','');
+
+	$.post('/'+controller+'/submit/'+submit+'/'+id,$('form[name="'+controller+'"]').serialize(),function(response){
+		if(response=='success'){
+			if(asPopupWindow){
+				window.close();
+			}else{
+				location.href=location.protocol+'//'+location.host+lastListAction;
+			}
+		}
+		else{
+			var responseParsed=$.parseResponse(response);
+			if(responseParsed){
+				if(responseParsed.message){
+					responseParsed.message.notice.map(function(index,element){
+						showMessage(element);
+					});
+				}
+				$('.contentTable[name="'+responseParsed.item+'"]').replaceWith(responseParsed.list);
+			}
+		}
+	});
+	return false;
+})
+/*edit表单元素更改时实时提交到后台 */
+.on('change','#page>form input[type!="submit"],select',function(){
+	var value=$(this).val();
+	if($(this).is(':checkbox') && !$(this).is(':checked')){
+		value=0;
+	}
+	var id = $('form[name="'+controller+'"]').attr('id');
+	var name = $(this).attr('name').replace('[','/').replace(']','');
+	var data={};data[name]=value;
+	$.post('/'+controller+'/setfields/'+id,data);
+})
+/*截获所有链接点击事件，用以加载主体页面（弹窗页面除外）*/
+.on('click','a:not([href^="javascript"])',function(){
+	var href=$(this).attr('href');
+	$('#page').load($(this).attr('href'),function(){
+		$(this).trigger('pageLoaded');
+
+		//设置顶层框架的hash为当前框架的URI
+		window.location.hash='#'+href.replace(RegExp('^/'),'');
+	});
+
+	return false;
+})
+/*边栏最小化*/
+.on('click','.minimize-button',function(){
+	$('#toolBar').toggleClass('minimized');
+	var minimized=0;
+	if($('#toolBar').hasClass('minimized')){
+		minimized=1;
+	}
+	$.get('/misc/setsession/minimized',function(result){
+		if(result!='success'){
+			showMessage('与服务器通信失败','warning');
+			console.log(result);
+		}
+	});
+})
+/*边栏选框自动提交*/
+.on('change','select.filter[method!="get"]',function(){
+	post($(this).attr('name'),$(this).val());
+})
+/*边栏选框自动提交*/
+.on('change','select.filter[method="get"]',function(){
+	redirectPara($(this));
+})
+/*案下客户名称自动完成*/
+.on('focus','[autocomplete-model=client]',function(){
+	$(this).autocomplete({
+		source: function(request, response){
+			$.post('/client/match',{term:request.term},function(data){
+				response(data);
+			},'json');
+		},
+		select: function(event,ui){
+			$(this).siblings('[name="'+$(this).attr('autocomplete-input-name')+'"]').val(ui.item.value).trigger('change');
+
+			var addForm=$(this).parents('.add-form:first');
+			addForm.find('[display-for~="new"]').trigger('disable');
+			return false;
+		},
+		focus: function(event,ui){
+			$(this).val(ui.item.label);
+			return false;
+		},
+		response: function(event,ui){
+			var addForm=$(this).parents('.add-form:first');
+			if(ui.content.length==0){
+				addForm.find('[display-for~="new"]').trigger('enable');
+			}
+		},
+		change: function(event,ui){
+			$(this).change();
+		}
+	})
+	/*.bind('input.autocomplete', function(){
+		//修正firefox下中文不自动search的bug
+		$(this).trigger('keydown.autocomplete'); 
+	})*/
+	;
+})
+/*职员名称自动完成*/
+.on('focus','[autocomplete-model=staff]',function(){
+	$(this).autocomplete({
+		source: function(request, response){
+			$.post('/staff/match',{term:request.term},function(data){
+				response(data);
+			},'json');
+		},
+		select: function(event,ui){
+			$(this).siblings('[name="'+$(this).attr('autocomplete-input-name')+'"]').val(ui.item.value).change();
+
+			var addForm=$(this).parents('.add-form:first');
+			addForm.find('[display-for~="new"]').trigger('disable');
+			return false;
+		},
+		focus: function(event,ui){
+			$(this).val(ui.item.label);
+			return false;
+		},
+		response: function(event,ui){
+			var addForm=$(this).parents('.add-form:first');
+			if(ui.content.length==0){
+				addForm.find('[display-for~="new"]').trigger('enable');
+			}
+		}
+	});
+})
+.on('click','.item>.title>.toggle-add-form',function(){
+	var addForm=$(this).parent().siblings('.add-form');
+	if(addForm.is(':hidden')){
+		addForm.show(200);
+		$(this).html('-');
+	}else{
+		addForm.hide(200);
+		$(this).html('+');
+	}
+})
+.on('enable','[display-for],input,select',function(event){
+	event.stopPropagation();
+
+	$(this).show();
+	if($(this).is('input,select')){
+		$(this).removeAttr('disabled');
+	}else{
+		$(this).find('input,select').trigger('enable');
+	}
+})
+.on('disable','[display-for],input,select',function(event){
+	event.stopPropagation();
+
+	$(this).hide();
+	if($(this).is('input,select')){
+		$(this).attr('disabled','disabled');
+	}else{
+		$(this).find('input,select').trigger('disable');
+	}
+
+	return false;
+});
+	
 function isArray(o) {
 	//判断对象是否是数组
 	return Object.prototype.toString.call(o) === '[object Array]';
@@ -478,9 +711,11 @@ jQuery.fn.serializeJSON=function() {
 
 jQuery.parseResponse=function(response){
 	try{
-		return $.parseJSON(response);
+		var parseResponse=$.parseJSON(response);
+		return parseResponse;
 	}catch(e){
 		showMessage(response,'warning');
+		return false;
 	}
 }
 

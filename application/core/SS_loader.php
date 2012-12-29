@@ -4,11 +4,19 @@ class SS_Loader extends CI_Loader{
 	var $main_view_loaded=FALSE;
 	var $sidebar_loaded=FALSE;
 
-	var $require_head=TRUE;//页面头尾输出开关（含menu）
-	var $require_menu=TRUE;//顶部蓝条/菜单输出开关
+	var $require_head=true;//页面头尾输出开关（含menu）
+	var $require_menu=true;//顶部蓝条/菜单输出开关
 	var $view_data=array();//要传递给视图的参数
 	
 	var $sidebar_data='';
+	
+	/**
+	 * 在ajax响应页面中，用来保存提示信息的数组
+	 */
+	var $message=array(
+		'notice'=>array(),
+		'error'=>array()
+	);
 	
 	function __construct(){
 		parent::__construct();
@@ -37,6 +45,10 @@ class SS_Loader extends CI_Loader{
 	 */
 	function addViewArrayData(array $array){
 		$this->view_data+=$array;
+	}
+	
+	function message($message,$type='notice'){
+		$this->message[$type][]=$message;
 	}
 	
 	/**

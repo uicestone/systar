@@ -1,4 +1,4 @@
-<? javascript('query_add')?>
+<?=javascript('query_add')?>
 <form method="post">
 	<div class="contentTableMenu">
 		<div class="right">

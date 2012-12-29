@@ -66,6 +66,10 @@ class user extends SS_controller{
 				}
 			}
 		}
+		$this->load->view('head');
+		$this->load->view('user/login');
+		$this->load->main_view_loaded=true;
+		$this->load->view('foot');
 		session_destroy();
 	}
 

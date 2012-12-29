@@ -1,4 +1,4 @@
-<?javascript('student_add')?>
+<?=javascript('student_add')?>
 <form method="post" name="<?=CONTROLLER?>" id="<?=$this->student->id?>">
 <div class="contentTableMenu">
 	<div class="right">
