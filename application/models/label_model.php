@@ -4,6 +4,28 @@ class Label_model extends SS_Model{
 		parent::__construct();
 	}
 	
+	function fetch($id,$field=NULL){
+		$id=intval($id);
+		
+		$query="SELECT * FROM label WHERE id = $id";
+		$row=$this->db->query($query)->row_array();
+
+		if(is_null($field)){
+			return $row;
+		}elseif(isset($row[$field])){
+			return $row[$field];
+		}else{
+			return false;
+		}
+	}
+	
+	function match($name){
+		$name=urldecode($name);
+		
+		$query="SELECT id FROM label WHERE name = '$name'";
+		return $this->db->query($query)->row()->id;
+	}
+	
 	/**
 	 * TODO@iori	这是标签相关度匹配的实现接口
 	 * 把一个搜索字符串切分成分词，通过标签匹配，返回相关度最高的相关项目
@@ -94,6 +116,21 @@ class Label_model extends SS_Model{
 		$sql='call finalize_CDS();';
 		$this->db->simple_query($sql);
 		return $sorted_results;
+	}
+	
+	/**
+	 * 接受一个label_id，返回与其相关的label的id和name构成的数组
+	 * @param type $label
+	 * @param type $relation
+	 */
+	function getRelatives($label,$relation=NULL){
+		$label=intval($label);
+		
+		$query="SELECT label.id,label.name FROM label WHERE id IN (
+			SELECT relative FROM label_relationship WHERE label = $label
+		)";
+		
+		return array_sub($this->db->query($query)->result_array(),'name','id');
 	}
 }
 

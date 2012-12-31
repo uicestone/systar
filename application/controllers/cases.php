@@ -80,7 +80,7 @@ class Cases extends SS_controller{
 				'name'=>array('title'=>'名称','eval'=>true,'content'=>"
 					\$return='';
 					if(!post('cases/client_lock')){
-						\$return.='<input type=\"checkbox\" name=\"case_client_check[{id}]\" />';
+						\$return.='<input type=\"checkbox\" name=\"case_client_check[]\" value=\"{id}\" />';
 					}
 					\$return.='<a href=\"javascript:showWindow(\''.('{type}'=='客户'?'client':'contact').'/edit/{client}\')\">{name}</a>';
 					return \$return;

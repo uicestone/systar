@@ -4,6 +4,7 @@ class SS_Model extends CI_Model{
 		parent::__construct();
 	}
 	
+	//TODO 此处用来处理list的搜索条件及视图。这种做法不太科学。而且与label_model和各小model中的search方法（现在还叫match方法）重名。
 	function search($query, array $search_fields, $generate_view=true){
 		
 		if(option('in_search_mod')){

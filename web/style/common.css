@@ -33,7 +33,7 @@ table, td, th {
 .placeholder{
 	color:#888;
 }
-[display-for],.hidden,.disabled{
+.hidden,.disabled{
 	display:none;
 }
 .ui-autocomplete {

@@ -1,5 +1,3 @@
-<?=javascript('case_add')?>
-<?=javascript('Jeditable/jquery.jeditable.mini')?>
 <form method="post" name="<?=CONTROLLER?>" id="<?=$this->cases->id?>" enctype="multipart/form-data">
 <div class="contentTableMenu">
 	<div class="right">
@@ -41,7 +39,7 @@
 
 <div class="contentTableBox">
 	<div class="contentTable">
-		<div class="item">
+		<div class="item" name="client">
 			<div class="title"><label>客户及相关人：</label>
 				<label class="toggle-add-form">+</label>
 <? if($responsible_partner==$this->user->id && !$this->value('cases/client_lock') && $this->value('cases/is_reviewed')){?>
@@ -55,7 +53,7 @@
 			<?=$client_list?>
 	
 			<div class="add-form hidden">
-				<input type="text" name="case_client_extra[name]" value="<?=$this->value('case_client_extra/name')?>" placeholder="名称" autocomplete-model="client" autocomplete-input-name="case_client[client]" style="width:20%" />
+				<input type="text" name="case_client_extra[name]" value="<?=$this->value('case_client_extra/name')?>" placeholder="名称" autocomplete-model="client" style="width:20%" />
 				<input type="text" name="case_client[client]" class="hidden" />
 				
 				<?=checkbox('单位','case_client_extra[character]',$this->value('case_client_extra/character'),'单位','display-for="new"')?>
@@ -64,9 +62,7 @@
 					<?=options($this->value('cases/client_lock')?array('联系人','相对方'):array('客户','相对方','联系人'),$this->value('case_client_extra/classification'));?>
 				</select>
 
-				<select name="case_client_extra[type]" display-for="new" style="width:15%">
-					<?=options($this->value('cases/client_lock')?'联系人':'客户',$this->value('case_client_extra/type'),false,'type','classification','type',"affair='client'");?>
-				</select>
+				<select name="case_client_extra[type]" display-for="new non-opposite" style="width:15%"></select>
 				
 				<input type="text" name="case_client_extra[work_for]" placeholder="工作单位" display-for="non-client" style="width:10%" />
 	
@@ -306,3 +302,4 @@
 	</div>
 </div>
 </form>
+<?=javascript('case_add')?>

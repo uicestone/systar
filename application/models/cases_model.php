@@ -356,7 +356,7 @@ class Cases_model extends SS_Model{
 	}
 	
 	function removePeople($case_id,array $case_people_ids){
-		$condition = db_implode($case_people_ids, $glue = ' OR ','id',' = ',"'","'", '`','key');
+		$condition = db_implode($case_people_ids, $glue = ' OR ','id');
 		return $this->db->delete('case_people',$condition);
 	}
 	

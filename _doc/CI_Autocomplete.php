@@ -59,6 +59,7 @@
 * @property Student_model $student
 * @property User_model $user
 * @property School_model $school
+* @property Label_model $label
 */
 
 class CI_Controller {};
@@ -122,6 +123,7 @@ class CI_Controller {};
 * @property Student_model $student
 * @property User_model $user
 * @property School_model $school
+* @property Label_model $label
 */
 
 class CI_Model {};

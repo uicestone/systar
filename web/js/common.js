@@ -50,7 +50,8 @@ $(document).ready(function(){
 		defaultDate:'1997-1-1'
 	});
 	
-	$('[display-for]').attr('disabled','disabled');
+	//$('[display-for]:input:not([locked-by]),[display-for]:not([locked-by]) :input:not([locked-by])').attr('disabled','disabled');
+	$('[display-for]:not([locked-by])').hide();
 
 	$('title').html(affair+' - '+(username?username+' - ':'')+sysname);
 
@@ -78,21 +79,21 @@ $(document).ready(function(){
 			}
 		}
 		else{
-			var responseParsed=$.parseResponse(response);
-			if(responseParsed){
-				if(responseParsed.message){
-					responseParsed.message.notice.map(function(index,element){
+			//var responseParsed=$.parseResponse(response);
+			//if(responseParsed){
+				if(response.message){
+					response.message.notice.map(function(index,element){
 						showMessage(element);
 					});
 				}
-				$('.contentTable[name="'+responseParsed.item+'"]').replaceWith(responseParsed.list);
-			}
+				$('.contentTable[name="'+response.item+'"]').replaceWith(response.list);
+			//}
 		}
-	});
+	},'json');
 	return false;
 })
 /*edit表单元素更改时实时提交到后台 */
-.on('change','#page>form input[type!="submit"],select',function(){
+.on('change','#page>form :input',function(){
 	var value=$(this).val();
 	if($(this).is(':checkbox') && !$(this).is(':checked')){
 		value=0;
@@ -137,18 +138,16 @@ $(document).ready(function(){
 	redirectPara($(this));
 })
 /*案下客户名称自动完成*/
-.on('focus','[autocomplete-model=client]',function(){
+.on('focus','[autocomplete-model]',function(){
+	var autocompleteModel=$(this).attr('autocomplete-model');
 	$(this).autocomplete({
 		source: function(request, response){
-			$.post('/client/match',{term:request.term},function(data){
+			$.post('/'+autocompleteModel+'/match',{term:request.term},function(data){
 				response(data);
 			},'json');
 		},
 		select: function(event,ui){
-			$(this).siblings('[name="'+$(this).attr('autocomplete-input-name')+'"]').val(ui.item.value).trigger('change');
-
-			var addForm=$(this).parents('.add-form:first');
-			addForm.find('[display-for~="new"]').trigger('disable');
+			$(this).trigger('autocompleteselect',{value:ui.item.value}).change();
 			return false;
 		},
 		focus: function(event,ui){
@@ -156,79 +155,49 @@ $(document).ready(function(){
 			return false;
 		},
 		response: function(event,ui){
-			var addForm=$(this).parents('.add-form:first');
 			if(ui.content.length==0){
-				addForm.find('[display-for~="new"]').trigger('enable');
+				$(this).trigger('autocompletenoresult');
 			}
-		},
-		change: function(event,ui){
-			$(this).change();
 		}
 	})
 	/*.bind('input.autocomplete', function(){
 		//修正firefox下中文不自动search的bug
 		$(this).trigger('keydown.autocomplete'); 
 	})*/
+	//.autocomplete('search')
 	;
-})
-/*职员名称自动完成*/
-.on('focus','[autocomplete-model=staff]',function(){
-	$(this).autocomplete({
-		source: function(request, response){
-			$.post('/staff/match',{term:request.term},function(data){
-				response(data);
-			},'json');
-		},
-		select: function(event,ui){
-			$(this).siblings('[name="'+$(this).attr('autocomplete-input-name')+'"]').val(ui.item.value).change();
-
-			var addForm=$(this).parents('.add-form:first');
-			addForm.find('[display-for~="new"]').trigger('disable');
-			return false;
-		},
-		focus: function(event,ui){
-			$(this).val(ui.item.label);
-			return false;
-		},
-		response: function(event,ui){
-			var addForm=$(this).parents('.add-form:first');
-			if(ui.content.length==0){
-				addForm.find('[display-for~="new"]').trigger('enable');
-			}
-		}
-	});
 })
 .on('click','.item>.title>.toggle-add-form',function(){
 	var addForm=$(this).parent().siblings('.add-form');
 	if(addForm.is(':hidden')){
-		addForm.show(200);
+		addForm.show(200).find('select:visible').change();
 		$(this).html('-');
 	}else{
 		addForm.hide(200);
 		$(this).html('+');
 	}
 })
-.on('enable','[display-for],input,select',function(event){
-	event.stopPropagation();
-
+.on('enable','[display-for]:not([locked-by])',function(){
+	//console.log('enabled:');
+	//console.log(this);
 	$(this).show();
-	if($(this).is('input,select')){
+	/*if($(this).is(':input')){
 		$(this).removeAttr('disabled');
 	}else{
-		$(this).find('input,select').trigger('enable');
-	}
+		$(this).find(':input').removeAttr('disabled');
+	}*/
+	//return false;
 })
-.on('disable','[display-for],input,select',function(event){
-	event.stopPropagation();
-
+.on('disable','[display-for]:not([locked-by])',function(){
+	//console.log('disabled:');
+	//console.log(this);
 	$(this).hide();
-	if($(this).is('input,select')){
+	/*if($(this).is(':input')){
 		$(this).attr('disabled','disabled');
 	}else{
-		$(this).find('input,select').trigger('disable');
-	}
-
-	return false;
+		$(this).find(':input').attr('disabled','disabled');
+	}*/
+	//return false;
 });
 	
 function isArray(o) {
@@ -668,6 +637,21 @@ jQuery.fn.getOptions=function(affair,method,active_value,select_type,callback){
 		}
 	});
 	return $(this);
+}
+
+jQuery.fn.getOptionsByLabelRelative=function(labelName,callback){
+	var select=$(this);
+	
+	$.get('/label/getrelatives/'+labelName,function(response){
+		var options='';
+		$.map(response,function(item,index){
+			options+='<option value="'+index+'">'+item+'</option>';
+		})
+		select.html(options).change();
+		if (typeof callback != 'undefined'){
+			callback(passive_select.val());
+		}
+	},'json');
 }
 
 jQuery.fn.addRow=function(rowData){
