@@ -510,7 +510,7 @@ class Cases_model extends SS_Model{
 			SELECT case_people.id,case_people.type,case_people.role,people.name,phone.content AS phone,email.content AS email
 			FROM case_people
 				INNER JOIN people ON people.id=case_people.people
-				LEFT JOIN people_profile phone ON phone.name IN ('手机','固定电话') AND phone.people=people.id
+				LEFT JOIN people_profile phone ON phone.name IN ('手机','电话') AND phone.people=people.id
 				LEFT JOIN people_profile email ON email.name IN ('电子邮件') AND email.people=people.id
 			WHERE case_people.case=$case_id
 		";

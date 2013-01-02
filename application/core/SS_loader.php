@@ -15,7 +15,7 @@ class SS_Loader extends CI_Loader{
 	 */
 	var $message=array(
 		'notice'=>array(),
-		'error'=>array()
+		'warning'=>array()
 	);
 	
 	function __construct(){

@@ -70,7 +70,7 @@ $(document).ready(function(){
 	var id = $('form[name="'+controller+'"]').attr('id');
 	var submit = $(this).attr('name').replace('submit[','').replace(']','');
 
-	$.post('/'+controller+'/submit/'+submit+'/'+id,$('form[name="'+controller+'"]').serialize(),function(response){
+	$.post('/'+controller+'/submit/'+submit+'/'+id,$('#page>form').serialize(),function(response){
 		if(response=='success'){
 			if(asPopupWindow){
 				window.close();
@@ -79,15 +79,15 @@ $(document).ready(function(){
 			}
 		}
 		else{
-			//var responseParsed=$.parseResponse(response);
-			//if(responseParsed){
-				if(response.message){
-					response.message.notice.map(function(index,element){
-						showMessage(element);
-					});
-				}
-				$('.contentTable[name="'+response.item+'"]').replaceWith(response.list);
-			//}
+			if(response.message){
+				$.each(response.message,function(messageType,messages){
+					$.each(messages,function(index,message){
+						showMessage(message,messageType);
+					})
+				})
+			}
+			$('.contentTable[name="'+response.item+'"]').replaceWith(response.list);
+			$('.item[name="'+response.item+'"]>.add-form').reset();
 		}
 	},'json');
 	return false;
@@ -98,7 +98,7 @@ $(document).ready(function(){
 	if($(this).is(':checkbox') && !$(this).is(':checked')){
 		value=0;
 	}
-	var id = $('form[name="'+controller+'"]').attr('id');
+	var id = $('#page>form').attr('id');
 	var name = $(this).attr('name').replace('[','/').replace(']','');
 	var data={};data[name]=value;
 	$.post('/'+controller+'/setfields/'+id,data);
@@ -137,7 +137,7 @@ $(document).ready(function(){
 .on('change','select.filter[method="get"]',function(){
 	redirectPara($(this));
 })
-/*案下客户名称自动完成*/
+/*自动完成*/
 .on('focus','[autocomplete-model]',function(){
 	var autocompleteModel=$(this).attr('autocomplete-model');
 	$(this).autocomplete({
@@ -158,6 +158,7 @@ $(document).ready(function(){
 			if(ui.content.length==0){
 				$(this).trigger('autocompletenoresult');
 			}
+			$(this).change();
 		}
 	})
 	/*.bind('input.autocomplete', function(){
@@ -692,6 +693,11 @@ jQuery.fn.serializeJSON=function() {
 	});
 	return json;
 };
+
+jQuery.fn.reset=function(){
+	$(this).find(':input:not(:submit):not(select)').val('');
+	$(this).find(':input[default-value]').val($(this).attr('default-value'));
+}
 
 jQuery.parseResponse=function(response){
 	try{

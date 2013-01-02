@@ -1,5 +1,5 @@
 <?php
-class Staff_model extends SS_Model{
+class Staff_model extends People_model{
 	function __construct() {
 		parent::__construct();
 	}
@@ -8,29 +8,34 @@ class Staff_model extends SS_Model{
 		//$data_type:id,array
 		if(!$staff_name){
 			if($show_error){
-					showMessage('请输入职员名称','warning');
+				$this->load->message('请输入职员名称','warning');
 			}
 			return -3;
 		}
 
-		$q_lawyer="SELECT * FROM `staff` WHERE company='".$this->company->id."' AND `name` LIKE '%".$staff_name."%'";
-		$r_lawyer=db_query($q_lawyer);
-		$num_lawyers=db_rows($r_lawyer);
+		$query="
+			SELECT * 
+			FROM `staff`
+				INNER JOIN people USING(id)
+			WHERE people.company={$this->company->id} AND people.`name` LIKE '%".$staff_name."%'
+		";
+		$result=$this->db->query($query);
+		$num_lawyers=$result->num_rows();
 
 		if($num_lawyers==0){
 			if($show_error){
-					showMessage('没有这个职员：'.$staff_name,'warning');
+				$this->load->message('没有这个职员：'.$staff_name,'warning');
 			}
 			return -1;
 
 		}elseif($num_lawyers>1){
 			if($show_error){
-					showMessage('此关键词存在多个符合职员','warning');
+				$this->load->message('此关键词存在多个符合职员','warning');
 			}
 			return -2;
 
 		}else{
-			$data=db_fetch_array($r_lawyer);
+			$data=$result->row_array();
 			if($data_type=='array'){
 					$return=$data;
 			}else{

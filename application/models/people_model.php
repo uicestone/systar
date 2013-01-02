@@ -20,7 +20,9 @@ class People_model extends SS_Model{
 		'position'=>'职位',
 		'birthday'=>'生日',
 		'city'=>'城市',
-		'race'=>'民族'
+		'race'=>'民族',
+		'staff'=>'首要关联职员',
+		'source'=>'来源'
 	);
 	
 	function __construct() {
@@ -42,6 +44,8 @@ class People_model extends SS_Model{
 	function add(array $data=array()){
 		$data=array_intersect_key($data,$this->fields);
 		$data+=uidTime();
+		$data['display']=1;
+		
 		$this->db->insert('people',$data);
 		return $this->db->insert_id();
 	}
@@ -91,22 +95,35 @@ class People_model extends SS_Model{
 		return $this->db->insert_id();
 	}
 	
-	function addLabel($people,$label_name,$type=NULL){
-		$result=$this->db->get_where('label',array('name'=>$label_name));
-		
-		$label_id=0;
-		
-		if($result->num_rows()==0){
-			$this->db->insert('label',array('name'=>$label_name));
-			$label_id=$this->db->insert_id();
+	/**
+	 * 为人添加标签，而不论标签是否存在，输入是标签内容还是标签id
+	 * @param type $people people.id
+	 * @param type $label_name 标签内容或标签id（须将下方input_as_id定义为true）
+	 * @param type $type 标签内容在此类对象的应用的意义，如“分类”，“类别”，案件的”阶段“等
+	 * @param type $input_as_id 是否将$label_name作为label_id直接插入到people_label
+	 * @return type 返回people_label的insert_id
+	 */
+	function addLabel($people,$label_name,$type=NULL,$input_as_id=false){
+		if($input_as_id && is_integer($label_name)){
+			$label_id=$label_name;
 		}else{
-			$label_id=$result->row()->id;
+			$result=$this->db->get_where('label',array('name'=>$label_name));
+
+			$label_id=0;
+
+			if($result->num_rows()==0){
+				$this->db->insert('label',array('name'=>$label_name));
+				$label_id=$this->db->insert_id();
+			}else{
+				$label_id=$result->row()->id;
+			}
 		}
 		
-		$this->db->insert('people_label',array('people'=>$people,'label'=>$label_id));
+		$this->db->insert('people_label',array('people'=>$people,'label'=>$label_id,'type'=>$type));
 		
 		return $this->db->insert_id();
 	}
+	
 	function isMobileNumber($number){
 		if(is_numeric($number) && $number%1==0 && substr($number,0,1)=='1' && strlen($number)==11){
 			return true;

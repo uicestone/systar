@@ -80,19 +80,26 @@ class Client_model extends People_model{
 	}
 	
 	function add($data){
-		$field=array('name','character','classification','type','abbreviation','source','source_lawyer','comment','work_for');
-		foreach($data as $key => $value){
-			if(!in_array($key,$field)){
-				unset($data[$key]);
+		
+		$client=parent::add($data);
+		
+		if(isset($data['profiles'])){
+			foreach($data['profiles'] as $name => $value){
+				$this->addProfile($client,$name,$value);
 			}
 		}
 		
-		$data['abbreviation']=$data['name'];
-	
-		$data['display']=1;
-		$data+=uidTime();
-	
-		return db_insert('client',$data);
+		if(isset($data['labels'])){
+			foreach($data['labels'] as $type => $name){
+				if(is_integer($name)){
+					$this->addLabel($client, $name, $type, true);
+				}else{
+					$this->addLabel($client,$name,$type);
+				}
+			}
+		}
+		
+		return $client;
 	}
 	
 	/**
@@ -103,6 +110,7 @@ class Client_model extends People_model{
 	}
 	
 	/**
+	 * deprecated
 	 * 添加客户联系方式
 	 */
 	function addContact($data){
@@ -185,11 +193,13 @@ class Client_model extends People_model{
 			$q_source="SELECT id FROM client_source WHERE staff='".intval($detail)."' LIMIT 1";
 	
 		}else{
-			$q_source="SELECT id FROM client_source WHERE type='".$checktype."' AND detail='".$detail."' LIMIT 1";
+			$q_source="SELECT id FROM client_source WHERE type='$checktype' AND detail='$detail' LIMIT 1";
 		}
 		
-		if($client_source_id=db_fetch_field($q_source)){
-			return $client_source_id;
+		$row_source=$this->db->query($q_source)->row();
+		
+		if($row_source){
+			return $row_source->id;
 		}else{
 			return false;
 		}
@@ -198,7 +208,7 @@ class Client_model extends People_model{
 	function setSource($type,$detail){
 		
 		if(!$type){
-			showMessage('请选择客户来源','warning');
+			$this->load->message('请选择客户来源','warning');
 			return false;
 		}
 	

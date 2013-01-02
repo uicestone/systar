@@ -337,6 +337,8 @@ class Cases extends SS_controller{
 
 	function submit($submit,$id){
 		$this->load->require_head=false;
+		$this->load->model('client_model','client');
+		$this->load->model('staff_model','staff');
 		
 		if(parent::submit($submit)){
 			echo 'success';
@@ -355,7 +357,6 @@ class Cases extends SS_controller{
 				if(post('case_client/client')){//autocomplete搜索到已有客户
 					$this->load->message('系统中已经存在 '.post('case_client_extra/client_name').'，已自动识别');
 				}
-				/*
 				else{//添加新客户
 					$new_client=array(
 						'name'=>post('case_client_extra/name'),
@@ -369,44 +370,52 @@ class Cases extends SS_controller{
 						$staff_check=$this->staff->check(post('case_client_extra/source_lawyer_name'),'id',false);
 
 						if($staff_check<0){
-							$this->json_error_message('请输入正确的来源律师');
+							$this->load->message('请输入正确的来源律师','warning');
 						}
 
 						if($staff_check>0 && $client_source>0){
-							$new_client['source_lawyer']=$staff_check;
+							$new_client['staff']=$staff_check;
 							$new_client['source']=$client_source;
 							if(!post('cases/source')){
 								post('cases/source',$client_source);
 							}
 						}else{
-							$this->json_error_message('客户来源识别错误');
+							$this->load->message('客户来源识别错误','warning');
 						}
 					}else{//非客户必须输入工作单位
 						if(post('case_client_extra/work_for')){
-							$new_client['work_for']=post('case_client_extra/work_for');
+							$new_client['profiles']['工作单位']=post('case_client_extra/work_for');
 						}else{
-							$this->json_error_message('请输入工作单位','warning');
+							$this->load->message('请输入工作单位','warning');
 						}
 					}
-
-					if($new_client_id=$this->client->add($new_client)){
+					
+					if($this->client->isMobileNumber(post('case_client_extra/phone'))){
+						$new_client['profiles']['手机']=post('case_client_extra/phone');
+					}else{
+						$new_client['profiles']['电话']=post('case_client_extra/phone');
+					}
+					
+					$new_client['profiles']['电子邮件']=post('case_client_extra/email');
+					
+					if(empty($this->load->message['warning'])){
+						$new_client_id=$this->client->add($new_client);
+								
 						post('case_client/client',$new_client_id);
 
-						$this->client->addContact_phone_email(post('case_client/client'),post('case_client_extra/phone'),post('case_client_extra/email'));
-
-						showMessage(
+						$this->load->message(
 							'<a href="javascript:showWindow(\''.
 							(post('case_client_extra/classification')=='客户'?'client':'contact').
-							'?edit='.post('case_client/client').'\')" target="_blank">新'.
+							'/edit/'.post('case_client/client').'\')" target="_blank">新'.
 							post('case_client_extra/classification').' '.post('case_client_extra/name').
-							' 已经添加，点击编辑详细信息</a>',
-						'notice');
+							' 已经添加，点击编辑详细信息</a>'
+						);
 					}
 				}
-				*/
+
 				if($this->cases->addPeople($this->cases->id,post('case_client/client'),post('case_client/role'))){
-					unset($_SESSION['cases']['post']['case_client']);
-					unset($_SESSION['cases']['post']['case_client_extra']);
+					unset($_SESSION['cases']['post'][$this->cases->id]['case_client']);
+					unset($_SESSION['cases']['post'][$this->cases->id]['case_client_extra']);
 					
 					$client_list=$this->subList('client',$this->cases->id);
 					echo json_encode(array('message'=>$this->load->message)+$client_list);

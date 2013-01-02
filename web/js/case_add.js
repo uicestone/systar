@@ -8,7 +8,7 @@ $('.item[name="client"]').on('autocompleteselect',function(event,data){
 .on('autocompleteresponse',function(){
 	/*自动完成响应*/
 	$(this).find('[display-for~="new"]').trigger('enable');
-	$(this).find('[name="case_client[client]"]').val('');
+	$(this).find('[name="case_client[client]"]').val('').change();
 })
 
 $('[name="case_client_extra[classification]"]').on('enable change',function(){
