@@ -352,7 +352,7 @@ nav::-webkit-scrollbar{
 .contentTable .item input[type="password"],
 .contentTable .item textarea,
 .contentTable .item select{
-	width:99.6%;
+	/*width:99.6%;*/
 	font-size:17px;
 }
 .contentTable .item .title{
@@ -361,6 +361,7 @@ nav::-webkit-scrollbar{
 	color:#173C66;
 	font-size:15px;
 	line-height:2;
+	min-height:30px;
 }
 .contentTable .item .content{
 	background:#FFF;

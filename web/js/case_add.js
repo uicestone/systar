@@ -11,6 +11,16 @@ $('.item[name="client"]').on('autocompleteselect',function(event,data){
 	$(this).find('[name="case_client[client]"]').val('').change();
 })
 
+/*职员添加表单－职员名称自动完成事件的响应*/
+$('.item[name="staff"]').on('autocompleteselect',function(event,data){
+	/*有自动完成结果且已选择*/
+	$(this).find('[name="case_lawyer[lawyer]"]').val(data.value).change();
+})
+.on('autocompleteresponse',function(){
+	/*自动完成响应*/
+	$(this).find('[name="case_lawyer[lawyer]"]').val('').change();
+})
+
 $('[name="case_client_extra[classification]"]').on('enable change',function(){
 	
 	//案下客户类别联动

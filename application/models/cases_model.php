@@ -3,6 +3,32 @@ class Cases_model extends SS_Model{
 	
 	var $id;
 	
+	var $fields=array(
+		'name'=>'名称',
+		'num'=>'编号',
+		'name_extra'=>'补充名称',
+		'first_contact'=>'首次接洽时间',
+		'time_contract'=>'签约时间',
+		'time_end'=>'（预估）完结时间',
+		'quote'=>'报价',
+		'timing_fee'=>'是计时收费',
+		'focus'=>'焦点',
+		'summary'=>'概况',
+		'source'=>'来源',
+		'is_reviewed'=>'立项已审核',
+		'type_lock'=>'类别已锁定',
+		'client_lock'=>'客户已锁定',
+		'staff_lock'=>'员工已锁定',
+		'fee_lock'=>'收款已锁定',
+		'apply_file'=>'已申请归档',
+		'is_query'=>'是咨询',
+		'finance_review'=>'已通过财务审核',
+		'info_review'=>'已通过信息审核',
+		'manager_review'=>'已通过主管审核',
+		'filed'=>'已归档',
+		'comment'=>'备注'
+	);
+	
 	function __construct(){
 		parent::__construct();
 	}
@@ -57,8 +83,7 @@ class Cases_model extends SS_Model{
 	function update($id,$data){
 		$id=intval($id);
 		
-		$field=db_list_fields('case');
-	    $data=array_filter_key($data,$field);
+	    $data=array_intersect_key($data,$this->fields);
 		$data+=uidTime();
 	    
 		return $this->db->update('case',$data,array('id'=>$id));

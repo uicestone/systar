@@ -86,8 +86,16 @@ $(document).ready(function(){
 					})
 				})
 			}
-			$('.contentTable[name="'+response.item+'"]').replaceWith(response.list);
-			$('.item[name="'+response.item+'"]>.add-form').reset();
+			
+			if(response.selector){
+				$(response.selector).replaceWith(response.html);
+			}else{
+				$('#page').load(response.url);
+			}
+			
+			if(response.type=='sublist'){
+				$(response.selector).siblings('.add-form').reset();
+			}
 		}
 	},'json');
 	return false;

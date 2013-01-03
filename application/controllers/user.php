@@ -11,6 +11,7 @@ class user extends SS_controller{
 	}
 	
 	function login(){
+		
 		if($this->user->isLogged()){
 			//用户已登陆，则不显示登录界面
 			redirect('','js',NULL,true);
@@ -119,6 +120,7 @@ class user extends SS_controller{
 	 * ie6跳转提示页面
 	 */
 	function browser(){
+		$this->load->require_nav_menu=false;
 	}
 }
 ?>

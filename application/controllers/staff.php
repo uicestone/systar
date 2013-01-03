@@ -30,5 +30,26 @@ class Staff extends SS_controller{
 		$this->load->addViewData('list',$table);
 		$this->load->view('list');		
 	}
+	
+	/**
+	 * ajax响应页面，根据请求的字符串返回匹配的客户id和名称
+	 */
+	function match(){
+		$this->load->require_head=false;
+
+		$term=$this->input->post('term');
+		
+		$result=$this->staff->match($term);
+
+		$array=array();
+
+		foreach ($result as $row){
+			$array[]=array(
+				'label'=>$row['name'],
+				'value'=>$row['id']
+			);
+		}
+		echo json_encode($array);
+	}
 }
 ?>

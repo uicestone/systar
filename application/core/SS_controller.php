@@ -22,6 +22,8 @@ class SS_Controller extends CI_Controller{
 	var $actual_table;
 	var $company_type_model_loaded=false;
 	
+	var $return;
+	
 	function __construct(){
 		parent::__construct();
 		

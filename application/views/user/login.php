@@ -4,7 +4,7 @@ $(function(){
 	$('#username').focus();
 });
 </script>
-<div id="page">
+<div id="page" style="left:0">
 	<div id="loginForm">
 		<form method="post">
 			<div class="item">

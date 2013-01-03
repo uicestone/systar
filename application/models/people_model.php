@@ -41,6 +41,23 @@ class People_model extends SS_Model{
 		return $this->db->query($query)->row_array();
 	}
 	
+	/**
+	 * 根据部分客户名称返回匹配的客户id和名称列表
+	 * @param $part_of_name
+	 * @return array
+	 */
+	function match($part_of_name){
+		$query="
+			SELECT people.id,people.name 
+			FROM people
+			WHERE people.company={$this->company->id} AND people.display=1 
+				AND (name LIKE '%$part_of_name%' OR abbreviation LIKE '$part_of_name' OR name_en LIKE '%$part_of_name%')
+			ORDER BY people.id DESC
+			";
+		
+		return $this->db->query($query)->result_array();
+	}
+
 	function add(array $data=array()){
 		$data=array_intersect_key($data,$this->fields);
 		$data+=uidTime();

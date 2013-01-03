@@ -221,7 +221,6 @@ class Client extends SS_Controller{
 
 	/**
 	 * ajax响应页面，根据请求的字符串返回匹配的客户id和名称
-	 * @param $term 请求字符串
 	 */
 	function match(){
 		$this->load->require_head=false;

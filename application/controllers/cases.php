@@ -66,6 +66,15 @@ class Cases extends SS_controller{
 		$this->edit();
 	}
 	
+	/**
+	 * 获得一种项目的编辑页子表，如案件的相关客户列表
+	 * 生成的html表格提供“载入到视图”（适用于edit方法内载入）和“返回”（适用于ajax局部刷新时使用）两种方式
+	 * @param type $item 子项目名，如client,document,schedule
+	 * @param type $case_id 指定案号，默认false，即在edit方法内调用，因为已知$this->cases->id，所以不用指定
+	 * @param type $para 需要传递给subList中的列表程序的参数名和参数值。一般情况下只有在ajax局部刷新时才需要设定
+	 * @return当$case_idfalse（默认）时，无返回值，html表格作为字符串变量加载到视图
+	 *	当$case_id为整数时，html表格作为字符串返回
+	 */
 	function subList($item,$case_id=false,$para=array()){
 		if($case_id){
 			$case=$this->cases->getPostData($case_id);
@@ -253,7 +262,7 @@ class Cases extends SS_controller{
 		if(!$case_id){//没有指定$case_id，是在edit方法内调用
 			$this->load->addViewData($item.'_list', $list);
 		}else{
-			return array('item'=>$item,'list'=>$list);
+			return array('selector'=>'.item[name="'.$item.'"]>.contentTable','html'=>$list,'type'=>'sublist');
 		}
 	}
 
@@ -346,6 +355,8 @@ class Cases extends SS_controller{
 		}
 		
 		$this->cases->id=$id;
+		
+		$case=array_merge($this->cases->getPostData($this->cases->id),post('cases'));
 
 		$this->load->library('form_validation');
 		
@@ -429,11 +440,7 @@ class Cases extends SS_controller{
 			}
 			
 			elseif($submit=='case_lawyer'){
-				if(post('case_lawyer/lawyer',$this->staff->check(post('case_lawyer_extra/lawyer_name'),'id'))<0){
-					//查找职员并保存至session，捕获错误
-					$submitable=false;
-
-				}elseif(post('case_lawyer/role')=='实际贡献' && !(in_array('督办合伙人',$my_roles) || in_array('主办律师',$my_roles))){
+				if(post('case_lawyer/role')=='实际贡献' && !(in_array('督办合伙人',$my_roles) || in_array('主办律师',$my_roles))){
 					//禁止非主办律师/合伙人分配实际贡献
 					showMessage('你没有权限分配实际贡献');
 					$submitable=false;
@@ -451,8 +458,8 @@ class Cases extends SS_controller{
 						$submitable=false;
 					}
 					if($submitable && $this->cases->addLawyer($this->cases->id,post('case_lawyer'))){
-						unset($_SESSION['cases']['post']['case_lawyer']);
-						unset($_SESSION['cases']['post']['case_lawyer_extra']);
+						unset($_SESSION['cases']['post'][$this->cases->id]['case_lawyer']);
+						unset($_SESSION['cases']['post'][$this->cases->id]['case_lawyer_extra']);
 						if(post('cases/is_reviewed') && post('case_lawyer/role')!='实际贡献' && !in_array('督办合伙人',$my_roles)){
 							post('cases/is_reviewed',0);
 							showMessage('案件关键信息已经更改，需要重新审核');
@@ -703,15 +710,21 @@ class Cases extends SS_controller{
 				showMessage('案件实体归档完成');
 			}
 
-			elseif($submit=='apply_case_num' && !post('cases/num')){
+			elseif($submit=='apply_case_num'){
 				//准备插入案号
 
-				if(!$case['is_query'] && !$case_client_role['client']){
-					showMessage('申请案号前应当至少添加一个客户','warning');
-				}else{
-					post('cases/num',$this->cases->getNum(post('cases'),$case_client_role));
-					post('cases/type_lock',1);
+				/*if(!$case['is_query'] && !$case_client_role['client']){
+					$this->load->message('申请案号前应当至少添加一个客户','warning');
+				}else{*/
+				$data=array(
+					'num'=>$this->cases->getNum($case,$case_client_role),
+					'type_lock'=>1
+				);
+
+				if($this->cases->update($this->cases->id,$data)){
+					echo json_encode(array('message'=>$this->load->message,'url'=>'/cases/edit/'.$this->cases->id));
 				}
+				//}
 			}
 
 			elseif(isset($case_client_role['client']) && !post('cases/filed')){
