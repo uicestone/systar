@@ -38,6 +38,8 @@ class Schedule extends SS_controller{
 		$sidebar_function=$this->company->syscode.'_'.'schedule_side_table';
 		$sidebar_tables=$this->company->$sidebar_function();
 		$this->load->addViewData('sidebar_tables',$sidebar_tables);
+		
+		$this->load->view('schedule/calendar');
 	}
 	
 	function mine(){
@@ -336,11 +338,11 @@ class Schedule extends SS_controller{
 	function readCalendar($id=NULL){
 		if(isset($id)){
 			//获取指定的一个日程
-			echo json_encode($this->schedule->fetch_single(intval($id)));
+			$this->output->data=$this->schedule->fetch_single(intval($id));
 		
 		}else{
 			//获得当前视图的全部日历，根据$this->input->get('start'),$this->input->get('end')(timestamp)
-			echo json_encode($this->schedule->fetch_range($this->input->get('start'),$this->input->get('end'),$this->input->get('staff'),$this->input->get('case')));
+			$this->output->data=$this->schedule->fetch_range($this->input->get('start'),$this->input->get('end'),$this->input->get('staff'),$this->input->get('case'));
 		}
 	}
 	
@@ -463,7 +465,8 @@ class Schedule extends SS_controller{
 			}
 		}
 		
-		$this -> load -> addViewData('task_board' , $task_board);
+		$this->load->addViewData('task_board' , $task_board);
+		$this->load->view('schedule/taskboard');
 	}
 	
 	function setTaskBoardSort()

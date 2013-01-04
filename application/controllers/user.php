@@ -8,11 +8,6 @@ class user extends SS_controller{
 	function submit($submit){
 		$this->load->require_head=false;
 		
-		if(parent::submit($submit)){
-			echo 'success';
-			return;
-		}
-		
 		if($submit=='login'){
 			if($this->company->ucenter){
 
@@ -53,14 +48,14 @@ class user extends SS_controller{
 					$this->user->updateLoginTime();
 
 					if(!isset($user['password'])){
-						echo json_encode(array('url'=>'/#user/profile'));
+						echo json_encode(array('url'=>'user/profile'));
 					}else{
-						echo json_encode(array('url'=>'_default'));
+						$this->output->setBlock('uri','nav','nav');
+						$this->output->setBlock('uri');
 					}
 
 				}else{
 					$this->output->message('名字或密码错','warning');
-					echo json_encode(array('message'=>$this->output->message));
 				}
 				
 			}	
@@ -69,7 +64,7 @@ class user extends SS_controller{
 	
 	function logout(){
 		$this->user->sessionLogout();
-		echo json_encode(array('status'=>'require_login'));
+		$this->output->status='login_required';
 	}
 	
 	function login(){
@@ -130,6 +125,7 @@ class user extends SS_controller{
 	 */
 	function browser(){
 		$this->load->require_nav_menu=false;
+		$this->load->view('user/browser');
 	}
 }
 ?>

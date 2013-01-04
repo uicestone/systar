@@ -261,7 +261,7 @@ class SS_Controller extends CI_Controller{
 	
 	function _output($output){
 		if($output){
-			$this->output->data=array('selector'=>$this->output->loadinto,'content'=>$output,'type'=>'html');
+			$this->output->data=array('selector'=>$this->output->selector,'content'=>$output,'type'=>'html');
 		}
 		
 		$output_array=array(
@@ -269,55 +269,8 @@ class SS_Controller extends CI_Controller{
 			'message'=>$this->output->message,
 			'data'=>$this->output->data
 		);
+		
 		echo json_encode($output_array);
-	}
-	
-	/* 
-	 * $extra_action 是一个数组，接受除了返回列表/关闭窗口之外的其他提交后动作
-	 * $after_update为数据库更新成功后，跳转前需要的额外操作
-	 */
-	function processSubmit($submitable,$after_update=NULL,$update_table=NULL,$set_display=true,$set_time=true,$set_user=true){
-		if($set_display){
-			post(CONTROLLER.'/display',1);
-		}
-
-		if($set_time){
-			post(CONTROLLER.'/time',$this->config->item('timestamp'));
-		}
-
-		if($set_user){
-			post(CONTROLLER.'/uid',$this->user->id);
-			post(CONTROLLER.'/username',$this->user->name);
-		}
-
-		post(CONTROLLER.'/company',$this->company->id);
-
-		if(is_null($update_table)){
-			if($this->actual_table!=''){
-				$update_table=$this->actual_table;
-			}else{
-				$update_table=CONTROLLER;
-			}
-		}
-
-		if($submitable){
-			if($this->db->update($update_table,post(CONTROLLER),array('id'=>post(CONTROLLER.'/id')))){
-
-				if(is_a($after_update,'Closure')){
-					$after_update();
-				}
-
-				return true;
-			}
-		}
-	}
-
-	function submit($submit){
-		if($submit=='cancel'){
-			unset($_SESSION[CONTROLLER]['post']);
-			$this->db->delete($this->actual_table==''?CONTROLLER:$this->actual_table,"uid = {$this->user->id} AND display = 0");//删除本用户的误添加数据
-			return true;
-		}
 	}
 	
 	/**

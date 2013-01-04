@@ -44,7 +44,11 @@ $('link[href^="/js/fullcalendar/fullcalendar.css"]').on('load',function(){
 		},
 
 		editable: true,
-		events: '/schedule/readcalendar'+location.search,
+		events: function(start,end,callback){
+			$.get('/schedule/readcalendar'+location.search,function(response){
+				callback(response.data);
+			},'json');
+		},
 
 		eventClick: function(event) {
 			$(calendar).showSchedule(event.id);

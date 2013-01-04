@@ -1,2 +1,2 @@
 	<nav></nav>
-	<div id="page" default-controller="<?=$this->company->default_controller?>"></div>
+	<div id="page" default-uri="<?=$this->company->default_controller?>"></div>

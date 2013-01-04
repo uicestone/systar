@@ -349,12 +349,13 @@ class Cases extends SS_controller{
 		$this->load->model('client_model','client');
 		$this->load->model('staff_model','staff');
 		
-		if(parent::submit($submit)){
-			echo 'success';
-			return;
-		}
-		
 		$this->cases->id=$id;
+		
+		if($submit=='cancel'){
+			unset($_SESSION[CONTROLLER][$this->cases->id]['post']);
+			$this->db->delete($this->actual_table==''?CONTROLLER:$this->actual_table,"uid = {$this->user->id} AND display = 0");//删除本用户的误添加数据
+			$this->output->status='success';
+		}
 		
 		$case=array_merge($this->cases->getPostData($this->cases->id),post('cases'));
 

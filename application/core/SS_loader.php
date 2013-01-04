@@ -49,10 +49,6 @@ class SS_Loader extends CI_Loader{
 		$this->view_data+=$array;
 	}
 	
-	function message($message,$type='notice'){
-		$this->message[$type][]=$message;
-	}
-	
 	/**
 	 * @param $return: FALSE:进入输出缓存,TRUE:作为字符串返回,'sidebar':加入边栏
 	 */

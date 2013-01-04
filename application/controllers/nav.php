@@ -4,7 +4,8 @@ class Nav extends SS_Controller{
 		$this->default_method='index';
 		$this->require_permission_check=false;
 		parent::__construct();
-		$this->output->loadinto='nav';
+		$this->load->require_inner_js=false;
+		$this->output->selector='nav';
 	}
 	
 	function index(){

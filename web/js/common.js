@@ -5,11 +5,11 @@ if($.browser.msie && $.browser.version<7 && !(controller=='user' && action=='bro
 	/*停止载入页面*/
 	exit();
 }
-	
+
 $(window).hashchange(function(){
 
 	$.get(window.location.hash.substr(1),function(response){
-		$(document).response(response);
+		$(document).setBlock(response);
 	},'json');
 
 });
@@ -17,14 +17,14 @@ $(window).hashchange(function(){
 $(document).ready(function(){
 
 	$.get('/nav',function(response){
-		$(this).response(response);
+		$(document).setBlock(response);
 	},'json');
 	
 	if(window.location.hash){
 		$(window).trigger('hashchange');
 	}else{
-		$.get($('#page').attr('default-controller'),function(response){
-			$(document).response(response);
+		$.get($('#page').attr('default-uri'),function(response){
+			$(document).setBlock(response);
 		},'json');
 	}
 })
@@ -66,35 +66,7 @@ $(document).ready(function(){
 	}
 
 	$.post(postURI,$('#page>form').serialize(),function(response){
-		if(response=='success'){
-			if(asPopupWindow){
-				window.close();
-			}else{
-				location.href=location.protocol+'//'+location.host+lastListAction;
-			}
-		}
-		else{
-			if(response.message){
-				$.each(response.message,function(messageType,messages){
-					$.each(messages,function(index,message){
-						showMessage(message,messageType);
-					})
-				})
-			}
-			
-			if(response.selector){
-				$(response.selector).replaceWith(response.html);
-			}else if(response.url){
-				if(response.url=='_default'){
-					response.url=$('#page').attr('default-controller');
-				}
-				$('#page').load(response.url);
-			}
-			
-			if(response.type=='sublist'){
-				$(response.selector).siblings('.add-form').reset();
-			}
-		}
+		$(document).setBlock(response);
 	},'json');
 	return false;
 })
@@ -723,10 +695,37 @@ jQuery.parseResponse=function(response){
 	}
 }
 
-jQuery.fn.response=function(response){
+jQuery.fn.setBlock=function(response){
+	
+	function set(data){
+		switch(data.type){
+			case 'uri':
+				if(data.content==null){
+					data.content=$(data.selector).attr('default-uri');
+				}
+				if(data.selector=='#page'){
+					window.location.hash='#'+data.content;
+				}else{
+					$.get(data.content,function(response){
+						$(document).setBlock(response);
+					},'json');
+				}
+				break;
+			case 'html':
+				$(data.selector).html(data.content);
+
+				if(data.selector=='#page'){
+					$('#page').trigger('pageLoaded');
+				}else{
+					$(data.selector).trigger('blockLoaded');
+				}
+
+				break;
+		}
+	}
 	
 	if(response.status=='login_required'){
-		response.data={'type':'uri','content':'user/login','selector':'#page'};
+		response.data=[{'type':'uri','content':'nav','selector':'nav'},{'type':'uri','content':'user/login','selector':'#page'}];
 	}
 
 	if(response.message){
@@ -738,27 +737,12 @@ jQuery.fn.response=function(response){
 	}
 
 	if(response.data.type){
-		switch(response.data.type){
-			case 'uri':
-				window.location.hash='#'+response.data.content;
-				break;
-			case 'html':
-				$(response.data.selector).html(response.data.content).trigger('pageLoaded');
-				break;
-		}
+		set(response.data);
 	}else{
 		$.each(response.data,function(index,data){
-			switch(data.type){
-				case 'uri':
-					$(data.selector).load(data.content);
-					break;
-				case 'html':
-					$(data.selector).html(data.content);
-					break;
-			}
+			set(data);
 		});
 	}
-
 }
 
 var currentWindow=window;
