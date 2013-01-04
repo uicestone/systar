@@ -3,41 +3,30 @@ if($.browser.msie && $.browser.version<7 && !(controller=='user' && action=='bro
 	/*跳转到浏览器推荐页面*/
 	window.location.href='/user/browser';
 	/*停止载入页面*/
-	if (window.stop){
-		window.stop();
-	}else{
-		document.execCommand("Stop");
-	}
+	exit();
 }
 	
+$(window).hashchange(function(){
+
+	$.get(window.location.hash.substr(1),function(response){
+		$(document).response(response);
+	},'json');
+
+});
+
 $(document).ready(function(){
 
-	/*导航栏配置*/
-	$('#navMenu>.l0>li>a,controller').click(function(){
-		$(this).parent().children('ul:hidden').show();
-		$(this).siblings('.arrow').children('img').rotate({animateTo:90,duration:200});
-	});
-	$('#navMenu>.l0>li>.arrow').click(function(){
-		var subMenu=$(this).siblings('.l1');
-		if(subMenu.is(':hidden')){
-			subMenu.show(200);
-			$(this).children('img').rotate({animateTo:90,duration:200});
-		}else{
-			$(this).children('img').rotate({animateTo:0,duration:200});
-			subMenu.hide(200);
-		}
-	});
+	$.get('/nav',function(response){
+		$(this).response(response);
+	},'json');
 	
-	//载入默认页面，如果有hash则根据hash载入页面
 	if(window.location.hash){
-		var pageURI=window.location.hash.substr(1)
+		$(window).trigger('hashchange');
 	}else{
-		var pageURI=$('#page').attr('default-controller');
+		$.get($('#page').attr('default-controller'),function(response){
+			$(document).response(response);
+		},'json');
 	}
-	$('#page').load(pageURI,function(){
-		$(this).trigger('pageLoaded');
-
-	});
 })
 /*主体页面加载事件*/
 .on('pageLoaded','#page',function(){
@@ -69,8 +58,14 @@ $(document).ready(function(){
 .on('click','#page>form input:submit',function(){
 	var id = $('form[name="'+controller+'"]').attr('id');
 	var submit = $(this).attr('name').replace('submit[','').replace(']','');
+	
+	var postURI='/'+controller+'/submit/'+submit;
+	
+	if(id){
+		postURI+='/'+id;
+	}
 
-	$.post('/'+controller+'/submit/'+submit+'/'+id,$('#page>form').serialize(),function(response){
+	$.post(postURI,$('#page>form').serialize(),function(response){
 		if(response=='success'){
 			if(asPopupWindow){
 				window.close();
@@ -89,7 +84,10 @@ $(document).ready(function(){
 			
 			if(response.selector){
 				$(response.selector).replaceWith(response.html);
-			}else{
+			}else if(response.url){
+				if(response.url=='_default'){
+					response.url=$('#page').attr('default-controller');
+				}
 				$('#page').load(response.url);
 			}
 			
@@ -101,7 +99,7 @@ $(document).ready(function(){
 	return false;
 })
 /*edit表单元素更改时实时提交到后台 */
-.on('change','#page>form :input',function(){
+.on('change','#page>form:[id] :input',function(){
 	var value=$(this).val();
 	if($(this).is(':checkbox') && !$(this).is(':checked')){
 		value=0;
@@ -112,7 +110,7 @@ $(document).ready(function(){
 	$.post('/'+controller+'/setfields/'+id,data);
 })
 /*截获所有链接点击事件，用以加载主体页面（弹窗页面除外）*/
-.on('click','a:not([href^="javascript"])',function(){
+.on('click','a:not([href^="javascript"]):not([href^="#"])',function(){
 	var href=$(this).attr('href');
 	$('#page').load($(this).attr('href'),function(){
 		$(this).trigger('pageLoaded');
@@ -208,7 +206,15 @@ $(document).ready(function(){
 	}*/
 	//return false;
 });
-	
+
+function exit(){
+	if (window.stop){
+		window.stop();
+	}else{
+		document.execCommand("Stop");
+	}
+}
+
 function isArray(o) {
 	//判断对象是否是数组
 	return Object.prototype.toString.call(o) === '[object Array]';
@@ -715,6 +721,44 @@ jQuery.parseResponse=function(response){
 		showMessage(response,'warning');
 		return false;
 	}
+}
+
+jQuery.fn.response=function(response){
+	
+	if(response.status=='login_required'){
+		response.data={'type':'uri','content':'user/login','selector':'#page'};
+	}
+
+	if(response.message){
+		$.each(response.message,function(messageType,messages){
+			$.each(messages,function(index,message){
+				showMessage(message,messageType);
+			});
+		});
+	}
+
+	if(response.data.type){
+		switch(response.data.type){
+			case 'uri':
+				window.location.hash='#'+response.data.content;
+				break;
+			case 'html':
+				$(response.data.selector).html(response.data.content).trigger('pageLoaded');
+				break;
+		}
+	}else{
+		$.each(response.data,function(index,data){
+			switch(data.type){
+				case 'uri':
+					$(data.selector).load(data.content);
+					break;
+				case 'html':
+					$(data.selector).html(data.content);
+					break;
+			}
+		});
+	}
+
 }
 
 var currentWindow=window;

@@ -366,7 +366,7 @@ class Cases extends SS_controller{
 		
 			if($submit=='case_client'){
 				if(post('case_client/client')){//autocomplete搜索到已有客户
-					$this->load->message('系统中已经存在 '.post('case_client_extra/client_name').'，已自动识别');
+					$this->output->message('系统中已经存在 '.post('case_client_extra/client_name').'，已自动识别');
 				}
 				else{//添加新客户
 					$new_client=array(
@@ -381,7 +381,7 @@ class Cases extends SS_controller{
 						$staff_check=$this->staff->check(post('case_client_extra/source_lawyer_name'),'id',false);
 
 						if($staff_check<0){
-							$this->load->message('请输入正确的来源律师','warning');
+							$this->output->message('请输入正确的来源律师','warning');
 						}
 
 						if($staff_check>0 && $client_source>0){
@@ -391,13 +391,13 @@ class Cases extends SS_controller{
 								post('cases/source',$client_source);
 							}
 						}else{
-							$this->load->message('客户来源识别错误','warning');
+							$this->output->message('客户来源识别错误','warning');
 						}
 					}else{//非客户必须输入工作单位
 						if(post('case_client_extra/work_for')){
 							$new_client['profiles']['工作单位']=post('case_client_extra/work_for');
 						}else{
-							$this->load->message('请输入工作单位','warning');
+							$this->output->message('请输入工作单位','warning');
 						}
 					}
 					
@@ -409,12 +409,12 @@ class Cases extends SS_controller{
 					
 					$new_client['profiles']['电子邮件']=post('case_client_extra/email');
 					
-					if(empty($this->load->message['warning'])){
+					if(empty($this->output->message['warning'])){
 						$new_client_id=$this->client->add($new_client);
 								
 						post('case_client/client',$new_client_id);
 
-						$this->load->message(
+						$this->output->message(
 							'<a href="javascript:showWindow(\''.
 							(post('case_client_extra/classification')=='客户'?'client':'contact').
 							'/edit/'.post('case_client/client').'\')" target="_blank">新'.
@@ -429,7 +429,7 @@ class Cases extends SS_controller{
 					unset($_SESSION['cases']['post'][$this->cases->id]['case_client_extra']);
 					
 					$client_list=$this->subList('client',$this->cases->id);
-					echo json_encode(array('message'=>$this->load->message)+$client_list);
+					echo json_encode(array('message'=>$this->output->message)+$client_list);
 				}
 			}
 
@@ -714,7 +714,7 @@ class Cases extends SS_controller{
 				//准备插入案号
 
 				/*if(!$case['is_query'] && !$case_client_role['client']){
-					$this->load->message('申请案号前应当至少添加一个客户','warning');
+					$this->output->message('申请案号前应当至少添加一个客户','warning');
 				}else{*/
 				$data=array(
 					'num'=>$this->cases->getNum($case,$case_client_role),
@@ -722,7 +722,7 @@ class Cases extends SS_controller{
 				);
 
 				if($this->cases->update($this->cases->id,$data)){
-					echo json_encode(array('message'=>$this->load->message,'url'=>'/cases/edit/'.$this->cases->id));
+					echo json_encode(array('message'=>$this->output->message,'url'=>'/cases/edit/'.$this->cases->id));
 				}
 				//}
 			}

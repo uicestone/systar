@@ -1,5 +1,17 @@
 <?php
 class SS_Output extends CI_Output{
+
+	var $status;
+	
+	var $message=array(
+		'notice'=>array(),
+		'warning'=>array()
+	);
+	
+	var $data=array();
+	
+	var $loadinto='#page';
+	
 	function __construct(){
 		parent::__construct();
 	}

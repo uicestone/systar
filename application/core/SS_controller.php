@@ -98,15 +98,17 @@ class SS_Controller extends CI_Controller{
 		/**
 		 * 弹出未登录用户
 		 */
-		if(!$this->user->isLogged(NULL) && $class!='user'){
-			redirect('user/login','js',NULL,true);
+		if($this->require_permission_check && !$this->user->isLogged()){
+			echo json_encode(array('status'=>'login_required'));
+			exit;
 		}
 		
 		/**
 		 * 屏蔽无权限用户
 		 */
 		if($this->require_permission_check && !$this->user->isPermitted($class)){
-			show_error('权限不足，无法访问');
+			echo json_encode(array('status'=>'denied'));
+			exit;
 		}
 
 		/**
@@ -255,6 +257,19 @@ class SS_Controller extends CI_Controller{
 			unset($_SESSION[CONTROLLER][METHOD]['keyword']);
 		}
 
+	}
+	
+	function _output($output){
+		if($output){
+			$this->output->data=array('selector'=>$this->output->loadinto,'content'=>$output,'type'=>'html');
+		}
+		
+		$output_array=array(
+			'status'=>$this->output->status,
+			'message'=>$this->output->message,
+			'data'=>$this->output->data
+		);
+		echo json_encode($output_array);
 	}
 	
 	/* 

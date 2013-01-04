@@ -195,16 +195,15 @@ nav::-webkit-scrollbar{
 }
 /*login*/
 #loginForm{
-	margin:20% auto;
-	text-align:right;
-	width:200px;
+	margin-top:20%;
+	text-align:center;
 }
 #loginForm .item input{
 	font-size:18px;
-	width:100%;
+	/*width:100%;*/
 }
 #loginForm .submit input{
-	width:70px;
+	width:120px;
 	height:35px;
 	font-size:18px;
 }

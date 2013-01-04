@@ -5,9 +5,71 @@ class user extends SS_controller{
 		parent::__construct();
 	}
 	
+	function submit($submit){
+		$this->load->require_head=false;
+		
+		if(parent::submit($submit)){
+			echo 'success';
+			return;
+		}
+		
+		if($submit=='login'){
+			if($this->company->ucenter){
+
+				$ucenter_user=uc_user_login($this->input->post('username'),$this->input->post('password'));//ucenter验证密码
+
+				if(!$ucenter_user){
+					$this->output->message('Ucenter Error','warning');
+
+				}elseif($ucenter_user[0]>0){
+					if($this->sessionLogin($ucenter_user[0])){
+						$this->user->updateLoginTime();
+						echo uc_user_synlogin($ucenter_user[0]);
+						echo json_encode(array('uri'=>'/'));
+					}
+				}else{
+					$this->output->message('用户名或密码错','warning');
+				}
+			}else{
+				$user=$this->user->verify($this->input->post('username'),$this->input->post('password'));
+
+				if($user){
+
+					$this->session->set_userdata('user/id', $user['id']);
+					$this->session->set_userdata('user/name', $user['name']);
+
+					$user['group']=explode(',',$user['group']);
+					$this->session->set_userdata('user/group', $user['group']);
+
+					$this->user->__construct();
+
+					foreach($this->user->group as $group){
+						$company_type=$this->company->type;
+						if($this->company_type_model_loaded && method_exists($this->$company_type,$group.'_setSession')){
+							call_user_func(array($this->$company_type,$group.'_setSession'),$this->user->id);
+						}
+					}
+
+					$this->user->updateLoginTime();
+
+					if(!isset($user['password'])){
+						echo json_encode(array('url'=>'/#user/profile'));
+					}else{
+						echo json_encode(array('url'=>'_default'));
+					}
+
+				}else{
+					$this->output->message('名字或密码错','warning');
+					echo json_encode(array('message'=>$this->output->message));
+				}
+				
+			}	
+		}
+	}
+	
 	function logout(){
 		$this->user->sessionLogout();
-		redirect('');
+		echo json_encode(array('status'=>'require_login'));
 	}
 	
 	function login(){
@@ -17,60 +79,7 @@ class user extends SS_controller{
 			redirect('','js',NULL,true);
 		}
 		
-		if($this->input->post('submit/login')){
-			
-			if($this->company->ucenter){
-		
-				$ucenter_user=uc_user_login($this->input->post('username'),$this->input->post('password'));//ucenter验证密码
-				
-				if(!$ucenter_user){
-					showMessage('Ucenter Error','warning');
-		
-				}elseif($ucenter_user[0]>0){
-					if($this->sessionLogin($ucenter_user[0])){
-						$this->user->updateLoginTime();
-						echo uc_user_synlogin($ucenter_user[0]);
-						redirect('','js');
-					}
-				}else{
-					showMessage('用户名或密码错','warning');
-				}
-			}else{
-		
-				if($user=$this->user->verify($this->input->post('username'),$this->input->post('password'))){
-			
-					$this->session->set_userdata('user/id', $user['id']);
-					$this->session->set_userdata('user/name', $user['name']);
-					
-					$user['group']=explode(',',$user['group']);
-					$this->session->set_userdata('user/group', $user['group']);
-					
-					$this->user->__construct();
-					
-					foreach($this->user->group as $group){
-						$company_type=$this->company->type;
-						if($this->company_type_model_loaded && method_exists($this->$company_type,$group.'_setSession')){
-							call_user_func(array($this->$company_type,$group.'_setSession'),$this->user->id);
-						}
-					}
-					
-					$this->user->updateLoginTime();
-			
-					if(!isset($user['password'])){
-						redirect('user/profile');
-					}else{
-						redirect();
-					}
-			
-				}else{
-					showMessage('名字或密码错','warning');
-				}
-			}
-		}
-		$this->load->view('head');
 		$this->load->view('user/login');
-		$this->load->main_view_loaded=true;
-		$this->load->view('foot');
 		session_destroy();
 	}
 

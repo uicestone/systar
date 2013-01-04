@@ -5,14 +5,19 @@ function postController(){
 	$CI=&get_instance();
 
 	//自动载入主视图
+	/*
+	 * 这似乎是一处过渡设计
 	if(!$CI->load->main_view_loaded && is_file(APPPATH.'views/'.$class.'/'.$method.'.php')){
 		$CI->load->view("{$class}/{$method}");
 	}
+	 */
 
 	//在当前准备好的输出内容基础上加上页头，页尾，并自动加载边栏
 	if($CI->load->require_head){
 
-		$CI->load->view('pagehead');
+		if($CI->load->require_inner_js){
+			$CI->load->view('innerjs');
+		}
 
 		if($CI->load->require_menu){
 			$CI->output->prepend_output($CI->load->view('menu',array(),true));

@@ -8,7 +8,7 @@ class Staff_model extends People_model{
 		//$data_type:id,array
 		if(!$staff_name){
 			if($show_error){
-				$this->load->message('请输入职员名称','warning');
+				$this->output->message('请输入职员名称','warning');
 			}
 			return -3;
 		}
@@ -24,13 +24,13 @@ class Staff_model extends People_model{
 
 		if($num_lawyers==0){
 			if($show_error){
-				$this->load->message('没有这个职员：'.$staff_name,'warning');
+				$this->output->message('没有这个职员：'.$staff_name,'warning');
 			}
 			return -1;
 
 		}elseif($num_lawyers>1){
 			if($show_error){
-				$this->load->message('此关键词存在多个符合职员','warning');
+				$this->output->message('此关键词存在多个符合职员','warning');
 			}
 			return -2;
 

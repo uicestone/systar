@@ -208,7 +208,7 @@ class Client_model extends People_model{
 	function setSource($type,$detail){
 		
 		if(!$type){
-			$this->load->message('请选择客户来源','warning');
+			$this->output->message('请选择客户来源','warning');
 			return false;
 		}
 	
