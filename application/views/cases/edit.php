@@ -134,7 +134,7 @@
 			</select>
 				<? }else{ ?>
 			<select id="classification" style="width:15%;" name="cases[classification]" <? if(post('cases/type_lock'))echo 'disabled="disabled"';?>>
-			<? displayOption(array('诉讼','非诉讼','法律顾问'),post('cases/classification'));?>
+			<? displayOption(array('诉讼','非诉讼','法律顾问','内部行政'),post('cases/classification'));?>
 			</select>
 			<select id="stage" style="width:15%;" name="cases[stage]" <? if(post('cases/type_lock'))echo 'disabled="disabled"';?>>
 			<? displayOption($case_type_array,post('cases/stage'));?>
