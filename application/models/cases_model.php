@@ -649,24 +649,15 @@ class Cases_model extends SS_Model{
 				default:'';
 			}
 			switch($case['type']){
-				case '房产':$case_num['type_code']='（房）';break;
+				case '房产建筑':$case_num['type_code']='（房）';break;
 				case '公司':$case_num['type_code']='（公）';break;
-				case '婚姻':$case_num['type_code']='（婚）';break;
-				case '劳动':$case_num['type_code']='（劳）';break;
-				case '金融':$case_num['type_code']='（金）';break;
-				case '继承':$case_num['type_code']='（继）';break;
-				case '知产':$case_num['type_code']='（知）';break;
-				case '合同':$case_num['type_code']='（合）';break;
-				case '刑事':$case_num['type_code']='（刑）';break;
-				case '行政':$case_num['type_code']='（行）';break;
-				case '其他':$case_num['type_code']='（他）';break;
-				case '公民个人':$case_num['type_code']='（个）';break;
-				case '侵权':$case_num['type_code']='（侵）';break;
-				case '移民':$case_num['type_code']='（移）';break;
-				case '留学':$case_num['type_code']='（留）';break;
-				case '企业':$case_num['type_code']='（企）';break;
-				case '事业单位':$case_num['type_code']='（事）';break;
-				case '个人事务':$case_num['type_code']='（个）';break;
+				case '婚姻家庭':$case_num['type_code']='（家）';break;
+				case '劳动人事':$case_num['type_code']='（劳）';break;
+				case '知识产权':$case_num['type_code']='（知）';break;
+				case '刑事行政':$case_num['type_code']='（刑）';break;
+				case '诉讼':$case_num['type_code']='（诉）';break;
+				case '涉外':$case_num['type_code']='（外）';break;
+				case '日韩':$case_num['type_code']='（韩）';break;
 				default:$case_num['type_code']='';
 			}
 		}

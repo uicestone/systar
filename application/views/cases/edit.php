@@ -126,7 +126,7 @@
 			<span class="field">内部行政</span>
 			<? }else{?>
 			<select id="type" style="width:7%;" name="cases[type]" <? if(post('cases/type_lock'))echo 'disabled="disabled"';?>>
-			<? displayOption(array('公司','劳动','房产','婚姻','继承','刑事','知产','留学','移民','行政','合同','侵权'),post('cases/type'));?>
+			<? displayOption(array('公司','房产建筑','刑事行政','婚姻家庭','诉讼','知识产权','劳动人事','涉外','日韩'),post('cases/type'));?>
 			</select>
 				<? if(post('cases/is_query')){ ?>
 			<select id="classification" style="width:15%;" name="cases[query_type]" <? if(post('cases/type_lock'))echo 'disabled="disabled"';?>>
