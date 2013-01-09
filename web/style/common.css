@@ -250,6 +250,9 @@ nav::-webkit-scrollbar{
 .contentTable tbody tr{
 	background:#FFF;
 }
+.contentTable tbody tr.highlighted{
+	background:#FFFFF9;
+}
 .contentTable tbody td{
 	border-right:1px solid #69C;
 	border-bottom:1px solid #69C;

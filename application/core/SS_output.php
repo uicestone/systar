@@ -7,8 +7,6 @@ class SS_Output extends CI_Output{
 	
 	var $data=array();
 	
-	var $selector='#page';
-	
 	function __construct(){
 		parent::__construct();
 	}
@@ -48,12 +46,14 @@ class SS_Output extends CI_Output{
 	 * @param $type 可选uri,html
 	 * @param $content 对应$type，为html内容或uri地址
 	 * @param $selector 要更新的选择器，默认为#page
+	 * @param $method 元素替换的方式,innerHTML或replace
 	 */
-	function setBlock($type,$content=NULL,$selector='#page'){
+	function setBlock($type,$content=NULL,$selector='#page',$method='innerHTML'){
 		$this->data[]=array(
 			'type'=>$type,
 			'content'=>$content,
-			'selector'=>$selector
+			'selector'=>$selector,
+			'method'=>$method
 		);
 	}
 }

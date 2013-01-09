@@ -9,6 +9,7 @@ class Nav extends SS_Controller{
 	}
 	
 	function index(){
+		$this->load->selector='nav';
 		$this->load->view('nav');
 	}
 }

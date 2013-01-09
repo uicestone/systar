@@ -9,56 +9,40 @@ class user extends SS_controller{
 		$this->load->require_head=false;
 		
 		if($submit=='login'){
-			if($this->company->ucenter){
 
-				$ucenter_user=uc_user_login($this->input->post('username'),$this->input->post('password'));//ucenter验证密码
+			$user=$this->user->verify($this->input->post('username'),$this->input->post('password'));
 
-				if(!$ucenter_user){
-					$this->output->message('Ucenter Error','warning');
+			if($user){
 
-				}elseif($ucenter_user[0]>0){
-					if($this->sessionLogin($ucenter_user[0])){
-						$this->user->updateLoginTime();
-						echo uc_user_synlogin($ucenter_user[0]);
-						echo json_encode(array('uri'=>'/'));
+				$this->session->set_userdata('user/id', $user['id']);
+				$this->session->set_userdata('user/name', $user['name']);
+
+				$user['group']=explode(',',$user['group']);
+				$this->session->set_userdata('user/group', $user['group']);
+
+				$this->user->__construct();
+
+				foreach($this->user->group as $group){
+					$company_type=$this->company->type;
+					if($this->company_type_model_loaded && method_exists($this->$company_type,$group.'_setSession')){
+						call_user_func(array($this->$company_type,$group.'_setSession'),$this->user->id);
 					}
-				}else{
-					$this->output->message('用户名或密码错','warning');
 				}
+
+				$this->user->updateLoginTime();
+
+				if(!isset($user['password'])){
+					echo json_encode(array('url'=>'user/profile'));
+				}else{
+					$nav_html=$this->load->view('nav',array(),true);
+					$this->output->setBlock('html',$nav_html,'nav','replace');
+					$this->output->setBlock('uri');
+				}
+
 			}else{
-				$user=$this->user->verify($this->input->post('username'),$this->input->post('password'));
-
-				if($user){
-
-					$this->session->set_userdata('user/id', $user['id']);
-					$this->session->set_userdata('user/name', $user['name']);
-
-					$user['group']=explode(',',$user['group']);
-					$this->session->set_userdata('user/group', $user['group']);
-
-					$this->user->__construct();
-
-					foreach($this->user->group as $group){
-						$company_type=$this->company->type;
-						if($this->company_type_model_loaded && method_exists($this->$company_type,$group.'_setSession')){
-							call_user_func(array($this->$company_type,$group.'_setSession'),$this->user->id);
-						}
-					}
-
-					$this->user->updateLoginTime();
-
-					if(!isset($user['password'])){
-						echo json_encode(array('url'=>'user/profile'));
-					}else{
-						$this->output->setBlock('uri','nav','nav');
-						$this->output->setBlock('uri');
-					}
-
-				}else{
-					$this->output->message('名字或密码错','warning');
-				}
+				$this->output->message('名字或密码错','warning');
+			}
 				
-			}	
 		}
 	}
 	
@@ -71,11 +55,12 @@ class user extends SS_controller{
 		
 		if($this->user->isLogged()){
 			//用户已登陆，则不显示登录界面
-			redirect('','js',NULL,true);
+			$this->load->require_inner_js=false;
+			$this->output->setBlock('uri');
+		}else{
+			$this->load->view('user/login');
 		}
-		
-		$this->load->view('user/login');
-		session_destroy();
+
 	}
 
 	function profile(){

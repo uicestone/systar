@@ -237,7 +237,7 @@ class Client extends SS_Controller{
 				'value'=>$row['id']
 			);
 		}
-		echo json_encode($array);
+		$this->output->data=$array;
 	}
 	
 	/**

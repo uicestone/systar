@@ -19,9 +19,9 @@ function postController(){
 			$CI->load->view('innerjs');
 		}
 
-		if($CI->load->require_menu){
+		/*if($CI->load->require_menu){
 			$CI->output->prepend_output($CI->load->view('menu',array(),true));
-		}
+		}*/
 
 		//$CI->output->prepend_output($CI->load->view('head',array(),true));
 

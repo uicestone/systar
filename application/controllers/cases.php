@@ -1,8 +1,8 @@
 <?php
 class Cases extends SS_controller{
 	function __construct(){
-		parent::__construct();
 		$this->default_method='lists';
+		parent::__construct();
 	}
 	
 	function host(){
@@ -29,7 +29,7 @@ class Cases extends SS_controller{
 		$this->session->set_userdata('last_list_action',$this->input->server('REQUEST_URI'));
 
 		$field=array(
-			'time_contract'=>array('title'=>'案号','td_title'=>'width="180px"','td'=>'title="立案时间：{time_contract}"','content'=>'<a href="/cases/edit/{id}">{num}</a>'),
+			'time_contract'=>array('title'=>'案号','td_title'=>'width="180px"','td'=>'title="立案时间：{time_contract}" href="cases/edit/{id}"','content'=>'{num}'),
 			'name'=>array('title'=>'案名','content'=>'{name}'),
 			'lawyers'=>array('title'=>'主办律师','td_title'=>'width="100px"'),
 			'schedule_grouped.time_start'=>array('title'=>'最新日志','eval'=>true,'content'=>"
@@ -262,7 +262,7 @@ class Cases extends SS_controller{
 		if(!$case_id){//没有指定$case_id，是在edit方法内调用
 			$this->load->addViewData($item.'_list', $list);
 		}else{
-			return array('selector'=>'.item[name="'.$item.'"]>.contentTable','html'=>$list,'type'=>'sublist');
+			return array('selector'=>'.item[name="'.$item.'"]>.contentTable','content'=>$list,'type'=>'html','method'=>'replace');
 		}
 	}
 
@@ -349,16 +349,19 @@ class Cases extends SS_controller{
 		$this->load->model('client_model','client');
 		$this->load->model('staff_model','staff');
 		
-		$this->cases->id=$id;
+		$case=$this->cases->getPostData($id);
+		
+		if(is_array(post('cases'))){
+			$case=array_merge($case,post('cases'));
+		}
 		
 		if($submit=='cancel'){
 			unset($_SESSION[CONTROLLER][$this->cases->id]['post']);
 			$this->db->delete($this->actual_table==''?CONTROLLER:$this->actual_table,"uid = {$this->user->id} AND display = 0");//删除本用户的误添加数据
-			$this->output->status='success';
+			$this->output->setBlock('uri',substr($this->session->userdata('last_list_action'),1));
+			return;
 		}
 		
-		$case=array_merge($this->cases->getPostData($this->cases->id),post('cases'));
-
 		$this->load->library('form_validation');
 		
 		$case_client_role = $this->cases->getClientRole($this->cases->id);
@@ -371,7 +374,7 @@ class Cases extends SS_controller{
 				}
 				else{//添加新客户
 					$new_client=array(
-						'name'=>post('case_client_extra/name'),
+						'name'=>post('case_client_extra/client_name'),
 						'character'=>post('case_client_extra/character')=='单位'?'单位':'自然人',
 						'labels'=>array('classification'=>post('case_client_extra/classification'),'type'=>post('case_client_extra/type'))
 					);
@@ -402,41 +405,52 @@ class Cases extends SS_controller{
 						}
 					}
 					
-					if($this->client->isMobileNumber(post('case_client_extra/phone'))){
-						$new_client['profiles']['手机']=post('case_client_extra/phone');
-					}else{
-						$new_client['profiles']['电话']=post('case_client_extra/phone');
+					if(!post('case_client_extra/phone') && !post('case_client_extra/email')){
+						$this->output->message('至少输入一种联系方式', 'warning');
 					}
-					
-					$new_client['profiles']['电子邮件']=post('case_client_extra/email');
-					
-					if(empty($this->output->message['warning'])){
-						$new_client_id=$this->client->add($new_client);
-								
-						post('case_client/client',$new_client_id);
 
-						$this->output->message(
-							'<a href="javascript:showWindow(\''.
-							(post('case_client_extra/classification')=='客户'?'client':'contact').
-							'/edit/'.post('case_client/client').'\')" target="_blank">新'.
-							post('case_client_extra/classification').' '.post('case_client_extra/name').
-							' 已经添加，点击编辑详细信息</a>'
-						);
+					if(post('case_client_extra/phone')){
+						if($this->client->isMobileNumber(post('case_client_extra/phone'))){
+							$new_client['profiles']['手机']=post('case_client_extra/phone');
+						}else{
+							$new_client['profiles']['电话']=post('case_client_extra/phone');
+						}
 					}
+
+					if(post('case_client_extra/email')){
+						$new_client['profiles']['电子邮件']=post('case_client_extra/email');
+					}
+
+					if($this->output->message['warning']){
+						throw new Exception();
+					}
+					
+					$new_client_id=$this->client->add($new_client);
+
+					post('case_client/client',$new_client_id);
+
+					$this->output->message(
+						'<a href="javascript:showWindow(\''.
+						(post('case_client_extra/classification')=='客户'?'client':'contact').
+						'/edit/'.post('case_client/client').'\')" target="_blank">新'.
+						post('case_client_extra/classification').' '.post('case_client_extra/name').
+						' 已经添加，点击编辑详细信息</a>'
+					);
+
 				}
 
 				if($this->cases->addPeople($this->cases->id,post('case_client/client'),post('case_client/role'))){
-					unset($_SESSION['cases']['post'][$this->cases->id]['case_client']);
-					unset($_SESSION['cases']['post'][$this->cases->id]['case_client_extra']);
+					//unset($_SESSION['cases']['post'][$this->cases->id]['case_client']);
+					//unset($_SESSION['cases']['post'][$this->cases->id]['case_client_extra']);
 					
-					$client_list=$this->subList('client',$this->cases->id);
-					echo json_encode(array('message'=>$this->output->message)+$client_list);
+					$this->output->data=$this->subList('client',$this->cases->id);
+					$this->output->status='success';
 				}
 			}
 
 			elseif($submit=='case_client_delete'){
 				if($this->cases->removePeople($this->cases->id,$this->input->post('case_client_check'))){
-					echo json_encode($this->subList('client',$this->cases->id));
+					$this->output->data=$this->subList('client',$this->cases->id);
 				}
 			}
 			

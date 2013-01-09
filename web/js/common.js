@@ -1,7 +1,7 @@
 /*跳转IE6用户*/
 if($.browser.msie && $.browser.version<7 && !(controller=='user' && action=='browser')){
 	/*跳转到浏览器推荐页面*/
-	window.location.href='/user/browser';
+	window.location.hash='user/browser';
 	/*停止载入页面*/
 	exit();
 }
@@ -16,16 +16,11 @@ $(window).hashchange(function(){
 
 $(document).ready(function(){
 
-	$.get('/nav',function(response){
-		$(document).setBlock(response);
-	},'json');
-	
+	/*为主体载入指定页面或默认页面*/
 	if(window.location.hash){
 		$(window).trigger('hashchange');
 	}else{
-		$.get($('#page').attr('default-uri'),function(response){
-			$(document).setBlock(response);
-		},'json');
+		window.location.hash=$('#page').attr('default-uri');
 	}
 })
 /*主体页面加载事件*/
@@ -120,8 +115,8 @@ $(document).ready(function(){
 	var autocompleteModel=$(this).attr('autocomplete-model');
 	$(this).autocomplete({
 		source: function(request, response){
-			$.post('/'+autocompleteModel+'/match',{term:request.term},function(data){
-				response(data);
+			$.post('/'+autocompleteModel+'/match',{term:request.term},function(responseJSON){
+				response(responseJSON.data);
 			},'json');
 		},
 		select: function(event,ui){
@@ -177,6 +172,15 @@ $(document).ready(function(){
 		$(this).find(':input').attr('disabled','disabled');
 	}*/
 	//return false;
+}).on('mouseenter mouseleave','.contentTable>tbody>tr',function(){
+	$(this).toggleClass('highlighted');
+
+}).on('click','.contentTable>tbody>tr:has(td[href])',function(){
+	window.location.hash=$(this).children('td:first').attr('href');
+
+}).on('click','.contentTable>tbody>tr a',function(){
+	event.stopPropagation();
+
 });
 
 function exit(){
@@ -631,7 +635,7 @@ jQuery.fn.getOptionsByLabelRelative=function(labelName,callback){
 	
 	$.get('/label/getrelatives/'+labelName,function(response){
 		var options='';
-		$.map(response,function(item,index){
+		$.map(response.data,function(item,index){
 			options+='<option value="'+index+'">'+item+'</option>';
 		})
 		select.html(options).change();
@@ -707,12 +711,21 @@ jQuery.fn.setBlock=function(response){
 					window.location.hash='#'+data.content;
 				}else{
 					$.get(data.content,function(response){
-						$(document).setBlock(response);
+						if(data.method=='replace'){
+							$(data.selector).replaceWith(response.data);
+							$(data.selector).trigger('blockLoaded');
+						}else{
+							$(data.selector).html(response.data).trigger('blockLoaded');
+						}
 					},'json');
 				}
 				break;
 			case 'html':
-				$(data.selector).html(data.content);
+				if(data.method=='replace'){
+					$(data.selector).replaceWith(data.content);
+				}else{
+					$(data.selector).html(data.content);
+				}
 
 				if(data.selector=='#page'){
 					$('#page').trigger('pageLoaded');
@@ -725,7 +738,7 @@ jQuery.fn.setBlock=function(response){
 	}
 	
 	if(response.status=='login_required'){
-		response.data=[{'type':'uri','content':'nav','selector':'nav'},{'type':'uri','content':'user/login','selector':'#page'}];
+		response.data=[{'type':'uri','content':'nav','selector':'nav'},{'type':'uri','content':'login','selector':'#page'}];
 	}
 
 	if(response.message){
@@ -737,8 +750,10 @@ jQuery.fn.setBlock=function(response){
 	}
 
 	if(response.data.type){
+		/*data不是数组*/
 		set(response.data);
 	}else{
+		/*data是数组，先遍历*/
 		$.each(response.data,function(index,data){
 			set(data);
 		});

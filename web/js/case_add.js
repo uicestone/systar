@@ -1,3 +1,6 @@
+/*字表添加成功以后重置添加标单*/
+$('.add-form').on('submited');
+
 /*客户添加表单－客户名称自动完成事件的响应*/
 $('.item[name="client"]').on('autocompleteselect',function(event,data){
 	/*有自动完成结果且已选择*/

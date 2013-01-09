@@ -4,7 +4,7 @@ class SS_Controller extends CI_Controller{
 	var $controller;
 	var $method;
 	
-	var $default_method='lists';
+	var $default_method='index';
 
 	/**
 	 * 传递给视图的参数
@@ -99,7 +99,8 @@ class SS_Controller extends CI_Controller{
 		 * 弹出未登录用户
 		 */
 		if($this->require_permission_check && !$this->user->isLogged()){
-			echo json_encode(array('status'=>'login_required'));
+			$this->output->status='login_required';
+			$this->_output();
 			exit;
 		}
 		
@@ -107,7 +108,8 @@ class SS_Controller extends CI_Controller{
 		 * 屏蔽无权限用户
 		 */
 		if($this->require_permission_check && !$this->user->isPermitted($class)){
-			echo json_encode(array('status'=>'denied'));
+			$this->output->status='denied';
+			$this->_output();
 			exit;
 		}
 
@@ -259,9 +261,9 @@ class SS_Controller extends CI_Controller{
 
 	}
 	
-	function _output($output){
+	function _output($output=''){
 		if($output){
-			$this->output->data=array('selector'=>$this->output->selector,'content'=>$output,'type'=>'html');
+			$this->output->setBlock('html', $output, $this->load->selector);
 		}
 		
 		$output_array=array(
@@ -290,7 +292,7 @@ class SS_Controller extends CI_Controller{
 		foreach($this->input->post() as $field_name=>$value){
 			post($field_name,$value);
 		}
-		echo 'success';
+		$this->output->status='success';
 	}
 	
 }

@@ -8,7 +8,7 @@
 <?	if($this->company->ucenter && $this->user->new_messages>0){?>
 		<?=$this->user->new_messages?>
 <?	}?>
-		<a href="#user/logout" target="_top">退出</a>
+		<a href="#logout" target="_top">退出</a>
 <?	if($this->company->ucenter){ ?>
 		<a href="javascript:showWindow('schedule/add?case=598')" style="font-size:10px;color:#DDD;">反馈</a>
 <?	}?>

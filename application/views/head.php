@@ -11,4 +11,4 @@
 	<link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
 	<title><?=$this->company->sysname?></title>
 </head>
-<body style="background-image:url('/images/bg_<?=$this->company->syscode?>.gif')">
+<body>

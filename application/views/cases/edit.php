@@ -99,7 +99,7 @@
 			<?=$client_list?>
 	
 			<div class="add-form hidden">
-				<input type="text" name="case_client_extra[name]" value="<?=$this->value('case_client_extra/name')?>" placeholder="名称" autocomplete-model="client" style="width:20%" />
+				<input type="text" name="case_client_extra[client_name]" value="<?=$this->value('case_client_extra/name')?>" placeholder="名称" autocomplete-model="client" style="width:20%" />
 				<input type="text" name="case_client[client]" class="hidden" />
 				
 				<?=checkbox('单位','case_client_extra[character]',$this->value('case_client_extra/character'),'单位','display-for="new"')?>

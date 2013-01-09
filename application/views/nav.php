@@ -1,5 +1,6 @@
-<div id="navMenu">
-	<ul class="l0">
+<nav>
+	<div id="navMenu">
+		<ul class="l0">
 <?php
 foreach($this->user->permission as $controller_name => $controller){
 	if(isset($controller['_display']) && $controller['_display']){
@@ -32,11 +33,12 @@ foreach($this->user->permission as $controller_name => $controller){
 	}
 }
 ?>
-	</ul>
-</div>
+		</ul>
+	</div>
 <?if($this->config->item('debug_mode')){?>
 	<div style="color:#091F35;font-size:10px;position:fixed;bottom:0;"><? echo codeLines()?></div>
 <?}?>
+</nav>
 <script type="text/javascript">
 	/*导航栏配置*/
 	$('#navMenu>.l0>li>a,controller').click(function(){

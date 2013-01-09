@@ -295,6 +295,8 @@ class Client_model extends People_model{
 	 * @return array
 	 */
 	function match($part_of_name){
+		$part_of_name=mysql_real_escape_string($part_of_name);
+		
 		$query="
 			SELECT people.id,people.name 
 			FROM people
@@ -302,7 +304,7 @@ class Client_model extends People_model{
 			WHERE people.company={$this->company->id} AND people.display=1 
 				AND (name LIKE '%$part_of_name%' OR abbreviation LIKE '$part_of_name' OR name_en LIKE '%$part_of_name%')
 			ORDER BY people.id DESC
-			";
+		";
 		
 		return $this->db->query($query)->result_array();
 	}
