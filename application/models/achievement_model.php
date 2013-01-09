@@ -464,7 +464,7 @@ class Achievement_model extends SS_Model{
 			WHERE name <> '办案费'
 		";
 		
-		$date_range_bar=$this->dateRange($q,'time_occur');
+		$q=$this->dateRange($q,'time_occur');
 		
 		$q.="
 		)account_sum
