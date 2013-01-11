@@ -36,6 +36,12 @@ table, td, th {
 .hidden,.disabled{
 	display:none;
 }
+.shadow{
+	box-shadow:-2px 2px 5px rgba(0,0,0,0.5);
+}
+.throbber{
+	text-align: center;
+}
 .ui-autocomplete {
 	max-height: 200px;
 	overflow-y:scroll;
@@ -206,6 +212,28 @@ nav::-webkit-scrollbar{
 	width:120px;
 	height:35px;
 	font-size:18px;
+}
+
+.schedule-form{
+	padding:0 !important;
+}
+.schedule-form .ui-dialog-content{
+	padding:0 !important;
+	min-height:0 !important;
+	height:inherit !important;
+}
+.schedule-form .ui-dialog-content,.schedule-form .ui-dialog-content input,.schedule-form .ui-dialog-content select,.schedule-form .ui-dialog-content textarea{
+	font-size:16px !important;
+	line-height:1.5;
+}
+.schedule-form .ui-dialog-content .text{
+	width:291px;
+	border:0;
+	background:transparent;
+}
+.schedule-form .ui-dialog-buttonpane{
+	padding:0 !important;
+	margin:0 !important;
 }
 
 /*内容表*/

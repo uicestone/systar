@@ -29,7 +29,7 @@ function post($arrayindex){
 	if(is_null($CI->$controller->id)){
 		$backtrace = debug_backtrace();
 		$file = $backtrace[0]['file']; $line = $backtrace[0]['line'];
-		show_error("调用post方法时，必须定义当前控制器对应model的id属性，如\$this->student->id	File:$file Line:$line ——uice");
+		return;
 	}
 	
 	if(count($args)==1){

@@ -162,11 +162,7 @@ class Schedule extends SS_controller{
 		}		
 	}
 
-	function add(){
-		$this->edit();
-	}
-	
-	function edit($id=NULL){
+	/*function edit($id=NULL){
 		
 		$this->getPostData($id,function($CI){
 			if($CI->input->get('case')){
@@ -289,7 +285,7 @@ class Schedule extends SS_controller{
 		
 		$this->load->view('schedule/edit');
 		$this->load->main_view_loaded=true;
-	}
+	}*/
 
 	function listWrite(){
 		if($this->input->post('schedule_list_comment')){
@@ -335,14 +331,14 @@ class Schedule extends SS_controller{
 		$this->load->view('list');
 	}
 	
-	function readCalendar($id=NULL){
-		if(isset($id)){
+	function readCalendar($start,$end=NULL){
+		if(is_null($end)){
 			//获取指定的一个日程
-			$this->output->data=$this->schedule->fetch_single(intval($id));
+			$this->output->data=$this->schedule->fetch($start);
 		
 		}else{
 			//获得当前视图的全部日历，根据$this->input->get('start'),$this->input->get('end')(timestamp)
-			$this->output->data=$this->schedule->fetch_range($this->input->get('start'),$this->input->get('end'),$this->input->get('staff'),$this->input->get('case'));
+			$this->output->data=$this->schedule->fetch_range($start,$end,$this->input->get('staff'),$this->input->get('case'));
 		}
 	}
 	
@@ -386,49 +382,40 @@ class Schedule extends SS_controller{
 	function writeCalendar($action,$schedule_id=NULL){
 		
 		if($action=='add'){//插入新的任务
-			$postData = $this->input->post();
+			$data = $this->input->post();
 			
-			$new_schedule=array();
-			$new_schedule['id'] = $this->schedule->add($postData);
+			$new_schedule_id = $this->schedule->add($data);
 			
-			$fetch_result = $this -> schedule -> fetch($new_schedule['id']);
-			$new_schedule['name'] = $fetch_result['name'];
-			$new_schedule['content'] = $fetch_result['content'];
-			$result['response'] = json_encode($new_schedule);
-			//TODO@pang uice 11/26 我是这个意思，id,name,content本来就是并列的三个字段，没必要分层保存
-			//修改此处以后要相应修改_doc/前后台接口.js，过去看一下我的标注
-			
-			echo $result;
+			if($new_schedule_id){
+				$this->output->status='success';
+				$this->output->data=array('id'=>$new_schedule_id,'name'=>$data['name']);
+			}
 			
 		}elseif($action=='delete'){//删除任务
 			if($this->schedule->delete($schedule_id)){
-				echo 'success';
+				$this->output->status='success';
 			}
 		
 		}elseif($action=='update'){//更新任务内容
 			if($this->schedule->update($schedule_id,array(
-				'content'=>$this->input->post('content'),
-				'experience'=>$this->input->post('experience'),
-				'completed'=>$this->input->post('completed'),
-				'fee'=>(float)$this->input->post('fee'),
-				'fee_name'=>$this->input->post('fee_name'),
-				'place'=>$this->input->post('place')
+				'name'=>$this->input->post('name'),
+				'completed'=>$this->input->post('completed')
 			))){
-				echo 'success';
+				$this->output->status='success';
 			}
 		
 		}elseif($action=='resize'){//更新任务时间
 			$time_delta=intval($this->input->post('dayDelta'))*86400+intval($this->input->post('minuteDelta'))*60;
 			
 			if($this->schedule->resize($schedule_id,$time_delta,(int)$this->input->post('allDay'))){
-				echo 'success';
+				$this->output->status='success';
 			}
 
 		}elseif($action=='drag'){
 			$time_delta=intval($this->input->post('dayDelta'))*86400+intval($this->input->post('minuteDelta'))*60;
 
 			if($this->schedule->drag($schedule_id,$time_delta,(int)$this->input->post('allDay'))){
-				echo 'success';
+				$this->output->status='success';
 			}
 		}
 			
@@ -454,11 +441,13 @@ class Schedule extends SS_controller{
 						
 						$task_id = str_replace('task_' , '' , $task);
 						$fetch_result = $this -> schedule -> fetch($task_id);
-						$task_array['id']=$task_id;
-						$task_array['title'] = $fetch_result['name'];
-						$task_array['content'] = $fetch_result['content'];
-	
-						array_push($series_array , $task_array);
+						if($fetch_result){
+							$task_array['id']=$task_id;
+							$task_array['title'] = $fetch_result['name'];
+							$task_array['content'] = $fetch_result['name'];
+
+							array_push($series_array , $task_array);
+						}
 					}
 				}
 				array_push($task_board , $series_array);
@@ -574,56 +563,33 @@ class Schedule extends SS_controller{
 		echo "success";
 	}
 	
-	/**
-	 * ajax响应页面，载入dialog内单条日程视图
-	 */
+	function add(){
+		$this->load->require_inner_js=false;
+		$this->load->addViewData('mode', 'add');
+		$this->load->view('schedule/calendar_add');
+	}
+	
 	function view($schedule_id){
-		$this->load->require_head=false;
-
-		$schedule=$this->schedule->fetch_single($schedule_id);
-		$this->load->addViewData('schedule', $schedule);
-		
-		$view=$this->load->view('schedule/view',array(),true);
-		$this->load->main_view_loaded=true;
-		
-		$name=$schedule['name'];
-		
-		echo json_encode(compact('name','view'));
+		$this->edit($schedule_id,'view');
 	}
 	
 	/**
-	 * ajax响应页面
+	 * ajax响应页面，载入dialog内单条日程视图
 	 */
-	function ajaxEdit($schedule_id=NULL){
+	function edit($schedule_id=NULL,$mode='edit'){
 		$this->load->require_head=false;
 		
-		$edit_mode=true;
-		if(is_null($schedule_id)){
-			$edit_mode=false;
-		}
+		$this->schedule->id=$schedule_id;
+
+		$schedule=$this->schedule->fetch($schedule_id);
+		$this->load->addViewData('schedule', $schedule);
+		$this->load->addViewData('mode',$mode);
 		
-		$this->load->addViewData('edit_mode', $edit_mode);
-
-		if(isset($schedule_id)){
-			$schedule=$this->schedule->fetch($schedule_id);
-			post('schedule',$schedule);
+		$view=$this->load->view('schedule/calendar_add',array(),true);
 		
-			//为scheduleType的Radio准备值
-			if(post('schedule/case')<=10 && post('schedule/case')>0){
-				post('schedule_extra/type',1);
-
-			}elseif(post('schedule/case')>10 && post('schedule/case')<20){
-				post('schedule_extra/type',2);
-
-			}else{
-				post('schedule_extra/type',0);
-
-			}
+		$name=$schedule['name'];
 		
-		}
-
-		$this->load->view('schedule/calendar_add');
-		$this->load->main_view_loaded=true;
+		$this->output->data=compact('name','view');
 	}
 }
 ?>

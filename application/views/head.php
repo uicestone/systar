@@ -8,6 +8,10 @@
 	<?=javascript('jquery')?>
 	<?=javascript('jquery-ui')?>
 	<?=javascript('common')?>
+
+	<?=stylesheet('js/fullcalendar/fullcalendar')?>
+	<?=javascript('fullcalendar/fullcalendar.min')?>
+
 	<link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
 	<title><?=$this->company->sysname?></title>
 </head>

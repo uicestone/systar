@@ -8,41 +8,43 @@
 	.ui-sortable-placeholder * { visibility: hidden; }
 </style>
 <script>
-$(function() {
-	$( ".column" ).sortable({
-		connectWith: ".column",
-		stop:function(event,ui){
-			var taskSort=[];
-			$( ".column").each(function(){
-				taskSort.push($(this).sortable( "toArray"));
-			});
-			$.post('/schedule/settaskboardsort',{sortData:taskSort},function(result){
-				console.log(result);
-			});
-		}
-	});
- 
-	$( ".portlet" ).click(function(){
-		$('#taskboard').showSchedule($(this).attr('id').replace('task_',''));
-	})
-	.addClass( "ui-widget ui-widget-content ui-helper-clearfix ui-corner-all" )
-	.find( ".portlet-header" )
+	$(function() {
+		$( ".column" ).sortable({
+			connectWith: ".column",
+			stop:function(event,ui){
+				var taskSort=[];
+				$( ".column").each(function(){
+					taskSort.push($(this).sortable( "toArray"));
+				});
+				$.post('/schedule/settaskboardsort',{sortData:taskSort},function(result){
+					//console.log(result);
+				});
+			}
+		});
+		
+		$('.portlet')	.addClass( "ui-widget ui-widget-content ui-helper-clearfix ui-corner-all" )
+		.find( ".portlet-header" )
 		.addClass( "ui-widget-header ui-corner-all" )
 		.prepend( "<span class='ui-icon ui-icon-minusthick'></span>")
-		.end()
-	.find( ".portlet-content" );
+		.end();
+ 
+		$('input[name="add[task]"]').click(function(){
+			$("#taskboard").createSchedule();
+		})
 
-	$( ".portlet-header .ui-icon" ).click(function(){
+		$( ".column" ).disableSelection();
+	});
+
+	$(document).on('click','.portlet',function(){
+		var event={id:$(this).attr('id').replace('task_','')}
+		$(this).showSchedule(event);
+	})
+	.on('click','.portlet-header .ui-icon',function(event){
+		event.stopPropagation();
 		$( this ).toggleClass( "ui-icon-minusthick" ).toggleClass( "ui-icon-plusthick" );
 		$( this ).parents( ".portlet:first" ).find( ".portlet-content" ).toggle();
 	});
 
-	$('input[name="add[task]"]').click(function(){
-		$("#taskboard").createSchedule();
-	})
-
-	$( ".column" ).disableSelection();
-});
 </script>
 </div>
 <div class="contentTableMenu">
@@ -52,15 +54,15 @@ $(function() {
 </div>
 
 <div id="taskboard" class="contentTableBox">
-<?foreach($task_board as $column){?>
-	<div class="column">	
-<?	foreach($column as $task){?>
-		<div class="portlet" id="task_<?=$task['id']?>">
-			<div class="portlet-header"><?=$task['title']?></div>
-			<div class="portlet-content"><?=$task['content']?></div>
+	<? foreach ($task_board as $column) { ?>
+		<div class="column">	
+			<? foreach ($column as $task) { ?>
+				<div class="portlet" id="task_<?= $task['id'] ?>">
+					<div class="portlet-header"><?= $task['title'] ?></div>
+					<div class="portlet-content"><?= $task['content'] ?></div>
+				</div>
+			<? } ?>
 		</div>
-<?	}?>
-	</div>
-<?}?>
+	<? } ?>
 
 </div>

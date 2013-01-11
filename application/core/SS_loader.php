@@ -68,6 +68,11 @@ class SS_Loader extends CI_Loader{
 		}
 	}
 	
+	/**
+	 * 从$_SESSION[CONTROLLER][post][对象ID]中取得相应值，取不到的话从Loader::view_data里取
+	 * @param $index
+	 * @return mixed
+	 */
 	function value($index){
 		if(!is_null(post($index))){
 			return post($index);

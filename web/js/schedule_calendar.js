@@ -1,7 +1,6 @@
-$('link[href^="/js/fullcalendar/fullcalendar.css"]').on('load',function(){
-	//此css文件没有加载时，fullCalendar首次渲染样式会出问题
+$(function(){
 	
-	var calendar=$('#calendar').fullCalendar({
+	var calendar=$('.contentTableBox#calendar:not(.fc)').fullCalendar({
 		defaultView: 'agendaWeek',
 		height: $(window).height()-25,
 		titleFormat:{
@@ -39,19 +38,21 @@ $('link[href^="/js/fullcalendar/fullcalendar.css"]').on('load',function(){
 		},
 		selectable: true,
 		selectHelper: true,
-		select: function(startDate,endDate, allDay) {
-			$(calendar).createSchedule(startDate,endDate,allDay);
+		select: function(startDate, endDate, allDay, event, view) {
+			$(event.target).createSchedule(startDate,endDate,allDay);
 		},
+		
+		unselectAuto:false,
 
 		editable: true,
 		events: function(start,end,callback){
-			$.get('/schedule/readcalendar'+location.search,function(response){
+			$.get('/schedule/readcalendar/'+start.getTime()/1000+'/'+end.getTime()/1000+location.search,function(response){
 				callback(response.data);
 			},'json');
 		},
 
-		eventClick: function(event) {
-			$(calendar).showSchedule(event.id);
+		eventClick: function(event,jsEvent) {
+			$(jsEvent.target).parents('.fc-event:first').showSchedule(event);
 		},
 		eventDrop: function(event,dayDelta,minuteDelta,allDay) {
 			date = new Date();
@@ -65,17 +66,21 @@ $('link[href^="/js/fullcalendar/fullcalendar.css"]').on('load',function(){
 			});
 		},
 		eventResize:function(event,dayDelta,minuteDelta){
-			$.post("/schedule/writecalendar/resize/"+event.id,{dayDelta:dayDelta,minuteDelta:minuteDelta,allDay:event.allDay},function(result){
-				if(result!='success'){
+			$.post("/schedule/writecalendar/resize/"+event.id,{dayDelta:dayDelta,minuteDelta:minuteDelta,allDay:event.allDay},function(response){
+				if(response.status!='success'){
 					showMessage('日程时间数据保存失败','notice');
 					console.log(result);
 				}
-			});
+			},'json');
 		}
 	});
 
 	$(window).resize(function(){
 		calendar.fullCalendar('option','height',$(this).height()-25);
+	});
+	
+	$(document).on('resize','*',function(event){
+		event.stopPropagation();
 	});
 
 });

@@ -373,243 +373,181 @@ function keyPressHandler(button,waitKeyCode){
 	}
 }
 	
-jQuery.fn.createDialog=function(title,html){
-	//$('#dialog').remove();//创建一个对话框的时候，先删除其他对话框
-	var dialogs=$('.dialog').length;
-	var dialog=$('<div id="dialog_'+(dialogs+1)+'" class="dialog"></div>').insertAfter($(this))
+jQuery.fn.showSchedule=function(event){
+	var target=$(this);
+	var dialog=$('<div class="dialog"></div>').appendTo('body')
 	.dialog({
-		title:title,
-		position:['middle', 200],minHeight:300,minWidth:500,
-		autoOpen:false,show:'fade',hide:'fade',
-		close:function(){$(this).remove()}
-	});
+		position:{
+			my:'left bottom',
+			at:'right top',
+			of:target
+		},
+		dialogClass:'shadow schedule-form',
+		autoOpen:true,show:'fade',hide:'fade',
+		modal:true
+	}).html('<div class="throbber"><img src="/images/throbber.gif" /></div>')
 	
-	if(html){
-		dialog.html(html);
-	}
-	
-	return dialog;
-}
-
-jQuery.fn.showSchedule=function(eventId){
-	var calendar=$(this);
-	$.get("/schedule/view/"+eventId,function(schedule){
-		
-		var dialog=$(this).createDialog(schedule.name,schedule.view)
-		.dialog( "option", "buttons", [
-			{
-				text: "编辑",
-				click: function(){
-					$(this).editSchedule(eventId,calendar);
-				}
+	.dialog( "option", "buttons", [
+		{
+			text: "+",
+			click: function(){
+				;
 			}
-		]);
-
-		if($(calendar).attr('id')=='calendar'){
-			dialog.dialog('option','buttons',[{
-				text:'添加至任务墙',
-				click:function(){
-					$.get('/schedule/addtotaskboard/'+eventId,function(){
-						dialog.dialog('close');
-					});
-				}
-			}].concat(dialog.dialog('option','buttons')));
-		}else if($(calendar).attr('id')=='taskboard'){
-			dialog.dialog('option','buttons',[{
-				text:'移出任务墙',
-				click:function(){
-					$.get('/schedule/deletefromtaskboard/'+eventId,function(){
-						dialog.dialog('close');
-						$("#task_"+eventId).remove();
-					});
-					
-				}
-			}].concat(dialog.dialog('option','buttons')));
+		},
+		{
+			text: "编辑",
+			click: function(){
+				$(this).editSchedule(event);
+			}
 		}
-		
-		dialog.dialog('open');
+	]);
+
+	if($('#page .contentTableBox').attr('id')=='calendar'){
+		dialog.dialog('option','buttons',[{
+			text:'添加至任务墙',
+			click:function(){
+				$.get('/schedule/addtotaskboard/'+event.id,function(){
+					dialog.dialog('close');
+				});
+			}
+		}].concat(dialog.dialog('option','buttons')));
+	}else if($('#page .contentTableBox').attr('id')=='taskboard'){
+		dialog.dialog('option','buttons',[{
+			text:'移出任务墙',
+			click:function(){
+				$.get('/schedule/deletefromtaskboard/'+event.id,function(){
+					dialog.dialog('close');
+					$("#task_"+event.id).remove();
+				});
+
+			}
+		}].concat(dialog.dialog('option','buttons')));
+	}
+
+	$.get("/schedule/view/"+event.id,function(response){
+		dialog.dialog('option','title',response.data.name);
+		dialog.html(response.data.view);
 	},'json');
 }
 
 jQuery.fn.createSchedule=function(startDate, endDate, allDay){
 	date = new Date();
-	calendar=$(this);
+	selection=$(this);
 	
-	var dialog;
-	if(startDate && endDate){
-		dialog=$(this).createDialog('新建日程');
-	}
-	else{
-		dialog=$(this).createDialog('新建任务')
-	}
-	$.get('/schedule/ajaxedit',function(schedule_calendar_add_form){
-
-		dialog.html(schedule_calendar_add_form)
-			.find('#combobox')
-			.combobox();
-	
-		/*配置type和completed默认值*/
-		$('input[name="type"][value="0"]').attr('checked','checked');
-		if(startDate){
-			$('input[name="completed"][value="'+(startDate.getTime()<date.getTime()?1:0)+'"]').attr('checked','checked');
+	var dialog=$('<div class="dialog"></div>').appendTo('body')
+	.dialog({
+		title:'新建日程',
+		position:{
+			my:'left bottom',
+			at:'right top',
+			of:selection
+		},
+		dialogClass:'shadow schedule-form',
+		autoOpen:true,show:'fade',hide:'fade',
+		modal:true,
+		close:function(){
+			selection.parents('.fc:first').fullCalendar('unselect');
+			$(this).remove();
 		}
-		var typeRadio = $('input[name="type"]');
-		var caseSelect = $('select[name="case"]');
+	}).html('<div class="throbber"><img src="/images/throbber.gif" /></div>');
 
-		/*监听项目类别变化*/
-		typeRadio.change(function(){
-			var type=$('input[name="type"]:checked').val();
-
-			caseSelect.getOptions('cases','getListByScheduleType',type,1,function(scheduleCase){
-				caseSelect.trigger('change',{scheduleCase:scheduleCase,type:type});
-			});
-		});
-
-		/*监听案件变化*/
-		caseSelect.change(function(event,data){
-			if(!data){
-				scheduleCase = $(this).val();
-			}else{
-				scheduleCase = data.scheduleCase;
-			}
-
-			if((data && data.type==2) || $('input[name="type"]:checked').val()==2){
-				$('#clientSelectBox').show(200).children('select').removeAttr('disabled')
-				.getOptions('client','getListByCase',scheduleCase,1);
-			}else{
-				$('#clientSelectBox,#clientInputBox').hide(200).children('select').attr('disabled','disabled');
-			}
-		});
-		typeRadio.change();
-	});
-
-	dialog.dialog( "option", "buttons", [{
-		text: "保存",
-		click: function() {
-			if($('input[name="name"]').val()==''){
-				if(startDate){
-					alert('日志名称必填');
+	$.get('/schedule/add',function(response){
+		dialog.html(response.data[0].content).find('[name="name"]').focus();
+		dialog.dialog( "option", "buttons", [{
+			text: "保存",
+			click: function() {
+			if(startDate && endDate){
+				var data={
+					time_start:startDate.getTime()/1000,
+					time_end:endDate.getTime()/1000,
+					all_day:Number(allDay),
+					name:dialog.find('[name="name"]').val()
 				}
-				else alert('任务名称必填');
-				$('input:[name="name"]').focus();
-			}else{
-				if(startDate && endDate){
-					var start=startDate.getTime()/1000;
-					var end=endDate.getTime()/1000;
-					var postData=$.extend($('#schedule').serializeJSON(),{time_start:start,time_end:end,all_day:Number(allDay)});
-					delete postData.type;
-					$.post("/schedule/writecalendar/add",postData,
-						function(response){
-							if(isNaN(response) && response !=null){
-								calendar.fullCalendar('renderEvent',
-									{
-										id:response['id'],
-										title:$('[name="name"]').val(),
-										start: startDate,
-										end: endDate,
-										allDay: allDay,
-										color:startDate.getTime()>date.getTime()?'#E35B00':'#36C'
-									}
-								);
-								calendar.fullCalendar('unselect');
-								dialog.dialog('close');
-								
-							}else{
-								showMessage('日程添加失败','notice');
-								console.log(response);
-							}
-						}
-					);
-				}else{
-						var postData=$('#schedule').serializeJSON();
-						delete postData.type;
-						$.post("/schedule/writecalendar/add",postData,
-							function(response){
-								$('.column:first').append('<div class="portlet" id="task_'+response['id']+'">'+
-																'<div class="portlet-header">'+response['name']+'</div>'+
-																'<div class="portlet-content">'+response['content']+'</div>'+
-																'</div>')
-								$(".portlet" ).click(function(){
-										$('#taskboard').showSchedule($(this).attr('id').replace('task_',''));
-								})
-								$('.column:first')
-								.find( ".portlet:last" ).
-									addClass( "ui-widget ui-widget-content ui-helper-clearfix ui-corner-all" )
-					            .find( ".portlet-header" )
-					                .addClass( "ui-widget-header ui-corner-all" )
-					                .prepend( "<span class='ui-icon ui-icon-minusthick'></span>")
-					                .end()
-					            .find( ".portlet-content" );
-								
-								$( ".portlet-header .ui-icon" ).click(function(){
-						            $( this ).toggleClass( "ui-icon-minusthick" ).toggleClass( "ui-icon-plusthick" );
-						            $( this ).parents( ".portlet:first" ).find( ".portlet-content" ).toggle();
-						        });
-								
-								dialog.dialog('close');
-							});
-						
+				$.post("/schedule/writecalendar/add",data,function(response){
+					if(response.status=='success'){
+						$(calendar).fullCalendar('renderEvent',{
+							id:response.data.id,
+							title:response.data.name,
+							start: startDate,
+							end: endDate,
+							allDay: allDay,
+							color:startDate.getTime()>date.getTime()?'#E35B00':'#36C'
+						});
+						dialog.dialog('close');
+
+					}else{
+						showMessage('日程添加失败','warning');
+						console.log(response);
 					}
+				},'json');
+			}else{
+				var data={name:dialog.find('[name="name"]').val()};
+				$.post("/schedule/writecalendar/add",data,
+					function(response){
+						$.get('/schedule/addtotaskboard/'+response.data.id,function(){
+							$('.column:first').append(
+								'<div class="portlet" id="task_'+response.data.id+'">'+
+								'<div class="portlet-header">'+response.data.name+'</div>'+
+								'<div class="portlet-content">'+response.data.name+'</div>'+
+								'</div>'
+							);
+							$('.column:first')
+							.find( ".portlet:last" )
+							.addClass( "ui-widget ui-widget-content ui-helper-clearfix ui-corner-all" )
+							.find( ".portlet-header" )
+								.addClass( "ui-widget-header ui-corner-all" )
+								.prepend( "<span class='ui-icon ui-icon-minusthick'></span>")
+								.end();
+
+							dialog.dialog('close');
+						});
+					},'json');
 				}
-		}
-	}])
-	.dialog('open');
+			}
+		}]);
+	},'json');
 }
 
-jQuery.fn.editSchedule=function(eventId,calendar){
+jQuery.fn.editSchedule=function(event){
 	dialog=$(this);
 	
-	$.get('/schedule/ajaxedit/'+eventId,function(html){
-		dialog.html(html);
-		/*
-		$('[name="name"]').val(schedule.name);
-		$('[name="content"]').val(schedule.content);
-		$('[name="experience"]').val(schedule.experience);
-		$('[name="place"]').val(schedule.place);
-		$('[name="fee"]').val(schedule.fee);
-		$('[name="fee_name"]').val(schedule.fee_name);
-		//$('[name="name"]').val(schedule.name);
-		$('[name="completed"][value="'+schedule.completed+'"]').attr('checked','checked');
-		*/
-
-		dialog.dialog( "option", "buttons", [
+	$.get('/schedule/edit/'+event.id,function(response){
+		dialog.dialog('option','title',response.data.name).html(response.data.view).find('[name="name"]').focus();
+		
+		dialog.dialog('option','buttons',[
 			{
 				text: "删除",
 				click: function() {
-					$.get("/schedule/writecalendar/delete/"+eventId,function(result){
+					$.get("/schedule/writecalendar/delete/"+event.id,function(result){
 						console.log(result);
 					});
 					$(this).dialog("close");
-					if($(calendar).attr('id')=='calendar')
-					calendar.fullCalendar('removeEvents',[eventId]);
-					else if($(calendar).attr('id')=='taskboard'){
-						$("#task_"+eventId).remove();
+					if($('#page .contentTableBox').attr('id')=='calendar'){
+						$(calendar).fullCalendar('removeEvents',[event.id]);
+						
+					}else if($('#page .contentTableBox').attr('id')=='taskboard'){
+						$("#task_"+event.id).remove();
 					}
-				}
-			},
-			{
-				text: "高级",
-				click: function() {
-					$(this).dialog("close");
-					showWindow('schedule/edit/'+eventId);
 				}
 			},
 			{
 				text: "保存",
 				click: function() {
-					$.post("/schedule/writecalendar/update/"+eventId,{
-						content:$('[name="content"]').val(),
-						experience:$('[name="experience"]').val(),
-						completed:$('input[name="completed"]:radio:checked').val(),
-						fee:$('[name="fee"]').val(),
-						fee_name:$('input[name="fee_name"]').val(),
-						place:$('input[name="place"]').val()
+					var data = {name:dialog.find('[name="name"]').val()};
+					$.post("/schedule/writecalendar/update/"+event.id,data,function(){
+						event.title=data.name;
+						if(event.start){
+							$(calendar).fullCalendar('updateEvent',event);
+						}else{
+							//TODO 更新任务板上的任务时，标题无法刷新。主要是不知道怎么用选择器。因为InnerHTML有一个加号
+							$('.portlet#task_'+event.id+' .portlet-content').html(event.title);
+						}
+						dialog.dialog('close');
 					});
-					$(this).dialog("close");
 				}
 			}
 		]);
-	});
+	},'json');
 }
 
 jQuery.fn.getOptions=function(affair,method,active_value,select_type,callback){

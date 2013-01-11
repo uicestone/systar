@@ -1,5 +1,5 @@
 <?php
-function uidTime($company=true){
+function uidTime($company=true,$time_insert=false){
 	$CI=&get_instance();
 	$array=array(
 		'uid'=>$CI->user->id,
@@ -9,6 +9,10 @@ function uidTime($company=true){
 	
 	if($company){
 		$array['company']=$CI->company->id;
+	}
+	
+	if($time_insert){
+		$array['time_insert']=$CI->config->item('timestamp');
 	}
 	
 	return $array;

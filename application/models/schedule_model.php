@@ -9,40 +9,31 @@ class Schedule_model extends SS_Model{
 
 	function fetch($id){
 		$id=intval($id);
-		
-		$query="
-			SELECT * 
-			FROM schedule
-			WHERE id={$id} AND company={$this->company->id}";
-		
-			return $this->db->query($query)->row_array();
-	}
-	
-	function fetch_single($id){
-		$id=intval($id);
 
 		$q_schedule="
-			SELECT schedule.id,schedule.name,schedule.content,schedule.experience,
-				schedule.time_start,schedule.time_end,schedule.hours_own,
-				schedule.place,schedule.fee,schedule.fee_name,schedule.completed,
-				client.abbreviation AS client_name,client.id AS client,
-				case.name AS case_name,case.id AS `case`
+			SELECT id,name,time_start,time_end,all_day
 			FROM schedule
-				LEFT JOIN `case` ON case.id=schedule.case
-				LEFT JOIN people client ON client.id=schedule.people
-			WHERE schedule.id=$id
-				AND schedule.company='{$this->company->id}'";
+			WHERE id = $id
+				AND display=1
+				AND company = {$this->company->id}
+		";
 		
 		$schedule=$this->db->query($q_schedule)->row_array();
 
-		$schedule['content_paras']=explode("\n",$schedule['content']);
-		$schedule['experience_paras']=explode("\n",$schedule['experience']);
-		$schedule['time_start']=date('Y-m-d H:i',$schedule['time_start']);
-		$schedule['time_end']=date('Y-m-d H:i',$schedule['time_end']);
+		isset($schedule['time_start']) && $schedule['time_start']=date('Y-m-d H:i',$schedule['time_start']);
+		isset($schedule['time_end']) && $schedule['time_end']=date('Y-m-d H:i',$schedule['time_end']);
 	
 		return $schedule;
 	}
 	
+	/**
+	 * 获得一个时间范围内的多个日程
+	 * @param $start 开始时间戳
+	 * @param $end 结束时间戳
+	 * @param $staff
+	 * @param $case
+	 * @return array
+	 */
 	function fetch_range($start,$end,&$staff,&$case){
 	
 		$q_calendar="SELECT * FROM schedule WHERE display=1 AND time_start>='".intval($start)."' AND time_start<'".intval($end)."'";
@@ -108,10 +99,10 @@ class Schedule_model extends SS_Model{
 		}
 
 		$data['display']=1;
-		$data+=uidTime();
+		$data+=uidTime(true,true);
 
 		if($this->db->insert('schedule',$data)){
-			return $this->fetch($this->db->insert_id());
+			return $this->db->insert_id();
 		}else{
 			return false;
 		}
@@ -123,7 +114,9 @@ class Schedule_model extends SS_Model{
 	}
 	
 	function update($schedule_id,$data){
-		return $this->db->update('schedule',$data,array('id'=>intval($schedule_id)));
+		$schedule_id=intval($schedule_id);
+		
+		return $this->db->update('schedule',$data,array('id'=>$schedule_id));
 	}
 	
 	/**
@@ -137,8 +130,20 @@ class Schedule_model extends SS_Model{
 	/**
 	 * 调整calendar页面的日程开始时间
 	 */
-	function drag($schedule_id,$seconds_delta){
-		return $this->db->query("UPDATE schedule SET `time_start` = `time_start`+'{$seconds_delta}', `time_end`=`time_end`+'{$seconds_delta}' WHERE id='{$schedule_id}'");
+	function drag($schedule_id,$seconds_delta,$all_day){
+		$schedule_id=intval($schedule_id);
+		$seconds_delta=intval($seconds_delta);
+		$all_day=(int)(bool)$all_day;
+		
+		$query="
+			UPDATE schedule 
+			SET `time_start` = `time_start`+$seconds_delta,
+				`time_end`=`time_end`+ $seconds_delta,
+				all_day = $all_day
+			WHERE id= $schedule_id
+		";
+		
+		return $this->db->query($query);
 	}
 	
 	function calculateTime($case,$client=NULL,$staff=NULL){
