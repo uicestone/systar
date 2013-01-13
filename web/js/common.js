@@ -19,7 +19,7 @@ $(document).ready(function(){
 	/*为主体载入指定页面或默认页面*/
 	if(window.location.hash){
 		$(window).trigger('hashchange');
-	}else{
+	}else if($('#page').attr('default-uri')){
 		window.location.hash=$('#page').attr('default-uri');
 	}
 })
@@ -77,7 +77,7 @@ $(document).ready(function(){
 	$.post('/'+controller+'/setfields/'+id,data);
 })
 /*截获所有链接点击事件，用以加载主体页面（弹窗页面除外）*/
-.on('click','a:not([href^="javascript"]):not([href^="#"])',function(){
+/*.on('click','a:not([href^="javascript"]):not([href^="#"])',function(){
 	var href=$(this).attr('href');
 	$('#page').load($(this).attr('href'),function(){
 		$(this).trigger('pageLoaded');
@@ -87,7 +87,7 @@ $(document).ready(function(){
 	});
 
 	return false;
-})
+})*/
 /*边栏最小化*/
 .on('click','.minimize-button',function(){
 	$('#toolBar').toggleClass('minimized');
@@ -676,7 +676,7 @@ jQuery.fn.setBlock=function(response){
 	}
 	
 	if(response.status=='login_required'){
-		response.data=[{'type':'uri','content':'nav','selector':'nav'},{'type':'uri','content':'login','selector':'#page'}];
+		window.location.href='login';
 	}
 
 	if(response.message){

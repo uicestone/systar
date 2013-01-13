@@ -5,15 +5,9 @@ class Frame extends SS_Controller{
 		parent::__construct();
 	}
 	
-	/**
-	 * 覆盖SS_controller的_output方法，因为框架不需要改变输出方式
-	 * @param type $output
-	 */
-	function _output($output) {
-		echo $output;
-	}
-	
 	function index(){
+		$this->output->as_ajax=false;
+		
 		$this->load->view('head');
 		$this->load->view('nav');
 		$this->load->view('menu');

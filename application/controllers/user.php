@@ -5,10 +5,14 @@ class user extends SS_controller{
 		parent::__construct();
 	}
 	
-	function submit($submit){
+	function logout(){
+		$this->user->sessionLogout();
+		redirect('login');
+	}
+	
+	function login($method=NULL){
 		
-		
-		if($submit=='login'){
+		if($this->input->post('login')){
 
 			$user=$this->user->verify($this->input->post('username'),$this->input->post('password'));
 
@@ -32,32 +36,27 @@ class user extends SS_controller{
 				$this->user->updateLoginTime();
 
 				if(!isset($user['password'])){
-					echo json_encode(array('url'=>'user/profile'));
+					redirect('#user/profile');
 				}else{
-					$nav_html=$this->load->view('nav',array(),true);
-					$this->output->setBlock('html',$nav_html,'nav','replace');
-					$this->output->setBlock('uri');
+					redirect();
 				}
 
 			}else{
-				$this->output->message('名字或密码错','warning');
+				showMessage('名字或密码错','warning');
 			}
 				
 		}
-	}
-	
-	function logout(){
-		$this->user->sessionLogout();
-		$this->output->status='login_required';
-	}
-	
-	function login(){
 		
 		if($this->user->isLogged()){
 			//用户已登陆，则不显示登录界面
 			$this->output->setBlock('uri');
 		}else{
+			$this->output->as_ajax=false;
+		
+			$this->load->view('head');
 			$this->load->view('user/login');
+			$this->load->view('foot');
+			$this->inner_js.="affair='登录';$('#username').focus();";
 		}
 
 	}

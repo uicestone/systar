@@ -1,9 +1,9 @@
 <?php
 class Test extends SS_controller{
 	function __construct() {
-		$this->default_method='index';
 		$this->require_permission_check=false;
 		parent::__construct();
+		$this->output->as_ajax=false;
 	}
 	
 	function index(){

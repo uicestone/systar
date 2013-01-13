@@ -132,11 +132,17 @@ class SS_Controller extends CI_Controller{
 	
 	/**
 	 * 自定义的通用输出方法，系统不再直接将输出内容打印，而是传给此方法
-	 * 此方法的作用是判断当前页面是传统html输出还是统一json输出
-	 * 如果是前者，那么追加一些需要执行的内嵌js代码，然后直接打印（这里需要用内嵌js是因为js的变量需要由后台程序赋值）
-	 * 如果是后者，那么将当前Load类中的data,status,message等属性统一封装为json后输出
+	 * 此方法将当前Output类中的data,status,message等属性统一封装为json后输出
+	 * 而且他还会判断当前页面是否包含一个传统html输出
+	 * 如果是，那么追加一些需要执行的内嵌js代码，然后添加到Output::data中（这里需要用内嵌js是因为js的变量需要由后台程序赋值）
 	 */
 	function _output($output=''){
+		
+		if(!$this->output->as_ajax){
+			echo $output;
+			return;
+		}
+		
 		if($output){
 			//如果在这个方法运行之前，页面就有输出，那么说明是一个旧式的输出html的页面，我们给它直接加上嵌入页面的js
 			$output.=$this->load->view('innerjs',array(),true);

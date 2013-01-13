@@ -200,15 +200,16 @@ nav::-webkit-scrollbar{
 	margin-left:5px;
 }
 /*login*/
-#loginForm{
-	margin-top:20%;
+.login-form{
+	position:absolute;top:0;bottom:0;left:0;right:0;
+	padding-top:20%;
 	text-align:center;
 }
-#loginForm .item input{
+.login-form .item input{
 	font-size:18px;
 	/*width:100%;*/
 }
-#loginForm .submit input{
+.login-form .submit input{
 	width:120px;
 	height:35px;
 	font-size:18px;
