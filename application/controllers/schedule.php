@@ -149,7 +149,7 @@ class Schedule extends SS_controller{
 			//$this->document->exportHead($filename);
 
 			$objWriter->save('php://output');
-			$this->load->require_head=false;
+			
 			$this->load->main_view_loaded=true;
 			$this->load->sidebar_loaded=true;
 		
@@ -564,7 +564,6 @@ class Schedule extends SS_controller{
 	}
 	
 	function add(){
-		$this->load->require_inner_js=false;
 		$this->load->addViewData('mode', 'add');
 		$this->load->view('schedule/calendar_add');
 	}
@@ -577,7 +576,7 @@ class Schedule extends SS_controller{
 	 * ajax响应页面，载入dialog内单条日程视图
 	 */
 	function edit($schedule_id=NULL,$mode='edit'){
-		$this->load->require_head=false;
+		
 		
 		$this->schedule->id=$schedule_id;
 

@@ -532,7 +532,7 @@ class Cases_model extends SS_Model{
 		
 		//TODO 一个相关人有多个手机时会显示多行
 		$query="
-			SELECT case_people.id,case_people.type,case_people.role,people.name,phone.content AS phone,email.content AS email
+			SELECT case_people.id,case_people.people,case_people.type,case_people.role,people.name,phone.content AS phone,email.content AS email
 			FROM case_people
 				INNER JOIN people ON people.id=case_people.people
 				LEFT JOIN people_profile phone ON phone.name IN ('手机','电话') AND phone.people=people.id

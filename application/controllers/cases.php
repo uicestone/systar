@@ -91,7 +91,7 @@ class Cases extends SS_controller{
 					if(!post('cases/client_lock')){
 						\$return.='<input type=\"checkbox\" name=\"case_client_check[]\" value=\"{id}\" />';
 					}
-					\$return.='<a href=\"javascript:showWindow(\''.('{type}'=='客户'?'client':'contact').'/edit/{client}\')\">{name}</a>';
+					\$return.='<a href=\"javascript:showWindow(\''.('{type}'=='客户'?'client':'contact').'/edit/{people}\')\">{name}</a>';
 					return \$return;
 				",'orderby'=>false),
 				'phone'=>array('title'=>'电话','td'=>'class="ellipsis" title="{phone}"'),
@@ -345,7 +345,7 @@ class Cases extends SS_controller{
 	}
 
 	function submit($submit,$id){
-		$this->load->require_head=false;
+		
 		$this->load->model('client_model','client');
 		$this->load->model('staff_model','staff');
 		
@@ -357,7 +357,7 @@ class Cases extends SS_controller{
 		
 		if($submit=='cancel'){
 			unset($_SESSION[CONTROLLER][$this->cases->id]['post']);
-			$this->db->delete($this->actual_table==''?CONTROLLER:$this->actual_table,"uid = {$this->user->id} AND display = 0");//删除本用户的误添加数据
+			$this->cases->clearUserTrash();
 			$this->output->setBlock('uri',substr($this->session->userdata('last_list_action'),1));
 			return;
 		}
@@ -595,7 +595,7 @@ class Cases extends SS_controller{
 			}
 			
 			elseif($submit=='file_document_list'){
-				$this->load->require_head=false;
+				
 				$this->load->model('document_model','document');
 
 				$document_catalog=$this->cases->getDocumentCatalog($this->cases->id,post('case_document_check'));

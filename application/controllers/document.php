@@ -36,7 +36,7 @@ class Document extends SS_controller{
 
 			if($folder['type']!=''){
 				$this->download($folder['id']);
-				$this->load->require_head=false;
+				
 				return;
 			}else{
 				$_SESSION[CONTROLLER]['upID']=$folder['parent'];

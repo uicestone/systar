@@ -367,6 +367,20 @@ $config['case_document_path']="D:/case_document";
 
 $config['debug_mode']=true;
 
+//定义时区，windows系统中php不能识别到系统时区
+date_default_timezone_set('Asia/Shanghai');
+
+session_set_cookie_params(86400); 
+session_start();
+
+$config['timestamp']=time();
+$config['microtime']=microtime(true);
+
+$config['date']=date('Y-m-d',$config['timestamp']);
+
+//当前季度
+$config['quarter']=date('y',$config['timestamp']).ceil(date('m',$config['timestamp'])/3);
+		
 /**
  * 启用php5风格的autoloader
  * 从此不再需要$this->load->model('company_model','company')

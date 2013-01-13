@@ -3,7 +3,6 @@ class Student extends SS_controller{
 	function __construct(){
 		parent::__construct();
 		$this->load->model('classes_model','classes');
-		$this->actual_table='people';
 	}
 	
 	function lists(){
@@ -130,7 +129,7 @@ class Student extends SS_controller{
 	 * @param $id
 	 */
 	function submit($submit,$id){
-		$this->load->require_head=false;
+		
 		
 		if(parent::submit($submit)){
 			echo 'success';

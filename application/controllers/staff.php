@@ -35,7 +35,7 @@ class Staff extends SS_controller{
 	 * ajax响应页面，根据请求的字符串返回匹配的客户id和名称
 	 */
 	function match(){
-		$this->load->require_head=false;
+		
 
 		$term=$this->input->post('term');
 		

@@ -1,5 +1,5 @@
 <div id="topBar">
-<? if(!$this->as_popup_window && $this->user->isLogged()){?>
+<? if($this->user->isLogged()){?>
 	<div id="topMenu">
 		<a href="/user/profile"><?=$this->user->name?></a>
 <?	if($this->company->ucenter){?>

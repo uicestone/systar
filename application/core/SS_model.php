@@ -192,12 +192,6 @@ class SS_Model extends CI_Model{
 				$function_initializing_data($CI);
 			}
 	
-			if(isset($this->actual_table)){
-				$db_table=$this->actual_table;
-			}else{
-				$db_table=CONTROLLER;
-			}
-
 			if(is_callable(array($this),'add')){
 				$id=$this->add();
 			}else{

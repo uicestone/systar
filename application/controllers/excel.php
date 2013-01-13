@@ -20,7 +20,7 @@ class Excel extends SS_controller{
 		$this->table->setFields($field)
 			->setData($this->schedule->getList())
 			->generateExcel();
-		$this->load->require_head=false;
+		
 		$this->load->main_view_loaded=true;
 		$this->load->sidebar_loaded=true;
 	}

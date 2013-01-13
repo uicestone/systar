@@ -34,7 +34,7 @@ class Exam extends SS_controller{
 	 * TODO 网页内阅卷登分，需要重新设计
 	 */
 	function listSave(){
-		$this->load->require_head=false;
+		
 		if($this->input->get('update') && $this->input->post('id')){
 			$data=array($this->input->post('field')=>$this->input->post('value'));
 			$this->db->update($this->input->post('table'),$data,array('id'=>intval($this->input->post('id'))));

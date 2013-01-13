@@ -1,44 +1,29 @@
 <?php
 class SS_Controller extends CI_Controller{
 	
+	/**
+	 * 当前调用的控制器和方法
+	 * @var type 
+	 */
 	var $controller;
 	var $method;
 	
 	var $default_method='index';
 
-	/**
-	 * 传递给视图的参数
-	 */
-	var $view_data=array();
-
-	var $as_popup_window=false;
-	var $as_controller_default_page=false;
+	//var $as_popup_window=false;争取这一个属性也不用了！
+	//var $as_controller_default_page=false;这个也是
 	
+	/**
+	 * 当前控制器是否需要检查权限，只能在控制器构造函数中，父构造函数调用之前使用——因为现在的权限校验是放在大控制器的构造函数里的
+	 */
 	var $require_permission_check=true;
 	
-	/**
-	 * 实际主读写表，如client为people,query为case
-	 */
-	var $actual_table;
 	var $company_type_model_loaded=false;
 	
-	var $return;
+	//var $return;似乎已经没用了
 	
 	function __construct(){
 		parent::__construct();
-		
-		/**
-		 * 一些无法写入config.php的配置，要放在最首
-		 */
-		date_default_timezone_set('Asia/Shanghai');//定义时区，windows系统中php不能识别到系统时区
-	
-		session_set_cookie_params(86400); 
-		session_start();
-	
-		$this->config->set_item('timestamp',time());
-		$this->config->set_item('microtime',microtime(true));
-		$this->config->set_item('date',date('Y-m-d',$this->config->item('timestamp')));
-		$this->config->set_item('quarter',date('y',$this->config->item('timestamp')).ceil(date('m',$this->config->item('timestamp'))/3));
 		
 		/**
 		 * 处理$class和$method，并定义为常量
@@ -113,122 +98,6 @@ class SS_Controller extends CI_Controller{
 			exit;
 		}
 
-		/**
-		 * 根据controller和method请求决定一些参数
-		 * 这相当于集中处理了分散的控制器属性，在团队开发中，这不科学。有空应该把这些设置移动到对应的控制器中
-		 */
-		if(in_array($method,array('add','edit'))){
-			$this->as_popup_window=TRUE;
-		}
-			
-		if(in_array($class,array('frame','nav'))){
-			$this->load->require_menu=false;
-	
-		}elseif($class=='cases'){
-			$this->actual_table='case';
-			if(($method=='add' || $method=='edit')){
-				$this->as_popup_window=FALSE;
-				if($this->input->post('file_document_list')!==false){
-					$this->load->require_head=false;
-				}
-	
-			}elseif($method=='write'){
-				$this->load->require_head=false;
-	
-			}
-		}elseif($class=='classes'){
-			if(($method=='add' || $method=='edit')){
-				$this->as_popup_window=FALSE;
-	
-			}elseif($method=='write'){
-				$this->load->require_head=false;
-	
-			}
-		}elseif($class=='client'){
-			if($method=='get_source_lawyer'){
-				$this->load->require_head=false;
-	
-			}elseif($method=='autocomplete'){
-				$this->load->require_head=false;
-	
-			}
-		}elseif($class=='contact'){
-			$this->actual_table='client';
-
-		}elseif($class=='cron'){
-			ignore_user_abort();
-			set_time_limit(0);
-			//error_reporting('~E_ALL');
-	
-			if($method=='script'){
-				$this->action='cron_'.$this->input->get('script');
-	
-			}
-	
-		}elseif($class=='document'){
-			if($this->input->post('fileSubmit')){
-				$this->load->require_head=false;
-	
-			}elseif($this->input->post('createDirSubmit')){
-				$this->load->require_head=false;
-	
-			}elseif($this->input->post('fav')){
-				$this->load->require_head=false;
-	
-			}elseif($this->input->post('favDelete')){
-				$this->load->require_head=false;
-	
-			}
-		}elseif($class=='evaluation'){
-			if($method=='score'){
-				$this->as_popup_window=true;
-	
-			}elseif($method=='score_write'){
-				$this->load->require_head=false;
-	
-			}
-		}elseif($class=='misc'){
-			$this->load->require_head=false;
-	
-		}elseif($class=='query'){
-			$this->as_popup_window=FALSE;
-			
-	
-		}elseif($class=='schedule'){
-			if($method=='readcalendar'){
-				$this->load->require_head=false;
-	
-			}elseif($method=='writecalendar'){
-				$this->load->require_head=false;
-	
-			}elseif(($method=='list' || $method=='mine' || $method=='plan')){
-				if($this->input->post('export')){
-					$this->load->require_head=false;
-				}
-	
-			}elseif($method=='listwrite'){//日志列表写入评语/审核时间
-				$this->load->require_head=false;
-	
-			}
-		}elseif($class=='user'){
-			if($method=='login'){
-				$this->load->require_menu=false;
-	
-			}
-		}elseif($class=='affair'){
-			if($method=='switch'){
-				$this->load->require_head=false;
-	
-			}
-		}elseif($class=='student'){
-			$this->as_popup_window=FALSE;
-		}
-
-		if($this->input->post('submit/cancel')){
-			$this->load->require_head=false;
-			$method='cancel';
-		}
-		
 		if($this->input->post('date_range')){
 			if(!strtotime($this->input->post('date_from')) || !strtotime($this->input->post('date_to'))){
 				showMessage('日期格式错误','warning');
@@ -261,8 +130,16 @@ class SS_Controller extends CI_Controller{
 
 	}
 	
+	/**
+	 * 自定义的通用输出方法，系统不再直接将输出内容打印，而是传给此方法
+	 * 此方法的作用是判断当前页面是传统html输出还是统一json输出
+	 * 如果是前者，那么追加一些需要执行的内嵌js代码，然后直接打印（这里需要用内嵌js是因为js的变量需要由后台程序赋值）
+	 * 如果是后者，那么将当前Load类中的data,status,message等属性统一封装为json后输出
+	 */
 	function _output($output=''){
 		if($output){
+			//如果在这个方法运行之前，页面就有输出，那么说明是一个旧式的输出html的页面，我们给它直接加上嵌入页面的js
+			$output.=$this->load->view('innerjs',array(),true);
 			$this->output->setBlock('html', $output, $this->load->selector);
 		}
 		
@@ -276,17 +153,18 @@ class SS_Controller extends CI_Controller{
 	}
 	
 	/**
-	 * ajax响应页面，在一个form中，用户修改任何input/select值时，就发送一个请求，保存到$_SESSION中
-	 * 到发生保存请求时，只需要把$_SESSION中的新值保存即可
+	 * 在一个form中，用户修改任何input/select值时，就发送一个请求，保存到$_SESSION中
+	 * 如此一来到发生保存请求时，只需要把$_SESSION中的新值保存即可
 	 */
 	function setFields($item_id){
-		$this->load->require_head=false;
+		
 
-		$controller=CONTROLLER;
+		$controller=$this->controller;
 		$this->$controller->id=$item_id;
 		
 		if(!is_array($this->input->post())){
-			echo 'invalid post data';
+			$this->output->status='fail';
+			$this->output->message('invalid post data', 'warning');
 			return;
 		}
 		foreach($this->input->post() as $field_name=>$value){

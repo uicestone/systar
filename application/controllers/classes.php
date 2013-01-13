@@ -2,7 +2,6 @@
 class Classes extends SS_controller{
 	function __construct(){
 		parent::__construct();
-		$this->actual_table='class';
 	}
 	
 	function lists(){

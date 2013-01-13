@@ -2,7 +2,6 @@
 class Query extends SS_controller{
 	function __construct(){
 		parent::__construct();
-		$this->actual_table='case';
 	}
 	
 	function filed(){

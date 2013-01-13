@@ -4,8 +4,6 @@ class SS_Loader extends CI_Loader{
 	var $main_view_loaded=FALSE;
 	var $sidebar_loaded=FALSE;
 
-	var $require_head=true;//页面头尾输出开关（含menu）
-	var $require_inner_js=true;
 	var $view_data=array();//要传递给视图的参数
 	
 	var $inner_js='';

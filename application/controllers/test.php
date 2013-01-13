@@ -4,7 +4,6 @@ class Test extends SS_controller{
 		$this->default_method='index';
 		$this->require_permission_check=false;
 		parent::__construct();
-		$this->load->require_inner_js=false;
 	}
 	
 	function index(){
@@ -64,7 +63,7 @@ class Test extends SS_controller{
 		if(!$isOK){
 			$this->errorSQLMessage($sql);
 		}
-		$this->load->require_head=false;
+		
 		$this->load->main_view_loaded=true;
 		$this->load->sidebar_loaded=true;
 	}
@@ -89,7 +88,7 @@ class Test extends SS_controller{
 		$display_text=implode(' ',$words);
 		echo $display_text;
 		$pscws->close();
-		$this->load->require_head=false;
+		
 		$this->load->main_view_loaded=true;
 		$this->load->sidebar_loaded=true;
 	}
@@ -99,7 +98,7 @@ class Test extends SS_controller{
 		$this->load->model('Label_model','label_model');
 		$sorted_results=$this->label_model->search($label_string);
 		var_dump($sorted_results);
-		$this->load->require_head=false;
+		
 		$this->load->main_view_loaded=true;
 		$this->load->sidebar_loaded=true;
 	}

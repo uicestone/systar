@@ -29,16 +29,33 @@ class People_model extends SS_Model{
 		parent::__construct();
 	}
 
-	function fetch($id){
+	/**
+	 * 抓取一条人员信息
+	 * @param int $id 人员id
+	 * @param mixed $field 需要指定抓取的字段，留空则返回整个数组
+	 * @return 一条信息的数组，或者一个字段的值，如果指定字段且字段不存在，返回false
+	 */
+	function fetch($id,$field=NULL){
 		$id=intval($id);
 		
 		$query="
 			SELECT * 
 			FROM people
-			WHERE company={$this->company->id}
-				AND id=$id";
+			WHERE id = $id AND company={$this->company->id}
+		";
 		
-		return $this->db->query($query)->row_array();
+		$row=$this->db->query($query)->row_array();
+
+		if(is_null($field)){
+			return $row;
+	
+		}elseif(isset($row[$field])){
+			return $row[$field];
+
+		}else{
+			return false;
+		}
+		
 	}
 	
 	/**

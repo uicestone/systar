@@ -5,31 +5,6 @@ class Client_model extends People_model{
 	}
 	
 	/**
-	 * 抓取一条客户信息
-	 * @param int $id 案件id
-	 * @param mixed $field 需要指定抓取的字段，留空则返回整个数组
-	 * @return 一条信息的数组，或者一个字段的值，如果指定字段且字段不存在，返回false
-	 */
-	function fetch($id,$field=NULL){
-		$query="
-			SELECT * 
-			FROM client 
-			WHERE id='{$id}' AND company='{$this->company->id}'";
-		$row=$this->db->query($query)->row_array();
-
-		if(is_null($field)){
-			return $row;
-	
-		}elseif(isset($row[$field])){
-			return $row[$field];
-
-		}else{
-			return false;
-		}
-		
-	}
-	
-	/**
 	 * 检查客户名，返回错误信息或获取唯一客户的信息
 	 * @param $client_name 要检查的完整或部分客户姓名
 	 * @param $data_type 检查信息唯一时，返回数据内容，'array'为返回整行，其他为指定字段

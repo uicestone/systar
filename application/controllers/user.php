@@ -6,7 +6,7 @@ class user extends SS_controller{
 	}
 	
 	function submit($submit){
-		$this->load->require_head=false;
+		
 		
 		if($submit=='login'){
 
@@ -55,7 +55,6 @@ class user extends SS_controller{
 		
 		if($this->user->isLogged()){
 			//用户已登陆，则不显示登录界面
-			$this->load->require_inner_js=false;
 			$this->output->setBlock('uri');
 		}else{
 			$this->load->view('user/login');
