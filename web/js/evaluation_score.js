@@ -18,6 +18,16 @@ $(function(){
 		});
 	});
 	
+	$('[name="imfeelinglucky"]').click(function(){
+		$(this).click(function(){
+			$('[field="score"],[field="comment"]').children('input').change();
+		});
+		$('td[field="score"]').each(function(index,element){
+			var match = $(this).siblings('[field="name"]').html().match(RegExp('[\(](.*)[\)]'));
+			$(this).children('input').val(match[1]);
+		});
+	});
+	
 	/*$('[field="anonymous"]').children('input').change(function(){
 		$.post(changeURLPar(unsetURLPar(location.href,'score'),'score_write',1),{
 			indicator:$(this).parent('td').siblings('td:first').attr('id'),

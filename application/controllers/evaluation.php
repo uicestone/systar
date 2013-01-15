@@ -109,7 +109,7 @@ class Evaluation extends SS_controller{
 		
 	
 		$table=$this->table->setFields($field)
-			->wrapForm()
+			->setMenu('<button type="button" name="imfeelinglucky">手气不错</button>','left')
 			->setData($this->evaluation->getIndicatorList($staff_id))
 			->generate();
 		
