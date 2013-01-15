@@ -63,6 +63,7 @@ $(document).ready(function(){
 	$.post(postURI,$('#page>form').serialize(),function(response){
 		$(document).setBlock(response);
 	},'json');
+
 	return false;
 })
 /*edit表单元素更改时实时提交到后台 */
@@ -95,12 +96,11 @@ $(document).ready(function(){
 	if($('#toolBar').hasClass('minimized')){
 		minimized=1;
 	}
-	$.get('/misc/setsession/minimized',function(result){
-		if(result!='success'){
+	$.get('/misc/setsession/minimized',function(response){
+		if(response.status!='success'){
 			showMessage('与服务器通信失败','warning');
-			console.log(result);
 		}
-	});
+	},'json');
 })
 /*边栏选框自动提交*/
 .on('change','select.filter[method!="get"]',function(){

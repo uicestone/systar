@@ -61,14 +61,11 @@ class Misc extends SS_controller{
 	
 	function getSession($var){
 		if($var=='minimized'){
-			echo (bool)$this->session->userdata('minimized');
+			$this->output->data=(bool)$this->session->userdata('minimized');
 		}
-		if($var=='scroll'){
-			echo $this->session->userdata($this->input->post('controller').'/'.$this->input->post('method').'/scroll_top');
-
-		}
+		
 		if($var=='default_controller'){
-			echo $this->config->item('default_controller');
+			$this->output->data=$this->config->item('default_controller');
 		}
 	}
 	
@@ -79,11 +76,8 @@ class Misc extends SS_controller{
 			}else{
 				$this->session->set_userdata('minimized','maximized');
 			}
-			echo 'success';
+			$this->output->status='success';
 
-		}elseif($var=='scroll'){
-			$this->session->set_userdata($this->input->post('controller').'/'.$this->input->post('method').'/scroll_top',$this->input->post('scrollTop'));
-			echo 'success';
 		}
 	}
 }

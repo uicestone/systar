@@ -752,15 +752,15 @@ class Cases extends SS_controller{
 
 			}
 
-			elseif($submit=='case' && !post('cases/num')){
-				$submitable=false;
-				showMessage('尚未获取案号，请选择案件分类和阶段后获取案号','warning');
+			elseif($submit=='case'){
+				if(!post('cases/num')){
+					$this->output->message('尚未获取案号，请选择案件分类和阶段后获取案号','warning');
+				}
+				if(post('cases/classification')!='法律顾问' && !post('cases/is_query') && !post('cases/focus')){
+					$this->output->message('请填写案件争议焦点','warning');
+				}
 			}
 
-			elseif($submit=='case' && post('cases/classification')!='法律顾问' && !post('cases/is_query') && !post('cases/focus')){
-				$submitable=false;
-				showMessage('请填写案件争议焦点','warning');
-			}
 		}catch(Exception $e){
 			showMessage($e->getMessage());
 		}

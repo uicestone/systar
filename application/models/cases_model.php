@@ -89,6 +89,10 @@ class Cases_model extends SS_Model{
 		return $this->db->update('case',$data,array('id'=>$id));
 	}
 	
+	function clearUserTrash(){
+		return $this->db->delete('case', array('display'=>0,'uid'=>$this->user->id));
+	}
+	
 	function addDocument($case,$data){
 		$case=intval($case);
 		
