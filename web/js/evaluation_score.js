@@ -3,7 +3,9 @@ $(function(){
 		var input=$(this);
 		var cell=input.parent('td');
 
-		$.post(changeURLPar(unsetURLPar(location.href,'score'),'score_write',1),{
+		var uriSegments=window.location.pathname.substr(1).split('/');
+		
+		$.post('/evaluation/scorewrite/'+uriSegments[2],{
 			indicator:cell.siblings('td:first').attr('id'),
 			field:cell.attr('field'),
 			value:input.val(),
