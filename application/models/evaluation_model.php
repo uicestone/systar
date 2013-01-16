@@ -8,8 +8,8 @@ class Evaluation_model extends SS_Model{
 		$q="
 		SELECT evaluation_indicator.name,evaluation_indicator.weight,
 			evaluation_score.comment,
-			position.ui_name AS position_name,
-			staff.name AS staff_name
+			IF(position.id=1,position.ui_name,'-') AS position_name,
+			IF(position.id=1,staff.name,'-') AS staff_name
 		FROM evaluation_score 
 			INNER JOIN evaluation_indicator ON evaluation_indicator.id=evaluation_score.indicator AND evaluation_score.quarter='".$this->config->item('quarter')."'
 			INNER JOIN staff ON staff.id=evaluation_score.uid

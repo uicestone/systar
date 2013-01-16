@@ -107,10 +107,14 @@ class Evaluation extends SS_controller{
 			")
 		);
 		
-	
-		$table=$this->table->setFields($field)
-			->setMenu('<button type="button" name="imfeelinglucky">手气不错</button>','left')
-			->setData($this->evaluation->getIndicatorList($staff_id))
+		$table=$this->table->setFields($field);
+			
+		
+		if(!is_logged('manager')){
+			$table=$table->setMenu('<button type="button" name="imfeelinglucky">手气不错</button>','left');
+		}
+		
+		$table=$table->setData($this->evaluation->getIndicatorList($staff_id))
 			->generate();
 		
 		$this->load->addViewData('list', $table);
