@@ -8,14 +8,14 @@ class Achievement extends SS_controller{
 		$this->session->set_userdata('last_list_action',$this->input->server('REQUEST_URI'));
 
 		$field=array(
-			'type'=>array('title'=>'类别','td_title'=>'width="85px"'),
 			'case_name'=>array('title'=>'案件','td_title'=>'width="25%"','content'=>'<a href="/cases/edit/{case}" class="right" style="margin-left:10px;">查看</a>{case_name}'),
-			'fee'=>array('title'=>'预估','td_title'=>'width="100px"','td'=>'title="{pay_time}"'),
-			'collected'=>array('title'=>'实收','td_title'=>'width="100px"','td'=>'title="{time_occur}"'),
-			'role'=>array('title'=>'角色'),
-			'contribute_collected'=>array('title'=>'贡献'),
+			'client_name'=>array('title'=>'客户'),
+			'account_time'=>array('title'=>'到账时间','td_title'=>'width="100px"'),
+			'filed_time'=>array('title'=>'归档时间','td_title'=>'width="100px"'),
+			'amount'=>array('title'=>'创收','td_title'=>'width="100px"'),
+			'contribution'=>array('title'=>'贡献'),
 			'bonus'=>array('title'=>'奖金'),
-			'clients'=>array('title'=>'客户')
+			'role'=>array('title'=>'角色')
 		);
 		$month_start_timestamp=strtotime(date('Y-m',$this->config->item('timestamp')).'-1');
 		$month_end_timestamp=mktime(0,0,0,date('m',$this->config->item('timestamp'))+1,1,date('Y',$this->config->item('timestamp')));
@@ -50,10 +50,13 @@ class Achievement extends SS_controller{
 			)
 		);
 		
-		$achievement=$this->achievement->sum('collected','contribute',option('date_range/from_timestamp'),option('date_range/to_timestamp'),false);
+		$contribute_type=got('contribute_type','actual')?'actual':'fixed';
+		
+		$achievement=$this->achievement->myBonus(array('case',$contribute_type),option('date_range/from_timestamp'),option('date_range/to_timestamp'));
+
 		$achievement_dashboard=array(
 			'_field'=>array(
-				'贡献'
+				'奖金'
 			),
 			array(
 				$achievement

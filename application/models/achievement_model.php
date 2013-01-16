@@ -289,37 +289,33 @@ class Achievement_model extends SS_Model{
 	
 	function getList(){
 		$q="
-		SELECT case_fee_collected.*,
-			GROUP_CONCAT(DISTINCT client.abbreviation) AS clients,
-			case.name AS case_name,
-			ROUND(case_fee_collected.collected*case_lawyer.contribute,2) AS contribute_collected,
-			ROUND(case_fee_collected.collected*case_lawyer.contribute*0.15,2) AS bonus,
-			case_lawyer.role
-		FROM
-		(
-			SELECT case_fee.id,case_fee.case,case_fee.type,
-				case_fee.fee,FROM_UNIXTIME(case_fee.pay_time,'%Y-%m-%d') AS pay_time,
-				SUM(account.amount) AS collected,FROM_UNIXTIME(account.time_occur,'%Y-%m-%d') AS time_occur,
-				IF(SUM(account.amount) IS NULL,case_fee.fee,case_fee.fee-SUM(account.amount)) AS uncollected
-			FROM case_fee
-			LEFT JOIN account ON case_fee.id=account.case_fee
-			WHERE case_fee.type<>'办案费'
+			SELECT account.amount, case_lawyer.role, client.name AS client_name, 
+				FROM_UNIXTIME(account.time_occur,'%Y-%m-%d') AS account_time,
+				IF(case.manager_review, case.time_end, '在办') AS filed_time,
+				ROUND(account.amount*case_lawyer.contribute) AS contribution, ROUND(account.amount*case_lawyer.contribute*0.15) AS bonus,
+				case.name AS case_name
+			FROM account
+				INNER JOIN `case` ON account.case=case.id
+				INNER JOIN client ON client.id=account.client
+				INNER JOIN case_lawyer USING(`case`)
 		";
-		$q=$this->dateRange($q,'account.time_occur');
-		$q.="	GROUP BY case_fee.id
-		)case_fee_collected
-			INNER JOIN case_client ON case_fee_collected.case=case_client.case
-			INNER JOIN client ON case_client.client=client.id
-			INNER JOIN case_lawyer ON case_fee_collected.case=case_lawyer.case
-			INNER JOIN case_num ON case_fee_collected.case=case_num.case
-			INNER JOIN `case` ON case_fee_collected.case=case.id
-		WHERE case_lawyer.lawyer='".$_SESSION['id']."'
-			AND client.classification='客户'
-			AND case_lawyer.role NOT IN ('督办合伙人','律师助理')
+		
+		$q.="	
+			WHERE case_lawyer.role<>'督办合伙人'
+				AND case_lawyer.lawyer={$_SESSION['id']}
 		";
-		$q.=' GROUP BY case_fee_collected.id,case_lawyer.lawyer,case_lawyer.role
-			HAVING collected>0';
-		$q=$this->orderBy($q,'case_fee_collected.pay_time','DESC');
+		
+		$contribute_type=got('contribute_type','actual')?'actual':'fixed';
+		
+		if($contribute_type=='fixed'){
+			$q=$this->dateRange($q, 'account.time_occur', true);
+			$q.=" AND case_lawyer.role<>'实际贡献'";
+		}else{
+			$q=$this->dateRange($q, 'case.time_end',false);
+			$q.=" AND case_lawyer.role='实际贡献' AND case.filed=1";
+		}
+		
+		$q=$this->orderBy($q,'account.time_occur','DESC');
 		$q=$this->pagination($q);
 		return $this->db->query($q)->result_array();
 	}
@@ -575,6 +571,40 @@ class Achievement_model extends SS_Model{
 		";
 		
 		return $this->db->query($query)->result_array();
+	}
+	
+	/**
+	 * 返回一名员工一段时间内的一项奖金总和
+	 */
+	function myBonus(array $type,$from,$to){
+		$from_date=date('Y-m-d',$from);
+		$to_date=date('Y-m-d',$to);
+		
+		if($type[0]=='case'){
+			$q="
+				SELECT ROUND(SUM(account.amount*case_lawyer.contribute)*0.15) AS bonus
+				FROM account
+					INNER JOIN `case` ON account.case=case.id
+					INNER JOIN case_lawyer USING(`case`)
+			";
+
+			$q.="	
+				WHERE case_lawyer.role<>'督办合伙人'
+					AND case_lawyer.lawyer={$_SESSION['id']}
+			";
+
+			$contribute_type=$type[1];
+
+			if($contribute_type=='fixed'){
+				option('in_date_range') && $q.=" AND account.time_occur>=$from AND account.time_occur<$to";
+				option('in_date_range') && $q.=" AND case_lawyer.role<>'实际贡献'";
+			}else{
+				$q.=" AND case.time_end>='$from_date' AND case.time_end<'$to_date'";
+				$q.=" AND case_lawyer.role='实际贡献' AND case.filed=1";
+			}
+		}
+		
+		return $this->db->query($q)->row()->bonus;
 	}
 }
 ?>
