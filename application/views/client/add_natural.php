@@ -50,7 +50,7 @@
 
 		<div class="item">
 			<div class="title"><label>联系方式</label><label id="clientContactAdd"><? if($this->value('client_contact_extra/show_add_form'))echo '-';else echo '+'?></label></div>
-			<?=$contact_table?>
+			<?=$profile_list?>
 			<div id="clientContactAddForm" <? if(!$this->value('client_contact_extra/show_add_form'))echo 'style="display:none"';?>>
 				<select name="client_contact[type]" style="width:30%">
 					<?=options(array('_ENUM','client_contact','type'),$this->value('client_contact/type'))?>
@@ -64,7 +64,7 @@
 
 		<div class="item">
 			<div class="title"><label>相关人</label><label id="clientClientAdd"><? echo $this->value('client_client_extra/show_add_form')?'-':'+'?></label></div>
-			<?=$client_table?>
+			<?=$relative_list?>
 			<div id="clientClientAddForm" <? if($this->value('client_client_extra/show_add_form'))echo 'style="display:block"';?>>
 				<input type="text" name="client_client_extra[name]" value="<?=$this->value('client_client_extra/name')?>" placeholder="名称" autocomplete="client" autocomplete-input-name="client_client[client_right]" style="width:20%" />
 
@@ -93,7 +93,7 @@
 
 		<div class="item">
 			<div class="title"><label>相关案件</label></div>
-			<?=$case_table?>
+			<?=$case_list?>
 		 </div>
 
 		<div class="item">

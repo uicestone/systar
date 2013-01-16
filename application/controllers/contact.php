@@ -166,7 +166,7 @@ class Contact extends SS_controller{
 			'comment'=>array('title'=>'备注','orderby'=>false)
 		);
 		$this->load->view_data['contact_contact']=$this->table->setFields($fields_contact_contact)
-				->generate($this->client->getContacts(post('contact/id')));
+				->generate($this->client->getProfiles(post('contact/id')));
 		
 		$fields_contact_case=array(
 			'num'=>array('title'=>'案号','wrap'=>array('mark'=>'a','href'=>'javascript:window.rootOpener.location.href=\'cases/edit/{id}\';window.opener.parent.focus();'),'orderby'=>false),

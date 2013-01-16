@@ -46,10 +46,15 @@ class Staff_model extends People_model{
 	}
 
 	function fetch($staff_id,$field=NULL){
+		$staff_id=intval($staff_id);
+		
 		$query="
 			SELECT * 
 			FROM staff 
-			WHERE id='{$staff_id}' AND company='{$this->company->id}'";
+				INNER JOIN people USING(id)
+			WHERE people.id = $staff_id AND people.company = {$this->company->id}
+		";
+		
 		$array=$this->db->query($query)->row_array();
 		if(isset($field)){
 			return isset($array[$field])?$array[$field]:false;

@@ -54,13 +54,18 @@ class SS_Output extends CI_Output{
 	 * @param $selector 要更新的选择器，默认为#page
 	 * @param $method 元素替换的方式,innerHTML或replace
 	 */
-	function setBlock($type,$content=NULL,$selector='#page',$method='innerHTML'){
-		$this->data[]=array(
+	function setData($type,$content=NULL,$selector='#page',$content_name=NULL,$method='innerHTML'){
+		$data=array(
 			'type'=>$type,
 			'content'=>$content,
 			'selector'=>$selector,
 			'method'=>$method
 		);
+		if(isset($content_name)){
+			$this->data[$content_name]=$data;
+		}else{
+			$this->data[]=$data;
+		}
 	}
 }
 ?>

@@ -358,7 +358,7 @@ class Cases extends SS_controller{
 		if($submit=='cancel'){
 			unset($_SESSION[CONTROLLER][$this->cases->id]['post']);
 			$this->cases->clearUserTrash();
-			$this->output->setBlock('uri',substr($this->session->userdata('last_list_action'),1));
+			$this->output->setData('uri',substr($this->session->userdata('last_list_action'),1));
 			return;
 		}
 		

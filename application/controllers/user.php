@@ -49,7 +49,7 @@ class user extends SS_controller{
 		
 		if($this->user->isLogged()){
 			//用户已登陆，则不显示登录界面
-			$this->output->setBlock('uri');
+			$this->output->setData('uri');
 		}else{
 			$this->output->as_ajax=false;
 		

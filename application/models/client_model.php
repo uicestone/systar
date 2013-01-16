@@ -81,7 +81,7 @@ class Client_model extends People_model{
 	 * 添加客户相关人
 	 */
 	function addRelated($data){
-		return db_insert('client_client',$data);
+		return db_insert('people_relationship',$data);
 	}
 	
 	/**
@@ -89,7 +89,7 @@ class Client_model extends People_model{
 	 * 添加客户联系方式
 	 */
 	function addContact($data){
-		return db_insert('client_contact',$data);
+		return db_insert('people_profile',$data);
 	}
 	
 	function addSource($data){
@@ -97,35 +97,35 @@ class Client_model extends People_model{
 	}
 	
 	function addContact_phone_email($client,$phone,$email){
-		$new_client_contact=array();
+		$new_people_profile=array();
 		if($phone){
-			$new_client_contact[]=array(
+			$new_people_profile[]=array(
 				'client'=>$client,
 				'type'=>$this->isMobileNumber($phone)?'手机':'固定电话',
 				'content'=>$phone,
 			);
 		}
 		if($email){
-			$new_client_contact[]=array(
+			$new_people_profile[]=array(
 				'client'=>$client,
 				'type'=>'电子邮件',
 				'content'=>$email,
 			);
 		}
-		db_multiinsert('client_contact',$new_client_contact);
+		db_multiinsert('people_profile',$new_people_profile);
 	}
 	
-	function setDefaultRelated($client_client_id,$client){
+	function setDefaultRelated($people_relationship_id,$client){
 		$this->clearDefaultRelated($client);
 		
-		if($this->db->update('client_client',array('is_default_contact'=>1),array('id'=>$client_client_id))){
+		if($this->db->update('people_relationship',array('is_default_contact'=>1),array('id'=>$people_relationship_id))){
 			return true;
 		}
 		return false;
 	}
 	
 	function clearDefaultRelated($client){
-		if($this->db->update('client_client',array('is_default_contact'=>'_NULL_'),array('client_left'=>$client))){
+		if($this->db->update('people_relationship',array('is_default_contact'=>'_NULL_'),array('client_left'=>$client))){
 			return true;
 		}
 		return false;
@@ -147,17 +147,17 @@ class Client_model extends People_model{
 	/**
 	 * 删除相关人
 	 */
-	function deleteRelated($client_clients){
-		$condition = db_implode($client_clients, $glue = ' OR ','id','=',"'","'", '`','key');
-		db_delete('client_client',$condition);
+	function deleteRelated($people_relationships){
+		$condition = db_implode($people_relationships, $glue = ' OR ','id','=',"'","'", '`','key');
+		db_delete('people_relationship',$condition);
 	}
 	
 	/**
 	 * 删除客户联系方式
 	 */
-	function deleteContact($client_contacts){
-		$condition = db_implode(post('client_contact_check'), $glue = ' OR ','id','=',"'","'", '`','key');
-		db_delete('client_contact',$condition);
+	function deleteContact($people_profiles){
+		$condition = db_implode(post('people_profile_check'), $glue = ' OR ','id','=',"'","'", '`','key');
+		db_delete('people_profile',$condition);
 	}
 	
 	function checkSource($detail,$checktype){
@@ -290,10 +290,10 @@ class Client_model extends People_model{
 				phone.content AS phone,address.content AS address
 			FROM `client` 
 				LEFT JOIN (
-					SELECT client,GROUP_CONCAT(content) AS content FROM client_contact WHERE type IN('手机','固定电话') GROUP BY client
+					SELECT client,GROUP_CONCAT(content) AS content FROM people_profile WHERE type IN('手机','固定电话') GROUP BY client
 				)phone ON client.id=phone.client
 				LEFT JOIN (
-					SELECT client,GROUP_CONCAT(content) AS content FROM client_contact WHERE type='地址' GROUP BY client
+					SELECT client,GROUP_CONCAT(content) AS content FROM people_profile WHERE type='地址' GROUP BY client
 				)address ON client.id=address.client
 			WHERE display=1 AND classification='客户'
 		";
@@ -334,31 +334,40 @@ class Client_model extends People_model{
 	}
 	
 	function getRelatedClients($client_id){
+		$client_id=intval($client_id);
+		
 		$query="
 			SELECT 
-				client_client.id AS id,client_client.role,client_client.client_right,client_client.is_default_contact,
-				client.abbreviation AS client_right_name,client.classification,
-				phone.content AS client_right_phone,email.content AS client_right_email
+				people_relationship.id AS id,people_relationship.relation,people_relationship.relative,people_relationship.is_default_contact,
+				people.abbreviation AS relative_name,
+				phone.content AS relative_phone,email.content AS relative_email
 			FROM 
-				client_client INNER JOIN client ON client_client.client_right=client.id
+				people_relationship INNER JOIN people ON people_relationship.relative=people.id
 				LEFT JOIN (
-					SELECT client,GROUP_CONCAT(content) AS content FROM client_contact WHERE type IN('手机','固定电话') GROUP BY client
-				)phone ON client.id=phone.client
+					SELECT people,GROUP_CONCAT(content) AS content FROM people_profile WHERE name IN('手机','电话') GROUP BY people
+				)phone ON people.id=phone.people
 				LEFT JOIN (
-					SELECT client,GROUP_CONCAT(content) AS content FROM client_contact WHERE type='电子邮件' GROUP BY client
-				)email ON client.id=email.client
-			WHERE `client_left`='{$client_id}'
-			ORDER BY role
+					SELECT people,GROUP_CONCAT(content) AS content FROM people_profile WHERE name='电子邮件' GROUP BY people
+				)email ON people.id=email.people
+			WHERE people_relationship.people = $client_id
+			ORDER BY relation
 		";
 		return $this->db->query($query)->result_array();
 	}
 	
-	function getContacts($client_id){
+	/**
+	 * 返回一个人的资料项列表
+	 * @param $client_id
+	 * @return type
+	 */
+	function getProfiles($client_id){
+		$client_id=intval($client_id);
+		
 		$query="
 			SELECT 
-				client_contact.id,client_contact.comment,client_contact.content,client_contact.type
-			FROM client_contact INNER JOIN client ON client_contact.client=client.id
-			WHERE client_contact.client='{$client_id}'
+				people_profile.id,people_profile.comment,people_profile.content,people_profile.name
+			FROM people_profile INNER JOIN people ON people_profile.people=people.id
+			WHERE people_profile.people = $client_id
 		";
 		return $this->db->query($query)->result_array();
 	}

@@ -46,15 +46,18 @@ table, td, th {
 	max-height: 200px;
 	overflow-y:scroll;
 }
+.ui-dialog{
+	padding:0;
+}
 body,input,select,button,textarea{
 	font-family:"Microsoft Yahei","SimSun";
 	font-size:13px;
 	line-height:1.5;
 }
-input,select,textarea{
+/*input,select,textarea{
 	margin:2px;
 	padding:2px;
-}
+}*/
 
 button,input:submit{
 	background-color: #FFF;
@@ -215,9 +218,6 @@ nav::-webkit-scrollbar{
 	font-size:18px;
 }
 
-.schedule-form{
-	padding:0 !important;
-}
 .schedule-form .ui-dialog-content{
 	padding:0 !important;
 	min-height:0 !important;
@@ -228,7 +228,7 @@ nav::-webkit-scrollbar{
 	line-height:1.5;
 }
 .schedule-form .ui-dialog-content .text{
-	width:291px;
+	width:296px;
 	border:0;
 	background:transparent;
 }

@@ -146,7 +146,7 @@ class SS_Controller extends CI_Controller{
 		if($output){
 			//如果在这个方法运行之前，页面就有输出，那么说明是一个旧式的输出html的页面，我们给它直接加上嵌入页面的js
 			$output.=$this->load->view('innerjs',array(),true);
-			$this->output->setBlock('html', $output, $this->load->selector);
+			$this->output->setData('html', $output, NULL, $this->load->selector);
 		}
 		
 		$output_array=array(

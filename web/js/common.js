@@ -15,13 +15,15 @@ $(window).hashchange(function(){
 });
 
 $(document).ready(function(){
-
+	
 	/*为主体载入指定页面或默认页面*/
 	if(window.location.hash){
 		$(window).trigger('hashchange');
 	}else if($('#page').attr('default-uri')){
 		window.location.hash=$('#page').attr('default-uri');
 	}
+	
+	$('#page').tabs();
 })
 /*主体页面加载事件*/
 .on('pageLoaded','#page',function(){
@@ -372,10 +374,25 @@ function keyPressHandler(button,waitKeyCode){
 		button.click(); 
 	}
 }
+
+jQuery.fn.showDialog=function(uri){
+	var dialog = $('<div class="dialog"></div>').appendTo(this)
+	.dialog({
+		show:'fade',hide:'fade',
+		dialogClass:'shadow',
+		modal:true
+	})
+	.html('<div class="throbber"><img src="/images/throbber.gif" /></div>');
+	
+	$.get(uri,function(response){
+		dialog.html(response.data[0].content);
+		dialog.title(response.data.name.content)
+	},'json');
+}
 	
 jQuery.fn.showSchedule=function(event){
 	var target=$(this);
-	var dialog=$('<div class="dialog"></div>').appendTo('body')
+	var dialog=$('<div></div>').appendTo('body')
 	.dialog({
 		position:{
 			my:'left bottom',
@@ -383,7 +400,7 @@ jQuery.fn.showSchedule=function(event){
 			of:target
 		},
 		dialogClass:'shadow schedule-form',
-		autoOpen:true,show:'fade',hide:'fade',
+		show:'fade',hide:'fade',
 		modal:true
 	}).html('<div class="throbber"><img src="/images/throbber.gif" /></div>')
 	
@@ -637,6 +654,11 @@ jQuery.parseResponse=function(response){
 	}
 }
 
+/**
+ *根据一个后台返回的响应（包含status, message, data属性. 其中，data为一个或多个如下结构的数组type, content, selector, method）
+ *中包含的信息，对当前页面进行部分再渲染
+ *
+ */
 jQuery.fn.setBlock=function(response){
 	
 	function set(data){
@@ -697,9 +719,3 @@ jQuery.fn.setBlock=function(response){
 		});
 	}
 }
-
-var currentWindow=window;
-while(typeof currentWindow.opener !=='undefined' && currentWindow.opener!==null){
-	currentWindow=currentWindow.opener;
-}
-window.rootOpener=currentWindow;
