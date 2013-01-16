@@ -597,9 +597,9 @@ class Achievement_model extends SS_Model{
 
 			if($contribute_type=='fixed'){
 				option('in_date_range') && $q.=" AND account.time_occur>=$from AND account.time_occur<$to";
-				option('in_date_range') && $q.=" AND case_lawyer.role<>'实际贡献'";
+				$q.=" AND case_lawyer.role<>'实际贡献'";
 			}else{
-				$q.=" AND case.time_end>='$from_date' AND case.time_end<'$to_date'";
+				option('in_date_range') && $q.=" AND case.time_end>='$from_date' AND case.time_end<'$to_date'";
 				$q.=" AND case_lawyer.role='实际贡献' AND case.filed=1";
 			}
 		}
