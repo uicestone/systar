@@ -49,6 +49,7 @@ table, td, th {
 .ui-dialog{
 	padding:0;
 }
+
 body,input,select,button,textarea{
 	font-family:"Microsoft Yahei","SimSun";
 	font-size:13px;
@@ -69,71 +70,19 @@ body{
 }
 
 #page{
-	position:absolute;left:120px;top:0;right:0;bottom:0;
+	position:absolute;left:120px;top:25px;right:0;bottom:0;
 	box-shadow: -2px 0 5px #000;
 	overflow-x:hidden;
+	border:0;
+	background:transparent;
 }
+
 nav{
 	/*导航菜单框架*/
 	position:absolute;left:0;top:0;bottom:0;
 	width:120px;
 	background:#113C68;
 	overflow-x:hidden;
-}
-#page{
-	/*ie主框架内滚动条着色*/
-	scrollbar-arrow-color: #CEDDEC;
-	scrollbar-face-color: #BCD7DF;
-	scrollbar-3dlight-color: #CEDDEC;
-	scrollbar-highlight-color: #CEDDEC;
-	scrollbar-shadow-color: #CEDDEC;
-	scrollbar-darkshadow-color: #CEDDEC;
-	scrollbar-track-color: #CEDDEC;
-	scrollbar-base-color:#CEDDEC;
-}
-/*ie滚动条*/
-nav{
-	scrollbar-arrow-color: #CEDDEC;
-	scrollbar-face-color: #0D2D4B;
-	scrollbar-3dlight-color: #0D2D4B;
-	scrollbar-highlight-color: #0D2D4B;
-	scrollbar-shadow-color: #0D2D4B;
-	scrollbar-darkshadow-color: #0D2D4B;
-	scrollbar-track-color: #113C68;
-	scrollbar-base-color:#0D2D4B;
-}
-#page{
-	scrollbar-arrow-color: #CEDDEC;
-	scrollbar-face-color: #113C68;
-	scrollbar-3dlight-color: #113C68;
-	scrollbar-highlight-color: #113C68;
-	scrollbar-shadow-color: #113C68;
-	scrollbar-darkshadow-color: #113C68;
-	scrollbar-track-color: #CEDDEC;
-	scrollbar-base-color:#113C68;
-}
-/*webkit滚动条*/
-::-webkit-scrollbar{
-	/*全局滚动条*/
-	background:transparent;
-	width:11px;
-}
-::-webkit-scrollbar-thumb{
-	/*全局滚动条滑块*/
-	-webkit-box-shadow:0 0 3px rgba(0,0,0,0.5);
-	background:#BCD7DF;
-}
-nav::-webkit-scrollbar{
-	/*导航菜单框架滚动条*/
-	width:0;
-}
-#page::-webkit-scrollbar{
-	/*内容框架滚动条*/
-	background:#CEDDEC;
-}
-#page::-webkit-scrollbar-thumb{
-	/*内容框架滚动条滑块*/
-	background:#113C68;
 }
 
 /*弹出提示框*/
@@ -154,16 +103,17 @@ nav::-webkit-scrollbar{
 
 /*menu*/
 #topBar{
-	position:fixed;top:0;left:0;right:0;height:25px;z-index:10;
-	text-align:right;color:#FFF;
+	position:absolute;left:0;right:0;z-index:1;
+	height:25px;
 	background:#113C68;
 	box-shadow: 0 2px 5px #000;
+}
+#topMenu{
+	position:absolute;right:0;
 }
 #topMenu a{
 	margin:auto 5px auto 5px;
 	color:#FFF;
-	font-size:15px;
-	line-height:1.5;
 }
 #topBar,#navMenu{
 	font-weight:normal;
@@ -202,6 +152,23 @@ nav::-webkit-scrollbar{
 	line-height:2;
 	margin-left:5px;
 }
+#tabs{
+	margin-left:120px;
+	float:left;
+	border:0;
+}
+#tabs li{
+	float:left;
+	padding:0 10px;
+}
+#tabs a{
+	font-size:15px;
+	color:#DDD;
+}
+#tabs li.activated a{
+	color:#FFF;
+	font-weight:bold;
+}
 /*login*/
 .login-form{
 	position:absolute;top:0;bottom:0;left:0;right:0;
@@ -239,8 +206,7 @@ nav::-webkit-scrollbar{
 
 /*内容表*/
 .contentTableMenu{
-	position:fixed;left:120px;top:0;right:250px;z-index:15;
-	min-width:900px;
+	position:fixed;top:0;right:250px;z-index:15;
 	color:#FFF;
 }
 .contentTableMenu .nav{
@@ -251,7 +217,7 @@ nav::-webkit-scrollbar{
 	text-align:center;
 }
 .contentTableBox{
-	position:absolute;top:25px;left:0;right:250px;z-index:0;
+	position:absolute;top:0;left:0;right:250px;z-index:0;
 	min-width:900px;
 }
 .contentTable{
@@ -318,7 +284,7 @@ nav::-webkit-scrollbar{
 
 /*右侧工具栏*/
 #toolBar{
-	float:right;margin-top:25px;
+	float:right;
 	z-index:1;
 	width:240px;
 	text-align:right;
@@ -405,4 +371,61 @@ nav::-webkit-scrollbar{
 }
 .contentTable .submit{
 	text-align:center;
+}
+
+/*滚动条*/
+#page{
+	/*ie主框架内滚动条着色*/
+	scrollbar-arrow-color: #CEDDEC;
+	scrollbar-face-color: #BCD7DF;
+	scrollbar-3dlight-color: #CEDDEC;
+	scrollbar-highlight-color: #CEDDEC;
+	scrollbar-shadow-color: #CEDDEC;
+	scrollbar-darkshadow-color: #CEDDEC;
+	scrollbar-track-color: #CEDDEC;
+	scrollbar-base-color:#CEDDEC;
+}
+/*ie滚动条*/
+nav{
+	scrollbar-arrow-color: #CEDDEC;
+	scrollbar-face-color: #0D2D4B;
+	scrollbar-3dlight-color: #0D2D4B;
+	scrollbar-highlight-color: #0D2D4B;
+	scrollbar-shadow-color: #0D2D4B;
+	scrollbar-darkshadow-color: #0D2D4B;
+	scrollbar-track-color: #113C68;
+	scrollbar-base-color:#0D2D4B;
+}
+#page{
+	scrollbar-arrow-color: #CEDDEC;
+	scrollbar-face-color: #113C68;
+	scrollbar-3dlight-color: #113C68;
+	scrollbar-highlight-color: #113C68;
+	scrollbar-shadow-color: #113C68;
+	scrollbar-darkshadow-color: #113C68;
+	scrollbar-track-color: #CEDDEC;
+	scrollbar-base-color:#113C68;
+}
+/*webkit滚动条*/
+::-webkit-scrollbar{
+	/*全局滚动条*/
+	background:transparent;
+	width:11px;
+}
+::-webkit-scrollbar-thumb{
+	/*全局滚动条滑块*/
+	-webkit-box-shadow:0 0 3px rgba(0,0,0,0.5);
+	background:#BCD7DF;
+}
+nav::-webkit-scrollbar{
+	/*导航菜单框架滚动条*/
+	width:0;
+}
+#page::-webkit-scrollbar{
+	/*内容框架滚动条*/
+	background:#CEDDEC;
+}
+#page::-webkit-scrollbar-thumb{
+	/*内容框架滚动条滑块*/
+	background:#113C68;
 }

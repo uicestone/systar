@@ -3,14 +3,19 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><![endif]-->
+	<?=stylesheet('style/redmond/jquery-ui-1.9.2.custom')?>
 	<?=stylesheet('style/common')?>
-	<?=stylesheet('style/jquery-ui/jquery-ui')?>
-	<?=javascript('jquery')?>
-	<?=javascript('jquery-ui')?>
+	
+	<?=javascript('jQuery/jquery-1.7.2')?>
+	<?=javascript('jQuery/jQueryRotate.2.2')?>
+	<?=javascript('jQuery/jquery.ba-hashchange')?>
+	<?=javascript('jQuery/jquery.placeholder')?>
+	<?=javascript('jQuery/jquery-ui-1.9.2.custom')?>
+	<?=javascript('jQuery/jquery-ui.etc')?>
 	<?=javascript('common')?>
 
-	<?=stylesheet('js/fullcalendar/fullcalendar')?>
-	<?=javascript('fullcalendar/fullcalendar.min')?>
+	<?=stylesheet('js/jQuery/fullcalendar/fullcalendar')?>
+	<?=javascript('jQuery/fullcalendar/fullcalendar.min')?>
 
 	<link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
 	<title><?=$this->company->sysname?></title>

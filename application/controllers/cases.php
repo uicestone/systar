@@ -3,6 +3,7 @@ class Cases extends SS_controller{
 	function __construct(){
 		$this->default_method='lists';
 		parent::__construct();
+		$this->output->setData('案件', 'name');
 	}
 	
 	function host(){

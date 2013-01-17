@@ -127,6 +127,14 @@ class SS_Controller extends CI_Controller{
 			unset($_SESSION[CONTROLLER][METHOD]['in_search_mod']);
 			unset($_SESSION[CONTROLLER][METHOD]['keyword']);
 		}
+		
+		if(isset($this->user->permission[$this->controller][$this->method]['_affair_name'])){
+			$this->output->setData($this->user->permission[$this->controller][$this->method]['_affair_name'], 'name');
+		}elseif(isset($this->user->permission[$this->controller]['_affair_name'])){
+			$this->output->setData($this->user->permission[$this->controller]['_affair_name'], 'name');
+		}
+		
+		
 
 	}
 	
@@ -146,7 +154,7 @@ class SS_Controller extends CI_Controller{
 		if($output){
 			//如果在这个方法运行之前，页面就有输出，那么说明是一个旧式的输出html的页面，我们给它直接加上嵌入页面的js
 			$output.=$this->load->view('innerjs',array(),true);
-			$this->output->setData('html', $output, NULL, $this->load->selector);
+			$this->output->setData($output);
 		}
 		
 		$output_array=array(

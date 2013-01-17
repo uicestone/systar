@@ -51,21 +51,16 @@ class SS_Output extends CI_Output{
 	 * 如此一来，前端就可以用一个通用的方法来处理所有的后台响应，对页面上的任何元素作更新
 	 * @param $type 可选uri,html
 	 * @param $content 对应$type，为html内容或uri地址
-	 * @param $selector 要更新的选择器，默认为#page
-	 * @param $method 元素替换的方式,innerHTML或replace
+	 * @param $content_name 内容的名称，如'content'(页面内容),'name'(标签选项名称)
 	 */
-	function setData($type,$content=NULL,$selector='#page',$content_name=NULL,$method='innerHTML'){
+	function setData($content,$content_name='content',$type='html'){
 		$data=array(
-			'type'=>$type,
 			'content'=>$content,
-			'selector'=>$selector,
-			'method'=>$method
+			'contentName'=>$content_name,
+			'type'=>$type
 		);
-		if(isset($content_name)){
-			$this->data[$content_name]=$data;
-		}else{
-			$this->data[]=$data;
-		}
+		
+		$this->data[$content_name]=$data;
 	}
 }
 ?>

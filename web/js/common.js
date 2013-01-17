@@ -7,11 +7,37 @@ if($.browser.msie && $.browser.version<7 && !(controller=='user' && action=='bro
 }
 
 $(window).hashchange(function(){
+	
+	var hash=window.location.hash.substr(1);
+	
+	/*根据当前hash，设置标签选项卡激活状态*/
+	$('#tabs>[for="'+hash+'"]').addClass('activated');
+	$('#tabs>:not([for="'+hash+'"])').removeClass('activated');
 
-	$.get(window.location.hash.substr(1),function(response){
-		$(document).setBlock(response);
-	},'json');
-
+	/*
+	 *根据当前hash，显示对应标签页面，隐藏其他页面。
+	 *如果当前page中没有请求的页面（或者已过期），那么向服务器发送请求，获取新的页面并添加标签选项卡。
+	 */
+	$('#page>:not([hash="'+hash+'"])').hide();
+	if($('#page>[hash="'+hash+'"]').show().length==0){
+		$.get(hash,function(response){
+			if(response.status=='login_required'){
+				window.location.href='/login';
+			}
+			
+			/*如果请求的hash在导航菜单中存在，则不生成标签选项卡*/
+			if($('nav a[href="#'+hash+'"]').length==0){
+				$('#tabs').append('<li for="'+hash+'" class="activated"><a href="#'+hash+'">'+response.data.name.content+'</a></li>');
+			}
+			
+			$('<div hash="'+hash+'"></div>').appendTo('#page').html(response.data.content.content).trigger('pageLoaded');
+			
+		},'json');
+	}
+	
+	var uriSegments=hash.split('/');
+	$('nav li').removeClass('activated');
+	$('nav li#nav-'+uriSegments[0]+', nav li#nav-'+uriSegments[0]+'-'+uriSegments[1]).addClass('activated');
 });
 
 $(document).ready(function(){
@@ -22,8 +48,6 @@ $(document).ready(function(){
 	}else if($('#page').attr('default-uri')){
 		window.location.hash=$('#page').attr('default-uri');
 	}
-	
-	$('#page').tabs();
 })
 /*主体页面加载事件*/
 .on('pageLoaded','#page',function(){
@@ -40,10 +64,6 @@ $(document).ready(function(){
 	$('[display-for]:not([locked-by])').hide();
 
 	$('title').html(affair+' - '+(username?username+' - ':'')+sysname);
-
-	//设置导航菜单高亮
-	$('#navMenu li#nav-'+controller).addClass('activated').siblings('li').removeClass('activated');
-	$('#navMenu ul.l1 li').removeClass('activated').parent().parent().parent().find('li#nav-'+controller+'-'+action).addClass('activated');
 
 	if(!$.browser.msie){
 		$('.contentTable:not(.search-bar)').children('tbody').children('tr').each(function(index){
@@ -183,6 +203,12 @@ $(document).ready(function(){
 }).on('click','.contentTable>tbody>tr a',function(){
 	event.stopPropagation();
 
+})
+//标签选项卡的关闭按钮行为
+.on('click','#tabs span.ui-icon-close',function() {
+	var panelId = $( this ).closest( "li" ).remove().attr( "aria-controls" );
+	$( "#" + panelId ).remove();
+	$('#page').tabs( "refresh" );
 });
 
 function exit(){

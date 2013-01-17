@@ -12,6 +12,7 @@ class Test extends SS_controller{
 		//session_destroy();
 		print_r($this->session->all_userdata());
 		print_r($_SESSION);
+		print_r($this->user->permission);
 	}
 	
 	/**
