@@ -11,6 +11,7 @@
 	<?=javascript('jQuery/jquery.ba-hashchange')?>
 	<?=javascript('jQuery/jquery.placeholder')?>
 	<?=javascript('jQuery/jquery-ui-1.9.2.custom')?>
+	<?=javascript('jQuery/Jeditable/jquery.jeditable.mini')?>
 	<?=javascript('jQuery/jquery-ui.etc')?>
 	<?=javascript('common')?>
 

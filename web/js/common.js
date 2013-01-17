@@ -479,7 +479,6 @@ jQuery.fn.createSchedule=function(startDate, endDate, allDay){
 	
 	var dialog=$('<div class="dialog"></div>').appendTo('body')
 	.dialog({
-		title:'新建日程',
 		position:{
 			my:'left bottom',
 			at:'right top',
@@ -495,7 +494,9 @@ jQuery.fn.createSchedule=function(startDate, endDate, allDay){
 	}).html('<div class="throbber"><img src="/images/throbber.gif" /></div>');
 
 	$.get('/schedule/add',function(response){
-		dialog.html(response.data[0].content).find('[name="name"]').focus();
+		dialog.dialog('option','title',response.data.name.content)
+		.html(response.data.content.content).find('[name="name"]').focus();
+		
 		dialog.dialog( "option", "buttons", [{
 			text: "保存",
 			click: function() {

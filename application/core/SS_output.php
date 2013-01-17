@@ -56,7 +56,6 @@ class SS_Output extends CI_Output{
 	function setData($content,$content_name='content',$type='html'){
 		$data=array(
 			'content'=>$content,
-			'contentName'=>$content_name,
 			'type'=>$type
 		);
 		

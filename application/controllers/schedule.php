@@ -564,6 +564,7 @@ class Schedule extends SS_controller{
 	}
 	
 	function add(){
+		$this->output->setData('新日程', 'name');
 		$this->load->addViewData('mode', 'add');
 		$this->load->view('schedule/calendar_add');
 	}
