@@ -17,17 +17,26 @@
 
 提交策略：	以代码撰写目的为单位进行提交，频繁提交，提交信息须注明撰写目的
 
-数据库修改策略：	在/_doc/upgrade.sql后加入(注意和上文空开两行)
+数据库修改策略：	报陆同意修改，从upgrade.sql同步，同步后打上个人标记
 
 
-	#2012/11/10 uice
+	-- 2012/11/10 uice
 	UPDATE sometable SET `a`='b';#加一个XXX字段
-	#end
+	-- end
+	-- uice 2012/11/10 已同步
 
 SQL语句
 	外围用双引号
 	关键字全部大写
-	数值php变量、可能引入非法值的变量要加引号
+	对于数值应当不加引号，但model中须执行intval();
 	能不用*就不用
-	变量用{}包围，其他用切断字符串的方式连接
-	"SELECT name FROM client WHERE id='{$client_input_value}' OR '".(needToShowAll())."'";
+	变量直接写入，数组和对象属性用{}包围，其他用切断字符串的方式连接
+	长SQL按如下形式断行
+	"
+		SELECT name 
+		FROM client 
+		WHERE uid={$this->user->id} 
+			AND (
+				id=$client_input_value OR '".(needToShowAll())."'
+			)
+	";

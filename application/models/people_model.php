@@ -59,18 +59,18 @@ class People_model extends SS_Model{
 	}
 	
 	/**
-	 * 根据部分客户名称返回匹配的客户id和名称列表
+	 * 根据部分人员名称返回匹配的id、名称和；类别列表
 	 * @param $part_of_name
 	 * @return array
 	 */
 	function match($part_of_name){
 		$query="
-			SELECT people.id,people.name 
+			SELECT people.id,people.name,people.type
 			FROM people
 			WHERE people.company={$this->company->id} AND people.display=1 
 				AND (name LIKE '%$part_of_name%' OR abbreviation LIKE '$part_of_name' OR name_en LIKE '%$part_of_name%')
 			ORDER BY people.id DESC
-			";
+		";
 		
 		return $this->db->query($query)->result_array();
 	}

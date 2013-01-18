@@ -286,50 +286,49 @@ class Client_model extends People_model{
 
 	function getList($method=NULL){
 		$q="
-			SELECT client.id,client.name,client.abbreviation,client.time,client.comment,
+			SELECT people.id,people.name,people.abbreviation,people.time,people.comment,
 				phone.content AS phone,address.content AS address
-			FROM `client` 
+			FROM people
 				LEFT JOIN (
-					SELECT client,GROUP_CONCAT(content) AS content FROM people_profile WHERE type IN('手机','固定电话') GROUP BY client
-				)phone ON client.id=phone.client
+					SELECT people,GROUP_CONCAT(content) AS content FROM people_profile WHERE name IN('手机','电话') GROUP BY people
+				)phone ON people.id=phone.people
 				LEFT JOIN (
-					SELECT client,GROUP_CONCAT(content) AS content FROM people_profile WHERE type='地址' GROUP BY client
-				)address ON client.id=address.client
-			WHERE display=1 AND classification='客户'
+					SELECT people,GROUP_CONCAT(content) AS content FROM people_profile WHERE name='地址' GROUP BY people
+				)address ON people.id=address.people
+			WHERE display=1 AND type='客户'
 		";
 		$q_rows="
-			SELECT COUNT(client.id)
-			FROM `client` 
-			WHERE display=1 AND classification='客户'
+			SELECT COUNT(*)
+			FROM people 
+			WHERE display=1 AND type='客户'
 		";
 		$condition='';
 
 		if($method=='potential'){
-			$condition.=" AND type='潜在客户'";
+			$condition.=" AND people.id IN (SELECT people_label.people FROM people_label INNER JOIN label ON label.id=people_label.label WHERE label.name='潜在客户')";
 		
 		}else{
 			$condition.="
-				AND type='成交客户'
-				AND client.id IN (SELECT client FROM case_client WHERE `case` IN (SELECT `case` FROM case_lawyer WHERE lawyer={$this->user->id}))
+				AND people.id IN (SELECT people_label.people FROM people_label INNER JOIN label ON label.id=people_label.label WHERE label.name='成交客户')
 			";
 			
-			if(!is_logged('service') && !is_logged('developer')){
+			if(!$this->user->isLogged('service') && !$this->user->isLogged('developer')){
 				$condition.="
-					AND client.id IN (
-						SELECT client FROM case_client WHERE `case` IN (
-							SELECT `case` FROM case_lawyer WHERE lawyer='{$_SESSION['id']}'
+					AND people.id IN (
+						SELECT people FROM case_people WHERE `case` IN (
+							SELECT `case` FROM case_people WHERE people = {$this->user->id}
 						)
 					)
 				";
 			}
 		}
 		
-		
 		$condition=$this->search($condition,array('name'=>'姓名','phone.content'=>'电话','work_for'=>'单位','address'=>'地址','comment'=>'备注'));
 		$condition=$this->orderBy($condition,'time','DESC',array('abbreviation','type','address','comment'));
 		$q.=$condition;
 		$q_rows.=$condition;
 		$q=$this->pagination($q/*,$q_rows*/);
+		
 		return $this->db->query($q)->result_array();
 	}
 	

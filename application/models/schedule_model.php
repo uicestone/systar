@@ -11,7 +11,7 @@ class Schedule_model extends SS_Model{
 		$id=intval($id);
 
 		$q_schedule="
-			SELECT id,name,time_start,time_end,all_day
+			SELECT id,name,content,time_start,time_end,all_day
 			FROM schedule
 			WHERE id = $id
 				AND display=1

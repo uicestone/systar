@@ -1,6 +1,7 @@
 <?php
 class Client extends SS_Controller{
 	function __construct(){
+		$this->default_method='lists';
 		parent::__construct();
 	}
 
@@ -9,7 +10,6 @@ class Client extends SS_Controller{
 	}
 
 	function lists($method=NULL){
-		$this->session->set_userdata('last_list_action',$this->input->server('REQUEST_URI'));
 
 		if($this->input->post('delete')){
 			$clients_to_delete=array_trim($this->input->post('client_check'));
@@ -272,7 +272,6 @@ class Client extends SS_Controller{
 		$client_id=$this->client->check($client_name,'id');
 		$source_lawyer=$this->client->fetch($client_id, 'source_lawyer');
 		$source_lawyer_name=$this->staff->fetch($source_lawyer);
-		echo $source_lawyer_name;
 	}
 }
 ?>

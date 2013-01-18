@@ -399,6 +399,7 @@ class Schedule extends SS_controller{
 		}elseif($action=='update'){//更新任务内容
 			if($this->schedule->update($schedule_id,array(
 				'name'=>$this->input->post('name'),
+				'content'=>$this->input->post('content'),
 				'completed'=>$this->input->post('completed')
 			))){
 				$this->output->status='success';

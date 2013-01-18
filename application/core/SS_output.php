@@ -53,11 +53,28 @@ class SS_Output extends CI_Output{
 	 * @param $content 对应$type，为html内容或uri地址
 	 * @param $content_name 内容的名称，如'content'(页面内容),'name'(标签选项名称)
 	 */
-	function setData($content,$content_name='content',$type='html'){
+	function setData($content,$content_name='content',$type='html',$selector=NULL,$method=NULL){
+		
+		if(is_array($content)){
+			isset($content['content_name']) && $content_name=$content['content_name'];
+			isset($content['type']) && $type=$content['type'];
+			isset($content['selector']) && $selector=$content['selector'];
+			isset($content['method']) && $method=$content['method'];
+			isset($content['content']) && $content=$content['content'];
+		}
+		
 		$data=array(
 			'content'=>$content,
 			'type'=>$type
 		);
+		
+		if(isset($selector)){
+			$data['selector']=$selector;
+		}
+		
+		if(isset($method)){
+			$data['method']=$method;
+		}
 		
 		$this->data[$content_name]=$data;
 	}

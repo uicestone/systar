@@ -273,6 +273,10 @@ class Cases extends SS_controller{
 		$this->load->model('schedule_model','schedule');
 
 		$case=$this->cases->getPostData($id);
+		
+		if($case['name']){
+			$this->output->setData(strip_tags($case['name']), 'name');
+		}
 
 		$case_role=$this->cases->getRoles($this->cases->id);
 		
@@ -441,10 +445,10 @@ class Cases extends SS_controller{
 				}
 
 				if($this->cases->addPeople($this->cases->id,post('case_client/client'),post('case_client/role'))){
-					//unset($_SESSION['cases']['post'][$this->cases->id]['case_client']);
-					//unset($_SESSION['cases']['post'][$this->cases->id]['case_client_extra']);
+					unset($_SESSION['cases']['post'][$this->cases->id]['case_client']);
+					unset($_SESSION['cases']['post'][$this->cases->id]['case_client_extra']);
 					
-					$this->output->data=$this->subList('client',$this->cases->id);
+					$this->output->setData($this->subList('client',$this->cases->id));
 					$this->output->status='success';
 				}
 			}
@@ -763,7 +767,6 @@ class Cases extends SS_controller{
 			}
 
 		}catch(Exception $e){
-			showMessage($e->getMessage());
 		}
 	}
 	

@@ -6,9 +6,11 @@ if($.browser.msie && $.browser.version<7 && !(controller=='user' && action=='bro
 	exit();
 }
 
+var hash,controller,action,username,sysname;
+
 $(window).hashchange(function(){
 	
-	var hash=window.location.hash.substr(1);
+	hash=window.location.hash.substr(1);
 	
 	/*根据当前hash，设置标签选项卡激活状态*/
 	$('#tabs>[for="'+hash+'"]').addClass('activated');
@@ -56,8 +58,7 @@ $(document).ready(function(){
 	
 	$('.birthday').datepicker({
 		changeMonth: true,
-		changeYear: true,
-		defaultDate:'1997-1-1'
+		changeYear: true
 	});
 	
 	//$('[display-for]:input:not([locked-by]),[display-for]:not([locked-by]) :input:not([locked-by])').attr('disabled','disabled');
@@ -72,7 +73,7 @@ $(document).ready(function(){
 	}
 })
 /*编辑页的提交按钮点击事件，提交数据到后台，在页面上反馈数据和提示*/
-.on('click','#page>form input:submit',function(){
+.on('click','#page>div>form input:submit',function(){
 	var id = $('form[name="'+controller+'"]').attr('id');
 	var submit = $(this).attr('name').replace('submit[','').replace(']','');
 	
@@ -82,19 +83,19 @@ $(document).ready(function(){
 		postURI+='/'+id;
 	}
 
-	$.post(postURI,$('#page>form').serialize(),function(response){
+	$.post(postURI,$('#page>div[hash="'+hash+'"]>form').serialize(),function(response){
 		$(document).setBlock(response);
 	},'json');
 
 	return false;
 })
 /*edit表单元素更改时实时提交到后台 */
-.on('change','#page>form:[id] :input',function(){
+.on('change','#page>div>form:[id] :input',function(){
 	var value=$(this).val();
 	if($(this).is(':checkbox') && !$(this).is(':checked')){
 		value=0;
 	}
-	var id = $('#page>form').attr('id');
+	var id = $('#page>div[hash="'+hash+'"]>form').attr('id');
 	var name = $(this).attr('name').replace('[','/').replace(']','');
 	var data={};data[name]=value;
 	$.post('/'+controller+'/setfields/'+id,data);
@@ -401,21 +402,6 @@ function keyPressHandler(button,waitKeyCode){
 	}
 }
 
-jQuery.fn.showDialog=function(uri){
-	var dialog = $('<div class="dialog"></div>').appendTo(this)
-	.dialog({
-		show:'fade',hide:'fade',
-		dialogClass:'shadow',
-		modal:true
-	})
-	.html('<div class="throbber"><img src="/images/throbber.gif" /></div>');
-	
-	$.get(uri,function(response){
-		dialog.html(response.data[0].content);
-		dialog.title(response.data.name.content)
-	},'json');
-}
-	
 jQuery.fn.showSchedule=function(event){
 	var target=$(this);
 	var dialog=$('<div></div>').appendTo('body')
@@ -431,12 +417,6 @@ jQuery.fn.showSchedule=function(event){
 	}).html('<div class="throbber"><img src="/images/throbber.gif" /></div>')
 	
 	.dialog( "option", "buttons", [
-		{
-			text: "+",
-			click: function(){
-				;
-			}
-		},
 		{
 			text: "编辑",
 			click: function(){
@@ -495,17 +475,28 @@ jQuery.fn.createSchedule=function(startDate, endDate, allDay){
 
 	$.get('/schedule/add',function(response){
 		dialog.dialog('option','title',response.data.name.content)
-		.html(response.data.content.content).find('[name="name"]').focus();
+		.html(response.data.content.content).find('[name="content"]').focus();
 		
 		dialog.dialog( "option", "buttons", [{
+			text: "+",
+			click: function(){
+				;
+			}
+		},
+		{
 			text: "保存",
 			click: function() {
 			if(startDate && endDate){
+				var content=dialog.find('[name="content"]').val();
+				var paras=content.split("\n");
+				var name=paras[0];
 				var data={
 					time_start:startDate.getTime()/1000,
 					time_end:endDate.getTime()/1000,
 					all_day:Number(allDay),
-					name:dialog.find('[name="name"]').val()
+					content:content,
+					name:name
+					
 				}
 				$.post("/schedule/writecalendar/add",data,function(response){
 					if(response.status=='success'){
@@ -525,7 +516,14 @@ jQuery.fn.createSchedule=function(startDate, endDate, allDay){
 					}
 				},'json');
 			}else{
-				var data={name:dialog.find('[name="name"]').val()};
+				var content=dialog.find('[name="content"]').val();
+				var paras=content.split("\n");
+				var name=paras[0];
+				var data={
+					content:content,
+					name:name
+					
+				}
 				$.post("/schedule/writecalendar/add",data,
 					function(response){
 						$.get('/schedule/addtotaskboard/'+response.data.id,function(){
@@ -560,6 +558,12 @@ jQuery.fn.editSchedule=function(event){
 		
 		dialog.dialog('option','buttons',[
 			{
+				text: "+",
+				click: function(){
+					;
+				}
+			},
+			{
 				text: "删除",
 				click: function() {
 					$.get("/schedule/writecalendar/delete/"+event.id,function(result){
@@ -577,7 +581,13 @@ jQuery.fn.editSchedule=function(event){
 			{
 				text: "保存",
 				click: function() {
-					var data = {name:dialog.find('[name="name"]').val()};
+					var content=dialog.find('[name="content"]').val();
+					var paras=content.split("\n");
+					var name=paras[0];
+					var data={
+						content:content,
+						name:name
+					}
 					$.post("/schedule/writecalendar/update/"+event.id,data,function(){
 						event.title=data.name;
 						if(event.start){
@@ -592,24 +602,6 @@ jQuery.fn.editSchedule=function(event){
 			}
 		]);
 	},'json');
-}
-
-jQuery.fn.getOptions=function(affair,method,active_value,select_type,callback){
-	/*
-	 * select_type 是选框的数据类型，可选0(type)和1(data)两个值，默认为0(type)
-	 */
-	if(!select_type){
-		select_type=0;
-	}
-	var passive_select=$(this);
-	$.post('/misc/getselectoption',{affair:affair,method:method,active_value:active_value,select_type:select_type},function(options_html){
-		passive_select.html('')
-		.html(options_html);
-		if (typeof callback != 'undefined'){
-			callback(passive_select.val());
-		}
-	});
-	return $(this);
 }
 
 jQuery.fn.getOptionsByLabelRelative=function(labelName,callback){
@@ -658,27 +650,9 @@ jQuery.fn.addRow=function(rowData){
 	return true;
 }
 
-jQuery.fn.serializeJSON=function() {
-	var json = {};
-	jQuery.map($(this).serializeArray(), function(n, i){
-		json[n['name']] = n['value'];
-	});
-	return json;
-};
-
 jQuery.fn.reset=function(){
 	$(this).find(':input:not(:submit):not(select)').val('');
 	$(this).find(':input[default-value]').val($(this).attr('default-value'));
-}
-
-jQuery.parseResponse=function(response){
-	try{
-		var parseResponse=$.parseJSON(response);
-		return parseResponse;
-	}catch(e){
-		showMessage(response,'warning');
-		return false;
-	}
 }
 
 /**

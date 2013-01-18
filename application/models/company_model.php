@@ -112,20 +112,6 @@ class Company_model extends SS_Model{
 			)
 		);
 		
-		if($this->user->isLogged('manager')){
-			$staff=$this->input->get('staff')?$this->input->get('staff'):false;
-			$sidebar_table[]=array(
-				'_heading'=>array(
-					'schedule_check'=>'员工日程检阅'
-				),
-				array(
-					'schedule_check'=>'<select name="staff" class="filter" method="get">'
-						.options(false,$staff,true,'staff',NULL,'name',"id IN (SELECT staff FROM manager_staff WHERE manager={$this->user->id}) AND position IS NOT NULL")
-						.'</select>'
-				)
-			);
-		}
-		
 		return $sidebar_table;
 	}
 }

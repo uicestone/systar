@@ -56,13 +56,9 @@ function db_query($query,$show_error=true){
 	$error='';
 	if($error=mysql_error(DB_LINK)){
 		if($show_error){
-			if($CI->load->require_head){
-				showMessage(db_parseError($error),'warning');
-				if($CFG->item('debug_mode')){
-					showMessage('发生错误的sql语句：'.$query,'warning');
-				}
-			}else{
-				echo 'MySQL error: '.$error."\n".$query;
+			$CI->output->message(db_parseError($error),'warning');
+			if($CFG->item('debug_mode')){
+				$CI->output->message('发生错误的sql语句：'.$query,'warning');
 			}
 		}
 		return false;
