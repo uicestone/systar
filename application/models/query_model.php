@@ -23,7 +23,7 @@ class Query_model extends SS_Model{
 				LEFT JOIN
 				(
 					SELECT `case`,GROUP_CONCAT(DISTINCT staff.name) AS names
-					FROM case_lawyer INNER JOIN staff ON case_lawyer.lawyer=staff.id AND case_lawyer.role ='接洽律师'
+					FROM case_lawyer INNER JOIN staff ON case_lawyer.lawyer=staff.id AND case_lawyer.role IN ('接洽律师','接洽律师（次要）')
 					WHERE TRUE
 					GROUP BY case_lawyer.`case`
 				)staff
