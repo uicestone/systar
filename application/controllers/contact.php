@@ -5,7 +5,7 @@ class Contact extends SS_controller{
 	}
 	
 	function lists(){
-		$this->session->set_userdata('last_list_action',$this->input->server('REQUEST_URI'));
+		
 		$this->load->model('client_model','client');	    
 		if($this->input->post('delete')){
 			$contacts_to_delete=array_trim($this->input->post('contact_check'));

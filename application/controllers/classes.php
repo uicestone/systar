@@ -5,7 +5,7 @@ class Classes extends SS_controller{
 	}
 	
 	function lists(){
-		$this->session->set_userdata('last_list_action',$this->input->server('REQUEST_URI'));
+		
 		
 		if($this->input->post('grade')){
 			option('grade',$this->input->post('grade'));

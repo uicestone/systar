@@ -27,7 +27,6 @@ class Cases extends SS_controller{
 	}
 	
 	function lists($para=NULL){
-		$this->session->set_userdata('last_list_action',$this->input->server('REQUEST_URI'));
 
 		$field=array(
 			'time_contract'=>array('title'=>'案号','td_title'=>'width="180px"','td'=>'title="立案时间：{time_contract}" href="cases/edit/{id}"','content'=>'{num}'),
@@ -803,20 +802,6 @@ class Cases extends SS_controller{
 		
 		readfile($path);
 		exit;
-	}
-	
-	/**
-	 * TODO 准备废弃此方法
-	 */
-	function write(){
-		if($this->input->get('case_fee_condition')){
-			$id=intval($this->input->post('id'));
-			$value=$this->input->post('value');
-		
-			if($case_feeConditionPrepend=case_feeConditionPrepend($id,$value)){
-				echo json_encode($case_feeConditionPrepend);
-			}
-		}
 	}
 }
 ?>

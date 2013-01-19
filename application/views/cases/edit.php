@@ -33,7 +33,7 @@
 ){?>
 		<input type="submit" name="submit[apply_file]" value="申请归档" />
 <? }?>
-		<input type="submit" name="submit[cancel]" value="取消" />
+		<input type="submit" name="submit[cancel]" value="关闭" />
 	</div>
 </div>
 
@@ -298,7 +298,7 @@
 	
 		<div class="submit">
 			<input type="submit" name="submit[cases]" value="保存" />
-			<input type="submit" name="submit[cancel]" value="取消" />
+			<input type="submit" name="submit[cancel]" value="关闭" />
 		</div>
 	</div>
 </div>

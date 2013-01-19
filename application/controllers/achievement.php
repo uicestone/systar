@@ -5,7 +5,7 @@ class Achievement extends SS_controller{
 	}
 	
 	function lists(){
-		$this->session->set_userdata('last_list_action',$this->input->server('REQUEST_URI'));
+		
 
 		$field=array(
 			'type'=>array('title'=>'类别','td_title'=>'width="85px"'),
@@ -70,7 +70,7 @@ class Achievement extends SS_controller{
 
 	function receivable($method=NULL){
 		
-		$this->session->set_userdata('last_list_action',$this->input->server('REQUEST_URI'));
+		
 		
 		$field=array(
 			'type'=>array('title'=>'类别','td_title'=>'width="85px"'),
@@ -98,7 +98,7 @@ class Achievement extends SS_controller{
 	
 	function caseBonus(){
 		
-		$this->session->set_userdata('last_list_action',$this->input->server('REQUEST_URI'));
+		
 		
 		$field=array(
 			'staff_name'=>array('title'=>'人员'),
@@ -117,7 +117,7 @@ class Achievement extends SS_controller{
 
 	function teambonus(){
 		
-		$this->session->set_userdata('last_list_action',$this->input->server('REQUEST_URI'));
+		
 		
 		$field=array(
 			'staff_name'=>array('title'=>'人员'),

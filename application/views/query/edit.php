@@ -3,7 +3,7 @@
 	<div class="contentTableMenu">
 		<div class="right">
 			<input type="submit" name="submit[query]" value="保存" />
-			<input type="submit" name="submit[cancel]" value="取消" />
+			<input type="submit" name="submit[cancel]" value="关闭" />
 			|
 			<input type="submit" name="submit[advanced]" value="高级" title="切换到高级模式，当前输入的数据不会被保存！" />
 		</div>
@@ -67,7 +67,7 @@
 	
 			<div class="submit">
 				<input type="submit" name="submit[query]" value="保存" />
-				<input type="submit" name="submit[cancel]" value="取消" />
+				<input type="submit" name="submit[cancel]" value="关闭" />
 			</div>
 		</div>
 	</div>

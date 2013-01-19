@@ -19,7 +19,7 @@ class News extends SS_controller{
 		
 		$this->load->addViewData($list);
 
-		$this->session->set_userdata('last_list_action',$this->input->server('REQUEST_URI'));
+		
 	}
 	
 	function add(){

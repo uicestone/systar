@@ -20,8 +20,9 @@ $(window).hashchange(function(){
 	 *根据当前hash，显示对应标签页面，隐藏其他页面。
 	 *如果当前page中没有请求的页面（或者已过期），那么向服务器发送请求，获取新的页面并添加标签选项卡。
 	 */
-	$('#page>:not([hash="'+hash+'"])').hide();
-	if($('#page>[hash="'+hash+'"]').show().length==0){
+	$('#page>div[just-accessed]').removeAttr('just-accessed');
+	$('#page>div:not([hash="'+hash+'"])').hide().attr('just-accessed','true');
+	if($('#page>[hash="'+hash+'"]').show().attr('time-access',$.now()).length==0){
 		$.get(hash,function(response){
 			if(response.status=='login_required'){
 				window.location.href='/login';
@@ -32,7 +33,7 @@ $(window).hashchange(function(){
 				$('#tabs').append('<li for="'+hash+'" class="activated"><a href="#'+hash+'">'+response.data.name.content+'</a></li>');
 			}
 			
-			$('<div hash="'+hash+'"></div>').appendTo('#page').html(response.data.content.content).trigger('pageLoaded');
+			$('<div hash="'+hash+'" time-load="'+$.now()+'" time-access="'+$.now()+'"></div>').appendTo('#page').html(response.data.content.content).trigger('pageLoaded');
 			
 		},'json');
 	}
@@ -82,10 +83,24 @@ $(document).ready(function(){
 	if(id){
 		postURI+='/'+id;
 	}
-
+	
 	$.post(postURI,$('#page>div[hash="'+hash+'"]>form').serialize(),function(response){
 		$(document).setBlock(response);
 	},'json');
+
+	if(submit==controller || submit=='cancel'){
+		$('#tabs>li[for="'+hash+'"]').remove();
+		$('#page>div[hash="'+hash+'"]').remove();
+		
+		var lastAccessedHash;
+		var lastAccessTime=0;
+		$('#page>div').each(function(){
+			if($(this).attr('time-access')>lastAccessTime){
+				lastAccessedHash=$(this).attr('hash');
+			}
+		});
+		window.location.hash=lastAccessedHash;
+	}
 
 	return false;
 })

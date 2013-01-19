@@ -51,7 +51,7 @@ class Schedule extends SS_controller{
 	}
 	
 	function lists($method=NULL){
-		$this->session->set_userdata('last_list_action',$this->input->server('REQUEST_URI'));
+		
 
 		if($this->input->post('review_selected') && $this->user->isLogged('partner')){
 			//在列表中批量审核所选日志
@@ -310,7 +310,7 @@ class Schedule extends SS_controller{
 	
 	function outPlan(){
 		
-		$this->session->set_userdata('last_list_action',$this->input->server('REQUEST_URI'));
+		
 		
 		$field=Array(
 			'staff_name'=>array('title'=>'人员','content'=>'<a href="schedule/lists?staff={staff}"> {staff_name}</a>','td_title'=>'width="60px"'),

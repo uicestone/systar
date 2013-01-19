@@ -25,7 +25,7 @@ class Student extends SS_controller{
 			return;
 		}
 		
-		$this->session->set_userdata('last_list_action',$this->input->server('REQUEST_URI'));
+		
 		
 		if($this->input->get('update')){
 			$this->student->updateView();
