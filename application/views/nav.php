@@ -39,20 +39,3 @@ foreach($this->user->permission as $controller_name => $controller){
 	<div style="color:#091F35;font-size:10px;position:fixed;bottom:0;"><? echo codeLines()?></div>
 <?}?>
 </nav>
-<script type="text/javascript">
-	/*导航栏配置*/
-	$('#navMenu>.l0>li>a,controller').click(function(){
-		$(this).parent().children('ul:hidden').show();
-		$(this).siblings('.arrow').children('img').rotate({animateTo:90,duration:200});
-	});
-	$('#navMenu>.l0>li>.arrow').click(function(){
-		var subMenu=$(this).siblings('.l1');
-		if(subMenu.is(':hidden')){
-			subMenu.show(200);
-			$(this).children('img').rotate({animateTo:90,duration:200});
-		}else{
-			$(this).children('img').rotate({animateTo:0,duration:200});
-			subMenu.hide(200);
-		}
-	});
-</script>	

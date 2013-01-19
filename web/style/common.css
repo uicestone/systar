@@ -72,16 +72,17 @@ body{
 	position:absolute;left:120px;top:25px;right:0;bottom:0;
 	box-shadow: -2px 0 5px #000;
 	overflow-x:hidden;
+	overflow-y:scroll;
 	border:0;
 	background:transparent;
 }
-
 nav{
 	/*导航菜单框架*/
 	position:absolute;left:0;top:0;bottom:0;
 	width:120px;
 	background:#113C68;
 	overflow-x:hidden;
+	overflow-y:scroll;
 }
 
 /*弹出提示框*/
@@ -206,7 +207,7 @@ nav{
 
 /*内容表*/
 .contentTableMenu{
-	position:fixed;top:0;right:250px;z-index:15;
+	position:fixed;top:0;right:250px;z-index:2;
 	color:#FFF;
 }
 .contentTableMenu .nav{
@@ -285,7 +286,6 @@ nav{
 /*右侧工具栏*/
 #toolBar{
 	float:right;
-	z-index:1;
 	width:240px;
 	text-align:right;
 }

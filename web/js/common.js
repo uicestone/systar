@@ -44,6 +44,26 @@ $(window).hashchange(function(){
 });
 
 $(document).ready(function(){
+	/*导航栏配置*/
+	$('#navMenu>.l0>li>a,controller').click(function(){
+		$(this).parent().children('ul:hidden').show();
+		$(this).siblings('.arrow').children('img').rotate({animateTo:90,duration:200});
+	});
+	$('#navMenu>.l0>li>.arrow').click(function(){
+		var subMenu=$(this).siblings('.l1');
+		if(subMenu.is(':hidden')){
+			subMenu.show(200);
+			$(this).children('img').rotate({animateTo:90,duration:200});
+		}else{
+			$(this).children('img').rotate({animateTo:0,duration:200});
+			subMenu.hide(200);
+		}
+	});
+	
+	/*页面内的固定元素，会跟着页面上下滚动而变换位置从而留在原地*/
+	$('#page').on('scrollstop',function(){
+		$('.fixed').css('position','relative').animate({top:$(this).scrollTop()});
+	});
 	
 	/*为主体载入指定页面或默认页面*/
 	if(window.location.hash){
@@ -56,7 +76,7 @@ $(document).ready(function(){
 .on('pageLoaded','#page',function(){
 	$('[placeholder]').placeholder()
 	$('.date').datepicker();
-	
+
 	$('.birthday').datepicker({
 		changeMonth: true,
 		changeYear: true

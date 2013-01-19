@@ -12,7 +12,6 @@ class Frame extends SS_Controller{
 		$this->load->view('nav');
 		$this->load->view('menu');
 		$this->load->view('frame');
-		$this->load->view('innerjs');
 		$this->load->view('foot');
 	}
 }
