@@ -141,42 +141,34 @@ class SS_Model extends CI_Model{
 		}
 
 		$rows=db_fetch_field($q_rows);
-		if(option('list/start')>$rows || $rows==0){
+		if(option('pagination/start')>$rows || $rows==0){
 			//已越界或空列表时，列表起点归零
-			option('list/start',0);
+			option('pagination/start',0);
 
-		}elseif(option('list/start')+option('list/item')>=$rows && $rows>option('list/items')){
+		}elseif(option('pagination/start')+option('pagination/item')>=$rows && $rows>option('pagination/items')){
 			//末页且非唯一页时，列表起点定位末页起点
-			option('list/start',$rows - ($rows % option('list/items')));
+			option('pagination/start',$rows - ($rows % option('pagination/items')));
 		}
 
-		if(!is_null(option('list/start')) && option('list/items')){
-			if($this->input->post('previousPage')){
-				option('list/start',option('list/start')-option('list/items'));
-				if(option('list/start')<0){
-					option('list/start',0);
-				}
-			}elseif($this->input->post('nextPage')){
-				if(option('list/start')+option('list/items')<$rows){
-					option('list/start',option('list/start')+option('list/items'));
-				}
-			}elseif($this->input->post('firstPage')){
-				option('list/start',0);
-			}elseif($this->input->post('finalPage')){
-				if($rows % option('list/items')==0){
-					option('list/start',$rows - option('list/items'));
-				}else{
-					option('list/start',$rows - ($rows % option('list/items')));
-				}
+		if(!is_null(option('pagination/start')) && option('pagination/items')){
+			if($this->input->post('start')!==false){
+				option('pagination/start',$this->input->post('start'));
+			}
+			if($this->input->post('items')!==false){
+				option('paginantion/items',$this->input->post('items'));
 			}
 		}else{
-			option('list/start',0);
-			option('list/items',25);
+			option('pagination/start',0);
+			option('pagination/items',25);
 		}
 		
-		option('list/rows',$rows);
+		option('pagination/rows',$rows);
+		
+		option('pagination/pages', ceil(option('pagination/rows') / option('pagination/items')) );
+		
+		option('pagination/pagenum',option('pagination/start') / option('pagination/items') + 1);
 
-		$query.=' LIMIT '.option('list/start').','.(option('list/items'));
+		$query.=' LIMIT '.option('pagination/start').','.(option('pagination/items'));
 		return $query;
 	}
 	

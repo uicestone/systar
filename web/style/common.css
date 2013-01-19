@@ -206,12 +206,15 @@ nav{
 }
 
 /*内容表*/
+.pagination{
+	line-height:25px;
+}
+.pagination button{
+	margin:0;
+}
 .contentTableMenu{
 	position:fixed;top:0;right:250px;z-index:2;
 	color:#FFF;
-}
-.contentTableMenu .nav{
-	margin:0;
 }
 .contentTableFoot{
 	margin-top:10px;
@@ -287,7 +290,6 @@ nav{
 #toolBar{
 	float:right;
 	width:240px;
-	text-align:right;
 }
 #toolBar.minimized{
 	max-width:100px;
@@ -331,6 +333,9 @@ nav{
 	border:0;
 	text-align:right;
 	padding:0;
+}
+#toolBar .contentTable.search-bar tbody td input[type=text]{
+	width:240px;
 }
 
 /*插入界面*/

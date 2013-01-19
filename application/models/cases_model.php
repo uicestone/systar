@@ -852,14 +852,14 @@ class Cases_model extends SS_Model{
 				)uncollected
 				ON case.id=uncollected.case
 				
-			WHERE case.company='{$this->company->id}' AND case.display=1 AND is_query=0 AND case.filed=0 AND case.id>=20
+			WHERE case.company={$this->company->id} AND case.display=1 AND is_query=0 AND case.filed=0 AND case.id>=20
 		";
 		$q_rows="
 			SELECT
 				COUNT(id)
 			FROM 
 				`case`
-			WHERE case.company='{$this->company->id}' AND case.display=1 AND is_query=0 AND case.filed=0 AND case.id>=20
+			WHERE case.company={$this->company->id} AND case.display=1 AND is_query=0 AND case.filed=0 AND case.id>=20
 		";
 		
 		$condition='';

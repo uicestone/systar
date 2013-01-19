@@ -61,7 +61,7 @@ $(document).ready(function(){
 	});
 	
 	/*页面内的固定元素，会跟着页面上下滚动而变换位置从而留在原地*/
-	$('#page').on('scrollstop',function(){
+	$('#page').on('scrollstop pageLoaded',function(){
 		$('.fixed').css('position','relative').animate({top:$(this).scrollTop()});
 	});
 	
@@ -122,6 +122,13 @@ $(document).ready(function(){
 		window.location.hash=lastAccessedHash;
 	}
 
+	return false;
+})
+/*分页按钮响应*/
+.on('click','.pagination button',function(){
+	$.post('/'+hash,{start:$(this).attr('target-page-start')},function(response){
+		$('#page>div[hash="'+hash+'"]').html(response.data.content.content).attr('time-load',$.now()).trigger('pageLoaded');
+	},'json');
 	return false;
 })
 /*edit表单元素更改时实时提交到后台 */
