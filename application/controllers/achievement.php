@@ -86,14 +86,14 @@ class Achievement extends SS_controller{
 					->setData($this->achievement->getReceivableList($method))
 					->generate();
 				
-		$this->load->main_view_loaded=TRUE;
+		
 		$this->load->addViewData('list',$table);
 
 		$receivable_sum=$this->achievement->receivableSum($method,option('date_range/from'),option('date_range/to'));
 		$this->load->addViewData('receivable_sum', $receivable_sum['sum']);
 
 		$this->load->view('list');	
-		$this->load->main_view_loaded=true;
+		
 	}
 	
 	function caseBonus(){

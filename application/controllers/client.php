@@ -149,7 +149,7 @@ class Client extends SS_Controller{
 		}else{
 			$this->load->view('client/add_natural');
 		}		
-		$this->load->main_view_loaded=true;
+		
 	}
 
 	function submit($submit){

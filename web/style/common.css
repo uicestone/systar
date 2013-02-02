@@ -42,6 +42,10 @@ table, td, th {
 .throbber{
 	text-align: center;
 }
+.date{
+	width:110px;
+}
+
 .ui-autocomplete {
 	max-height: 200px;
 	overflow-y:scroll;
@@ -340,7 +344,7 @@ nav{
 
 /*插入界面*/
 .contentTable .item{
-	font-size:17px;
+	/*font-size:17px;*/
 	margin-bottom:10px;
 	text-align:left;
 }
@@ -354,8 +358,11 @@ nav{
 .contentTable .item input[type="password"],
 .contentTable .item textarea,
 .contentTable .item select{
-	/*width:99.6%;*/
 	font-size:17px;
+}
+.contentTable .item textarea{
+	width:100%;
+	padding:0;margin:0;border:0;
 }
 .contentTable .item .title{
 	padding-left:1em;

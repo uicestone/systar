@@ -65,7 +65,7 @@ class Test extends SS_controller{
 			$this->errorSQLMessage($sql);
 		}
 		
-		$this->load->main_view_loaded=true;
+		
 		$this->load->sidebar_loaded=true;
 	}
 	
@@ -90,7 +90,7 @@ class Test extends SS_controller{
 		echo $display_text;
 		$pscws->close();
 		
-		$this->load->main_view_loaded=true;
+		
 		$this->load->sidebar_loaded=true;
 	}
 	
@@ -100,7 +100,7 @@ class Test extends SS_controller{
 		$sorted_results=$this->label_model->search($label_string);
 		var_dump($sorted_results);
 		
-		$this->load->main_view_loaded=true;
+		
 		$this->load->sidebar_loaded=true;
 	}
 }

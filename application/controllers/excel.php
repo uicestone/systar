@@ -21,7 +21,7 @@ class Excel extends SS_controller{
 			->setData($this->schedule->getList())
 			->generateExcel();
 		
-		$this->load->main_view_loaded=true;
+		
 		$this->load->sidebar_loaded=true;
 	}
 }

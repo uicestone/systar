@@ -128,7 +128,7 @@ class Account extends SS_controller{
 		
 		$this->load->addViewArrayData(compact('case_client_array','case_fee_array'));
 		$this->load->view('account/edit');
-		$this->load->main_view_loaded=true;
+		
 	}
 }
 ?>

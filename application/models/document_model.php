@@ -16,12 +16,30 @@ class Document_model extends SS_Model{
 		return $this->db->query($query)->row_array();
 	}
 	
+	function add($name,$size){
+		$data=array(
+			'name'=>$name,
+			'extname'=>$this->getExtension($name),
+			'size'=>$size
+		);
+		
+		$data+=uidTime();
+		
+		$this->db->insert('document',$data);
+		
+		return $this->db->insert_id();
+				
+	}
+	
 	function getMime($file_extension){
 		$file_extension=strtolower($file_extension);
 		$filetype=new Filetype();
 		return $filetype->type[$file_extension];
 	}
 	
+	/**
+	 * Deprecated 弃用
+	 */
 	function openInBrowser($file_extension){
 		$file_extension=strtolower($file_extension);
 		$filetype=new Filetype();
@@ -68,6 +86,25 @@ class Document_model extends SS_Model{
 		$q=$this->orderBy($q,'type','ASC');
 		$q=$this->pagination($q);
 		return $this->db->query($q)->result_array();
+	}
+
+	function getListByCase($case_id){
+		$case_id=intval($case_id);
+		
+		$query="
+			SELECT id,document.name,extname,type.name AS type,comment,time,username
+			FROM 
+				document
+				LEFT JOIN (
+					SELECT label.name,document_label.document
+					FROM document_label 
+						INNER JOIN label ON document_label.label=label.id
+					WHERE document_label.type='类型'
+				)type ON document.id=type.document
+			WHERE display=1 AND `case` = $case_id
+			ORDER BY time DESC";
+
+		return $this->db->query($query)->result_array();
 	}
 }
 ?>

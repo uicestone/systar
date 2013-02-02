@@ -507,4 +507,10 @@ INSERT INTO team
 SELECT '教研组', name,leader,2
 FROM starsys.teacher_course_group;
 
+INSERT INTO people_profile
+(`people`, `name`, `content`, `comment`, `uid`, `username`, `time`)
+SELECT
+ client,type,content,comment,uid,username,time
+FROM starsys.client_contact;
+
 --TODO 尚未导入团队关系和团队－人员关系

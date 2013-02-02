@@ -14,6 +14,7 @@ class People_model extends SS_Model{
 		'name'=>'名称',
 		'name_en'=>'英文名',
 		'abbreviation'=>'简称',
+		'type'=>'分类',
 		'gender'=>'性别',
 		'id_card'=>'身份证号',
 		'work_for'=>'工作单位',
@@ -130,14 +131,13 @@ class People_model extends SS_Model{
 	}
 	
 	/**
-	 * 为人添加标签，而不论标签是否存在，输入是标签内容还是标签id
+	 * 为人添加标签，而不论标签是否存在
 	 * @param type $people people.id
 	 * @param type $label_name 标签内容或标签id（须将下方input_as_id定义为true）
 	 * @param type $type 标签内容在此类对象的应用的意义，如“分类”，“类别”，案件的”阶段“等
-	 * @param type $input_as_id 是否将$label_name作为label_id直接插入到people_label
 	 * @return type 返回people_label的insert_id
 	 */
-	function addLabel($people,$label_name,$type=NULL,$input_as_id=false){
+	function addLabel($people,$label_name,$type=NULL){
 		if($input_as_id && is_integer($label_name)){
 			$label_id=$label_name;
 		}else{

@@ -150,7 +150,7 @@ class Schedule extends SS_controller{
 
 			$objWriter->save('php://output');
 			
-			$this->load->main_view_loaded=true;
+			
 			$this->load->sidebar_loaded=true;
 		
 		}else{
@@ -158,7 +158,7 @@ class Schedule extends SS_controller{
 					->wrapForm()
 					->generate();
 			$this->load->addViewData('list',$tableView);
-			$this->load->view('schedule/list');$this->load->main_view_loaded=true;
+			$this->load->view('schedule/list');
 		}		
 	}
 
@@ -284,7 +284,7 @@ class Schedule extends SS_controller{
 		}
 		
 		$this->load->view('schedule/edit');
-		$this->load->main_view_loaded=true;
+		
 	}*/
 
 	function listWrite(){

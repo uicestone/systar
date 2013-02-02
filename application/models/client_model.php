@@ -275,8 +275,8 @@ class Client_model extends People_model{
 		$query="
 			SELECT people.id,people.name 
 			FROM people
-				INNER JOIN people_label ON people_label.people=people.id AND people_label.label=(SELECT id FROM label WHERE name='客户')
 			WHERE people.company={$this->company->id} AND people.display=1 
+				AND type='客户'
 				AND (name LIKE '%$part_of_name%' OR abbreviation LIKE '$part_of_name' OR name_en LIKE '%$part_of_name%')
 			ORDER BY people.id DESC
 		";

@@ -175,29 +175,18 @@ class SS_Model extends CI_Model{
 	/**
 	 * 在每个add/edit页面之前获得数据ID，插入新数据或者根据数据ID获得数据数组
 	 * @param $id 需要获得的数据id，如果是添加新数据，那么为NULL
-	 * @param $callback 对于新增数据，在执行插入操作之前进行一些赋值
 	 */
-	function getPostData($id=NULL,$function_initializing_data=NULL){
-		if(!$id){
-			if(is_a($function_initializing_data,'Closure')){
-				$CI=&get_instance();
-				$function_initializing_data($CI);
-			}
-	
-			if(is_callable(array($this),'add')){
-				$id=$this->add();
-			}else{
-				show_error('对应model的add()不可访问');
-			}
+	function getPostData($id=NULL){
+		if(is_null($id)){
+			$id=$this->add();
 		}
 	
 		if($id){
 			$this->id=$id;
 		}else{
 			show_error('获得数据条目id失败');
-			exit;
 		}
-		
+
 		return $this->fetch($id);
 	}
 }

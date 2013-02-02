@@ -73,7 +73,12 @@ function array_sub($array,$keyname,$keyname_forkey=NULL){
 			if(is_null($keyname_forkey)){
 				$array_new[$key]=$sub_array[$keyname];
 			}else{
-				$array_new[$sub_array[$keyname_forkey]]=$sub_array[$keyname];
+				if(isset($sub_array[$keyname_forkey])){
+					$array_new[$sub_array[$keyname_forkey]]=$sub_array[$keyname];
+				}
+				else{
+					$array_new[$key]=$sub_array[$keyname];
+				}
 			}
 		}
 	}

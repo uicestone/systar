@@ -5,12 +5,16 @@
  *	$options是一个值时,尝试从type(可以指定)表中获得classification(可以指定)为$options的type(可以指定)
  *	指定$affair值时，优先根据$affair获得第一个classfication
  */
-function options($options,$checked=NULL,$array_key_as_option_value=false,$type_table='type',$classification='classification',$type='type',$condition=NULL){
-	if(!is_array($options)){
+function options($options,$checked=NULL,$label=NULL,$array_key_as_option_value=false){
+	
+	$options_html='';
+	
+	if(is_null($checked) && isset($label)){
+		$options_html.="<option value=\"\">$label</option>";
+	}
+	
+	/*if(!is_array($options)){
 		//$options 作为形成选项的因子
-		if(is_null($options) || is_null($checked)){
-			$options.='<option value="">全部</option>';
-		}
 
 		$key_field='';
 		if($array_key_as_option_value===true){
@@ -29,17 +33,18 @@ function options($options,$checked=NULL,$array_key_as_option_value=false,$type_t
 		$options=db_toArray($q_get_option);
 		$options=$array_key_as_option_value?array_sub($options,$type,'id'):array_sub($options,$type);
 
-	}elseif(isset($options[0]) && $options[0]=='_ENUM'){
+	}else*/
+	if(isset($options[0]) && $options[0]=='_ENUM'){
 		$options=db_enumArray($options[1],$options[2]);
 
 	}
 	
 	foreach($options as $option_key=>$option){
 		$value=$array_key_as_option_value?$option_key:$option;
-		$options.='<option value="'.$value.'"'.($value==$checked?' selected="selected"':'').'>'.$option.'</option>';
+		$options_html.='<option value="'.$value.'"'.($value==$checked?' selected="selected"':'').'>'.$option.'</option>';
 	}
 
-	return $options;
+	return $options_html;
 }
 
 /**

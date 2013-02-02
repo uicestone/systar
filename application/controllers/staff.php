@@ -31,9 +31,6 @@ class Staff extends SS_controller{
 		$this->load->view('list');		
 	}
 	
-	/**
-	 * ajax响应页面，根据请求的字符串返回匹配的客户id和名称
-	 */
 	function match(){
 		
 
@@ -49,7 +46,7 @@ class Staff extends SS_controller{
 				'value'=>$row['id']
 			);
 		}
-		echo json_encode($array);
+		$this->output->data=$array;
 	}
 }
 ?>

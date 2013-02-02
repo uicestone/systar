@@ -120,7 +120,7 @@ class Student extends SS_controller{
 		
 		$this->load->addViewArrayData(compact('relatives','behaviour','comments','scores'));
 		$this->load->view('student/edit');
-		$this->load->main_view_loaded=true;
+		
 	}
 
 	/**

@@ -20,9 +20,10 @@ $(window).hashchange(function(){
 	 *根据当前hash，显示对应标签页面，隐藏其他页面。
 	 *如果当前page中没有请求的页面（或者已过期），那么向服务器发送请求，获取新的页面并添加标签选项卡。
 	 */
-	$('#page>div[just-accessed]').removeAttr('just-accessed');
-	$('#page>div:not([hash="'+hash+'"])').hide().attr('just-accessed','true');
-	if($('#page>[hash="'+hash+'"]').show().attr('time-access',$.now()).length==0){
+	$('#page>section[just-accessed]').removeAttr('just-accessed');
+	$('#page>section:not([hash="'+hash+'"])').hide().attr('just-accessed','true');
+	
+	if($('#page>[hash="'+hash+'"]').show().attr('time-access',$.now()).trigger('sectionshow').length==0){
 		$.get(hash,function(response){
 			if(response.status=='login_required'){
 				window.location.href='/login';
@@ -33,7 +34,7 @@ $(window).hashchange(function(){
 				$('#tabs').append('<li for="'+hash+'" class="activated"><a href="#'+hash+'">'+response.data.name.content+'</a></li>');
 			}
 			
-			$('<div hash="'+hash+'" time-load="'+$.now()+'" time-access="'+$.now()+'"></div>').appendTo('#page').html(response.data.content.content).trigger('pageLoaded');
+			$('<section hash="'+hash+'" time-load="'+$.now()+'" time-access="'+$.now()+'"></section>').appendTo('#page').html(response.data.content.content).trigger('sectionload');
 			
 		},'json');
 	}
@@ -61,7 +62,7 @@ $(document).ready(function(){
 	});
 	
 	/*页面内的固定元素，会跟着页面上下滚动而变换位置从而留在原地*/
-	$('#page').on('scrollstop pageLoaded',function(){
+	$('#page').on('scrollstop sectionload',function(){
 		$('.fixed').css('position','relative').animate({top:$(this).scrollTop()});
 	});
 	
@@ -73,7 +74,7 @@ $(document).ready(function(){
 	}
 })
 /*主体页面加载事件*/
-.on('pageLoaded','#page',function(){
+.on('sectionload blockload','#page',function(){
 	$('[placeholder]').placeholder()
 	$('.date').datepicker();
 
@@ -82,19 +83,17 @@ $(document).ready(function(){
 		changeYear: true
 	});
 	
-	//$('[display-for]:input:not([locked-by]),[display-for]:not([locked-by]) :input:not([locked-by])').attr('disabled','disabled');
-	$('[display-for]:not([locked-by])').hide();
-
-	$('title').html(affair+' - '+(username?username+' - ':'')+sysname);
-
 	if(!$.browser.msie){
 		$('.contentTable:not(.search-bar)').children('tbody').children('tr').each(function(index){
 			$(this).delay(15*index).css('opacity',0).css('visibility','visible').animate({opacity:'1'},500);
 		});
 	}
 })
+.on('sectionload sectionshow','#page',function(){
+	$('title').html(affair+' - '+(username?username+' - ':'')+sysname);
+})
 /*编辑页的提交按钮点击事件，提交数据到后台，在页面上反馈数据和提示*/
-.on('click','#page>div>form input:submit',function(){
+.on('click','#page>section>form input:submit',function(){
 	var id = $('form[name="'+controller+'"]').attr('id');
 	var submit = $(this).attr('name').replace('submit[','').replace(']','');
 	
@@ -104,40 +103,52 @@ $(document).ready(function(){
 		postURI+='/'+id;
 	}
 	
-	$.post(postURI,$('#page>div[hash="'+hash+'"]>form').serialize(),function(response){
-		$(document).setBlock(response);
-	},'json');
+	$.post(postURI,$('#page>section[hash="'+hash+'"]>form').serialize(),function(response){
+		$('#page>section[hash="'+hash+'"]').setBlock(response);
 
-	if(submit==controller || submit=='cancel'){
-		$('#tabs>li[for="'+hash+'"]').remove();
-		$('#page>div[hash="'+hash+'"]').remove();
-		
-		var lastAccessedHash;
-		var lastAccessTime=0;
-		$('#page>div').each(function(){
-			if($(this).attr('time-access')>lastAccessTime){
-				lastAccessedHash=$(this).attr('hash');
+		if(response.status=='success'){
+			if(submit==controller || submit=='cancel'){
+				$('#tabs>li[for="'+hash+'"]').remove();
+				$('#page>section[hash="'+hash+'"]').remove();
+
+				var lastAccessedHash;
+				var lastAccessTime=0;
+				
+				var sections = $('#page>section').each(function(){
+					if($(this).attr('time-access')>lastAccessTime){
+						lastAccessedHash=$(this).attr('hash');
+					}
+				}).length
+				
+				if(sections>0){
+					window.location.hash=lastAccessedHash;
+				}else{
+					window.location.hash=$('#page').attr('default-uri');
+				}
 			}
-		});
-		window.location.hash=lastAccessedHash;
-	}
+		}
+
+	},'json');
 
 	return false;
 })
 /*分页按钮响应*/
 .on('click','.pagination button',function(){
 	$.post('/'+hash,{start:$(this).attr('target-page-start')},function(response){
-		$('#page>div[hash="'+hash+'"]').html(response.data.content.content).attr('time-load',$.now()).trigger('pageLoaded');
+		if(response.status=='login_required'){
+			window.location.href='/login';
+		}
+		$('#page>section[hash="'+hash+'"]').html(response.data.content.content).attr('time-load',$.now()).trigger('sectionload');
 	},'json');
 	return false;
 })
 /*edit表单元素更改时实时提交到后台 */
-.on('change','#page>div>form:[id] :input',function(){
+.on('change','#page>section>form:[id] :input',function(){
 	var value=$(this).val();
 	if($(this).is(':checkbox') && !$(this).is(':checked')){
 		value=0;
 	}
-	var id = $('#page>div[hash="'+hash+'"]>form').attr('id');
+	var id = $('#page>section[hash="'+hash+'"]>form').attr('id');
 	var name = $(this).attr('name').replace('[','/').replace(']','');
 	var data={};data[name]=value;
 	$.post('/'+controller+'/setfields/'+id,data);
@@ -146,7 +157,7 @@ $(document).ready(function(){
 /*.on('click','a:not([href^="javascript"]):not([href^="#"])',function(){
 	var href=$(this).attr('href');
 	$('#page').load($(this).attr('href'),function(){
-		$(this).trigger('pageLoaded');
+		$(this).trigger('sectionload');
 
 		//设置顶层框架的hash为当前框架的URI
 		window.location.hash='#'+href.replace(RegExp('^/'),'');
@@ -185,18 +196,18 @@ $(document).ready(function(){
 			},'json');
 		},
 		select: function(event,ui){
-			$(this).trigger('autocompleteselect',{value:ui.item.value}).change();
+			$(this).val(ui.item.label).trigger('autocompleteselect',{value:ui.item.value}).trigger('change');
 			return false;
 		},
 		focus: function(event,ui){
-			$(this).val(ui.item.label);
+			//$(this).val(ui.item.label);
 			return false;
 		},
 		response: function(event,ui){
 			if(ui.content.length==0){
 				$(this).trigger('autocompletenoresult');
 			}
-			$(this).change();
+			//$(this).trigger('change');
 		}
 	})
 	/*.bind('input.autocomplete', function(){
@@ -206,37 +217,26 @@ $(document).ready(function(){
 	//.autocomplete('search')
 	;
 })
+//响应每一栏标题上的"+"并显示/隐藏添加菜单
 .on('click','.item>.title>.toggle-add-form',function(){
-	var addForm=$(this).parent().siblings('.add-form');
+	var addForm=$(this).closest('.item').find('.add-form');
 	if(addForm.is(':hidden')){
-		addForm.show(200).find('select:visible').change();
+		addForm.show(200);
 		$(this).html('-');
 	}else{
 		addForm.hide(200);
 		$(this).html('+');
 	}
 })
-.on('enable','[display-for]:not([locked-by])',function(){
-	//console.log('enabled:');
-	//console.log(this);
+.on('enable','[display-for]:not([locked-by])',function(event){
+	$(this).find(':input:disabled').trigger('change').removeAttr('disabled');
 	$(this).show();
-	/*if($(this).is(':input')){
-		$(this).removeAttr('disabled');
-	}else{
-		$(this).find(':input').removeAttr('disabled');
-	}*/
-	//return false;
+
 })
-.on('disable','[display-for]:not([locked-by])',function(){
-	//console.log('disabled:');
-	//console.log(this);
+.on('disable','[display-for]:not([locked-by])',function(event){
 	$(this).hide();
-	/*if($(this).is(':input')){
-		$(this).attr('disabled','disabled');
-	}else{
-		$(this).find(':input').attr('disabled','disabled');
-	}*/
-	//return false;
+	$(this).find(':input:enabled').trigger('change').attr('disabled','disabled');
+
 }).on('mouseenter mouseleave','.contentTable>tbody>tr',function(){
 	$(this).toggleClass('highlighted');
 
@@ -400,7 +400,7 @@ function showMessage(message,type,directExport){
 		var directExport=false;
 	}
 
-	$('.message').hide().remove();
+	//$('.message').hide().remove();
 	
 	if(directExport){
 		var newMessage=$(message);
@@ -495,7 +495,7 @@ jQuery.fn.showSchedule=function(event){
 	},'json');
 }
 
-jQuery.fn.createSchedule=function(startDate, endDate, allDay){
+jQuery.fn.createSchedule=function(startDate, endDate, allDay, project, completed){
 	date = new Date();
 	selection=$(this);
 	
@@ -651,10 +651,10 @@ jQuery.fn.getOptionsByLabelRelative=function(labelName,callback){
 	
 	$.get('/label/getrelatives/'+labelName,function(response){
 		var options='';
-		$.map(response.data,function(item,index){
-			options+='<option value="'+index+'">'+item+'</option>';
+		$.map(response.data,function(item){
+			options+='<option value="'+item+'">'+item+'</option>';
 		})
-		select.html(options).change();
+		select.html(options).trigger('change');
 		if (typeof callback != 'undefined'){
 			callback(passive_select.val());
 		}
@@ -704,41 +704,7 @@ jQuery.fn.reset=function(){
  */
 jQuery.fn.setBlock=function(response){
 	
-	function set(data){
-		switch(data.type){
-			case 'uri':
-				if(data.content==null){
-					data.content=$(data.selector).attr('default-uri');
-				}
-				if(data.selector=='#page'){
-					window.location.hash='#'+data.content;
-				}else{
-					$.get(data.content,function(response){
-						if(data.method=='replace'){
-							$(data.selector).replaceWith(response.data);
-							$(data.selector).trigger('blockLoaded');
-						}else{
-							$(data.selector).html(response.data).trigger('blockLoaded');
-						}
-					},'json');
-				}
-				break;
-			case 'html':
-				if(data.method=='replace'){
-					$(data.selector).replaceWith(data.content);
-				}else{
-					$(data.selector).html(data.content);
-				}
-
-				if(data.selector=='#page'){
-					$('#page').trigger('pageLoaded');
-				}else{
-					$(data.selector).trigger('blockLoaded');
-				}
-
-				break;
-		}
-	}
+	var parent=this;
 	
 	if(response.status=='login_required'){
 		window.location.href='login';
@@ -751,14 +717,28 @@ jQuery.fn.setBlock=function(response){
 			});
 		});
 	}
+	
+	$.each(response.data,function(dataName,data){
+		switch(data.type){
+			case 'uri':
+				$.get(data.content,function(response){
+					if(data.method=='replace'){
+						parent.find(data.selector).replaceWith(response.data.content.content);
+						parent.find(data.selector).trigger('blockload');
+					}else{
+						parent.find(data.selector).html(response.data.content.content).trigger('blockload');
+					}
+				},'json');
+				break;
+			case 'html':
+				if(data.method=='replace'){
+					parent.find(data.selector).replaceWith(data.content);
+					parent.find(data.selector).trigger('blockload');
+				}else{
+					parent.find(data.selector).html(data.content).trigger('blockload');
+				}
 
-	if(response.data.type){
-		/*data不是数组*/
-		set(response.data);
-	}else{
-		/*data是数组，先遍历*/
-		$.each(response.data,function(index,data){
-			set(data);
-		});
-	}
+				break;
+		}
+	});
 }

@@ -43,6 +43,7 @@ $route['404_override'] = '';
 
 $route['login']='user/login';
 $route['logout']='user/logout';
+//$route['(.*?)/(:num)']='$1/edit/$2';
 
 
 /* End of file routes.php */

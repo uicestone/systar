@@ -182,7 +182,7 @@ class Contact extends SS_controller{
 		}else{
 			$this->load->view('contact/add_natural');
 		}
-		$this->load->main_view_loaded=true;
+		
 	}
 }
 ?>

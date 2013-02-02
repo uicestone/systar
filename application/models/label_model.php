@@ -19,15 +19,25 @@ class Label_model extends SS_Model{
 		}
 	}
 	
+	/**
+	 * 测试一个标签名
+	 * 如果存在则返回id
+	 * 如果不存在则添加后返回id
+	 * @param string $name
+	 */
 	function match($name){
 		$name=urldecode($name);
 		
-		$query="SELECT id FROM label WHERE name = '$name'";
-		return $this->db->query($query)->row()->id;
+		$row=$this->db->get_where('label', array('name'=>$name))->row_array();
+		if($row){
+			return $row['id'];
+		}else{
+			$this->db->insert('label',array('name'=>$name));
+			return $this->db->insert_id();
+		}
 	}
 	
 	/**
-	 * TODO@iori	这是标签相关度匹配的实现接口
 	 * 把一个搜索字符串切分成分词，通过标签匹配，返回相关度最高的相关项目
 	 * @param string $label_string
 	 * @return array 

@@ -48,6 +48,7 @@ class SS_Controller extends CI_Controller{
 		$this->load->helper('function_common');
 		$this->load->model('company_model','company');
 		$this->load->model('user_model','user');
+		$this->load->model('label_model','label');
 		
 		if(is_file(APPPATH.'models/'.$class.'_model.php')){
 			$this->load->model($class.'_model',$class);
@@ -153,7 +154,7 @@ class SS_Controller extends CI_Controller{
 		
 		if($output){
 			//如果在这个方法运行之前，页面就有输出，那么说明是一个旧式的输出html的页面，我们给它直接加上嵌入页面的js
-			$output.=$this->load->view('innerjs',array(),true);
+			$output=$this->load->view('innerjs',array(),true).$output;
 			$this->output->setData($output);
 		}
 		
