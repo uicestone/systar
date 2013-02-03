@@ -10,18 +10,13 @@ class Client extends SS_Controller{
 	}
 
 	function lists($method=NULL){
-
-		if($this->input->post('delete')){
-			$clients_to_delete=array_trim($this->input->post('client_check'));
-			$this->client->delete($clients_to_delete);
-		}
+		$this->output->setData('客户', 'name');
 
 		$field=array(
 			'abbreviation'=>array(
 				'title'=>'名称',
-				'content'=>'<input type="checkbox" name="client_check[{id}]" />
-					<a href="javascript:showWindow(\'client/edit/{id}\')" title="{name}">{abbreviation}</a>',
-				'td'=>'class="ellipsis"'
+				'content'=>'{abbreviation}',
+				'td'=>'class="ellipsis" title="{name}" href="client/edit/{id}"'
 			),
 			'phone'=>array('title'=>'电话', 'td'=>'class="ellipsis" title="{phone}"'),
 			'address'=>array('title'=>'地址', 'td_title'=>'width="240px"',
@@ -35,7 +30,6 @@ class Client extends SS_Controller{
 		);
 		
 		$table=$this->table->setFields($field)
-			->setMenu('<input type="submit" name="delete" value="删除" />', 'left')
 			->wrapForm()
 			->setData($this->client->getList($method))
 			->generate();
@@ -55,25 +49,25 @@ class Client extends SS_Controller{
 		//客户相关人
 		if($item=='relative'){
 			$field=array(
-				'client_right_name'=>array(
-					'title'=>'<input type="submit" name="submit[client_client_delete]" value="删" />名称<input type="submit" name="submit[client_client_set_default]" value="默认" />', 
+				'relative_name'=>array(
+					'title'=>'<input type="submit" name="submit[relative_delete]" value="删" />名称<input type="submit" name="submit[relative_set_default]" value="默认" />', 
 					'eval'=>true, 
 					'content'=>"
-						\$return='<input type=\"checkbox\" name=\"client_client_check[{id}]\" >';
-						\$return.='<a href=\"javascript:showWindow(\''.('{classification}'=='客户'?'client':'contact').'/edit/{client_right}\')\">{client_right_name}</a>';
+						\$return='<input type=\"checkbox\" name=\"relative_check[{id}]\" >';
+						\$return.='{relative_name}';
 						if('{is_default_contact}'){
 							\$return.='*';
 						}
 						return \$return;
 					", 'orderby'=>false
 				), 
-				'client_right_phone'=>array('title'=>'电话', 'orderby'=>false), 
-				'client_right_email'=>array('title'=>'电邮', 'wrap'=>array('mark'=>'a', 'href'=>'mailto:{client_right_email}')), 
-				'role'=>array('title'=>'关系', 'orderby'=>false)
+				'relative_phone'=>array('title'=>'电话', 'orderby'=>false), 
+				'relative_email'=>array('title'=>'电邮', 'wrap'=>array('mark'=>'a', 'href'=>'mailto:{relative_email}')), 
+				'relation'=>array('title'=>'关系', 'orderby'=>false)
 			);
 			
 			$list=$this->table->setFields($field)
-				->setData($this->client->getRelatedClients($this->client->id))
+				->setData($this->client->getRelatives($this->client->id))
 				->wrapBox(false)
 				->generate();
 
@@ -81,9 +75,9 @@ class Client extends SS_Controller{
 		//资料项
 		elseif($item=='profile'){
 			$field=array(
-				'type'=>array('title'=>'<input type="submit" name="submit[client_contact_delete]" value="删" />类别', 'content'=>'<input type="checkbox" name="client_contact_check[{id}]" />{type}', 'orderby'=>false), 
+				'name'=>array('title'=>'<input type="submit" name="submit[people_profile_delete]" value="删" />名称', 'content'=>'<input type="checkbox" name="people_profile_check[]" value="{id}" />{name}', 'orderby'=>false), 
 				'content'=>array('title'=>'内容', 'eval'=>true, 'content'=>"
-					if('{type}'=='电子邮件'){
+					if('{name}'=='电子邮件'){
 						return '<a href=\"mailto:{content}\" target=\"_blank\">{content}</a>';
 					}else{
 						return '{content}';
@@ -120,17 +114,20 @@ class Client extends SS_Controller{
 		$this->load->model('cases_model','cases');
 
 		$client=$this->client->getPostData($id);
-		
-		$this->output->setData('html',$client['name'],'name');
+		$labels=$this->client->getLabels($this->client->id);
+		//取得当前客户的"来源"数据
+		$source=$this->client->fetchSource($client['source']);
+
+		$this->output->setData($client['abbreviation'],'name');
+
+		$available_options=$this->client->getHotlabelsOfTypes();
+		$profile_name_options=$this->client->getProfileNames();
 		
 		$this->subList('relative');
 		$this->subList('profile');
 		$this->subList('case');
 
-		//取得当前客户的"来源"数据
-		$source=$this->client->fetchSource($client['source']);
-
-		$this->load->addViewArrayData(compact('client','source'));
+		$this->load->addViewArrayData(compact('client','labels','available_options','profile_name_options','source'));
 
 		if($client['staff']){
 			$client['staff_name']=$this->staff->fetch($client['staff'],'name');
@@ -139,9 +136,6 @@ class Client extends SS_Controller{
 		if($this->input->post('character') && in_array($this->input->post('character'),array('自然人','单位'))){
 			post('client/character', $this->input->post('character'));
 		}
-
-		$data=compact('client_table','contact_table','case_table');
-		$this->load->addViewArrayData($data);
 
 		if(post('client/character') == '单位'){
 			$this->load->view('client/add_artificial');
@@ -152,92 +146,118 @@ class Client extends SS_Controller{
 		
 	}
 
-	function submit($submit){
+	function submit($submit,$id){
+		
+		$client=array_merge($this->client->getPostData($id),(array)post('client'))+(array)$this->input->post('client');
 
-		$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'], $_POST);
-
-		if($submit=='client_client'){
-			post('client_client_extra/show_add_form', true);
-
-			$client_check=$this->client->check(post('client_client_extra/name'), 'array');
-
-			if($client_check > 0){
-				post('client_client/client_right', $client_check['id']);
-				showMessage('系统中已经存在 ' . $client_check['name'] . '，已自动识别并添加');
-
-			}elseif($client_check == -1){//如果client_client添加的客户不存在，则先添加客户
-				$new_client=array('name'=>post('client_client_extra/name'), 'abbreviation'=>post('client_client_extra/name'), 'character'=>post('client_client_extra/character') == '单位' ? '单位' : '自然人', 'classification'=>'客户', 'type'=>'潜在客户', );
-				post('client_client/client_right', $this->client->add($new_client));
-
-				$this->client->addContact_phone_email(post('client_client/client_right'), post('client_client_extra/phone'), post('client_client_extra/email'));
-
-				showMessage('<a href="javascript:showWindow(\'client/edit/' . $new_client['id'] . '\')" target="_blank">新客户 ' . $new_client['name'] . ' 已经添加，点击编辑详细信息</a>', 'notice');
-
-			}else{
-				//除了不存在意外的其他错误，如关键字多个匹配
-				$submitable=false;
+		try{
+		
+			if($submit=='cancel'){
+				unset($_SESSION[CONTROLLER]['post'][$this->client->id]);
+				$this->client->clearUserTrash();
 			}
 
-			post('client_client/client_left', post('client/id'));
+			elseif($submit=='client'){
+				$this->load->model('staff_model','staff');
 
-			if($submitable && $this->client->addRelated(post('client_client'))){
-				unset($_SESSION['client']['post']['client_client']);
-				unset($_SESSION['client']['post']['client_client_extra']);
-			}
-		}
+				if($client['character'] == '自然人'){
+					//自然人简称就是名称
+					post('client/abbreviation', $client['name']);
 
-		if($submit=='client_contact'){
-			post('client_contact/client', post('client/id'));
+				}elseif($client['abbreviation'] == ''){
+					//单位简称必填
+					$this->output->message('请填写单位简称','warning');
+				}
+				
+				$source=(array)post('source')+$this->input->post('source');
 
-			if($this->client->addContact(post('client_contact'))){
-				unset($_SESSION['client']['post']['client_contact']);
-			}
-		}
+				post('client/source', $this->client->setSource($source['type'], isset($source['detail'])?$source['detail']:NULL));
+				
+				post('client/staff', $this->staff->check($client['staff_name']));
 
-		if($submit=='client_client_set_default'){
-			if(count(post('client_client_check')) > 1){
-				showMessage('你可能试图设置多个默认联系人，这是不被允许的', 'warning');
-
-			}elseif(count(post('client_client_check') == 1)){
-				$client_client_set_default_keys=array_keys(post('client_client_check'));
-				$this->client->setDefaultRelated($client_client_set_default_keys[0], post('client/id'));
-
-				showMessage('成功设置默认联系人');
-
-			}elseif(count(post('client_client_check') == 0)){
-				$this->client->clearDefaultRelated(post('client/id'));
-			}
-		}
-
-		if($submit=='client_client_delete'){
-			$this->client->deleteRelated(post('client_client_check'));
-		}
-
-		if($submit=='client_contact_delete'){
-			$this->client->deleteContact(post('client_contact_check'));
-		}
-
-		if(post('client/character') == '自然人'){
-			//自然人简称就是名称
-			post('client/abbreviation', post('client/name'));
-			if(!post('client/birthday')){
-				unset($_SESSION['client']['post']['client']['birthday']);
+				$this->client->update($this->client->id,post('client'));
 			}
 
-		}elseif(array_dir('_POST/client/abbreviation') == ''){
-			//单位简称必填
-			$submitable=false;
-			showMessage('请填写客户简称', 'warning');
-		}
+			elseif($submit=='relative'){
+				
+				$relative=(array)post('relative');
+				
+				if(!isset($relative['relation'])){
+					$this->output->message('请选择相关人与客户关系','warning');
+					throw new Exception;
+				}
+				
+				if(!$relative['id']){
+					$profiles=(array)post('relative_profiles');
+					
+					if(count($profiles)==0){
+						$this->output->message('请至少输入一种联系方式','warning');
+						throw new Exception;
+					}
+					
+					$relative+=array(
+						'type'=>'客户',
+						'abbreviation'=>$relative['name'],
+						'character'=>$relative['character'] == '单位' ? '单位' : '自然人',
+						'profiles'=>$profiles,
+						'labels'=>array('类型'=>'潜在客户')
+					);
+					$relative['id']=$this->client->add($relative);
+					$this->output->message('新客户 <a href="#client/edit/' . $relative['id'] . '">' . $relative['name'] . ' </a>已经添加');
+				}else{
+					$this->output->message('系统中已经存在 ' . $relative['name'] . '，已自动识别并添加');
+				}
 
-		if(!post('client/source', $this->client->setSource(post('source/type'), post('source/detail')))){
-			$submitable=false;
-		}
+				$this->client->addRelationship($this->client->id,$relative['id'],$relative['relation']);
 
-		if(post('client/source_lawyer', $this->staff->check(post('client_extra/source_lawyer_name'), 'id', true, 'client/source_lawyer')) < 0){
-			$submitable=false;
+				$this->output->setData($this->subList('relative',$this->client->id));
+
+			}
+
+			elseif($submit=='profile'){
+				$profile=(array)post('profile')+$this->input->post('profile');
+				
+				if($profile['name']==''){
+					$this->output->message('请选择资料项名称','warning');
+					throw new Exception;
+				}
+				
+				$this->client->addProfile($this->client->id,$profile['name'],$profile['content'],$profile['comment']);
+				
+				$this->output->setData($this->subList('profile',$this->client->id));
+				
+				unset($_SESSION['client']['post'][$this->client->id]['profile']);
+			}
+
+			elseif($submit=='people_profile_delete'){
+				$this->client->removeProfile($this->input->post('people_profile_check'));
+				$this->output->setData($this->subList('profile',$this->client->id));
+			}
+			
+			elseif($submit=='relative_set_default'){
+				if(count(post('relative_check')) > 1){
+					$this->output->message('你可能试图设置多个默认联系人，这是不被允许的', 'warning');
+
+				}elseif(count(post('relative_check') == 1)){
+					$relative_set_default_keys=array_keys(post('relative_check'));
+					$this->client->setDefaultRelated($relative_set_default_keys[0], post('client/id'));
+
+					$this->output->message('成功设置默认联系人');
+
+				}elseif(count(post('relative_check') == 0)){
+					$this->client->clearDefaultRelated(post('client/id'));
+				}
+			}
+
+			elseif($submit=='relative_delete'){
+				$this->client->deleteRelated(post('relative_check'));
+			}
+
+			$this->output->status='success';
+			
+		}catch(Exception $e){
+			$this->output->status='fail';
 		}
-		$this->processSubmit($submitable);
 	}
 
 	/**

@@ -44,3 +44,15 @@ ALTER TABLE  `case_label` ADD UNIQUE `case-type` (
 `type`
 );
 -- uice 2/2
+
+ALTER TABLE  `case_label` ADD  `label_name` VARCHAR( 255 ) NOT NULL AFTER  `label`;
+UPDATE case_label INNER JOIN label ON label.id=case_label.label
+SET case_label.label_name = label.name;
+UPDATE  `syssh`.`affair` SET  `add_action` =  'client/add' WHERE  `affair`.`id` =80;
+-- uice 2/2-2
+
+ALTER TABLE  `people_label` ADD  `label_name` VARCHAR( 255 ) NOT NULL AFTER  `label`;
+
+UPDATE people_label INNER JOIN label ON label.id=people_label.label
+SET people_label.label_name = label.name;
+-- uice 2/3

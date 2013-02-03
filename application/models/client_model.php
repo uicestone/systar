@@ -54,44 +54,6 @@ class Client_model extends People_model{
 		}
 	}
 	
-	function add($data){
-		
-		$client=parent::add($data);
-		
-		if(isset($data['profiles'])){
-			foreach($data['profiles'] as $name => $value){
-				$this->addProfile($client,$name,$value);
-			}
-		}
-		
-		if(isset($data['labels'])){
-			foreach($data['labels'] as $type => $name){
-				if(is_integer($name)){
-					$this->addLabel($client, $name, $type, true);
-				}else{
-					$this->addLabel($client,$name,$type);
-				}
-			}
-		}
-		
-		return $client;
-	}
-	
-	/**
-	 * 添加客户相关人
-	 */
-	function addRelated($data){
-		return db_insert('people_relationship',$data);
-	}
-	
-	/**
-	 * deprecated
-	 * 添加客户联系方式
-	 */
-	function addContact($data){
-		return db_insert('people_profile',$data);
-	}
-	
 	function addSource($data){
 		return db_insert('client_source',$data);
 	}
@@ -152,14 +114,6 @@ class Client_model extends People_model{
 		db_delete('people_relationship',$condition);
 	}
 	
-	/**
-	 * 删除客户联系方式
-	 */
-	function deleteContact($people_profiles){
-		$condition = db_implode(post('people_profile_check'), $glue = ' OR ','id','=',"'","'", '`','key');
-		db_delete('people_profile',$condition);
-	}
-	
 	function checkSource($detail,$checktype){
 		if($checktype=='client'){
 			$q_source="SELECT id FROM client_source WHERE client='".intval($detail)."' LIMIT 1";
@@ -180,7 +134,7 @@ class Client_model extends People_model{
 		}
 	}
 	
-	function setSource($type,$detail){
+	function setSource($type,$detail=NULL){
 		
 		if(!$type){
 			$this->output->message('请选择客户来源','warning');
@@ -330,28 +284,6 @@ class Client_model extends People_model{
 		$q=$this->pagination($q/*,$q_rows*/);
 		
 		return $this->db->query($q)->result_array();
-	}
-	
-	function getRelatedClients($client_id){
-		$client_id=intval($client_id);
-		
-		$query="
-			SELECT 
-				people_relationship.id AS id,people_relationship.relation,people_relationship.relative,people_relationship.is_default_contact,
-				people.abbreviation AS relative_name,
-				phone.content AS relative_phone,email.content AS relative_email
-			FROM 
-				people_relationship INNER JOIN people ON people_relationship.relative=people.id
-				LEFT JOIN (
-					SELECT people,GROUP_CONCAT(content) AS content FROM people_profile WHERE name IN('手机','电话') GROUP BY people
-				)phone ON people.id=phone.people
-				LEFT JOIN (
-					SELECT people,GROUP_CONCAT(content) AS content FROM people_profile WHERE name='电子邮件' GROUP BY people
-				)email ON people.id=email.people
-			WHERE people_relationship.people = $client_id
-			ORDER BY relation
-		";
-		return $this->db->query($query)->result_array();
 	}
 	
 	/**

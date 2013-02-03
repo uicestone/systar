@@ -82,7 +82,22 @@ class People_model extends SS_Model{
 		$data['display']=1;
 		
 		$this->db->insert('people',$data);
-		return $this->db->insert_id();
+		
+		$new_people_id=$this->db->insert_id();
+
+		if(isset($data['profiles'])){
+			foreach($data['profiles'] as $name => $value){
+				$this->addProfile($new_people_id,$name,$value);
+			}
+		}
+		
+		if(isset($data['labels'])){
+			foreach($data['labels'] as $type => $name){
+				$this->addLabel($new_people_id,$name,$type);
+			}
+		}
+		
+		return $new_people_id;
 	}
 	
 	function update($people,$data){
@@ -100,34 +115,6 @@ class People_model extends SS_Model{
 		$people_data['company']=$this->company->id;
 
 		return $this->db->update('people',$people_data,array('id'=>$people));
-	}
-	
-	function addProfile($people,$profile_name,$profile_content){
-		$data=array(
-			'people'=>$people,
-			'name'=>$profile_name,
-			'content'=>$profile_content
-		);
-		
-		$data+=uidTime(false);
-		
-		$this->db->insert('people_profile',$data);
-		
-		return $this->db->insert_id();
-	}
-	
-	function addRelationship($people,$relative,$relation=NULL){
-		$data=array(
-			'people'=>$people,
-			'relative'=>$relative,
-			'relation'=>$relation
-		);
-		
-		$data+=uidTime(false);
-		
-		$this->db->insert('people_relationship',$data);
-		
-		return $this->db->insert_id();
 	}
 	
 	/**
@@ -156,6 +143,150 @@ class People_model extends SS_Model{
 		$this->db->insert('people_label',array('people'=>$people,'label'=>$label_id,'type'=>$type));
 		
 		return $this->db->insert_id();
+	}
+	
+	/**
+	 * 返回一个人员的指定类别的／所有的标签
+	 * @param int $id people.id
+	 * @param $type 为NULL时返回所有标签，为true时返回所有带类别的标签，为其他值时返回所有该类别的标签
+	 * 标签的类别，指标签用于某种分类时，分类的名称，如案件的“阶段”，客户的“类别”
+	 * @return array([$type=>]$label_name,...) 一个由标签类别为键名（如果标签类别存在），标签名称为键值构成的数组
+	 */
+	function getLabels($id,$type=NULL){
+		$id=intval($id);
+		
+		$query="
+			SELECT label.name, people_label.type
+			FROM label INNER JOIN people_label ON label.id=people_label.label
+			WHERE people_label.people = $id
+		";
+		
+		if($type===true){
+			$query.=" AND people_label.type IS NOT NULL";
+		}
+		elseif(isset($type)){
+			$query.=" AND people_label.type = '$type'";
+		}
+		
+		$result=$this->db->query($query)->result_array();
+		
+		$labels=array_sub($result,'name','type');
+		
+		return $labels;
+	}
+	
+	/**
+	 * 获得所有或指定类别的标签名称，按热门程度排序
+	 * @param $type
+	 * @return array([$type=>]$label_name,...) 一个由标签类别为键名（如果标签类别存在），标签名称为键值构成的数组
+	 */
+	function getHotLabels($type=NULL){
+		$query="
+			SELECT type,label_name AS name,COUNT(*) AS hits
+			FROM people_label
+		";
+		
+		if(isset($type)){
+			$query.=" WHERE type='$type";
+		}
+		
+		$query.="
+			GROUP BY label
+			ORDER BY hits DESC
+		";
+		
+		return $this->db->query($query)->result_array();
+	}
+	
+	function getHotlabelsOfTypes(){
+		$hot_labels=$this->getHotLabels();
+		
+		$hot_labels_of_types=array();
+		foreach($hot_labels as $label){
+			if(isset($label['type'])){
+				$hot_labels_of_types[$label['type']][]=$label['name'];
+			}
+		}
+		return $hot_labels_of_types;
+	}
+	
+	function clearUserTrash(){
+		return $this->db->delete('people', array('display'=>0,'uid'=>$this->user->id));
+	}
+	
+	function addProfile($people_id,$name,$content,$comment=NULL){
+		$data=array(
+			'people'=>$people_id,
+			'name'=>$name,
+			'content'=>$content,
+			'comment'=>$comment
+		);
+		
+		$data+=uidTime(false);
+		
+		$this->db->insert('people_profile',$data);
+		
+		return $this->db->insert_id();
+	}
+	
+	/**
+	 * 删除客户联系方式
+	 */
+	function removeProfile($people_profile_ids){
+		$condition = db_implode($people_profile_ids, $glue = ' OR ','id');
+		$this->db->delete('people_profile',$condition);
+	}
+	
+	/**
+	 * 返回一个可用的profile name列表
+	 */
+	function getProfileNames(){
+		$query="
+			SELECT name,COUNT(*) AS hits
+			FROM `people_profile`
+			GROUP BY name
+			ORDER BY hits DESC;
+		";
+		
+		$result=$this->db->query($query)->result_array();
+		
+		return array_sub($result,'name');
+	}
+	
+	function addRelationship($people,$relative,$relation=NULL){
+		$data=array(
+			'people'=>$people,
+			'relative'=>$relative,
+			'relation'=>$relation
+		);
+		
+		$data+=uidTime(false);
+		
+		$this->db->insert('people_relationship',$data);
+		
+		return $this->db->insert_id();
+	}
+	
+	function getRelatives($people_id){
+		$people_id=intval($people_id);
+		
+		$query="
+			SELECT 
+				people_relationship.id AS id,people_relationship.relation,people_relationship.relative,people_relationship.is_default_contact,
+				people.abbreviation AS relative_name,
+				phone.content AS relative_phone,email.content AS relative_email
+			FROM 
+				people_relationship INNER JOIN people ON people_relationship.relative=people.id
+				LEFT JOIN (
+					SELECT people,GROUP_CONCAT(content) AS content FROM people_profile WHERE name IN('手机','电话') GROUP BY people
+				)phone ON people.id=phone.people
+				LEFT JOIN (
+					SELECT people,GROUP_CONCAT(content) AS content FROM people_profile WHERE name='电子邮件' GROUP BY people
+				)email ON people.id=email.people
+			WHERE people_relationship.people = $people_id
+			ORDER BY relation
+		";
+		return $this->db->query($query)->result_array();
 	}
 	
 	function isMobileNumber($number){

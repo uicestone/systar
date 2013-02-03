@@ -4,13 +4,11 @@ class Staff_model extends People_model{
 		parent::__construct();
 	}
 	
-	function check($staff_name,$data_type='id',$show_error=true){
+	function check($staff_name,$data_type='id'){
 		//$data_type:id,array
 		if(!$staff_name){
-			if($show_error){
-				$this->output->message('请输入职员名称','warning');
-			}
-			return -3;
+			$this->output->message('请输入职员名称','warning');
+			throw new Exception;
 		}
 
 		$query="
@@ -23,16 +21,12 @@ class Staff_model extends People_model{
 		$num_lawyers=$result->num_rows();
 
 		if($num_lawyers==0){
-			if($show_error){
-				$this->output->message('没有这个职员：'.$staff_name,'warning');
-			}
-			return -1;
+			$this->output->message('没有这个职员：'.$staff_name,'warning');
+			throw new Exception;
 
 		}elseif($num_lawyers>1){
-			if($show_error){
-				$this->output->message('此关键词存在多个符合职员','warning');
-			}
-			return -2;
+			$this->output->message('此关键词存在多个符合职员','warning');
+			throw new Exception;
 
 		}else{
 			$data=$result->row_array();

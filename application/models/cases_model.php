@@ -90,13 +90,13 @@ class Cases_model extends SS_Model{
 		return $this->db->update('case',$data,array('id'=>$id));
 	}
 	
-	function getLabels($case_id,$type=NULL){
-		$case_id=intval($case_id);
+	function getLabels($id,$type=NULL){
+		$id=intval($id);
 		
 		$query="
 			SELECT label.name, case_label.type
 			FROM label INNER JOIN case_label ON label.id=case_label.label
-			WHERE case_label.case = $case_id
+			WHERE case_label.case = $id
 		";
 		
 		if($type===true){

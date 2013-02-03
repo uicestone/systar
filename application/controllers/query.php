@@ -1,6 +1,7 @@
 <?php
 class Query extends SS_controller{
 	function __construct(){
+		$this->default_method='lists';
 		parent::__construct();
 	}
 	
@@ -9,12 +10,11 @@ class Query extends SS_controller{
 	}
 	
 	function lists($para=NULL){
-		
 
 		$field=array(
-			'first_contact'=>array('title'=>'日期','td_title'=>'width="95px"'),
-			'num'=>array('title'=>'编号','td_title'=>'width="143px"','wrap'=>array('mark'=>'a','href'=>'cases/edit/{id}')),
-			'client_name'=>array('title'=>'咨询人','wrap'=>array('mark'=>'a','href'=>'javascript:showWindow(\'client/edit/{client}\')')),
+			'first_contact'=>array('title'=>'日期','td_title'=>'width="95px"','td'=>'href="cases/edit/{id}"'),
+			'num'=>array('title'=>'编号','td_title'=>'width="143px"'),
+			'client_name'=>array('title'=>'咨询人','wrap'=>array('mark'=>'a','href'=>'#client/edit/{client}')),
 			'type'=>array('title'=>'方式','td_title'=>'width="80px"'),
 			'source'=>array('title'=>'来源'),
 			'staff_names'=>array('title'=>'接洽人'),

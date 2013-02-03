@@ -1,14 +1,10 @@
 $(function(){
-	$('[name="client[classification]"]').change(function(){
-		$('[name="client[type]"]').getOptions('client',$(this).val());
-	});
-	
-	$('select[name="source[type]"]').change(function(){
-		//响应客户来源选项
-		if(jQuery.inArray($(this).val(),['其他网络','媒体','老客户介绍','合作单位介绍','其他'])==-1){
-			$('[name="source[detail]"]').attr('disabled','disabled').val('');
+	/*响应客户来源选项*/
+	$('[name="source[type]"]').on('change',function(){
+		if($.inArray($(this).val(),['其他网络','媒体','老客户介绍','合作单位介绍','其他'])==-1){
+			$('[name="source[detail]"]').hide().attr('disabled','disabled').val('');
 		}else{
-			$('[name="source[detail]"]').removeAttr('disabled');
+			$('[name="source[detail]"]').removeAttr('disabled').show();
 		}
 	});
 	
@@ -31,4 +27,18 @@ $(function(){
 			$('input[name="client[birthday]"]').val($(this).val().substr(6,4)+'-'+$(this).val().substr(10,2)+'-'+$(this).val().substr(12,2));
 		}
 	});
+	
+	/*相关人添加表单－相关人名称自动完成事件的响应*/
+	$('.item[name="relative"]').on('autocompleteselect',function(event,data){
+		/*有自动完成结果且已选择*/
+		$(this).find('[name="relative[id]"]').val(data.value).trigger('change');
+
+		$(this).find('[display-for~="new"]').trigger('disable');
+	})
+	.on('autocompleteresponse',function(){
+		/*自动完成响应*/
+		$(this).find('[display-for~="new"]').trigger('enable');
+		$(this).find('[name="relative[id]"]').val('').trigger('change');
+	});
+	
 });
