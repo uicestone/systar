@@ -1,3 +1,7 @@
+-- 删除案号
+DELETE FROM case_num WHERE `case`={$case_num};
+UPDATE `case` SET num='',type_lock=0 WHERE id = {$case_num};
+
 --删除垃圾
 DELETE FROM account WHERE amount=0;
 DELETE FROM `case` WHERE display=0 AND id>0;
