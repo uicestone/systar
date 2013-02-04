@@ -1,4 +1,4 @@
-<div id="topBar">
+<div id="top-bar">
 	<ul id="tabs">
 	</ul>
 <? if($this->user->isLogged()){?>

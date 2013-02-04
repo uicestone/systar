@@ -93,27 +93,6 @@ class Client_model extends People_model{
 		return false;
 	}
 	
-	function delete($client_id){
-		if(is_array($client_id)){
-			$condition = db_implode($client_id, $glue = ' OR ','id','=',"'","'", '`','key');
-	
-		}elseif(is_int($client_id)){
-			$condition = "id = '".$client_id."'";
-	
-		}else{
-			return false;
-		}
-		return db_delete('client',$condition);
-	}
-	
-	/**
-	 * 删除相关人
-	 */
-	function deleteRelated($people_relationships){
-		$condition = db_implode($people_relationships, $glue = ' OR ','id','=',"'","'", '`','key');
-		db_delete('people_relationship',$condition);
-	}
-	
 	function checkSource($detail,$checktype){
 		if($checktype=='client'){
 			$q_source="SELECT id FROM client_source WHERE client='".intval($detail)."' LIMIT 1";

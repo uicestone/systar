@@ -106,7 +106,7 @@ nav{
 }
 
 /*menu*/
-#topBar{
+#top-bar{
 	position:absolute;left:0;right:0;z-index:1;
 	height:25px;
 	background:#113C68;
@@ -119,7 +119,7 @@ nav{
 	margin:auto 5px auto 5px;
 	color:#FFF;
 }
-#topBar,#navMenu{
+#top-bar,#navMenu{
 	font-weight:normal;
 }
 #navMenu{

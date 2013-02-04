@@ -20,8 +20,6 @@ class SS_Controller extends CI_Controller{
 	
 	var $company_type_model_loaded=false;
 	
-	//var $return;似乎已经没用了
-	
 	function __construct(){
 		parent::__construct();
 		
@@ -151,6 +149,8 @@ class SS_Controller extends CI_Controller{
 			echo $output;
 			return;
 		}
+		
+		header('Content-type: application/json');
 		
 		if($output){
 			//如果在这个方法运行之前，页面就有输出，那么说明是一个旧式的输出html的页面，我们给它直接加上嵌入页面的js

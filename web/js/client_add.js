@@ -8,15 +8,6 @@ $(function(){
 		}
 	});
 	
-	//根据来源和来源人生成来源律师
-	$('[name="source[detail]"]').blur(function(){
-		if($('[name="source[type]"]').val()=='老客户介绍'){
-			$.post('/client/getsourcelawyer',{client_name:$(this).val()},function(source_lawyer_name){
-				$('[name="client_extra[source_lawyer_name]"]').val(source_lawyer_name);
-			});
-		}
-	});
-	
 	$('input[name="client[birthday]"]').click(function(){
 		$(this).select();
 	});

@@ -688,19 +688,21 @@ class Cases_model extends SS_Model{
 	 * @param type $client_id
 	 * @return 一个案件列表，包含案件名称，案号和主办律师
 	 */
-	function getListByClient($client_id){
+	function getListByPeople($people_id){
+		$people_id=intval($people_id);
+		
 		$query="
 			SELECT case.id,case.name AS case_name,case.num,	
 				GROUP_CONCAT(DISTINCT staff.name) AS lawyers
 			FROM `case`
-				LEFT JOIN case_people ON case.id=case_people.case AND case_people.type='lawyer' AND case_people.role='主办律师'
+				LEFT JOIN case_people ON case.id=case_people.case AND case_people.type='律师' AND case_people.role='主办律师'
 				LEFT JOIN people staff ON staff.id=case_people.people
 			WHERE case.id IN (
-				SELECT `case` FROM case_people WHERE type='client' AND people=$client_id
+				SELECT `case` FROM case_people WHERE people = $people_id
 			)
 			GROUP BY case.id
-			HAVING id IS NOT NULL
 		";
+		
 		return $this->db->query($query)->result_array();
 
 	}

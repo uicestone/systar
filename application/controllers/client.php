@@ -53,13 +53,15 @@ class Client extends SS_Controller{
 					'title'=>'<input type="submit" name="submit[relative_delete]" value="删" />名称<input type="submit" name="submit[relative_set_default]" value="默认" />', 
 					'eval'=>true, 
 					'content'=>"
-						\$return='<input type=\"checkbox\" name=\"relative_check[{id}]\" >';
+						\$return='<input type=\"checkbox\" name=\"relative_check[]\" value=\"{id}\" >';
 						\$return.='{relative_name}';
 						if('{is_default_contact}'){
 							\$return.='*';
 						}
 						return \$return;
-					", 'orderby'=>false
+					",
+					'td'=>'href="client/edit/{relative}"',
+					'orderby'=>false
 				), 
 				'relative_phone'=>array('title'=>'电话', 'orderby'=>false), 
 				'relative_email'=>array('title'=>'电邮', 'wrap'=>array('mark'=>'a', 'href'=>'mailto:{relative_email}')), 
@@ -94,9 +96,23 @@ class Client extends SS_Controller{
 		}
 		//相关案件
 		elseif($item=='case'){
-			$field=array('num'=>array('title'=>'案号', 'wrap'=>array('mark'=>'a', 'href'=>'javascript:window.rootOpener.location.href=\'/cases/edit/{id}\';window.opener.parent.focus();'), 'orderby'=>false), 'case_name'=>array('title'=>'案名', 'orderby'=>false), 'lawyers'=>array('title'=>'主办律师', 'orderby'=>false));
+			$field=array(
+				'num'=>array(
+					'title'=>'案号',
+					'td'=>'href="cases/edit/{id}"',
+					'orderby'=>false
+				),
+				'case_name'=>array(
+					'title'=>'案名', 
+					'orderby'=>false
+				), 
+				'lawyers'=>array(
+					'title'=>'主办律师', 
+					'orderby'=>false
+				)
+			);
 			$list=$this->table->setFields($field)
-				->setData($this->cases->getListByClient($this->client->id))
+				->setData($this->cases->getListByPeople($this->client->id))
 				->wrapBox(false)
 				->generate();
 		}
@@ -198,7 +214,7 @@ class Client extends SS_Controller{
 					$relative+=array(
 						'type'=>'客户',
 						'abbreviation'=>$relative['name'],
-						'character'=>$relative['character'] == '单位' ? '单位' : '自然人',
+						'character'=>isset($relative['character']) && $relative['character'] == '单位' ? '单位' : '自然人',
 						'profiles'=>$profiles,
 						'labels'=>array('类型'=>'潜在客户')
 					);
@@ -212,6 +228,11 @@ class Client extends SS_Controller{
 
 				$this->output->setData($this->subList('relative',$this->client->id));
 
+			}
+
+			elseif($submit=='relative_delete'){
+				$this->client->removeRelationship($this->input->post('relative_check'));
+				$this->output->setData($this->subList('relative',$this->client->id));
 			}
 
 			elseif($submit=='profile'){
@@ -249,10 +270,6 @@ class Client extends SS_Controller{
 				}
 			}
 
-			elseif($submit=='relative_delete'){
-				$this->client->deleteRelated(post('relative_check'));
-			}
-
 			$this->output->status='success';
 			
 		}catch(Exception $e){
@@ -279,19 +296,6 @@ class Client extends SS_Controller{
 			);
 		}
 		$this->output->data=$array;
-	}
-	
-	/**
-	 * ajax响应页面
-	 * 接受客户名称$_POST['client_name']
-	 * 打印出此客户的来源律师名称
-	 */
-	function getSourceLawyer(){
-		$this->load->model('staff_model','staff');
-		$client_name=$this->input->post('client_name');
-		$client_id=$this->client->check($client_name,'id');
-		$source_lawyer=$this->client->fetch($client_id, 'source_lawyer');
-		$source_lawyer_name=$this->staff->fetch($source_lawyer);
 	}
 }
 ?>

@@ -8,23 +8,20 @@
 <div class="contentTableBox">
 	<div class="contentTable">
 		<div class="item">
-			<div class="title">
-				<label><input type="radio" name="client[character]" value="自然人" checked="checked" />自然人</label>
-				<label><input type="radio" name="client[character]" value="单位" />单位</label> (先选择，再输入下方数据)
-			</div>
-		</div>
-
-		<div class="item">
 			<div class="title"><label>基本信息：</label></div>
-			<input name="client[name]" value="<?=$this->value('client/name'); ?>" type="text" placeholder="中文姓名" />
-			<?=radio(array('男','女'),'client[gender]',$this->value('client/gender'))?>
-			<input name="client[name_en]" value="<?=$this->value('client/name_en'); ?>" type="text" placeholder="英文姓名" />
-			<input type="text" name="client[id_card]" value="<?=$this->value('client/id_card'); ?>" placeholder="身份证" style="width:195px;" />
-			<input type="text" name="client[birthday]" value="<?=$this->value('client/birthday'); ?>" placeholder="生日" class="date" />
-
+			<input name="client[name]" value="<?=$this->value('client/name'); ?>" type="text" placeholder="中文名" />
 			<select name="labels[类型]">
 				<?=options($available_options['类型'],$this->value('labels/类型'),'类型')?>
 			</select>
+
+			<label><input type="checkbox" name="client[character]" value="单位" />单位</label>
+			<?=radio(array('男','女'),'client[gender]',$this->value('client/gender'))?>
+			<input type="text" name="client[id_card]" value="<?=$this->value('client/id_card'); ?>" placeholder="身份证" style="width:195px;" />
+			<input type="text" name="client[birthday]" value="<?=$this->value('client/birthday'); ?>" placeholder="生日" class="date" />
+			<input name="client[name_en]" value="<?=$this->value('client/name_en'); ?>" type="text" placeholder="英文名" />
+			<br />
+			<input type="text" name="client[work_for]" value="<?=$this->value('client/work_for')?>" placeholder="工作单位" />
+			<input type="text" name="client[position]" value="<?=$this->value('client/position')?>" placeholder="职位" />
 		</div>
 
 		<div class="item">
@@ -70,16 +67,6 @@
 				<input type="submit" name="submit[relative]" value="添加" />
 			</div>
 		 </div>
-
-		<div class="item">
-			<div class="title"><label>单位：</label></div>
-			<input type="text" name="client[work_for]" value="<?=$this->value('client/work_for'); ?>" />
-		</div>
-
-		<div class="item">
-			<div class="title"><label>职位：</label></div>
-			<input type="text" name="client[position]" value="<?=$this->value('client/position'); ?>" />
-		</div>
 
 		<div class="item">
 			<div class="title"><label>相关案件</label></div>

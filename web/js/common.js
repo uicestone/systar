@@ -74,22 +74,30 @@ $(document).ready(function(){
 	}
 })
 /*主体页面加载事件*/
-.on('sectionload blockload','#page',function(){
-	$('[placeholder]').placeholder()
-	$('.date').datepicker();
-
-	$('.birthday').datepicker({
+.on('sectionload blockload','#page>section',function(){
+	$(this).find('[placeholder]').placeholder()
+	$(this).find('.date').datepicker();
+	$(this).find('.birthday').datepicker({
 		changeMonth: true,
 		changeYear: true
 	});
 	
 	if(!$.browser.msie){
-		$('.contentTable:not(.search-bar)').children('tbody').children('tr').each(function(index){
+		$(this).find('.contentTable:not(.search-bar)>tbody>tr').each(function(index){
 			$(this).delay(15*index).css('opacity',0).css('visibility','visible').animate({opacity:'1'},500);
 		});
 	}
 })
-.on('sectionload sectionshow','#page',function(){
+.on('blockload','.contentTable, #page>section',function(event){
+	event.stopPropagation();
+	
+	if(!$.browser.msie){
+		$(this).find('tbody>tr').each(function(index){
+			$(this).delay(15*index).css('opacity',0).css('visibility','visible').animate({opacity:'1'},500);
+		});
+	}
+})
+.on('sectionload sectionshow','#page>section',function(){
 	$('title').html(affair+' - '+(username?username+' - ':'')+sysname);
 })
 /*编辑页的提交按钮点击事件，提交数据到后台，在页面上反馈数据和提示*/

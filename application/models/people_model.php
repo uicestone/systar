@@ -77,14 +77,14 @@ class People_model extends SS_Model{
 	}
 
 	function add(array $data=array()){
-		$data=array_intersect_key($data,$this->fields);
-		$data+=uidTime();
-		$data['display']=1;
+		$people=array_intersect_key($data,$this->fields);
+		$people+=uidTime();
+		$people['display']=1;
 		
-		$this->db->insert('people',$data);
+		$this->db->insert('people',$people);
 		
 		$new_people_id=$this->db->insert_id();
-
+		
 		if(isset($data['profiles'])){
 			foreach($data['profiles'] as $name => $value){
 				$this->addProfile($new_people_id,$name,$value);
@@ -125,19 +125,15 @@ class People_model extends SS_Model{
 	 * @return type 返回people_label的insert_id
 	 */
 	function addLabel($people,$label_name,$type=NULL){
-		if($input_as_id && is_integer($label_name)){
-			$label_id=$label_name;
+		$result=$this->db->get_where('label',array('name'=>$label_name));
+
+		$label_id=0;
+
+		if($result->num_rows()==0){
+			$this->db->insert('label',array('name'=>$label_name));
+			$label_id=$this->db->insert_id();
 		}else{
-			$result=$this->db->get_where('label',array('name'=>$label_name));
-
-			$label_id=0;
-
-			if($result->num_rows()==0){
-				$this->db->insert('label',array('name'=>$label_name));
-				$label_id=$this->db->insert_id();
-			}else{
-				$label_id=$result->row()->id;
-			}
+			$label_id=$result->row()->id;
 		}
 		
 		$this->db->insert('people_label',array('people'=>$people,'label'=>$label_id,'type'=>$type));
@@ -265,6 +261,14 @@ class People_model extends SS_Model{
 		$this->db->insert('people_relationship',$data);
 		
 		return $this->db->insert_id();
+	}
+	
+	/**
+	 * 删除相关人
+	 */
+	function removeRelationship($people_relaionship_ids){
+		$condition = db_implode($people_relaionship_ids, $glue = ' OR ','id');
+		$this->db->delete('people_relationship',$condition);
 	}
 	
 	function getRelatives($people_id){
