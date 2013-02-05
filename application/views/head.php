@@ -16,7 +16,7 @@
 	<?=javascript('common')?>
 
 	<?=stylesheet('js/jQuery/fullcalendar/fullcalendar')?>
-	<?=javascript('jQuery/fullcalendar/fullcalendar.min')?>
+	<?=javascript('jQuery/fullcalendar/fullcalendar')?>
 
 	<link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
 	<title><?=$this->company->sysname?></title>

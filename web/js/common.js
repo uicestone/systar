@@ -83,7 +83,7 @@ $(document).ready(function(){
 	});
 	
 	if(!$.browser.msie){
-		$(this).find('.contentTable:not(.search-bar)>tbody>tr').each(function(index){
+		$(this).find('.contentTable:not(#toolBar .contentTable)>tbody>tr').each(function(index){
 			$(this).delay(15*index).css('opacity',0).css('visibility','visible').animate({opacity:'1'},500);
 		});
 	}

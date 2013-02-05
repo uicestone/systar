@@ -55,13 +55,13 @@ table, td, th {
 }
 
 body{
+	font-family:'Microsoft Yahei';
 	font-size:13px;
 	line-height:1.5;
 }
-/*input,select,textarea{
-	margin:2px;
-	padding:2px;
-}*/
+input,select,textarea{
+	font-family:'Microsoft Yahei';
+}
 
 button,input:submit{
 	background-color: #FFF;
@@ -195,7 +195,6 @@ nav{
 	height:inherit !important;
 }
 .schedule-form .ui-dialog-content,.schedule-form .ui-dialog-content input,.schedule-form .ui-dialog-content select,.schedule-form .ui-dialog-content textarea{
-	font-size:16px !important;
 	line-height:1.5;
 }
 .schedule-form .ui-dialog-content .text{
