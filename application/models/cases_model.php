@@ -123,7 +123,7 @@ class Cases_model extends SS_Model{
 		$case_id=intval($case_id);
 		foreach((array)$labels as $type => $name){
 			$label_id=$this->label->match($name);
-			$set=array('label'=>$label_id);
+			$set=array('label'=>$label_id,'label_name'=>$name);
 			$where=array('case'=>$case_id);
 			if(!is_integer($type)){
 				$where['type']=$type;

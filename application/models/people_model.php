@@ -136,7 +136,7 @@ class People_model extends SS_Model{
 			$label_id=$result->row()->id;
 		}
 		
-		$this->db->insert('people_label',array('people'=>$people,'label'=>$label_id,'type'=>$type));
+		$this->db->insert('people_label',array('people'=>$people,'label'=>$label_id,'type'=>$type,'label_name'=>$label_name));
 		
 		return $this->db->insert_id();
 	}
