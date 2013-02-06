@@ -10,7 +10,7 @@ var hash,controller,action,username,sysname;
 
 $(window).hashchange(function(){
 	
-	hash=window.location.hash.substr(1);
+	hash=$.locationHash();
 	
 	/*根据当前hash，设置标签选项卡激活状态*/
 	$('#tabs>[for="'+hash+'"]').addClass('activated');
@@ -20,8 +20,7 @@ $(window).hashchange(function(){
 	 *根据当前hash，显示对应标签页面，隐藏其他页面。
 	 *如果当前page中没有请求的页面（或者已过期），那么向服务器发送请求，获取新的页面并添加标签选项卡。
 	 */
-	$('#page>section[just-accessed]').removeAttr('just-accessed');
-	$('#page>section:not([hash="'+hash+'"])').hide().attr('just-accessed','true');
+	$('#page>section:not([hash="'+hash+'"])').hide();
 	
 	if($('#page>[hash="'+hash+'"]').show().attr('time-access',$.now()).trigger('sectionshow').length==0){
 		$.get(hash,function(response){
@@ -67,9 +66,7 @@ $(document).ready(function(){
 	});
 	
 	/*为主体载入指定页面或默认页面*/
-	if(window.location.hash){
-		$(window).trigger('hashchange');
-	}else if($('#page').attr('default-uri')){
+	if(!$.locationHash() && $('#page').attr('default-uri')){
 		window.location.hash=$('#page').attr('default-uri');
 	}
 })

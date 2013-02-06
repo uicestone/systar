@@ -18,23 +18,6 @@ function stylesheet($stylesheet_path){
 	return '<link rel="stylesheet" href="/'.$path.'?'.$hash.'" type="text/css" />'."\n";
 }
 
-/**Hh
- * 试探性地引入免缓存模板。之前的view采用html嵌入<?php ?>方式，比如<input name="client[name]" value="<?=$this->value('client/name') ?>" />
- * 引入末版体系之后，view文件的书写将采用<input name="client[name]" value="{post client/name}" />
- * 慎用模板引擎，会降低运行效率
- */
-function template($filename){
-	$content='';
-	if(is_file(APPPATH.'/views/'.$filename.'.php')){
-		$content=file_get_contents(APPPATH.'/views/'.$filename.'.php');
-	}
-
-	$content=preg_replace('/{post (.*?)}/e',"post('$1')",$content);
-	//将'{post string}'替换为post(string)的返回值
-	
-	return $content;
-}
-
 /*
  * 包围，生成html标签的时候很有用
  * $wrap=array(
@@ -88,21 +71,6 @@ function redirect($url='',$method='php',$unsetPara=NULL,$jump_to_top_frame=false
 }
 
 /**
- * 刷新opener内容
- * 例：在弹出窗口中点击'保存'按钮时执行，然后紧接着执行closeWindow()可以在关闭子窗口的同时刷新母窗口
- * 注意区分DOM中的parent和opener这两个概念，前者是上层框架，后者是弹出窗口的打开者
- */
-function refreshParentContentFrame(){
-	$CI=&get_instance();
-	$CI->output->append_output('<script type="text/javascript">window.rootOpener.parent.contentFrame.location.reload();</script>');
-}
-
-function closeWindow(){
-	$CI=&get_instance();
-	$CI->output->append_output('<script type="text/javascript">window.close();</script>');
-}
-
-/**
  * 输出1K的空格来强制浏览器输出
  * 使用后在下文执行任何输出，再紧跟flush();即可即时看到
  */
@@ -112,8 +80,7 @@ function forceExport(){
 }
 
 /**
- * 直接在页面输出提示
- * 本系统js下也有一个一样的函数
+ * deprecated
  */
 function showMessage($message,$type='notice',$direct_export=false){
 	$output='';

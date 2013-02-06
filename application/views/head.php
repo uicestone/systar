@@ -8,7 +8,7 @@
 	
 	<?=javascript('jQuery/jquery-1.7.2')?>
 	<?=javascript('jQuery/jQueryRotate.2.2')?>
-	<?=javascript('jQuery/jquery.ba-hashchange')?>
+	<?=javascript('jQuery/jquery.hashchange')?>
 	<?=javascript('jQuery/jquery.placeholder')?>
 	<?=javascript('jQuery/jquery-ui-1.9.2.custom')?>
 	<?=javascript('jQuery/Jeditable/jquery.jeditable.mini')?>
