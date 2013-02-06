@@ -14,9 +14,7 @@ class Schedule extends SS_controller{
 		
 		$field_news=array(
 			'title'=>array(
-				'title'=>'公告 <a href="news" style="font-size:14px">更多</a>',
-				'wrap'=>array('mark'=>'a','href'=>'javascript:showWindow(\'news/edit/{id}\')'),
-				'eval'=>true,
+				'title'=>'公告 <a href="#news" style="font-size:14px">更多</a>',
 				'content'=>"
 					\$return='{title}';
 					if('{time}'>\$this->config->item('timestamp')-86400*7){
@@ -24,6 +22,8 @@ class Schedule extends SS_controller{
 					}
 					return \$return;
 				",
+				'eval'=>true,
+				'td'=>'href="news/edit/{id}"',
 				'orderby'=>false
 			),
 		);

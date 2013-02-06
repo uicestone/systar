@@ -6,11 +6,11 @@ if($.browser.msie && $.browser.version<7 && !(controller=='user' && action=='bro
 	exit();
 }
 
-var hash,controller,action,username,sysname;
+var hash,controller,action,username,sysname,uriSegments;
 
 $(window).hashchange(function(){
 	
-	hash=$.locationHash();
+	hash=window.location.hash.substr(1);
 	
 	/*根据当前hash，设置标签选项卡激活状态*/
 	$('#tabs>[for="'+hash+'"]').addClass('activated');
@@ -32,13 +32,12 @@ $(window).hashchange(function(){
 			if($('nav a[href="#'+hash+'"]').length==0){
 				$('#tabs').append('<li for="'+hash+'" class="activated"><a href="#'+hash+'">'+response.data.name.content+'</a></li>');
 			}
-			
 			$('<section hash="'+hash+'" time-load="'+$.now()+'" time-access="'+$.now()+'"></section>').appendTo('#page').html(response.data.content.content).trigger('sectionload');
 			
 		},'json');
 	}
 	
-	var uriSegments=hash.split('/');
+	uriSegments=hash.split('/');
 	$('nav li').removeClass('activated');
 	$('nav li#nav-'+uriSegments[0]+', nav li#nav-'+uriSegments[0]+'-'+uriSegments[1]).addClass('activated');
 });
@@ -66,9 +65,11 @@ $(document).ready(function(){
 	});
 	
 	/*为主体载入指定页面或默认页面*/
-	if(!$.locationHash() && $('#page').attr('default-uri')){
-		window.location.hash=$('#page').attr('default-uri');
-	}
+	if(window.location.hash){
+		$(window).trigger('hashchange');
+	}else if($('#page').attr('default-uri')){
+ 		window.location.hash=$('#page').attr('default-uri');
+ 	}
 })
 /*主体页面加载事件*/
 .on('sectionload blockload','#page>section',function(){
@@ -122,6 +123,7 @@ $(document).ready(function(){
 				var sections = $('#page>section').each(function(){
 					if($(this).attr('time-access')>lastAccessTime){
 						lastAccessedHash=$(this).attr('hash');
+						lastAccessTime=$(this).attr('time-access');
 					}
 				}).length
 				
@@ -248,7 +250,7 @@ $(document).ready(function(){
 }).on('click','.contentTable>tbody>tr:has(td[href])',function(){
 	window.location.hash=$(this).children('td:first').attr('href');
 
-}).on('click','.contentTable>tbody>tr a',function(){
+}).on('click','.contentTable>tbody a, .contentTable :input',function(event){
 	event.stopPropagation();
 
 })

@@ -91,9 +91,9 @@ class Cases extends SS_controller{
 					if(!post('cases/client_lock')){
 						\$return.='<input type=\"checkbox\" name=\"case_client_check[]\" value=\"{id}\" />';
 					}
-					\$return.='<a href=\"javascript:showWindow(\''.('{type}'=='客户'?'client':'contact').'/edit/{people}\')\">{name}</a>';
+					\$return.='{name}';
 					return \$return;
-				",'orderby'=>false),
+				",'orderby'=>false,'td'=>'href="client/edit/{people}"'),
 				'phone'=>array('title'=>'电话','td'=>'class="ellipsis" title="{phone}"'),
 				'email'=>array('title'=>'电邮','wrap'=>array('mark'=>'a','href'=>'mailto:{email}','title'=>'{email}','target'=>'_blank'),'td'=>'class="ellipsis"'),
 				'role'=>array('title'=>'本案地位','orderby'=>false),

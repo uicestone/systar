@@ -15,7 +15,7 @@
 			</select>
 
 			<label><input type="checkbox" name="client[character]" value="单位" />单位</label>
-			<?=radio(array('男','女'),'client[gender]',$this->value('client/gender'))?>
+			<select name="client[gender]"><?=options(array('男','女'), $this->value('client/gender'), '性别')?></select>
 			<input type="text" name="client[id_card]" value="<?=$this->value('client/id_card'); ?>" placeholder="身份证" style="width:195px;" />
 			<input type="text" name="client[birthday]" value="<?=$this->value('client/birthday'); ?>" placeholder="生日" class="date" />
 			<input name="client[name_en]" value="<?=$this->value('client/name_en'); ?>" type="text" placeholder="英文名" />

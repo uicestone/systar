@@ -7,10 +7,10 @@
 		hashchange: function(callback) {
 			this.bind('hashchange', callback);
 
-			if (location.hash)//if location.hash is not empty,fire the event when load,make ajax easy
+			/*if (location.hash)//if location.hash is not empty,fire the event when load,make ajax easy
 			{
 				callback();
-			}
+			}*/
 		},
 		openOnClick: function(href) {
 			if (href === undefined || href.length == 0)
