@@ -14,11 +14,7 @@ $hook['pre_controller']=array();
 
 $hook['post_controller_constructor']=array();
 
-$hook['post_controller']=array(
-	'function'=>'postController',
-	'filename'=>'post_controller.php',
-	'filepath'=>'hooks'
-);
+$hook['post_controller']=array();
 
 /* End of file hooks.php */
 /* Location: ./application/config/hooks.php */

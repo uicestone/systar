@@ -16,15 +16,15 @@ INSERT INTO syssh.company
 (`id`, `name`, `type`, `host`, `syscode`, `sysname`, `ucenter`, `default_controller`)
 SELECT `id`, `name`, `type`, `host`, `syscode`, `sysname`,0, `default_controller` FROM starsys.`company`;
 
-ALTER TABLE  `staff` DROP FOREIGN KEY  `staff_ibfk_7` ;
+ALTER TABLE  starsys.`staff` DROP FOREIGN KEY  `staff_ibfk_7` ;
 
 UPDATE starsys.user SET id = id + 3000 WHERE id < 3000;
 UPDATE starsys.user SET id = id + 2000 WHERE id < 6000;
 
 INSERT INTO syssh.people
-(`id`, `name`, `type`, `id_card`, `position`, `company`)
+(`id`, `name`, `type`, `id_card`, `position`, `company`, time_insert, time)
 SELECT 
-id,name,'职员',id_card,position,company
+id,name,'职员',id_card,position,company,UNIX_TIMESTAMP(),UNIX_TIMESTAMP()
 FROM starsys.staff;
 
 INSERT IGNORE INTO syssh.people
@@ -48,7 +48,7 @@ INSERT INTO syssh.staff
 (`id`, `title`, `modulus`, `course`, `timing_fee_default`)
 SELECT
  `id`, `title`, `modulus`, `course`, `timing_fee_default`
-FROM starsys.staff
+FROM starsys.staff;
 
 INSERT IGNORE INTO syssh.people (id,`character`,`name`,`name_en`,`abbreviation`,`type`,`gender`,`id_card`,`work_for`,`position`,`birthday`,`staff`,`display`,`city`,`company`,`uid`,`username`)
 SELECT id,`character`,`name`,`name_en`,`abbreviation`,`classification`,`gender`,`id_card`,`work_for`,`position`,`birthday`,`source_lawyer`,`display`,`city`,`company`,`uid`,`username`
@@ -63,9 +63,9 @@ FROM starsys.client_source;
 UPDATE syssh.people INNER JOIN starsys.client USING(id) SET syssh.people.source=starsys.client.source;
 
 INSERT INTO syssh.`case`
-(`id`, `name`, `num`, `name_extra`, `first_contact`, `time_contract`, `time_end`, `quote`, `timing_fee`, `display`, `focus`, `summary`, `source`, `is_reviewed`, `type_lock`, `client_lock`, `staff_lock`, `fee_lock`, `apply_file`, `is_query`, `finance_review`, `info_review`, `manager_review`, `filed`, `company`, `uid`, `username`,  `time`, `comment`)
+(`id`, `name`, `num`, `name_extra`, `first_contact`, `time_contract`, `time_end`, `quote`, `timing_fee`, `display`, `focus`, `summary`, `source`, `is_reviewed`, `type_lock`, `client_lock`, `staff_lock`, `fee_lock`, `apply_file`, `is_query`, `finance_review`, `info_review`, `manager_review`, `filed`, `company`, `uid`, `username`, time_insert, `time`, `comment`)
 SELECT 
- `id`, `name`, `num`, `name_extra`, `first_contact`, `time_contract`, `time_end`, `quote`, `timing_fee`, `display`, `focus`, `summary`, `source`, `is_reviewed`, `type_lock`, `client_lock`, `lawyer_lock`, `fee_lock`, `apply_file`, `is_query`, `finance_review`, `info_review`, `manager_review`, `filed`, `company`, `uid`, `username`,  `time`, `comment`
+ `id`, `name`, `num`, `name_extra`, `first_contact`, `time_contract`, `time_end`, `quote`, `timing_fee`, `display`, `focus`, `summary`, `source`, `is_reviewed`, `type_lock`, `client_lock`, `lawyer_lock`, `fee_lock`, `apply_file`, `is_query`, `finance_review`, `info_review`, `manager_review`, `filed`, `company`, `uid`, `username`, `time`, `time`, `comment`
 FROM starsys.case;
 
 INSERT INTO syssh.`case_fee`
@@ -75,15 +75,15 @@ SELECT
 FROM starsys.case_fee;
 
 INSERT INTO syssh.account
-(`id`, `name`, `amount`, `date`, `case`, `case_fee`, `people`, `comment`, `distributed_fixed`, `distributed_actual`, `display`, `company`, `uid`, `username`, `time`)
+(`id`, `name`, `amount`, `date`, `case`, `case_fee`, `people`, `comment`, `distributed_fixed`, `distributed_actual`, `display`, `company`, `uid`, `username`, `time`,time_insert)
 SELECT
- `id`, `name`, `amount`, FROM_UNIXTIME(`time_occur`,'%Y-%m-%d'), `case`, `case_fee`, `client`, `comment`, `distributed_fixed`, `distributed_actual`, `display`, `company`, `uid`, `username`,`time`
+ `id`, `name`, `amount`, FROM_UNIXTIME(`time_occur`,'%Y-%m-%d'), `case`, `case_fee`, `client`, `comment`, `distributed_fixed`, `distributed_actual`, `display`, `company`, `uid`, `username`,`time`,`time`
 FROM starsys.account;
 
 INSERT INTO syssh.case_fee_timing
-(`id`, `case`, `included_hours`, `contract_cycle`, `payment_cycle`, `bill_day`, `payment_day`, `time_start`, `company`, `uid`, `username`, `time`)
+(`id`, `case`, `included_hours`, `contract_cycle`, `payment_cycle`, `bill_day`, `payment_day`, `date_start`, `company`, `uid`, `username`, `time`)
 SELECT 
- `id`, `case`, `included_hours`, `contract_cycle`, `payment_cycle`, `bill_day`, `payment_day`, `time_start`, `company`, `uid`, `username`, `time`
+ `id`, `case`, `included_hours`, `contract_cycle`, `payment_cycle`, `bill_day`, `payment_day`, FROM_UNIXTIME(`time_start`,'%Y-%m-%d'), `company`, `uid`, `username`, `time`
 FROM starsys.case_fee_timing;
 
 --
@@ -207,36 +207,36 @@ INSERT INTO `label` (`id`, `name`) VALUES
 (55, '高二');
 
 INSERT INTO syssh.case_label
-(`case`,label,type)
+(`case`,label,type,label_name)
 SELECT 
- case.id,label.id,'分类'
+ case.id,label.id,'分类',label.name
 FROM starsys.case INNER JOIN syssh.label
 WHERE starsys.case.classification = syssh.label.name
  AND starsys.case.classification IS NOT NULL
  AND starsys.case.classification <> '';
 
-INSERT INTO syssh.case_label
-(`case`,label,type)
+INSERT IGNORE INTO syssh.case_label
+(`case`,label,type,label_name)
 SELECT 
- case.id,label.id,'领域'
+ case.id,label.id,'领域',label.name
 FROM starsys.case INNER JOIN syssh.label
 WHERE starsys.case.type = syssh.label.name
  AND starsys.case.type IS NOT NULL
  AND starsys.case.type <> '';
 
 INSERT INTO syssh.case_label
-(`case`,label,type)
+(`case`,label,type,label_name)
 SELECT 
- case.id,label.id,'阶段'
+ case.id,label.id,'阶段',label.name
 FROM starsys.case INNER JOIN syssh.label
 WHERE starsys.case.stage = syssh.label.name
  AND starsys.case.stage IS NOT NULL
  AND starsys.case.stage <> '';
 
 INSERT INTO syssh.case_label
-(`case`,label,type)
+(`case`,label,type,label_name)
 SELECT 
- case.id,label.id,'咨询方式'
+ case.id,label.id,'咨询方式',label.name
 FROM starsys.case INNER JOIN syssh.label
 WHERE starsys.case.query_type = syssh.label.name
  AND starsys.case.query_type IS NOT NULL
@@ -251,13 +251,13 @@ FROM starsys.case_num;
 INSERT INTO case_people
 (`id`, `case`, `people`, `type`, `role`,  `company`, `uid`, `username`, `time`)
 SELECT
- `id`, `case`, `client`, 'client', `role`, `company`, `uid`, `username`, `time`
+ `id`, `case`, `client`, '客户', `role`, `company`, `uid`, `username`, `time`
 FROM starsys.case_client;
 
 INSERT INTO case_people
 (`case`, `people`, `type`, `role`, `hourly_fee`, `contribute`, `company`, `uid`, `username`, `time`)
 SELECT
- `case`, `lawyer`, 'lawyer', `role`, `hourly_fee`, `contribute`, `company`, `uid`, `username`, `time`
+ `case`, `lawyer`, '律师', `role`, `hourly_fee`, `contribute`, `company`, `uid`, `username`, `time`
 FROM starsys.case_lawyer;
 
 INSERT INTO position
@@ -308,20 +308,20 @@ INSERT INTO `express`(
 `id`, `sender`, `num`, `destination`, `time_send`, `fee`, `content`, `amount`, `comment`, `display`, `company`, `uid`, `username`, `time`
 )
 SELECT
-`id`, `sender`, `num`, `destination`, `time_send`, `fee`, `content`, `amount`, `comment`, `display`, `company`, `uid`, `username`, `time`
+`id`, `sender`, `num`, `destination`, FROM_UNIXTIME(`time_send`,'%Y-%m-%d %H:%i:%s'), `fee`, `content`, `amount`, `comment`, `display`, `company`, `uid`, `username`, `time`
 FROM starsys.express;
 
 INSERT INTO `document`(
-`id`, `case`, `people`, `name`, `extname`, `size`, `comment`, `display`, `company`, `uid`, `username`,`time`
+`id`, `case`, `people`, `name`, `extname`, `size`, `comment`, `display`, `company`, `uid`, `username`,`time`,time_insert
 )
 SELECT
-`id`, `case`, IF(`client`=0,NULL,client), `name`, `type`, `size`, `comment`, `display`, `company`, `uid`, `username`, `time`
+`id`, `case`, IF(`client`=0,NULL,client), `name`, `type`, `size`, `comment`, `display`, `company`, `uid`, `username`, `time`,`time`
 FROM starsys.case_document;
 
 INSERT INTO syssh.document_label
-(document,label,type)
+(document,label,type,label_name)
 SELECT 
- case_document.id,label.id,'类型'
+ case_document.id,label.id,'类型',label.name
 FROM starsys.case_document INNER JOIN syssh.label
 WHERE starsys.case_document.doctype = syssh.label.name
  AND starsys.case_document.doctype IS NOT NULL
@@ -341,15 +341,15 @@ FROM
 starsys.idcard_region;
 
 INSERT INTO news 
-(`id`, `title`, `content`, `display`, `company`, `uid`, `username`, `time`)
+(`id`, `title`, `content`, `display`, `company`, `uid`, `username`, `time`,time_insert)
 SELECT 
- `id`, `title`, `content`, `display`, `company`, `uid`, `username`, `time`
+ `id`, `title`, `content`, `display`, `company`, `uid`, `username`, `time`,`time`
  FROM starsys.news;
 
 INSERT INTO syssh.people_label
-(people,label,type)
+(people,label,type,label_name)
 SELECT 
- client.id,label.id,'类型'
+ client.id,label.id,'类型',label.name
 FROM starsys.client INNER JOIN syssh.label
 WHERE starsys.client.type = syssh.label.name
  AND starsys.client.type IS NOT NULL
@@ -369,9 +369,9 @@ syssh.`people`.username=starsys.student.username,
 syssh.`people`.time=starsys.student.time;
 
 INSERT INTO syssh.people_label
-(people,label,type)
+(people,label,type,label_name)
 SELECT 
- student.id,label.id,'生源'
+ student.id,label.id,'生源',label.name
 FROM starsys.student INNER JOIN syssh.label
 WHERE starsys.student.type = syssh.label.name
  AND starsys.student.type IS NOT NULL
@@ -467,9 +467,9 @@ SELECT staff,manager,'主管'
 FROM starsys.manager_staff;
 
 INSERT INTO schedule
-(`id`, `name`, `experience`, `content`, `place`, `fee`, `fee_name`, `time_start`, `time_end`, `hours_own`, `hours_checked`, `hours_bill`, `all_day`, `completed`, `case`, `people`, `document`, `display`, `company`, `uid`, `username`,  `time`, `comment`)
+(`id`, `name`, `experience`, `content`, `place`, `fee`, `fee_name`, `time_start`, `time_end`, `hours_own`, `hours_checked`, `hours_bill`, `all_day`, `completed`, `case`, `people`, `document`, `display`, `company`, `uid`, `username`,  `time`, time_insert, `comment`)
 SELECT 
- `id`, `name`, `experience`, `content`, `place`, `fee`, `fee_name`, `time_start`, `time_end`, `hours_own`, `hours_checked`, `hours_bill`, `all_day`, `completed`, `case`, `client`, `document`, `display`, `company`, `uid`, `username`, `time`, `comment`
+ `id`, `name`, `experience`, `content`, `place`, `fee`, `fee_name`, `time_start`, `time_end`, `hours_own`, `hours_checked`, `hours_bill`, `all_day`, `completed`, `case`, `client`, `document`, `display`, `company`, `uid`, `username`, `time`, `time`, `comment`
 FROM starsys.schedule;
 
 INSERT INTO score 
@@ -483,28 +483,28 @@ INSERT INTO student_comment
 SELECT * FROM starsys.student_comment;
 
 INSERT INTO team
-(`type`, `num`, `name`, `leader`, `extra_course`, `display`, `company`, `uid`, `username`,`time`)
+(`type`, `num`, `name`, `leader`, `extra_course`, `display`, `company`, `uid`, `username`,`time`,time_insert)
 SELECT
-'班级',`id`,`name`,`class_teacher`,`extra_course`,`display`,company,uid,username,`time`
+'班级',`id`,`name`,`class_teacher`,`extra_course`,`display`,company,uid,username,`time`,0
 FROM starsys.class;
 
 INSERT INTO team
-(`type`, `num`, `name`)
+(`type`, `num`, `name`,time_insert)
 SELECT
-'年级',`id`,`name`
+'年级',`id`,`name`,0
 FROM starsys.grade;
 
-INSERT INTO team (type,name,company) values
-('部门','本部',2),
-('部门','新疆部',2);
+INSERT INTO team (type,name,company,time_insert) values
+('部门','本部',2,0),
+('部门','新疆部',2,0);
 
 INSERT INTO team 
-(`type`, `name`, `leader`,extra_course,`company`)
-SELECT '备课组',name,leader,course,2 FROM starsys.staff_group;
+(`type`, `name`, `leader`,extra_course,`company`,time_insert)
+SELECT '备课组',name,leader,course,2,0 FROM starsys.staff_group;
 
 INSERT INTO team 
-(type,name,leader,company)
-SELECT '教研组', name,leader,2
+(type,name,leader,company,time_insert)
+SELECT '教研组', name,leader,2,0
 FROM starsys.teacher_course_group;
 
 INSERT INTO people_profile
@@ -513,4 +513,31 @@ SELECT
  client,type,content,comment,uid,username,time
 FROM starsys.client_contact;
 
---TODO 尚未导入团队关系和团队－人员关系
+-- TODO 尚未导入团队关系和团队－人员关系
+
+INSERT INTO people_profile
+(`people`, `name`, `content`, `comment`, `uid`, `username`, `time`)
+SELECT
+ client,type,content,comment,uid,username,`time`
+FROM starsys.client_contact;
+
+INSERT INTO `label_relationship` (`id`, `label`, `relative`, `relation`) VALUES
+(1, 1, 4, NULL),
+(2, 1, 5, NULL),
+(3, 3, 40, NULL),
+(4, 3, 41, NULL),
+(5, 3, 42, NULL),
+(6, 3, 43, NULL),
+(7, 3, 44, NULL),
+(8, 3, 45, NULL),
+(9, 3, 45, NULL),
+(10, 3, 46, NULL),
+(11, 3, 47, NULL);
+
+UPDATE  `syssh`.`affair` SET  `add_action` = NULL WHERE  `affair`.`id` =70;
+-- uice 1/21
+
+UPDATE `people` SET display=1 WHERE type='职员';
+-- uice 1/24
+
+UPDATE  `syssh`.`affair` SET  `add_action` =  'client/add' WHERE  `affair`.`id` =80;

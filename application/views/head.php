@@ -17,8 +17,9 @@
 
 	<?=stylesheet('js/jQuery/fullcalendar/fullcalendar')?>
 	<?=javascript('jQuery/fullcalendar/fullcalendar')?>
+	<?=javascript('jQuery/highcharts/highcharts')?>
 
 	<link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
 	<title><?=$this->company->sysname?></title>
 </head>
-<body>
+<body style="background-image:url('/images/bg_<?=$this->company->syscode?>.gif')">

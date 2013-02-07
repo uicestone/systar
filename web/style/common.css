@@ -73,10 +73,10 @@ body{
 }
 
 #page{
-	position:absolute;left:120px;top:25px;right:0;bottom:0;
+	position:absolute;left:120px;top:25px;right:245px;;bottom:0;
 	box-shadow: -2px 0 5px #000;
-	overflow-x:hidden;
-	overflow-y:scroll;
+	overflow-x:auto;
+	overflow-y:auto;
 	border:0;
 	background:transparent;
 }
@@ -224,8 +224,8 @@ nav{
 	text-align:center;
 }
 .contentTableBox{
-	position:absolute;top:0;left:0;right:250px;z-index:0;
 	min-width:900px;
+	width:99.9%;
 }
 .contentTable{
 	position:relative;z-index:0;
@@ -290,54 +290,54 @@ nav{
 }
 
 /*右侧工具栏*/
-#toolBar{
-	float:right;
+#side-bar{
+	position:fixed;right:0;top:25px;
 	width:240px;
 }
-#toolBar.minimized{
+#side-bar.minimized{
 	max-width:100px;
 	min-width:0;
 	height: 29px;
 	overflow: hidden;
 }
-#toolBar .minimize-button,#toolBar .maximize-button{
+#side-bar .minimize-button,#side-bar .maximize-button{
     position: absolute;
     right: 20px;
     z-index: 1;
     font-size: 18px;
     color: #FFF;
 }
-#toolBar ul{
+#side-bar ul{
 	text-align:left;
 	font-size:20px;
 	line-height:30px;
 	margin-top:30px;
 }
-#toolBar ul li{
+#side-bar ul li{
 	list-style-type:disc;
 }
-#toolBar select{
+#side-bar select{
 	width:100%;
 	font-size:17px;
 }
-#toolBar .contentTable{
+#side-bar .contentTable{
 	margin-bottom:10px;
 }
-#toolBar .contentTable.search-bar{
+#side-bar .contentTable.search-bar{
 	background-color:transparent;
 	border:0;
 }
-#toolBar .contentTable.search-bar tbody tr{
+#side-bar .contentTable.search-bar tbody tr{
 	visibility:visible;
 	background-color:transparent;
 }
-#toolBar .contentTable.search-bar tbody td{
+#side-bar .contentTable.search-bar tbody td{
 	background-color:transparent;
 	border:0;
 	text-align:right;
 	padding:0;
 }
-#toolBar .contentTable.search-bar tbody td input[type=text]{
+#side-bar .contentTable.search-bar tbody td input[type=text]{
 	width:240px;
 }
 
@@ -431,12 +431,4 @@ nav{
 nav::-webkit-scrollbar{
 	/*导航菜单框架滚动条*/
 	width:0;
-}
-#page::-webkit-scrollbar{
-	/*内容框架滚动条*/
-	background:#CEDDEC;
-}
-#page::-webkit-scrollbar-thumb{
-	/*内容框架滚动条滑块*/
-	background:#113C68;
 }

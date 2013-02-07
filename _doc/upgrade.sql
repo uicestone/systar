@@ -30,7 +30,7 @@ INSERT INTO `label_relationship` (`id`, `label`, `relative`, `relation`) VALUES
 UPDATE  `syssh`.`affair` SET  `add_action` = NULL WHERE  `affair`.`id` =70;
 -- uice 1/21
 
-UPDATE `people` SET display=1 WHERE type='职员'；
+UPDATE `people` SET display=1 WHERE type='职员';
 -- uice 1/24
 
 ALTER TABLE  `case_fee_timing` CHANGE  `time_start`  `date_start` DATE NOT NULL;
@@ -56,3 +56,10 @@ ALTER TABLE  `people_label` ADD  `label_name` VARCHAR( 255 ) NOT NULL AFTER  `la
 UPDATE people_label INNER JOIN label ON label.id=people_label.label
 SET people_label.label_name = label.name;
 -- uice 2/3
+
+ALTER TABLE  `document_label` ADD  `label_name` VARCHAR( 255 ) NOT NULL;
+
+ALTER TABLE  `news` ADD  `time_insert` INT NOT NULL AFTER  `username` ,
+ADD INDEX (  `time_insert` );
+ALTER TABLE  `people_relationship` CHANGE  `relation_type`  `relation_type` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+-- uice 2/6

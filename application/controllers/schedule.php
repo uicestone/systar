@@ -377,6 +377,8 @@ class Schedule extends SS_controller{
 				->generate($staffly_workhours);
 
 		$this->load->addViewArrayData(compact('chart_staffly_workhours_catogary','chart_staffly_workhours_series','work_hour_stat'));
+	
+		$this->load->view('schedule/workhours');
 	}
 	
 	function writeCalendar($action,$schedule_id=NULL){

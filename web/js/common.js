@@ -20,12 +20,18 @@ $(window).hashchange(function(){
 	 *根据当前hash，显示对应标签页面，隐藏其他页面。
 	 *如果当前page中没有请求的页面（或者已过期），那么向服务器发送请求，获取新的页面并添加标签选项卡。
 	 */
-	$('#page>section:not([hash="'+hash+'"])').hide();
+	$('#page>section[hash!="'+hash+'"]').hide();
+	$('#side-bar>aside[for!="'+hash+'"]').hide();
 	
-	if($('#page>[hash="'+hash+'"]').show().attr('time-access',$.now()).trigger('sectionshow').length==0){
+	if($('#page>section[hash="'+hash+'"]').length>0){
+		$('#page>section[hash="'+hash+'"]').show().attr('time-access',$.now()).trigger('sectionshow');
+		$('#side-bar>aside[for="'+hash+'"]').show().trigger('sidebarshow');
+		
+	}else{
 		$.get(hash,function(response){
 			if(response.status=='login_required'){
 				window.location.href='/login';
+				exit();
 			}
 			
 			/*如果请求的hash在导航菜单中存在，则不生成标签选项卡*/
@@ -33,6 +39,7 @@ $(window).hashchange(function(){
 				$('#tabs').append('<li for="'+hash+'" class="activated"><a href="#'+hash+'">'+response.data.name.content+'</a></li>');
 			}
 			$('<section hash="'+hash+'" time-load="'+$.now()+'" time-access="'+$.now()+'"></section>').appendTo('#page').html(response.data.content.content).trigger('sectionload');
+			$('<aside for="'+hash+'"></aside>').appendTo('#side-bar').html(response.data.sidebar.content).trigger('sidebarload');
 			
 		},'json');
 	}
@@ -59,11 +66,6 @@ $(document).ready(function(){
 		}
 	});
 	
-	/*页面内的固定元素，会跟着页面上下滚动而变换位置从而留在原地*/
-	$('#page').on('scrollstop sectionload',function(){
-		$('.fixed').css('position','relative').animate({top:$(this).scrollTop()});
-	});
-	
 	/*为主体载入指定页面或默认页面*/
 	if(window.location.hash){
 		$(window).trigger('hashchange');
@@ -81,7 +83,7 @@ $(document).ready(function(){
 	});
 	
 	if(!$.browser.msie){
-		$(this).find('.contentTable:not(#toolBar .contentTable)>tbody>tr').each(function(index){
+		$(this).find('.contentTable:not(#side-bar .contentTable)>tbody>tr').each(function(index){
 			$(this).delay(15*index).css('opacity',0).css('visibility','visible').animate({opacity:'1'},500);
 		});
 	}
@@ -174,9 +176,9 @@ $(document).ready(function(){
 })*/
 /*边栏最小化*/
 .on('click','.minimize-button',function(){
-	$('#toolBar').toggleClass('minimized');
+	$('#side-bar').toggleClass('minimized');
 	var minimized=0;
-	if($('#toolBar').hasClass('minimized')){
+	if($('#side-bar').hasClass('minimized')){
 		minimized=1;
 	}
 	$.get('/misc/setsession/minimized',function(response){
@@ -436,7 +438,7 @@ function showWindow(targetUrl,width,height){
 	if(!height){
 		var height=screen.height-300;
 	}
-	window.open('/'+targetUrl,date.getTime(),'height='+height+',width='+width+', top=100,left=100, toolbar=no, menubar=no, scrollbars=yes, resizable=yes,location=no, status=no, titlebar=no');
+	window.open('/'+targetUrl,date.getTime(),'height='+height+',width='+width+', top=100,left=100, side-bar=no, menubar=no, scrollbars=yes, resizable=yes,location=no, status=no, titlebar=no');
 }
 
 function keyPressHandler(button,waitKeyCode){

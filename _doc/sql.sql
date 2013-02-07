@@ -1,3 +1,16 @@
+-- 计算当年每律师贡献
+SELECT staff.name,SUM(contribute.sum*received.sum) FROM
+(
+SELECT `case`,lawyer,SUM(contribute) AS sum FROM case_lawyer GROUP BY `case`,lawyer
+)contribute
+INNER JOIN 
+(
+SELECT `case`,SUM(amount) AS sum FROM account WHERE time_occur BETWEEN UNIX_TIMESTAMP('2012-01-01') AND UNIX_TIMESTAMP('2013-1-1') GROUP BY `case`
+)received
+USING (`case`)
+INNER JOIN staff ON staff.id=lawyer
+GROUP BY lawyer
+
 --删除垃圾
 DELETE FROM account WHERE amount=0;
 DELETE FROM `case` WHERE display=0 AND id>0;

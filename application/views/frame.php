@@ -1,1 +1,2 @@
-	<div id="page" default-uri="<?=$this->company->default_controller?>" style="background-image:url('/images/bg_<?=$this->company->syscode?>.gif')"></div>
+	<div id="page" default-uri="<?=$this->company->default_controller?>"></div>
+	<div id="side-bar"></div>

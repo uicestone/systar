@@ -158,6 +158,12 @@ class SS_Controller extends CI_Controller{
 			$this->output->setData($output);
 		}
 		
+		$sidebar=$this->load->sidebar_data.
+			(is_file(APPPATH.'views/'.$this->controller.'/'.$this->method.'_sidebar'.EXT)?$this->load->view("{$this->controller}/{$this->method}_sidebar",array(),true):'');
+		if($sidebar){
+			$this->output->setData($sidebar,'sidebar');
+		}
+		
 		$output_array=array(
 			'status'=>$this->output->status,
 			'message'=>$this->output->message,
