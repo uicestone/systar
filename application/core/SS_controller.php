@@ -97,9 +97,9 @@ class SS_Controller extends CI_Controller{
 			exit;
 		}
 
-		if($this->input->post('date_range')){
+		if($this->input->post('date_from')){
 			if(!strtotime($this->input->post('date_from')) || !strtotime($this->input->post('date_to'))){
-				showMessage('日期格式错误','warning');
+				$this->output->message('日期格式错误','warning');
 
 			}else{
 				option('date_range/from_timestamp',strtotime($this->input->post('date_from')));

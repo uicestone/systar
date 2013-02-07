@@ -19,8 +19,10 @@ class Client extends SS_Controller{
 				'td'=>'class="ellipsis" title="{name}" href="client/edit/{id}"'
 			),
 			'phone'=>array('title'=>'电话', 'td'=>'class="ellipsis" title="{phone}"'),
-			'address'=>array('title'=>'地址', 'td_title'=>'width="240px"',
-			'td'=>'class="ellipsis" title="{address}"'),
+			'address'=>array(
+				'title'=>'地址', 'td_title'=>'width="240px"',
+				'td'=>'class="ellipsis" title="{address}"'
+			),
 			'comment'=>array(
 				'title'=>'备注',
 				'td'=>'class="ellipsis" title="{comment}"',

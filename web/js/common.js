@@ -39,7 +39,9 @@ $(window).hashchange(function(){
 				$('#tabs').append('<li for="'+hash+'" class="activated"><a href="#'+hash+'">'+response.data.name.content+'</a></li>');
 			}
 			$('<section hash="'+hash+'" time-load="'+$.now()+'" time-access="'+$.now()+'"></section>').appendTo('#page').html(response.data.content.content).trigger('sectionload');
-			$('<aside for="'+hash+'"></aside>').appendTo('#side-bar').html(response.data.sidebar.content).trigger('sidebarload');
+			if(response.data.sidebar){
+				$('<aside for="'+hash+'"></aside>').appendTo('#side-bar').html(response.data.sidebar.content).trigger('sidebarload');
+			}
 			
 		},'json');
 	}
@@ -139,6 +141,17 @@ $(document).ready(function(){
 
 	},'json');
 
+	return false;
+})
+/*边栏提交按钮的点击事件*/
+.on('click','#side-bar>aside input:submit',function(){
+
+	if($(this).closest('aside').attr('for')==hash){
+		$.post(hash,$(this).closest('form').serialize(),function(response){
+			$('#page>section[hash="'+hash+'"]').setBlock(response);
+		},'json');
+	}
+	
 	return false;
 })
 /*分页按钮响应*/

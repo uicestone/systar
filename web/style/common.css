@@ -72,7 +72,7 @@ body{
 	background:#CEDDEC;
 }
 
-#page{
+#page section{
 	position:absolute;left:120px;top:25px;right:245px;;bottom:0;
 	box-shadow: -2px 0 5px #000;
 	overflow-x:auto;
@@ -155,11 +155,6 @@ nav{
 	font-size:15px;
 	line-height:2;
 	margin-left:5px;
-}
-#tabs{
-	margin-left:120px;
-	float:left;
-	border:0;
 }
 #tabs li{
 	float:left;
