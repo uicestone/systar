@@ -31,7 +31,6 @@ $(window).hashchange(function(){
 		$.get(hash,function(response){
 			if(response.status=='login_required'){
 				window.location.href='/login';
-				exit();
 			}
 			
 			/*如果请求的hash在导航菜单中存在，则不生成标签选项卡*/
