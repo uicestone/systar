@@ -76,7 +76,7 @@ $(function(){
 	});
 
 	$(window).resize(function(){
-		calendar.fullCalendar('option','height',$('#page').height());
+		calendar.fullCalendar('option','height',$(window).height()-25);
 	});
 	
 	$(document).on('resize','*',function(event){

@@ -97,7 +97,7 @@ class SS_Controller extends CI_Controller{
 			exit;
 		}
 
-		if($this->input->post('date_from')){
+		if($this->input->post('submit')=='date_range'){
 			if(!strtotime($this->input->post('date_from')) || !strtotime($this->input->post('date_to'))){
 				$this->output->message('日期格式错误','warning');
 
@@ -112,17 +112,17 @@ class SS_Controller extends CI_Controller{
 			}
 		}
 
-		if($this->input->post('date_range_cancel')){
+		if($this->input->post('submit')=='date_range_cancel'){
 			unset($_SESSION[CONTROLLER][METHOD]['in_date_range']);
 			unset($_SESSION[CONTROLLER][METHOD]['date_range']);
 		}
 
-		if($this->input->post('search')){
+		if($this->input->post('submit')=='search'){
 			option('keyword',array_trim($this->input->post('keyword')));
 			option('in_search_mod',true);
 		}
 
-		if($this->input->post('search_cancel')){
+		if($this->input->post('submit')=='search_cancel'){
 			unset($_SESSION[CONTROLLER][METHOD]['in_search_mod']);
 			unset($_SESSION[CONTROLLER][METHOD]['keyword']);
 		}

@@ -29,6 +29,9 @@ $(window).hashchange(function(){
 		
 	}else{
 		$.get(hash,function(response){
+			
+			response.message;/*TODO*/
+			
 			if(response.status=='login_required'){
 				window.location.href='/login';
 			}
@@ -145,11 +148,9 @@ $(document).ready(function(){
 /*边栏提交按钮的点击事件*/
 .on('click','#side-bar>aside input:submit',function(){
 
-	if($(this).closest('aside').attr('for')==hash){
-		$.post(hash,$(this).closest('form').serialize(),function(response){
-			$('#page>section[hash="'+hash+'"]').setBlock(response);
-		},'json');
-	}
+	$.post($(this).closest('aside').attr('for'),$(this).closest('form').serialize()+'&submit='+$(this).attr('name'),function(response){
+		$('#page>section[hash="'+hash+'"]').html(response.data.content.content);
+	},'json');
 	
 	return false;
 })
