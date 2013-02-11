@@ -44,7 +44,7 @@ class Achievement_model extends SS_Model{
 				//我主办的签约
 				$q.=" 
 					AND `case` IN (
-						SELECT `case` FROM case_people WHERE type='lawyer' AND people={$this->user->id} AND role='主办律师'
+						SELECT `case` FROM case_people WHERE type='律师' AND people={$this->user->id} AND role='主办律师'
 					)
 				";
 			}
@@ -57,7 +57,7 @@ class Achievement_model extends SS_Model{
 					(
 						SELECT case_fee.fee*SUM(case_people.contribute) AS contribute_fee
 						FROM case_fee 
-							INNER JOIN case_people ON case_fee.case=case_people.case AND case_people.type='lawyer'
+							INNER JOIN case_people ON case_fee.case=case_people.case AND case_people.type='律师'
 						WHERE case_fee.type<>'办案费' 
 							AND case_fee.`case` IN (
 								SELECT id 
@@ -85,7 +85,7 @@ class Achievement_model extends SS_Model{
 				$q.=" AND `case` IN (
 					SELECT `case` 
 					FROM case_people
-					WHERE type='lawyer' AND people={$this->user->id} AND role='主办律师'
+					WHERE type='律师' AND people={$this->user->id} AND role='主办律师'
 				)";
 			}
 			
@@ -96,7 +96,7 @@ class Achievement_model extends SS_Model{
 					(
 						SELECT case_fee.fee*SUM(case_people.contribute) AS contribute_fee
 						FROM case_fee 
-							INNER JOIN case_people ON case_fee.case=case_people.case AND case_people.type='lawyer'
+							INNER JOIN case_people ON case_fee.case=case_people.case AND case_people.type='律师'
 						WHERE case_fee.type<>'办案费' 
 							AND case_fee.pay_date>='$date_start' AND case_fee.pay_date<'$date_end'
 							AND case_people.people={$this->user->id}
@@ -117,7 +117,7 @@ class Achievement_model extends SS_Model{
 			";
 			
 			if($range=='my'){
-				$q.=" AND `case` IN (SELECT `case` FROM case_people WHERE type='lawyer' AND people={$this->user->id} AND role='主办律师')";
+				$q.=" AND `case` IN (SELECT `case` FROM case_people WHERE type='律师' AND people={$this->user->id} AND role='主办律师')";
 			}
 			
 			if($range=='contribute'){
@@ -127,7 +127,7 @@ class Achievement_model extends SS_Model{
 					(
 						SELECT account.amount*SUM(case_people.contribute) AS contribute_amount
 						FROM account 
-							INNER JOIN case_people ON account.case=case_people.case AND case_people.type='lawyer'
+							INNER JOIN case_people ON account.case=case_people.case AND case_people.type='律师'
 						WHERE account.name <> '办案费'
 							AND date>='$date_start'
 							AND date<'$date_end'
@@ -148,7 +148,7 @@ class Achievement_model extends SS_Model{
 			";
 			
 			if($range=='my'){
-				$q.=" AND `case` IN (SELECT `case` FROM case_people WHERE type='lawyer' AND people={$this->user->id} AND role='主办律师')";
+				$q.=" AND `case` IN (SELECT `case` FROM case_people WHERE type='律师' AND people={$this->user->id} AND role='主办律师')";
 			}
 			
 			if($range=='contribute'){
@@ -158,7 +158,7 @@ class Achievement_model extends SS_Model{
 					(
 						SELECT account.amount*SUM(case_people.contribute) AS contribute_amount
 						FROM account 
-							INNER JOIN case_people ON case_people.case=account.case AND case_people.type='lawyer'
+							INNER JOIN case_people ON case_people.case=account.case AND case_people.type='律师'
 							INNER JOIN `case` ON case.id=account.case
 						WHERE account.name <> '办案费'
 							AND date>='$date_start'
@@ -188,7 +188,7 @@ class Achievement_model extends SS_Model{
 			
 			//预计-我主办的
 			if($range=='my'){
-				$q.=" AND case_fee.case IN (SELECT `case` FROM case_people WHERE type='lawyer' AND people={$this->user->id} AND role='主办律师')";
+				$q.=" AND case_fee.case IN (SELECT `case` FROM case_people WHERE type='律师' AND people={$this->user->id} AND role='主办律师')";
 			}
 			
 			//预计-我的贡献
@@ -213,7 +213,7 @@ class Achievement_model extends SS_Model{
 					(
 						SELECT `case`,SUM(contribute) AS sum 
 						FROM case_people
-						WHERE type='lawyer'
+						WHERE type='律师'
 							AND people={$this->user->id}
 						GROUP BY `case` HAVING sum>0
 					)contribute USING (`case`)
@@ -270,7 +270,7 @@ class Achievement_model extends SS_Model{
 
 		if(!$this->user->isLogged('finance')){
 			$q.=" AND case_fee.case IN (
-					SELECT `case` FROM case_people WHERE type='lawyer' AND people={$this->user->id}
+					SELECT `case` FROM case_people WHERE type='律师' AND people={$this->user->id}
 				)
 			";
 		}
@@ -314,7 +314,7 @@ class Achievement_model extends SS_Model{
 		$q.="	GROUP BY case_fee.id
 		)case_fee_collected
 			INNER JOIN case_people ON case_fee_collected.case=case_people.case
-			INNER JOIN client ON case_people.people=people.id AND case_people.type='client'
+			INNER JOIN client ON case_people.people=people.id AND case_people.type='客户'
 			INNER JOIN case_num ON case_fee_collected.case=case_num.case
 			INNER JOIN `case` ON case_fee_collected.case=case.id
 		WHERE case_lawyer.lawyer={$this->user->id}

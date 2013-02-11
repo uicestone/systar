@@ -51,7 +51,7 @@ class Cases_model extends SS_Model{
 					'".($this->user->isLogged('manager') || $this->user->isLogged('finance') || $this->user->isLogged('admin'))."'='1' 
 					OR uid={$this->user->id} 
 					OR id IN (
-						SELECT `case` FROM case_people WHERE type='lawyer' AND people={$this->user->id}
+						SELECT `case` FROM case_people WHERE type='律师' AND people={$this->user->id}
 					)
 				)
 		";
@@ -323,7 +323,6 @@ class Cases_model extends SS_Model{
 	}
 	
 	//大列表
-	
 	function getList($method=NULL){
 		$q="
 			SELECT
@@ -368,7 +367,7 @@ class Cases_model extends SS_Model{
 				(
 					SELECT `case`,SUM(contribute) AS contribute_sum
 					FROM case_people
-					WHERE type='lawyer'
+					WHERE type='律师'
 					GROUP BY `case`
 				)contribute_allocate
 				ON `case`.id=contribute_allocate.case
@@ -387,32 +386,32 @@ class Cases_model extends SS_Model{
 				)uncollected
 				ON case.id=uncollected.case
 				
-			WHERE case.company={$this->company->id} AND case.display=1 AND is_query=0 AND case.filed=0 AND case.id>=20
+			WHERE case.company={$this->company->id} AND case.display=1 AND is_query=0 AND case.filed=0
 		";
 		$q_rows="
 			SELECT
 				COUNT(id)
 			FROM 
 				`case`
-			WHERE case.company={$this->company->id} AND case.display=1 AND is_query=0 AND case.filed=0 AND case.id>=20
+			WHERE case.company={$this->company->id} AND case.display=1 AND is_query=0 AND case.filed=0
 		";
 		
 		$condition='';
 		
 		if($method=='host'){
-			$condition.="AND case.apply_file=0 AND case.id IN (SELECT `case` FROM case_people WHERE type='lawyer' AND people={$this->user->id} AND role='主办律师')";
+			$condition.="AND case.apply_file=0 AND case.id IN (SELECT `case` FROM case_people WHERE type='律师' AND people={$this->user->id} AND role='主办律师')";
 		
 		}elseif($method=='consultant'){
-			$condition.="AND case.apply_file=0 AND classification='法律顾问' AND (case.id IN (SELECT `case` FROM case_people WHERE type='lawyer' AND people={$this->user->id}) OR case.uid={$this->user->id})";
+			$condition.="AND case.apply_file=0 AND (case.id IN (SELECT `case` FROM case_people WHERE type='律师' AND people={$this->user->id}) OR case.uid={$this->user->id})";
 		
 		}elseif($method=='etc'){
-			$condition.="AND case.apply_file=0 AND classification<>'法律顾问' AND (case.id IN (SELECT `case` FROM case_people WHERE type='lawyer' AND people={$this->user->id} AND role<>'主办律师') OR case.uid={$this->user->id})";
+			$condition.="AND case.apply_file=0 AND classification<>'法律顾问' AND (case.id IN (SELECT `case` FROM case_people WHERE type='律师' AND people={$this->user->id} AND role<>'主办律师') OR case.uid={$this->user->id})";
 			
 		}elseif($method=='file'){
-			$condition.="AND case.apply_file=1 AND classification<>'法律顾问' AND (case.id IN (SELECT `case` FROM case_people WHERE type='lawyer' AND people={$this->user->id} AND role<>'主办律师') OR case.uid={$this->user->id})";
+			$condition.="AND case.apply_file=1 AND classification<>'法律顾问' AND (case.id IN (SELECT `case` FROM case_people WHERE type='律师' AND people={$this->user->id} AND role<>'主办律师') OR case.uid={$this->user->id})";
 			
 		}elseif(!$this->user->isLogged('developer') && !$this->user->isLogged('finance')){
-			$condition.="AND (case.id IN (SELECT `case` FROM case_people WHERE type='lawyer' AND people={$this->user->id} AND role IN ('接洽律师','接洽律师（次要）','主办律师','协办律师','律师助理','督办合伙人')) OR case.uid={$this->user->id})";
+			$condition.="AND (case.id IN (SELECT `case` FROM case_people WHERE type='律师' AND people={$this->user->id} AND role IN ('接洽律师','接洽律师（次要）','主办律师','协办律师','律师助理','督办合伙人')) OR case.uid={$this->user->id})";
 		}
 		$condition=$this->search($condition, array('case.num'=>'案号','case.type'=>'类别','case.name'=>'名称','lawyers.lawyers'=>'主办律师'));
 		$condition=$this->orderBy($condition,'time_contract','DESC',array('case.name','lawyers'));
@@ -443,7 +442,7 @@ class Cases_model extends SS_Model{
 				LEFT JOIN
 				(
 					SELECT `case`,GROUP_CONCAT(staff.name) AS lawyers
-					FROM case_people INNER JOIN people staff ON case_people.people=staff.id AND case_people.type='lawyer' AND case_people.role='主办律师'
+					FROM case_people INNER JOIN people staff ON case_people.people=staff.id AND case_people.type='律师' AND case_people.role='主办律师'
 					GROUP BY case_people.`case`
 				)lawyers
 				ON `case`.id=lawyers.`case`
@@ -462,7 +461,7 @@ class Cases_model extends SS_Model{
 				(
 					SELECT `case`,SUM(contribute) AS contribute_sum
 					FROM case_people
-					WHERE case_people.type='lawyer'
+					WHERE case_people.type='律师'
 					GROUP BY `case`
 				)contribute_allocate
 				ON `case`.id=contribute_allocate.case
@@ -508,7 +507,7 @@ class Cases_model extends SS_Model{
 				`case` LEFT JOIN
 				(
 					SELECT `case`,GROUP_CONCAT(staff.name) AS lawyers
-					FROM case_people INNER JOIN staff ON case_people.people=staff.id AND case_people.type='lawyer' AND case_people.role='主办律师'
+					FROM case_people INNER JOIN staff ON case_people.people=staff.id AND case_people.type='律师' AND case_people.role='主办律师'
 					GROUP BY case_people.`case`
 				)lawyers
 				ON `case`.id=lawyers.`case`
@@ -517,7 +516,7 @@ class Cases_model extends SS_Model{
 				(
 					SELECT `case`,SUM(contribute) AS contribute_sum
 					FROM case_people
-					WHERE type='lawyer'
+					WHERE type='律师'
 					GROUP BY `case`
 				)contribute_allocate
 				ON `case`.id=contribute_allocate.case
@@ -666,7 +665,7 @@ class Cases_model extends SS_Model{
 		$contribute_sum=$this->db->query("
 			SELECT SUM(contribute) AS contribute_sum
 			FROM case_people
-			WHERE type='lawyer' AND `case`=$case_id
+			WHERE type='律师' AND `case`=$case_id
 		")->row()->contribute_sum;
 		
 		return $this->getStatus($is_reviewed,$locked,$apply_file,$is_query,$finance_review,$info_review,$manager_review,$filed,$contribute_sum,$uncollected);
@@ -718,7 +717,7 @@ class Cases_model extends SS_Model{
 		$q_option_array="SELECT id,name FROM `case` WHERE display=1";
 		
 		if($schedule_type==0){
-			$q_option_array.=" AND ((id>=20 AND filed=0 AND (id IN (SELECT `case` FROM case_people WHERE type='lawyer' AND people={$this->user->id}) OR uid = {$this->user->id})) OR id=10)";
+			$q_option_array.=" AND ((id>=20 AND filed=0 AND (id IN (SELECT `case` FROM case_people WHERE type='律师' AND people={$this->user->id}) OR uid = {$this->user->id})) OR id=10)";
 		
 		}elseif($schedule_type==1){
 			$q_option_array.=" AND id<10 AND id>0";
@@ -838,12 +837,12 @@ class Cases_model extends SS_Model{
 	function lawyerRoleCheck($case_id,$new_role,$actual_contribute=NULL){
 		$case_id=intval($case_id);
 		
-		if(strpos($new_role,'信息提供')!==false && $this->db->query("SELECT SUM(contribute) sum FROM case_people WHERE type='lawyer' AND role LIKE '信息提供%' AND `case`=$case_id")->row()->sum+substr($new_role,15,2)/100>0.2){
+		if(strpos($new_role,'信息提供')!==false && $this->db->query("SELECT SUM(contribute) sum FROM case_people WHERE type='律师' AND role LIKE '信息提供%' AND `case`=$case_id")->row()->sum+substr($new_role,15,2)/100>0.2){
 			//信息贡献已达到20%
 			showMessage('信息提供贡献已满额','warning');
 			return false;
 			
-		}elseif(strpos($new_role,'接洽律师')!==false && $this->db->query("SELECT COUNT(id) num FROM case_people WHERE type='lawyer' AND role LIKE '接洽律师%' AND `case`=$case_id")->row()->num>=2){
+		}elseif(strpos($new_role,'接洽律师')!==false && $this->db->query("SELECT COUNT(id) num FROM case_people WHERE type='律师' AND role LIKE '接洽律师%' AND `case`=$case_id")->row()->num>=2){
 			//接洽律师已达到2名
 			showMessage('接洽律师不能超过2位','warning');
 			return false;
@@ -860,7 +859,7 @@ class Cases_model extends SS_Model{
 			
 			if(!$actual_contribute){
 				$actual_contribute_left=
-					0.3-$this->db->query("SELECT SUM(contribute) sum FROM case_people WHERE type='lawyer' AND `case`=$case_id AND role='实际贡献'")->row()->sum;
+					0.3-$this->db->query("SELECT SUM(contribute) sum FROM case_people WHERE type='律师' AND `case`=$case_id AND role='实际贡献'")->row()->sum;
 				if($actual_contribute_left>0){
 					return $actual_contribute_left;
 				}else{
@@ -868,7 +867,7 @@ class Cases_model extends SS_Model{
 					return false;
 				}
 				
-			}elseif($this->db->query("SELECT SUM(contribute) sum FROM case_people WHERE type='lawyer' AND `case`=$case_id AND role='实际贡献'")->row()->sum+($actual_contribute/100)>0.3){
+			}elseif($this->db->query("SELECT SUM(contribute) sum FROM case_people WHERE type='律师' AND `case`=$case_id AND role='实际贡献'")->row()->sum+($actual_contribute/100)>0.3){
 				showMessage('实际贡献总数不能超过30%','warning');
 				return false;
 	

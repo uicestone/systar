@@ -268,7 +268,7 @@ class Cases extends SS_controller{
 
 		$cases=$this->cases->getPostData($id);
 		$labels=$this->cases->getLabels($this->cases->id);
-		
+
 		if($cases['name']){
 			$this->output->setData(strip_tags($cases['name']), 'name');
 		}
