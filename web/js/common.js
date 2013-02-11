@@ -2,8 +2,6 @@
 if($.browser.msie && $.browser.version<7 && !(controller=='user' && action=='browser')){
 	/*跳转到浏览器推荐页面*/
 	window.location.hash='user/browser';
-	/*停止载入页面*/
-	exit();
 }
 
 var hash,controller,action,username,sysname,uriSegments;
@@ -31,7 +29,7 @@ $(window).hashchange(function(){
 	}else{
 		$.get(hash,function(response){
 			
-			$.parseMessage(response);
+			$.parseMessage(response.message);
 			
 			if(response.status=='login_required'){
 				window.location.href='/login';
@@ -78,6 +76,26 @@ $(document).ready(function(){
 	}else if($('#page').attr('default-uri')){
  		window.location.hash=$('#page').attr('default-uri');
  	}
+})
+/*手动刷新*/
+.on('click','a[href^="#"]',function(){
+	if($(this).attr('href').substr(1)==hash){
+		$.get(hash,function(response){
+
+			$.parseMessage(response.message);
+
+			if(response.status=='login_required'){
+				window.location.href='/login';
+			}
+			
+			$('#page>section[hash="'+hash+'"]').attr('time-load',$.now()).attr('time-access',$.now()).html(response.data.content.content).trigger('sectionload');
+
+			if(response.data.sidebar){
+				$('#side-bar>aside[for="'+hash+'"]').html(response.data.sidebar.content).trigger('sidebarload');
+			}
+
+		},'json');
+	}
 })
 /*主体页面加载事件*/
 .on('sectionload blockload','#page>section',function(){
@@ -151,7 +169,7 @@ $(document).ready(function(){
 .on('click','#side-bar>aside input:submit',function(){
 
 	$.post($(this).closest('aside').attr('for'),$(this).closest('form').serialize()+'&submit='+$(this).attr('name'),function(response){
-		$('#page>section[hash="'+hash+'"]').setBlock(response);
+		$(document).setBlock(response);
 	},'json');
 	
 	return false;
@@ -251,14 +269,6 @@ $(document).ready(function(){
 	$( "#" + panelId ).remove();
 	$('#page').tabs( "refresh" );
 });
-
-function exit(){
-	if (window.stop){
-		window.stop();
-	}else{
-		document.execCommand("Stop");
-	}
-}
 
 function isArray(o) {
 	//判断对象是否是数组

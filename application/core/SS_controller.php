@@ -116,7 +116,7 @@ class SS_Controller extends CI_Controller{
 			unset($_SESSION[CONTROLLER][METHOD]['in_date_range']);
 			unset($_SESSION[CONTROLLER][METHOD]['date_range']);
 		}
-
+		
 		if($this->input->post('submit')=='search'){
 			option('keyword',array_trim($this->input->post('keyword')));
 			option('in_search_mod',true);
@@ -155,13 +155,13 @@ class SS_Controller extends CI_Controller{
 		if($output){
 			//如果在这个方法运行之前，页面就有输出，那么说明是一个旧式的输出html的页面，我们给它直接加上嵌入页面的js
 			$output=$this->load->view('innerjs',array(),true).$output;
-			$this->output->setData($output);
+			$this->output->setData($output,'content','html','#page>section[hash="'.substr($this->input->server('REQUEST_URI'),1).'"]');
 		}
 		
 		$sidebar=$this->load->sidebar_data.
 			(is_file(APPPATH.'views/'.$this->controller.'/'.$this->method.'_sidebar'.EXT)?$this->load->view("{$this->controller}/{$this->method}_sidebar",array(),true):'');
 		if($sidebar){
-			$this->output->setData($sidebar,'sidebar');
+			$this->output->setData($sidebar,'sidebar','html','#side-bar>aside[for="'.substr($this->input->server('REQUEST_URI'),1).'"]');
 		}
 		
 		$output_array=array(
