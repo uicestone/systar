@@ -75,7 +75,7 @@ $(function(){
 		}
 	});
 
-	$(window).resize(function(){
+	$(window).on('resize hashchange',function(){
 		calendar.fullCalendar('option','height',$(window).height()-25);
 	});
 	

@@ -127,13 +127,13 @@ class SS_Controller extends CI_Controller{
 			unset($_SESSION[CONTROLLER][METHOD]['keyword']);
 		}
 		
+		/*
 		if(isset($this->user->permission[$this->controller][$this->method]['_affair_name'])){
 			$this->output->setData($this->user->permission[$this->controller][$this->method]['_affair_name'], 'name');
 		}elseif(isset($this->user->permission[$this->controller]['_affair_name'])){
 			$this->output->setData($this->user->permission[$this->controller]['_affair_name'], 'name');
 		}
-		
-		
+		*/
 
 	}
 	

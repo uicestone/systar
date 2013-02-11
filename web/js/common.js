@@ -11,6 +11,7 @@ var hash,controller,action,username,sysname,uriSegments;
 $(window).hashchange(function(){
 	
 	hash=window.location.hash.substr(1);
+	uriSegments=hash.split('/');
 	
 	/*根据当前hash，设置标签选项卡激活状态*/
 	$('#tabs>[for="'+hash+'"]').addClass('activated');
@@ -30,7 +31,7 @@ $(window).hashchange(function(){
 	}else{
 		$.get(hash,function(response){
 			
-			response.message;/*TODO*/
+			$.parseMessage(response);
 			
 			if(response.status=='login_required'){
 				window.location.href='/login';
@@ -40,7 +41,9 @@ $(window).hashchange(function(){
 			if($('nav a[href="#'+hash+'"]').length==0){
 				$('#tabs').append('<li for="'+hash+'" class="activated"><a href="#'+hash+'">'+response.data.name.content+'</a></li>');
 			}
+			
 			$('<section hash="'+hash+'" time-load="'+$.now()+'" time-access="'+$.now()+'"></section>').appendTo('#page').html(response.data.content.content).trigger('sectionload');
+			
 			if(response.data.sidebar){
 				$('<aside for="'+hash+'"></aside>').appendTo('#side-bar').html(response.data.sidebar.content).trigger('sidebarload');
 			}
@@ -48,7 +51,6 @@ $(window).hashchange(function(){
 		},'json');
 	}
 	
-	uriSegments=hash.split('/');
 	$('nav li').removeClass('activated');
 	$('nav li#nav-'+uriSegments[0]+', nav li#nav-'+uriSegments[0]+'-'+uriSegments[1]).addClass('activated');
 });
@@ -149,19 +151,18 @@ $(document).ready(function(){
 .on('click','#side-bar>aside input:submit',function(){
 
 	$.post($(this).closest('aside').attr('for'),$(this).closest('form').serialize()+'&submit='+$(this).attr('name'),function(response){
-		$('#page>section[hash="'+hash+'"]').html(response.data.content.content);
+		$('#page>section[hash="'+hash+'"]').setBlock(response);
 	},'json');
 	
 	return false;
 })
 /*分页按钮响应*/
 .on('click','.pagination button',function(){
+	
 	$.post('/'+hash,{start:$(this).attr('target-page-start')},function(response){
-		if(response.status=='login_required'){
-			window.location.href='/login';
-		}
-		$('#page>section[hash="'+hash+'"]').html(response.data.content.content).attr('time-load',$.now()).trigger('sectionload');
+		$('#page>section[hash="'+hash+'"]').setBlock(response).attr('time-load',$.now()).trigger('sectionload');
 	},'json');
+	
 	return false;
 })
 /*edit表单元素更改时实时提交到后台 */
@@ -174,31 +175,6 @@ $(document).ready(function(){
 	var name = $(this).attr('name').replace('[','/').replace(']','');
 	var data={};data[name]=value;
 	$.post('/'+controller+'/setfields/'+id,data);
-})
-/*截获所有链接点击事件，用以加载主体页面（弹窗页面除外）*/
-/*.on('click','a:not([href^="javascript"]):not([href^="#"])',function(){
-	var href=$(this).attr('href');
-	$('#page').load($(this).attr('href'),function(){
-		$(this).trigger('sectionload');
-
-		//设置顶层框架的hash为当前框架的URI
-		window.location.hash='#'+href.replace(RegExp('^/'),'');
-	});
-
-	return false;
-})*/
-/*边栏最小化*/
-.on('click','.minimize-button',function(){
-	$('#side-bar').toggleClass('minimized');
-	var minimized=0;
-	if($('#side-bar').hasClass('minimized')){
-		minimized=1;
-	}
-	$.get('/misc/setsession/minimized',function(response){
-		if(response.status!='success'){
-			showMessage('与服务器通信失败','warning');
-		}
-	},'json');
 })
 /*边栏选框自动提交*/
 .on('change','select.filter[method!="get"]',function(){
@@ -389,9 +365,38 @@ function postOrderby(orderby){
 	postArr(arr);
 }
 
-function processMessage(){
-	//将本页的多条position:absulote的message分开显示
-	var notices=$('.message').size();
+function keyPressHandler(button,waitKeyCode){
+	if(!waitKeyCode){
+		var waitKeyCode=13;
+	}
+	
+	if(event.keyCode == waitKeyCode){ 
+		event.returnValue=false; 
+		event.cancel = true; 
+		button.click(); 
+	}
+}
+
+/*扩展jQuery工具函数库*/
+jQuery.showMessage=function(message,type,directExport){
+	if(!directExport){
+		var directExport=false;
+	}
+
+	if(directExport){
+		var newMessage=$(message);
+	}else{
+		if(type=='warning'){
+			var notice_class='ui-state-error';
+			var notice_symbol='<span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>';
+		}else{
+			var notice_class='ui-state-highlight';
+			var notice_symbol='<span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>';
+		}
+		var newMessage = $('<span class="message ui-corner-all ' + notice_class + '" title="点击隐藏提示">' + notice_symbol + message + '</span>');
+	}
+
+	newMessage.appendTo('body');
 
 	var noticeEdge=50;
 	var lastNoticeHeight=0;
@@ -416,56 +421,17 @@ function processMessage(){
 	});
 }
 
-function showMessage(message,type,directExport){
-	//js方式输出提示条，输出前先删除之前的提示
-	if(!directExport){
-		var directExport=false;
-	}
-
-	//$('.message').hide().remove();
-	
-	if(directExport){
-		var newMessage=$(message);
-	}else{
-		if(type=='warning'){
-			var notice_class='ui-state-error';
-			var notice_symbol='<span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>';
-		}else{
-			var notice_class='ui-state-highlight';
-			var notice_symbol='<span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>';
-		}
-		var newMessage = $('<span class="message ui-corner-all ' + notice_class + '" title="点击隐藏提示">' + notice_symbol + message + '</span>');
-	}
-
-	newMessage.appendTo('body');
-
-	processMessage();
-}
-
-function showWindow(targetUrl,width,height){
-	var date=new Date();
-	if(!width){
-		var width=920;
-	}
-	
-	if(!height){
-		var height=screen.height-300;
-	}
-	window.open('/'+targetUrl,date.getTime(),'height='+height+',width='+width+', top=100,left=100, side-bar=no, menubar=no, scrollbars=yes, resizable=yes,location=no, status=no, titlebar=no');
-}
-
-function keyPressHandler(button,waitKeyCode){
-	if(!waitKeyCode){
-		var waitKeyCode=13;
-	}
-	
-	if(event.keyCode == waitKeyCode){ 
-		event.returnValue=false; 
-		event.cancel = true; 
-		button.click(); 
+jQuery.parseMessage=function(messages){
+	if(messages){
+		$.each(messages,function(messageType,messages){
+			$.each(messages,function(index,message){
+				$.showMessage(message,messageType);
+			});
+		});
 	}
 }
 
+/*扩展jQuery对象函数*/
 jQuery.fn.showSchedule=function(event){
 	var target=$(this);
 	var dialog=$('<div></div>').appendTo('body')
@@ -720,7 +686,8 @@ jQuery.fn.reset=function(){
 }
 
 /**
- *根据一个后台返回的响应（包含status, message, data属性. 其中，data为一个或多个如下结构的数组type, content, selector, method）
+ *根据一个后台返回的响应
+ *（包含status, message, data属性. 其中，data为多个如下结构的对象type, content, selector, method）
  *中包含的信息，对当前页面进行部分再渲染
  *
  */
@@ -732,35 +699,25 @@ jQuery.fn.setBlock=function(response){
 		window.location.href='login';
 	}
 
-	if(response.message){
-		$.each(response.message,function(messageType,messages){
-			$.each(messages,function(index,message){
-				showMessage(message,messageType);
-			});
-		});
-	}
+	$.parseMessage(response.message);
 	
 	$.each(response.data,function(dataName,data){
-		switch(data.type){
-			case 'uri':
-				$.get(data.content,function(response){
-					if(data.method=='replace'){
-						parent.find(data.selector).replaceWith(response.data.content.content);
-						parent.find(data.selector).trigger('blockload');
-					}else{
-						parent.find(data.selector).html(response.data.content.content).trigger('blockload');
-					}
-				},'json');
-				break;
-			case 'html':
-				if(data.method=='replace'){
-					parent.find(data.selector).replaceWith(data.content);
-					parent.find(data.selector).trigger('blockload');
-				}else{
-					parent.find(data.selector).html(data.content).trigger('blockload');
-				}
-
-				break;
+		if(data.method=='replace'){
+			if(data.selector){
+				parent.find(data.selector).replaceWith(data.content);
+				parent.find(data.selector).trigger('blockload');
+			}else{
+				parent.replaceWith(data.content);
+				parent.trigger('blockload');
+			}
+		}else{
+			if(data.selector){
+				parent.find(data.selector).html(data.content).trigger('blockload');
+			}else{
+				parent.html(data.content).trigger('blockload');
+			}
 		}
 	});
+	
+	return this;
 }
