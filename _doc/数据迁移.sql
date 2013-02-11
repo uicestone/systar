@@ -2,6 +2,7 @@
 -- 步骤如下
 -- 下载最新的starsys生产环境数据，建立本地starsys数据库
 -- 导入syssh-structure.sql建立新的syssh数据结构
+-- 执行upgrade.sql中，structure exporetd x/x之后的内容，其中x/x是上一步中结构sql文件名中包含的日期
 -- 站在syssh库中运行本脚本即可
 
 INSERT INTO syssh.affair 

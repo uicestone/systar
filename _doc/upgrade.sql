@@ -57,9 +57,12 @@ UPDATE people_label INNER JOIN label ON label.id=people_label.label
 SET people_label.label_name = label.name;
 -- uice 2/3
 
+-- structure exported 2/3
+
 ALTER TABLE  `document_label` ADD  `label_name` VARCHAR( 255 ) NOT NULL;
 
 ALTER TABLE  `news` ADD  `time_insert` INT NOT NULL AFTER  `username` ,
 ADD INDEX (  `time_insert` );
 ALTER TABLE  `people_relationship` CHANGE  `relation_type`  `relation_type` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
 -- uice 2/6
+

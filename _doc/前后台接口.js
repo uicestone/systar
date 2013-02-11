@@ -18,18 +18,6 @@ var client={
 		}
 		//,...
 		]
-	},
-	
-	/**
-	 * 获得客户的来源律师
-	 */
-	getSourceLawyer:{
-		url:'/client/getsourcelawyer',
-		post:{
-			client_name:'张三'//客户名
-		},
-		response:'王律师'//对应的来源律师名称
-
 	}
 }
 
