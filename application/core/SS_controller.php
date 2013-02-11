@@ -128,10 +128,10 @@ class SS_Controller extends CI_Controller{
 		}
 		
 		/*
-		if(isset($this->user->permission[$this->controller][$this->method]['_affair_name'])){
-			$this->output->setData($this->user->permission[$this->controller][$this->method]['_affair_name'], 'name');
-		}elseif(isset($this->user->permission[$this->controller]['_affair_name'])){
-			$this->output->setData($this->user->permission[$this->controller]['_affair_name'], 'name');
+		if(isset($this->user->permission[$this->controller][$this->method]['_controller_name'])){
+			$this->output->setData($this->user->permission[$this->controller][$this->method]['_controller_name'], 'name');
+		}elseif(isset($this->user->permission[$this->controller]['_controller_name'])){
+			$this->output->setData($this->user->permission[$this->controller]['_controller_name'], 'name');
 		}
 		*/
 

@@ -66,3 +66,12 @@ ADD INDEX (  `time_insert` );
 ALTER TABLE  `people_relationship` CHANGE  `relation_type`  `relation_type` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
 -- uice 2/6
 
+RENAME TABLE  `syssh`.`affair` TO  `syssh`.`controller` ;
+ALTER TABLE  `controller` DROP  `add_target`;
+ALTER TABLE  `controller` ADD  `discription` VARCHAR( 255 ) NULL AFTER  `ui_name`;
+ALTER TABLE  `group` CHANGE  `affair`  `controller` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT  '';
+ALTER TABLE  `group` CHANGE  `action`  `method` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT  '';
+ALTER TABLE  `group` CHANGE  `affair_ui_name`  `ui_name` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT  '';
+ALTER TABLE  `group` ADD  `discription` VARCHAR( 255 ) NULL DEFAULT NULL AFTER  `ui_name`;
+RENAME TABLE  `syssh`.`group` TO  `syssh`.`permission` ;
+ALTER TABLE  `permission` CHANGE  `name`  `group` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT  '';

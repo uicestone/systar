@@ -174,46 +174,47 @@ class User_model extends People_model{
 	}
 
 	/**
-	 * 根据当前用户组，将数据库中affair,group两表中的用户权限读入$_SESSION['permission']
+	 * 根据当前用户组，将数据库中controller,permission两表中的用户权限读入$this->user->permission
 	 */
 	function preparePermission(){
 
 		$query="
 			SELECT
-				affair.name AS affair,
-				IF(group.affair_ui_name<>'', group.affair_ui_name, affair.ui_name) AS affair_name,
-				affair.add_action,affair.add_target,
-				`group`.action AS `action`, group.display_in_nav AS display
-			FROM affair LEFT JOIN `group` ON affair.name=`group`.affair 
-			WHERE group.company={$this->company->id}
-				AND affair.is_on=1
+				controller.name AS controller,
+				IF(permission.ui_name<>'', permission.ui_name, controller.ui_name) AS controller_name,
+				IF(permission.discription IS NOT NULL, permission.discription, controller.discription) AS discription,
+				controller.add_action,
+				permission.controller, permission.method, permission.display_in_nav AS display
+			FROM controller LEFT JOIN permission ON controller.name=permission.controller 
+			WHERE permission.company={$this->company->id}
+				AND controller.is_on=1
 		";
 		
 		if($this->group){
-			$query.="AND (".db_implode($this->group, $glue = ' OR ','group.name').") ";
+			$query.="AND (".db_implode($this->group, $glue = ' OR ','permission.group').") ";
 		}else{
 			$query.="AND FALSE";
 		}
 				
 		$query.="
-			GROUP BY affair,action
-			ORDER BY affair.order,group.order
+			GROUP BY permission.controller,permission.method
+			ORDER BY controller.order, permission.order
 		";
 
 		$result_array=$this->db->query($query)->result_array();
 
 		$permission=array();
 		foreach($result_array as $a){
-			if(!isset($permission[$a['affair']])){
-				$permission[$a['affair']]=array();
+			if(!isset($permission[$a['controller']])){
+				$permission[$a['controller']]=array();
 			}
-			if($a['action']==''){
+			if($a['method']==''){
 				//一级菜单
-				$permission[$a['affair']]
-				=array_replace_recursive($permission[$a['affair']],array('_affair_name'=>$a['affair_name'],'_add_action'=>$a['add_action'],'_add_target'=>$a['add_target'],'_display'=>$a['display']));
+				$permission[$a['controller']]
+				=array_replace_recursive($permission[$a['controller']],array('_controller_name'=>$a['controller_name'],'_add_action'=>$a['add_action'],'_display'=>$a['display']));
 			}else{
 				//二级菜单
-				$permission[$a['affair']][$a['action']]=array('_affair_name'=>$a['affair_name'],'_display'=>$a['display']);
+				$permission[$a['controller']][$a['method']]=array('_controller_name'=>$a['controller_name'],'_display'=>$a['display']);
 			}
 		}
 		$this->permission=$permission;

@@ -11,7 +11,7 @@ foreach($this->user->permission as $controller_name => $controller){
 		}
 		echo '<li id="nav-'.$controller_name.'">'.
 			($has_sub_menu?'<span class="arrow"><img src="images/arrow_r.png" /></span>':'').
-			'<a href="#'.$controller_name.'" class="controller'.($has_sub_menu?'':' dink').'" hidefocus="true">'.$controller['_affair_name'].'</a>';
+			'<a href="#'.$controller_name.'" class="controller'.($has_sub_menu?'':' dink').'" hidefocus="true">'.$controller['_controller_name'].'</a>';
 
 		if(isset($controller['_add_action']) && $this->user->isPermitted($controller_name,'add')){
 			echo '<a href="#'.$controller['_add_action'].'" hidefocus="true"> <span style="font-size:12px;color:#CEDDEC">+</span></a>';
@@ -23,7 +23,7 @@ foreach($this->user->permission as $controller_name => $controller){
 					if($action['_display']){
 						echo '<li id="nav-'.$controller_name.'-'.$action_name.'"><a href="#'.$controller_name.'/'.
 						$action_name.'" hidefocus="true">'.
-						$action['_affair_name'].'</a></li>';
+						$action['_controller_name'].'</a></li>';
 					}
 				}
 			}

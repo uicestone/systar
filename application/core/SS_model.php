@@ -168,7 +168,7 @@ class SS_Model extends CI_Model{
 		
 		option('pagination/pagenum',option('pagination/start') / option('pagination/items') + 1);
 
-		$query.=' LIMIT '.option('pagination/start').','.(option('pagination/items'));
+		$query.=' LIMIT '.option('pagination/start').','.(option('pagination/items'));$this->output->message($query);
 		return $query;
 	}
 	
