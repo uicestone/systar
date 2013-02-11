@@ -211,7 +211,7 @@ nav{
 	margin:0;
 }
 .contentTableMenu{
-	position:fixed;top:0;right:250px;z-index:2;
+	position:fixed;top:0;right:100px;z-index:2;
 	color:#FFF;
 }
 .contentTableFoot{

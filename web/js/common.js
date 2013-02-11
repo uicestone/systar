@@ -81,19 +81,7 @@ $(document).ready(function(){
 .on('click','a[href^="#"]',function(){
 	if($(this).attr('href').substr(1)==hash){
 		$.get(hash,function(response){
-
-			$.parseMessage(response.message);
-
-			if(response.status=='login_required'){
-				window.location.href='/login';
-			}
-			
-			$('#page>section[hash="'+hash+'"]').attr('time-load',$.now()).attr('time-access',$.now()).html(response.data.content.content).trigger('sectionload');
-
-			if(response.data.sidebar){
-				$('#side-bar>aside[for="'+hash+'"]').html(response.data.sidebar.content).trigger('sidebarload');
-			}
-
+			$(document).setBlock(response);
 		},'json');
 	}
 })
@@ -178,7 +166,7 @@ $(document).ready(function(){
 .on('click','.pagination button',function(){
 	
 	$.post('/'+hash,{start:$(this).attr('target-page-start')},function(response){
-		$('#page>section[hash="'+hash+'"]').setBlock(response).attr('time-load',$.now()).trigger('sectionload');
+		$(document).setBlock(response);
 	},'json');
 	
 	return false;
@@ -716,15 +704,15 @@ jQuery.fn.setBlock=function(response){
 			if(data.selector){
 				parent.find(data.selector).replaceWith(data.content);
 				parent.find(data.selector).trigger('blockload');
-			}else{
-				parent.replaceWith(data.content);
-				parent.trigger('blockload');
 			}
 		}else{
 			if(data.selector){
-				parent.find(data.selector).html(data.content).trigger('blockload');
-			}else{
-				parent.html(data.content).trigger('blockload');
+				var block=parent.find(data.selector).html(data.content).trigger('blockload');
+				
+				/*如果数据是主页面内容，则标记载入时间，出发指定事件*/
+				if(dataName=='content'){
+					block.trigger('sectionload').attr('time-load',$.now());
+				}
 			}
 		}
 	});
