@@ -26,6 +26,45 @@ class Schedule_model extends SS_Model{
 		return $schedule;
 	}
 	
+	function addProfile($schedule_id,$name,$content,$comment=NULL){
+		$data=array(
+			'schedule'=>$schedule_id,
+			'name'=>$name,
+			'content'=>$content,
+			'comment'=>$comment
+		);
+		
+		$data+=uidTime(false);
+		
+		$this->db->insert('schedule_profile',$data);
+		
+		return $this->db->insert_id();
+	}
+	
+	/**
+	 * 删除客户联系方式
+	 */
+	function removeProfile($schedule_profile_ids){
+		$condition = db_implode($schedule_profile_ids, $glue = ' OR ','id');
+		$this->db->delete('schedule_profile',$condition);
+	}
+	
+	/**
+	 * 返回一个可用的profile name列表
+	 */
+	function getProfileNames(){
+		$query="
+			SELECT name,COUNT(*) AS hits
+			FROM `schedule_profile`
+			GROUP BY name
+			ORDER BY hits DESC;
+		";
+		
+		$result=$this->db->query($query)->result_array();
+		
+		return array_sub($result,'name');
+	}
+	
 	/**
 	 * 获得一个时间范围内的多个日程
 	 * @param $start 开始时间戳
