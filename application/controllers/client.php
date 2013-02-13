@@ -40,7 +40,9 @@ class Client extends SS_Controller{
 	}
 
 	function add(){
-		$this->edit();
+		$this->client->id=$this->client->add();
+		$this->output->status='redirect';
+		$this->output->data='client/edit/'.$this->client->id;
 	}
 	
 	function subList($item,$client_id=false){
@@ -127,16 +129,18 @@ class Client extends SS_Controller{
 
 	}
 	
-	function edit($id=NULL){
+	function edit($id){
+		$this->client->id=$id;
+		
 		$this->load->model('staff_model','staff');
 		$this->load->model('cases_model','cases');
 
-		$client=$this->client->getPostData($id);
+		$client=$this->client->fetch($this->client->id);
 		$labels=$this->client->getLabels($this->client->id);
 		//取得当前客户的"来源"数据
 		$source=$this->client->fetchSource($client['source']);
 
-		$this->output->setData($client['abbreviation'],'name');
+		$this->output->setData($client['abbreviation']?$client['abbreviation']:$client['name'],'name');
 
 		$available_options=$this->client->getHotlabelsOfTypes();
 		$profile_name_options=$this->client->getProfileNames();

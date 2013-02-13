@@ -29,12 +29,24 @@ $(window).hashchange(function(){
 	}else{
 		$.get(hash,function(response){
 			
-			$.parseMessage(response.message);
-			
 			if(response.status=='login_required'){
-				window.location.href='/login';
+				window.location.href='login';
+				return this;
 			}
-			
+
+			else if(response.status=='redirect'){
+				window.location.hash=response.data;
+				return this;
+			}
+
+			else if(response.status=='refresh'){
+				$.get(hash,function(response){
+					$(document).setBlock(response);
+				});
+			}
+
+			$.parseMessage(response.message);
+	
 			/*如果请求的hash在导航菜单中存在，则不生成标签选项卡*/
 			if($('nav a[href="#'+hash+'"]').length==0){
 				$('#tabs').append('<li for="'+hash+'" class="activated"><a href="#'+hash+'">'+response.data.name.content+'</a></li>');
@@ -113,7 +125,7 @@ $(document).ready(function(){
 	$('title').html(affair+' - '+(username?username+' - ':'')+sysname);
 })
 /*编辑页的提交按钮点击事件，提交数据到后台，在页面上反馈数据和提示*/
-.on('click','#page>section>form input:submit',function(){
+.on('click','#page>section>form input:submit, #page>section>form button:submit',function(){
 	var id = $('form[name="'+controller+'"]').attr('id');
 	var submit = $(this).attr('name').replace('submit[','').replace(']','');
 	
@@ -233,7 +245,7 @@ $(document).ready(function(){
 	}
 })
 .on('enable','[display-for]:not([locked-by])',function(event){
-	$(this).find(':input:disabled').trigger('change').removeAttr('disabled');
+	$(this).find(':input:disabled:not([locked-by])').trigger('change').removeAttr('disabled');
 	$(this).show();
 
 })
@@ -395,7 +407,12 @@ jQuery.showMessage=function(message,type,directExport){
 	}
 
 	newMessage.appendTo('body');
+	
+	$.processMessage();
 
+}
+
+jQuery.processMessage=function(){
 	var noticeEdge=50;
 	var lastNoticeHeight=0;
 	$('.message').each(function(index,element){
@@ -406,7 +423,7 @@ jQuery.showMessage=function(message,type,directExport){
 	$('.message').click(function(){
 		$(this).stop(true).fadeOut(200,function(){
 			$(this).remove();
-			processMessage();
+			$.processMessage();
 		});
 	}).each(function(index,Element){
 		$(this).delay(index*3000).fadeOut(20000,function(){
@@ -485,6 +502,7 @@ jQuery.fn.createSchedule=function(startDate, endDate, allDay, project, completed
 	date = new Date();
 	selection=$(this);
 	
+               
 	var dialog=$('<div class="dialog"></div>').appendTo('body')
 	.dialog({
 		position:{
@@ -516,6 +534,10 @@ jQuery.fn.createSchedule=function(startDate, endDate, allDay, project, completed
 			click: function() {
 			if(startDate && endDate){
 				var content=dialog.find('[name="content"]').val();
+				var people=dialog.find('[name="people"]').val();
+				var place=dialog.find('[name="schedule[place]"]').val();
+				var fee=dialog.find('[name="schedule[fee]"]').val();
+				var fee_name=dialog.find('[name="schedule[fee_name]"]').val();
 				var paras=content.split("\n");
 				var name=paras[0];
 				var data={
@@ -695,11 +717,24 @@ jQuery.fn.setBlock=function(response){
 	
 	if(response.status=='login_required'){
 		window.location.href='login';
+		return this
 	}
 
+	else if(response.status=='redirect'){
+		window.location.hash=response.data;
+		return this;
+	}
+	
+	else if(response.status=='refresh'){
+		$.get(hash,function(response){
+			$(document).setBlock(response);
+		});
+	}
+	
 	$.parseMessage(response.message);
 	
 	$.each(response.data,function(dataName,data){
+		
 		if(data.method=='replace'){
 			if(data.selector){
 				parent.find(data.selector).replaceWith(data.content);

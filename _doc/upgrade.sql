@@ -75,3 +75,27 @@ ALTER TABLE  `group` CHANGE  `affair_ui_name`  `ui_name` VARCHAR( 255 ) CHARACTE
 ALTER TABLE  `group` ADD  `discription` VARCHAR( 255 ) NULL DEFAULT NULL AFTER  `ui_name`;
 RENAME TABLE  `syssh`.`group` TO  `syssh`.`permission` ;
 ALTER TABLE  `permission` CHANGE  `name`  `group` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT  '';
+
+CREATE TABLE IF NOT EXISTS `schedule_profile` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `schedule` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `content` varchar(255) NOT NULL,
+  `comment` text NOT NULL,
+  `uid` int(11) NOT NULL,
+  `username` varchar(255) NOT NULL,
+  `time` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `schedule` (`schedule`),
+  KEY `name` (`name`),
+  KEY `uid` (`uid`),
+  KEY `time` (`time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `schedule_profile`
+  ADD CONSTRAINT `schedule_profile_ibfk_1` FOREIGN KEY (`schedule`) REFERENCES `schedule` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `schedule_profile_ibfk_2` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+
+ALTER TABLE  `syssh`.`case_people` DROP INDEX  `case` ,
+ADD UNIQUE  `case` (  `case` ,  `people` ,  `role` )
+-- uice 2/13

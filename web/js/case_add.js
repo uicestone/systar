@@ -41,8 +41,8 @@ $(function(){
 
 	//响应案下客户的本案地位的"其他"选项
 	$('select[name="case_client[role]"]').on('change',function(){
-		if($(this).val()=='其他'){
-			$(this).after('<input type="text" name="case_client[role]" />');
+		if($(this).val()==''){
+			$(this).after('<input type="text" name="case_client[role]" placeholder="本案地位" />');
 		}else{
 			$('input[name="case_client[role]"]').remove();
 		}

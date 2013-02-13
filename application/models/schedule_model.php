@@ -11,7 +11,7 @@ class Schedule_model extends SS_Model{
 		$id=intval($id);
 
 		$q_schedule="
-			SELECT id,name,content,time_start,time_end,all_day
+			SELECT id,name,content,place,fee,fee_name,`case`,people,time_start,time_end,all_day
 			FROM schedule
 			WHERE id = $id
 				AND display=1
@@ -42,7 +42,7 @@ class Schedule_model extends SS_Model{
 	}
 	
 	/**
-	 * 删除客户联系方式
+	 * 删除日程资料项
 	 */
 	function removeProfile($schedule_profile_ids){
 		$condition = db_implode($schedule_profile_ids, $glue = ' OR ','id');
@@ -205,7 +205,7 @@ class Schedule_model extends SS_Model{
 				schedule.id,schedule.name,schedule.content,schedule.experience, schedule.time_start,schedule.hours_own,schedule.hours_checked,schedule.comment,schedule.place,
 				case.id AS `case`,case.name AS case_name,
 				staff.name AS staff_name,staff.id AS staff,
-				if(MAX(case_people.role)='督办合伙人',1,0) AS review_permission
+				if(MAX(case_people.role)='督办人',1,0) AS review_permission
 		
 				#imperfect 2012/7/13 MAX ENUM排序依据为字符串，并非INDEX
 		

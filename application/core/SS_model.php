@@ -173,6 +173,7 @@ class SS_Model extends CI_Model{
 	}
 	
 	/**
+	 * deprecated
 	 * 在每个add/edit页面之前获得数据ID，插入新数据或者根据数据ID获得数据数组
 	 * @param $id 需要获得的数据id，如果是添加新数据，那么为NULL
 	 */

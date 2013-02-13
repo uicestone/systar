@@ -42,7 +42,7 @@
 			<div class="item">
 				<div class="title"><label>跟进人员：</label></div>
 	
-				<input type="text" name="case_lawyer_extra[partner_name]" value="<?=$this->value('case_lawyer_extra/partner_name')?>" title="督办合伙人" placeholder="督办合伙人" style="width:33%" />
+				<input type="text" name="case_lawyer_extra[partner_name]" value="<?=$this->value('case_lawyer_extra/partner_name')?>" title="督办人" placeholder="督办人" style="width:33%" />
 	
 				<input type="text" name="case_lawyer_extra[lawyer_name]" value="<?=$this->value('case_lawyer_extra/lawyer_name')?>" title="接洽律师" placeholder="接洽律师" style="width:32%" />
 	

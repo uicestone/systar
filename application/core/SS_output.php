@@ -1,6 +1,14 @@
 <?php
 class SS_Output extends CI_Output{
 
+	/**
+	 * 响应状态
+	 * success
+	 * fail
+	 * redirect: 此时data作为一个字符串被读取，作为新的hash导航
+	 * login_required
+	 * denied
+	 */
 	var $status;
 	
 	var $message;

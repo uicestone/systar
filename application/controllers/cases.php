@@ -63,7 +63,9 @@ class Cases extends SS_controller{
 	}
 	
 	function add(){
-		$this->edit();
+		$this->cases->id=$this->cases->add();
+		$this->output->status='redirect';
+		$this->output->data='cases/edit/'.$this->cases->id;
 	}
 	
 	/**
@@ -77,7 +79,7 @@ class Cases extends SS_controller{
 	 */
 	function subList($item,$case_id=false,$para=array()){
 		if($case_id){
-			$case=$this->cases->getPostData($case_id);
+			$case=$this->cases->fetch($case_id);
 		}
 		
 		if($item=='client'){
@@ -261,22 +263,27 @@ class Cases extends SS_controller{
 		}
 	}
 
-	function edit($id=NULL){
+	function edit($id){
+		$this->cases->id=$id;
+		
 		$this->load->model('staff_model','staff');
 		$this->load->model('client_model','client');
 		$this->load->model('schedule_model','schedule');
 
-		$cases=$this->cases->getPostData($id);
+		$cases=$this->cases->fetch($this->cases->id);
+		
 		$labels=$this->cases->getLabels($this->cases->id);
 
-		if($cases['name']){
-			$this->output->setData(strip_tags($cases['name']), 'name');
+		if(!$cases['name']){
+			$cases['name']='未命名案件';
 		}
+		
+		$this->output->setData(strip_tags($cases['name']), 'name');
 
 		$case_role=$this->cases->getRoles($this->cases->id);
 		
 		$responsible_partner=$this->cases->getPartner($case_role);
-		//获得本案督办合伙人的id
+		//获得本案督办人的id
 		
 		$lawyers=$this->cases->getLawyers($case_role);
 		//获得本案办案人员的id
@@ -286,10 +293,6 @@ class Cases extends SS_controller{
 		
 		$this->load->addViewArrayData(compact('cases','labels','case_role','responsible_partner','lawyers','my_roles'));
 		
-		if($cases['client_lock']){
-			post('case_client_extra/classification','联系人');
-		}		
-
 		//计算本案有效日志总时间
 		$this->load->view_data['schedule_time']=$this->schedule->calculateTime($this->cases->id);
 		
@@ -298,9 +301,13 @@ class Cases extends SS_controller{
 		$this->load->view_data['case_type_array']=array('诉前','一审','二审','再审','执行','劳动仲裁','商事仲裁');
 		
 		if(post('cases/is_query')){
-			$this->load->view_data['case_lawyer_role_array']=array('督办合伙人','接洽律师','接洽律师（次要）','律师助理');
+			$this->load->view_data['staff_role_array']=array('督办人','接洽律师','律师助理');
 		}else{
-			$this->load->view_data['case_lawyer_role_array']=array('督办合伙人','信息提供（20%）','信息提供（10%）','接洽律师','接洽律师（次要）','律师助理','实际贡献');
+			$this->load->view_data['staff_role_array']=array('案源人','督办人','接洽律师','主办律师','协办律师','律师助理');
+		}
+		
+		if($cases['timing_fee']){
+			$this->load->view_data['case_fee_timing_string']=$this->cases->getTimingFeeString($this->cases->id);
 		}
 		
 		$this->subList('client',false,array('client_lock'=>$cases['client_lock']));
@@ -308,13 +315,6 @@ class Cases extends SS_controller{
 		$this->subList('staff',false,array('staff_lock'=>$cases['staff_lock'],'timing_fee'=>$cases['timing_fee']));
 		
 		$this->subList('fee',false,array('fee_lock'=>$cases['fee_lock']));
-		
-		if($cases['timing_fee']){
-			$this->load->view_data['case_fee_timing_string']=$this->cases->getTimingFeeString($this->cases->id);
-			if(post('case_timing_fee/time_start')){
-				post('case_timing_fee_extra/time_start',date('Y-m-d',post('case_timing_fee/time_start')));
-			}
-		}
 		
 		$this->subList('miscfee',false,array('fee_lock'=>$cases['fee_lock']));
 		
@@ -378,9 +378,15 @@ class Cases extends SS_controller{
 			
 			elseif($submit=='case_client'){
 				
+				//这样对数组做加法，后者同名键不会替换前者，即后者是前者的补充，而非更新
 				$case_client=post('case_client')+$this->input->post('case_client');
 				$case_client_extra=post('case_client_extra')+$this->input->post('case_client_extra');
 				
+				if(!$case_client['role']){
+					$this->output->message('请选择本案地位','warning');
+					throw new Exception;
+				}
+		
 				if($case_client['client']){//autocomplete搜索到已有客户
 					$this->output->message("系统中已经存在{$case_client_extra['client_name']}，已自动识别");
 				}
@@ -393,7 +399,7 @@ class Cases extends SS_controller{
 					);
 
 					if($case_client_extra['classification']=='客户'){//客户必须输入来源
-						$client_source=$this->client->setSource($case_client_extra['source_type'],$case_client_extra['source_detail']);
+						$client_source=$this->client->setSource($case_client_extra['source_type'],isset($case_client_extra['source_detail'])?$case_client_extra['source_detail']:NULL);
 
 						$staff_check=$this->staff->check($case_client_extra['source_lawyer_name'],'id',false);
 
@@ -469,11 +475,11 @@ class Cases extends SS_controller{
 				$case_role=$this->cases->getRoles($this->cases->id);
 		
 				$responsible_partner=$this->cases->getPartner($case_role);
-				//获得本案督办合伙人的id
+				//获得本案督办人的id
 				$my_roles=$this->cases->getMyRoles($case_role);
 				//本人的本案职位
 
-				if(post('staff/role')=='实际贡献' && !(in_array('督办合伙人',$my_roles) || in_array('主办律师',$my_roles))){
+				if(post('staff/role')=='实际贡献' && !(in_array('督办人',$my_roles) || in_array('主办律师',$my_roles))){
 					//禁止非主办律师/合伙人分配实际贡献
 					$this->output->message('你没有权限分配实际贡献');
 					throw new Exception();
@@ -485,9 +491,9 @@ class Cases extends SS_controller{
 				}else{
 					post('staff/hourly_fee',(int)post('staff/hourly_fee'));
 					
-					if(!$responsible_partner && post('staff/role')!='督办合伙人'){
-						//第一次插入督办合伙人后不显示警告，否则如果不存在督办合伙人则显示警告
-						$this->output->message('未设置督办合伙人','warning');
+					if(!$responsible_partner && post('staff/role')!='督办人'){
+						//第一次插入督办人后不显示警告，否则如果不存在督办人则显示警告
+						$this->output->message('未设置督办人','warning');
 					}
 					
 					if(is_null(post('staff/role'))){
@@ -568,8 +574,8 @@ class Cases extends SS_controller{
 						unset($_SESSION['cases']['post'][$this->cases->id]['case_fee_timing']);
 					}
 				}
-
-				$this->output->setData('cases/edit/'.$this->cases->id, 'content', 'uri', 'form[name="cases"]','replace');
+				
+				$this->output->status='refresh';
 			}
 			
 			elseif($submit=='case_fee_misc'){
@@ -670,13 +676,13 @@ class Cases extends SS_controller{
 			}
 			
 			elseif($submit=='apply_lock'){
-				//申请锁定，发送一条消息给督办合伙人
+				//申请锁定，发送一条消息给督办人
 				if($responsible_partner){
 					$apply_lock_message=$_SESSION['username'].'申请锁定'.strip_tags(post('cases/name')).'一案，[url=http://sys.lawyerstars.com/cases/edit/'.$this->cases->id.']点此进入[/url]';
 					$this->user->sendMessage($responsible_partner,$apply_lock_message,'caseLockApplication');//imperfect
-					$this->output->message('锁定请求已经发送至本案督办合伙人');
+					$this->output->message('锁定请求已经发送至本案督办人');
 				}else{
-					$this->output->message('本案没有督办合伙人，无处发送申请','warning');
+					$this->output->message('本案没有督办人，无处发送申请','warning');
 				}
 			}
 			
@@ -738,29 +744,33 @@ class Cases extends SS_controller{
 
 			elseif($submit=='apply_case_num'){
 				
-				$label=$this->input->post('label');
+				$labels=$this->input->post('labels');
 				
-				if(!isset($label['分类'])){
-					$this->output->message('获得案号前要先选择案件分类','warning');
-					throw new Exception();
-				}
-
-				if(!isset($label['领域'])){
+				if(!$labels['领域']){
 					$this->output->message('获得案号前要先选择案件领域','warning');
 					throw new Exception();
 				}
 
+				if(!$labels['分类']){
+					$this->output->message('获得案号前要先选择案件分类','warning');
+					throw new Exception();
+				}
+
 				$data=array(
-					'num'=>$this->cases->getNum($this->cases->id, $label['分类'], $label['领域'], $case['is_query'], $case['first_contact'], $case['time_contract']),
-					'type_lock'=>1
+					'num'=>$this->cases->getNum($this->cases->id, $labels['分类'], $labels['领域'], $case['is_query'], $case['first_contact'], $case['time_contract']),
+					'type_lock'=>1,
 				);
 
 				$this->cases->update($this->cases->id,$data);
 				
-				$this->output->setData('cases/edit/'.$this->cases->id, 'content', 'uri', 'form[name="cases"]','replace');
+				$this->cases->updateLabels($this->cases->id, $labels);
+				
+				$this->output->status='refresh';
 			}
 
-			$this->output->status='success';
+			if(!$this->output->status){
+				$this->output->status='success';
+			}
 
 		}catch(Exception $e){
 			$this->output->status='fail';
@@ -800,6 +810,24 @@ class Cases extends SS_controller{
 		
 		readfile($path);
 		exit;
+	}
+	
+	function match(){
+
+		$term=$this->input->post('term');
+
+		$result=$this->cases->match($term);
+
+		$array=array();
+
+		foreach ($result as $row){
+			$array[]=array(
+				'label'=>$row['name'].'    '.$row['num'],
+				'value'=>$row['id']
+			);
+		}
+		
+		$this->output->data=$array;
 	}
 }
 ?>

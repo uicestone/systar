@@ -68,6 +68,18 @@ class Cases_model extends SS_Model{
 		}
 	}
 	
+	function match($part_of_name){
+		$query="
+			SELECT case.id,case.num,case.name
+						FROM `case`
+			WHERE case.company={$this->company->id} AND case.display=1 
+				AND (name LIKE '%$part_of_name%' OR num LIKE '%$part_of_name%' OR name_extra LIKE '%$part_of_name%')
+			ORDER BY case.id DESC
+		";
+
+		return $this->db->query($query)->result_array();
+	}
+
 	function add($data=array()){
 		$data['time_contract']=$this->config->item('date');
 		$data['time_end']=date('Y-m-d',$this->config->item('timestamp')+100*86400);
@@ -141,13 +153,22 @@ class Cases_model extends SS_Model{
 	function getClientList($case_id,$relation='客户'){
 		$case_id=intval($case_id);
 		
-		//TODO 一个相关人有多个手机时会显示多行
 		$query="
 			SELECT case_people.id,case_people.people,case_people.type,case_people.role,people.name,phone.content AS phone,email.content AS email
 			FROM case_people
 				INNER JOIN people ON people.id=case_people.people
-				LEFT JOIN people_profile phone ON phone.name IN ('手机','电话','固定电话') AND phone.people=people.id
-				LEFT JOIN people_profile email ON email.name IN ('电子邮件') AND email.people=people.id
+				LEFT JOIN (
+					SELECT people, GROUP_CONCAT(content) AS content
+					FROM people_profile 
+					WHERE name IN ('固定电话','电话','手机')
+					GROUP BY people
+				)phone ON phone.people=case_people.people
+				LEFT JOIN(
+					SELECT people, GROUP_CONCAT(content) AS content
+					FROM people_profile
+					WHERE name IN ('电子邮件')
+					GROUP BY people
+				)email ON email.people=case_people.people
 			WHERE case_people.case=$case_id
 		";
 		
@@ -159,6 +180,7 @@ class Cases_model extends SS_Model{
 	}
 	
 	function addPeople($case_id,$people_id,$role){
+		
 		$this->db->insert('case_people',array(
 			'case'=>$case_id,
 			'people'=>$people_id,
@@ -399,19 +421,21 @@ class Cases_model extends SS_Model{
 		$condition='';
 		
 		if($method=='host'){
-			$condition.="AND case.apply_file=0 AND case.id IN (SELECT `case` FROM case_people WHERE type='律师' AND people={$this->user->id} AND role='主办律师')";
+			$condition.=" AND case.apply_file=0 AND case.id IN (SELECT `case` FROM case_people WHERE type='律师' AND people={$this->user->id} AND role='主办律师')";
 		
 		}elseif($method=='consultant'){
-			$condition.="AND case.apply_file=0 AND (case.id IN (SELECT `case` FROM case_people WHERE type='律师' AND people={$this->user->id}) OR case.uid={$this->user->id})";
-		
+			$condition.=" AND case.apply_file=0 AND (case.id IN (SELECT `case` FROM case_people WHERE type='律师' AND people={$this->user->id}) OR case.uid={$this->user->id})";
+			$condition.=" AND case.id IN (SELECT `case` FROM case_label WHERE label_name='法律顾问')";
 		}elseif($method=='etc'){
-			$condition.="AND case.apply_file=0 AND classification<>'法律顾问' AND (case.id IN (SELECT `case` FROM case_people WHERE type='律师' AND people={$this->user->id} AND role<>'主办律师') OR case.uid={$this->user->id})";
+			$condition.=" AND case.apply_file=0 AND (case.id IN (SELECT `case` FROM case_people WHERE type='律师' AND people={$this->user->id} AND role<>'主办律师') OR case.uid={$this->user->id})";
+			$condition.=" AND case.id NOT IN (SELECT `case` FROM case_label WHERE label_name='法律顾问')";
 			
 		}elseif($method=='file'){
-			$condition.="AND case.apply_file=1 AND classification<>'法律顾问' AND (case.id IN (SELECT `case` FROM case_people WHERE type='律师' AND people={$this->user->id} AND role<>'主办律师') OR case.uid={$this->user->id})";
+			$condition.=" AND case.apply_file=1 AND (case.id IN (SELECT `case` FROM case_people WHERE type='律师' AND people={$this->user->id} AND role<>'主办律师') OR case.uid={$this->user->id})";
+			$condition.=" AND case.id NOT IN (SELECT `case` FROM case_label WHERE label_name='法律顾问')";
 			
 		}elseif(!$this->user->isLogged('developer') && !$this->user->isLogged('finance')){
-			$condition.="AND (case.id IN (SELECT `case` FROM case_people WHERE type='律师' AND people={$this->user->id} AND role IN ('接洽律师','接洽律师（次要）','主办律师','协办律师','律师助理','督办合伙人')) OR case.uid={$this->user->id})";
+			$condition.=" AND (case.id IN (SELECT `case` FROM case_people WHERE type='律师' AND people={$this->user->id} AND role IN ('接洽律师','接洽律师（次要）','主办律师','协办律师','律师助理','督办人')) OR case.uid={$this->user->id})";
 		}
 		$condition=$this->search($condition, array('case.num'=>'案号','case.type'=>'类别','case.name'=>'名称','lawyers.lawyers'=>'主办律师'));
 		$condition=$this->orderBy($condition,'time_contract','DESC',array('case.name','lawyers'));
@@ -637,12 +661,16 @@ class Cases_model extends SS_Model{
 	}
 	
 	function getStatusById($case_id){
-		$case_data=$this->db->query("
+		$case_id=intval($case_id);
+		
+		$query="
 			SELECT is_reviewed,type_lock,client_lock,staff_lock,fee_lock,is_query,apply_file,
 				finance_review,info_review,manager_review,filed
 			FROM `case` 
-			WHERE id = '{$case_id}'
-		")->row_array();
+			WHERE id = $case_id
+		";
+		
+		$case_data=$this->db->query($query)->row_array();
 		extract($case_data);
 		if($type_lock && $client_lock && $staff_lock && $fee_lock){
 			$locked=true;
@@ -896,7 +924,7 @@ class Cases_model extends SS_Model{
 			return false;
 		}
 		foreach($case_role as $lawyer_role){
-			if($lawyer_role['role']=='督办合伙人'){
+			if($lawyer_role['role']=='督办人'){
 				return $lawyer_role['lawyer'];
 			}
 		}
@@ -909,7 +937,7 @@ class Cases_model extends SS_Model{
 		}
 		$lawyers=array();
 		foreach($case_role as $lawyer_role){
-			if(!in_array($lawyer_role['lawyer'],$lawyers) && $lawyer_role['role']!='督办合伙人'){
+			if(!in_array($lawyer_role['lawyer'],$lawyers) && $lawyer_role['role']!='督办人'){
 				$lawyers[]=$lawyer_role['lawyer'];
 			}
 		}

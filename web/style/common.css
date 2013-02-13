@@ -45,6 +45,10 @@ table, td, th {
 .date{
 	width:110px;
 }
+button.transparent{
+	background:transparent;
+	border:none;
+}
 
 .ui-autocomplete {
 	max-height: 200px;
@@ -156,6 +160,10 @@ nav{
 	line-height:2;
 	margin-left:5px;
 }
+#navMenu a:hover{
+	text-decoration:none;
+}
+
 #tabs li{
 	float:left;
 	padding:0 10px;

@@ -319,7 +319,7 @@ class Achievement_model extends SS_Model{
 			INNER JOIN `case` ON case_fee_collected.case=case.id
 		WHERE case_lawyer.lawyer={$this->user->id}
 			AND client.classification='客户'
-			AND case_lawyer.role NOT IN ('督办合伙人','律师助理')
+			AND case_lawyer.role NOT IN ('督办人','律师助理')
 		";
 		$q.=' GROUP BY case_fee_collected.id,case_lawyer.lawyer,case_lawyer.role
 			HAVING collected>0';

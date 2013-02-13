@@ -1,28 +1,27 @@
 <form method="post" name="<?=CONTROLLER?>" id="<?=$this->cases->id?>" enctype="multipart/form-data">
 <div class="contentTableMenu">
 	<div class="right">
-		<input type="submit" name="submit[cases]" value="保存" />
 <? if($responsible_partner==$this->user->id && !$cases['is_reviewed'] && !$cases['is_query']){?>
-		<button type="button" name="submit[review]">立案审核</button>
-<? }?>
+		<button type="submit" name="submit[review]">立案审核</button>
+<? }//TODO: 批量替换多余的空格?>
 <? if($responsible_partner!=$this->user->id && !$cases['client_lock'] && $cases['is_reviewed']){?>
-		<input type="submit" name="submit[apply_lock]" value="申请锁定" />
+		<button type="submit" name="submit[apply_lock]">申请锁定</button>
 <? }?>
 <? if($this->user->isLogged('finance') && $this->value('cases/apply_file') && !$this->value('cases/finance_review')){?>
-		<input type="submit" name="submit[review_finance]" value="财务审核" />
+		<button type="submit" name="submit[review_finance]">财务审核</button>
 <? }?>
 <? if($this->user->isLogged('admin') && $this->value('cases/apply_file') && !$this->value('cases/info_review')){?>
-		<input type="submit" name="submit[review_info]" value="信息审核" />
+		<button type="submit" name="submit[review_info]">信息审核</button>
 <? }?>
 <? if($this->user->isLogged('manager') && $this->value('cases/apply_file') && !$this->value('cases/manager_review')){?>
-		<input type="submit" name="submit[review_manager]" value="主管审核" />
+		<button type="submit" name="submit[review_manager]">主管审核</button>
 <? }?>
 <? if($this->user->isLogged('admin') && $this->value('cases/apply_file') && $this->value('cases/finance_review') && $this->value('cases/info_review') && $this->value('cases/manager_review') && !$this->value('cases/filed')){?>
-		<input type="submit" name="submit[file]" value="实体归档" />
+		<button type="submit" name="submit[file]">实体归档</button>
 <? }?>
 <? if($cases['is_query']){ ?>
-		<input type="submit" name="submit[new_case]" value="立案" />
-		<input type="submit" name="submit[file]" value="归档" />
+		<button type="submit" name="submit[new_case]">立案</button>
+		<button type="submit" name="submit[file]">归档</button>
 <? } ?>
 <? if(!$cases['apply_file'] &&
 	$cases['is_reviewed'] && 
@@ -31,9 +30,10 @@
 	$cases['staff_lock'] &&
 	$cases['fee_lock']
 ){?>
-		<input type="submit" name="submit[apply_file]" value="申请归档" />
+		<button type="submit" name="submit[apply_file]">申请归档</button>
 <? }?>
-		<input type="submit" name="submit[cancel]" value="关闭" />
+		<button type="submit" name="submit[cases]">保存</button>
+		<button type="submit" name="submit[cancel]">关闭</button>
 	</div>
 </div>
 
@@ -118,7 +118,7 @@
 				</span>
 	
 				<select name="case_client[role]">
-					<?=options(array('原告','被告','第三人','上诉人','被上诉人','申请人','被申请人','对方代理人','法官','检察官','其他'),$this->value('case_client/role'),'本案地位');?>
+					<?=options(array('原告','被告','第三人','上诉人','被上诉人','申请人','被申请人','对方代理人','法官','检察官'),$this->value('case_client/role'),'本案地位',false,true);?>
 				</select>
 	
 				<br display-for="new" class="hidden" />
@@ -214,7 +214,7 @@
 <? if(!$cases['fee_lock']){?>
 			<div class="add-form hidden">
 				<select name="case_fee[type]">
-					<?=options($cases['is_query']?array('咨询费'):array('固定','风险','计时预付'));?>
+					<?=options($cases['is_query']?array('咨询费'):array('固定','风险','计时预付'),$this->value('case_fee/type'),'类型');?>
 				</select>
 				<input type="text" name="case_fee[fee]" value="<?=$this->value('case_fee/fee');?>" placeholder="数额" />
 				<input type="text" name="case_fee[condition]" value="<?=$this->value('case_fee/condition');?>" placeholder="付款条件" />

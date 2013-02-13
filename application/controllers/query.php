@@ -114,7 +114,7 @@ class Query extends SS_controller{
 				
 				$this->cases->addClient(post('case/id'),post('client/id'),'');
 		        
-				$this->cases->addLawyer(post('case/id'),array('lawyer'=>post('case_lawyer_extra/partner'),'role'=>'督办合伙人'));
+				$this->cases->addLawyer(post('case/id'),array('lawyer'=>post('case_lawyer_extra/partner'),'role'=>'督办人'));
 				$this->cases->addLawyer(post('case/id'),array('lawyer'=>post('case_lawyer_extra/lawyer'),'role'=>'接洽律师'));
 				$this->cases->addLawyer(post('case/id'),array('lawyer'=>post('case_lawyer_extra/assistant'),'role'=>'接洽律师（次要）'));
 				$this->cases->calcContribute(post('case/id'));
