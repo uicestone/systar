@@ -353,14 +353,8 @@ class Cases extends SS_controller{
 				$case_client_role = $this->cases->getClientRole($this->cases->id);
 
 				//根据案件类别和客户、相对方更新案名
-				//TODO案名更新尚有问题
 				if(isset($case_client_role['client']) && !$case['filed']){
-					$case_client_role['client_name']=$case_client_role['client_name'];
-
-					$case_client_role['opposite_name']=$case_client_role['opposite_name'];
-
 					post('cases/name',$this->cases->getName($case_client_role,$case['is_query'],@$labels['分类'],@$labels['领域'],$case['name_extra']));
-
 				}
 
 				if(!$case['num']){

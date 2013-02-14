@@ -968,14 +968,14 @@ class Cases_model extends SS_Model{
 		$query="
 			SELECT * FROM
 			(
-				SELECT case_people.people AS client,people.abbreviation AS client_name,role AS client_role 
+				SELECT case_people.people AS client,IF(people.abbreviation IS NULL,people.name,people.abbreviation) AS client_name,role AS client_role 
 				FROM case_people INNER JOIN people ON case_people.type='客户' AND case_people.people=people.id 
 				WHERE `case`=$case_id
 				ORDER BY case_people.id
 				LIMIT 1
 			)client LEFT JOIN
 			(
-				SELECT case_people.people AS opposite,people.abbreviation AS opposite_name,role AS opposite_role 
+				SELECT case_people.people AS opposite,IF(people.abbreviation IS NULL,people.name,people.abbreviation) AS opposite_name,role AS opposite_role 
 				FROM case_people INNER JOIN people ON case_people.type='相对方' AND case_people.people=people.id 
 				WHERE `case`=$case_id
 				LIMIT 1
