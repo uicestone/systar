@@ -355,9 +355,9 @@ class Cases extends SS_controller{
 				//根据案件类别和客户、相对方更新案名
 				//TODO案名更新尚有问题
 				if(isset($case_client_role['client']) && !$case['filed']){
-					$case_client_role['client_name']='<a href="#client/edit/'.$case_client_role['client'].'">'.$case_client_role['client_name'].'</a>';
+					$case_client_role['client_name']=$case_client_role['client_name'];
 
-					$case_client_role['opposite_name']='<a href="#client/edit/'.$case_client_role['opposite'].'">'.$case_client_role['opposite_name'].'</a>';
+					$case_client_role['opposite_name']=$case_client_role['opposite_name'];
 
 					post('cases/name',$this->cases->getName($case_client_role,$case['is_query'],@$labels['分类'],@$labels['领域'],$case['name_extra']));
 
@@ -367,7 +367,7 @@ class Cases extends SS_controller{
 					$this->output->message('尚未获取案号，请选择案件分类和阶段后获取案号','warning');
 					throw new Exception();
 				}
-				if($labels['分类']!='法律顾问' && !$case['is_query'] && !$case['focus']){
+				if(@$labels['分类']!='法律顾问' && !$case['is_query'] && !$case['focus']){
 					$this->output->message('请填写案件争议焦点','warning');
 					throw new Exception();
 				}
@@ -439,13 +439,11 @@ class Cases extends SS_controller{
 						throw new Exception();
 					}
 					
-					$new_client_id=$this->client->add($new_client);
-
-					$case_client['client']=$new_client_id;
+					$case_client['client']=$this->client->add($new_client);
 
 					$this->output->message(
 						'<a href="javascript:showWindow(\''.
-						($new_client['type']=='客户'?'client':'contact').
+						($client['type']=='客户'?'client':'contact').
 						'/edit/'.$case_client['client'].'\')" target="_blank">新'.
 						$client['type'].' '.$client['name'].
 						' 已经添加，点击编辑详细信息</a>'
@@ -453,10 +451,7 @@ class Cases extends SS_controller{
 
 				}
 
-				if($this->cases->addPeople($this->cases->id,$case_client['client'],$case_client['role'])){
-					//unset($_SESSION['cases']['post'][$this->cases->id]['case_client']);
-					//unset($_SESSION['cases']['post'][$this->cases->id]['case_client_extra']);
-					
+				if($this->cases->addPeople($this->cases->id,$case_client['client'],'客户',$case_client['role'])){
 					$this->output->setData($this->subList('client',$this->cases->id));
 				}
 			}
@@ -499,8 +494,6 @@ class Cases extends SS_controller{
 					}
 					
 					if($this->cases->addStaff($this->cases->id,post('staff/id'),post('staff/role'),post('staff/hourly_fee'))){
-						//unset($_SESSION['cases']['post'][$this->cases->id]['staff']);
-						//unset($_SESSION['cases']['post'][$this->cases->id]['staff_extra']);
 						$this->output->setData($this->subList('staff',$this->cases->id));
 					}
 				}
@@ -646,14 +639,17 @@ class Cases extends SS_controller{
 			}
 			
 			elseif($submit=='new_case'){
-				post('cases/is_query',0);
-				post('cases/filed',0);
-				post('cases/num','');
+				post('cases/is_query',false);
+				post('cases/filed',false);
+				//post('cases/num',NULL);
 				post('cases/time_contract',$this->config->item('date'));
 				post('cases/time_end',date('Y-m-d',$this->config->item('timestamp')+100*86400));
-				//默认签约时间和结案时间
+				
+				$this->cases->update($this->cases->id,post('cases'));
 
 				$this->output->message('已立案，请立即获得案号');
+				
+				$this->output->status='refresh';
 			}
 			
 			elseif(post('cases/is_query') && $submit=='file'){
@@ -757,7 +753,7 @@ class Cases extends SS_controller{
 					'num'=>$this->cases->getNum($this->cases->id, $labels['分类'], $labels['领域'], $case['is_query'], $case['first_contact'], $case['time_contract']),
 					'type_lock'=>1,
 				);
-
+				
 				$this->cases->update($this->cases->id,$data);
 				
 				$this->cases->updateLabels($this->cases->id, $labels);

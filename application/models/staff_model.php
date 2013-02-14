@@ -78,7 +78,7 @@ class Staff_model extends People_model{
 	}
 
 	function getMyManager($field=NULL){
-		$manager=$this->db->query("SELECT * FROM staff WHERE id = (SELECT manager FROM manager_staff WHERE staff = '{$this->user->id}')")->row_array();
+		$manager=$this->db->query("SELECT * FROM people WHERE id = (SELECT relative FROM people_relationship WHERE people = {$this->user->id} AND relation='主管')")->row_array();
 		if(is_null($field)){
 			return $manager['id'];
 		}else{

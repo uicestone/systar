@@ -55,26 +55,8 @@ class Client_model extends People_model{
 	}
 	
 	function addSource($data){
-		return db_insert('client_source',$data);
-	}
-	
-	function addContact_phone_email($client,$phone,$email){
-		$new_people_profile=array();
-		if($phone){
-			$new_people_profile[]=array(
-				'client'=>$client,
-				'type'=>$this->isMobileNumber($phone)?'手机':'固定电话',
-				'content'=>$phone,
-			);
-		}
-		if($email){
-			$new_people_profile[]=array(
-				'client'=>$client,
-				'type'=>'电子邮件',
-				'content'=>$email,
-			);
-		}
-		db_multiinsert('people_profile',$new_people_profile);
+		$this->db->insert('client_source',$data);
+		return $this->db->insert_id();
 	}
 	
 	function setDefaultRelated($people_relationship_id,$client){
@@ -149,6 +131,11 @@ class Client_model extends People_model{
 				post('source/detail','');
 			}
 			$client_source=$this->addSource($client_source_array);
+		}
+		
+		if(!$client_source){
+			$this->output->message('客户来源识别错误','warning');
+			throw new Exception;
 		}
 		
 		return $client_source;

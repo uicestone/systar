@@ -59,8 +59,8 @@
 			<?=options(array('公司','劳动','房产','婚姻','继承','刑事','知产','留学','移民','行政','合同','侵权'),$this->value('labels/领域'),'领域');?>
 			</select>
 <?	if($cases['is_query']){ ?>
-			<select id="classification" name="labels[咨询类别]">
-			<?=options(array('_ENUM','case','query_type'),$this->value('labels/咨询类型'),'咨询类型');?>
+			<select id="classification" name="labels[咨询方式]">
+			<?=options(array('面谈','电话','网络'),$this->value('labels/咨询方式'),'咨询方式');?>
 			</select>
 <?	}else{?>
 			<select id="classification" name="labels[分类]"<?if($cases['type_lock']){?> disabled="disabled"<?}?>>

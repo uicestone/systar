@@ -99,3 +99,7 @@ ALTER TABLE `schedule_profile`
 ALTER TABLE  `syssh`.`case_people` DROP INDEX  `case` ,
 ADD UNIQUE  `case` (  `case` ,  `people` ,  `role` )
 -- uice 2/13
+
+ALTER TABLE  `case_people` CHANGE  `role`  `role` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
+ALTER TABLE `case_people` CHANGE `hourly_fee` `hourly_fee` DECIMAL(10,2) NULL DEFAULT NULL;
+-- uice 2/14

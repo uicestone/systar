@@ -35,7 +35,7 @@ foreach($this->user->permission as $controller_name => $controller){
 ?>
 		</ul>
 	</div>
-<?if(false && $this->config->item('debug_mode')){?>
+<?if($this->config->item('debug_mode')){?>
 	<div style="color:#091F35;font-size:10px;position:fixed;bottom:0;"><? echo codeLines()?></div>
 <?}?>
 </nav>

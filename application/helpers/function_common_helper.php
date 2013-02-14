@@ -420,8 +420,8 @@ function codeLines(){
 	//Use GET so this script could be reused elsewhere
 	//Set to user defined options or default one
 	$options = array(
-		'ignoreFolders' => explode(',','_doc,system,temp,config,errors,lunar.php,third_party,redmond,jQuery,api'),
-		'ignoreFiles' => explode(',','jquery-ui.js,jquery.js'),
+		'ignoreFolders' => explode(',','_doc,system,temp,config,errors,third_party,redmond,jQuery,api'),
+		'ignoreFiles' => explode(',','jquery-ui.js,jquery.js,lunar.php'),
 		'extensions' => explode(',','php,js,css')
 	);
 	

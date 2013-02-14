@@ -26,7 +26,8 @@ class Cases_model extends SS_Model{
 		'info_review'=>'已通过信息审核',
 		'manager_review'=>'已通过主管审核',
 		'filed'=>'已归档',
-		'comment'=>'备注'
+		'comment'=>'备注',
+		'display'=>'显示在列表中'
 	);
 	
 	function __construct(){
@@ -81,11 +82,15 @@ class Cases_model extends SS_Model{
 	}
 
 	function add($data=array()){
-		$data['time_contract']=$this->config->item('date');
-		$data['time_end']=date('Y-m-d',$this->config->item('timestamp')+100*86400);
-		//默认签约时间和结案时间
+		$data=array_intersect_key($data, $this->fields);
 		
-	    $data['display']=1;
+		if($data['is_query']){
+			$data['first_contact']=$this->config->item('date');
+		}else{
+			$data['time_contract']=$this->config->item('date');
+			$data['time_end']=date('Y-m-d',$this->config->item('timestamp')+100*86400);
+		}
+		
 	    $data+=uidTime();
 	
 	    $this->db->insert('case',$data);
@@ -94,9 +99,8 @@ class Cases_model extends SS_Model{
 	
 	function update($id,$data){
 		$id=intval($id);
-		$data=(array)$data;
+	    $data=array_intersect_key((array)$data,$this->fields);
 		
-	    $data=array_intersect_key($data,$this->fields);
 		$data+=uidTime();
 	    
 		return $this->db->update('case',$data,array('id'=>$id));
@@ -179,12 +183,12 @@ class Cases_model extends SS_Model{
 		return $this->db->query($query)->result_array();
 	}
 	
-	function addPeople($case_id,$people_id,$role){
+	function addPeople($case_id,$people_id,$type,$role=NULL){
 		
 		$this->db->insert('case_people',array(
 			'case'=>$case_id,
 			'people'=>$people_id,
-			'type'=>'客户',
+			'type'=>$type,
 			'role'=>$role
 		));
 		
@@ -223,7 +227,7 @@ class Cases_model extends SS_Model{
 		return $this->db->query($query)->result_array();
 	}
 	
-	function addStaff($case,$people,$role,$hourly_fee){
+	function addStaff($case,$people,$role,$hourly_fee=NULL){
 		$case=intval($case);
 		$people=intval($people);
 		
@@ -1000,24 +1004,15 @@ class Cases_model extends SS_Model{
 			}
 			
 			switch($type){
-				case '房产':$case_num['type_code']='（房）';break;
 				case '公司':$case_num['type_code']='（公）';break;
-				case '婚姻':$case_num['type_code']='（婚）';break;
-				case '劳动':$case_num['type_code']='（劳）';break;
-				case '金融':$case_num['type_code']='（金）';break;
-				case '继承':$case_num['type_code']='（继）';break;
-				case '知产':$case_num['type_code']='（知）';break;
-				case '合同':$case_num['type_code']='（合）';break;
-				case '刑事':$case_num['type_code']='（刑）';break;
-				case '行政':$case_num['type_code']='（行）';break;
-				case '其他':$case_num['type_code']='（他）';break;
-				case '公民个人':$case_num['type_code']='（个）';break;
-				case '侵权':$case_num['type_code']='（侵）';break;
-				case '移民':$case_num['type_code']='（移）';break;
-				case '留学':$case_num['type_code']='（留）';break;
-				case '企业':$case_num['type_code']='（企）';break;
-				case '事业单位':$case_num['type_code']='（事）';break;
-				case '个人事务':$case_num['type_code']='（个）';break;
+				case '房产建筑':$case_num['type_code']='（房）';break;
+				case '婚姻家庭':$case_num['type_code']='（家）';break;
+				case '劳动人事':$case_num['type_code']='（劳）';break;
+				case '知识产权':$case_num['type_code']='（知）';break;
+				case '诉讼':$case_num['type_code']='（诉）';break;
+				case '刑事行政':$case_num['type_code']='（刑）';break;
+				case '涉外':$case_num['type_code']='（外）';break;
+				case '日韩':$case_num['type_code']='（韩）';break;
 				default:$case_num['type_code']='';
 			}
 		}
@@ -1043,7 +1038,6 @@ class Cases_model extends SS_Model{
 		if($is_query){
 			$case_name.=' 咨询';
 			return $case_name;
-
 		}
 		
 		if(isset($case_client_role['opposite_name'])){

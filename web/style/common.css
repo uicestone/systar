@@ -176,6 +176,10 @@ nav{
 	color:#FFF;
 	font-weight:bold;
 }
+#tabs li a:hover{
+	text-decoration:none;
+}
+
 /*login*/
 .login-form{
 	position:absolute;top:0;bottom:0;left:0;right:0;
