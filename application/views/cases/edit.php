@@ -99,22 +99,22 @@
 			<?=$client_list?>
 	
 			<div class="add-form hidden">
-				<input type="text" name="case_client_extra[client_name]" value="<?=$this->value('case_client_extra/name')?>" placeholder="名称" autocomplete-model="client" />
-				<input type="text" name="case_client[client]" class="hidden" />
+				<input type="text" name="client[name]" value="<?=$this->value('client/name')?>" placeholder="名称" autocomplete-model="client" />
+				<input type="text" name="client[id]" class="hidden" />
 				
 				<span display-for="new" class="hidden">
-					<?=checkbox('单位','case_client_extra[character]',$this->value('case_client_extra/character'),'单位','disabled="disabled"')?>
+					<?=checkbox('单位','client[character]',$this->value('client/character'),'单位','disabled="disabled"')?>
 
-					<select name="case_client_extra[classification]" disabled="disabled">
+					<select name="client[type]" disabled="disabled">
 						<?=options($cases['client_lock']?array('联系人','相对方'):array('客户','相对方','联系人'),$this->value('case_client_extra/classification'));?>
 					</select>
 
-					<select name="case_client_extra[type]" disabled="disabled"></select>
+					<select name="client_labels[类型]" disabled="disabled"></select>
 				
 				</span>
 
 				<span display-for="new non-client" class="hidden">
-					<input type="text" name="case_client_extra[work_for]" placeholder="工作单位" disabled="disabled" />
+					<input type="text" name="client[work_for]" placeholder="工作单位" disabled="disabled" />
 				</span>
 	
 				<select name="case_client[role]">
@@ -124,17 +124,17 @@
 				<br display-for="new" class="hidden" />
 				 
 				<span display-for="new" class="hidden">
-					<input type="text" name="case_client_extra[phone]" value="<?=$this->value('case_client_extra/phone');?>" placeholder="电话" disabled="disabled" />
-					<input type="text" name="case_client_extra[email]" value="<?=$this->value('case_client_extra/email');?>" placeholder="电子邮件" disabled="disabled" />
+					<input type="text" name="client_profiles[电话]" value="<?=$this->value('client_profiles/电话');?>" placeholder="电话" disabled="disabled" />
+					<input type="text" name="client_profiles[电子邮箱]" value="<?=$this->value('client_profiles/电子邮箱');?>" placeholder="电子邮件" disabled="disabled" />
 				</span>
 				
 				<span display-for="new client" class="hidden">
 					<label>来源：</label>
-					<select name="case_client_extra[source_type]" disabled="disabled">
-						<?=options(array('_ENUM','client_source','type'),$this->value('case_client_extra/source_type'))?>
+					<select name="client_source[type]" disabled="disabled">
+						<?=options(array('_ENUM','client_source','type'),$this->value('client_source/type'))?>
 					</select>
-					<input type="text" name="case_client_extra[source_detail]" value="<?=$this->value('case_client_extra/source_detail')?>" class="hidden" disabled="disabled" locked-by="case_client_extra[source_type]" />
-					<input type="text" name="case_client_extra[source_lawyer_name]" placeholder="来源律师" value="<?=$this->value('case_client_extra/source_lawyer_name')?$this->value('case_client_extra/source_lawyer_name'):$this->user->name?>" disabled="disabled" />
+					<input type="text" name="client_source[detail]" value="<?=$this->value('client_source/detail')?>" class="hidden" disabled="disabled" locked-by="case_client_extra[source_type]" />
+					<input type="text" name="client[staff_name]" placeholder="来源律师" value="<?=$this->value('client/staff_name')?$this->value('client/staff_name'):$this->user->name?>" disabled="disabled" />
 				</span>
 				<input type="submit" name="submit[case_client]" value="添加" />
 			</div>

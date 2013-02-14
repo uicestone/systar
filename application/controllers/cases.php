@@ -330,11 +330,13 @@ class Cases extends SS_controller{
 
 	function submit($submit,$id){
 		
+		$this->cases->id=$id;
+		
 		$this->load->model('client_model','client');
 		$this->load->model('staff_model','staff');
 		
 		//$case是用来汇总，读的，因此尽可能获取最新的，最多的信息。post('cases')是要写入数据库的，只是要更改的部分。
-		$case=array_merge($this->cases->getPostData($id),(array)post('cases'))+(array)$this->input->post('cases');
+		$case=array_merge($this->cases->fetch($id),(array)post('cases'))+(array)$this->input->post('cases');
 		
 		$labels=$this->cases->getLabels($this->cases->id)+(array)post('labels');
 		
@@ -380,61 +382,57 @@ class Cases extends SS_controller{
 				
 				//这样对数组做加法，后者同名键不会替换前者，即后者是前者的补充，而非更新
 				$case_client=post('case_client')+$this->input->post('case_client');
-				$case_client_extra=post('case_client_extra')+$this->input->post('case_client_extra');
+				$client=post('client')+$this->input->post('client');
+				$client_profiles=post('client_profiles')+$this->input->post('client_profiles');
+				$client_labels=post('client_labels')+$this->input->post('client_labels');
 				
 				if(!$case_client['role']){
 					$this->output->message('请选择本案地位','warning');
 					throw new Exception;
 				}
 		
-				if($case_client['client']){//autocomplete搜索到已有客户
-					$this->output->message("系统中已经存在{$case_client_extra['client_name']}，已自动识别");
+				if($client['id']){//autocomplete搜索到已有客户
+					$this->output->message("系统中已经存在{$client['name']}，已自动识别");
 				}
 				else{//添加新客户
 					$new_client=array(
-						'name'=>$case_client_extra['client_name'],
-						'character'=>isset($case_client_extra['character']) && $case_client_extra['character']=='单位'?'单位':'自然人',
-						'type'=>$case_client_extra['classification'],
-						'labels'=>array('类型'=>$case_client_extra['type'])
+						'name'=>$client['name'],
+						'character'=>isset($client['character']) && $client['character']=='单位'?'单位':'自然人',
+						'type'=>$client['type'],
+						'labels'=>$client_labels
 					);
 
-					if($case_client_extra['classification']=='客户'){//客户必须输入来源
-						$client_source=$this->client->setSource($case_client_extra['source_type'],isset($case_client_extra['source_detail'])?$case_client_extra['source_detail']:NULL);
+					if($client['type']=='客户'){//客户必须输入来源
+						$client_source=post('client_source')+$this->input->post('client_source');
+						$client['source']=$this->client->setSource($client_source['type'],isset($client_source['detail'])?$client_source['detail']:NULL);
 
-						$staff_check=$this->staff->check($case_client_extra['source_lawyer_name'],'id',false);
+						$client['staff']=$this->staff->check($client['staff_name']);
 
-						if($staff_check<0){
-							$this->output->message('请输入正确的来源律师','warning');
-						}
+						$new_client['staff']=$client['staff'];
+						$new_client['source']=$client['source'];
 
-						if($staff_check>0 && $client_source>0){
-							$new_client['staff']=$staff_check;
-							$new_client['source']=$client_source;
-						}else{
-							$this->output->message('客户来源识别错误','warning');
-						}
 					}else{//非客户必须输入工作单位
-						if($case_client_extra['work_for']){
-							$new_client['profiles']['工作单位']=$case_client_extra['work_for'];
+						if($client['work_for']){
+							$new_client['work_for']=$client['work_for'];
 						}else{
 							$this->output->message('请输入工作单位','warning');
 						}
 					}
 					
-					if(!$case_client_extra['phone'] && !$case_client_extra['email']){
+					if(!$client_profiles['电话'] && !$client_profiles['电子邮件']){
 						$this->output->message('至少输入一种联系方式', 'warning');
 					}
 
-					if(isset($case_client_extra['phone'])){
-						if($this->client->isMobileNumber($case_client_extra['phone'])){
-							$new_client['profiles']['手机']=$case_client_extra['phone'];
+					if(isset($client_profiles['电话'])){
+						if($this->client->isMobileNumber($client_profiles['电话'])){
+							$new_client['profiles']['手机']=$client_profiles['电话'];
 						}else{
-							$new_client['profiles']['电话']=$case_client_extra['phone'];
+							$new_client['profiles']['电话']=$client_profiles['电话'];
 						}
 					}
 
-					if($case_client_extra['email']){
-						$new_client['profiles']['电子邮件']=$case_client_extra['email'];
+					if($client_profiles['电子邮件']){
+						$new_client['profiles']['电子邮件']=$client_profiles['电子邮件'];
 					}
 
 					if($this->output->message['warning']){
@@ -449,7 +447,7 @@ class Cases extends SS_controller{
 						'<a href="javascript:showWindow(\''.
 						($new_client['type']=='客户'?'client':'contact').
 						'/edit/'.$case_client['client'].'\')" target="_blank">新'.
-						$case_client_extra['classification'].' '.$case_client_extra['client_name'].
+						$client['type'].' '.$client['name'].
 						' 已经添加，点击编辑详细信息</a>'
 					);
 
@@ -460,7 +458,6 @@ class Cases extends SS_controller{
 					//unset($_SESSION['cases']['post'][$this->cases->id]['case_client_extra']);
 					
 					$this->output->setData($this->subList('client',$this->cases->id));
-					$this->output->status='success';
 				}
 			}
 

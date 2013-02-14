@@ -13,20 +13,20 @@ $(function(){
 		$(this).find('[name="case_client[client]"]').val('').trigger('change');
 	});
 	
-	$('[name="case_client_extra[client_name]"]').focus(function(){
+	$('[name="client[name]"]').focus(function(){
 		$(this).select();
 	});
 
 	/*案下客户类别联动*/
-	$('[name="case_client_extra[classification]"]').on('change',function(){
+	$('[name="client[type]"]').on('change',function(){
 		
 		var addForm=$(this).parents('.add-form:first');
 
 		if($(this).val()=='相对方'){
-			addForm.find('[name="case_client_extra[type]"]').hide().attr('disabled','disabled');
+			addForm.find('[name="client_labels[类型]"]').hide().attr('disabled','disabled');
 		}else{
-			addForm.find('[name="case_client_extra[type]"]').removeAttr('disabled').show();
-			$(this).siblings('[name="case_client_extra[type]"]').getOptionsByLabelRelative($(this).val());
+			addForm.find('[name="client_labels[类型]"]').removeAttr('disabled').show();
+			$(this).siblings('[name="client_labels[类型]"]').getOptionsByLabelRelative($(this).val());
 		}
 
 		if($(this).val()=='客户'){
@@ -49,11 +49,11 @@ $(function(){
 	});
 
 	//响应客户来源选项
-	$('[name="case_client_extra[source_type]"]').on('change',function(){
+	$('[name="client_source[type]"]').on('change',function(){
 		if($.inArray($(this).val(),['其他网络','媒体','老客户介绍','合作单位介绍','其他'])==-1){
-			$('[name="case_client_extra[source_detail]"]').hide().attr('disabled','disabled').val('');
+			$('[name="client_source[detail]"]').hide().attr('disabled','disabled').val('');
 		}else{
-			$('[name="case_client_extra[source_detail]"]').removeAttr('disabled').show();
+			$('[name="client_source[detail]"]').removeAttr('disabled').show();
 		}
 	});
 
