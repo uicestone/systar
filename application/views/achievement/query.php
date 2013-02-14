@@ -1,4 +1,3 @@
-<?=javascript('highcharts/highcharts') ?>
 <script type="text/javascript">
 var chart_monthly_queries,chart_personally_queries,chart_personally_type_queries;
 $(function(){

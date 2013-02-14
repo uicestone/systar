@@ -9,40 +9,34 @@ class Evaluation extends SS_controller{
 	 * TODO 此方法需要MC分离
 	 */
 	function staffList(){
-		$q="
-		SELECT staff.id,staff.name,position.ui_name AS position_name
-		FROM staff
-			INNER JOIN position ON position.id=staff.position
-		";
-		
-		$this->processOrderby($q,'id');
-		
-		$listLocator=$this->processMultiPage($q);
-		
+		$this->session->set_userdata('last_list_action',$this->input->server('REQUEST_URI'));
+
 		$field=array(
-			'name'=>array('title'=>'姓名','wrap'=>array('mark'=>'a','href'=>'javascript:showWindow(\'evaluation?score&staff={id}\')')),
+			'name'=>array('title'=>'姓名','wrap'=>array('mark'=>'a','href'=>'javascript:showWindow(\'evaluation/score/{id}\')')),
 			'position.id'=>array('title'=>'职位','content'=>'{position_name}')
 		);
 		
-		$menu=array(
-		'head'=>'<div class="right">'.
-					$listLocator.
-				'</div>'
-		);
-		
-		$_SESSION['last_list_action']=$this->input->server('REQUEST_URI');
-		
-		$table=$this->fetchTableArray($q, $field);
-		
-		$this->view_data+=compact('table','menu');
-		
-		$this->load->view('lists',$this->view_data);
+		$table=$this->table->setFields($field)
+			->setData($this->evaluation->getStaffList())
+			->generate();
+		$this->load->addViewData('list', $table);
+		$this->load->view('list');
 	}
 	
 	/**
 	 * TODO 此方法需要MC分离
 	 */
 	function comment(){
+		$field=array(
+			'name'=>array('title'=>'评分项','content'=>'{name}({weight})'),
+			'comment'=>array('title'=>'附言'),
+			'staff_name'=>array('title'=>'评分人','content'=>'{staff_name}({position_name})')
+		);
+		
+		$table=$this->table->setFields($field)
+			->setData($this->evaluation->getCommentList())
+			->generate();
+
 		$evaluation_result=array(
 			'_field'=>array(
 				'互评分',
@@ -56,77 +50,15 @@ class Evaluation extends SS_controller{
 			)
 		);
 		
-		$q="
-		SELECT evaluation_indicator.name,evaluation_indicator.weight,
-			evaluation_score.comment,
-			position.ui_name AS position_name,
-			staff.name AS staff_name
-		FROM evaluation_score 
-			INNER JOIN evaluation_indicator ON evaluation_indicator.id=evaluation_score.indicator AND evaluation_score.quarter='".$this->config->item('quarter')."'
-			INNER JOIN staff ON staff.id=evaluation_score.uid
-			INNER JOIN position ON evaluation_indicator.critic=position.id
-		WHERE comment IS NOT NULL AND staff={$this->user->id}
-		";
-		
-		$this->processOrderby($q,'evaluation_score.time','DESC');
-		
-		$listLocator=$this->processMultiPage($q);
-		
-		$field=array(
-			'name'=>array('title'=>'评分项','content'=>'{name}({weight})'),
-			'comment'=>array('title'=>'附言'),
-			'staff_name'=>array('title'=>'评分人','content'=>'{staff_name}({position_name})')
-		);
-		
-		$menu=array(
-			'head'=>'<div class="right">'.
-						$listLocator.
-					'</div>'
-		);
-		
-		$_SESSION['last_list_action']=$this->input->server('REQUEST_URI');
-		
-		$table=$this->fetchTableArray($q, $field);
-		
-		$this->view_data+=compact('table','menu');
-		
-		$this->load->view('lists',$this->view_data);
+		$this->load->addViewData('list', $table);
+		$this->load->addViewData('evaluation_result', $evaluation_result);
+		$this->load->view('list');
 	}
 	
 	/**
 	 * TODO 此方法需要MC分离
 	 */
 	function result(){
-		$q="
-			SELECT each_other.staff,staff.name AS staff_name,each_other.score AS each_other,each_other.critics,self.score AS self,manager.score AS manager
-			FROM
-			(
-				SELECT staff,SUM(score) AS score
-				FROM `evaluation_score` INNER JOIN evaluation_indicator ON evaluation_score.indicator=evaluation_indicator.id
-				WHERE uid = '6356' AND evaluation_score.quarter='{$this->config->item('quater')}'
-				GROUP BY uid,staff
-			)manager
-			LEFT JOIN(
-				SELECT staff,AVG(sum_score) AS score,COUNT(sum_score) AS critics
-				FROM (
-					SELECT staff,SUM(score) AS sum_score
-					FROM `evaluation_score` INNER JOIN evaluation_indicator ON evaluation_score.indicator=evaluation_indicator.id
-					WHERE uid <> '6356' AND staff<>uid AND evaluation_score.quarter='{$this->config->item('quater')}'
-					GROUP BY uid,staff
-				)sum
-				GROUP BY staff
-			)each_other USING (staff) 
-			LEFT JOIN(
-				SELECT staff,SUM(score) AS score
-				FROM `evaluation_score` INNER JOIN evaluation_indicator ON evaluation_score.indicator=evaluation_indicator.id
-				WHERE uid = staff AND evaluation_score.quarter='{$this->config->item('quater')}'
-				GROUP BY uid,staff
-			)self USING(staff)
-			INNER JOIN staff ON staff.id=each_other.staff	
-		";
-
-		processOrderby($q,'staff');
-
 		$field=array(
 			'staff_name'=>array('title'=>'姓名'),
 			'each_other'=>array('title'=>'互评','content'=>'{each_other}({critics})'),
@@ -134,13 +66,17 @@ class Evaluation extends SS_controller{
 			'manager'=>array('title'=>'主管评分')
 		);
 
-		$_SESSION['last_list_action']=$this->input->server('REQUEST_URI');
-
-		exportTable($q,$field);
+		$table=$this->table->setFields($field)
+			->setData($this->evaluation->getResultList())
+			->generate();
+		
+		$this->load->addViewData('list', $table);
+		$this->load->view('list');
 	}
 	
-	function scoreWrite(){
-		$staff=intval($this->input->get('staff'));
+	function scoreWrite($staff){
+		
+		$staff=intval($staff);
 		$indicator=intval($this->input->post('indicator'));
 		//$anonymous=intval($this->input->post('anonymous'));
 		
@@ -150,36 +86,16 @@ class Evaluation extends SS_controller{
 			$field=$this->input->post('field');
 			$value=$this->input->post('value');
 		}
+
+		$evaluation_insert_score=$this->evaluation->insertScore($indicator,$staff,$field,$value/*,$anonymous*/);
 		
-		if($evaluation_insert_score=$this->evaluation->insert_score($indicator,$staff,$field,$value/*,$anonymous*/)){
+		if($evaluation_insert_score){
 			echo json_encode($evaluation_insert_score);
 		}
 	}
 	
-	/**
-	 * TODO 此方法需要MC分离
-	 */
-	function score(){
-		$staff=intval($this->input->get('staff'));
-		
-		$position=db_fetch_field("SELECT position FROM staff WHERE id='".$staff."'");
-		
-		$q="
-		SELECT evaluation_indicator.id,evaluation_indicator.name,evaluation_indicator.weight,
-			evaluation_score.id AS score_id,evaluation_score.score,evaluation_score.comment
-		FROM evaluation_indicator 
-			LEFT JOIN evaluation_score ON (
-				evaluation_indicator.id=evaluation_score.indicator 
-				AND staff='".$staff."' 
-				AND uid={$this->user->id}
-			)
-		WHERE critic='".$_SESSION['position']."'
-			AND position='".$position."'
-		";
-		
-		$this->processOrderby($q,'id');
-		
-		$listLocator=$this->processMultiPage($q);
+	function score($staff_id){
+		$staff_id=intval($staff_id);
 		
 		$field=array(
 			'name'=>array('title'=>'考核指标','td'=>'id="{id}"','content'=>'{name}({weight})','td_title'=>'width="20%"'),
@@ -199,19 +115,18 @@ class Evaluation extends SS_controller{
 			")
 		);
 		
-		$menu=array(
-		'head'=>'<div class="right">'.
-					$listLocator.
-				'</div>'
-		);
+		$table=$this->table->setFields($field);
+			
 		
-		$_SESSION['last_list_action']=$this->input->server('REQUEST_URI');
+		if(!is_logged('manager')){
+			$table=$table->setMenu('<button type="button" name="imfeelinglucky">手气不错</button>','left');
+		}
 		
-		$table=$this->fetchTableArray($q, $field);
+		$table=$table->setData($this->evaluation->getIndicatorList($staff_id))
+			->generate();
 		
-		$this->view_data+=compact('table','menu');
-		
-		$this->load->view('lists',$this->view_data);
+		$this->load->addViewData('list', $table);
+		$this->load->view('list');
 	}
 }
 ?>

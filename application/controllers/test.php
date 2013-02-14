@@ -99,9 +99,6 @@ class Test extends SS_controller{
 		$this->load->model('Label_model','label_model');
 		$sorted_results=$this->label_model->search($label_string);
 		var_dump($sorted_results);
-		
-		
-		$this->load->sidebar_loaded=true;
 	}
 }
 

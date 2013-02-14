@@ -1002,7 +1002,6 @@ class Cases_model extends SS_Model{
 				case '内部行政':$case_num['classification_code']='内';break;
 				default:'';
 			}
-			
 			switch($type){
 				case '公司':$case_num['type_code']='（公）';break;
 				case '房产建筑':$case_num['type_code']='（房）';break;

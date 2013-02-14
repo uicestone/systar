@@ -10,6 +10,9 @@ SELECT `case`,SUM(amount) AS sum FROM account WHERE time_occur BETWEEN UNIX_TIME
 USING (`case`)
 INNER JOIN staff ON staff.id=lawyer
 GROUP BY lawyer
+-- 删除案号
+DELETE FROM case_num WHERE `case`={$case_num};
+UPDATE `case` SET num='',type_lock=0 WHERE id = {$case_num};
 
 --删除垃圾
 DELETE FROM account WHERE amount=0;

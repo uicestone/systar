@@ -4,7 +4,100 @@ class Evaluation_model extends SS_Model{
 		parent::__construct();
 	}
 
-	function insert_score($indicator,$staff,$field,$value/*,$anonymous*/){
+	function getCommentList(){
+		$q="
+		SELECT evaluation_indicator.name,evaluation_indicator.weight,
+			evaluation_score.comment,
+			IF(position.id=1,position.ui_name,'-') AS position_name,
+			IF(position.id=1,staff.name,'-') AS staff_name
+		FROM evaluation_score 
+			INNER JOIN evaluation_indicator ON evaluation_indicator.id=evaluation_score.indicator AND evaluation_score.quarter='".$this->config->item('quarter')."'
+			INNER JOIN staff ON staff.id=evaluation_score.uid
+			INNER JOIN position ON evaluation_indicator.critic=position.id
+		WHERE comment IS NOT NULL AND staff={$this->user->id}
+		";
+		
+		$q=$this->orderBy($q,'evaluation_score.time','DESC');
+		$q=$this->pagination($q);
+		
+		return $this->db->query($q)->result_array();
+	}
+	
+	function getStaffList(){
+		$query="
+			SELECT staff.id,staff.name,position.ui_name AS position_name
+			FROM staff
+				INNER JOIN position ON position.id=staff.position
+		";
+		
+		$query=$this->orderby($query,'id');
+		$query=$this->pagination($query);
+		
+		return $this->db->query($query)->result_array();
+	}
+	
+	function getIndicatorList($staff){
+		$staff=intval($staff);
+		
+		$position=$this->db->query("SELECT position FROM staff WHERE id = $staff")->row()->position;
+
+		$q="	
+			SELECT evaluation_indicator.id,evaluation_indicator.name,evaluation_indicator.weight,
+				evaluation_score.id AS score_id,evaluation_score.score,evaluation_score.comment
+			FROM evaluation_indicator 
+				LEFT JOIN evaluation_score ON (
+					evaluation_indicator.id=evaluation_score.indicator
+					AND evaluation_score.quarter = {$this->config->item('quarter')}
+					AND staff = $staff
+					AND uid = {$this->user->id}
+				)
+			WHERE critic = {$_SESSION['position']}
+				AND position = $position
+		";
+		
+		$q=$this->orderby($q,'id');
+		
+		$q=$this->pagination($q);
+		
+		return $this->db->query($q)->result_array();
+		
+	}
+	
+	function getResultList(){
+		$q="
+			SELECT each_other.staff,staff.name AS staff_name,each_other.score AS each_other,each_other.critics,self.score AS self,manager.score AS manager
+			FROM
+			(
+				SELECT staff,SUM(score) AS score
+				FROM `evaluation_score` INNER JOIN evaluation_indicator ON evaluation_score.indicator=evaluation_indicator.id
+				WHERE uid = '6356' AND evaluation_score.quarter='{$this->config->item('quarter')}'
+				GROUP BY uid,staff
+			)manager
+			LEFT JOIN(
+				SELECT staff,AVG(sum_score) AS score,COUNT(sum_score) AS critics
+				FROM (
+					SELECT staff,SUM(score) AS sum_score
+					FROM `evaluation_score` INNER JOIN evaluation_indicator ON evaluation_score.indicator=evaluation_indicator.id
+					WHERE uid <> '6356' AND staff<>uid AND evaluation_score.quarter='{$this->config->item('quarter')}'
+					GROUP BY uid,staff
+				)sum
+				GROUP BY staff
+			)each_other USING (staff) 
+			LEFT JOIN(
+				SELECT staff,SUM(score) AS score
+				FROM `evaluation_score` INNER JOIN evaluation_indicator ON evaluation_score.indicator=evaluation_indicator.id
+				WHERE uid = staff AND evaluation_score.quarter='{$this->config->item('quarter')}'
+				GROUP BY uid,staff
+			)self USING(staff)
+			INNER JOIN staff ON staff.id=each_other.staff	
+		";
+
+		$q=$this->orderby($q,'staff');
+
+		return $this->db->query($q)->result_array();
+	}
+	
+	function insertScore($indicator,$staff,$field,$value/*,$anonymous*/){
 		if($field=='score'){
 			$weight=db_fetch_field("SELECT weight FROM evaluation_indicator WHERE id = '".$indicator."'");
 			
@@ -21,10 +114,10 @@ class Evaluation_model extends SS_Model{
 		$data=array(
 			'indicator'=>$indicator,
 			'staff'=>$staff,
-			'quarter'=>$this->config->item('quater'),
+			'quarter'=>$this->config->item('quarter'),
 			'company'=>$this->company->id,
 			'uid'=>$this->user->id,
-			'username'=>$_SESSION['username'],
+			'username'=>$this->user->name,
 			'time'=>$this->config->item('timestamp')
 		);
 		
@@ -34,12 +127,12 @@ class Evaluation_model extends SS_Model{
 			$data_score[$field]=$value;
 		}
 		
-		if(!$this->db->update('evaluation_score',$data_score,"indicator = '{$indicator}' AND staff = '{$staff}' AND quarter = '{$this->config->item('quater')}' AND uid = '{$this->user->id}' AND company = '{$this->company->id}'")){
+		if(!$this->db->update('evaluation_score',$data_score,"indicator = '{$indicator}' AND staff = $staff AND quarter = {$this->config->item('quarter')} AND uid = {$this->user->id} AND company = {$this->company->id}")){
 			return false;
 		}
 		
-		if(db_affected_rows()==0){
-			if(!$new_evaluate_score_id=db_insert('evaluation_score',array_merge($data,$data_score))){
+		if($this->db->affected_rows()==0){
+			if(!$new_evaluate_score_id=$this->db->insert('evaluation_score',array_merge($data,$data_score))){
 				return false;
 			}
 		}
@@ -52,11 +145,13 @@ class Evaluation_model extends SS_Model{
 	function getPeer($staff=NULL){
 		if(is_null($staff)){
 			$staff=$this->user->id;
+		}else{
+			$staff=intval($staff);
 		}
 		
 		$query="
 			SELECT AVG(score) FROM(
-				SELECT SUM(score) AS score FROM evaluation_score WHERE quarter='".$this->config->item('quater')."' AND staff='".$staff."' AND uid<>{$this->user->id} AND uid<>(SELECT manager FROM manager_staff WHERE staff = '".$staff."') GROUP BY uid
+				SELECT SUM(score) AS score FROM evaluation_score WHERE quarter={$this->config->item('quarter')} AND staff='".$staff."' AND uid<>{$this->user->id} AND uid<>(SELECT manager FROM manager_staff WHERE staff = $staff) GROUP BY uid
 			)score_sum
 		";
 		
@@ -68,7 +163,7 @@ class Evaluation_model extends SS_Model{
 			$staff=$this->user->id;
 		}
 		
-		$query="SELECT SUM(score) AS score FROM evaluation_score WHERE quarter='".$this->config->item('quater')."' AND staff='".$staff."' AND uid='".$staff."'";
+		$query="SELECT SUM(score) AS score FROM evaluation_score WHERE quarter={$this->config->item('quarter')} AND staff='".$staff."' AND uid='".$staff."'";
 		
 		return round(db_fetch_field($query),2);
 	}
@@ -78,7 +173,7 @@ class Evaluation_model extends SS_Model{
 			$staff=$this->user->id;
 		}
 		
-		$query="SELECT SUM(score) AS score FROM evaluation_score WHERE quarter='".$this->config->item('quater')."' AND staff='".$staff."' AND uid = (SELECT manager FROM manager_staff WHERE staff = '".$staff."')";
+		$query="SELECT SUM(score) AS score FROM evaluation_score WHERE quarter={$this->config->item('quarter')} AND staff='".$staff."' AND uid = (SELECT manager FROM manager_staff WHERE staff = '".$staff."')";
 		
 		return round(db_fetch_field($query),2);
 	}

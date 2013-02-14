@@ -294,36 +294,33 @@ class Achievement_model extends SS_Model{
 	
 	function getList(){
 		$q="
-		SELECT case_fee_collected.*,
-			GROUP_CONCAT(DISTINCT client.abbreviation) AS clients,
-			case.name AS case_name,
-			ROUND(case_fee_collected.collected*case_lawyer.contribute,2) AS contribute_collected,
-			ROUND(case_fee_collected.collected*case_lawyer.contribute*0.15,2) AS bonus,
-			case_lawyer.role
-		FROM
-		(
-			SELECT case_fee.id,case_fee.case,case_fee.type,
-				case_fee.fee,pay_date,
-				SUM(account.amount) AS collected,date,
-				IF(SUM(account.amount) IS NULL,case_fee.fee,case_fee.fee-SUM(account.amount)) AS uncollected
-			FROM case_fee
-			LEFT JOIN account ON case_fee.id=account.case_fee
-			WHERE case_fee.type<>'办案费'
+			SELECT account.amount, case_people.role, client.name AS client_name, 
+				account.date AS account_time,
+				IF(case.manager_review, case.time_end, '在办') AS filed_time,
+				ROUND(account.amount*case_people.contribute) AS contribution, ROUND(account.amount*case_people.contribute*0.15) AS bonus,
+				case.name AS case_name
+			FROM account
+				INNER JOIN `case` ON account.case=case.id
+				INNER JOIN people client ON client.type='客户' AND client.id=account.people
+				INNER JOIN case_people USING(`case`)
 		";
-		$q=$this->dateRange($q,'account.date');
-		$q.="	GROUP BY case_fee.id
-		)case_fee_collected
-			INNER JOIN case_people ON case_fee_collected.case=case_people.case
-			INNER JOIN client ON case_people.people=people.id AND case_people.type='客户'
-			INNER JOIN case_num ON case_fee_collected.case=case_num.case
-			INNER JOIN `case` ON case_fee_collected.case=case.id
-		WHERE case_lawyer.lawyer={$this->user->id}
-			AND client.classification='客户'
-			AND case_lawyer.role NOT IN ('督办人','律师助理')
+		
+		$q.="	
+			WHERE case_people.role<>'督办人'
+				AND case_people.people={$this->user->id}
 		";
-		$q.=' GROUP BY case_fee_collected.id,case_lawyer.lawyer,case_lawyer.role
-			HAVING collected>0';
-		$q=$this->orderBy($q,'case_fee_collected.pay_date','DESC');
+		
+		$contribute_type=$this->input->get('contribute_type')=='actual'?'actual':'fixed';
+		
+		if($contribute_type=='fixed'){
+			$q=$this->dateRange($q, 'account.date',false);
+			$q.=" AND case_people.role<>'实际贡献'";
+		}else{
+			$q=$this->dateRange($q, 'case.time_end',false);
+			$q.=" AND case_people.role='实际贡献' AND case.filed=1";
+		}
+		
+		$q=$this->orderBy($q,'account.date','DESC');
 		$q=$this->pagination($q);
 		return $this->db->query($q)->result_array();
 	}
@@ -351,45 +348,45 @@ class Achievement_model extends SS_Model{
 			
 			LEFT JOIN
 			(
-				SELECT `case`,GROUP_CONCAT(staff.name) AS lawyers
-				FROM case_lawyer,staff
-				WHERE case_lawyer.lawyer=staff.id AND case_lawyer.role='主办律师'
-				GROUP BY case_lawyer.`case`
+				SELECT `case`,GROUP_CONCAT(people.name) AS lawyers
+				FROM case_people,people
+				WHERE case_people.people=people.id AND case_people.role='主办律师'
+				GROUP BY case_people.`case`
 			)lawyers
 			ON `case_fee`.case=lawyers.`case`
 		
 			LEFT JOIN (
-				SELECT case_client.case,GROUP_CONCAT(DISTINCT client.abbreviation) AS clients
-				FROM case_client INNER JOIN client ON case_client.client=client.id
-				WHERE client.classification='客户'
-				GROUP BY case_client.case
-				)clients
+				SELECT case_people.case,GROUP_CONCAT(DISTINCT people.abbreviation) AS clients
+				FROM case_people INNER JOIN people ON case_people.people=people.id
+				WHERE people.type='客户'
+				GROUP BY case_people.case
+			)clients
 			ON clients.case=case_fee.case
 			
 		WHERE case_fee.type<>'办案费'
 			AND case_fee.reviewed=0
-			AND (account_grouped.amount_sum IS NULL OR case_fee.fee-account_grouped.amount_sum>0)#款未到/未到齐
+			AND (account_grouped.amount_sum IS NULL OR case_fee.fee-account_grouped.amount_sum>0) -- 款未到/未到齐
 			AND case.filed=0
 		";
 		
 		if($type=='recent'){
-			$q.=" AND pay_date>={$this->config->item('date')}";
+			$q.=" AND pay_date>='{$this->config->item('date')}'";
 			
 		}elseif($type=='expired'){
-			$q.=" AND pay_date<{$this->config->item('date')}";
+			$q.=" AND pay_date<'{$this->config->item('date')}'";
 		}
 		
 		if(!$this->user->isLogged('finance')){
 			$q.="
 				AND case_fee.case IN (
-					SELECT `case` FROM case_lawyer WHERE lawyer='{$this->user->id}'
+					SELECT `case` FROM case_people WHERE people={$this->user->id}
 				)
 			";
 		}
 		
 		$q=$this->search($q,array('case.name'=>'案件','lawyers.lawyers'=>'主办律师'));
 		
-		$q=$this->dateRange($q,'pay_date');
+		$q=$this->dateRange($q,'pay_date',false);
 		
 		$q=$this->orderBy($q,'case_fee.pay_date'); //添加排序条件
 		
@@ -468,7 +465,7 @@ class Achievement_model extends SS_Model{
 			WHERE name <> '办案费'
 		";
 		
-		$date_range_bar=$this->dateRange($q,'date');
+		$q=$this->dateRange($q,'time_occur');
 		
 		$q.="
 		)account_sum
@@ -507,11 +504,12 @@ class Achievement_model extends SS_Model{
 	//每人咨询数，统计图用
 	function getPersonallyQueries(){
 		$query="
-			SELECT staff.name AS staff_name, COUNT(case.id) AS queries, SUM(filed AND is_query) AS filed_queries, SUM(NOT filed AND is_query) AS live_queries, SUM(NOT is_query) AS success_case			FROM `case` 
-				INNER JOIN case_lawyer ON case.id=case_lawyer.case 
-				INNER JOIN staff ON staff.id=case_lawyer.lawyer AND case_lawyer.role = '接洽律师'
-			WHERE display=1 AND LEFT(first_contact,4)='".date('Y',$this->config->item('timestamp'))."'
-			GROUP BY staff.id
+			SELECT people.name AS staff_name, COUNT(case.id) AS queries, SUM(filed AND is_query) AS filed_queries, SUM(NOT filed AND is_query) AS live_queries, SUM(NOT is_query) AS success_case
+			FROM `case` 
+				INNER JOIN case_people ON case.id=case_people.case 
+				INNER JOIN people ON people.id=case_people.people AND case_people.role = '接洽律师'
+			WHERE case.display=1 AND LEFT(first_contact,4)='".date('Y',$this->config->item('timestamp'))."'
+			GROUP BY people.id
 			ORDER BY live_queries DESC, queries DESC
 		";
 		
@@ -521,12 +519,15 @@ class Achievement_model extends SS_Model{
 	//每人咨询分类数，统计图用
 	function getPersonallyTypeQueries(){
 		$query="
-			SELECT staff.name AS staff_name, COUNT(case.id) AS queries, SUM(IF(query_type='面谈咨询',1,0)) AS face_queries, SUM(IF(query_type='电话咨询',1,0)) AS call_queries, SUM(IF(query_type='网上咨询',1,0)) AS online_queries
+			SELECT people.name AS staff_name, COUNT(case.id) AS queries, SUM(IF(query_type.label_name='面谈',1,0)) AS face_queries, SUM(IF(query_type.label_name='电话',1,0)) AS call_queries, SUM(IF(query_type.label_name='网络',1,0)) AS online_queries
 			FROM `case` 
-				INNER JOIN case_lawyer ON case.id=case_lawyer.case 
-				INNER JOIN staff ON staff.id=case_lawyer.lawyer AND case_lawyer.role = '接洽律师'
+				INNER JOIN case_people ON case.id=case_people.case 
+				INNER JOIN people ON people.id=case_people.people AND case_people.role = '接洽律师'
+				INNER JOIN (
+					SELECT `case`,label_name FROM case_label WHERE type='咨询方式'
+				)query_type ON query_type.case=case.id
 			WHERE is_query=1 AND LEFT(first_contact,4)='".date('Y',$this->config->item('timestamp'))."'
-			GROUP BY staff.id
+			GROUP BY people.id
 			ORDER BY face_queries DESC, call_queries DESC, online_queries DESC
 		";
 		
@@ -538,16 +539,16 @@ class Achievement_model extends SS_Model{
 		$query="
 			SELECT month,collect.sum AS collect,contract.sum AS contract
 			FROM(
-				SELECT date AS `month`,SUM(amount) AS sum
+				SELECT LEFT(date,7) AS `month`,SUM(amount) AS sum
 				FROM account 
-				GROUP BY date
+				GROUP BY LEFT(date,7)
 			)collect LEFT JOIN
 			(
 				SELECT LEFT(case.time_contract,7) AS month,SUM(case_fee.fee) AS sum
 				FROM case_fee INNER JOIN `case` ON case.id=case_fee.case
 				GROUP BY LEFT(case.time_contract,7)
 			)contract USING (month)
-			WHERE LEFT(month,4)='".date('Y',$this->config->item('timestamp'))."'
+			-- WHERE LEFT(month,4)='".date('Y',$this->config->item('timestamp'))."'
 		";
 		
 		return $this->db->query($query)->result_array();
@@ -568,17 +569,54 @@ class Achievement_model extends SS_Model{
 		$this_month_beginning=date('Y-m-1');
 
 		$query="
-			SELECT case.type AS name, SUM( amount ) AS y, TRUE AS sliced
+			SELECT case_type.label_name AS name, SUM( amount ) AS y, TRUE AS sliced
 			FROM account
-			INNER JOIN  `case` ON case.id = account.case
+				INNER JOIN  `case` ON case.id = account.case
+				INNER JOIN (
+					SELECT `case`,label,label_name FROM case_label WHERE type='领域'
+				)case_type ON case_type.case=account.case
 			WHERE account.name <>  '办案费'
 			AND date >= '$this_year_beginning'
 			AND date < '$this_month_beginning'
-			GROUP BY case.type
+			GROUP BY case_type.label
 			ORDER BY y DESC
 		";
 		
 		return $this->db->query($query)->result_array();
+	}
+	
+	/**
+	 * 返回一名员工一段时间内的一项奖金总和
+	 */
+	function myBonus(array $type,$from,$to){
+		$from_date=date('Y-m-d',$from);
+		$to_date=date('Y-m-d',$to);
+		
+		if($type[0]=='case'){
+			$q="
+				SELECT ROUND(SUM(account.amount*case_people.contribute)*0.15) AS bonus
+				FROM account
+					INNER JOIN `case` ON account.case=case.id
+					INNER JOIN case_people USING(`case`)
+			";
+
+			$q.="	
+				WHERE case_people.role<>'督办人'
+					AND case_people.people={$this->user->id}
+			";
+
+			$contribute_type=$type[1];
+
+			if($contribute_type=='fixed'){
+				option('in_date_range') && $q.=" AND account.date>='$from_date' AND account.date<'$to_date'";
+				$q.=" AND case_people.role<>'实际贡献'";
+			}else{
+				option('in_date_range') && $q.=" AND case.time_end>='$from_date' AND case.time_end<'$to_date'";
+				$q.=" AND case_people.role='实际贡献' AND case.filed=1";
+			}
+		}
+		
+		return $this->db->query($q)->row()->bonus;
 	}
 }
 ?>

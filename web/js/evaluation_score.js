@@ -3,7 +3,9 @@ $(function(){
 		var input=$(this);
 		var cell=input.parent('td');
 
-		$.post(changeURLPar(unsetURLPar(location.href,'score'),'score_write',1),{
+		var uriSegments=window.location.pathname.substr(1).split('/');
+		
+		$.post('/evaluation/scorewrite/'+uriSegments[2],{
 			indicator:cell.siblings('td:first').attr('id'),
 			field:cell.attr('field'),
 			value:input.val(),
@@ -13,6 +15,16 @@ $(function(){
 			if(typeof response !== 'undefined'){
 				input.after('<span>'+response+'</span>').remove();
 			}
+		});
+	});
+	
+	$('[name="imfeelinglucky"]').click(function(){
+		$(this).click(function(){
+			$('[field="score"],[field="comment"]').children('input').change();
+		});
+		$('td[field="score"]').each(function(index,element){
+			var match = $(this).siblings('[field="name"]').html().match(RegExp('[\(](.*)[\)]'));
+			$(this).children('input').val(match[1]);
 		});
 	});
 	
