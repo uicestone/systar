@@ -91,18 +91,16 @@ class User_model extends People_model{
 		);
 	}
 	
-	function edit($user_id,$new_password=NULL,$new_username=NULL){
+	function updatePassword($user_id,$new_password=NULL,$new_username=NULL){
+		$user_id=intval($user_id);
+		
 		if(isset($new_password)){
-			if($this->db->update('user',array('password'=>$new_password),"id = $user_id")){
-				showMessage('成功修改密码');
-			}else{
-				return false;
-			}
+			return $this->db->update('user',array('password'=>$new_password),array('id'=>$user_id));
 		}
 		
 		if(isset($new_username)){
-			if($this->db->update('user',array('username'=>$new_username),"id = $user_id") && $this->db->affected_rows()){
-				showMessage('成功修改用户名');
+			if($this->db->update('user',array('username'=>$new_username),array('id'=>$user_id)) && $this->db->affected_rows()){
+				$this->output->message('成功修改用户名');
 			}else{
 				return false;
 			}

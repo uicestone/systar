@@ -5,12 +5,12 @@
 -- 执行upgrade.sql中，structure exporetd x/x之后的内容，其中x/x是上一步中结构sql文件名中包含的日期
 -- 站在syssh库中运行本脚本即可
 
-INSERT INTO syssh.affair 
-(`id`, `name`, `add_action`, `add_target`, `is_on`, `display_in_nav`, `ui_name`, `order`)
-SELECT `id`, `name`, `add_action`, `add_target`, `is_on`, `display_in_nav`, `ui_name`, `order`
+INSERT INTO syssh.controller 
+(`id`, `name`, `add_action`, `is_on`, `display_in_nav`, `ui_name`, `order`)
+SELECT `id`, `name`, `add_action`, `is_on`, `display_in_nav`, `ui_name`, `order`
 FROM starsys.affair;
 
-INSERT INTO syssh.group (`id`, `name`, `affair`, `action`, `display_in_nav`, `affair_ui_name`, `order`, `company`)
+INSERT INTO syssh.permission (`id`, `group`, `controller`, `method`, `display_in_nav`, `ui_name`, `order`, `company`)
 SELECT `id`, `name`, `affair`, `action`, `display_in_nav`, `affair_ui_name`, `order`, `company` FROM starsys.`group`;
 
 INSERT INTO syssh.company
@@ -535,10 +535,10 @@ INSERT INTO `label_relationship` (`id`, `label`, `relative`, `relation`) VALUES
 (10, 3, 46, NULL),
 (11, 3, 47, NULL);
 
-UPDATE  `syssh`.`affair` SET  `add_action` = NULL WHERE  `affair`.`id` =70;
+UPDATE  `syssh`.`controller` SET  `add_action` = NULL WHERE  `controller`.`id` =70;
 -- uice 1/21
 
 UPDATE `people` SET display=1 WHERE type='职员';
 -- uice 1/24
 
-UPDATE  `syssh`.`affair` SET  `add_action` =  'client/add' WHERE  `affair`.`id` =80;
+UPDATE  `syssh`.`controller` SET  `add_action` =  'client/add' WHERE  `controller`.`id` =80;

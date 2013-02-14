@@ -97,7 +97,7 @@ ALTER TABLE `schedule_profile`
   ADD CONSTRAINT `schedule_profile_ibfk_2` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
 ALTER TABLE  `syssh`.`case_people` DROP INDEX  `case` ,
-ADD UNIQUE  `case` (  `case` ,  `people` ,  `role` )
+ADD UNIQUE  `case` (  `case` ,  `people` ,  `role` );
 -- uice 2/13
 
 ALTER TABLE  `case_people` CHANGE  `role`  `role` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;

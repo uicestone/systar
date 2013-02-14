@@ -62,52 +62,22 @@ class user extends SS_controller{
 	}
 
 	function profile(){
-		$q_user="SELECT * FROM user WHERE id = {$this->user->id}";
-		$r_user=db_query($q_user);
-		post('user',db_fetch_array($r_user));
-		
-		$submitable=false;
-		
-		if($this->input->post('submit')){
-			
-			$submitable=true;
-			
-			$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$_POST);
-			
-			if($this->company->ucenter){
-				if(uc_user_edit($_SESSION['username'],post('user_extra/password'),post('user/password_new'),NULL)>0){
-					redirect('','js',NULL,true);
-				}
-			}else{
-				if(!post('user/password_new')){
-					unset($_SESSION[CONTROLLER]['post']['user']['password_new']);
-					if(is_null(post('user/password'))){
-						$submitable=false;
-						showMessage('你还没有设置密码~','warning');
-					}
-				}
-				
-				if($this->user->edit($this->user->id,post('user/password_new'),post('user/username'))){
-					if(post('user/password_new')){
-						post('user/password',post('user/password_new'));
-					}
-		
-				}else{
-					$submitable=false;
-				}
-				
-				if($submitable){
-					redirect('','js',NULL,true);
-				}
-			}
+		$this->output->setData('用户资料','name');
+		$this->load->view('user/profile');
+	}
+	
+	function submit($submit){
+		if($submit=='profile'){
+			$this->user->updatePassword($this->user->id, $this->input->post('user/password_new'), $this->input->post('user/username')?$this->input->post('user/username'):NULL);
+			$this->output->message('用户名/密码修改成功');
 		}
+		$this->output->status='success';
 	}
 	
 	/**
 	 * ie6跳转提示页面
 	 */
 	function browser(){
-		$this->load->require_nav_menu=false;
 		$this->load->view('user/browser');
 	}
 }
