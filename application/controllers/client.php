@@ -54,7 +54,7 @@ class Client extends SS_Controller{
 		if($item=='relative'){
 			$field=array(
 				'relative_name'=>array(
-					'title'=>'<input type="submit" name="submit[relative_delete]" value="删" />名称<input type="submit" name="submit[relative_set_default]" value="默认" />', 
+					'title'=>'<input type="submit" name="submit[relative_delete]" value="删" />名称', 
 					'eval'=>true, 
 					'content'=>"
 						\$return='<input type=\"checkbox\" name=\"relative_check[]\" value=\"{id}\" >';
@@ -137,9 +137,14 @@ class Client extends SS_Controller{
 
 		$client=$this->client->fetch($this->client->id);
 		$labels=$this->client->getLabels($this->client->id);
+		
 		//取得当前客户的"来源"数据
 		$source=$this->client->fetchSource($client['source']);
 
+		if(!$client['abbreviation'] && !$client['name']){
+			$client['name']='未命名客户';
+		}
+		
 		$this->output->setData($client['abbreviation']?$client['abbreviation']:$client['name'],'name');
 
 		$available_options=$this->client->getHotlabelsOfTypes();
@@ -181,14 +186,18 @@ class Client extends SS_Controller{
 
 			elseif($submit=='client'){
 				$this->load->model('staff_model','staff');
+				
+				$labels=(array)post('labels')+$this->input->post('labels');
 
-				if($client['character'] == '自然人'){
-					//自然人简称就是名称
-					post('client/abbreviation', $client['name']);
-
-				}elseif($client['abbreviation'] == ''){
+				if($client['character'] != '自然人' && $client['abbreviation'] == ''){
 					//单位简称必填
 					$this->output->message('请填写单位简称','warning');
+					throw new Exception;
+				}
+				
+				if(!isset($labels['类型'])){
+					$this->output->message('请选择客户类型','warning');
+					throw new Exception;
 				}
 				
 				$source=(array)post('source')+$this->input->post('source');
@@ -196,8 +205,16 @@ class Client extends SS_Controller{
 				post('client/source', $this->client->setSource($source['type'], isset($source['detail'])?$source['detail']:NULL));
 				
 				post('client/staff', $this->staff->check($client['staff_name']));
+				
+				if(!$client['type']){
+					post('client/type','客户');
+				}
 
 				$this->client->update($this->client->id,post('client'));
+				
+				$this->client->updateLabels($this->client->id,$labels);
+				
+				unset($_SESSION[CONTROLLER]['post'][$this->client->id]);
 			}
 
 			elseif($submit=='relative'){
@@ -261,21 +278,6 @@ class Client extends SS_Controller{
 				$this->output->setData($this->subList('profile',$this->client->id));
 			}
 			
-			elseif($submit=='relative_set_default'){
-				if(count(post('relative_check')) > 1){
-					$this->output->message('你可能试图设置多个默认联系人，这是不被允许的', 'warning');
-
-				}elseif(count(post('relative_check') == 1)){
-					$relative_set_default_keys=array_keys(post('relative_check'));
-					$this->client->setDefaultRelated($relative_set_default_keys[0], post('client/id'));
-
-					$this->output->message('成功设置默认联系人');
-
-				}elseif(count(post('relative_check') == 0)){
-					$this->client->clearDefaultRelated(post('client/id'));
-				}
-			}
-
 			$this->output->status='success';
 			
 		}catch(Exception $e){

@@ -206,7 +206,7 @@ class Client_model extends People_model{
 
 	function getList($method=NULL){
 		$q="
-			SELECT people.id,people.name,people.abbreviation,people.time,people.comment,
+			SELECT people.id,people.name,IF(people.abbreviation IS NULL,people.name,people.abbreviation) AS abbreviation,people.time,people.comment,
 				phone.content AS phone,address.content AS address
 			FROM people
 				LEFT JOIN (
@@ -225,11 +225,11 @@ class Client_model extends People_model{
 		$condition='';
 
 		if($method=='potential'){
-			$condition.=" AND people.id IN (SELECT people_label.people FROM people_label INNER JOIN label ON label.id=people_label.label WHERE label.name='潜在客户')";
+			$condition.=" AND people.id IN (SELECT people FROM people_label WHERE label_name='潜在客户')";
 		
 		}else{
 			$condition.="
-				AND people.id IN (SELECT people_label.people FROM people_label INNER JOIN label ON label.id=people_label.label WHERE label.name='成交客户')
+				AND people.id IN (SELECT people FROM people_label WHERE label_name='成交客户')
 			";
 			
 			if(!$this->user->isLogged('service') && !$this->user->isLogged('developer')){

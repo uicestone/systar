@@ -103,3 +103,7 @@ ADD UNIQUE  `case` (  `case` ,  `people` ,  `role` );
 ALTER TABLE  `case_people` CHANGE  `role`  `role` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
 ALTER TABLE `case_people` CHANGE `hourly_fee` `hourly_fee` DECIMAL(10,2) NULL DEFAULT NULL;
 -- uice 2/14
+
+ALTER TABLE  `syssh`.`people_label` DROP INDEX  `people` ,
+ADD UNIQUE  `people` (  `people` ,  `type` );
+-- uice 2/15

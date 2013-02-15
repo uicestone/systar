@@ -23,7 +23,8 @@ class People_model extends SS_Model{
 		'city'=>'城市',
 		'race'=>'民族',
 		'staff'=>'首要关联职员',
-		'source'=>'来源'
+		'source'=>'来源',
+		'comment'=>'备注'
 	);
 	
 	function __construct() {
@@ -139,6 +140,25 @@ class People_model extends SS_Model{
 		$this->db->insert('people_label',array('people'=>$people,'label'=>$label_id,'type'=>$type,'label_name'=>$label_name));
 		
 		return $this->db->insert_id();
+	}
+	
+	/**
+	 * 对于指定客户，在people_label中写入一组label
+	 * 对于不存在的label，当场在label表中添加
+	 * @param int $people_id
+	 * @param array $labels: array([$type=>]$name,...)
+	 */
+	function updateLabels($people_id,$labels){
+		$people_id=intval($people_id);
+		foreach((array)$labels as $type => $name){
+			$label_id=$this->label->match($name);
+			$set=array('label'=>$label_id,'label_name'=>$name);
+			$where=array('people'=>$people_id);
+			if(!is_integer($type)){
+				$where['type']=$type;
+			}
+			$this->db->replace('people_label',$set+$where);
+		}
 	}
 	
 	/**
