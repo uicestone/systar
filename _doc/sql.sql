@@ -1,3 +1,5 @@
+UPDATE  `syssh`.`controller` SET  `add_action` =  'account/add' WHERE  `controller`.`id` =115;
+
 -- 计算当年每律师贡献
 SELECT staff.name,SUM(contribute.sum*received.sum) FROM
 (

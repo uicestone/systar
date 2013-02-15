@@ -174,8 +174,9 @@ class Client extends SS_Controller{
 	}
 
 	function submit($submit,$id){
+		$this->client->id=$id;
 		
-		$client=array_merge($this->client->getPostData($id),(array)post('client'))+(array)$this->input->post('client');
+		$client=array_merge($this->client->fetch($id),(array)post('client'))+(array)$this->input->post('client');
 
 		try{
 		

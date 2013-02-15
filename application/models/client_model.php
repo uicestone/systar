@@ -145,8 +145,12 @@ class Client_model extends People_model{
 		return $this->db->query("SELECT type,detail FROM client_source WHERE id='{$source_id}'")->row_array();
 	}
 	
+	/**
+	 * 返回一个案件的客户列表
+	 * @param type $case_id
+	 * @return type
+	 */
 	function getListByCase($case_id){
-		//根据相关案件获得客户列表
 		$option_array=array();
 		
 		$q_option_array="SELECT id,abbreviation FROM client WHERE display=1 AND classification='客户'";

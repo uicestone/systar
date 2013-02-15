@@ -710,8 +710,12 @@ class Cases_model extends SS_Model{
 		}
 	}
 	
-	function getIdByCaseFee($case_fee){
-		return db_fetch_field("SELECT `case` FROM case_fee WHERE id='".intval($case_fee)."'",'case');
+	function getIdByCaseFee($case_fee_id){
+		$case_fee_id=intval($case_fee_id);
+		
+		$query="SELECT `case` FROM case_fee WHERE id = $case_fee_id";
+		
+		return $this->db->query($query)->row()->case;
 	}
 	
 	/**
@@ -772,12 +776,14 @@ class Cases_model extends SS_Model{
 	
 	//根据客户id获得其参与案件的收费
 	function getFeeListByClient($client_id){
+		$client_id=intval($client_id);
+		
 		$option_array=array();
 		
 		$q_option_array="
 			SELECT case_fee.id,case_fee.type,case_fee.fee,case_fee.pay_date,case_fee.receiver,case.name
 			FROM case_fee INNER JOIN `case` ON case_fee.case=case.id
-			WHERE case.id IN (SELECT `case` FROM case_client WHERE client='".$client_id."')";
+			WHERE case.id IN (SELECT `case` FROM case_people WHERE people=$client_id)";
 		
 		$r_option_array=$this->db->query($q_option_array);
 		
@@ -800,7 +806,7 @@ class Cases_model extends SS_Model{
 		$r_option_array=db_query($q_option_array);
 		
 		while($a_option_array=db_fetch_array($r_option_array)){
-			$option_array[$a_option_array['id']]=strip_tags($a_option_array['name']).'案 '.$a_option_array['type'].' ￥'.$a_option_array['fee'].' '.date('Y-m-d',$a_option_array['pay_date']).($a_option_array['type']=='办案费'?' '.$a_option_array['receiver'].'收':'');
+			$option_array[$a_option_array['id']]=strip_tags($a_option_array['name']).'案 '.$a_option_array['type'].' ￥'.$a_option_array['fee'].' '.$a_option_array['pay_date'].($a_option_array['type']=='办案费'?' '.$a_option_array['receiver'].'收':'');
 		}
 	
 		return $option_array;	

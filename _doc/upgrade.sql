@@ -106,4 +106,10 @@ ALTER TABLE `case_people` CHANGE `hourly_fee` `hourly_fee` DECIMAL(10,2) NULL DE
 
 ALTER TABLE  `syssh`.`people_label` DROP INDEX  `people` ,
 ADD UNIQUE  `people` (  `people` ,  `type` );
+ALTER TABLE  `account` CHANGE  `name`  `name` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+ALTER TABLE  `case` CHANGE  `name`  `name` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+ALTER TABLE  `document` CHANGE  `name`  `name` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
+ALTER TABLE  `people` CHANGE  `name`  `name` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
+ALTER TABLE  `schedule` CHANGE  `name`  `name` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
+ALTER TABLE  `team` CHANGE  `name`  `name` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
 -- uice 2/15

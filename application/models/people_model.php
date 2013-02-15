@@ -79,7 +79,7 @@ class People_model extends SS_Model{
 
 	function add(array $data=array()){
 		$people=array_intersect_key($data,$this->fields);
-		$people+=uidTime();
+		$people+=uidTime();//@TODO 大model的添加需要设定time_insert
 		$people['display']=1;
 		
 		$this->db->insert('people',$people);
