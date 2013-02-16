@@ -803,15 +803,17 @@ class Cases extends SS_controller{
 
 		$term=$this->input->post('term');
 
-		$result=$this->cases->match($term);
+		$result=$this->cases->getListByPeople($this->user->id);//只匹配到当前用户参与的案件
 
 		$array=array();
 
 		foreach ($result as $row){
-			$array[]=array(
-				'label'=>$row['name'].'    '.$row['num'],
-				'value'=>$row['id']
-			);
+			if(strpos($row['case_name'], $term)!==false){
+				$array[]=array(
+					'label'=>strip_tags($row['case_name']).' - '.$row['num'],
+					'value'=>$row['id']
+				);
+			}
 		}
 		
 		$this->output->data=$array;

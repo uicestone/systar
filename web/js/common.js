@@ -523,6 +523,13 @@ jQuery.fn.createSchedule=function(startDate, endDate, allDay, project, completed
 		dialog.dialog('option','title',response.data.name.content)
 		.html(response.data.content.content).find('[name="content"]').focus();
 		
+		dialog.on('autocompleteselect','[name="project_name"]',function(event,data){
+			$(this).siblings('[name="project"]').val(data.value);
+		})
+		.on('autocompleteresponse','[name="project_name"]',function(event,data){
+			$(this).siblings('[name="project"]').val('');
+		});
+		
 		dialog.dialog( "option", "buttons", [{
 			text: "+",
 			click: function(){
@@ -535,6 +542,7 @@ jQuery.fn.createSchedule=function(startDate, endDate, allDay, project, completed
 			click: function() {
 			if(startDate && endDate){
 				var content=dialog.find('[name="content"]').val();
+				var project=dialog.find('[name="project"]').val();
 				var people=dialog.find('[name="people"]').val();
 				var place=dialog.find('[name="schedule[place]"]').val();
 				var fee=dialog.find('[name="schedule[fee]"]').val();
@@ -546,8 +554,8 @@ jQuery.fn.createSchedule=function(startDate, endDate, allDay, project, completed
 					time_end:endDate.getTime()/1000,
 					all_day:Number(allDay),
 					content:content,
-					name:name
-					
+					name:name,
+					"case":project
 				}
 				$.post("/schedule/writecalendar/add",data,function(response){
 					if(response.status=='success'){

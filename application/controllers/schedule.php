@@ -581,12 +581,19 @@ class Schedule extends SS_controller{
 	 */
 	function edit($schedule_id=NULL,$mode='edit'){
 		
-		
 		$this->schedule->id=$schedule_id;
 
 		$schedule=$this->schedule->fetch($schedule_id);
+		
+		if($schedule['case']){
+			$project=$this->cases->fetch($schedule['case']);
+		}
+		
+		$project_name=strip_tags($project['name']);
+		
 		$this->load->addViewData('schedule', $schedule);
 		$this->load->addViewData('mode',$mode);
+		$this->load->addViewData('project_name', $project_name);
 		
 		$view=$this->load->view('schedule/calendar_add',array(),true);
 		
