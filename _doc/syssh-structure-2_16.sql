@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- 主机: 127.0.0.1
--- 生成日期: 2013 年 02 月 11 日 17:29
+-- 生成日期: 2013 年 02 月 16 日 16:17
 -- 服务器版本: 5.5.27-log
 -- PHP 版本: 5.3.15
 
@@ -30,7 +30,7 @@ USE `syssh`;
 
 CREATE TABLE IF NOT EXISTS `account` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
+  `name` varchar(255) DEFAULT NULL,
   `amount` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '数额',
   `date` date NOT NULL COMMENT '到账日期',
   `case` int(11) DEFAULT NULL COMMENT '关联项目',
@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS `account` (
   KEY `company` (`company`),
   KEY `amount` (`amount`),
   KEY `time_insert` (`time_insert`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='账目（主表）' AUTO_INCREMENT=552 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='账目（主表）' AUTO_INCREMENT=600 ;
 
 -- --------------------------------------------------------
 
@@ -76,30 +76,12 @@ CREATE TABLE IF NOT EXISTS `account_label` (
 -- --------------------------------------------------------
 
 --
--- 表的结构 `affair`
---
-
-CREATE TABLE IF NOT EXISTS `affair` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  `add_action` varchar(255) DEFAULT NULL COMMENT '添加动作url',
-  `add_target` varchar(255) NOT NULL DEFAULT '_blank' COMMENT '添加动作链接target',
-  `is_on` tinyint(1) NOT NULL DEFAULT '0',
-  `display_in_nav` tinyint(1) NOT NULL DEFAULT '0',
-  `ui_name` varchar(255) DEFAULT NULL COMMENT '默认显示名称（group中若有，此值会被覆盖）',
-  `order` int(11) NOT NULL DEFAULT '0' COMMENT '显示顺序',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='控制器（系统表）' AUTO_INCREMENT=212 ;
-
--- --------------------------------------------------------
-
---
 -- 表的结构 `case`
 --
 
 CREATE TABLE IF NOT EXISTS `case` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL DEFAULT '',
+  `name` varchar(255) DEFAULT NULL,
   `num` char(20) NOT NULL DEFAULT '',
   `name_extra` varchar(255) NOT NULL DEFAULT '',
   `first_contact` date DEFAULT NULL,
@@ -139,7 +121,7 @@ CREATE TABLE IF NOT EXISTS `case` (
   KEY `time` (`time`),
   KEY `company` (`company`),
   KEY `time_insert` (`time_insert`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='项目（主表）' AUTO_INCREMENT=1318 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='项目（主表）' AUTO_INCREMENT=1340 ;
 
 -- --------------------------------------------------------
 
@@ -168,7 +150,7 @@ CREATE TABLE IF NOT EXISTS `case_fee` (
   KEY `case` (`case`),
   KEY `fee` (`fee`),
   KEY `pay_date` (`pay_date`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='项目下收费' AUTO_INCREMENT=835 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='项目下收费' AUTO_INCREMENT=823 ;
 
 -- --------------------------------------------------------
 
@@ -194,7 +176,7 @@ CREATE TABLE IF NOT EXISTS `case_fee_timing` (
   KEY `uid` (`uid`),
   KEY `time` (`time`),
   KEY `case` (`case`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='项目计时收费规则' AUTO_INCREMENT=30 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='项目计时收费规则' AUTO_INCREMENT=26 ;
 
 -- --------------------------------------------------------
 
@@ -213,7 +195,7 @@ CREATE TABLE IF NOT EXISTS `case_label` (
   UNIQUE KEY `case-type` (`case`,`type`),
   KEY `case` (`case`),
   KEY `label` (`label`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2750 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5494 ;
 
 -- --------------------------------------------------------
 
@@ -237,7 +219,7 @@ CREATE TABLE IF NOT EXISTS `case_num` (
   KEY `uid` (`uid`),
   KEY `time` (`time`),
   KEY `case` (`case`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='项目编号' AUTO_INCREMENT=1336 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='项目编号' AUTO_INCREMENT=1360 ;
 
 --
 -- 触发器 `case_num`
@@ -264,21 +246,21 @@ CREATE TABLE IF NOT EXISTS `case_people` (
   `case` int(11) NOT NULL DEFAULT '0',
   `people` int(11) NOT NULL DEFAULT '0',
   `type` varchar(255) NOT NULL,
-  `role` varchar(255) NOT NULL DEFAULT '',
-  `hourly_fee` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `role` varchar(255) DEFAULT NULL,
+  `hourly_fee` decimal(10,2) DEFAULT NULL,
   `contribute` decimal(5,5) NOT NULL DEFAULT '0.00000',
   `company` int(11) DEFAULT NULL,
   `uid` int(11) DEFAULT NULL,
   `username` varchar(255) NOT NULL DEFAULT '',
   `time` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
+  UNIQUE KEY `case` (`case`,`people`,`role`),
   KEY `company` (`company`),
   KEY `uid` (`uid`),
   KEY `time` (`time`),
-  KEY `case` (`case`),
   KEY `people` (`people`),
   KEY `role` (`role`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='项目人员关系' AUTO_INCREMENT=26993 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='项目人员关系' AUTO_INCREMENT=30273 ;
 
 -- --------------------------------------------------------
 
@@ -316,6 +298,24 @@ CREATE TABLE IF NOT EXISTS `company` (
 -- --------------------------------------------------------
 
 --
+-- 表的结构 `controller`
+--
+
+CREATE TABLE IF NOT EXISTS `controller` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `add_action` varchar(255) DEFAULT NULL COMMENT '添加动作url',
+  `is_on` tinyint(1) NOT NULL DEFAULT '0',
+  `display_in_nav` tinyint(1) NOT NULL DEFAULT '0',
+  `ui_name` varchar(255) DEFAULT NULL COMMENT '默认显示名称（group中若有，此值会被覆盖）',
+  `discription` varchar(255) DEFAULT NULL,
+  `order` int(11) NOT NULL DEFAULT '0' COMMENT '显示顺序',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='控制器（系统表）' AUTO_INCREMENT=212 ;
+
+-- --------------------------------------------------------
+
+--
 -- 表的结构 `course`
 --
 
@@ -336,7 +336,7 @@ CREATE TABLE IF NOT EXISTS `document` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `case` int(11) NOT NULL DEFAULT '0',
   `people` int(11) DEFAULT NULL,
-  `name` varchar(255) NOT NULL DEFAULT '',
+  `name` varchar(255) DEFAULT NULL,
   `extname` char(8) NOT NULL,
   `size` int(11) NOT NULL DEFAULT '0',
   `comment` text,
@@ -353,7 +353,7 @@ CREATE TABLE IF NOT EXISTS `document` (
   KEY `client` (`people`),
   KEY `company` (`company`),
   KEY `time_insert` (`time_insert`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='项目下文件' AUTO_INCREMENT=1713 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='项目下文件' AUTO_INCREMENT=1744 ;
 
 -- --------------------------------------------------------
 
@@ -366,11 +366,12 @@ CREATE TABLE IF NOT EXISTS `document_label` (
   `document` int(11) NOT NULL,
   `label` int(11) NOT NULL,
   `type` varchar(255) NOT NULL,
+  `label_name` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `document_label` (`document`,`label`),
   KEY `document` (`document`),
   KEY `label` (`label`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1375 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2780 ;
 
 -- --------------------------------------------------------
 
@@ -435,7 +436,7 @@ CREATE TABLE IF NOT EXISTS `exam` (
   PRIMARY KEY (`id`),
   KEY `grade` (`grade`),
   KEY `term` (`term`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='考试 一个年级的一次（主表）' AUTO_INCREMENT=28 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='考试 一个年级的一次（主表）' AUTO_INCREMENT=30 ;
 
 -- --------------------------------------------------------
 
@@ -458,7 +459,7 @@ CREATE TABLE IF NOT EXISTS `exam_paper` (
   KEY `teacher_group` (`teacher_group`),
   KEY `course` (`course`),
   KEY `term` (`term`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='试卷 一学科一张（主表）' AUTO_INCREMENT=191 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='试卷 一学科一张（主表）' AUTO_INCREMENT=211 ;
 
 -- --------------------------------------------------------
 
@@ -474,7 +475,7 @@ CREATE TABLE IF NOT EXISTS `exam_part` (
   `full_score` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `exam_paper` (`exam_paper`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='大题（主表）' AUTO_INCREMENT=274 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='大题（主表）' AUTO_INCREMENT=294 ;
 
 -- --------------------------------------------------------
 
@@ -514,7 +515,7 @@ CREATE TABLE IF NOT EXISTS `exam_student` (
   KEY `extra_course` (`extra_course`),
   KEY `time` (`time`),
   KEY `room` (`room`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='参加考试的学生' AUTO_INCREMENT=17586 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='参加考试的学生' AUTO_INCREMENT=18481 ;
 
 -- --------------------------------------------------------
 
@@ -590,27 +591,6 @@ CREATE TABLE IF NOT EXISTS `ftp_fav` (
 -- --------------------------------------------------------
 
 --
--- 表的结构 `group`
---
-
-CREATE TABLE IF NOT EXISTS `group` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL DEFAULT '',
-  `affair` varchar(255) NOT NULL DEFAULT '',
-  `action` varchar(255) NOT NULL DEFAULT '',
-  `display_in_nav` tinyint(1) NOT NULL DEFAULT '0',
-  `affair_ui_name` varchar(255) NOT NULL DEFAULT '',
-  `order` smallint(6) NOT NULL DEFAULT '0',
-  `company` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `company` (`company`),
-  KEY `order` (`order`),
-  KEY `affair` (`affair`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='用户组和权限（系统表）' AUTO_INCREMENT=112 ;
-
--- --------------------------------------------------------
-
---
 -- 表的结构 `holidays`
 --
 
@@ -646,7 +626,7 @@ CREATE TABLE IF NOT EXISTS `label` (
   `name` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=109 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=106 ;
 
 -- --------------------------------------------------------
 
@@ -700,11 +680,13 @@ CREATE TABLE IF NOT EXISTS `news` (
   `company` int(11) DEFAULT NULL,
   `uid` int(11) DEFAULT NULL,
   `username` varchar(255) NOT NULL DEFAULT '',
+  `time_insert` int(11) NOT NULL,
   `time` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `uid` (`uid`),
   KEY `time` (`time`),
-  KEY `company` (`company`)
+  KEY `company` (`company`),
+  KEY `time_insert` (`time_insert`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='公告（主表）' AUTO_INCREMENT=29 ;
 
 -- --------------------------------------------------------
@@ -716,7 +698,7 @@ CREATE TABLE IF NOT EXISTS `news` (
 CREATE TABLE IF NOT EXISTS `people` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `character` enum('自然人','单位') NOT NULL DEFAULT '自然人',
-  `name` varchar(255) NOT NULL DEFAULT '',
+  `name` varchar(255) DEFAULT NULL,
   `name_en` varchar(255) NOT NULL DEFAULT '',
   `abbreviation` varchar(255) DEFAULT NULL,
   `type` varchar(255) NOT NULL,
@@ -745,7 +727,7 @@ CREATE TABLE IF NOT EXISTS `people` (
   KEY `uid` (`uid`),
   KEY `time` (`time`),
   KEY `time_insert` (`time_insert`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='客户（主表）' AUTO_INCREMENT=11526 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='客户（主表）' AUTO_INCREMENT=11515 ;
 
 -- --------------------------------------------------------
 
@@ -761,10 +743,10 @@ CREATE TABLE IF NOT EXISTS `people_label` (
   `type` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `people-label` (`people`,`label`),
-  KEY `people` (`people`),
+  UNIQUE KEY `people` (`people`,`type`),
   KEY `label` (`label`),
   KEY `type` (`type`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5741 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=11470 ;
 
 -- --------------------------------------------------------
 
@@ -786,7 +768,7 @@ CREATE TABLE IF NOT EXISTS `people_profile` (
   KEY `time` (`time`),
   KEY `name` (`name`),
   KEY `people-name` (`people`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='客户联系方式' AUTO_INCREMENT=9326 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='客户联系方式' AUTO_INCREMENT=22855 ;
 
 -- --------------------------------------------------------
 
@@ -799,7 +781,7 @@ CREATE TABLE IF NOT EXISTS `people_relationship` (
   `people` int(11) DEFAULT NULL,
   `relative` int(11) DEFAULT NULL,
   `relation` varchar(255) DEFAULT NULL,
-  `relation_type` varchar(255) NOT NULL,
+  `relation_type` varchar(255) DEFAULT NULL,
   `is_default_contact` tinyint(1) DEFAULT NULL,
   `uid` int(11) DEFAULT NULL,
   `username` varchar(255) NOT NULL DEFAULT '',
@@ -811,7 +793,29 @@ CREATE TABLE IF NOT EXISTS `people_relationship` (
   KEY `relative` (`relative`),
   KEY `relation` (`relation`),
   KEY `relation_type` (`relation_type`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='人员关系' AUTO_INCREMENT=171 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='人员关系' AUTO_INCREMENT=453 ;
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `permission`
+--
+
+CREATE TABLE IF NOT EXISTS `permission` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `group` varchar(255) NOT NULL DEFAULT '',
+  `controller` varchar(255) NOT NULL DEFAULT '',
+  `method` varchar(255) NOT NULL DEFAULT '',
+  `display_in_nav` tinyint(1) NOT NULL DEFAULT '0',
+  `ui_name` varchar(255) NOT NULL DEFAULT '',
+  `discription` varchar(255) DEFAULT NULL,
+  `order` smallint(6) NOT NULL DEFAULT '0',
+  `company` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `company` (`company`),
+  KEY `order` (`order`),
+  KEY `affair` (`controller`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='用户组和权限（系统表）' AUTO_INCREMENT=112 ;
 
 -- --------------------------------------------------------
 
@@ -836,7 +840,7 @@ CREATE TABLE IF NOT EXISTS `position` (
 
 CREATE TABLE IF NOT EXISTS `schedule` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL DEFAULT '',
+  `name` varchar(255) DEFAULT NULL,
   `experience` text,
   `content` text,
   `place` varchar(255) NOT NULL DEFAULT '',
@@ -872,7 +876,7 @@ CREATE TABLE IF NOT EXISTS `schedule` (
   KEY `people` (`people`),
   KEY `document` (`document`),
   KEY `time_insert` (`time_insert`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='日程（主表）' AUTO_INCREMENT=17107 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='日程（主表）' AUTO_INCREMENT=17675 ;
 
 -- --------------------------------------------------------
 
@@ -910,6 +914,28 @@ CREATE TABLE IF NOT EXISTS `schedule_people` (
 -- --------------------------------------------------------
 
 --
+-- 表的结构 `schedule_profile`
+--
+
+CREATE TABLE IF NOT EXISTS `schedule_profile` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `schedule` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `content` varchar(255) NOT NULL,
+  `comment` text NOT NULL,
+  `uid` int(11) NOT NULL,
+  `username` varchar(255) NOT NULL,
+  `time` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `schedule` (`schedule`),
+  KEY `name` (`name`),
+  KEY `uid` (`uid`),
+  KEY `time` (`time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
 -- 表的结构 `schedule_taskboard`
 --
 
@@ -921,7 +947,7 @@ CREATE TABLE IF NOT EXISTS `schedule_taskboard` (
   PRIMARY KEY (`id`),
   KEY `uid` (`uid`),
   KEY `time` (`time`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -949,7 +975,7 @@ CREATE TABLE IF NOT EXISTS `score` (
   KEY `exam_part` (`exam_part`),
   KEY `scorer` (`uid`),
   KEY `time` (`time`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='阅卷分数' AUTO_INCREMENT=82055 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='阅卷分数' AUTO_INCREMENT=91272 ;
 
 -- --------------------------------------------------------
 
@@ -1016,7 +1042,7 @@ CREATE TABLE IF NOT EXISTS `student_comment` (
   KEY `company` (`company`),
   KEY `uid` (`uid`),
   KEY `time` (`time`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='学生评价' AUTO_INCREMENT=574 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='学生评价' AUTO_INCREMENT=626 ;
 
 -- --------------------------------------------------------
 
@@ -1028,7 +1054,7 @@ CREATE TABLE IF NOT EXISTS `team` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `type` varchar(255) DEFAULT NULL,
   `num` varchar(255) DEFAULT NULL,
-  `name` varchar(255) NOT NULL DEFAULT '',
+  `name` varchar(255) DEFAULT NULL,
   `leader` int(11) DEFAULT NULL,
   `extra_course` int(11) DEFAULT NULL,
   `display` tinyint(1) NOT NULL DEFAULT '0',
@@ -1045,7 +1071,7 @@ CREATE TABLE IF NOT EXISTS `team` (
   KEY `time` (`time`),
   KEY `num` (`num`),
   KEY `time_insert` (`time_insert`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='团队（主表）' AUTO_INCREMENT=148 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='团队（主表）' AUTO_INCREMENT=291 ;
 
 -- --------------------------------------------------------
 
@@ -1361,6 +1387,13 @@ ALTER TABLE `schedule_label`
 ALTER TABLE `schedule_people`
   ADD CONSTRAINT `schedule_people_ibfk_1` FOREIGN KEY (`schedule`) REFERENCES `schedule` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `schedule_people_ibfk_2` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+
+--
+-- 限制表 `schedule_profile`
+--
+ALTER TABLE `schedule_profile`
+  ADD CONSTRAINT `schedule_profile_ibfk_1` FOREIGN KEY (`schedule`) REFERENCES `schedule` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `schedule_profile_ibfk_2` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
 --
 -- 限制表 `schedule_taskboard`
