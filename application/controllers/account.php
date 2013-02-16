@@ -37,7 +37,7 @@ class Account extends SS_controller{
 	}
 
 	function add(){
-		$data=array();
+		$data=array('name'=>'律师费');
 		
 		if($this->input->get('case')){
 			$data['case']=intval($this->input->get('case'));
@@ -59,16 +59,16 @@ class Account extends SS_controller{
 		
 		$account=$this->account->fetch($this->account->id);
 		
-		if(isset($account['name'])){
+		if($account['name']){
 			$tab_title=$account['name'];
 		}
-		//TODO 测试一下db类对于数据库中的NULL返回的是NULL还是undefined
-		if(isset($account['people'])){
+		
+		if($account['people']){
 			$client=$this->client->fetch($account['people']);
 			
 			if(isset($client['abbreviation'])){
 				$tab_title=$client['abbreviation'].' '.$tab_title;
-			}else{//@PBUG people.name为null时，会报错
+			}else{
 				$tab_title=$client['name'].' '.$tab_title;
 			}
 
@@ -77,12 +77,13 @@ class Account extends SS_controller{
 		}else{
 			$tab_title='未命名流水';
 		}
-
+		
 		$this->output->setData($tab_title,'name');
 
-		if(isset($account['case'])){
+		if($account['case']){
 			//根据案件ID获得收费array
 			$case_fee_array=$this->cases->getFeeOptions($account['case']);
+			$case_client_array=array_sub($this->cases->getClientList($account['case']),'name','people');
 		}
 		
 		$this->load->addViewArrayData(compact('account','client','case_fee_array','case_client_array'));
@@ -131,6 +132,8 @@ class Account extends SS_controller{
 				post('account',array_trim(post('account')));//imperfect 2012/5/25 uicestone 为了让没有case_fee 和case的account能够保存
 
 				$this->account->update($this->account->id,post('account'));
+				
+				unset($_SESSION[CONTROLLER]['post'][$this->account->id]);
 			}
 			
 			$this->output->status='success';

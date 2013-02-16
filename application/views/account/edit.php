@@ -17,11 +17,17 @@
 
 		<div class="item" name="related">
 			<div class="title"><label>关联：</label></div>
+			<?if($case_client_array){?>
+			<select name="account[people]">
+				<?=options($case_client_array, $this->value('account/people'), '客户', true)?>
+			</select>
+			<?}else{?>
 			<input type="text" name="client[name]" value="<?=$this->value('client/name');?>" autocomplete-model="client" placeholder="客户" title="客户" />
 			<input name="account[people]" class="hidden" />
+			<?}?>
 			<? if(!empty($case_fee_array)){?>
-			<select name="account[case_fee]">
-				<?=options($case_fee_array,$this->value('account/case_fee'),'应收帐款')?>
+			<select name="account[case_fee]" class="chzn-select">
+				<?=options($case_fee_array,$this->value('account/case_fee'),'应收帐款',true)?>
 			</select>
 			<? }?>
 		</div>

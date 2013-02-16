@@ -158,7 +158,7 @@ class Cases_model extends SS_Model{
 		$case_id=intval($case_id);
 		
 		$query="
-			SELECT case_people.id,case_people.people,case_people.type,case_people.role,people.name,phone.content AS phone,email.content AS email
+			SELECT case_people.id,case_people.people,case_people.type,case_people.role,IF(people.abbreviation IS NULL,people.name,people.abbreviation) AS name,phone.content AS phone,email.content AS email
 			FROM case_people
 				INNER JOIN people ON people.id=case_people.people
 				LEFT JOIN (
@@ -715,7 +715,13 @@ class Cases_model extends SS_Model{
 		
 		$query="SELECT `case` FROM case_fee WHERE id = $case_fee_id";
 		
-		return $this->db->query($query)->row()->case;
+		$result = $this->db->get_where('case_fee',array('id'=>$case_fee_id))->row();
+		
+		if(!$result){
+			return false;
+		}
+		
+		return $result->case;
 	}
 	
 	/**
