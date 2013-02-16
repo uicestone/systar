@@ -216,9 +216,6 @@ nav{
 }
 
 /*内容表*/
-.pagination{
-	line-height:25px;
-}
 .pagination button{
 	margin:0;
 }
@@ -415,12 +412,12 @@ nav{
 	scrollbar-base-color:#0D2D4B;
 }
 #page{
-	scrollbar-arrow-color: #CEDDEC;
-	scrollbar-face-color: #113C68;
-	scrollbar-3dlight-color: #113C68;
-	scrollbar-highlight-color: #113C68;
-	scrollbar-shadow-color: #113C68;
-	scrollbar-darkshadow-color: #113C68;
+	scrollbar-arrow-color: #BCD7DF;
+	scrollbar-face-color: #BCD7DF;
+	scrollbar-3dlight-color: #BCD7DF;
+	scrollbar-highlight-color: #BCD7DF;
+	scrollbar-shadow-color: #BCD7DF;
+	scrollbar-darkshadow-color: #BCD7DF;
 	scrollbar-track-color: #CEDDEC;
 	scrollbar-base-color:#113C68;
 }
