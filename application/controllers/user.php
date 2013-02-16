@@ -55,7 +55,7 @@ class user extends SS_controller{
 
 				$this->user->updateLoginTime();
 
-				if(!isset($user['password'])){
+				if($this->company->ucenter && !isset($user['password'])){
 					redirect('#user/profile');
 				}else{
 					redirect();
