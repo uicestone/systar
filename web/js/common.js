@@ -88,6 +88,8 @@ $(document).ready(function(){
 	}else if($('#page').attr('default-uri')){
  		window.location.hash=$('#page').attr('default-uri');
  	}
+	
+	$('body').trigger('sectionload');
 })
 /*手动刷新*/
 .on('click','a[href^="#"]',function(){
@@ -98,7 +100,10 @@ $(document).ready(function(){
 	}
 })
 /*主体页面加载事件*/
-.on('sectionload blockload','#page>section',function(){
+.on('sectionload blockload','#page>section,body',function(event){
+	/*section触发事件后不再传递到body*/
+	event.stopPropagation();
+	
 	$(this).find('[placeholder]').placeholder()
 	$(this).find('.date').datepicker();
 	$(this).find('.birthday').datepicker({
@@ -521,7 +526,8 @@ jQuery.fn.createSchedule=function(startDate, endDate, allDay, project, completed
 
 	$.get('/schedule/add',function(response){
 		dialog.dialog('option','title',response.data.name.content)
-		.html(response.data.content.content).find('[name="content"]').focus();
+		.html(response.data.content.content).trigger('blockload')
+		.find('[name="content"]').focus();
 		
 		dialog.on('autocompleteselect','[name="project_name"]',function(event,data){
 			$(this).siblings('[name="project"]').val(data.value);
