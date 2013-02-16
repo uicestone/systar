@@ -41,7 +41,7 @@ class People_model extends SS_Model{
 		$id=intval($id);
 		
 		$query="
-			SELECT 
+			SELECT *
 			FROM people
 			WHERE id = $id AND company={$this->company->id}
 		";
