@@ -501,7 +501,7 @@ jQuery.fn.showSchedule=function(event){
 jQuery.fn.createSchedule=function(startDate, endDate, allDay, project, completed){
 	date = new Date();
 	selection=$(this);
-	
+	var profile_count = 0;
                
 	var dialog=$('<div class="dialog"></div>').appendTo('body')
 	.dialog({
@@ -526,7 +526,8 @@ jQuery.fn.createSchedule=function(startDate, endDate, allDay, project, completed
 		dialog.dialog( "option", "buttons", [{
 			text: "+",
 			click: function(){
-				;
+				$(".dialog.ui-dialog-content.ui-widget-content").append('<input name="schedule_profile_name_'+profile_count+'" class="text" placeholder="信息名称" style="width:25%" /><input name="schedule_profile_content_'+profile_count+'" class="text" placeholder="信息内容" style="width:60%" />');
+				profile_count++;
 			}
 		},
 		{
