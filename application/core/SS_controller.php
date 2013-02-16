@@ -72,14 +72,6 @@ class SS_Controller extends CI_Controller{
 		db_query("SET NAMES 'UTF8'");
 	
 		/**
-		 * ucenter配置
-		 */
-		if($this->company->ucenter){
-			$this->load->helper('config_ucenter');
-			require APPPATH.'third_party/client/client.php';
-		}
-
-		/**
 		 * 弹出未登录用户
 		 */
 		if($this->require_permission_check && !$this->user->isLogged()){

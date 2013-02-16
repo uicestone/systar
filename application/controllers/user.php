@@ -3,6 +3,11 @@ class user extends SS_controller{
 	function __construct(){
 		$this->require_permission_check=false;
 		parent::__construct();
+
+		if($this->company->ucenter){
+			require APPPATH.'third_party/ucenter_client/config.php';
+			require APPPATH.'third_party/ucenter_client/client.php';
+		}
 	}
 	
 	function logout(){
@@ -10,11 +15,26 @@ class user extends SS_controller{
 		redirect('login');
 	}
 	
-	function login($method=NULL){
+	function login(){
 		
 		if($this->input->post('login')){
+			
+			$user=array();
+			
+			if($this->company->ucenter){
+				
+				$ucenter_user=uc_user_login($this->input->post('username'),$this->input->post('password'));//ucenter验证密码
 
-			$user=$this->user->verify($this->input->post('username'),$this->input->post('password'));
+				if(!$ucenter_user){
+					showMessage('ucenter Error','warning');
+
+				}elseif($ucenter_user[0]>0){
+					$user=$this->user->fetch($ucenter_user[0]);
+				}
+				
+			}else{
+				$user=$this->user->verify($this->input->post('username'),$this->input->post('password'));
+			}
 
 			if($user){
 
@@ -44,7 +64,6 @@ class user extends SS_controller{
 			}else{
 				showMessage('名字或密码错','warning');
 			}
-				
 		}
 		
 		if($this->user->isLogged()){
@@ -56,7 +75,6 @@ class user extends SS_controller{
 			$this->load->view('head');
 			$this->load->view('user/login');
 			$this->load->view('foot');
-			$this->inner_js.="affair='登录';$('#username').focus();";
 		}
 
 	}
