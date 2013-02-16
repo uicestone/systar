@@ -16,7 +16,7 @@ class Client extends SS_Controller{
 			'abbreviation'=>array(
 				'title'=>'名称',
 				'content'=>'{abbreviation}',
-				'td'=>'class="ellipsis" title="{name}" href="client/edit/{id}"'
+				'td'=>'class="ellipsis" title="{name}"'
 			),
 			'phone'=>array('title'=>'电话', 'td'=>'class="ellipsis" title="{phone}"'),
 			'address'=>array(

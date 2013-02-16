@@ -23,7 +23,7 @@ class Schedule extends SS_controller{
 					return \$return;
 				",
 				'eval'=>true,
-				'td'=>'href="news/edit/{id}"',
+				'td'=>'href="#news/edit/{id}"',
 				'orderby'=>false
 			),
 		);
@@ -60,9 +60,9 @@ class Schedule extends SS_controller{
 		$field=array(
 			'checkbox'=>array('title'=>'<input type="checkbox" name="schedule_checkall">','content'=>'<input type="checkbox" name="schedule_check[{id}]" >','td_title'=>' width="38px"','orderby'=>false),
 		
-			'case.id'=>array('title'=>'案件','content'=>'{case_name}<p style="font-size:11px;text-align:right;"><a href="/schedule/lists?case={case}">本案日志</a> <a href="/cases/edit/{case}">案件</a></p>','orderby'=>false),
+			'case.id'=>array('title'=>'案件','content'=>'{case_name}<p style="font-size:11px;text-align:right;"><a href="#schedule/lists?case={case}">本案日志</a> <a href="#cases/edit/{case}">案件</a></p>','orderby'=>false),
 		
-			'staff_name'=>array('title'=>'人员','content'=>'<a href="schedule/list?staff={staff}"> {staff_name}</a>','td_title'=>'width="60px"','orderby'=>false),
+			'staff_name'=>array('title'=>'人员','content'=>'<a href="#schedule/list?staff={staff}"> {staff_name}</a>','td_title'=>'width="60px"','orderby'=>false),
 		
 			'name'=>array('title'=>'标题','eval'=>true,'content'=>"
 				return '<a href=\"javascript:showWindow(\'schedule/edit/{id}\')\" title=\"{name}\">'.str_getSummary('{name}').'</a>';
@@ -313,7 +313,7 @@ class Schedule extends SS_controller{
 		
 		
 		$field=Array(
-			'staff_name'=>array('title'=>'人员','content'=>'<a href="schedule/lists?staff={staff}"> {staff_name}</a>','td_title'=>'width="60px"'),
+			'staff_name'=>array('title'=>'人员','content'=>'<a href="#schedule/lists?staff={staff}"> {staff_name}</a>','td_title'=>'width="60px"'),
 		
 			'time_start'=>array('title'=>'时间','td_title'=>'width="60px"','eval'=>true,'content'=>"
 				return date('m-d H:i',{time_start});

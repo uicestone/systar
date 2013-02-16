@@ -33,10 +33,10 @@ class Cases extends SS_controller{
 			'name'=>array('title'=>'案名','content'=>'{name}'),
 			'lawyers'=>array('title'=>'主办律师','td_title'=>'width="100px"'),
 			'schedule_grouped.time_start'=>array('title'=>'最新日志','eval'=>true,'content'=>"
-				return '<a href=\"javascript:showWindow(\'schedule/add?case={id}\')\">+</a> <a href=\"/schedule/lists?case={id}\" title=\"{schedule_name}\">'.str_getSummary('{schedule_name}').'</a>';
+				return '<span class=\"create-schedule\" case=\"{id}\">+</span> <a href=\"#schedule/lists?case={id}\" title=\"{schedule_name}\">'.str_getSummary('{schedule_name}').'</a>';
 			"),
 			'plan_grouped.time_start'=>array('title'=>'最近提醒','eval'=>true,'content'=>"
-				return '<a href=\"javascript:showWindow(\'schedule/add?case={id}&completed=0\')\">+</a> {plan_time} <a href=\"/schedule/list/plan?case={id}\" title=\"{plan_name}\">'.str_getSummary('{plan_name}').'</a>';
+				return '<span class=\"create-schedule\" case=\"{id}\" completed=\"0\">+</span> {plan_time} <a href=\"#schedule/list/plan?case={id}\" title=\"{plan_name}\">'.str_getSummary('{plan_name}').'</a>';
 			"),
 			'is_reviewed'=>array('title'=>'状态','td_title'=>'width="75px"','eval'=>true,'content'=>"
 				return \$this->cases->getStatus('{is_reviewed}','{locked}',{apply_file},{is_query},{finance_review},{info_review},{manager_review},{filed},'{contribute_sum}','{uncollected}').' {status}';
@@ -45,7 +45,7 @@ class Cases extends SS_controller{
 		
 		if(!$this->user->isLogged('lawyer') && $this->user->isLogged('finance')){
 			$field=array(
-				'time_contract'=>array('title'=>'案号','td_title'=>'width="180px"','td'=>'title="立案时间：{time_contract}"','content'=>'<a href="/cases/edit/{id}">{num}</a>'),
+				'time_contract'=>array('title'=>'案号','td_title'=>'width="180px"','td'=>'title="立案时间：{time_contract}"','content'=>'{num}'),
 				'name'=>array('title'=>'案名','content'=>'{name}'),
 				'lawyers'=>array('title'=>'主办律师','td_title'=>'width="100px"'),
 				'is_reviewed'=>array('title'=>'状态','td_title'=>'width="75px"','eval'=>true,'content'=>"
@@ -193,7 +193,7 @@ class Cases extends SS_controller{
 		}
 		elseif($item=='schedule'){
 			$fields=array(
-				'name'=>array('title'=>'标题','td_title'=>'width="150px"','wrap'=>array('mark'=>'a','href'=>'javascript:showSchedule({id})'),'orderby'=>false),
+				'name'=>array('title'=>'标题','td_title'=>'width="150px"','wrap'=>array('mark'=>'span','class'=>'show-schedule','id'=>'{id}'),'orderby'=>false),
 				'time_start'=>array('title'=>'时间','td_title'=>'width="60px"','eval'=>true,'content'=>"
 					return date('m-d H:i',{time_start});
 				",'orderby'=>false),
@@ -205,7 +205,7 @@ class Cases extends SS_controller{
 		}
 		elseif($item=='plan'){
 			$fields=array(
-				'name'=>array('title'=>'标题','td_title'=>'width="150px"','wrap'=>array('mark'=>'a','href'=>'javascript:showWindow(\'schedule/edit/{id}\')'),'orderby'=>false),
+				'name'=>array('title'=>'标题','td_title'=>'width="150px"','wrap'=>array('mark'=>'span','class'=>'show-schedule','id'=>'{id}'),'orderby'=>false),
 				'time_start'=>array('title'=>'时间','td_title'=>'width="60px"','eval'=>true,'content'=>"
 					return date('m-d H:i',{time_start});
 				",'orderby'=>false),
@@ -238,7 +238,7 @@ class Cases extends SS_controller{
 					'td_title'=>'width="40px"',
 					'orderby'=>false
 				),
-				'name'=>array('title'=>'文件名','td_title'=>'width="150px"','wrap'=>array('mark'=>'a','href'=>'/cases/documentdownload/{id}'),'orderby'=>false),
+				'name'=>array('title'=>'文件名','td_title'=>'width="150px"','wrap'=>array('mark'=>'a','href'=>'/document/download/{id}'),'orderby'=>false),
 				'type'=>array('title'=>'类型','td_title'=>'width="80px"'),
 				'comment'=>array('title'=>'备注','orderby'=>false),
 				'time'=>array('title'=>'时间','td_title'=>'width="60px"','eval'=>true,'content'=>"
@@ -436,9 +436,9 @@ class Cases extends SS_controller{
 					$case_client['client']=$this->client->add($new_client);
 
 					$this->output->message(
-						'<a href="javascript:showWindow(\''.
+						'<a href="#'.
 						($client['type']=='客户'?'client':'contact').
-						'/edit/'.$case_client['client'].'\')" target="_blank">新'.
+						'/edit/'.$case_client['client'].'">新'.
 						$client['type'].' '.$client['name'].
 						' 已经添加，点击编辑详细信息</a>'
 					);
