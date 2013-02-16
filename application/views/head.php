@@ -18,6 +18,7 @@
 	<?=stylesheet('js/jQuery/fullcalendar/fullcalendar')?>
 	<?=javascript('jQuery/fullcalendar/fullcalendar')?>
 	<?=javascript('jQuery/highcharts/highcharts')?>
+	<?=javascript('jQuery/chosen/chosen.jquery')?>
 
 	<link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
 	<title><?=$this->company->sysname?></title>
