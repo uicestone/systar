@@ -488,12 +488,13 @@ class Achievement_model extends SS_Model{
 			FROM (
 				SELECT LEFT(first_contact,7) AS month, COUNT(id) AS queries, SUM(IF(filed=1,1,0)) AS filed_queries, SUM(IF(filed=0,1,0)) AS live_queries
 				FROM `case` 
-				WHERE is_query=1 AND LEFT(first_contact,4)='".date('Y',$this->config->item('timestamp'))."'
+				WHERE company={$this->company->id} AND display=1 AND is_query=1 AND LEFT(first_contact,4)='".date('Y',$this->config->item('timestamp'))."'
 				GROUP BY LEFT(first_contact,7)
 			)query INNER JOIN (
 				SELECT LEFT(time_contract,7) AS month, COUNT(id) AS cases
 				FROM `case`
-				WHERE is_query=0 AND LEFT(time_contract,4)='".date('Y',$this->config->item('timestamp'))."'
+				WHERE company={$this->company->id} AND display=1 AND is_query=0 AND LEFT(time_contract,4)='".date('Y',$this->config->item('timestamp'))."'
+					AND id NOT IN (SELECT `case` FROM case_label WHERE label_name='内部行政')
 				GROUP BY LEFT(time_contract,7)
 			)`case` USING(month)
 		";
