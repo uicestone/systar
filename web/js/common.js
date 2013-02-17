@@ -13,16 +13,23 @@ $(window).on('hashchange',function(){
 	 *根据当前hash，显示对应标签页面，隐藏其他页面。
 	 *如果当前page中没有请求的页面（或者已过期），那么向服务器发送请求，获取新的页面并添加标签选项卡。
 	 */
-	$('#page>section[hash!="'+hash+'"]').hide();
-	$('#side-bar>aside[for!="'+hash+'"]').hide();
-	
 	if($('#page>section[hash="'+hash+'"]').length>0){
+		$('#page>section[hash!="'+hash+'"]').hide();
+		$('#side-bar>aside[for!="'+hash+'"]').hide();
+	
 		$('#page>section[hash="'+hash+'"]').show().attr('time-access',$.now()).trigger('sectionshow');
 		$('#side-bar>aside[for="'+hash+'"]').show().trigger('sidebarshow');
 		
 	}else{
+		$('#top-bar>.throbber').fadeIn(1000).rotate({animateTo:180000,duration:1000000});
+		
 		$.get(hash,function(response){
 			
+			$('#top-bar>.throbber').stop().fadeOut(200).stopRotate();
+			
+			$('#page>section[hash!="'+hash+'"]').hide();
+			$('#side-bar>aside[for!="'+hash+'"]').hide();
+
 			var page=$('<section hash="'+hash+'"></section>').appendTo('#page');
 			var sidebar=$('<aside for="'+hash+'"></aside>').appendTo('#side-bar');
 			
@@ -96,7 +103,9 @@ $(document).ready(function(){
 /*手动刷新*/
 .on('click','a[href^="#"]',function(){
 	if($(this).attr('href').substr(1)==hash){
+		$('#top-bar>.throbber').fadeIn(1000).rotate({animateTo:180000,duration:1000000});
 		$.get(hash,function(response){
+			$('#top-bar>.throbber').stop().fadeOut(200).stopRotate();
 			$(document).setBlock(response);
 		},'json');
 	}
@@ -186,7 +195,10 @@ $(document).ready(function(){
 /*分页按钮响应*/
 .on('click','.pagination button',function(){
 	
+	$('#top-bar>.throbber').fadeIn(1000).rotate({animateTo:180000,duration:1000000});
+
 	$.post('/'+hash,{start:$(this).attr('target-page-start')},function(response){
+		$('#top-bar>.throbber').stop().fadeOut(200).stopRotate();
 		$(document).setBlock(response);
 	},'json');
 	

@@ -1,6 +1,6 @@
 <div id="top-bar">
-	<ul id="tabs">
-	</ul>
+	<ul id="tabs"></ul>
+	<img class="throbber" src="images/spinner.png" />
 <? if($this->user->isLogged()){?>
 	<div id="topMenu">
 		<a href="/#user/profile"><?=$this->user->name?></a>
