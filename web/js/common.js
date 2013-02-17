@@ -1,8 +1,7 @@
 /*跳转IE6用户*/
-if($.browser.msie && $.browser.version<7 && !(controller=='user' && action=='browser')){
-	/*跳转到浏览器推荐页面*/
-	window.location.hash='user/browser';
-}
+/*if($.browser.msie && $.browser.version<7 && !(controller=='user' && action=='browser')){
+	$.locationHash('user/browser');
+}*/
 
 var hash,controller,action,username,sysname,uriSegments;
 
@@ -35,7 +34,7 @@ $(window).hashchange(function(){
 			}
 
 			else if(response.status=='redirect'){
-				window.location.hash=response.data;
+				$.locationHash(response.data);
 				return this;
 			}
 
@@ -86,7 +85,7 @@ $(document).ready(function(){
 	if(window.location.hash){
 		$(window).trigger('hashchange');
 	}else if($('#page').attr('default-uri')){
- 		window.location.hash=$('#page').attr('default-uri');
+ 		$.locationHash($('#page').attr('default-uri'));
  	}
 	
 	$('body').trigger('sectionload');
@@ -161,9 +160,9 @@ $(document).ready(function(){
 				}).length
 				
 				if(sections>0){
-					window.location.hash=lastAccessedHash;
+					$.locationHash(lastAccessedHash);
 				}else{
-					window.location.hash=$('#page').attr('default-uri');
+					$.locationHash($('#page').attr('default-uri'));
 				}
 			}
 		}
@@ -264,7 +263,7 @@ $(document).ready(function(){
 	$(this).toggleClass('highlighted');
 
 }).on('click','.contentTable>tbody>tr:has(td:first[hash])',function(){
-	window.location.hash=$(this).children('td:first').attr('hash');
+	$.locationHash($(this).children('td:first').attr('hash'));
 
 }).on('click','.contentTable>tbody a, .contentTable :input',function(event){
 	event.stopPropagation();
@@ -738,7 +737,7 @@ jQuery.fn.setBlock=function(response){
 	}
 
 	else if(response.status=='redirect'){
-		window.location.hash=response.data;
+		$.locationHash(response.data);
 		return this;
 	}
 	

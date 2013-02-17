@@ -188,7 +188,7 @@
 <? } ?>
 				
 <? if($this->user->isLogged('finance')){?>
-				<button type="button" onclick="window.location.hash='account/add?case=<?=$this->value('cases/id')?>'">到账</button>
+				<button type="button" onclick="$.locationHash('account/add?case=<?=$this->value('cases/id')?>')">到账</button>
 <? }?>
 <? if($this->user->isLogged('finance')){?>
 				<input type="submit" name="submit[case_fee_review]" value="忽略" disabled style="display:none" />
