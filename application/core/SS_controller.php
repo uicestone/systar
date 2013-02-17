@@ -58,20 +58,6 @@ class SS_Controller extends CI_Controller{
 		}
 	
 		/**
-		 * 初始化老版本数据库，老版本数据库调用方法全部废弃以后，删除本段
-		 */
-		$db['host']="localhost";
-		$db['username']="root";
-		$db['password']="";
-		$db['name']='syssh';
-	
-		define('DB_LINK',mysql_connect($db['host'],$db['username'],$db['password']));
-	
-		mysql_select_db($db['name'],DB_LINK);
-
-		db_query("SET NAMES 'UTF8'");
-	
-		/**
 		 * 弹出未登录用户
 		 */
 		if($this->require_permission_check && !$this->user->isLogged()){

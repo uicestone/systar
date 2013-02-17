@@ -78,8 +78,8 @@ class Classes_model extends Team_model{
 		}
 	
 		$q_lawyer="SELECT * FROM `class` WHERE `name` LIKE '%".$class_name."%'";
-		$r_lawyer=db_query($q_lawyer);
-		$num_classes=db_rows($r_lawyer);
+		//$r_lawyer=$this->db->query($q_lawyer);
+		//$num_classes=db_rows($r_lawyer);
 	
 		if($num_classes==0){
 			if($show_error){

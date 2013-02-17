@@ -723,8 +723,8 @@ class Cases extends SS_controller{
 				showMessage('案件已经审核，已正式归档');
 			}
 			
-			elseif(!post('cases/is_query') && $submit=='file'){
-				db_insert('file_status',array('case'=>$this->cases->id,'status'=>'在档','time'=>$this->config->item('timestamp')));
+			elseif(!$case['is_query'] && $submit=='file'){
+				$this->cases->updateFileStatus($this->cases->id,'在档');
 				post('cases/filed',1);
 				showMessage('案件实体归档完成');
 			}
@@ -768,7 +768,7 @@ class Cases extends SS_controller{
 		$this->load->model('document_model','document');
 		
 		$q_case_document="SELECT * FROM case_document WHERE id='".$case_document_id."'";
-		$r_case_document=db_query($q_case_document);
+		$r_case_document=$this->db->query($q_case_document);
 		$case_document=mysql_fetch_array($r_case_document);
 		
 		//适应各浏览器的文件输出

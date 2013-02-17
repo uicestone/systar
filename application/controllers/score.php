@@ -81,7 +81,8 @@ class Score extends SS_controller{
 			
 			foreach($exam_part_data_array as $exam_part_data){
 				//插入大题
-				$exam_part_array[]=db_insert('exam_part',$exam_part_data);
+				$this->db->insert('exam_part',$exam_part_data);
+				$exam_part_array[]=$this->db->insert_id();
 			}
 			
 			//创建一张临时表
@@ -93,7 +94,7 @@ class Score extends SS_controller{
 			
 			$q_create_temp_table.=" PRIMARY KEY (`id`) ,UNIQUE (`num`))";
 			
-			db_query($q_create_temp_table);
+			$this->db->query($q_create_temp_table);
 			
 			//excel表格上传到临时表
 			$q_insert_t_score='INSERT INTO t (num,`'.implode('`,`',$exam_part_array).'`) VALUES';
@@ -108,7 +109,7 @@ class Score extends SS_controller{
 					$q_insert_t_score.=',';
 				}
 			}
-			if(!db_query($q_insert_t_score)){
+			if(!$this->db->query($q_insert_t_score)){
 				showMessage('上传错误，可能有重复学号或者错误的学号','warning');
 				break;
 			}
@@ -123,9 +124,9 @@ class Score extends SS_controller{
 				LIMIT 1
 			";
 		
-			$r_search_illegal_student=db_query($q_search_illegal_student);
+			$r_search_illegal_student=$this->db->query($q_search_illegal_student);
 		
-			if(db_rows($r_search_illegal_student)==1){
+			if(/*db_rows($r_search_illegal_student)==*/1){
 				$illegal_line=db_fetch_array($r_search_illegal_student);
 				showMessage(($illegal_line['id']+1).'行的"'.$illegal_line['num'].'"学号不正确，可能填写错误或学生不属于本场考试','warning');
 				break;
@@ -190,7 +191,7 @@ class Score extends SS_controller{
 			);
 			
 			if($this->input->post('score')!=$_SESSION['score']['currentScore']['score'] || $this->input->post('is_absent')!=$_SESSION['score']['currentScore']['is_absent'])
-				db_insert('score',$scoreData,false,true);//当前学生-大题-分数插入数据表，不返回insertid，使用replace
+				$this->db->replace('score',$scoreData);//当前学生-大题-分数插入数据表
 			
 			if($this->input->post('nextScore'))
 				$_SESSION['score']['currentStudent_id_in_exam']++;
@@ -228,7 +229,7 @@ class Score extends SS_controller{
 		
 		$q_score="SELECT * FROM score WHERE student='".$_SESSION['score']['currentStudent']['student']."' AND exam_part='".$_SESSION['score']['currentExam']['exam_part']."' LIMIT 1";
 		$r_score=mysql_query($q_score);
-		if(db_rows($r_score)==0){
+		if(/*db_rows($r_score)==*/0){
 			$_SESSION['score']['currentScore']=array();
 		}else{
 			$_SESSION['score']['currentScore']=mysql_fetch_array($r_score);
@@ -284,7 +285,7 @@ class Score extends SS_controller{
 		";
 		
 		$r_students_left=mysql_query($q_students_left);
-		$student_left=$currentExam['students']-db_rows($r_students_left);
+		$student_left=$currentExam['students']/*-db_rows($r_students_left)*/;
 		
 		$this->load->addViewData('student_left', $student_left);
 	}

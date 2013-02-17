@@ -101,7 +101,7 @@ function array_filter_key($array,$legalkeys){
  * 判断某个值是否存在与某一数组的子数组下
  * 若指定$key_specified，则要判断子数组们的$key_specified键下是否有指定$needle值
  * 
- * 这在处理db_toArray的结果数组时十分有用，db_toArray的数组其中每一行又是一个数组
+ * 这在处理DB::result_array的结果数组时十分有用，其结果数组其中每一行又是一个数组
  */
 function in_subarray($needle,array $array,$key_specified=NULL){
 	foreach($array as $key => $subarray){

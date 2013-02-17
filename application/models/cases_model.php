@@ -321,7 +321,7 @@ class Cases_model extends SS_Model{
 			UNION
 			SELECT DISTINCT doctype_other FROM case_document WHERE `case`='$case_id' AND doctype='其他'
 		";
-		$array=db_toArray($query);
+		$array=$this->db->query($query)->result_array();
 		$doctypes=array_sub($array,'doctype');
 		return $doctypes;
 	}
@@ -802,31 +802,22 @@ class Cases_model extends SS_Model{
 	
 	//根据案件ID获得收费array
 	function getFeeOptions($case_id){
+		$case_id=intval($case_id);
+		
 		$option_array=array();
 		
 		$q_option_array="
 			SELECT case_fee.id,case_fee.type,case_fee.fee,case_fee.pay_date,case_fee.receiver,case.name
 			FROM case_fee INNER JOIN `case` ON case_fee.case=case.id
-			WHERE case.id='".$case_id."'";
+			WHERE case.id=$case_id";
 		
-		$r_option_array=db_query($q_option_array);
+		$result=$this->db->query($q_option_array)->result_array();
 		
-		while($a_option_array=db_fetch_array($r_option_array)){
+		foreach($result as $a_option_array){
 			$option_array[$a_option_array['id']]=strip_tags($a_option_array['name']).'案 '.$a_option_array['type'].' ￥'.$a_option_array['fee'].' '.$a_option_array['pay_date'].($a_option_array['type']=='办案费'?' '.$a_option_array['receiver'].'收':'');
 		}
 	
 		return $option_array;	
-	}
-	
-	function feeConditionPrepend($case_fee_id,$new_condition){
-		$this->db->query("UPDATE case_fee 
-			SET `condition`= CONCAT('".$new_condition."\\n',`condition`),
-				`username` = '{$_SESSION['username']}'
-				`time` = '{$this->config->item('timestamp')}'
-			WHERE id='{$case_fee_id}'
-		");
-		
-		return db_fetch_field("SELECT `condition` FROM case_fee WHERE id = '".$case_fee_id."'");
 	}
 	
 	//增减案下律师的时候自动计算贡献
@@ -1031,7 +1022,7 @@ class Cases_model extends SS_Model{
 		$case_num+=uidTime();
 		$case_num['year_code']=substr($is_query?$first_contact:$time_contract,0,4);
 		$this->db->insert('case_num',$case_num);
-		$case_num['number']=db_fetch_field("SELECT number FROM case_num WHERE `case` = $case_id");
+		$case_num['number']=$this->db->query("SELECT number FROM case_num WHERE `case` = $case_id")->row()->number;
 		if(!$is_query){
 			post('cases/type_lock',1);//申请正式案号之后不可以再改变案件类别
 		}
@@ -1083,6 +1074,13 @@ class Cases_model extends SS_Model{
 		}
 		
 		return $case_name;
+	}
+	
+	/**
+	 * 更新归档状态
+	 */
+	function updateFileStatus($id,$status){
+		
 	}
 	
 }

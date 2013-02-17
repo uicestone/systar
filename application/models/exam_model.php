@@ -85,14 +85,14 @@ class Exam_model extends SS_Model{
 	function allocate_seat(){
 		set_time_limit(0);
 		
-		$r_active_exam=db_query("SELECT id,depart,grade FROM exam WHERE is_on=1 ORDER BY depart");
+		$r_active_exam=$this->db->query("SELECT id,depart,grade FROM exam WHERE is_on=1 ORDER BY depart");
 		//列出激活的考试
 		
-		db_query("CREATE TEMPORARY TABLE exam_student_temp SELECT * FROM exam_student WHERE 1=0");
+		$this->db->query("CREATE TEMPORARY TABLE exam_student_temp SELECT * FROM exam_student WHERE 1=0");
 		
 		while($exam=db_fetch_array($r_active_exam)){
 			//向exam_student表插入学生，生成随机数，教室和座位留空
-			db_query("
+			$this->db->query("
 				INSERT INTO exam_student (exam,student,depart,extra_course,time,rand)
 				SELECT ".$exam['id'].",id,depart,extra_course,".$this->config->item('timestamp').",1000*rand() FROM view_student 
 				WHERE grade = ".$exam['grade']." AND depart='".$exam['depart']."'
@@ -107,7 +107,7 @@ class Exam_model extends SS_Model{
 			FROM exam_room INNER JOIN exam ON ( exam_room.grade = exam.grade AND exam_room.depart = exam.depart )
 			WHERE exam.is_on=1
 		";
-		$r_exam_room=db_query($q_exam_room);
+		$r_exam_room=$this->db->query($q_exam_room);
 		
 		while($exam_room=db_fetch_array($r_exam_room)){
 			$q_update_exam_student_of_a_room="
@@ -122,10 +122,10 @@ class Exam_model extends SS_Model{
 				SET exam_student.room=roomed.room 
 				WHERE exam_student.id=roomed.id";
 				
-			db_query($q_update_exam_student_of_a_room);
+			$this->db->query($q_update_exam_student_of_a_room);
 		}
 		$q_exam_student="SELECT * FROM `exam_student` WHERE exam IN (SELECT id FROM exam WHERE is_on=1) ORDER BY room,rand";
-		$r_exam_student=db_query($q_exam_student);
+		$r_exam_student=$this->db->query($q_exam_student);
 		
 		$seat=1;
 		$room='';
@@ -136,11 +136,11 @@ class Exam_model extends SS_Model{
 				$seat=1;
 			}
 			$q_update_seat="UPDATE exam_student SET seat='".$seat."' WHERE id = '".$exam_student['id']."'";
-			db_query($q_update_seat);
+			$this->db->query($q_update_seat);
 			$room=$exam_student['room'];
 		}
 		
-		db_query("UPDATE exam SET seat_allocated=1 WHERE is_on=1");
+		$this->db->query("UPDATE exam SET seat_allocated=1 WHERE is_on=1");
 	}
 }
 ?>

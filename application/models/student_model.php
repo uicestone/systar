@@ -209,8 +209,8 @@ class Student_model extends People_model{
 	}
 	
 	function updateView($student_id=NULL){
-		db_query("DROP TABLE IF EXISTS view_student");
-		db_query("
+		$this->db->query("DROP TABLE IF EXISTS view_student");
+		$this->db->query("
 			CREATE TABLE view_student
 			SELECT 
 				student.id AS id,student.gender,student.name AS name,student.type AS type,student.id_card AS id_card,student.extra_course,
@@ -226,14 +226,14 @@ class Student_model extends People_model{
 				student_class.term = '".$this->school->current_term."'
 			ORDER BY num
 		");
-		db_query("ALTER TABLE  `view_student` ADD PRIMARY KEY (  `id` )");
-		db_query("ALTER TABLE  `view_student` ADD INDEX (type)");
-		db_query("ALTER TABLE  `view_student` ADD INDEX (num)");
-		db_query("ALTER TABLE  `view_student` ADD INDEX (class)");
-		db_query("ALTER TABLE  `view_student` ADD INDEX (grade)");
-		db_query("ALTER TABLE  `view_student` ADD INDEX (depart)");
-		db_query("ALTER TABLE  `view_student` ADD INDEX (extra_course)");
-		db_query("ALTER TABLE  `view_student` ADD FOREIGN KEY (  `id` ) REFERENCES  `starsys`.`student` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE");
+		$this->db->query("ALTER TABLE  `view_student` ADD PRIMARY KEY (  `id` )");
+		$this->db->query("ALTER TABLE  `view_student` ADD INDEX (type)");
+		$this->db->query("ALTER TABLE  `view_student` ADD INDEX (num)");
+		$this->db->query("ALTER TABLE  `view_student` ADD INDEX (class)");
+		$this->db->query("ALTER TABLE  `view_student` ADD INDEX (grade)");
+		$this->db->query("ALTER TABLE  `view_student` ADD INDEX (depart)");
+		$this->db->query("ALTER TABLE  `view_student` ADD INDEX (extra_course)");
+		$this->db->query("ALTER TABLE  `view_student` ADD FOREIGN KEY (  `id` ) REFERENCES  `starsys`.`student` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE");
 	}
 	
 	function changeClass($student_id,$old_class_id,$new_class_id){
@@ -308,8 +308,7 @@ class Student_model extends People_model{
 	}
 	
 	function deleteRelatives($student_relatives){
-		$condition = db_implode($student_relatives, $glue = ' OR ','id','=',"'","'", '`','key');
-		db_delete('student_relatives',$condition);
+		//@TODO
 	}
 	
 	function getScores($student){

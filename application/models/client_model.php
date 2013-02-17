@@ -27,8 +27,9 @@ class Client_model extends People_model{
 		}else{
 			$q_client="SELECT * FROM `client` WHERE display=1 AND company='".$this->company->id."' AND (`name` LIKE '".$client_name."' OR abbreviation LIKE '".$client_name."')";
 		}
-		$r_client=db_query($q_client);
-		$num_clients=db_rows($r_client);
+		//$this->db->query($q_client);
+		//$r_client=$this->db->query($q_client);
+		//$num_clients=db_rows($r_client);
 	
 		if($num_clients==0){
 			if($show_error){
@@ -43,7 +44,7 @@ class Client_model extends People_model{
 			return -2;
 	
 		}else{
-			$data=db_fetch_array($r_client);
+			//$data=db_fetch_array($r_client);
 			if($data_type=='array'){
 				$return=$data;
 			}else{
@@ -182,7 +183,7 @@ class Client_model extends People_model{
 		}
 		$q_option_array.=" ORDER BY id DESC";
 		
-		$option_array=db_toArray($q_option_array);
+		$option_array=$this->db->query($q_option_array)->result_array();
 		$option_array=array_sub($option_array,'abbreviation','id');
 	
 		return $option_array;	

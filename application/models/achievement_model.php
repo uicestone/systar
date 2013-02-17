@@ -52,7 +52,7 @@ class Achievement_model extends SS_Model{
 			if($range=='contribute'){
 				//我贡献的签约
 				$q="
-					SELECT SUM(contribute_fee)
+					SELECT SUM(contribute_fee) AS sum
 					FROM
 					(
 						SELECT case_fee.fee*SUM(case_people.contribute) AS contribute_fee
@@ -91,7 +91,7 @@ class Achievement_model extends SS_Model{
 			
 			if($range=='contribute'){
 				$q="
-					SELECT SUM(contribute_fee)
+					SELECT SUM(contribute_fee) AS sum
 					FROM
 					(
 						SELECT case_fee.fee*SUM(case_people.contribute) AS contribute_fee
@@ -122,7 +122,7 @@ class Achievement_model extends SS_Model{
 			
 			if($range=='contribute'){
 				$q="
-					SELECT SUM(contribute_amount)
+					SELECT SUM(contribute_amount) AS sum
 					FROM
 					(
 						SELECT account.amount*SUM(case_people.contribute) AS contribute_amount
@@ -153,7 +153,7 @@ class Achievement_model extends SS_Model{
 			
 			if($range=='contribute'){
 				$q="
-					SELECT SUM(contribute_amount)
+					SELECT SUM(contribute_amount) AS sum
 					FROM
 					(
 						SELECT account.amount*SUM(case_people.contribute) AS contribute_amount
@@ -194,7 +194,7 @@ class Achievement_model extends SS_Model{
 			//预计-我的贡献
 			if($range=='contribute'){
 				$q="
-					SELECT SUM(estimated.fee*contribute.sum)
+					SELECT SUM(estimated.fee*contribute.sum) AS sum
 					FROM
 					(
 						SELECT IF(account.amount IS NULL,
@@ -221,7 +221,7 @@ class Achievement_model extends SS_Model{
 			}
 		}
 		
-		$sum=db_fetch_field($q);
+		$sum=$this->db->query($q)->row()->sum;
 		
 		if($ten_thousand_unit){
 			$sum=$sum/1E4;

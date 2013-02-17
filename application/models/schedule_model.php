@@ -87,7 +87,7 @@ class Schedule_model extends SS_Model{
 			$q_calendar.=" AND `case`='".intval($case)."'";
 		}
 	
-		$calendar=db_toArray($q_calendar);
+		$calendar=$this->db->query($q_calendar)->result_array();
 		
 		$scheduleArray=array();
 		foreach($calendar as $order => $schedule){
@@ -119,13 +119,13 @@ class Schedule_model extends SS_Model{
 	function setComment($schedule_id,$comment){
 		$schedule_id=intval($schedule_id);
 		$this->db->update('schedule',array('comment'=>$comment),"id = '".$schedule_id."'");
-		return db_fetch_first("SELECT * FROM schedule WHERE id='".$schedule_id."'");
+		return $this->db->query("SELECT * FROM schedule WHERE id='".$schedule_id."'")->row_array();
 	}
 	
 	function check_hours($schedule_id,$hours_checked){
 		$schedule_id=intval($schedule_id);
 		$this->db->update('schedule',array('hours_checked'=>$hours_checked),"id = '".$schedule_id."'");
-		return db_fetch_field("SELECT hours_checked FROM schedule WHERE id='".$schedule_id."'");
+		return true;
 	}
 	
 	function add($data){
@@ -196,7 +196,7 @@ class Schedule_model extends SS_Model{
 			$q.=" `uid`='".$staff."'";
 		}
 		
-		return db_fetch_field($q);
+		return $this->db->query($q)->row()->time;
 	}
 	
 	function getList($para=NULL){

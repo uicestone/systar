@@ -121,7 +121,7 @@ class Document extends SS_controller{
 			'parent'=>$_SESSION['document']['currentDirID'],
 			'type'=>''
 		);
-		db_insert('document',$dir);
+		//db_insert('document',$dir);
 		
 		redirect('document');
 	}
@@ -141,7 +141,7 @@ class Document extends SS_controller{
 		if(isset($fav_to_detele)){
 			$condition = db_implode($_POST, $glue = ' OR ','file','=',"'","'", '`','key');
 			$q="DELETE FROM document_fav WHERE (".$condition.") AND uid={$this->user->id}";
-			db_query($q);
+			$this->db->query($q);
 		}
 		redirect('document');
 	}
@@ -155,7 +155,7 @@ class Document extends SS_controller{
 				$glue=','."\n";
 			}
 			$q="REPLACE INTO document_fav (file,uid,time) values ".$values;
-			db_query($q);
+			$this->db->query($q);
 		}
 		redirect('document');
 	}
@@ -191,7 +191,7 @@ class Document extends SS_controller{
 				'username'=>$_SESSION['username'],
 				'time'=>$this->config->item('timestamp')
 			);
-			db_insert('document',$fileInfo,false,$db_replace);
+			//db_insert('document',$fileInfo,false,$db_replace);
 			redirect('document');
 		}
 	}

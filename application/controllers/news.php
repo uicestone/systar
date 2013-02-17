@@ -23,34 +23,9 @@ class News extends SS_controller{
 	}
 	
 	function add(){
-		$this->edit();
 	}
 	
 	function edit($id=NULL){
-		$this->getPostData($id);
-		
-		//取得数据
-		$q_news="SELECT * FROM news WHERE id='".post(''.CONTROLLER.'/id')."'";
-		$r_news=db_query($q_news);
-		if(db_rows($r_news)==0){
-			showMessage('新闻不存在','warning');exit;
-		}
-		post('news',db_fetch_array($r_news));
-		
-		$submitable=false;//可提交性，false则显示form，true则可以跳转
-		
-		if($this->input->post('submit')){
-			$submitable=true;
-			
-			$_SESSION[CONTROLLER]['post'][CONTROLLER]=array_replace_recursive($_SESSION[CONTROLLER]['post'][CONTROLLER],array_trim($_POST[CONTROLLER]));
-			
-			if(array_dir('_POST/'.CONTROLLER.'/title')==''){
-				$submitable=false;
-				showMessage('请填写标题','warning');
-			}
-			
-			$this->processSubmit($submitable);
-		}
 	}
 }
 ?>

@@ -46,8 +46,8 @@ class Exam extends SS_controller{
 				$new_exam['grade']=$new_exam['grade_name'];
 			
 			}else{
-				$r=db_query("SELECT id FROM grade WHERE name LIKE '%".$new_exam['grade_name']."%'");
-				if(db_rows($r)==1){
+				$r=$this->db->query("SELECT id FROM grade WHERE name LIKE '%".$new_exam['grade_name']."%'");
+				if(/*db_rows($r)==*/1){
 					$new_exam['grade']=mysql_result($r,0,'id');
 				}else{
 					echo ' 没有这个年级或存在多个匹配';
@@ -56,15 +56,16 @@ class Exam extends SS_controller{
 			unset($new_exam['grade_name']);
 			
 			if(!array_diff(array('name','depart','grade','term','is_on'),array_keys($new_exam))){
-				$insert_id=db_insert('exam',$new_exam);
-				$r=db_query('
+				$this->db->insert('exam',$new_exam);
+				$insert_id=$this->db->insert_id();
+				$query="
 					SELECT 
 						exam.id,exam.name,exam.term,exam.is_on,exam.depart,
 						grade.name AS grade_name
 					FROM exam INNER JOIN grade ON exam.grade=grade.id 
 					ORDER BY id DESC LIMIT 1
-				');
-				$exam=db_fetch_array($r);
+				";
+				$exam=$this->db->query($query)->row_array();
 				if($exam['id']==$insert_id){
 					echo json_encode($exam);
 				}
@@ -72,19 +73,20 @@ class Exam extends SS_controller{
 		}elseif($this->input->get('action')=='exam_paper'){
 			$new_line=array_trim($_POST);
 		
-			$r_course=db_query("SELECT id FROM course WHERE name LIKE '".$new_line['course_name']."'");
-			if(db_rows($r_course)==1){
+			$r_course=$this->db->query("SELECT id FROM course WHERE name LIKE '".$new_line['course_name']."'");
+			if(/*db_rows($r_course)==*/1){
 				$new_line['course']=mysql_result($r_course,0,'id');
 				unset($new_line['course_name']);
 			}else{
 				echo '没有这个学科';
 			}
-		
-			$new_line_id=db_insert('exam_paper',$new_line);
+			
+			$this->db->insert('exam_paper',$new_line);
+			$new_line_id=$this->db->insert_id();
 			
 			//_imperfect 此二处采取了全部更新，理应更新一条即可 uicestone 2012/2/15
 			#更新exam_paper的students
-			db_query("
+			$this->db->query("
 				UPDATE 
 				exam_paper,
 				(
@@ -101,7 +103,7 @@ class Exam extends SS_controller{
 			");
 			
 			#按照备课组分配试卷权限
-			db_query("
+			$this->db->query("
 				UPDATE 
 				exam_paper INNER JOIN exam ON exam_paper.exam=exam.id
 				INNER JOIN staff_group ON
@@ -114,7 +116,7 @@ class Exam extends SS_controller{
 				SET exam_paper.teacher_group=staff_group.id
 			");
 		
-			$r=db_query('
+			$query="
 				SELECT 
 					course.name AS course_name,
 					exam_paper.id AS id,exam_paper.is_extra_course,exam_paper.students,exam_paper.is_scoring,
@@ -123,9 +125,11 @@ class Exam extends SS_controller{
 					INNER JOIN course ON course.id=exam_paper.course
 					LEFT JOIN staff_group ON staff_group.id=exam_paper.teacher_group
 				WHERE exam_paper.id='.$new_line_id.'
-			');
+			";
+			
+			$exam=$this->db->query($query)->row_array();
 		
-			if($exam=db_fetch_array($r)){
+			if($exam){
 				echo json_encode($exam);
 			}
 		}

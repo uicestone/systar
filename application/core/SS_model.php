@@ -134,13 +134,14 @@ class SS_Model extends CI_Model{
 			if(preg_match('/GROUP BY[^()]*?[ORDER BY].*?$/',$q_rows)){
 				$q_rows="SELECT COUNT(*) AS number FROM (".$q_rows.")query";
 			}else{
-				$q_rows=preg_replace('/^[\s\S]*?FROM /','SELECT COUNT(1) AS number FROM ',$q_rows);
+				$q_rows=preg_replace('/^[\s\S]*?FROM /','SELECT COUNT(1) AS rows FROM ',$q_rows);
 				$q_rows=preg_replace('/GROUP BY(?![\s\S]*?WHERE)[\s\S]*?$/','',$q_rows);
 				$q_rows=preg_replace('/ORDER BY(?![\s\S]*?WHERE)[\s\S]*?$/','',$q_rows);
 			}
 		}
+		
+		$rows=$this->db->query($q_rows)->row()->rows;
 
-		$rows=db_fetch_field($q_rows);
 		if(option('pagination/start')>$rows || $rows==0){
 			//已越界或空列表时，列表起点归零
 			option('pagination/start',0);

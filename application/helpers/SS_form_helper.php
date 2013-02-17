@@ -13,11 +13,6 @@ function options($options,$checked=NULL,$label=NULL,$array_key_as_option_value=f
 		$options_html.="<option value=\"\" disabled=\"disabled\"".(is_null($checked)?'selected="selected"':'').">$label</option>";
 	}
 	
-	if(isset($options[0]) && $options[0]=='_ENUM'){
-		$options=db_enumArray($options[1],$options[2]);
-
-	}
-	
 	foreach($options as $option_key=>$option){
 		$value=$array_key_as_option_value?$option_key:$option;
 		$options_html.='<option value="'.$value.'"'.($value==$checked?' selected="selected"':'').'>'.$option.'</option>';

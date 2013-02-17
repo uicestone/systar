@@ -88,7 +88,7 @@ function getWorkingDays($startDate, $endDate, $holidays = array(), $overtimedays
 
 	return $workingDays;
 }
-
+/*
 function getHolidays(){
 	return array_sub(db_toArray("SELECT date FROM holidays WHERE is_overtime=0 AND staff IS NULL"),'date');
 }
@@ -96,4 +96,5 @@ function getHolidays(){
 function getOvertimedays(){
 	return array_sub(db_toArray("SELECT date FROM holidays WHERE is_overtime=1 AND staff IS NULL"),'date');
 }
+ */
 ?>

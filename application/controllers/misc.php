@@ -28,7 +28,7 @@ class Misc extends SS_controller{
 		
 		$this->db->update($table,$data,"id = '{$id}'");
 		
-		echo db_fetch_field("SELECT `".$field."` FROM `".$table."` WHERE id='".$id."'");
+		//echo db_fetch_field("SELECT `".$field."` FROM `".$table."` WHERE id='".$id."'");
 	}
 	
 	function getHtml(){
@@ -52,7 +52,7 @@ class Misc extends SS_controller{
 		
 		}else{
 			$q_get_options="SELECT type FROM type WHERE affair='".$this->input->post('affair')."' AND classification='".$this->input->post('active_value')."'";
-			$options_array=db_toArray($q_get_options);
+			$options_array=$this->query($q_get_options)->result_array();
 			$options=array_sub($options_array,'type');
 			
 			displayOption($options);
