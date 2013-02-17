@@ -587,13 +587,13 @@ class Schedule extends SS_controller{
 		
 		if($schedule['case']){
 			$project=$this->cases->fetch($schedule['case']);
+			$project_name=strip_tags($project['name']);
+			$this->load->addViewData('project_name', $project_name);
 		}
 		
-		$project_name=strip_tags($project['name']);
 		
 		$this->load->addViewData('schedule', $schedule);
 		$this->load->addViewData('mode',$mode);
-		$this->load->addViewData('project_name', $project_name);
 		
 		$view=$this->load->view('schedule/calendar_add',array(),true);
 		

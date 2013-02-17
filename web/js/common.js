@@ -21,7 +21,7 @@ $(window).on('hashchange',function(){
 		$('#side-bar>aside[for="'+hash+'"]').show().trigger('sidebarshow');
 		
 	}else{
-		$('#top-bar>.throbber').fadeIn(1000).rotate({animateTo:180000,duration:1000000});
+		$('#top-bar>.throbber').fadeIn(500).rotate({animateTo:18000,duration:100000});
 		
 		$.get(hash,function(response){
 			
@@ -103,7 +103,7 @@ $(document).ready(function(){
 /*手动刷新*/
 .on('click','a[href^="#"]',function(){
 	if($(this).attr('href').substr(1)==hash){
-		$('#top-bar>.throbber').fadeIn(1000).rotate({animateTo:180000,duration:1000000});
+		$('#top-bar>.throbber').fadeIn(500).rotate({animateTo:18000,duration:100000});
 		$.get(hash,function(response){
 			$('#top-bar>.throbber').stop().fadeOut(200).stopRotate();
 			$(document).setBlock(response);
@@ -195,7 +195,7 @@ $(document).ready(function(){
 /*分页按钮响应*/
 .on('click','.pagination button',function(){
 	
-	$('#top-bar>.throbber').fadeIn(1000).rotate({animateTo:180000,duration:1000000});
+	$('#top-bar>.throbber').fadeIn(500).rotate({animateTo:18000,duration:100000});
 
 	$.post('/'+hash,{start:$(this).attr('target-page-start')},function(response){
 		$('#top-bar>.throbber').stop().fadeOut(200).stopRotate();
@@ -676,12 +676,24 @@ jQuery.fn.setBlock=function(response){
 		
 		if(data.method=='replace'){
 			if(data.selector){
-				parent.find(data.selector).replaceWith(data.content);
-				parent.find(data.selector).trigger('blockload');
+				if(parent.is(data.selector)){
+					parent.replaceWith(data.content);
+					parent.trigger('blockload');
+				}else{
+					parent.find(data.selector).replaceWith(data.content);
+					parent.find(data.selector).trigger('blockload');
+				}
 			}
 		}else{
 			if(data.selector){
-				var block=parent.find(data.selector).html(data.content).trigger('blockload');
+				
+				var block;
+				
+				if(parent.is(data.selector)){
+					block=parent.html(data.content).trigger('blockload');
+				}else{
+					block=parent.find(data.selector).html(data.content).trigger('blockload');
+				}				
 				
 				/*如果数据是主页面内容，则标记载入时间，出发指定事件*/
 				if(dataName=='content'){
