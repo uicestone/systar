@@ -16,7 +16,7 @@ class Client extends SS_Controller{
 			'abbreviation'=>array(
 				'title'=>'名称',
 				'content'=>'{abbreviation}',
-				'td'=>'class="ellipsis" title="{name}"'
+				'td'=>'class="ellipsis" title="{name}" hash="client/edit/{id}"'
 			),
 			'phone'=>array('title'=>'电话', 'td'=>'class="ellipsis" title="{phone}"'),
 			'address'=>array(
@@ -103,7 +103,7 @@ class Client extends SS_Controller{
 			$field=array(
 				'num'=>array(
 					'title'=>'案号',
-					'td'=>'href="cases/edit/{id}"',
+					'td'=>'hash="cases/edit/{id}"',
 					'orderby'=>false
 				),
 				'case_name'=>array(

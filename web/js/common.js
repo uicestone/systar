@@ -111,6 +111,8 @@ $(document).ready(function(){
 		changeYear: true
 	});
 	
+	$(this).find('.contentTable>tbody>tr:has(td:first[hash])').css({cursor:'pointer'});
+	
 	if(!$.browser.msie){
 		$(this).find('.contentTable:not(#side-bar .contentTable)>tbody>tr').each(function(index){
 			$(this).delay(15*index).css('opacity',0).css('visibility','visible').animate({opacity:'1'},500);
@@ -261,8 +263,8 @@ $(document).ready(function(){
 }).on('mouseenter mouseleave','.contentTable>tbody>tr',function(){
 	$(this).toggleClass('highlighted');
 
-}).on('click','.contentTable>tbody>tr:has(td[href])',function(){
-	window.location.hash=$(this).children('td:first').attr('href');
+}).on('click','.contentTable>tbody>tr:has(td:first[hash])',function(){
+	window.location.hash=$(this).children('td:first').attr('hash');
 
 }).on('click','.contentTable>tbody a, .contentTable :input',function(event){
 	event.stopPropagation();

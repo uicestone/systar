@@ -29,7 +29,7 @@ class Cases extends SS_controller{
 		$this->output->setData('案件', 'name');
 
 		$field=array(
-			'time_contract'=>array('title'=>'案号','td_title'=>'width="180px"','td'=>'title="立案时间：{time_contract}" href="cases/edit/{id}"','content'=>'{num}'),
+			'time_contract'=>array('title'=>'案号','td_title'=>'width="180px"','td'=>'title="立案时间：{time_contract}" hash="cases/edit/{id}"','content'=>'{num}'),
 			'name'=>array('title'=>'案名','content'=>'{name}'),
 			'lawyers'=>array('title'=>'主办律师','td_title'=>'width="100px"'),
 			'schedule_grouped.time_start'=>array('title'=>'最新日志','eval'=>true,'content'=>"
@@ -95,7 +95,7 @@ class Cases extends SS_controller{
 					}
 					\$return.='{name}';
 					return \$return;
-				",'orderby'=>false,'td'=>'href="client/edit/{people}"'),
+				",'orderby'=>false,'td'=>'hash="client/edit/{people}"'),
 				'phone'=>array('title'=>'电话','td'=>'class="ellipsis" title="{phone}"'),
 				'email'=>array('title'=>'电邮','wrap'=>array('mark'=>'a','href'=>'mailto:{email}','title'=>'{email}','target'=>'_blank'),'td'=>'class="ellipsis"'),
 				'role'=>array('title'=>'本案地位','orderby'=>false),
