@@ -12,7 +12,7 @@ class Query extends SS_controller{
 	function lists($para=NULL){
 
 		$field=array(
-			'first_contact'=>array('title'=>'日期','td_title'=>'width="95px"','td'=>'href="cases/edit/{id}"'),
+			'first_contact'=>array('title'=>'日期','td_title'=>'width="95px"','td'=>'hash="cases/edit/{id}"'),
 			'num'=>array('title'=>'编号','td_title'=>'width="143px"'),
 			'client_name'=>array('title'=>'咨询人','wrap'=>array('mark'=>'a','href'=>'#client/edit/{client}')),
 			'type'=>array('title'=>'方式','td_title'=>'width="80px"'),

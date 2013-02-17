@@ -1,11 +1,6 @@
-/*跳转IE6用户*/
-/*if($.browser.msie && $.browser.version<7 && !(controller=='user' && action=='browser')){
-	$.locationHash('user/browser');
-}*/
-
 var hash,controller,action,username,sysname,uriSegments;
 
-$(window).on('hashchange',function(){console.log('hashchange fired: '+window.location.hash);
+$(window).on('hashchange',function(){
 
 	hash=$.locationHash();
 	uriSegments=hash.split('/');
@@ -68,6 +63,11 @@ $(window).on('hashchange',function(){console.log('hashchange fired: '+window.loc
 });
 
 $(document).ready(function(){
+	
+	if($.browser.msie && ($.browser.version<8 || document.documentMode && document.documentMode<8)){
+		$.showMessage('您正在使用不被推荐的浏览器，请关闭浏览器兼容模式。如果问题仍然存在，<a href="/browser">请点此下载推荐的浏览器</a>','warning');
+	}
+	
 	/*导航栏配置*/
 	$('#navMenu>.l0>li>a,controller').click(function(){
 		$(this).parent().children('ul:hidden').show();
@@ -279,11 +279,6 @@ $(document).ready(function(){
 	$('#page').tabs( "refresh" );
 });
 
-function isArray(o) {
-	//判断对象是否是数组
-	return Object.prototype.toString.call(o) === '[object Array]';
-}
-
 function changeURLPar(url,par,par_value){
 	//为url添加/更改变量名和值，并返回
 
@@ -307,93 +302,6 @@ function unsetURLPar(url,par){
 	//删除url中的指定变量，并返回
 	var regUnsetPara=new RegExp('\\?'+par+'$|\\?'+par+'=[^&]*$|'+par+'=[^&]*\\&*|'+par+'&|'+par+'$');
 	return url.replace(regUnsetPara,'');
-}
-
-function redirectPara(obj,unsetPara,specifiedName,specifiedValue){
-	//根据当前对象的name和value跳转url
-	var url=location.href;
-	var name='option';
-	var value='';
-
-	if(specifiedName){
-		name=specifiedName;
-	}else if($(obj).attr('name')){
-		name=$(obj).attr('name');
-	}
-
-	if(specifiedValue){
-		value=specifiedValue;
-	}else if($(obj).val()){
-		value=$(obj).val();
-	}
-
-	if(unsetPara){
-		url=unsetURLPar(url,unsetPara);
-	}
-
-	if(value==''){
-		url=unsetURLPar(url,name);
-	}else{
-		url=changeURLPar(url,name,value);
-	}
-
-	location.href=url;
-}
-
-function post(name,value){
-	//直接post一个变量并刷新页
-	var jsPostForm=document.createElement("form"); 
-	jsPostForm.method="post";
-	jsPostForm.name="jsPostForm";
-	
-	var jsPostInput=document.createElement("input") ; 
-	jsPostInput.setAttribute("name", name) ; 
-	jsPostInput.setAttribute("value", value); 
-	jsPostForm.appendChild(jsPostInput) ;
-
-	document.body.appendChild(jsPostForm) ; 
-	jsPostForm.submit() ; 
-	document.body.removeChild(jsPostForm) ;
-}
-
-function postArr(arr){
-	//直接post一组变量并刷新页面
-	var jsPostForm = document.createElement("form"); 
-	jsPostForm.method="post" ; 
-	
-	for(var key in arr){
-		var jsPostInput = document.createElement("input") ; 
-		jsPostInput.setAttribute("name",key) ; 
-		jsPostInput.setAttribute("value",arr[key]); 
-		jsPostForm.appendChild(jsPostInput) ;
-	}
-
-	document.body.appendChild(jsPostForm) ; 
-	jsPostForm.submit() ; 
-	document.body.removeChild(jsPostForm) ;
-}
-
-function postOrderby(orderby){
-/*
-	在contentTable的列中，post根据特定表的本参数排序。
-	如postOrderby('status','client_catologsale'),
-	由后台processOrderby处理后将生成ORDER BY client_catologsale.status的语句
-*/
-	var arr=new Array();
-	arr.orderby=orderby;
-	postArr(arr);
-}
-
-function keyPressHandler(button,waitKeyCode){
-	if(!waitKeyCode){
-		var waitKeyCode=13;
-	}
-	
-	if(event.keyCode == waitKeyCode){ 
-		event.returnValue=false; 
-		event.cancel = true; 
-		button.click(); 
-	}
 }
 
 /*扩展jQuery工具函数库*/

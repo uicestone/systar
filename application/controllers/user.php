@@ -96,7 +96,11 @@ class user extends SS_controller{
 	 * ie6跳转提示页面
 	 */
 	function browser(){
-		$this->load->view('user/browser');
+		$this->output->as_ajax=false;
+		$this->output->setData('请更新您的浏览器','name');
+		$this->load->view('head');
+		$this->load->view('browser');
+		$this->load->view('foot');
 	}
 }
 ?>

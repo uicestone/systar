@@ -86,11 +86,11 @@ body{
 }
 nav{
 	/*导航菜单框架*/
-	position:absolute;left:0;top:0;bottom:0;
+	position:absolute;left:0;top:25px;bottom:0;
 	width:120px;
 	background:#113C68;
 	overflow-x:hidden;
-	overflow-y:scroll;
+	overflow-y:auto;
 }
 
 /*弹出提示框*/
@@ -125,9 +125,6 @@ nav{
 }
 #top-bar,#navMenu{
 	font-weight:normal;
-}
-#navMenu{
-	padding-top:25px;
 }
 #navMenu a:focus{
 	outline:none;

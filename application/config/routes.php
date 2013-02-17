@@ -43,6 +43,7 @@ $route['404_override'] = '';
 
 $route['login']='user/login';
 $route['logout']='user/logout';
+$route['browser']='user/browser';
 //$route['(.*?)/(:num)']='$1/edit/$2';
 
 

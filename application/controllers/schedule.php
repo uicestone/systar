@@ -23,7 +23,7 @@ class Schedule extends SS_controller{
 					return \$return;
 				",
 				'eval'=>true,
-				'td'=>'href="#news/edit/{id}"',
+				'td'=>'hash="#news/edit/{id}"',
 				'orderby'=>false
 			),
 		);
