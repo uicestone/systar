@@ -5,9 +5,9 @@
 
 var hash,controller,action,username,sysname,uriSegments;
 
-$(window).hashchange(function(){
-	
-	hash=window.location.hash.substr(1);
+$(window).on('hashchange',function(){console.log('hashchange fired: '+window.location.hash);
+
+	hash=$.locationHash();
 	uriSegments=hash.split('/');
 	
 	/*根据当前hash，设置标签选项卡激活状态*/
@@ -27,6 +27,9 @@ $(window).hashchange(function(){
 		
 	}else{
 		$.get(hash,function(response){
+			
+			var page=$('<section hash="'+hash+'"></section>').appendTo('#page');
+			var sidebar=$('<aside for="'+hash+'"></aside>').appendTo('#side-bar');
 			
 			if(response.status=='login_required'){
 				window.location.href='login';
@@ -51,10 +54,10 @@ $(window).hashchange(function(){
 				$('#tabs').append('<li for="'+hash+'" class="activated"><a href="#'+hash+'">'+response.data.name.content+'</a></li>');
 			}
 			
-			$('<section hash="'+hash+'" time-load="'+$.now()+'" time-access="'+$.now()+'"></section>').appendTo('#page').html(response.data.content.content).trigger('sectionload');
+			page.attr('time-load',$.now()).attr('time-access',$.now()).html(response.data.content.content).trigger('sectionload');
 			
 			if(response.data.sidebar){
-				$('<aside for="'+hash+'"></aside>').appendTo('#side-bar').html(response.data.sidebar.content).trigger('sidebarload');
+				sidebar.html(response.data.sidebar.content).trigger('sidebarload');
 			}
 			
 		},'json');
@@ -128,7 +131,7 @@ $(document).ready(function(){
 	}
 })
 .on('sectionload sectionshow','#page>section',function(){
-	$('title').html(affair+' - '+(username?username+' - ':'')+sysname);
+	document.title=affair+' - '+(username?username+' - ':'')+sysname;
 })
 /*编辑页的提交按钮点击事件，提交数据到后台，在页面上反馈数据和提示*/
 .on('click','#page>section>form input:submit, #page>section>form button:submit',function(){

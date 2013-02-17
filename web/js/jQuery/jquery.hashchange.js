@@ -66,12 +66,14 @@
 			else if (hash.charAt(0) != '#') hash = '#' + hash;
 
 			location.hash = hash;
-
 			if (curHash == hash) return;
 			curHash = hash;
 
+
 			if ($.browser.msie) updateIEFrame(hash);
-			$.event.trigger('hashchange');
+			/*$.event.trigger('hashchange');*/
+			/*这老兄触发事件的方法貌似过时了，导致ie7跪，更新如下*/
+			$(window).trigger('hashchange');
 		}
 	});
 
@@ -95,13 +97,13 @@
 		var hash = location.hash;
 		if (hash != curHash) {
 			curHash = hash;
-			$.event.trigger('hashchange');
+			$(window).trigger('hashchange');
 		}
 	}
 
 	if ($.browser.msie) {
 		// Attach a live handler for any anchor links
-		$('a[href^=#]').live('click', function() {
+		$(document).on('click', 'a[href^=#]', function() {
 			var hash = $(this).attr('href');
 			// Don't intercept the click if there is an existing anchor on the page
 			// that matches this hash
@@ -121,7 +123,7 @@
 		if (hash != curHash) {
 			if (location.hash != hash) location.hash = hash;
 			curHash = hash;
-			$.event.trigger('hashchange');
+			$(window).trigger('hashchange');
 		}
 	}
 

@@ -127,7 +127,7 @@ nav{
 	font-weight:normal;
 }
 #navMenu{
-	padding-top:40px;
+	padding-top:25px;
 }
 #navMenu a:focus{
 	outline:none;
@@ -386,39 +386,6 @@ nav{
 	text-align:center;
 }
 
-/*滚动条*/
-#page{
-	/*ie主框架内滚动条着色*/
-	scrollbar-arrow-color: #CEDDEC;
-	scrollbar-face-color: #BCD7DF;
-	scrollbar-3dlight-color: #CEDDEC;
-	scrollbar-highlight-color: #CEDDEC;
-	scrollbar-shadow-color: #CEDDEC;
-	scrollbar-darkshadow-color: #CEDDEC;
-	scrollbar-track-color: #CEDDEC;
-	scrollbar-base-color:#CEDDEC;
-}
-/*ie滚动条*/
-nav{
-	scrollbar-arrow-color: #CEDDEC;
-	scrollbar-face-color: #0D2D4B;
-	scrollbar-3dlight-color: #0D2D4B;
-	scrollbar-highlight-color: #0D2D4B;
-	scrollbar-shadow-color: #0D2D4B;
-	scrollbar-darkshadow-color: #0D2D4B;
-	scrollbar-track-color: #113C68;
-	scrollbar-base-color:#0D2D4B;
-}
-#page{
-	scrollbar-arrow-color: #BCD7DF;
-	scrollbar-face-color: #BCD7DF;
-	scrollbar-3dlight-color: #BCD7DF;
-	scrollbar-highlight-color: #BCD7DF;
-	scrollbar-shadow-color: #BCD7DF;
-	scrollbar-darkshadow-color: #BCD7DF;
-	scrollbar-track-color: #CEDDEC;
-	scrollbar-base-color:#113C68;
-}
 /*webkit滚动条*/
 ::-webkit-scrollbar{
 	/*全局滚动条*/
