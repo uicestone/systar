@@ -162,7 +162,7 @@ class SS_Controller extends CI_Controller{
 			'data'=>$this->output->data
 		);
 		
-		echo json_encode($output_array,JSON_UNESCAPED_UNICODE);
+		echo json_encode($output_array);
 	}
 	
 	/**
