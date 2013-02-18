@@ -24,6 +24,9 @@ caption, th, td {
 table, td, th {
 	vertical-align:middle;
 }
+button{
+	line-height:1.25;
+}
 .left{
 	float:left;
 }

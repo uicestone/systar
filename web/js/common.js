@@ -1,13 +1,18 @@
 var hash,controller,action,username,sysname,uriSegments;
 
 $(window).on('hashchange',function(){
-
 	hash=$.locationHash();
+
+	console.log('hash changed to: '+hash);
+
 	uriSegments=hash.split('/');
 	
-	/*根据当前hash，设置标签选项卡激活状态*/
+	/*根据当前hash，设置标签选项卡和导航菜单激活状态*/
 	$('#tabs>[for="'+hash+'"]').addClass('activated');
 	$('#tabs>:not([for="'+hash+'"])').removeClass('activated');
+
+	$('nav li').removeClass('activated');
+	$('nav li#nav-'+uriSegments[0]+', nav li#nav-'+uriSegments[0]+'-'+uriSegments[1]).addClass('activated');
 
 	/*
 	 *根据当前hash，显示对应标签页面，隐藏其他页面。
@@ -24,52 +29,30 @@ $(window).on('hashchange',function(){
 		$('#top-bar>.throbber').fadeIn(500).rotate({animateTo:18000,duration:100000});
 		
 		$.get(hash,function(response){
+			console.log('responsed: '+hash);
 			
 			$('#top-bar>.throbber').stop().fadeOut(200).stopRotate();
 			
 			$('#page>section[hash!="'+hash+'"]').hide();
 			$('#side-bar>aside[for!="'+hash+'"]').hide();
 
-			var page=$('<section hash="'+hash+'"></section>').appendTo('#page');
-			var sidebar=$('<aside for="'+hash+'"></aside>').appendTo('#side-bar');
+			$('<section hash="'+hash+'" time-access="'+$.now()+'"></section>').appendTo('#page');
+			$('<aside for="'+hash+'"></aside>').appendTo('#side-bar');
 			
-			if(response.status=='login_required'){
-				window.location.href='login';
-				return this;
-			}
-
-			else if(response.status=='redirect'){
-				$.locationHash(response.data);
-				return this;
-			}
-
-			else if(response.status=='refresh'){
-				$.get(hash,function(response){
-					$(document).setBlock(response);
-				});
-			}
-
-			$.parseMessage(response.message);
-	
-			/*如果请求的hash在导航菜单中存在，则不生成标签选项卡*/
+			/*如果请求的hash在导航菜单中不存在，则生成标签选项卡*/
 			if($('nav a[href="#'+hash+'"]').length==0){
 				$('#tabs').append('<li for="'+hash+'" class="activated"><a href="#'+hash+'">'+response.data.name.content+'</a></li>');
 			}
 			
-			page.attr('time-load',$.now()).attr('time-access',$.now()).html(response.data.content.content).trigger('sectionload');
-			
-			if(response.data.sidebar){
-				sidebar.html(response.data.sidebar.content).trigger('sidebarload');
-			}
-			
+			$(document).setBlock(response);
+	
 		},'json');
 	}
 	
-	$('nav li').removeClass('activated');
-	$('nav li#nav-'+uriSegments[0]+', nav li#nav-'+uriSegments[0]+'-'+uriSegments[1]).addClass('activated');
 });
 
 $(document).ready(function(){
+	console.log('document ready');
 	
 	if($.browser.msie && ($.browser.version<8 || document.documentMode && document.documentMode<8)){
 		$.showMessage('您正在使用不被推荐的浏览器，请关闭浏览器兼容模式。如果问题仍然存在，<a href="/browser">请点此下载推荐的浏览器</a>','warning');
@@ -84,9 +67,9 @@ $(document).ready(function(){
 		var subMenu=$(this).siblings('.l1');
 		if(subMenu.is(':hidden')){
 			subMenu.show(200);
-			$(this).children('img').rotate({animateTo:90,duration:200});
+			$(this).children('img').rotate({animateTo:90,duration:500});
 		}else{
-			$(this).children('img').rotate({animateTo:0,duration:200});
+			$(this).children('img').rotate({animateTo:0,duration:500});
 			subMenu.hide(200);
 		}
 	});
@@ -111,7 +94,10 @@ $(document).ready(function(){
 	}
 })
 /*主体页面加载事件*/
-.on('sectionload blockload','#page>section,body',function(event){
+.on('blockload','*',function(event){
+	console.log('block loaded');
+	console.log(this);
+	
 	/*section触发事件后不再传递到body*/
 	event.stopPropagation();
 	
@@ -123,23 +109,18 @@ $(document).ready(function(){
 	});
 	
 	$(this).find('.contentTable>tbody>tr:has(td:first[hash])').css({cursor:'pointer'});
-	
+
 	if(!$.browser.msie){
-		$(this).find('.contentTable:not(#side-bar .contentTable)>tbody>tr').each(function(index){
-			$(this).delay(15*index).css('opacity',0).css('visibility','visible').animate({opacity:'1'},500);
-		});
-	}
-})
-.on('blockload','.contentTable, #page>section',function(event){
-	event.stopPropagation();
-	
-	if(!$.browser.msie){
-		$(this).find('tbody>tr').each(function(index){
+		$(this).find('.contentTable>tbody>tr').each(function(index){
 			$(this).delay(15*index).css('opacity',0).css('visibility','visible').animate({opacity:'1'},500);
 		});
 	}
 })
 .on('sectionload sectionshow','#page>section',function(){
+	console.log('section loaded/show');
+	//console.log(event);
+	console.log(this);
+	
 	document.title=affair+' - '+(username?username+' - ':'')+sysname;
 })
 /*编辑页的提交按钮点击事件，提交数据到后台，在页面上反馈数据和提示*/

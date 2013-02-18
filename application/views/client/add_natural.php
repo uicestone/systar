@@ -1,8 +1,8 @@
 <form method="post" name="<?=CONTROLLER?>" id="<?=$this->client->id?>" enctype="multipart/form-data">
 <div class="contentTableMenu">
 	<div class="right">
-		<input type="submit" name="submit[client]" value="保存" />
-		<input type="submit" name="submit[cancel]" value="关闭" />
+		<button type="submit" name="submit[client]">保存</button>
+		<button type="submit" name="submit[cancel]">关闭</button>
 	</div>
 </div>
 <div class="contentTableBox">
@@ -79,8 +79,8 @@
 		</div>
 
 		<div class="submit">
-			<input type="submit" name="submit[client]" value="保存" />
-			<input type="submit" name="submit[cancel]" value="关闭" />
+			<button type="submit" name="submit[client]">保存</button>
+			<button type="submit" name="submit[cancel]">关闭</button>
 		</div>
 	</div>
 </div>
