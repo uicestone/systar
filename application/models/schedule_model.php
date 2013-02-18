@@ -3,6 +3,19 @@ class Schedule_model extends SS_Model{
 	
 	var $id;
 	
+	var $fields=array(
+		'name'=>'标题',
+		'content'=>'内容',
+		'time_start'=>'开始时间',
+		'time_end'=>'结束时间',
+		'hours_own'=>'自报时长',
+		'hours_checked'=>'核准时长',
+		'hours_bill'=>'账单时长',
+		'all_day'=>'全天',
+		'completed'=>'已完成',
+		'case'=>'关联案件'//deprecated
+	);
+	
 	function __construct(){
 		parent::__construct();
 	}
@@ -26,7 +39,50 @@ class Schedule_model extends SS_Model{
 		return $schedule;
 	}
 	
+	/**
+	 * 插入一条日程，返回插入的id
+	 */
+	function add(array $data=array()){
+		
+		$data=array_intersect_key($data, $this->fields);
+		
+		if(isset($data['time_start']) && isset($data['time_end'])){
+			$data['hours_own'] = round(($data['time_end']-$data['time_start'])/3600,2);
+		}
+
+		$data['display']=1;
+		$data+=uidTime(true,true);
+		
+		$this->db->insert('schedule',$data);
+		
+		return $this->db->insert_id();
+	}
+	
+	function update($schedule_id,$data){
+		$schedule_id=intval($schedule_id);
+
+		$data=array_intersect_key($data, $this->fields);
+		
+		return $this->db->update('schedule',$data,array('id'=>$schedule_id));
+	}
+	
+	function delete($schedule_id){
+		$schedule_id=intval($schedule_id);
+		
+		return $this->db->delete('schedule',array('id'=>$schedule_id,'uid'=>$this->user->id));	
+	}
+	
+	/**
+	 * 给一条日程添加一个资料项
+	 * @param int $schedule_id
+	 * @param $name 资料项名称
+	 * @param $content 资料项内容
+	 * @param $comment 备注
+	 * @return type 
+	 */
 	function addProfile($schedule_id,$name,$content,$comment=NULL){
+		$schedule_id=intval($schedule_id);
+		
 		$data=array(
 			'schedule'=>$schedule_id,
 			'name'=>$name,
@@ -126,36 +182,6 @@ class Schedule_model extends SS_Model{
 		$schedule_id=intval($schedule_id);
 		$this->db->update('schedule',array('hours_checked'=>$hours_checked),"id = '".$schedule_id."'");
 		return true;
-	}
-	
-	function add($data){
-		//插入一条日程，返回插入的id
-		
-		isset($data['fee']) && $data['fee'] = (int)$data['fee'];
-
-		if(isset($data['time_start']) && isset($data['time_end'])){
-			$data['hours_own'] = round(($data['time_end']-$data['time_start'])/3600,2);
-		}
-
-		$data['display']=1;
-		$data+=uidTime(true,true);
-
-		if($this->db->insert('schedule',$data)){
-			return $this->db->insert_id();
-		}else{
-			return false;
-		}
-		
-	}
-	
-	function delete($schedule_id){
-		return $this->db->delete('schedule',array('id'=>intval($schedule_id),'uid'=>$this->user->id));	
-	}
-	
-	function update($schedule_id,$data){
-		$schedule_id=intval($schedule_id);
-		
-		return $this->db->update('schedule',$data,array('id'=>$schedule_id));
 	}
 	
 	/**
@@ -326,7 +352,9 @@ class Schedule_model extends SS_Model{
 	
 	function getTaskBoardSort($uid)
 	{
-		$query = $this -> db -> query("SELECT sort_data FROM schedule_taskboard WHERE uid='{$uid}'");
+		$uid=intval($uid);
+		
+		$query = $this -> db -> query("SELECT sort_data FROM schedule_taskboard WHERE uid=$uid");
 		
 		if($query -> num_rows() == 0)	//若查询结果为空
 		{
@@ -341,8 +369,9 @@ class Schedule_model extends SS_Model{
 	
 	function setTaskBoardSort($sort_data , $uid)
 	{
+		$uid=intval($uid);
 		$data['sort_data'] = $sort_data;
-		$this -> db -> update('schedule_taskboard' , $data , array('uid'=>$uid));
+		$this -> db -> update('schedule_taskboard' , $data , array('uid'=>$uid,'time'=>$this->config->item('timestamp')));
 	}
 	
 	function createTaskBoard($sort_data ,$uid)
@@ -350,6 +379,7 @@ class Schedule_model extends SS_Model{
 		//$data['id'] = "NULL";这是？
 		$data['sort_data'] = $sort_data;
 		$data['uid'] = $uid;
+		$data['time'] = $this->config->item('timestamp');
 		
 		$this -> db -> insert('schedule_taskboard' , $data);
 	}

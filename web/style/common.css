@@ -42,9 +42,6 @@ button{
 .shadow{
 	box-shadow:-2px 2px 5px rgba(0,0,0,0.5);
 }
-.throbber{
-	text-align: center;
-}
 #top-bar .throbber{
 	width:21px;
 	position:absolute;
@@ -52,6 +49,13 @@ button{
 }
 .date{
 	width:110px;
+}
+.field{
+	padding:3px 5px;
+	margin-bottom:1px;
+	text-align:left;
+	background:#FFF;
+	border-bottom:#999 1px solid;
 }
 button.transparent{
 	background:transparent;
@@ -175,15 +179,18 @@ nav{
 }
 #tabs li{
 	float:left;
-	padding-right:15px;
+	padding:0 7px;
+	height:25px;
 }
 #tabs a{
 	font-size:15px;
 	color:#DDD;
 }
+#tabs li.activated{
+	background-color:#091F35;
+}
 #tabs li.activated a{
 	color:#FFF;
-	font-weight:bold;
 }
 #tabs li a:hover{
 	text-decoration:none;
@@ -356,12 +363,6 @@ nav{
 	/*font-size:17px;*/
 	margin-bottom:10px;
 	text-align:left;
-}
-.contentTable .item .field{
-	padding:3px 5px;
-	margin-bottom:1px;
-	background:#FFF;
-	border:#999 1px solid;
 }
 .contentTable .item input[type="text"],
 .contentTable .item input[type="password"],

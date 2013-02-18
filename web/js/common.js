@@ -3,8 +3,6 @@ var hash,controller,action,username,sysname,uriSegments;
 $(window).on('hashchange',function(){
 	hash=$.locationHash();
 
-	console.log('hash changed to: '+hash);
-
 	uriSegments=hash.split('/');
 	
 	/*根据当前hash，设置标签选项卡和导航菜单激活状态*/
@@ -29,7 +27,6 @@ $(window).on('hashchange',function(){
 		$('#top-bar>.throbber').fadeIn(500).rotate({animateTo:18000,duration:100000});
 		
 		$.get(hash,function(response){
-			console.log('responsed: '+hash);
 			
 			$('#top-bar>.throbber').stop().fadeOut(200).stopRotate();
 			
@@ -52,7 +49,6 @@ $(window).on('hashchange',function(){
 });
 
 $(document).ready(function(){
-	console.log('document ready');
 	
 	if($.browser.msie && ($.browser.version<8 || document.documentMode && document.documentMode<8)){
 		$.showMessage('您正在使用不被推荐的浏览器，请关闭浏览器兼容模式。如果问题仍然存在，<a href="/browser">请点此下载推荐的浏览器</a>','warning');
@@ -95,9 +91,6 @@ $(document).ready(function(){
 })
 /*主体页面加载事件*/
 .on('blockload','*',function(event){
-	console.log('block loaded');
-	console.log(this);
-	
 	/*section触发事件后不再传递到body*/
 	event.stopPropagation();
 	
@@ -117,10 +110,6 @@ $(document).ready(function(){
 	}
 })
 .on('sectionload sectionshow','#page>section',function(){
-	console.log('section loaded/show');
-	//console.log(event);
-	console.log(this);
-	
 	document.title=affair+' - '+(username?username+' - ':'')+sysname;
 })
 /*编辑页的提交按钮点击事件，提交数据到后台，在页面上反馈数据和提示*/
@@ -359,7 +348,7 @@ jQuery.parseMessage=function(messages){
 /*扩展jQuery对象函数*/
 jQuery.fn.showSchedule=function(event){
 	var target=$(this);
-	var dialog=$('<div></div>').appendTo('body')
+	var dialog=$('<div class="schedule"></div>').appendTo('body')
 	.dialog({
 		position:{
 			my:'left bottom',
@@ -368,8 +357,11 @@ jQuery.fn.showSchedule=function(event){
 		},
 		dialogClass:'shadow schedule-form',
 		show:'fade',hide:'fade',
-		modal:true
-	}).html('<div class="throbber"><img src="/images/throbber.gif" /></div>')
+		modal:true,
+		close:function(){
+			$(this).remove();
+		}
+	})
 	
 	.dialog( "option", "buttons", [
 		{
@@ -380,16 +372,16 @@ jQuery.fn.showSchedule=function(event){
 		}
 	]);
 
-	if($('#page .contentTableBox').attr('id')=='calendar'){
+	if(hash=='schedule'){
 		dialog.dialog('option','buttons',[{
 			text:'添加至任务墙',
 			click:function(){
-				$.get('/schedule/addtotaskboard/'+event.id,function(){
-					dialog.dialog('close');
+				$.get('/schedule/addtotaskboard/'+event.id,function(response){
+					$.processMessage(response);
 				});
 			}
 		}].concat(dialog.dialog('option','buttons')));
-	}else if($('#page .contentTableBox').attr('id')=='taskboard'){
+	}else if(hash=='schedule/taskboard'){
 		dialog.dialog('option','buttons',[{
 			text:'移出任务墙',
 			click:function(){
@@ -403,8 +395,8 @@ jQuery.fn.showSchedule=function(event){
 	}
 
 	$.get("/schedule/view/"+event.id,function(response){
-		dialog.dialog('option','title',response.data.name);
-		dialog.html(response.data.view);
+		dialog.dialog('option','title',response.data.title.content);
+		dialog.html(response.data.content.content);
 	},'json');
 }
 
@@ -482,7 +474,6 @@ jQuery.fn.createSchedule=function(startDate, endDate, allDay, project, completed
 
 					}else{
 						showMessage('日程添加失败','warning');
-						console.log(response);
 					}
 				},'json');
 			}else{
@@ -524,7 +515,7 @@ jQuery.fn.editSchedule=function(event){
 	dialog=$(this);
 	
 	$.get('/schedule/edit/'+event.id,function(response){
-		dialog.dialog('option','title',response.data.name).html(response.data.view).find('[name="name"]').focus();
+		dialog.dialog('option','title',response.data.title.content).html(response.data.content.content).find('[name="name"]').focus();
 		
 		dialog.dialog('option','buttons',[
 			{
@@ -537,7 +528,6 @@ jQuery.fn.editSchedule=function(event){
 				text: "删除",
 				click: function() {
 					$.get("/schedule/writecalendar/delete/"+event.id,function(result){
-						console.log(result);
 					});
 					$(this).dialog("close");
 					if($('#page .contentTableBox').attr('id')=='calendar'){
@@ -591,7 +581,6 @@ jQuery.fn.getOptionsByLabelRelative=function(labelName,callback){
 
 jQuery.fn.addRow=function(rowData){
 	if(!$(this).is('.contentTable')){
-		console.error('addRow方法调用错误，只有.contenTable才能addRow');
 		return false;
 	}
 	

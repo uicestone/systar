@@ -482,7 +482,7 @@ class Schedule extends SS_controller{
 		$this -> schedule -> setTaskBoardSort(json_encode($sort_data) , $this->user->id);
 		//echo json_encode($sort_data)."<br/>";
 		$this -> load -> require_head = false;
-		echo "success";
+		$this->output->status='success';
 	}
 	
 	function addToTaskBoard($task_id , $uid=NULL , $series=NULL)
@@ -524,8 +524,8 @@ class Schedule extends SS_controller{
 			$this -> schedule -> createTaskBoard(json_encode($sort_data), $uid);
 		}
 		
-		$this -> load -> require_head = false;
-		echo "success";
+		$this->output->status='success';
+		$this->output->message('已添加至“任务”');
 	}
 	
 	function deleteFromTaskBoard($task_id , $uid=NULL)
@@ -562,14 +562,13 @@ class Schedule extends SS_controller{
 			}
 		}
 		
-		$this -> load -> require_head = false;
-		echo "success";
+		$this->output->status='success';
 	}
 	
 	function add(){
 		$this->output->setData('新日程', 'name');
 		$this->load->addViewData('mode', 'add');
-		$this->load->view('schedule/calendar_add');
+		$this->load->view('schedule/edit');
 	}
 	
 	function view($schedule_id){
@@ -591,15 +590,10 @@ class Schedule extends SS_controller{
 			$this->load->addViewData('project_name', $project_name);
 		}
 		
-		
 		$this->load->addViewData('schedule', $schedule);
-		$this->load->addViewData('mode',$mode);
 		
-		$view=$this->load->view('schedule/calendar_add',array(),true);
-		
-		$name=$schedule['name'];
-		
-		$this->output->data=compact('name','view');
+		$this->output->setData($schedule['name'],'title');
+		$this->output->setData($this->load->view("schedule/$mode",array(),true));
 	}
 }
 ?>
