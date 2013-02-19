@@ -9,10 +9,13 @@ class Document_model extends SS_Model{
 	}
 	
 	function fetch($id){
+		$id=intval($id);
+		
 		$query="
 			SELECT * 
 			FROM `document` 
-			WHERE id='{$id}' AND company='{$this->company->id}'";
+			WHERE id=$id AND company={$this->company->id}
+		";
 		return $this->db->query($query)->row_array();
 	}
 	
