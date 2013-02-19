@@ -29,7 +29,7 @@ class Cases extends SS_controller{
 		$this->output->setData('案件', 'name');
 
 		$field=array(
-			'time_contract'=>array('title'=>'案号','td_title'=>'width="180px"','td'=>'title="立案时间：{time_contract}" hash="cases/edit/{id}"','content'=>'{num}'),
+			'time_contract'=>array('title'=>'案号','td_title'=>'width="140pxpx"','td'=>'title="立案时间：{time_contract}" hash="cases/edit/{id}"','content'=>'{num}'),
 			'name'=>array('title'=>'案名','content'=>'{name}'),
 			'lawyers'=>array('title'=>'主办律师','td_title'=>'width="100px"'),
 			'schedule_grouped.time_start'=>array('title'=>'最新日志','eval'=>true,'content'=>"
@@ -45,7 +45,7 @@ class Cases extends SS_controller{
 		
 		if(!$this->user->isLogged('lawyer') && $this->user->isLogged('finance')){
 			$field=array(
-				'time_contract'=>array('title'=>'案号','td_title'=>'width="180px"','td'=>'title="立案时间：{time_contract}" hash="cases/edit/{id}"','content'=>'{num}'),
+				'time_contract'=>array('title'=>'案号','td_title'=>'width="140px"','td'=>'title="立案时间：{time_contract}" hash="cases/edit/{id}"','content'=>'{num}'),
 				'name'=>array('title'=>'案名','content'=>'{name}'),
 				'lawyers'=>array('title'=>'主办律师','td_title'=>'width="100px"'),
 				'is_reviewed'=>array('title'=>'状态','td_title'=>'width="75px"','eval'=>true,'content'=>"

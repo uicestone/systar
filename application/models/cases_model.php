@@ -455,15 +455,13 @@ class Cases_model extends SS_Model{
 	function getFiledList(){
 		$query="
 			SELECT
-				case.id,case.name AS case_name,case.stage,case.time_contract,case.time_end,case.num,
+				case.id,case.name,case.time_contract,case.time_end,case.num,
 				case.is_reviewed,case.apply_file,case.is_query,
 				case.type_lock*case.client_lock*case.staff_lock*case.fee_lock AS locked,
 				case.finance_review,case.info_review,case.manager_review,case.filed,
 				lawyers.lawyers,
-				file_status_grouped.status,file_status_grouped.staff AS staff,FROM_UNIXTIME(file_status_grouped.time,'%Y-%m-%d %H:%i:%s') AS status_time,
 				contribute_allocate.contribute_sum,
-				uncollected.uncollected,
-				staff.name AS staff_name
+				uncollected.uncollected
 			FROM 
 				`case` INNER JOIN case_num ON `case`.id=case_num.`case`
 
@@ -474,16 +472,6 @@ class Cases_model extends SS_Model{
 					GROUP BY case_people.`case`
 				)lawyers
 				ON `case`.id=lawyers.`case`
-
-				LEFT JOIN (
-					SELECT * FROM (
-						SELECT `case`,status,staff,time FROM file_status ORDER BY time DESC
-					)file_status_ordered
-					GROUP BY `case`
-				)file_status_grouped 
-				ON case.id=file_status_grouped.case
-
-				LEFT JOIN staff ON file_status_grouped.staff=staff.id
 
 				LEFT JOIN 
 				(
@@ -508,7 +496,7 @@ class Cases_model extends SS_Model{
 				)uncollected
 				ON case.id=uncollected.case
 
-			WHERE case.display=1 AND case.id>=20 AND case.filed=1
+			WHERE case.company={$this->company->id} AND case.display=1 AND case.filed=1 AND case.is_query=0
 		";
 		
 		$query=$this->search($query,array('case_num_grouped.num'=>'案号','case.name'=>'名称','lawyers.lawyers'=>'主办律师'));
