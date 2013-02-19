@@ -19,11 +19,12 @@ class SS_Controller extends CI_Controller{
 	var $require_permission_check=true;
 	
 	var $company_type_model_loaded=false;
+	var $company_model_loaded=false;
 	
 	function __construct(){
 		parent::__construct();
 		
-		/**
+		/*
 		 * 处理$class和$method，并定义为常量
 		 */
 		global $class,$method;
@@ -40,7 +41,7 @@ class SS_Controller extends CI_Controller{
 		$this->controller=$class;
 		$this->method=$method;
 		
-		/**
+		/*
 		 * 自动载入的资源，没有使用autoload.php是因为后者载入以后不能起简称...
 		 */
 		$this->load->helper('function_common');
@@ -56,8 +57,13 @@ class SS_Controller extends CI_Controller{
 			$this->load->model($this->company->type.'_model',$this->company->type);
 			$this->company_type_model_loaded=true;
 		}
+		
+		if(is_file(APPPATH.'models/'.$this->company->syscode.'_model.php')){
+			$this->load->model($this->company->syscode.'_model',$this->company->syscode);
+			$this->company_model_loaded=true;
+		}
 	
-		/**
+		/*
 		 * 弹出未登录用户
 		 */
 		if($this->require_permission_check && !$this->user->isLogged()){
@@ -66,7 +72,7 @@ class SS_Controller extends CI_Controller{
 			exit;
 		}
 		
-		/**
+		/*
 		 * 屏蔽无权限用户
 		 */
 		if($this->require_permission_check && !$this->user->isPermitted($class)){
@@ -105,14 +111,6 @@ class SS_Controller extends CI_Controller{
 			unset($_SESSION[CONTROLLER][METHOD]['keyword']);
 		}
 		
-		/*
-		if(isset($this->user->permission[$this->controller][$this->method]['_controller_name'])){
-			$this->output->setData($this->user->permission[$this->controller][$this->method]['_controller_name'], 'name');
-		}elseif(isset($this->user->permission[$this->controller]['_controller_name'])){
-			$this->output->setData($this->user->permission[$this->controller]['_controller_name'], 'name');
-		}
-		*/
-
 	}
 	
 	/**

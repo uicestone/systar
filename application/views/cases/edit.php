@@ -131,7 +131,7 @@
 				<span display-for="new client" class="hidden">
 					<label>来源：</label>
 					<select name="client_source[type]" disabled="disabled">
-						<?=options(array('_ENUM','client_source','type'),$this->value('client_source/type'))?>
+						<?=options($this->config->item('client_source_types'),$this->value('client_source/type'),'来源类型')?>
 					</select>
 					<input type="text" name="client_source[detail]" value="<?=$this->value('client_source/detail')?>" class="hidden" disabled="disabled" locked-by="case_client_extra[source_type]" />
 					<input type="text" name="client[staff_name]" placeholder="来源律师" value="<?=$this->value('client/staff_name')?$this->value('client/staff_name'):$this->user->name?>" disabled="disabled" />

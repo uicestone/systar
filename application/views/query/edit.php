@@ -27,7 +27,7 @@
 			<div class="item hidden" display-for="new">
 				<div class="title"><label>来源：</label></div>
 				<select name="client_source[type]" disabled="disabled">
-					<?=options(array('_ENUM','client_source','type'),$this->value('client_source/type'))?>
+					<?=options($this->config->item('client_source_types'),$this->value('client_source/type'))?>
 				</select>
 				<input type="text" name="client_source[detail]" value="<?=$this->value('client_source/detail') ?>" class="hidden" placeholder="具体来源" disabled="disabled" locked-by="client_source[type]" />
 				<input type="text" name="client[staff_name]" value="<?=$this->value('client/staff_name') ?>" title="来源律师" placeholder="来源律师" autocomplete-model="staff" disabled="disabled" />
