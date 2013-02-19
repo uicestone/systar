@@ -100,7 +100,7 @@
 	
 			<div class="add-form hidden">
 				<input type="text" name="client[name]" value="<?=$this->value('client/name')?>" placeholder="名称" autocomplete-model="client" />
-				<input type="text" name="client[id]" class="hidden" />
+				<input type="text" name="case_client[client]" class="hidden" />
 				
 				<span display-for="new" class="hidden">
 					<?=checkbox('单位','client[character]',$this->value('client/character'),'单位','disabled="disabled"')?>

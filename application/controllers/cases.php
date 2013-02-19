@@ -344,7 +344,6 @@ class Cases extends SS_controller{
 		
 			if($submit=='cancel'){
 				unset($_SESSION[CONTROLLER]['post'][$this->cases->id]);
-				$this->cases->clearUserTrash();
 			}
 		
 			elseif($submit=='cases'){
@@ -375,17 +374,17 @@ class Cases extends SS_controller{
 			elseif($submit=='case_client'){
 				
 				//这样对数组做加法，后者同名键不会替换前者，即后者是前者的补充，而非更新
-				$case_client=post('case_client')+$this->input->post('case_client');
-				$client=post('client')+$this->input->post('client');
-				$client_profiles=post('client_profiles')+$this->input->post('client_profiles');
-				$client_labels=post('client_labels')+$this->input->post('client_labels');
+				$case_client=(array)post('case_client')+(array)$this->input->post('case_client');
+				$client=(array)post('client')+(array)$this->input->post('client');
+				$client_profiles=(array)post('client_profiles')+(array)$this->input->post('client_profiles');
+				$client_labels=(array)post('client_labels')+(array)$this->input->post('client_labels');
 				
 				if(!$case_client['role']){
 					$this->output->message('请选择本案地位','warning');
 					throw new Exception;
 				}
 		
-				if($client['id']){//autocomplete搜索到已有客户
+				if($case_client['client']){//autocomplete搜索到已有客户
 					$this->output->message("系统中已经存在{$client['name']}，已自动识别");
 				}
 				else{//添加新客户
