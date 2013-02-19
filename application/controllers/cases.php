@@ -344,6 +344,7 @@ class Cases extends SS_controller{
 		
 			if($submit=='cancel'){
 				unset($_SESSION[CONTROLLER]['post'][$this->cases->id]);
+				$this->cases->clearUserTrash();
 			}
 		
 			elseif($submit=='cases'){

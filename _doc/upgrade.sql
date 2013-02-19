@@ -150,4 +150,9 @@ ALTER TABLE  `document` DROP FOREIGN KEY  `document_ibfk_4` ;
 
 ALTER TABLE  `document` DROP  `case` ,
 DROP  `people` ;
+
+ALTER TABLE  `case_label` DROP FOREIGN KEY  `case_label_ibfk_1` ,
+ADD FOREIGN KEY (  `case` ) REFERENCES  `syssh`.`case` (
+`id`
+) ON DELETE CASCADE ON UPDATE CASCADE ;
 -- uice 2/19
