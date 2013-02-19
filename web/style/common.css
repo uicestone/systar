@@ -91,10 +91,13 @@ body{
 #page section{
 	position:absolute;left:120px;top:25px;right:245px;;bottom:0;
 	box-shadow: -2px 0 5px #000;
-	overflow-x:hidden;
+	overflow-x:auto;
 	overflow-y:auto;
 	border:0;
 	background:transparent;
+}
+#page section .contentTableBox{
+	min-width:800px;
 }
 nav{
 	/*导航菜单框架*/
