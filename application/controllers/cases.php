@@ -674,59 +674,75 @@ class Cases extends SS_controller{
 			}
 			
 			elseif($submit=='lock_type'){
-				post('cases/type_lock',1);
+				$this->cases->update($this->cases->id,array('type_lock'=>true));
+				$this->output->status='refresh';
 			}
 			
 			elseif($submit=='lock_client'){
-				post('cases/client_lock',1);
+				$this->cases->update($this->cases->id,array('client_lock'=>true));
+				$this->output->status='refresh';
 			}
 			
 			elseif($submit=='lock_lawyer'){
-				post('cases/staff_lock',1);
+				$this->cases->update($this->cases->id,array('staff_lock'=>true));
+				$this->output->status='refresh';
 			}
 			
 			elseif($submit=='lock_fee'){
-				post('cases/fee_lock',1);
+				$this->cases->update($this->cases->id,array('fee_lock'=>true));
+				$this->output->status='refresh';
 			}
 			
 			elseif($submit=='unlock_client'){
-				post('cases/client_lock',0);
+				$this->cases->update($this->cases->id,array('client_lock'=>false));
+				$this->output->status='refresh';
 			}
 			
 			elseif($submit=='unlock_lawyer'){
-				post('cases/staff_lock',0);
+				$this->cases->update($this->cases->id,array('staff_lock'=>false));
+				$this->output->status='refresh';
 			}
 			
 			elseif($submit=='unlock_fee'){
-				post('cases/fee_lock',0);
+				$this->cases->update($this->cases->id,array('fee_lock'=>false));
+				$this->output->status='refresh';
 			}
 			
 			elseif($submit=='apply_file'){
-				post('cases/time_end',$this->config->item('date'));
-				post('cases/apply_file',1);
-				showMessage('归档申请已接受');
+				$this->cases->update($this->cases->id,array(
+					'apply_file'=>true,
+					'time_end'=>$this->config->item('date')
+				));
+				$this->output->status='refresh';
+				$this->output->message('归档申请已接受');
 			}
 			
 			elseif($submit=='review_finance'){
-				post('cases/finance_review',1);
-				showMessage('结案财务状况已经审核');
+				$this->cases->update($this->cases->id,array('finance_review'=>true));
+				$this->output->status='refresh';
+				$this->output->message('结案财务状况已经审核');
 			}
 			
 			elseif($submit=='review_info'){
-				post('cases/info_review',1);
-				showMessage('案件信息已经审核');
+				$this->cases->update($this->cases->id,array('info_review'=>true));
+				$this->output->status='refresh';
+				$this->output->message('案件信息已经审核');
 			}
 			
 			elseif($submit=='review_manager'){
-				post('cases/time_end',$this->config->item('date'));
-				post('cases/manager_review',1);
-				showMessage('案件已经审核，已正式归档');
+				$this->cases->update($this->cases->id,array(
+					'time_end'=>$this->config->item('date'),
+					'manager_review'=>true
+				));
+				$this->output->status='refresh';
+				$this->output->message('案件已经审核，已正式归档');
 			}
 			
 			elseif(!$case['is_query'] && $submit=='file'){
+				$this->cases->update($this->cases->id,array('filed'=>true));
 				$this->cases->updateFileStatus($this->cases->id,'在档');
-				post('cases/filed',1);
-				showMessage('案件实体归档完成');
+				$this->output->status='refresh';
+				$this->output->message('案件实体归档完成');
 			}
 
 			elseif($submit=='apply_case_num'){
