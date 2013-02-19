@@ -363,7 +363,7 @@ $config['proxy_ips'] = '';
 $config['document_root']="D:/files";
 
 //案下文件物理位置
-$config['case_document_path']="D:/case_document";
+$config['document_path']="D:/case_document";
 
 $config['debug_mode']=true;
 

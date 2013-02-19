@@ -27,7 +27,7 @@
 		<div class="item">
 			<div class="title"><label>来源：</label></div>
 			<select name="source[type]">
-				<?=options($this->config->item('client_source_types'),$this->value('source/type'),'来源类型')?>
+				<?=options($this->config->item('客户来源类型'),$this->value('source/type'),'来源类型')?>
 			</select>
 			
 			<input type="text" name="source[detail]" value="<?=$this->value('source/detail')?>" <?if(!$this->value('source/detail')){?>class="hidden" disabled="disabled"<?}?> />

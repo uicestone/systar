@@ -56,11 +56,11 @@
 			<span class="field">内部行政</span>
 <?}else{?>
 			<select id="type" name="labels[领域]"<?if($cases['type_lock']){?> disabled="disabled"<?}?>>
-			<?=options(array('公司','劳动','房产','婚姻','继承','刑事','知产','留学','移民','行政','合同','侵权'),$this->value('labels/领域'),'领域');?>
+			<?=options($this->config->item('案件领域'),$this->value('labels/领域'),'领域');?>
 			</select>
 <?	if($cases['is_query']){ ?>
 			<select id="classification" name="labels[咨询方式]">
-			<?=options(array('面谈','电话','网络'),$this->value('labels/咨询方式'),'咨询方式');?>
+			<?=options($this->config->item('咨询方式'),$this->value('labels/咨询方式'),'咨询方式');?>
 			</select>
 <?	}else{?>
 			<select id="classification" name="labels[分类]"<?if($cases['type_lock']){?> disabled="disabled"<?}?>>
@@ -131,7 +131,7 @@
 				<span display-for="new client" class="hidden">
 					<label>来源：</label>
 					<select name="client_source[type]" disabled="disabled">
-						<?=options($this->config->item('client_source_types'),$this->value('client_source/type'),'来源类型')?>
+						<?=options($this->config->item('客户来源类型'),$this->value('client_source/type'),'来源类型')?>
 					</select>
 					<input type="text" name="client_source[detail]" value="<?=$this->value('client_source/detail')?>" class="hidden" disabled="disabled" locked-by="case_client_extra[source_type]" />
 					<input type="text" name="client[staff_name]" placeholder="来源律师" value="<?=$this->value('client/staff_name')?$this->value('client/staff_name'):$this->user->name?>" disabled="disabled" />
@@ -167,7 +167,7 @@
 <? if($cases['is_query']){//咨询阶段显示报价情况，不显示律师费和办案费?>
 		<div class="item">
 			<div class="title"><label>报价：</label></div>
-			<input type="text" name="cases[quote]" value="<?=$this->value('cases/quote') ?>" />
+			<input type="text" name="cases[quote]" value="<?=$this->value('cases/quote') ?>" style="width:100%" />
 		</div>
 <? }?>
 		<div class="item" name="fee">

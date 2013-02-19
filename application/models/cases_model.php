@@ -84,14 +84,14 @@ class Cases_model extends SS_Model{
 	function add($data=array()){
 		$data=array_intersect_key($data, $this->fields);
 		
-		if($data['is_query']){
+		if(isset($data['is_query']) && $data['is_query']){
 			$data['first_contact']=$this->config->item('date');
 		}else{
 			$data['time_contract']=$this->config->item('date');
 			$data['time_end']=date('Y-m-d',$this->config->item('timestamp')+100*86400);
 		}
 		
-	    $data+=uidTime();
+	    $data+=uidTime(true,true);
 	
 	    $this->db->insert('case',$data);
 		return $this->db->insert_id();

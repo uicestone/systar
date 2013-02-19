@@ -27,7 +27,7 @@
 			<div class="item hidden" display-for="new">
 				<div class="title"><label>来源：</label></div>
 				<select name="client_source[type]" disabled="disabled">
-					<?=options($this->config->item('client_source_types'),$this->value('client_source/type'))?>
+					<?=options($this->config->item('客户来源类型'),$this->value('client_source/type'))?>
 				</select>
 				<input type="text" name="client_source[detail]" value="<?=$this->value('client_source/detail') ?>" class="hidden" placeholder="具体来源" disabled="disabled" locked-by="client_source[type]" />
 				<input type="text" name="client[staff_name]" value="<?=$this->value('client/staff_name') ?>" title="来源律师" placeholder="来源律师" autocomplete-model="staff" disabled="disabled" />
@@ -52,7 +52,7 @@
 			
 			<div class="item">
 				<div class="title"><label>概况：</label></div>
-				<select name="labels[领域]"><?=options(array('公司','房产建筑','诉讼','婚姻家庭','刑事行政','知识产权','劳动人事','涉外'), $this->value('labels/领域'), '领域')?></select>
+				<select name="labels[领域]"><?=options($this->config->item('案件领域'), $this->value('labels/领域'), '领域')?></select>
 				<textarea name="cases[summary]" rows="7"><?=$this->value('cases/summary'); ?></textarea>
 			</div>
 	
