@@ -4,9 +4,14 @@ class Staff_model extends People_model{
 		parent::__construct();
 	}
 	
-	function check($staff_name,$data_type='id'){
-		//$data_type:id,array
-		if(!$staff_name){
+	/**
+	 * 根据部分名称返回一个职员id或其他信息
+	 * @param $part_of_staff_name
+	 * @param $data_type
+	 */
+	function check($part_of_staff_name,$data_type='id'){
+		
+		if(!$part_of_staff_name){
 			$this->output->message('请输入职员名称','warning');
 			throw new Exception;
 		}
@@ -15,27 +20,30 @@ class Staff_model extends People_model{
 			SELECT * 
 			FROM `staff`
 				INNER JOIN people USING(id)
-			WHERE people.company={$this->company->id} AND people.`name` LIKE '%".$staff_name."%'
+			WHERE people.company={$this->company->id} AND people.display=1
+				AND people.`name` LIKE '%$part_of_staff_name%'
 		";
 		$result=$this->db->query($query);
-		$num_lawyers=$result->num_rows();
 
-		if($num_lawyers==0){
-			$this->output->message('没有这个职员：'.$staff_name,'warning');
+		if($result->num_rows()==0){
+			$this->output->message('没有这个职员：'.$part_of_staff_name,'warning');
 			throw new Exception;
 
-		}elseif($num_lawyers>1){
-			$this->output->message('此关键词存在多个符合职员','warning');
+		}elseif($result->num_rows()>1){
+			$this->output->message($part_of_staff_name.' 匹配多个职员','warning');
 			throw new Exception;
 
 		}else{
 			$data=$result->row_array();
 			if($data_type=='array'){
-					$return=$data;
+				return $data;
+				
+			}elseif(isset($data[$data_type])){
+				return $data[$data_type];
+				
 			}else{
-					$return=$data[$data_type];
+				return false;
 			}
-			return $return;
 		}
 	}
 

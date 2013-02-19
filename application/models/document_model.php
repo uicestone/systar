@@ -3,6 +3,13 @@ class Document_model extends SS_Model{
 	
 	var $id;
 	
+	var $fields=array(
+		'name'=>'文件名',
+		'extname'=>'扩展名',
+		'size'=>'大小',
+		'comment'=>'备注'
+	);
+	
 	function __construct(){
 		parent::__construct();
 		$this->load->library('filetype');
@@ -19,14 +26,10 @@ class Document_model extends SS_Model{
 		return $this->db->query($query)->row_array();
 	}
 	
-	function add($name,$size){
-		$data=array(
-			'name'=>$name,
-			'extname'=>$this->getExtension($name),
-			'size'=>$size
-		);
+	function add(array $data=array()){
+		$data=array_intersect_key($data, $this->fields);
 		
-		$data+=uidTime();
+		$data+=uidTime(true,true);
 		
 		$this->db->insert('document',$data);
 		
@@ -91,23 +94,5 @@ class Document_model extends SS_Model{
 		return $this->db->query($q)->result_array();
 	}
 
-	function getListByCase($case_id){
-		$case_id=intval($case_id);
-		
-		$query="
-			SELECT id,document.name,extname,type.name AS type,comment,time,username
-			FROM 
-				document
-				LEFT JOIN (
-					SELECT label.name,document_label.document
-					FROM document_label 
-						INNER JOIN label ON document_label.label=label.id
-					WHERE document_label.type='类型'
-				)type ON document.id=type.document
-			WHERE display=1 AND `case` = $case_id
-			ORDER BY time DESC";
-
-		return $this->db->query($query)->result_array();
-	}
 }
 ?>

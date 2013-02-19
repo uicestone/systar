@@ -114,13 +114,17 @@ $(document).ready(function(){
 			$(this).delay(15*index).css('opacity',0).css('visibility','visible').animate({opacity:'1'},500);
 		});
 	}
+	$(this).find('form')
 })
 .on('sectionload sectionshow','#page>section',function(){
 	document.title=affair+' - '+(username?username+' - ':'')+sysname;
 })
 /*编辑页的提交按钮点击事件，提交数据到后台，在页面上反馈数据和提示*/
 .on('click','#page>section>form input:submit, #page>section>form button:submit',function(){
-	var id = $('form[name="'+controller+'"]').attr('id');
+	var section = $(this).closest('section');
+	var form = section.children('form');
+	
+	var id = section.find('form[name="'+controller+'"]').attr('id');
 	var submit = $(this).attr('name').replace('submit[','').replace(']','');
 	
 	var postURI='/'+controller+'/submit/'+submit;
@@ -129,7 +133,7 @@ $(document).ready(function(){
 		postURI+='/'+id;
 	}
 	
-	$.post(postURI,$('#page>section[hash="'+hash+'"]>form').serialize(),function(response){
+	form.ajaxForm({url:postURI,dataType:'json',success:function(response){
 		$('#page>section[hash="'+hash+'"]').setBlock(response);
 
 		if(response.status=='success'){
@@ -155,9 +159,12 @@ $(document).ready(function(){
 			}
 		}
 
-	},'json');
+	}});
+	
+	/*$.post(postURI,$('#page>section[hash="'+hash+'"]>form').serialize(),function(response){
+	},'json');*/
 
-	return false;
+	//return false;
 })
 /*边栏提交按钮的点击事件*/
 .on('click','#side-bar>aside input:submit',function(){

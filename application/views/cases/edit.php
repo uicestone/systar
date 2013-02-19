@@ -154,12 +154,12 @@
 			<?=$staff_list?>
 			
 			<div class="add-form hidden">
-				<input type="text" name="staff_extra[lawyer_name]" value="<?=$this->value('staff_extra/lawyer_name');?>" placeholder="姓名" autocomplete-model="staff" />
+				<input type="text" name="staff[name]" value="<?=$this->value('staff/name');?>" placeholder="姓名" autocomplete-model="staff" />
 				<input name="staff[id]" class="hidden" />
 				<select name="staff[role]">
 					<?=options($staff_role_array,$this->value('staff/role'),'本案职务');?>
 				</select>
-				<input type="text" name="staff_extra[actual_contribute]" value="<?=$this->value('staff_extra/actual_contribute')?>" placeholder="%" class="hidden" />
+				<input type="text" name="staff[actual_contribute]" value="<?=$this->value('staff/actual_contribute')?>" placeholder="%" class="hidden" />
 				<input type="submit" name="submit[staff]" value="添加" />
 			</div>
 		</div>
@@ -242,7 +242,7 @@
 <?}?>
 	
 		<div class="item" name="document">
-			<div class="title"><label>文件：</label>
+			<div class="title"><label>文件：</label><label class="toggle-add-form">+</label>
 <? if($this->value('cases/apply_file')){ ?>
 				<input type="submit" name="submit[file_document_list]" value="下载目录" />
 <? } ?>
@@ -250,10 +250,10 @@
 	
 			<?=$document_list?>
 
-			<div id="caseDocumentAddForm">
-				<input type="file" name="file" id="file" width="30%" />
+			<div class="add-form">
+				<input type="file" name="document" id="file" width="30%" />
 				<select name="document_labels[类型]">
-				<?=options(array('接洽资料','身份资料','聘请委托文书','签约合同（扫描）','办案文书','裁判文书','行政文书','证据材料','其他'),$this->value('document_labels/类型'),'类型');?>
+				<?=options($this->config->item('案件文档类型'),$this->value('document_labels/类型'),'类型');?>
 				</select>
 				<input type="text" name="document[comment]" placeholder="具体文件名称" />
 				<input type="submit" name="submit[case_document]" value="上传" />

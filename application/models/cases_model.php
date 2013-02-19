@@ -231,6 +231,10 @@ class Cases_model extends SS_Model{
 		$case=intval($case);
 		$people=intval($people);
 		
+		if(isset($hourly_fee)){
+			$hourly_fee=intval($hourly_fee);
+		}
+		
 		$data=array(
 			'case'=>$case,
 			'people'=>$people,
@@ -309,8 +313,44 @@ class Cases_model extends SS_Model{
 		return $this->db->delete('case_fee',$condition);
 	}
 	
-	function fetchDocument($case_document_id){
-		return $this->db->query("SELECT * FROM document WHERE id = '{$case_document_id}'")->row_array();
+	function addDocument($case_id,$document_id){
+		$case_id=intval($case_id);
+		$document_id=intval($document_id);
+		
+		$data=array(
+			'case'=>$case_id,
+			'document'=>$document_id
+		);
+		
+		$data+=uidTime(false);
+		
+		$this->db->insert('case_document',$data);
+		
+		return $this->db->insert_id();
+	}
+	
+	function removeDocument($case_document_ids){
+		
+	}
+	
+	function getDocumentList($case_id){
+		$case_id=intval($case_id);
+		
+		$query="
+			SELECT document.id,document.name,extname,type.name AS type,document.comment,document.time,document.username
+			FROM 
+				document
+				INNER JOIN case_document ON document.id=case_document.document
+				LEFT JOIN (
+					SELECT label.name,document_label.document
+					FROM document_label 
+						INNER JOIN label ON document_label.label=label.id
+					WHERE document_label.type='类型'
+				)type ON document.id=type.document
+			WHERE display=1 AND case_document.case = $case_id
+			ORDER BY time DESC";
+
+		return $this->db->query($query)->result_array();
 	}
 	
 	function getDocumentCatalog($case_id,$choosen_documents){
@@ -1015,7 +1055,7 @@ class Cases_model extends SS_Model{
 			post('cases/type_lock',1);//申请正式案号之后不可以再改变案件类别
 		}
 		post('cases/display',1);//申请案号以后案件方可见
-		$num='沪星'.$case_num['classification_code'].$case_num['type_code'].$case_num['year_code'].'第'.$case_num['number'].'号';
+		$num=$case_num['classification_code'].$case_num['type_code'].$case_num['year_code'].'第'.$case_num['number'].'号';
 		return $num;
 	}
 

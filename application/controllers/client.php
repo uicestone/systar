@@ -64,7 +64,7 @@ class Client extends SS_Controller{
 						}
 						return \$return;
 					",
-					'td'=>'href="client/edit/{relative}"',
+					'td'=>'hash="client/edit/{relative}"',
 					'orderby'=>false
 				), 
 				'relative_phone'=>array('title'=>'电话', 'orderby'=>false), 

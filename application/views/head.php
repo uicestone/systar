@@ -21,6 +21,9 @@
 	<?=javascript('jQuery/chosen/chosen.jquery')?>
 	<?=javascript('schedule')?>
 
+	<?=javascript('jQuery/jquery.form')?>
+	<?=javascript('schedule')?>
+
 	<link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
 	<title><?=$this->company->sysname?></title>
 </head>

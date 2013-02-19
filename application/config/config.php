@@ -69,7 +69,7 @@ $config['url_suffix'] = '';
 | than english.
 |
 */
-$config['language']	= 'english';
+$config['language']	= 'chinese';
 
 /*
 |--------------------------------------------------------------------------
@@ -359,11 +359,13 @@ $config['proxy_ips'] = '';
 
 /*自定义配置*/
 
+$config['允许上传的文件类型']='*';
+
 //“文件”模块根目录物理位置
 $config['document_root']="D:/files";
 
 //案下文件物理位置
-$config['document_path']="D:/case_document";
+$config['document_path']='/Library/WebServer/Documents/Sites/syssh/temp/';
 
 $config['debug_mode']=true;
 
@@ -392,7 +394,7 @@ function __autoload($class) {
 	}elseif(file_exists(APPPATH.'libraries/.'.strtolower($class).EXT)){
 		require_once APPPATH."libraries/".strtolower($class).EXT;  
 	}
-}  
+} 
 
 /* End of file config.php */
 /* Location: ./application/config/config.php */

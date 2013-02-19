@@ -113,3 +113,41 @@ ALTER TABLE  `people` CHANGE  `name`  `name` VARCHAR( 255 ) CHARACTER SET utf8 C
 ALTER TABLE  `schedule` CHANGE  `name`  `name` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
 ALTER TABLE  `team` CHANGE  `name`  `name` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
 -- uice 2/15
+
+--
+-- 表的结构 `case_document`
+--
+
+CREATE TABLE IF NOT EXISTS `case_document` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `case` int(11) NOT NULL,
+  `document` int(11) NOT NULL,
+  `uid` int(11) NOT NULL,
+  `username` varchar(255) NOT NULL,
+  `time` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `case` (`case`),
+  KEY `document` (`document`),
+  KEY `uid` (`uid`),
+  KEY `time` (`time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+--
+-- 限制导出的表
+--
+
+--
+-- 限制表 `case_document`
+--
+ALTER TABLE `case_document`
+  ADD CONSTRAINT `case_document_ibfk_3` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `case_document_ibfk_1` FOREIGN KEY (`case`) REFERENCES `case` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `case_document_ibfk_2` FOREIGN KEY (`document`) REFERENCES `document` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+
+ALTER TABLE  `document` DROP FOREIGN KEY  `document_ibfk_1` ;
+
+ALTER TABLE  `document` DROP FOREIGN KEY  `document_ibfk_4` ;
+
+ALTER TABLE  `document` DROP  `case` ,
+DROP  `people` ;
+-- uice 2/19

@@ -253,7 +253,7 @@ class Cases extends SS_controller{
 			}
 			$list=$this->table->setFields($fields)
 					->setAttribute('name',$item)
-					->generate($this->document->getListByCase($this->cases->id));
+					->generate($this->cases->getDocumentList($this->cases->id));
 		}
 		
 		if(!$case_id){//没有指定$case_id，是在edit方法内调用
@@ -458,6 +458,19 @@ class Cases extends SS_controller{
 			
 			elseif($submit=='staff'){
 				
+				$staff=(array)post('staff')+$this->input->post('staff');
+				
+				if(!$staff['id']){
+					$staff['id']=$this->staff->check($staff['name']);
+					
+					if($staff['id']){
+						post('staff/id',$staff['id']);
+					}else{
+						$this->output->message('请输入职员名称','warning');
+						throw new Exception;
+					}
+				}
+				
 				$case_role=$this->cases->getRoles($this->cases->id);
 		
 				$responsible_partner=$this->cases->getPartner($case_role);
@@ -465,31 +478,24 @@ class Cases extends SS_controller{
 				$my_roles=$this->cases->getMyRoles($case_role);
 				//本人的本案职位
 
-				if(post('staff/role')=='实际贡献' && !(in_array('督办人',$my_roles) || in_array('主办律师',$my_roles))){
+				if($staff['role']=='实际贡献' && !(in_array('督办人',$my_roles) || in_array('主办律师',$my_roles))){
 					//禁止非主办律师/合伙人分配实际贡献
 					$this->output->message('你没有权限分配实际贡献');
 					throw new Exception();
+				}
 
-				}elseif(post('staff/contribute',$this->cases->lawyerRoleCheck($this->cases->id,post('staff/role'),post('staff_extra/actual_contribute')))===false){
-					//检查并保存本条staff的contribute，若不可添加则返回false并终止过程
+				if(!$responsible_partner && $staff['role']!='督办人'){
+					//第一次插入督办人后不显示警告，否则如果不存在督办人则显示警告
+					$this->output->message('未设置督办人','warning');
+				}
+
+				if(!$staff['role']){
+					$this->output->message('未选择本案职务','warning');
 					throw new Exception();
+				}
 
-				}else{
-					post('staff/hourly_fee',(int)post('staff/hourly_fee'));
-					
-					if(!$responsible_partner && post('staff/role')!='督办人'){
-						//第一次插入督办人后不显示警告，否则如果不存在督办人则显示警告
-						$this->output->message('未设置督办人','warning');
-					}
-					
-					if(is_null(post('staff/role'))){
-						$this->output->message('未选择本案职务','warning');
-						throw new Exception();
-					}
-					
-					if($this->cases->addStaff($this->cases->id,post('staff/id'),post('staff/role'),post('staff/hourly_fee'))){
-						$this->output->setData($this->subList('staff',$this->cases->id));
-					}
+				if($this->cases->addStaff($this->cases->id,post('staff/id'),post('staff/role'),post('staff/hourly_fee'))){
+					$this->output->setData($this->subList('staff',$this->cases->id));
 				}
 
 				$this->cases->calcContribute($this->cases->id);
@@ -595,32 +601,43 @@ class Cases extends SS_controller{
 				
 				$document_labels=(array)post('document_labels')+$this->input->post('document_labels');
 				
-				if(!isset($_FILES['file'])){
-					$this->output->message('请上传文件','warning');
-				}
-				elseif($_FILES['file']['error']>0){
-					$this->output->message('文件上传错误:'.$_FILES['file']['error'],'warning');
-				}
-				
 				if(!$document_labels['类型']){
 					$this->output->message('请选择文件类型','warning');
-				}
-				
-				if(count($this->output->message['warning'])>0){
 					throw new Exception;
 				}
 				
-				$document['type']=$this->document->getExtension($document['name']);
+				$config['upload_path'] = $this->config->item('document_path');
+				$config['encrypt_name'] = true;
+				$config['allowed_types'] = $this->config->item('允许上传的文件类型');
+
+				$this->load->library('upload', $config);
+
+				if (!$this->upload->do_upload('document')){
+					$this->output->message($this->upload->display_errors(),'warning');
+					throw new Exception;
+				}
 				
-				$document['size']=$_FILES['file']['size'];
+				$document=$this->upload->data();
 				
-				$document['id']=$this->cases->addDocument($this->cases->id,$document['name'],$document['size']);
-
-				$store_path=iconv("utf-8","gbk",$this->config->item('case_document_path')."/".$document['id']);//存储路径转码
-
-				move_uploaded_file($_FILES['file']['tmp_name'], $store_path);
-
-				unset($_SESSION['cases']['post']['case_document']);
+				if(!$document_labels['类型']){
+					$this->output->message('请选择文件类型','warning');
+					throw new Exception;
+				}
+				
+				$document['name']=$document['client_name'];
+				$document['size']=$document['file_size'];
+				$document['extname']=$document['file_ext'];
+				$document['type']=$document['file_type'];
+				
+				$document['id']=$this->document->add($document);
+				
+				$this->cases->addDocument($this->cases->id, $document['id']);
+				
+				rename($this->config->item('document_path').$document['file_name'], $this->config->item('document_path').$document['id']);
+				
+				$this->output->setData($this->subList('document', $this->cases->id));
+				
+				unset($_SESSION['cases']['post'][$this->cases->id]['case_document']);
 			}
 			
 			elseif($submit=='file_document_list'){
@@ -778,41 +795,6 @@ class Cases extends SS_controller{
 		}catch(Exception $e){
 			$this->output->status='fail';
 		}
-	}
-	
-	function documentDownload($case_document_id){
-		$this->load->model('document_model','document');
-		
-		$q_case_document="SELECT * FROM case_document WHERE id='".$case_document_id."'";
-		$r_case_document=$this->db->query($q_case_document);
-		$case_document=mysql_fetch_array($r_case_document);
-		
-		//适应各浏览器的文件输出
-		$ua = $_SERVER["HTTP_USER_AGENT"];
-		
-		$filename = $case_document['name'];
-		$encoded_filename = urlencode($filename);
-		$encoded_filename = str_replace("+", "%20", $encoded_filename);
-		
-		if($this->document->openInBrowser($case_document['type'])){
-			header('Content-Type:'.$this->document->getMime($case_document['type']).';charset=utf-8');
-		}else{
-			header('Content-Type:application/octet-stream;charset=utf-8');
-			header('Content-Disposition:attachment');
-		}
-		
-		if(preg_match("/MSIE/", $ua)) {
-			header('Content-Disposition:filename="'.$encoded_filename.'"');
-		}else if (preg_match("/Firefox/", $ua)) {
-			header('Content-Disposition:filename*="utf8\'\''.$filename.'"');
-		}else {
-			header('Content-Disposition:filename="'.$filename.'"');
-		}
-		
-		$path=iconv("utf-8","gbk",$this->config->item('case_document_path').'/'.$case_document_id);
-		
-		readfile($path);
-		exit;
 	}
 	
 	function match(){

@@ -302,7 +302,7 @@ class People_model extends SS_Model{
 			FROM 
 				people_relationship INNER JOIN people ON people_relationship.relative=people.id
 				LEFT JOIN (
-					SELECT people,GROUP_CONCAT(content) AS content FROM people_profile WHERE name IN('手机','电话') GROUP BY people
+					SELECT people,GROUP_CONCAT(content) AS content FROM people_profile WHERE name IN('电话','手机','固定电话') GROUP BY people
 				)phone ON people.id=phone.people
 				LEFT JOIN (
 					SELECT people,GROUP_CONCAT(content) AS content FROM people_profile WHERE name='电子邮件' GROUP BY people
