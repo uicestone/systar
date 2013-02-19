@@ -126,13 +126,17 @@ class Document extends SS_controller{
 		redirect('document');
 	}
 
-	function download($document_id){
-		$file=$this->document->fetch($document_id);
+	function download($id){
+		$this->export->as_ajax=false;
+
+		$document=$this->document->fetch($id);
 		
-		$this->document->exportHead($file['name']);
-		$path=$file['path'];
-		$path=iconv("utf-8","gbk",$path);
-		readfile($path);
+		$this->document->exportHead($document['name']);
+		
+		$filename=$this->config->item('document_path').$document['id'];
+		
+		$filename=iconv("utf-8","gbk",$filename);
+		readfile($filename);
 	}
 	
 	function favDelete(){
