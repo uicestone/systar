@@ -362,10 +362,10 @@ $config['proxy_ips'] = '';
 $config['允许上传的文件类型']='*';
 
 //“文件”模块根目录物理位置
-$config['document_root']="D:/files";
+$config['document_root']="D:/files/";
 
 //案下文件物理位置
-$config['document_path']='/Library/WebServer/Documents/Sites/syssh/temp/';
+$config['document_path']='D:/case_document/';
 
 $config['debug_mode']=true;
 

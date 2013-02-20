@@ -650,39 +650,34 @@ class Cases extends SS_controller{
 			}
 			
 			elseif($submit=='new_case'){
-				post('cases/is_query',false);
-				post('cases/filed',false);
-				//post('cases/num',NULL);
-				post('cases/time_contract',$this->config->item('date'));
-				post('cases/time_end',date('Y-m-d',$this->config->item('timestamp')+100*86400));
+				$this->cases->update($this->cases->id,array(
+					'is_query'=>false,
+					'filed'=>false,
+					'time_contract'=>$this->config->item('date'),
+					'time_end'=>date('Y-m-d',$this->config->item('timestamp')+100*86400)
+				));
 				
-				$this->cases->update($this->cases->id,post('cases'));
-
 				$this->output->message('已立案，请立即获得案号');
 				
 				$this->output->status='refresh';
 			}
 			
-			elseif(post('cases/is_query') && $submit=='file'){
-				post('cases/filed',1);
+			elseif($submit=='file' && $case['is_query']){
+				$this->cases->update($this->cases->id,array('filed'=>true));
+				$this->output->status='refresh';
 				$this->output->message('咨询案件已归档');
 			}
 			
-			elseif($submit=='send_message'){
-				showMessage('本案已被退回');
-				case_reviewMessage('被退回审核',$lawyers);
-			}
-			
 			elseif($submit=='review'){
-				post('cases/is_reviewed',1);
-				showMessage('本案已经审核通过');
-				$this->cases->reviewMessage('通过审核',$lawyers);
+				$this->cases->update($this->cases->id,array('is_reviewed'=>true));
+				$this->output->status='refresh';
+				$this->output->message('通过立案审核');
 			}
 			
 			elseif($submit=='apply_lock'){
 				//申请锁定，发送一条消息给督办人
 				if($responsible_partner){
-					$apply_lock_message=$_SESSION['username'].'申请锁定'.strip_tags(post('cases/name')).'一案，[url=http://sys.lawyerstars.com/cases/edit/'.$this->cases->id.']点此进入[/url]';
+					$apply_lock_message=$this->user->name.'申请锁定'.strip_tags($case['name']).'一案，[url=http://sys.lawyerstars.com/#cases/edit/'.$this->cases->id.']点此进入[/url]';
 					$this->user->sendMessage($responsible_partner,$apply_lock_message,'caseLockApplication');//imperfect
 					$this->output->message('锁定请求已经发送至本案督办人');
 				}else{
