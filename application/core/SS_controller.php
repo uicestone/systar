@@ -126,11 +126,18 @@ class SS_Controller extends CI_Controller{
 			return;
 		}
 		
-		header('Content-type: application/json');
+		if($this->agent->browser()=='Internet Explorer' && strpos($this->input->header('Content-Type'),'multipart/form-data')!==false){
+			header('Content-type: text/html');
+		}
+		
+		if(!$this->output->header('Content-type')){
+			header('Content-type: application/json');
+		}
 		
 		if($output){
 			//如果在这个方法运行之前，页面就有输出，那么说明是一个旧式的输出html的页面，我们给它直接加上嵌入页面的js
 			$output.=$this->load->view('innerjs',array(),true);
+			$output=str_replace("\n",'',$output);
 			$this->output->setData($output,'content','html','#page>section[hash="'.substr($this->input->server('REQUEST_URI'),1).'"]');
 		}
 		

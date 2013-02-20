@@ -1,4 +1,4 @@
-<form method="post" name="<?=CONTROLLER?>" id="<?=$this->cases->id?>" enctype="multipart/form-data">
+<form method="post" name="<?=CONTROLLER?>" id="<?=$this->cases->id?>" enctype="multipart/form-data" encoding="multipart/form-data">
 <div class="contentTableMenu">
 	<div class="right">
 <? if($responsible_partner==$this->user->id && !$cases['is_reviewed'] && !$cases['is_query']){?>
@@ -79,7 +79,7 @@
 			<input type="text" name="cases[time_end]" value="<?=$this->value('cases/time_end')?>" placeholder="预估结案日期" title="预估结案日期" class="date" <? if($cases['is_reviewed'])echo 'disabled';?> />
 <?}?>
 <?if(!$cases['num']){?>
-			<input type="submit" name="submit[apply_case_num]" value="获得案号" />
+			<button type="submit" name="submit[apply_case_num]">获得案号</button>
 <?}else{?>
 			<input type="text" name="cases[name_extra]" value="<?=$this->value('cases/name_extra')?>" placeholder="后缀" />
 <?}?>
@@ -89,10 +89,10 @@
 			<div class="title"><label>客户及相关人：</label>
 				<label class="toggle-add-form">+</label>
 <? if($responsible_partner==$this->user->id && !$cases['client_lock'] && $cases['is_reviewed']){?>
-				<input type="submit" name="submit[lock_client]" value="锁定" />
+				<button type="submit" name="submit[lock_client]">锁定</button>
 <? }?>
 <? if($responsible_partner==$this->user->id && $cases['client_lock']){ ?>
-				<input type="submit" name="submit[unlock_client]" value="解锁" />
+				<button type="submit" name="submit[unlock_client]">解锁</button>
 <? } ?>
 			</div>
 		
@@ -136,7 +136,7 @@
 					<input type="text" name="client_source[detail]" value="<?=$this->value('client_source/detail')?>" class="hidden" disabled="disabled" locked-by="case_client_extra[source_type]" />
 					<input type="text" name="client[staff_name]" placeholder="来源律师" value="<?=$this->value('client/staff_name')?$this->value('client/staff_name'):$this->user->name?>" disabled="disabled" />
 				</span>
-				<input type="submit" name="submit[case_client]" value="添加" />
+				<button type="submit" name="submit[case_client]">添加</button>
 			</div>
 		 </div>
 	
@@ -144,10 +144,10 @@
 			<div class="title"><label>律师：</label>
 				<label class="toggle-add-form">＋</label>
 <?if($responsible_partner==$this->user->id && !$cases['staff_lock'] && $cases['is_reviewed']){?>
-				<input type="submit" name="submit[lock_lawyer]" value="锁定" />
+				<button type="submit" name="submit[lock_lawyer]">锁定</button>
 <? }?>
 <? if($responsible_partner==$this->user->id && $cases['staff_lock']){ ?>
-				<input type="submit" name="submit[unlock_lawyer]" value="解锁" />
+				<button type="submit" name="submit[unlock_lawyer]">解锁</button>
 <? } ?>
 			</div>
 	
@@ -160,7 +160,7 @@
 					<?=options($staff_role_array,$this->value('staff/role'),'本案职务');?>
 				</select>
 				<input type="text" name="staff[actual_contribute]" value="<?=$this->value('staff/actual_contribute')?>" placeholder="%" class="hidden" />
-				<input type="submit" name="submit[staff]" value="添加" />
+				<button type="submit" name="submit[staff]">添加</button>
 			</div>
 		</div>
 		
@@ -178,20 +178,20 @@
 				<label id="caseTimingFeeSave">
 	
 <? if($this->value('cases/timing_fee') && !isset($case_fee_timing_string)){?>
-					<input type="submit" name="submit[case_fee_timing]" value="保存" />
+					<button type="submit" name="submit[case_fee_timing]">保存</button>
 <? }?></label>
 <? if(($responsible_partner==$this->user->id || $this->user->isLogged('finance')) && !$cases['fee_lock']){?>
-				<input type="submit" name="submit[lock_fee]" value="锁定" />
+				<button type="submit" name="submit[lock_fee]">锁定</button>
 <? }?>
 <? if(($responsible_partner==$this->user->id || $this->user->isLogged('finance')) && $cases['fee_lock']){ ?>
-				<input type="submit" name="submit[unlock_fee]" value="解锁" />
+				<button type="submit" name="submit[unlock_fee]">解锁</button>
 <? } ?>
 				
 <? if($this->user->isLogged('finance')){?>
 				<button type="button" onclick="$.locationHash('account/add?case=<?=$this->value('cases/id')?>')">到账</button>
 <? }?>
 <? if($this->user->isLogged('finance')){?>
-				<input type="submit" name="submit[case_fee_review]" value="忽略" disabled style="display:none" />
+				<button type="submit" name="submit[case_fee_review]" disabled="disabled" class="hidden">忽略</button>
 <? }?>
 			</div>
 	
@@ -219,7 +219,7 @@
 				<input type="text" name="case_fee[fee]" value="<?=$this->value('case_fee/fee');?>" placeholder="数额" />
 				<input type="text" name="case_fee[condition]" value="<?=$this->value('case_fee/condition');?>" placeholder="付款条件" />
 				<input type="text" name="case_fee[pay_date]" value="<?=$this->value('case_fee/pay_date')?>" placeholder="预估日期" class="date" />
-				<input type="submit" name="submit[case_fee]" value="添加" />
+				<button type="submit" name="submit[case_fee]">添加</button>
 			</div>
 <? }?>
 		</div>
@@ -236,7 +236,7 @@
 				<input type="text" name="case_fee_misc[fee]" value="<?=$this->value('case_fee_misc/fee');?>" placeholder="数额" />
 				<input type="text" name="case_fee_misc[comment]" value="<?=$this->value('case_fee_misc/comment');?>" placeholder="付款条件" />
 				<input type="text" name="case_fee_misc[pay_date]" value="<?=$this->value('case_fee_misc/pay_date')?>" placeholder="预估日期" class="date" />
-				<input type="submit" name="submit[case_fee_misc]" value="添加" />
+				<button type="submit" name="submit[case_fee_misc]">添加</button>
 			</div>
 		</div>
 <?}?>
@@ -244,7 +244,7 @@
 		<div class="item" name="document">
 			<div class="title"><label>文件：</label><label class="toggle-add-form">+</label>
 <? if($this->value('cases/apply_file')){ ?>
-				<input type="submit" name="submit[file_document_list]" value="下载目录" />
+				<button type="submit" name="submit[file_document_list]">下载目录</button>
 <? } ?>
 			</div>
 	
@@ -256,7 +256,7 @@
 				<?=options($this->config->item('案件文档类型'),$this->value('document_labels/类型'),'类型');?>
 				</select>
 				<input type="text" name="document[comment]" placeholder="具体文件名称" />
-				<input type="submit" name="submit[case_document]" value="上传" />
+				<button type="submit" name="submit[case_document]">上传</button>
 			</div>
 		</div>
 	
@@ -303,8 +303,8 @@
 		</div>
 	
 		<div class="submit">
-			<input type="submit" name="submit[cases]" value="保存" />
-			<input type="submit" name="submit[cancel]" value="关闭" />
+			<button type="submit" name="submit[cases]">保存</button>
+			<button type="submit" name="submit[cancel]">关闭</button>
 		</div>
 	</div>
 </div>

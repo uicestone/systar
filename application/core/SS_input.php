@@ -37,6 +37,19 @@ class SS_input extends CI_Input{
 		   exit('Disallowed Key Characters.');   
 		}   
 		return $str;   
-	}  
+	}
+	
+	function header($name=NULL){
+		$headers=getallheaders();
+		if(isset($name)){
+			if(isset($headers[$name])){
+				return $headers[$name];
+			}else{
+				return false;
+			}
+		}else{
+			return $headers;
+		}
+	}
 }
 ?>

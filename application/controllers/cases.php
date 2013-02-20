@@ -344,7 +344,6 @@ class Cases extends SS_controller{
 		
 			if($submit=='cancel'){
 				unset($_SESSION[CONTROLLER]['post'][$this->cases->id]);
-				$this->cases->clearUserTrash();
 			}
 		
 			elseif($submit=='cases'){
@@ -599,7 +598,7 @@ class Cases extends SS_controller{
 				
 				$document=(array)post('document')+$this->input->post('document');
 				
-				$document_labels=(array)post('document_labels')+$this->input->post('document_labels');
+				$document_labels=(array)post('document_labels')+(array)$this->input->post('document_labels');
 				
 				if(!$document_labels['类型']){
 					$this->output->message('请选择文件类型','warning');

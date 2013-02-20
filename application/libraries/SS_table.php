@@ -106,9 +106,9 @@ class SS_Table extends CI_Table{
 			if(isset($field['wrap_title'])){
 				$cell['data']=wrap($cell['data'],$field['wrap_title']);
 				
-			}elseif(!isset($field['orderby']) || $field['orderby']){
+			}/*elseif(!isset($field['orderby']) || $field['orderby']){
 				$cell['data']=wrap($cell['data'],array('mark'=>'a','href'=>"javascript:postOrderby('".$field_name."')"));
-			}
+			}*/
 			
 			$heading[]=$cell;
 		}

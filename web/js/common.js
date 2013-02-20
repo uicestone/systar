@@ -134,6 +134,11 @@ $(document).ready(function(){
 	}
 	
 	form.ajaxForm({url:postURI,dataType:'json',success:function(response){
+		
+		if($.browser.msie){
+			$.showMessage('您正使用IE浏览器，如果按下按钮后，页面没有反应，或者显示不正常，那是正常现象。重新点击本页标签刷新即可');
+		}
+		
 		$('#page>section[hash="'+hash+'"]').setBlock(response);
 
 		if(response.status=='success'){

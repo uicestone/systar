@@ -86,5 +86,29 @@ class SS_Output extends CI_Output{
 		
 		$this->data[$content_name]=$data;
 	}
+	
+	function header($name,$value_set_to=NULL){
+		$headers_list=headers_list();
+		$headers=array();
+		foreach($headers_list as $header){
+			preg_match('/^(.*?)\:/', $header,$matches);
+			$header_name=$matches[1];
+			preg_match('/\:\s*?(.*?)$/',$header,$matches);
+			$header_value=$matches[1];
+			$headers[$header_name]=$header_value;
+		}
+		
+		if(is_null($value_set_to)){
+			if(isset($headers[$name])){
+				return $headers[$name];
+			}else{
+				return false;
+			}
+		}elseif(!headers_sent()){
+			$this->set_header($name.': '.$value_set_to);
+		}else{
+			return false;
+		}
+	}
 }
 ?>
