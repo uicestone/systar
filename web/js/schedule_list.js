@@ -1,4 +1,9 @@
-$(document).ready(function(){
+$(function(){
+	
+	/*日程excel导出按钮*/
+	$('[name="export-excel"]').click(function(){
+		window.open(changeURLPar(hash,'export','excel'));
+	});
 	
 	//评语保存
 	$('textarea[name^="schedule_list_comment"]').change(function(){

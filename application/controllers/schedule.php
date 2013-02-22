@@ -105,60 +105,30 @@ class Schedule extends SS_controller{
 				
 			",'orderby'=>false)
 		);
+		
 		if($method=='mine'){
 			unset($field['staff_name']);
 		}		
-		if($this->input->post('export')){
+
+		if($this->input->get('export')=='excel'){
+			$this->output->as_ajax=false;
+			
 			$field=array(
 				'name'=>array('title'=>'标题'),
 				'content'=>array('title'=>'内容'),
-				'time_start'=>array('title'=>'时间','td_title'=>'width="60px"','eval'=>true,'content'=>"
-					return date('m-d H:i',{time_start});
-				",'orderby'=>false),
+				'time_start'=>array('title'=>'时间','eval'=>true,'content'=>"return date('m-d H:i',{time_start});"),
 				'hours_own'=>array('title'=>'自报小时'),
 				'staff_name'=>array('title'=>'律师')
 			);
-		}
-		$this->table->setFields($field)
-			->setData($this->schedule->getList($method));
-
-		if($this->input->post('export')){
 			
-			$this->load->model('document_model','document');
-
-			require APPPATH.'third_party/PHPWord/PHPWord.php';
-			
-			$PHPWord = new PHPWord();
-			
-			$section = $PHPWord->createSection();
-			
-			$PHPWord->addTableStyle('schedule_billdoc',array('borderSize'=>1,'borderColor'=>'333','cellMargin'=>100));
-			
-			$table = $section->addTable('schedule_billdoc');
-			
-			foreach($this->table->rows as $line_name=>$line){
-				$table->addRow();
-				foreach($line as $cell_name=>$cell){
-					$table->addCell(1750)->addText(strip_tags($cell['data']));
-				}
-			}
-			
-			// Save File
-			$objWriter = PHPWord_IOFactory::createWriter($PHPWord, 'Word2007');
-			
-			$filename=$_SESSION['username'].$this->config->item('timestamp').'.docx';
-			
-			$path=iconv('utf-8','gbk','temp/'.$filename);
-			
-			//$this->document->exportHead($filename);
-
-			$objWriter->save('php://output');
-			
-			
-			$this->load->sidebar_loaded=true;
-		
+			$this->table->setFields($field)
+				->setData($this->schedule->getList($method))
+				->generateExcel();
 		}else{
-			$tableView=$this->table->setMenu(($this->user->isLogged('partner')?'<input type="submit" name="review_selected" value="审核" />':'').'<input type="submit" name="export" value="导出" />','left')
+			$tableView=
+				$this->table
+					->setFields($field)
+					->setData($this->schedule->getList($method))->setMenu(($this->user->isLogged('partner')?'<input type="submit" name="review_selected" value="审核" />':'').'<button type="button" name="export-excel">导出</button>','left')
 					->wrapForm()
 					->generate();
 			$this->load->addViewData('list',$tableView);
