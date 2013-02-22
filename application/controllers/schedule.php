@@ -52,6 +52,10 @@ class Schedule extends SS_controller{
 	
 	function lists($method=NULL){
 		
+		if($this->input->get('case')){
+			$this->output->setData('日程 - '.strip_tags($this->cases->fetch($this->input->get('case'),'name')),'name');
+		}
+		
 
 		if($this->input->post('review_selected') && $this->user->isLogged('partner')){
 			//在列表中批量审核所选日志

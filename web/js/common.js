@@ -43,7 +43,7 @@ $(window).on('hashchange',function(){
 			$('<aside for="'+hash+'"></aside>').appendTo('#side-bar');
 			
 			/*如果请求的hash在导航菜单中不存在，则生成标签选项卡*/
-			if($('nav a[href="#'+hash+'"]').length==0){
+			if($('nav a[href="#'+hash+'"]').length==0 && response.data.name){
 				$('#tabs').append('<li for="'+hash+'" class="activated"><a href="#'+hash+'">'+response.data.name.content+'</a></li>');
 			}
 			
