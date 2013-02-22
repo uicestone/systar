@@ -412,7 +412,11 @@ jQuery.fn.setBlock=function(response){
 	
 	$.each(response.data,function(dataName,data){
 		
-		if(data.method=='replace'){
+		if(data.type=='script'){
+			eval(data.content);
+		}
+		
+		else if(data.method=='replace'){
 			if(data.selector){
 				if(parent.is(data.selector)){
 					parent.replaceWith(data.content);
@@ -428,9 +432,17 @@ jQuery.fn.setBlock=function(response){
 				var block;
 				
 				if(parent.is(data.selector)){
-					block=parent.html(data.content).trigger('blockload');
+					if(data.method=='append'){
+						block=parent.append(data.content).trigger('blockload');
+					}else{
+						block=parent.html(data.content).trigger('blockload');
+					}
 				}else{
-					block=parent.find(data.selector).html(data.content).trigger('blockload');
+					if(data.method=='append'){
+						block=parent.find(data.selector).append(data.content).trigger('blockload');
+					}else{
+						block=parent.find(data.selector).html(data.content).trigger('blockload');
+					}
 				}				
 				
 				/*如果数据是主页面内容，则标记载入时间，出发指定事件*/

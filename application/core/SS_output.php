@@ -57,9 +57,9 @@ class SS_Output extends CI_Output{
 	/**
 	 * 后台传送到前台的数据中，封装有数据内容，处理方式和对应填充前台元素的jQuery选择器
 	 * 如此一来，前端就可以用一个通用的方法来处理所有的后台响应，对页面上的任何元素作更新
-	 * @param $type 可选uri,html
 	 * @param $content 对应$type，为html内容或uri地址
 	 * @param $content_name 内容的名称，如'content'(页面内容),'name'(标签选项名称)
+	 * @param $type 可选uri,html
 	 */
 	function setData($content,$content_name='content',$type='html',$selector=NULL,$method=NULL){
 		

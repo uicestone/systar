@@ -54,7 +54,7 @@ $db['default']['password'] = '';
 $db['default']['database'] = 'syssh';
 $db['default']['dbdriver'] = 'mysql';
 $db['default']['dbprefix'] = '';
-$db['default']['pconnect'] = TRUE;
+$db['default']['pconnect'] = FALSE;
 $db['default']['db_debug'] = TRUE;
 $db['default']['cache_on'] = FALSE;
 $db['default']['cachedir'] = '';
@@ -63,6 +63,22 @@ $db['default']['dbcollat'] = 'utf8_general_ci';
 $db['default']['swap_pre'] = '';
 $db['default']['autoinit'] = TRUE;
 $db['default']['stricton'] = FALSE;
+
+$db['star']['hostname'] = 'localhost';
+$db['star']['username'] = 'root';
+$db['star']['password'] = '';
+$db['star']['database'] = 'star';
+$db['star']['dbdriver'] = 'mysql';
+$db['star']['dbprefix'] = '';
+$db['star']['pconnect'] = FALSE;
+$db['star']['db_debug'] = TRUE;
+$db['star']['cache_on'] = FALSE;
+$db['star']['cachedir'] = '';
+$db['star']['char_set'] = 'utf8';
+$db['star']['dbcollat'] = 'utf8_general_ci';
+$db['star']['swap_pre'] = '';
+$db['star']['autoinit'] = TRUE;
+$db['star']['stricton'] = FALSE;
 
 
 /* End of file database.php */

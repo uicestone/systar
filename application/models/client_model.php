@@ -273,5 +273,23 @@ class Client_model extends People_model{
 		";
 		return $this->db->query($query)->result_array();
 	}
+	
+	/**
+	 * 获得系统中所有客户的email
+	 */
+	function getAllEmails(){
+		$query="
+			SELECT content 
+			FROM people_profile 
+				INNER JOIN people ON people.id=people_profile.people
+			WHERE
+				people.type='客户' 
+				AND people_profile.name='电子邮件'
+		";
+		
+		$result=$this->db->query($query);
+		
+		return array_sub($result->result_array(),'content');
+	}
 }
 ?>

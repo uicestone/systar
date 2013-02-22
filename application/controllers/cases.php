@@ -652,6 +652,7 @@ class Cases extends SS_controller{
 				$this->cases->update($this->cases->id,array(
 					'is_query'=>false,
 					'filed'=>false,
+					'num'=>NULL,
 					'time_contract'=>$this->config->item('date'),
 					'time_end'=>date('Y-m-d',$this->config->item('timestamp')+100*86400)
 				));

@@ -64,7 +64,7 @@ class Document_model extends SS_Model{
 		}
 	}
 	
-	function exportHead($filename){
+	function exportHead($filename,$as_attachment=false){
 		$ua = $_SERVER["HTTP_USER_AGENT"];
 		
 		$encoded_filename = urlencode($filename);
@@ -72,8 +72,18 @@ class Document_model extends SS_Model{
 		
 		$extension=$this->getExtension($filename);
 		
-		header('Content-Type: '.$this->getMime($extension).';charset=utf-8');
-		
+		if($as_attachment){
+			set_time_limit(0); //防止下载超时  
+
+			header("Content-Type: application/force-download"); //强制弹出保存对话框  
+			header("Pragma: no-cache"); // 缓存  
+			header("Expires: 0");  
+			header("Content-Transfer-Encoding: binary");  
+			//header("Content-Length: ".$filesize); //文件大小  
+		}else{
+			header('Content-Type: '.$this->getMime($extension).';charset=utf-8');
+		}
+
 		if (preg_match("/MSIE/", $ua)) {
 			header('Content-Disposition: attachment; filename="' . $encoded_filename . '"');
 		}else if (preg_match("/Firefox/", $ua)) {

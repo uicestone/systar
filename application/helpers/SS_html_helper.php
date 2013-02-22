@@ -76,7 +76,7 @@ function redirect($url='',$method='php',$unsetPara=NULL,$jump_to_top_frame=false
  */
 function forceExport(){
 	ob_end_clean();   //清空并关闭输出缓冲区
-	echo str_repeat(' ',1024);
+	echo str_repeat(' ',10240);
 }
 
 /**

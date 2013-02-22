@@ -156,3 +156,17 @@ ADD FOREIGN KEY (  `case` ) REFERENCES  `syssh`.`case` (
 `id`
 ) ON DELETE CASCADE ON UPDATE CASCADE ;
 -- uice 2/19
+
+ALTER TABLE  `case` CHANGE  `num`  `num` CHAR( 20 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
+-- uice 2/21
+
+CREATE TABLE IF NOT EXISTS  `sessions` (
+  session_id varchar(40) DEFAULT '0' NOT NULL,
+  ip_address varchar(16) DEFAULT '0' NOT NULL,
+  user_agent varchar(120) NOT NULL,
+  last_activity int(10) unsigned DEFAULT 0 NOT NULL,
+  user_data text NULL,
+  PRIMARY KEY (session_id),
+  KEY `last_activity_idx` (`last_activity`)
+) ENGINE=INNODB  DEFAULT CHARSET=utf8;
+-- uice 2/22
