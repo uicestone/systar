@@ -27,7 +27,7 @@ class Mail extends SS_Controller{
 
 				$this->load->library('upload', $config);
 
-				$article_ids=explode(',',$this->input->post('articles'));
+				$article_ids=preg_split('/,[\s]*/',$this->input->post('articles'));
 				
 				if(!is_array($article_ids)){
 					$this->output->message('文章id解析错误');
@@ -41,10 +41,7 @@ class Mail extends SS_Controller{
 				
 				$header=$this->upload->data();
 				
-				$db_star=$this->load->database('star',true);
-				$articles_imploded=implode(',',$article_ids);
-				$query="SELECT aid,title,summary FROM portal_article_title WHERE aid IN ($articles_imploded)";
-				$articles=$db_star->query($query)->result_array();
+				$articles=$this->mail->getArticles('star_global',$article_ids);
 				
 				$this->load->addViewData('title', $this->input->post('title'));
 				$this->load->addViewData('articles', $articles);
@@ -64,7 +61,7 @@ class Mail extends SS_Controller{
 					throw new Exception;
 				}
 				
-				$client_emails=preg_split('/,[\s]/', $this->input->post('client-emails'));
+				$client_emails=preg_split('/,[\s]*/', $this->input->post('client-emails'));
 				
 				if(!$client_emails){
 					$this->output->message('邮件列表解析错误','warning');
