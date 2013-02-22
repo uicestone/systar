@@ -24,6 +24,10 @@
 				<input type="file" name="header" />
 			</div>
 
+			<div class="item"><div class="title">附件</div>
+				<input type="file" name="attachment" />
+			</div>
+
 			<div class="item"><div class="title">预览</div>
 				<div id="express-preview"></div>
 			</div>

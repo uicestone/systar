@@ -11,7 +11,10 @@ class Mail_model extends SS_Model{
 		
 		foreach($article_ids as $article_id){
 			$query="SELECT aid,title,summary FROM portal_article_title WHERE aid = $article_id";
-			$articles[]=$db->query($query)->row_array();
+			$article=$db->query($query)->row_array();
+			if($article){
+				$articles[]=$article;
+			}
 		}
 		
 		return $articles;

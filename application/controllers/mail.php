@@ -21,12 +21,6 @@ class Mail extends SS_Controller{
 		try{
 		
 			if($submit=='generate_express'){
-				$config['upload_path'] = './images/mail/express';
-				$config['encrypt_name'] = true;
-				$config['allowed_types'] = 'jpg';
-
-				$this->load->library('upload', $config);
-
 				$article_ids=preg_split('/,[\s]*/',$this->input->post('articles'));
 				
 				if(!is_array($article_ids)){
@@ -34,12 +28,30 @@ class Mail extends SS_Controller{
 					throw new Exception;
 				}
 				
+				$config['upload_path'] = './images/mail/express';
+				$config['encrypt_name'] = true;
+				$config['allowed_types'] = 'jpg';
+
+				$this->load->library('upload', $config);
+
 				if (!$this->upload->do_upload('header')){
 					$this->output->message($this->upload->display_errors(),'warning');
 					throw new Exception;
 				}
 				
 				$header=$this->upload->data();
+				
+				$config['allowed_types'] = 'pdf';
+				$config['encrypt_name'] = false;
+				
+				$Attachment=new CI_Upload($config);
+
+				if (!$Attachment->do_upload('attachment')){
+					$this->output->message($Attachment->display_errors(),'warning');
+					throw new Exception;
+				}
+				
+				$attachment=$Attachment->data();
 				
 				$articles=$this->mail->getArticles('star_global',$article_ids);
 				
@@ -51,6 +63,7 @@ class Mail extends SS_Controller{
 
 				$this->session->set_userdata('mail/express/mail_html',$mail_html);
 				$this->session->set_userdata('mail/express/title','星瀚律师 - '.$this->input->post('title'));
+				$this->session->set_userdata('mail/express/attachment','./images/mail/express/'.$attachment['file_name']);
 				
 				$this->output->setData($mail_html, 'preview', 'html','#express-preview');
 			}
@@ -73,7 +86,7 @@ class Mail extends SS_Controller{
 				$this->load->library('email');
 				$config=array(
 					'protocol'=>'smtp',
-					'smtp_host'=>'127.0.0.1',
+					'smtp_host'=>'192.168.1.156',
 					'smtp_user'=>'lawyer@lawyerstars.com',
 					'smtp_pass'=>'1218xinghan',
 					'mailtype'=>'html',
@@ -87,6 +100,7 @@ class Mail extends SS_Controller{
 
 				$this->email->subject($this->session->userdata('mail/express/title'));
 				$this->email->message($this->session->userdata('mail/express/mail_html')); 
+				$this->email->attach($this->session->userdata('mail/express/attachment'));
 
 				if($this->session->userdata('mail/express/send_progress')<count($this->session->userdata('mail/express/receivers'))){
 					$receivers=$this->session->userdata('mail/express/receivers');
