@@ -24,7 +24,7 @@ class Schedule_model extends SS_Model{
 		$id=intval($id);
 
 		$q_schedule="
-			SELECT id,name,content,place,fee,fee_name,`case`,people,time_start,time_end,all_day
+			SELECT id,name,content,place,fee,fee_name,`case`,people,time_start,time_end,all_day,completed
 			FROM schedule
 			WHERE id = $id
 				AND display=1
@@ -153,6 +153,7 @@ class Schedule_model extends SS_Model{
 				'start'=>date('Y-m-d H:i',$schedule['time_start']),
 				'end'=>date('Y-m-d H:i',$schedule['time_end']),
 				'allDay'=>(bool)$schedule['all_day'],
+				'completed'=>(bool)$schedule['completed'],
 				'color'=>($schedule['time_start']>$this->config->item('timestamp')?'#E35B00':($schedule['completed']?'#36C':'#555'))
 			);
 		}

@@ -39,7 +39,7 @@ $(function(){
 		selectable: true,
 		selectHelper: true,
 		select: function(startDate, endDate, allDay, event, view) {
-			$(event.target).createSchedule(startDate,endDate,allDay);
+			$('<div>').appendTo('body').schedule({startDate:startDate,endDate:endDate,allDay:allDay,selection:$(event.target)});
 		},
 		
 		unselectAuto:false,
@@ -52,24 +52,26 @@ $(function(){
 		},
 
 		eventClick: function(event,jsEvent) {
-			$(jsEvent.target).parents('.fc-event:first').showSchedule(event);
+			$('<div>').appendTo('body').schedule({selection:$(jsEvent.target),event:event,method:'view'});
 		},
 		eventDrop: function(event,dayDelta,minuteDelta,allDay) {
-			date = new Date();
-			$.post("/schedule/writecalendar/drag/"+event.id,{dayDelta:dayDelta,minuteDelta:minuteDelta,allDay:Number(allDay)},function(){
-				if(event.start.getTime()>date.getTime()){
-					event.color='#E35B00';
-				}else{
+			$.post('/schedule/writecalendar/drag/'+event.id,{dayDelta:dayDelta,minuteDelta:minuteDelta,allDay:Number(allDay)},function(){
+				if(event.completed){
 					event.color='#36C';
+				}else{
+					if(event.start.getTime()<new Date().getTime()){
+						event.color='#555';
+					}else{
+						event.color='#E35B00';
+					}
 				}
 				calendar.fullCalendar('rerenderEvents');
 			});
 		},
 		eventResize:function(event,dayDelta,minuteDelta){
-			$.post("/schedule/writecalendar/resize/"+event.id,{dayDelta:dayDelta,minuteDelta:minuteDelta,allDay:event.allDay},function(response){
+			$.post('/schedule/writecalendar/resize/'+event.id,{dayDelta:dayDelta,minuteDelta:minuteDelta,allDay:event.allDay},function(response){
 				if(response.status!='success'){
-					showMessage('日程时间数据保存失败','notice');
-					console.log(result);
+					showMessage('日程时间数据保存失败','warning');
 				}
 			},'json');
 		}

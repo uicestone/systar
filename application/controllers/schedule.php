@@ -248,12 +248,9 @@ class Schedule extends SS_controller{
 			}
 		
 		}elseif($action=='update'){//更新任务内容
-			if($this->schedule->update($schedule_id,array(
-				'name'=>$this->input->post('name'),
-				'content'=>$this->input->post('content'),
-				'completed'=>$this->input->post('completed')
-			))){
+			if($this->schedule->update($schedule_id,$this->input->post())){
 				$this->output->status='success';
+				$this->output->data=array('id'=>$schedule_id,'name'=>$this->input->post('name'),'completed'=>$this->input->post('completed'));
 			}
 		
 		}elseif($action=='resize'){//更新任务时间
@@ -433,15 +430,18 @@ class Schedule extends SS_controller{
 
 		$schedule=$this->schedule->fetch($schedule_id);
 		
-		if($schedule['case']){
-			$project=$this->cases->fetch($schedule['case']);
-			$project_name=strip_tags($project['name']);
-			$this->load->addViewData('project_name', $project_name);
+		if(isset($schedule['case'])){
+			$case=$this->cases->fetch($schedule['case']);
+			$case_name=strip_tags($case['name']);
+			$this->load->addViewData('case_name', $case_name);
 		}
 		
 		$this->load->addViewData('schedule', $schedule);
 		
-		$this->output->setData($schedule['name'],'title');
+		isset($schedule['name']) && $this->output->setData($schedule['name'],'title');
+		
+		isset($schedule['completed']) && $this->output->setData($schedule['completed'],'completed');
+		
 		$this->output->setData($this->load->view("schedule/$mode",array(),true));
 	}
 }

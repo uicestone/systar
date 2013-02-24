@@ -1077,6 +1077,7 @@ function EventManager(options, _sources) {
 				e.backgroudColor = event.backgroudColor;
 				e.borderColor = event.borderColor;
 				e.textColor = event.textColor;
+				e.completed = event.completed;/*更新日程块时也更新“是否已完成”信息 uice 2013/2/24*/
 				normalizeEvent(e);
 			}
 		}
