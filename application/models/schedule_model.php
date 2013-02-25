@@ -147,15 +147,26 @@ class Schedule_model extends SS_Model{
 		
 		$scheduleArray=array();
 		foreach($calendar as $order => $schedule){
+			
+			if($schedule['completed']){
+				$schedule['color']='#36C';
+			}else{
+				if($schedule['time_start']<new Date().getTime()){
+					$schedule['color']='#555';
+				}else{
+					$schedule['color']='#E35B00';
+				}
+			}
+
 			$scheduleArray[$order]=array(
 				'id'=>$schedule['id'],
 				'title'=>$schedule['name'],
 				'start'=>date('Y-m-d H:i',$schedule['time_start']),
 				'end'=>date('Y-m-d H:i',$schedule['time_end']),
 				'allDay'=>(bool)$schedule['all_day'],
-				'completed'=>(bool)$schedule['completed'],
-				'color'=>($schedule['time_start']>$this->config->item('timestamp')?'#E35B00':($schedule['completed']?'#36C':'#555'))
+				'completed'=>(bool)$schedule['completed']
 			);
+
 		}
 	
 		return $scheduleArray;

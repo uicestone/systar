@@ -438,7 +438,7 @@ class Schedule extends SS_controller{
 		
 		$this->load->addViewData('schedule', $schedule);
 		
-		isset($schedule['name']) && $this->output->setData($schedule['name'],'title');
+		isset($schedule['name']) && $this->output->setData($schedule['name'],'name');
 		
 		isset($schedule['completed']) && $this->output->setData($schedule['completed'],'completed');
 		
