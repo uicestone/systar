@@ -163,14 +163,8 @@ class Client extends SS_Controller{
 		if($this->input->post('character') && in_array($this->input->post('character'),array('自然人','单位'))){
 			post('client/character', $this->input->post('character'));
 		}
-
-		if(post('client/character') == '单位'){
-			$this->load->view('client/add_artificial');
-
-		}else{
-			$this->load->view('client/add_natural');
-		}		
 		
+		$this->load->view('client/edit');
 	}
 
 	function submit($submit,$id){

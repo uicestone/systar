@@ -34,7 +34,7 @@ $(window).on('hashchange',function(){
 			$('#side-bar>aside[for!="'+hash+'"]').hide();
 
 			/*如果需要redirect，则在构造<section>等元素前return掉*/
-			if(response.status=='redirect'){
+			if(response.status==='redirect'){
 				$.locationHash(response.data);
 				return;
 			}
@@ -43,7 +43,7 @@ $(window).on('hashchange',function(){
 			$('<aside for="'+hash+'"></aside>').appendTo('#side-bar');
 			
 			/*如果请求的hash在导航菜单中不存在，则生成标签选项卡*/
-			if($('nav a[href="#'+hash+'"]').length==0 && response.data.name){
+			if($('nav a[href="#'+hash+'"]').length===0 && response.data.name){
 				$('#tabs').append('<li for="'+hash+'" class="activated"><a href="#'+hash+'">'+response.data.name.content+'</a></li>');
 			}
 			
@@ -87,7 +87,7 @@ $(document).ready(function(){
 })
 /*手动刷新*/
 .on('click','a[href^="#"]',function(){
-	if($(this).attr('href').substr(1)==hash){
+	if($(this).attr('href').substr(1)===hash){
 		$('#top-bar>.throbber').fadeIn(500).rotate({animateTo:18000,duration:100000});
 		$.get(hash,function(response){
 			$('#top-bar>.throbber').stop().fadeOut(200).stopRotate();
@@ -100,7 +100,7 @@ $(document).ready(function(){
 	/*section触发事件后不再传递到body*/
 	event.stopPropagation();
 	
-	$(this).find('[placeholder]').placeholder()
+	$(this).find('[placeholder]').placeholder();
 	$(this).find('.date').datepicker();
 	$(this).find('.birthday').datepicker({
 		changeMonth: true,
@@ -114,7 +114,7 @@ $(document).ready(function(){
 			$(this).delay(15*index).css('opacity',0).css('visibility','visible').animate({opacity:'1'},500);
 		});
 	}
-	$(this).find('form')
+	$(this).find('form');
 })
 .on('sectionload sectionshow','#page>section',function(){
 	document.title=affair+' - '+(username?username+' - ':'')+sysname;
@@ -141,8 +141,8 @@ $(document).ready(function(){
 		
 		$('#page>section[hash="'+hash+'"]').setBlock(response);
 
-		if(response.status=='success'){
-			if(submit==controller || submit=='cancel'){
+		if(response.status==='success'){
+			if(submit===controller || submit==='cancel'){
 				$('#tabs>li[for="'+hash+'"]').remove();
 				$('#page>section[hash="'+hash+'"]').remove();
 
@@ -154,7 +154,7 @@ $(document).ready(function(){
 						lastAccessedHash=$(this).attr('hash');
 						lastAccessTime=$(this).attr('time-access');
 					}
-				}).length
+				}).length;
 				
 				if(sections>0){
 					$.locationHash(lastAccessedHash);
@@ -201,7 +201,10 @@ $(document).ready(function(){
 	var id = $('#page>section[hash="'+hash+'"]>form').attr('id');
 	var name = $(this).attr('name').replace('[','/').replace(']','');
 	var data={};data[name]=value;
-	$.post('/'+controller+'/setfields/'+id,data);
+	
+	if(controller && id){
+		$.post('/'+controller+'/setfields/'+id,data);
+	}
 })
 /*边栏选框自动提交*/
 .on('change','select.filter[method!="get"]',function(){
@@ -229,7 +232,7 @@ $(document).ready(function(){
 			return false;
 		},
 		response: function(event,ui){
-			if(ui.content.length==0){
+			if(ui.content.length===0){
 				$(this).trigger('autocompletenoresult');
 			}
 			//$(this).trigger('change');
@@ -253,12 +256,12 @@ $(document).ready(function(){
 		$(this).html('+');
 	}
 })
-.on('enable','[display-for]:not([locked-by])',function(event){
+.on('enable','[display-for]:not([locked-by])',function(){
 	$(this).find(':input:disabled:not([locked-by])').trigger('change').removeAttr('disabled');
 	$(this).show();
 
 })
-.on('disable','[display-for]:not([locked-by])',function(event){
+.on('disable','[display-for]:not([locked-by])',function(){
 	$(this).hide();
 	$(this).find(':input:enabled').trigger('change').attr('disabled','disabled');
 
@@ -316,7 +319,7 @@ jQuery.showMessage=function(message,type,directExport){
 	if(directExport){
 		var newMessage=$(message);
 	}else{
-		if(type=='warning'){
+		if(type==='warning'){
 			var notice_class='ui-state-error';
 			var notice_symbol='<span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>';
 		}else{
@@ -330,7 +333,7 @@ jQuery.showMessage=function(message,type,directExport){
 	
 	$.processMessage();
 
-}
+};
 
 jQuery.processMessage=function(){
 	var noticeEdge=50;
@@ -354,7 +357,7 @@ jQuery.processMessage=function(){
 	}).mouseout(function(){
 		$(this).fadeOut(10000);
 	});
-}
+};
 
 jQuery.parseMessage=function(messages){
 	if(messages){
@@ -364,7 +367,7 @@ jQuery.parseMessage=function(messages){
 			});
 		});
 	}
-}
+};
 
 /*扩展jQuery对象函数*/
 jQuery.fn.getOptionsByLabelRelative=function(labelName,callback){
@@ -374,13 +377,13 @@ jQuery.fn.getOptionsByLabelRelative=function(labelName,callback){
 		var options='';
 		$.map(response.data,function(item){
 			options+='<option value="'+item+'">'+item+'</option>';
-		})
+		});
 		select.html(options).trigger('change');
-		if (typeof callback != 'undefined'){
+		if (typeof callback !== 'undefined'){
 			callback(passive_select.val());
 		}
 	},'json');
-}
+};
 
 /**
  *根据一个后台返回的响应
@@ -392,17 +395,17 @@ jQuery.fn.setBlock=function(response){
 	
 	var parent=this;
 	
-	if(response.status=='login_required'){
+	if(response.status==='login_required'){
 		window.location.href='login';
-		return this
+		return this;
 	}
 
-	else if(response.status=='redirect'){
+	else if(response.status==='redirect'){
 		$.locationHash(response.data);
 		return this;
 	}
 	
-	else if(response.status=='refresh'){
+	else if(response.status==='refresh'){
 		$.get(hash,function(response){
 			$(document).setBlock(response);
 		});
@@ -412,11 +415,11 @@ jQuery.fn.setBlock=function(response){
 	
 	$.each(response.data,function(dataName,data){
 		
-		if(data.type=='script'){
+		if(data.type==='script'){
 			eval(data.content);
 		}
 		
-		else if(data.method=='replace'){
+		else if(data.method==='replace'){
 			if(data.selector){
 				if(parent.is(data.selector)){
 					parent.replaceWith(data.content);
@@ -432,13 +435,13 @@ jQuery.fn.setBlock=function(response){
 				var block;
 				
 				if(parent.is(data.selector)){
-					if(data.method=='append'){
+					if(data.method==='append'){
 						block=parent.append(data.content).trigger('blockload');
 					}else{
 						block=parent.html(data.content).trigger('blockload');
 					}
 				}else{
-					if(data.method=='append'){
+					if(data.method==='append'){
 						block=parent.find(data.selector).append(data.content).trigger('blockload');
 					}else{
 						block=parent.find(data.selector).html(data.content).trigger('blockload');
@@ -446,7 +449,7 @@ jQuery.fn.setBlock=function(response){
 				}				
 				
 				/*如果数据是主页面内容，则标记载入时间，出发指定事件*/
-				if(dataName=='content'){
+				if(dataName==='content'){
 					block.trigger('sectionload').attr('time-load',$.now());
 				}
 			}
@@ -454,4 +457,4 @@ jQuery.fn.setBlock=function(response){
 	});
 	
 	return this;
-}
+};
