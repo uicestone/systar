@@ -114,7 +114,6 @@ $(document).ready(function(){
 			$(this).delay(15*index).css('opacity',0).css('visibility','visible').animate({opacity:'1'},500);
 		});
 	}
-	$(this).find('form');
 })
 .on('sectionload sectionshow','#page>section',function(){
 	document.title=affair+' - '+(username?username+' - ':'')+sysname;
@@ -274,15 +273,6 @@ $(document).ready(function(){
 }).on('click','.contentTable>tbody a, .contentTable :input',function(event){
 	event.stopPropagation();
 
-})
-//标签选项卡的关闭按钮行为
-.on('click','#tabs span.ui-icon-close',function() {
-	var panelId = $( this ).closest( "li" ).remove().attr( "aria-controls" );
-	$( "#" + panelId ).remove();
-	$('#page').tabs( "refresh" );
-}).on('change',':checkbox',function(){
-	var text=$(this).is(':checked')?$(this).attr('text-checked'):$(this).attr('text-unchecked');
-	$(this).next('.ui-button').children('.ui-button-text').html(text);
 });
 
 function changeURLPar(url,par,par_value){
@@ -448,7 +438,7 @@ jQuery.fn.setBlock=function(response){
 					}
 				}				
 				
-				/*如果数据是主页面内容，则标记载入时间，出发指定事件*/
+				/*如果数据是主页面内容，则标记载入时间，触发特定事件*/
 				if(dataName==='content'){
 					block.trigger('sectionload').attr('time-load',$.now());
 				}

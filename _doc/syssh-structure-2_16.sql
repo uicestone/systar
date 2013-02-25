@@ -697,7 +697,7 @@ CREATE TABLE IF NOT EXISTS `news` (
 
 CREATE TABLE IF NOT EXISTS `people` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `character` enum('自然人','单位') NOT NULL DEFAULT '自然人',
+  `character` enum('个人','单位') NOT NULL DEFAULT '个人',
   `name` varchar(255) DEFAULT NULL,
   `name_en` varchar(255) NOT NULL DEFAULT '',
   `abbreviation` varchar(255) DEFAULT NULL,

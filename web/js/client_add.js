@@ -2,14 +2,11 @@ $(function(){
 	var section = $('#page>section[hash="'+hash+'"]');
 	/*判别个人或单位，激活不同的表单*/
 	$('[name="client[character]"]').on('change',function(){
-		if($(this).is(':checked')){
-			section.find('[display-for="单位"]').trigger('enable');
-			section.find('[display-for="个人"]').trigger('disable');
-		}else{
-			section.find('[display-for="个人"]').trigger('enable');
-			section.find('[display-for="单位"]').trigger('disable');
-		}
-	}).trigger('change');
+		var character=$(this).is(':checked')?'单位':'个人';
+		$.post(hash,{character:character},function(response){
+			section.setBlock(response);
+		});
+	});
 	
 	/*响应客户来源选项*/
 	$('[name="source[type]"]').on('change',function(){
@@ -44,4 +41,10 @@ $(function(){
 		$(this).find('[name="relative[id]"]').val('').trigger('change');
 	});
 	
+	/*相关人关系“其他”选项*/
+	$('[name="relative[relation]"]').change(function(){
+		if($(this).val()===''){
+			$('<input>',{type:'text',name:$(this).attr('name'),placeholder:$(this).children('option:first').html()}).insertAfter(this);
+		}
+	});
 });
