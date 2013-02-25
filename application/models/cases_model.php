@@ -1042,7 +1042,7 @@ class Cases_model extends SS_Model{
 				case '诉讼':$case_num['type_code']='（诉）';break;
 				case '刑事行政':$case_num['type_code']='（刑）';break;
 				case '涉外':$case_num['type_code']='（外）';break;
-				case '日韩':$case_num['type_code']='（韩）';break;
+				case '韩日':$case_num['type_code']='（韩）';break;
 				default:$case_num['type_code']='';
 			}
 		}
