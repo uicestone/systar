@@ -160,17 +160,11 @@ class Client extends SS_Controller{
 			$client['staff_name']=$this->staff->fetch($client['staff'],'name');
 		}
 
-		if($this->input->post('character') && in_array($this->input->post('character'),array('自然人','单位'))){
+		if($this->input->post('character') && in_array($this->input->post('character'),array('个人','单位'))){
 			post('client/character', $this->input->post('character'));
 		}
-
-		if(post('client/character') == '单位'){
-			$this->load->view('client/add_artificial');
-
-		}else{
-			$this->load->view('client/add_natural');
-		}		
 		
+		$this->load->view('client/edit');
 	}
 
 	function submit($submit,$id){
@@ -190,7 +184,7 @@ class Client extends SS_Controller{
 				
 				$labels=(array)post('labels')+$this->input->post('labels');
 
-				if($client['character'] != '自然人' && $client['abbreviation'] == ''){
+				if($client['character'] != '个人' && $client['abbreviation'] == ''){
 					//单位简称必填
 					$this->output->message('请填写单位简称','warning');
 					throw new Exception;
@@ -238,7 +232,7 @@ class Client extends SS_Controller{
 					$relative+=array(
 						'type'=>'客户',
 						'abbreviation'=>$relative['name'],
-						'character'=>isset($relative['character']) && $relative['character'] == '单位' ? '单位' : '自然人',
+						'character'=>isset($relative['character']) && $relative['character'] == '单位' ? '单位' : '个人',
 						'profiles'=>$profiles,
 						'labels'=>array('类型'=>'潜在客户')
 					);

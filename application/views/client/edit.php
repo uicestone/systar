@@ -13,15 +13,19 @@
 			<select name="labels[类型]">
 				<?=options($available_options['类型'],$this->value('labels/类型'),'类型')?>
 			</select>
-
-			<label><input type="checkbox" name="client[character]" value="单位" />单位</label>
-			<select name="client[gender]"><?=options(array('男','女'), $this->value('client/gender'), '性别')?></select>
-			<input type="text" name="client[id_card]" value="<?=$this->value('client/id_card'); ?>" placeholder="身份证" style="width:195px;" />
-			<input type="text" name="client[birthday]" value="<?=$this->value('client/birthday'); ?>" placeholder="生日" class="date" />
-			<input name="client[name_en]" value="<?=$this->value('client/name_en'); ?>" type="text" placeholder="英文名" />
-			<br />
-			<input type="text" name="client[work_for]" value="<?=$this->value('client/work_for')?>" placeholder="工作单位" />
-			<input type="text" name="client[position]" value="<?=$this->value('client/position')?>" placeholder="职位" />
+			
+			<?=checkbox('单位', 'client[character]', $this->value('client/character'), '单位')?>
+<?if($this->value('client/character')=='单位'){?>
+				<input name="client[abbreviation]" value="<?=$this->value('client/abbreviation')?>" placeholder="简称" />
+<?}else{?>
+				<select name="client[gender]"><?=options(array('男','女'), $this->value('client/gender'), '性别')?></select>
+				<input type="text" name="client[id_card]" value="<?=$this->value('client/id_card'); ?>" placeholder="身份证" style="width:195px;" />
+				<input type="text" name="client[birthday]" value="<?=$this->value('client/birthday'); ?>" placeholder="生日" class="date" />
+				<input name="client[name_en]" value="<?=$this->value('client/name_en'); ?>" type="text" placeholder="英文名" />
+				<br />
+				<input type="text" name="client[work_for]" value="<?=$this->value('client/work_for')?>" placeholder="工作单位" />
+				<input type="text" name="client[position]" value="<?=$this->value('client/position')?>" placeholder="职位" />
+<?}?>
 		</div>
 
 		<div class="item">
@@ -56,7 +60,7 @@
 				<input name="relative[id]" class="hidden" />
 
 				<select name="relative[relation]">
-					<?=options(array('父','母',($this->value('client/gender')=='男'?'妻':'夫'),'亲属','朋友','其他','代理人'),$this->value('relative/relation'),'关系')?>
+					<?=options($this->config->item(($this->value('client/character')=='单位'?'单位':'个人').'相关人关系'),$this->value('relative/relation'),'关系',false,true)?>
 				</select>
 				<span display-for="new" class="hidden">
 					<?=checkbox('单位','relative[character]',$this->value('relative/character'),'单位')?>

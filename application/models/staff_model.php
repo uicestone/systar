@@ -95,12 +95,13 @@ class Staff_model extends People_model{
 	}
 	
 	function getList(){
-		$q="SELECT staff.id,staff.name,staff.title,staff.modulus,staff.timing_fee_default,
+		$q="SELECT people.id,people.name,staff.title,staff.modulus,staff.timing_fee_default,
 				course.name AS course_name,
 				position.ui_name AS position_name
-			FROM staff LEFT JOIN course ON staff.course=course.id
+			FROM people INNER JOIN staff ON people.id=staff.id
+				LEFT JOIN course ON staff.course=course.id
 				LEFT JOIN position ON staff.position=position.id
-			WHERE staff.company='".$this->company->id."'
+			WHERE people.company={$this->company->id}
 		";
 		$q=$this->search($q,array('name'=>'姓名'));
 		$q=$this->orderBy($q,'staff.id','ASC');

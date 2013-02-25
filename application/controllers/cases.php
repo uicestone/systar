@@ -390,7 +390,7 @@ class Cases extends SS_controller{
 				else{//添加新客户
 					$new_client=array(
 						'name'=>$client['name'],
-						'character'=>isset($client['character']) && $client['character']=='单位'?'单位':'自然人',
+						'character'=>isset($client['character']) && $client['character']=='单位'?'单位':'个人',
 						'type'=>$client['type'],
 						'labels'=>$client_labels
 					);
