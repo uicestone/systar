@@ -4,7 +4,7 @@ class Staff extends SS_controller{
 		parent::__construct();
 	}
 	
-	function lists(){
+	function index(){
 		
 
 		if($this->input->post('grade')){

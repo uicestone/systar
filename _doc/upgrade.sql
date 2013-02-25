@@ -170,3 +170,10 @@ CREATE TABLE IF NOT EXISTS  `sessions` (
   KEY `last_activity_idx` (`last_activity`)
 ) ENGINE=INNODB  DEFAULT CHARSET=utf8;
 -- uice 2/22
+
+ALTER TABLE  `staff` ADD  `position` INT NULL AFTER  `id` ,
+ADD INDEX (  `position` );
+ALTER TABLE  `staff` ADD FOREIGN KEY (  `position` ) REFERENCES  `syssh`.`position` (
+`id`
+) ON DELETE NO ACTION ON UPDATE CASCADE ;
+-- uice 2/25
