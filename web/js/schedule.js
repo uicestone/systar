@@ -164,7 +164,11 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			var uri=this.options.method=='create'?'/schedule/writecalendar/add':'/schedule/writecalendar/update/'+this.options.id;
 
 			$.post(uri,data,function(response){
+				
 				if(response.status=='success' && $(calendar)){
+	
+					that.options.id=that.options.event.id=response.data.id;
+				
 					if(that.options.completed){
 						that.options.event.color='#36C';
 					}else{

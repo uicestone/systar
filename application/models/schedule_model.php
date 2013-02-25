@@ -151,7 +151,7 @@ class Schedule_model extends SS_Model{
 			if($schedule['completed']){
 				$schedule['color']='#36C';
 			}else{
-				if($schedule['time_start']<new Date().getTime()){
+				if($schedule['time_start']<$this->config->item('timestamp')){
 					$schedule['color']='#555';
 				}else{
 					$schedule['color']='#E35B00';
