@@ -5,11 +5,7 @@ class Evaluation extends SS_controller{
 		parent::__construct();
 	}
 	
-	/**
-	 * TODO 此方法需要MC分离
-	 */
 	function staffList(){
-		$this->session->set_userdata('last_list_action',$this->input->server('REQUEST_URI'));
 
 		$field=array(
 			'name'=>array('title'=>'姓名','wrap'=>array('mark'=>'a','href'=>'javascript:showWindow(\'evaluation/score/{id}\')')),
@@ -23,9 +19,6 @@ class Evaluation extends SS_controller{
 		$this->load->view('list');
 	}
 	
-	/**
-	 * TODO 此方法需要MC分离
-	 */
 	function comment(){
 		$field=array(
 			'name'=>array('title'=>'评分项','content'=>'{name}({weight})'),
