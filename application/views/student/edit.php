@@ -3,9 +3,6 @@
 <div class="contentTableMenu">
 	<div class="right">
 		<input type="submit" name="submit[student]" value="保存" />
-<?if(!$this->as_controller_default_page){ ?>
-		<input type="submit" name="submit[cancel]" value="关闭" />
-<?}?>
 	</div>
 </div>
 <div class="contentTableBox">
@@ -131,10 +128,7 @@
 		 <? } ?>
 
 		<div class="submit">
-			<input type="submit" name="submit[student]" value="保存" />
-			<? if(!$this->as_controller_default_page){ ?>
-			<input type="submit" name="submit[cancel]" value="关闭" />
-			<? } ?>
+			<input type="submit" name="submit[student]" value="保存" />			
 		</div>
 	</div>
 </div>

@@ -12,7 +12,6 @@ $(document).ready(function(){
         <? if($this->value('news/uid')==$this->user->id){?>
         <input type="submit" name="submit[news]" value="保存" />
         <? }?>
-        <input type="submit" name="submit[cancel]" value="关闭" />
     </div>
 </div>
 <div class="contentTableBox">
@@ -35,7 +34,6 @@ $(document).ready(function(){
 	<? if($this->value('news/uid')==$this->user->id){?>
 			<input type="submit" name="submit[news]" value="保存" />
 	<? }?>
-			<input type="submit" name="submit[cancel]" value="关闭" />
 		</div>
 	</div>
 </div>

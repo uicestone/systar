@@ -4,7 +4,6 @@
 			<button type="submit" name="submit[advanced]">高级</button>
 			|
 			<button type="submit" name="submit[query]">保存</button>
-			<button type="submit" name="submit[cancel]">关闭</button>
 		</div>
 	</div>
 	<div class="contentTableBox">
@@ -68,7 +67,6 @@
 	
 			<div class="submit">
 				<button type="submit" name="submit[query]">保存</button>
-				<button type="submit" name="submit[cancel]">关闭</button>
 			</div>
 		</div>
 	</div>

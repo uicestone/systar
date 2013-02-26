@@ -47,6 +47,11 @@ button{
 	position:absolute;
 	top:2px;left:2px
 }
+#top-bar #tabs .ui-icon.ui-icon-close{
+	position:absolute;
+	top: 0;
+	right: 0;
+}
 .date{
 	width:110px;
 }
@@ -138,41 +143,41 @@ nav{
 	margin:auto 5px auto 5px;
 	color:#FFF;
 }
-#top-bar,#navMenu{
+#top-bar,nav{
 	font-weight:normal;
 }
-#navMenu a:focus{
+nav a:focus{
 	outline:none;
 }
-#navMenu .l0 li.activated{
+nav [level="0"] li.activated{
 	background-color:#091F35;
 }
-#navMenu .l0 .arrow{
+nav [level="0"] .arrow{
 	padding:0 5px 0 10px;
 }
-#navMenu .l0 a{
+nav [level="0"] a{
 	color:#FFF;
 	font-size:17px;
 	line-height:3;
 }
-#navMenu .l0 a.controller.dink{
+nav [level="0"] a.controller.dink{
 	margin-left:22px;
 }
-#navMenu .l1{
+nav [level="1"]{
 	display:none;
 }
-#navMenu .l1 li{
+nav [level="1"] li{
 	background-color: #113C68;
 	padding-left: 20px;
 }
-#navMenu .l1 a{
+nav [level="1"] a{
 	color:#EEE;
 	font-weight:normal;
 	font-size:15px;
 	line-height:2;
 	margin-left:5px;
 }
-#navMenu a:hover{
+nav a:hover{
 	text-decoration:none;
 }
 

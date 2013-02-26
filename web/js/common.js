@@ -10,7 +10,8 @@ $(window).on('hashchange',function(){
 	$('#tabs>:not([for="'+hash+'"])').removeClass('activated');
 
 	$('nav li').removeClass('activated');
-	$('nav li#nav-'+uriSegments[0]+', nav li#nav-'+uriSegments[0]+'-'+uriSegments[1]).addClass('activated');
+	$('nav li#nav-'+uriSegments[0]).addClass('activated');
+	$('nav li#nav-'+uriSegments[0]+'-'+uriSegments[1]).addClass('activated').parent('ul').show();
 
 	/*
 	 *根据当前hash，显示对应标签页面，隐藏其他页面。
@@ -61,12 +62,12 @@ $(document).ready(function(){
 	}
 	
 	/*导航栏配置*/
-	$('#navMenu>.l0>li>a,controller').click(function(){
+	$('nav a').click(function(){
 		$(this).parent().children('ul:hidden').show();
 		$(this).siblings('.arrow').children('img').rotate({animateTo:90,duration:200});
 	});
-	$('#navMenu>.l0>li>.arrow').click(function(){
-		var subMenu=$(this).siblings('.l1');
+	$('nav .arrow').click(function(){
+		var subMenu=$(this).siblings('[level="1"]');
 		if(subMenu.is(':hidden')){
 			subMenu.show(200);
 			$(this).children('img').rotate({animateTo:90,duration:500});
@@ -142,24 +143,7 @@ $(document).ready(function(){
 
 		if(response.status==='success'){
 			if(submit===controller || submit==='cancel'){
-				$('#tabs>li[for="'+hash+'"]').remove();
-				$('#page>section[hash="'+hash+'"]').remove();
-
-				var lastAccessedHash;
-				var lastAccessTime=0;
-				
-				var sections = $('#page>section').each(function(){
-					if($(this).attr('time-access')>lastAccessTime){
-						lastAccessedHash=$(this).attr('hash');
-						lastAccessTime=$(this).attr('time-access');
-					}
-				}).length;
-				
-				if(sections>0){
-					$.locationHash(lastAccessedHash);
-				}else{
-					$.locationHash($('#page').attr('default-uri'));
-				}
+				$.closeTab(hash);
 			}
 		}
 
@@ -273,6 +257,16 @@ $(document).ready(function(){
 }).on('click','.contentTable>tbody a, .contentTable :input',function(event){
 	event.stopPropagation();
 
+})
+/*标签选项卡上的关闭按钮*/
+.on('mouseenter','#tabs>li',function(){
+	$('<span class="ui-icon ui-icon-close">').appendTo(this)
+	.click(function(){
+		$.closeTab($(this).parent('li').attr('for'));
+	});
+
+}).on('mouseleave','#tabs>li',function(){
+	$(this).children('span.ui-icon.ui-icon-close').remove();
 });
 
 function changeURLPar(url,par,par_value){
@@ -448,3 +442,25 @@ jQuery.fn.setBlock=function(response){
 	
 	return this;
 };
+
+jQuery.closeTab=function(hash){
+	$('#tabs>li[for="'+hash+'"]').remove();
+	$('#page>section[hash="'+hash+'"]').remove();
+
+	var lastAccessedHash;
+	var lastAccessTime=0;
+
+	var sections = $('#page>section').each(function(){
+		if($(this).attr('time-access')>lastAccessTime){
+			lastAccessedHash=$(this).attr('hash');
+			lastAccessTime=$(this).attr('time-access');
+		}
+	}).length;
+
+	if(sections>0){
+		$.locationHash(lastAccessedHash);
+	}else{
+		$.locationHash($('#page').attr('default-uri'));
+	}
+
+}

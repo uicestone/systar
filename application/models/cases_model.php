@@ -148,10 +148,6 @@ class Cases_model extends SS_Model{
 		}
 	}
 	
-	function clearUserTrash(){
-		return $this->db->delete('case', array('display'=>0,'uid'=>$this->user->id));
-	}
-	
 	//子表列表、增删
 	
 	function getClientList($case_id,$relation='客户'){
@@ -1004,14 +1000,14 @@ class Cases_model extends SS_Model{
 				WHERE `case`=$case_id
 				ORDER BY case_people.id
 				LIMIT 1
-			)client LEFT JOIN
+			)client CROSS JOIN
 			(
 				SELECT case_people.people AS opposite,IF(people.abbreviation IS NULL,people.name,people.abbreviation) AS opposite_name,role AS opposite_role 
 				FROM case_people INNER JOIN people ON case_people.type='相对方' AND case_people.people=people.id 
 				WHERE `case`=$case_id
 				LIMIT 1
 			)opposite
-			ON 1=1";	
+		";	
 		return $this->db->query($query)->row_array();
 	}
 	

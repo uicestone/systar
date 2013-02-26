@@ -3,7 +3,6 @@
 		<button type="submit" name="submit[generate_express]">生成</button>
 		<button type="submit" name="download-express">下载</button>
 		<button type="submit" name="submit[send_express]">发送</button>
-		<button type="submit" name="submit[cancel]">关闭</button>
 	</div>
 	<div class="contentTableBox">
 		<div class="contentTable">
@@ -36,7 +35,6 @@
 				<button type="submit" name="submit[generate_express]">生成</button>
 				<button type="submit" name="download-express">下载</button>
 				<button type="submit" name="submit[send_express]">发送</button>
-				<button type="submit" name="submit[cancel]">关闭</button>
 			</div>
 		</div>
 	</div>

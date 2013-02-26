@@ -446,6 +446,8 @@ class Cases extends SS_controller{
 
 				if($this->cases->addPeople($this->cases->id,$case_client['client'],'客户',$case_client['role'])){
 					$this->output->setData($this->subList('client',$this->cases->id));
+				}else{
+					$this->output->message('客户添加错误', 'warning');
 				}
 			}
 
@@ -496,6 +498,8 @@ class Cases extends SS_controller{
 				if($this->cases->addStaff($this->cases->id,post('staff/id'),post('staff/role'),post('staff/hourly_fee'))){
 					$this->output->setData($this->subList('staff',$this->cases->id));
 					unset($_SESSION['cases']['post'][$this->cases->id]['staff']['id']);
+				}else{
+					$this->output->message('人员添加错误', 'warning');
 				}
 
 				$this->cases->calcContribute($this->cases->id);
@@ -526,6 +530,8 @@ class Cases extends SS_controller{
 				if($this->cases->addFee($this->cases->id,$case_fee['fee'],$case_fee['pay_date'],$case_fee['type'],$case_fee['condition'])){
 					//unset($_SESSION['cases']['post']['case_fee']);
 					$this->output->setData($this->subList('fee',$this->cases->id));
+				}else{
+					$this->output->message('收费添加错误', 'warning');
 				}
 			}
 			
@@ -591,6 +597,8 @@ class Cases extends SS_controller{
 				if($this->cases->addFee($this->cases->id,$misc_fee['fee'],$misc_fee['pay_date'],'办案费',NULL,$misc_fee['receiver'],$misc_fee['comment'])){
 					//unset($_SESSION['cases']['post']['case_fee_misc']);
 					$this->output->setData($this->subList('miscfee',$this->cases->id));
+				}else{
+					$this->output->message('收费添加错误', 'warning');
 				}
 			}
 			

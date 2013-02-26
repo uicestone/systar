@@ -33,7 +33,6 @@
 		<button type="submit" name="submit[apply_file]">申请归档</button>
 <? }?>
 		<button type="submit" name="submit[cases]">保存</button>
-		<button type="submit" name="submit[cancel]">关闭</button>
 	</div>
 </div>
 
@@ -304,7 +303,6 @@
 	
 		<div class="submit">
 			<button type="submit" name="submit[cases]">保存</button>
-			<button type="submit" name="submit[cancel]">关闭</button>
 		</div>
 	</div>
 </div>

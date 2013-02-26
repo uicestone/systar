@@ -250,9 +250,15 @@ class Schedule_model extends SS_Model{
 			FROM schedule INNER JOIN `case` ON schedule.case=case.id
 				INNER JOIN case_people ON case.id=case_people.case AND case_people.type='律师'
 				LEFT JOIN people staff ON staff.id = schedule.uid
-			WHERE case_people.people={$this->user->id}
-				AND schedule.display=1 AND schedule.completed=".($this->input->get('plan')?'0':'1')."
+			WHERE schedule.display=1 AND schedule.company={$this->company->id}
+				AND schedule.completed=".($this->input->get('plan')?'0':'1')."
 		";
+		
+		if(!$this->user->isLogged('developer')){
+			$q.="
+				AND case_people.people={$this->user->id}
+			";
+		}
 		
 		$condition='';
 		if($para=='mine'){

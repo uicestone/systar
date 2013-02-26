@@ -2,7 +2,6 @@
 <div class="contentTableMenu">
 	<div class="right">
 		<button type="submit" name="submit[account]">保存</button>
-		<button type="submit" name="submit[cancel]">关闭</button>
 	</div>
 </div>
 <div class="contentTableBox">
@@ -39,7 +38,6 @@
 
 		<div class="submit">
 			<button type="submit" name="submit[account]">保存</button>
-			<button type="submit" name="submit[cancel]">关闭</button>
 		</div>
 	</div>
 </div>

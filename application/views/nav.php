@@ -1,6 +1,5 @@
 <nav>
-	<div id="navMenu">
-		<ul class="l0">
+	<ul level="0">
 <?php
 foreach($this->user->permission as $controller_name => $controller){
 	if(isset($controller['_display']) && $controller['_display']){
@@ -17,7 +16,7 @@ foreach($this->user->permission as $controller_name => $controller){
 			echo '<a href="#'.$controller['_add_action'].'" hidefocus="true"> <span style="font-size:12px;color:#CEDDEC">+</span></a>';
 		}
 		if($has_sub_menu){
-			echo '<ul class="l1">';
+			echo '<ul level="1">';
 			foreach($controller as $action_name => $action){
 				if(is_array($action)){
 					if($action['_display']){
@@ -33,8 +32,7 @@ foreach($this->user->permission as $controller_name => $controller){
 	}
 }
 ?>
-		</ul>
-	</div>
+	</ul>
 <?if($this->config->item('debug_mode')){?>
 	<div style="color:#091F35;font-size:10px;position:fixed;bottom:0;"><? echo codeLines()?></div>
 <?}?>

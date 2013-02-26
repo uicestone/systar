@@ -2,7 +2,6 @@
 <div class="contentTableMenu">
 	<div class="right">
 		<input type="submit" name="submit[express]" value="保存" />
-		<input type="submit" name="submit[cancel]" value="关闭" />
 	</div>
 </div>
 <div class="contentTableBox">
@@ -45,7 +44,6 @@
 
 		<div class="submit">
 			<input type="submit" name="submit[express]" value="保存" />
-			<input type="submit" name="submit[cancel]" value="关闭" />
 		</div>
 	</div>
 </div>
