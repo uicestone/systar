@@ -30,7 +30,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			if(that.options.selection){
 				that.options.selection.closest('.fc').fullCalendar('unselect');
 			}
-			that._destroy();
+			that.element.remove();
 		}
 		
 		this.options.buttons=[

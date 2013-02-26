@@ -267,6 +267,12 @@ $(document).ready(function(){
 
 }).on('mouseleave','#tabs>li',function(){
 	$(this).children('span.ui-icon.ui-icon-close').remove();
+})
+
+/*toggle button文字根据change时间显示*/
+.on('change',':checkbox',function(){
+	var text=$(this).is(':checked')?$(this).attr('text-checked'):$(this).attr('text-unchecked');
+	$(this).next('.ui-button').children('.ui-button-text').html(text);
 });
 
 function changeURLPar(url,par,par_value){

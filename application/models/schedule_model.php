@@ -130,17 +130,21 @@ class Schedule_model extends SS_Model{
 	 * @return array
 	 */
 	function fetch_range($start,$end,&$staff,&$case){
+		$start=intval($start);
+		$end=intval($end);
 	
-		$q_calendar="SELECT * FROM schedule WHERE display=1 AND time_start>='".intval($start)."' AND time_start<'".intval($end)."'";
+		$q_calendar="SELECT * FROM schedule WHERE company = {$this->company->id} AND display = 1 AND time_start>=$start AND time_start<$end";
 		
 		if($staff){
-			$q_calendar.=" AND `uid`='".intval($staff)."'";
+			$staff=intval($staff);
+			$q_calendar.=" AND `uid` = $staff";
 		}else{
-			$q_calendar.=" AND `uid`={$this->user->id}";
+			$q_calendar.=" AND `uid` = {$this->user->id}";
 		}
 		
 		if($case){
-			$q_calendar.=" AND `case`='".intval($case)."'";
+			$case=intval($case);
+			$q_calendar.=" AND `case` = $case";
 		}
 	
 		$calendar=$this->db->query($q_calendar)->result_array();
@@ -164,7 +168,8 @@ class Schedule_model extends SS_Model{
 				'start'=>date('Y-m-d H:i',$schedule['time_start']),
 				'end'=>date('Y-m-d H:i',$schedule['time_end']),
 				'allDay'=>(bool)$schedule['all_day'],
-				'completed'=>(bool)$schedule['completed']
+				'completed'=>(bool)$schedule['completed'],
+				'color'=>$schedule['color']
 			);
 
 		}
