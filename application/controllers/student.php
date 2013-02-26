@@ -149,7 +149,7 @@ class Student extends SS_controller{
 			$this->form_validation->set_rules('student[junior_school]','初中','required');
 			$this->form_validation->set_rules('student[mobile]','手机','required');
 			$this->form_validation->set_rules('student[phone]','固定电话','required');
-			$this->form_validation->set_rules('student[email]','电子邮箱','required');
+			$this->form_validation->set_rules('student[email]','电子邮件','required');
 			$this->form_validation->set_rules('student[address]','地址','required');
 			$this->form_validation->set_rules('student[neighborhood_committees]','居委会','required');
 			$this->form_validation->set_rules('student[bank_account]','银行卡号','required');

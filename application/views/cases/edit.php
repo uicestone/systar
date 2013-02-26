@@ -125,7 +125,7 @@
 				 
 				<span display-for="new" class="hidden">
 					<input type="text" name="client_profiles[电话]" value="<?=$this->value('client_profiles/电话');?>" placeholder="电话" disabled="disabled" />
-					<input type="text" name="client_profiles[电子邮箱]" value="<?=$this->value('client_profiles/电子邮箱');?>" placeholder="电子邮件" disabled="disabled" />
+					<input type="text" name="client_profiles[电子邮件]" value="<?=$this->value('client_profiles/电子邮件');?>" placeholder="电子邮件" disabled="disabled" />
 				</span>
 				
 				<span display-for="new client" class="hidden">

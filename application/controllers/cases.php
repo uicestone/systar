@@ -495,6 +495,7 @@ class Cases extends SS_controller{
 
 				if($this->cases->addStaff($this->cases->id,post('staff/id'),post('staff/role'),post('staff/hourly_fee'))){
 					$this->output->setData($this->subList('staff',$this->cases->id));
+					unset($_SESSION['cases']['post'][$this->cases->id]['staff']['id']);
 				}
 
 				$this->cases->calcContribute($this->cases->id);

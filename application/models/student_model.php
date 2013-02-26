@@ -8,7 +8,7 @@ class Student_model extends People_model{
 		'resident'=>'住校',
 		'dormitory'=>'宿舍',
 		'mobile'=>'手机',
-		'email'=>'电子邮箱',
+		'email'=>'电子邮件',
 		'phone'=>'家庭电话',
 		'address'=>'家庭地址',
 		'community'=>'居委会',
