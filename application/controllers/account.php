@@ -7,7 +7,6 @@ class Account extends SS_controller{
 	}
 	
 	function lists(){
-		$this->session->set_userdata('last_list_action', $this->input->server('REQUEST_URI'));
 		
 		$field=array(
 			'date'=>array('title'=>'日期','td'=>'href="#account/edit/{id}"'),

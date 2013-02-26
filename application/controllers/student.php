@@ -366,7 +366,6 @@ class Student extends SS_controller{
 	 * 家校互动
 	 */
 	function interactive(){
-		$this->session->set_userdata('last_list_action', $this->input->server('REQUEST_URI'));
 		
 		if($this->input->post('submit')){
 			$submitable=true;
