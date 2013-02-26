@@ -113,7 +113,7 @@
 				
 				</span>
 
-				<span display-for="new non-client" class="hidden">
+				<span display-for="new" class="hidden">
 					<input type="text" name="client[work_for]" placeholder="工作单位" disabled="disabled" />
 				</span>
 	
