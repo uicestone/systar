@@ -1,4 +1,4 @@
-<div id="top-bar">
+<header>
 	<ul id="tabs"></ul>
 	<img class="throbber hidden" src="images/spinner.png" />
 <? if($this->user->isLogged()){?>
@@ -7,4 +7,4 @@
 		<a href="/logout" target="_top">退出</a>
 	</div>
 <?}?>
-</div>
+</header>

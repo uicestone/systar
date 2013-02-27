@@ -13,7 +13,7 @@ class SS_Loader extends CI_Loader{
 	 * 传统视图输出内容被以ajax方式传输时，指定载入到页面的位置
 	 * @var type 
 	 */
-	var $selector='#page';
+	var $selector='article';
 	
 	/**
 	 * 在ajax响应页面中，用来保存提示信息的数组

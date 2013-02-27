@@ -1,2 +1,2 @@
-<div id="side-bar" class="fixed <?=$this->session->userdata('minimized')?>">
+<aside>
 	<span class="minimize-button">-</span>

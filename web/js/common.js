@@ -17,22 +17,22 @@ $(window).on('hashchange',function(){
 	 *根据当前hash，显示对应标签页面，隐藏其他页面。
 	 *如果当前page中没有请求的页面（或者已过期），那么向服务器发送请求，获取新的页面并添加标签选项卡。
 	 */
-	if($('#page>section[hash="'+hash+'"]').length>0){
-		$('#page>section[hash!="'+hash+'"]').hide();
-		$('#side-bar>aside[for!="'+hash+'"]').hide();
+	if($('article>section[hash="'+hash+'"]').length>0){
+		$('article>section[hash!="'+hash+'"]').hide();
+		$('aside>section[for!="'+hash+'"]').hide();
 	
-		$('#page>section[hash="'+hash+'"]').show().attr('time-access',$.now()).trigger('sectionshow');
-		$('#side-bar>aside[for="'+hash+'"]').show().trigger('sidebarshow');
+		$('article>section[hash="'+hash+'"]').show().attr('time-access',$.now()).trigger('sectionshow');
+		$('aside>section[for="'+hash+'"]').show().trigger('sidebarshow');
 		
 	}else{
-		$('#top-bar>.throbber').fadeIn(500).rotate({animateTo:18000,duration:100000});
+		$('header>.throbber').fadeIn(500).rotate({animateTo:18000,duration:100000});
 		
 		$.get(hash,function(response){
 			
-			$('#top-bar>.throbber').stop().fadeOut(200).stopRotate();
+			$('header>.throbber').stop().fadeOut(200).stopRotate();
 			
-			$('#page>section[hash!="'+hash+'"]').hide();
-			$('#side-bar>aside[for!="'+hash+'"]').hide();
+			$('article>section[hash!="'+hash+'"]').hide();
+			$('aside>section[for!="'+hash+'"]').hide();
 
 			/*如果需要redirect，则在构造<section>等元素前return掉*/
 			if(response.status==='redirect'){
@@ -40,8 +40,8 @@ $(window).on('hashchange',function(){
 				return;
 			}
 	
-			$('<section hash="'+hash+'" time-access="'+$.now()+'"></section>').appendTo('#page');
-			$('<aside for="'+hash+'"></aside>').appendTo('#side-bar');
+			$('<section hash="'+hash+'" time-access="'+$.now()+'"></section>').appendTo('article');
+			$('<section for="'+hash+'"></section>').appendTo('aside');
 			
 			/*如果请求的hash在导航菜单中不存在，则生成标签选项卡*/
 			if($('nav a[href="#'+hash+'"]').length===0 && response.data.name){
@@ -56,7 +56,7 @@ $(window).on('hashchange',function(){
 });
 
 $(document).ready(function(){
-	page=$('#page');nav=$('nav');aside=$('aside');topbar=$('#top-bar');tabs=topbar.children('#tabs');
+	page=$('article');nav=$('nav');aside=$('aside');topbar=$('header');tabs=topbar.children('#tabs');
 	
 	if($.browser.msie && ($.browser.version<8 || document.documentMode && document.documentMode<8)){
 		$.showMessage('您正在使用不被推荐的浏览器，请关闭浏览器兼容模式。如果问题仍然存在，<a href="/browser">请点此下载推荐的浏览器</a>','warning');
@@ -81,8 +81,8 @@ $(document).ready(function(){
 	/*为主体载入指定页面或默认页面*/
 	if(window.location.hash){
 		$(window).trigger('hashchange');
-	}else if($('#page').attr('default-uri')){
- 		$.locationHash($('#page').attr('default-uri'));
+	}else if($('article').attr('default-uri')){
+ 		$.locationHash($('article').attr('default-uri'));
  	}
 	
 	$('body').trigger('sectionload');
@@ -90,9 +90,9 @@ $(document).ready(function(){
 	/*手动刷新*/
 	$('nav,#tabs').on('click','a[href^="#"]',function(){
 		if($(this).attr('href').substr(1)===hash){
-			$('#top-bar>.throbber').fadeIn(500).rotate({animateTo:18000,duration:100000});
+			$('header>.throbber').fadeIn(500).rotate({animateTo:18000,duration:100000});
 			$.get(hash,function(response){
-				$('#top-bar>.throbber').stop().fadeOut(200).stopRotate();
+				$('header>.throbber').stop().fadeOut(200).stopRotate();
 				$(document).setBlock(response);
 			},'json');
 		}
@@ -124,7 +124,7 @@ $(document).ready(function(){
 					$.showMessage('您正使用IE浏览器，如果按下按钮后，页面没有反应，或者显示不正常，那是正常现象。重新点击本页标签刷新即可');
 				}
 
-				$('#page>section[hash="'+hash+'"]').setBlock(response);
+				$('article>section[hash="'+hash+'"]').setBlock(response);
 
 				if(response.status==='success'){
 					if(submit===controller || submit==='cancel'){
@@ -134,7 +134,7 @@ $(document).ready(function(){
 
 			}});
 
-			/*$.post(postURI,$('#page>section[hash="'+hash+'"]>form').serialize(),function(response){
+			/*$.post(postURI,$('article>section[hash="'+hash+'"]>form').serialize(),function(response){
 			},'json');*/
 
 			//return false;
@@ -145,44 +145,13 @@ $(document).ready(function(){
 			if($(this).is(':checkbox') && !$(this).is(':checked')){
 				value=0;
 			}
-			var id = $('#page>section[hash="'+hash+'"]>form').attr('id');
+			var id = $('article>section[hash="'+hash+'"]>form').attr('id');
 			var name = $(this).attr('name').replace('[','/').replace(']','');
 			var data={};data[name]=value;
 
 			if(controller && id){
 				$.post('/'+controller+'/setfields/'+id,data);
 			}
-		})
-		/*自动完成*/
-		.on('focus','[autocomplete-model]',function(){
-			var autocompleteModel=$(this).attr('autocomplete-model');
-			$(this).autocomplete({
-				source: function(request, response){
-					$.post('/'+autocompleteModel+'/match',{term:request.term},function(responseJSON){
-						response(responseJSON.data);
-					},'json');
-				},
-				select: function(event,ui){
-					$(this).val(ui.item.label).trigger('autocompleteselect',{value:ui.item.value}).trigger('change');
-					return false;
-				},
-				focus: function(event,ui){
-					//$(this).val(ui.item.label);
-					return false;
-				},
-				response: function(event,ui){
-					if(ui.content.length===0){
-						$(this).trigger('autocompletenoresult');
-					}
-					//$(this).trigger('change');
-				}
-			})
-			/*.bind('input.autocomplete', function(){
-				//修正firefox下中文不自动search的bug
-				$(this).trigger('keydown.autocomplete'); 
-			})*/
-			//.autocomplete('search')
-			;
 		})
 		//响应每一栏标题上的"+"并显示/隐藏添加菜单
 		.on('click','.item>.title>.toggle-add-form',function(){
@@ -264,13 +233,44 @@ $(document).ready(function(){
 		});
 	}
 })
+/*自动完成*/
+.on('focus','[autocomplete-model]',function(){
+	var autocompleteModel=$(this).attr('autocomplete-model');
+	$(this).autocomplete({
+		source: function(request, response){
+			$.post('/'+autocompleteModel+'/match',{term:request.term},function(responseJSON){
+				response(responseJSON.data);
+			},'json');
+		},
+		select: function(event,ui){
+			$(this).val(ui.item.label).trigger('autocompleteselect',{value:ui.item.value}).trigger('change');
+			return false;
+		},
+		focus: function(event,ui){
+			//$(this).val(ui.item.label);
+			return false;
+		},
+		response: function(event,ui){
+			if(ui.content.length===0){
+				$(this).trigger('autocompletenoresult');
+			}
+			//$(this).trigger('change');
+		}
+	})
+	/*.bind('input.autocomplete', function(){
+		//修正firefox下中文不自动search的bug
+		$(this).trigger('keydown.autocomplete'); 
+	})*/
+	//.autocomplete('search')
+	;
+})
 /*分页按钮响应*/
 .on('click','.pagination button',function(){
 
-	$('#top-bar>.throbber').fadeIn(500).rotate({animateTo:18000,duration:100000});
+	$('header>.throbber').fadeIn(500).rotate({animateTo:18000,duration:100000});
 
 	$.post('/'+hash,{start:$(this).attr('target-page-start')},function(response){
-		$('#top-bar>.throbber').stop().fadeOut(200).stopRotate();
+		$('header>.throbber').stop().fadeOut(200).stopRotate();
 		$(document).setBlock(response);
 	},'json');
 
@@ -460,12 +460,12 @@ jQuery.fn.setBlock=function(response){
 
 jQuery.closeTab=function(hash){
 	$('#tabs>li[for="'+hash+'"]').remove();
-	$('#page>section[hash="'+hash+'"]').remove();
+	$('article>section[hash="'+hash+'"]').remove();
 
 	var lastAccessedHash;
 	var lastAccessTime=0;
 
-	var sections = $('#page>section').each(function(){
+	var sections = $('article>section').each(function(){
 		if($(this).attr('time-access')>lastAccessTime){
 			lastAccessedHash=$(this).attr('hash');
 			lastAccessTime=$(this).attr('time-access');
@@ -475,7 +475,7 @@ jQuery.closeTab=function(hash){
 	if(sections>0){
 		$.locationHash(lastAccessedHash);
 	}else{
-		$.locationHash($('#page').attr('default-uri'));
+		$.locationHash($('article').attr('default-uri'));
 	}
 
 }

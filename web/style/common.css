@@ -42,12 +42,12 @@ button{
 .shadow{
 	box-shadow:-2px 2px 5px rgba(0,0,0,0.5);
 }
-#top-bar .throbber{
+header .throbber{
 	width:21px;
 	position:absolute;
 	top:2px;left:2px
 }
-#top-bar #tabs .ui-icon.ui-icon-close{
+header #tabs .ui-icon.ui-icon-close{
 	position:absolute;
 	top: 0;
 	right: 0;
@@ -93,7 +93,7 @@ body{
 	background:#CEDDEC;
 }
 
-#page section{
+article section{
 	position:absolute;left:120px;top:25px;right:245px;;bottom:0;
 	box-shadow: -2px 0 5px #000;
 	overflow-x:auto;
@@ -101,7 +101,7 @@ body{
 	border:0;
 	background:transparent;
 }
-#page section .contentTableBox{
+article section .contentTableBox{
 	min-width:800px;
 }
 nav{
@@ -130,7 +130,7 @@ nav{
 }
 
 /*menu*/
-#top-bar{
+header{
 	position:absolute;left:0;right:0;z-index:1;
 	height:25px;
 	background:#113C68;
@@ -143,7 +143,7 @@ nav{
 	margin:auto 5px auto 5px;
 	color:#FFF;
 }
-#top-bar,nav{
+header,nav{
 	font-weight:normal;
 }
 nav a:focus{
@@ -315,54 +315,54 @@ nav a:hover{
 }
 
 /*右侧工具栏*/
-#side-bar{
+aside{
 	position:fixed;right:0;top:25px;
 	width:240px;
 }
-#side-bar.minimized{
+aside.minimized{
 	max-width:100px;
 	min-width:0;
 	height: 29px;
 	overflow: hidden;
 }
-#side-bar .minimize-button,#side-bar .maximize-button{
+aside .minimize-button,aside .maximize-button{
     position: absolute;
     right: 20px;
     z-index: 1;
     font-size: 18px;
     color: #FFF;
 }
-#side-bar ul{
+aside ul{
 	text-align:left;
 	font-size:20px;
 	line-height:30px;
 	margin-top:30px;
 }
-#side-bar ul li{
+aside ul li{
 	list-style-type:disc;
 }
-#side-bar select{
+aside select{
 	width:100%;
 	font-size:17px;
 }
-#side-bar .contentTable{
+aside .contentTable{
 	margin-bottom:10px;
 }
-#side-bar .contentTable.search-bar{
+aside .contentTable.search-bar{
 	background-color:transparent;
 	border:0;
 }
-#side-bar .contentTable.search-bar tbody tr{
+aside .contentTable.search-bar tbody tr{
 	visibility:visible;
 	background-color:transparent;
 }
-#side-bar .contentTable.search-bar tbody td{
+aside .contentTable.search-bar tbody td{
 	background-color:transparent;
 	border:0;
 	text-align:right;
 	padding:0;
 }
-#side-bar .contentTable.search-bar tbody td input[type=text]{
+aside .contentTable.search-bar tbody td input[type=text]{
 	width:240px;
 }
 

@@ -1,5 +1,5 @@
 $(function(){
-	var section = $('#page>section[hash="'+hash+'"]');
+	var section = $('article>section[hash="'+hash+'"]');
 	/*判别个人或单位，激活不同的表单*/
 	$('[name="client[character]"]').on('change',function(){
 		var character=$(this).is(':checked')?'单位':'个人';
