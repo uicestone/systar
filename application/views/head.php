@@ -5,6 +5,7 @@
 	<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><![endif]-->
 	<?=stylesheet('style/redmond/jquery-ui-1.9.2.custom')?>
 	<?=stylesheet('style/common')?>
+	<?=stylesheet('style/icomoon/style')?>
 	
 	<?=javascript('jQuery/jquery-1.7.2')?>
 	<?=javascript('jQuery/jQueryRotate.2.2')?>

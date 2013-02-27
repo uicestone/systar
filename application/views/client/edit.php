@@ -1,9 +1,4 @@
 <form method="post" name="<?=CONTROLLER?>" id="<?=$this->client->id?>" enctype="multipart/form-data">
-<div class="contentTableMenu">
-	<div class="right">
-		<button type="submit" name="submit[client]">保存</button>
-	</div>
-</div>
 <div class="contentTableBox">
 	<div class="contentTable">
 		<div class="item">
@@ -38,9 +33,10 @@
 		</div>
 
 		<div class="item" name="profile">
-			<div class="title"><label>资料项</label><label class="toggle-add-form">+</label></div>
+			<div class="title"><label>资料项</label></div>
 			<?=$profile_list?>
-			<div class="add-form hidden">
+			<button type="button" class="toggle-add-form">+</button>
+			<span class="add-form hidden">
 				<select name="profile[name]">
 					<?=options($profile_name_options,$this->value('profile/name'),'资料项名称')?>
 				</select>
@@ -48,13 +44,14 @@
 				<input type="text" name="profile[comment]" value="<?=$this->value('profile/comment')?>" placeholder="备注" />
 
 				<input type="submit" name="submit[profile]" value="添加" />
-			</div>
+			</span>
 		 </div>
 
 		<div class="item" name="relative">
-			<div class="title"><label>相关人</label><label class="toggle-add-form">+</label></div>
+			<div class="title"><label>相关人</label></div>
 			<?=$relative_list?>
-			<div class="add-form hidden">
+			<button type="button" class="toggle-add-form">+</button>
+			<span class="add-form hidden">
 				<input type="text" name="relative[name]" value="<?=$this->value('relative/name')?>" placeholder="名称" autocomplete-model="client" />
 				<input name="relative[id]" class="hidden" />
 
@@ -68,7 +65,7 @@
 					<input type="text" name="relative_profiles[电子邮件]" value="<?=$this->value('relative_profiles/电子邮件')?>" placeholder="电子邮件" />
 				</span>
 				<input type="submit" name="submit[relative]" value="添加" />
-			</div>
+			</span>
 		 </div>
 
 		<div class="item">
@@ -79,10 +76,6 @@
 		<div class="item">
 			<div class="title"><label>备注：</label></div>
 			<textarea name="client[comment]"><?=$this->value('client/comment')?></textarea>
-		</div>
-
-		<div class="submit">
-			<button type="submit" name="submit[client]">保存</button>
 		</div>
 	</div>
 </div>

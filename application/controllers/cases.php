@@ -83,28 +83,14 @@ class Cases extends SS_controller{
 		}
 		
 		if($item=='client'){
-			if(!isset($para['client_lock'])){
-				$para['client_lock']=$case['client_lock'];
-			}
-		
+
 			$fields=array(
-				'name'=>array('title'=>'名称','eval'=>true,'content'=>"
-					\$return='';
-					if(!post('cases/client_lock')){
-						\$return.='<input type=\"checkbox\" name=\"case_client_check[]\" value=\"{id}\" />';
-					}
-					\$return.='{name}';
-					return \$return;
-				",'orderby'=>false,'td'=>'hash="client/edit/{people}"'),
+				'name'=>array('title'=>'名称','orderby'=>false,'td'=>'hash="client/edit/{people}"'),
 				'phone'=>array('title'=>'电话','td'=>'class="ellipsis" title="{phone}"'),
 				'email'=>array('title'=>'电邮','wrap'=>array('mark'=>'a','href'=>'mailto:{email}','title'=>'{email}','target'=>'_blank'),'td'=>'class="ellipsis"'),
 				'role'=>array('title'=>'本案地位','orderby'=>false),
 				'type'=>array('title'=>'类型','td_title'=>'width="60px"','orderby'=>false)
 			);
-			if(!$para['client_lock']){
-				//客户锁定时不显示删除按钮
-				$fields['name']['title']='<input type="submit" name="submit[case_client_delete]" value="删" />'.$fields['name']['title'];
-			}
 			$list=$this->table->setFields($fields)
 				->setAttribute('name',$item)
 				->generate($this->cases->getClientList($this->cases->id));
@@ -133,11 +119,6 @@ class Cases extends SS_controller{
 			if($para['timing_fee']){
 				$fields['hourly_fee']=array('title'=>'计时收费小时费率','td'=>'class="editable" id="{id}"','orderby'=>false);
 			}
-			if(!$para['staff_lock']){
-				//律师锁定时不显示删除按钮
-				$fields['staff_name']['title']='<input type="submit" name="submit[staff_delete]" value="删" />'.$fields['staff_name']['title'];
-				$fields['staff_name']['content']='<input type="checkbox" name="staff_check[]" value="{id}">'.$fields['staff_name']['content'];
-			}
 			$list=$this->cases->table->setFields($fields)
 				->setAttribute('name',$item)
 				->generate($this->cases->getStaffList($this->cases->id));
@@ -160,12 +141,6 @@ class Cases extends SS_controller{
 				'condition'=>array('title'=>'条件','td'=>'class="ellipsis" title="{condition}"','orderby'=>false),
 				'pay_date'=>array('title'=>'预计时间','orderby'=>false)
 			);
-			if(!$para['fee_lock']){
-				$fields['type']['title']='<input type="submit" name="submit[case_fee_delete]" value="删" />'.$fields['type']['title'];
-			}
-			if(!$para['fee_lock'] || $this->user->isLogged('finance')){
-				$fields['type']['content']='<input type="checkbox" name="case_fee_check[]" value="{id}">'.$fields['type']['content'];
-			}
 			$list=$this->cases->table->setFields($fields)
 					->setAttribute('name',$item)
 					->generate($this->cases->getFeeList($this->cases->id));
@@ -183,10 +158,6 @@ class Cases extends SS_controller{
 				'comment'=>array('title'=>'备注','orderby'=>false),
 				'pay_date'=>array('title'=>'预计时间','orderby'=>false)
 			);
-			if(!$para['fee_lock']){
-				$fields['receiver']['title']='<input type="submit" name="submit[case_fee_misc_delete]" value="删" />'.$fields['receiver']['title'];
-				$fields['receiver']['content']='<input type="checkbox" name="case_fee_check[]" value="{id}" />{receiver}';
-			}
 			$list=$this->table->setFields($fields)
 					->setAttribute('name',$item)
 					->generate($this->cases->getFeeMiscList($this->cases->id));
@@ -275,10 +246,10 @@ class Cases extends SS_controller{
 		$labels=$this->cases->getLabels($this->cases->id);
 
 		if(!$cases['name']){
-			$cases['name']='未命名案件';
+			$this->output->setData('未命名案件','name');
+		}else{
+			$this->output->setData(strip_tags($cases['name']), 'name');
 		}
-		
-		$this->output->setData(strip_tags($cases['name']), 'name');
 
 		$case_role=$this->cases->getRoles($this->cases->id);
 		
@@ -336,9 +307,13 @@ class Cases extends SS_controller{
 		$this->load->model('staff_model','staff');
 		
 		//$case是用来汇总，读的，因此尽可能获取最新的，最多的信息。post('cases')是要写入数据库的，只是要更改的部分。
-		$case=array_merge($this->cases->fetch($id),(array)post('cases'))+(array)$this->input->post('cases');
+		$case=array_merge($this->cases->fetch($id),$this->input->sessionPost('cases'));
 		
-		$labels=$this->cases->getLabels($this->cases->id)+(array)post('labels');
+		$labels=$this->cases->getLabels($this->cases->id);
+		$labels_unsaved_changes=post('labels');
+		if($labels_unsaved_changes){
+			$labels+=$labels_unsaved_changes;
+		}
 		
 		try{
 		
@@ -348,19 +323,11 @@ class Cases extends SS_controller{
 		
 			elseif($submit=='cases'){
 
-				//TODO 不科学
-				$case_client_role = $this->cases->getClientRole($this->cases->id);
-
-				//根据案件类别和客户、相对方更新案名
-				if(isset($case_client_role['client']) && !$case['filed']){
-					post('cases/name',$this->cases->getName($case_client_role,$case['is_query'],@$labels['分类'],@$labels['领域'],$case['name_extra']));
-				}
-
 				if(!$case['num']){
 					$this->output->message('尚未获取案号，请选择案件分类和阶段后获取案号','warning');
 					throw new Exception();
 				}
-				if(@$labels['分类']!='法律顾问' && !$case['is_query'] && !$case['focus']){
+				if(isset($labels['分类']) && in_array($labels['分类'],array('诉讼','非诉讼')) && !$case['is_query'] && !$case['focus']){
 					$this->output->message('请填写案件争议焦点','warning');
 					throw new Exception();
 				}
@@ -368,16 +335,18 @@ class Cases extends SS_controller{
 				$this->cases->update($this->cases->id,post('cases'));
 				$this->cases->updateLabels($this->cases->id,post('labels'));
 				
+				
+				
 				unset($_SESSION['cases']['post'][$this->cases->id]);
 			}
 			
 			elseif($submit=='case_client'){
 				
 				//这样对数组做加法，后者同名键不会替换前者，即后者是前者的补充，而非更新
-				$case_client=(array)post('case_client')+(array)$this->input->post('case_client');
-				$client=(array)post('client')+(array)$this->input->post('client');
-				$client_profiles=(array)post('client_profiles')+(array)$this->input->post('client_profiles');
-				$client_labels=(array)post('client_labels')+(array)$this->input->post('client_labels');
+				$case_client=$this->input->sessionPost('case_client');
+				$client=$this->input->sessionPost('client');
+				$client_profiles=$this->input->sessionPost('client_profiles');
+				$client_labels=$this->input->sessionPost('client_labels');
 				
 				if(!$case_client['role']){
 					$this->output->message('请选择本案地位','warning');
@@ -388,6 +357,10 @@ class Cases extends SS_controller{
 					$this->output->message("系统中已经存在{$client['name']}，已自动识别");
 				}
 				else{//添加新客户
+					if(!$client['name']){
+						$this->output->message('请输入客户或相关人名称', 'warning');
+						throw new Exception;
+					}
 					$new_client=array(
 						'name'=>$client['name'],
 						'character'=>isset($client['character']) && $client['character']=='单位'?'单位':'个人',
@@ -396,7 +369,7 @@ class Cases extends SS_controller{
 					);
 
 					if($client['type']=='客户'){//客户必须输入来源
-						$client_source=post('client_source')+$this->input->post('client_source');
+						$client_source=$this->input->sessionPost('client_source');
 						$client['source']=$this->client->setSource($client_source['type'],isset($client_source['detail'])?$client_source['detail']:NULL);
 
 						$client['staff']=$this->staff->check($client['staff_name']);
@@ -459,8 +432,7 @@ class Cases extends SS_controller{
 			
 			elseif($submit=='staff'){
 				
-				$staff=(array)post('staff')+$this->input->post('staff');
-				
+				$staff=$this->input->sessionPost('staff');
 				if(!$staff['id']){
 					$staff['id']=$this->staff->check($staff['name']);
 					
@@ -487,7 +459,7 @@ class Cases extends SS_controller{
 
 				if(!$responsible_partner && $staff['role']!='督办人'){
 					//第一次插入督办人后不显示警告，否则如果不存在督办人则显示警告
-					$this->output->message('未设置督办人','warning');
+					$this->output->message('未设置督办人','notice');
 				}
 
 				if(!$staff['role']){
@@ -513,10 +485,14 @@ class Cases extends SS_controller{
 			
 			elseif($submit=='case_fee'){
 				
-				$case_fee=(array)post('case_fee')+$this->input->post('case_fee');
+				$case_fee=$this->input->sessionPost('case_fee');
 
-				if(!$case_fee['fee']){
-					$this->output->message('请预估收费金额','warning');
+				if(!$case_fee['type']){
+					$this->output->message('请选择收费类型','warning');
+				}
+				
+				if(!is_numeric($case_fee['fee'])){
+					$this->output->message('请预估收费金额（数值）','warning');
 				}
 				
 				if(!$case_fee['pay_date']){
@@ -524,7 +500,7 @@ class Cases extends SS_controller{
 				}
 				
 				if(count($this->output->message['warning'])>0){
-					throw new Exception();
+					throw new Exception;
 				}
 				
 				if($this->cases->addFee($this->cases->id,$case_fee['fee'],$case_fee['pay_date'],$case_fee['type'],$case_fee['condition'])){
@@ -552,7 +528,7 @@ class Cases extends SS_controller{
 			
 			elseif($submit=='case_fee_timing'){
 				
-				$timing_fee=(array)post('case_fee_timing')+$this->input->post('case_fee_timing');
+				$timing_fee=$this->input->sessionPost('case_fee_timing');
 
 				if(!$timing_fee){
 					$this->cases->removeTimingFee($this->cases->id);
@@ -576,14 +552,14 @@ class Cases extends SS_controller{
 			
 			elseif($submit=='case_fee_misc'){
 				
-				$misc_fee=(array)post('case_fee_misc')+$this->input->post('case_fee_misc');
+				$misc_fee=$this->input->sessionPost('case_fee_misc');
 				
 				if(!$misc_fee['receiver']){
-					$this->output->message('未选择办案费收款方','warning');
+					$this->output->message('请选择办案费收款方','warning');
 				}
 				
 				if(!$misc_fee['fee']){
-					$this->output->message('请填写办案费约定金额','warning');
+					$this->output->message('请填写办案费约定金额（数值）','warning');
 				}
 				
 				if(!$misc_fee['pay_date']){
@@ -595,7 +571,6 @@ class Cases extends SS_controller{
 				}
 				
 				if($this->cases->addFee($this->cases->id,$misc_fee['fee'],$misc_fee['pay_date'],'办案费',NULL,$misc_fee['receiver'],$misc_fee['comment'])){
-					//unset($_SESSION['cases']['post']['case_fee_misc']);
 					$this->output->setData($this->subList('miscfee',$this->cases->id));
 				}else{
 					$this->output->message('收费添加错误', 'warning');
@@ -605,9 +580,9 @@ class Cases extends SS_controller{
 			elseif($submit=='case_document'){
 				$this->load->model('document_model','document');
 				
-				$document=(array)post('document')+$this->input->post('document');
+				$document=$this->input->sessionPost('document');
 				
-				$document_labels=(array)post('document_labels')+(array)$this->input->post('document_labels');
+				$document_labels=$this->input->sessionPost('document_labels');
 				
 				if(!$document_labels['类型']){
 					$this->output->message('请选择文件类型','warning');

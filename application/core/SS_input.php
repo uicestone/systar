@@ -31,6 +31,27 @@ class SS_input extends CI_Input{
 		}
 	}
 	
+	/**
+	 * @param string 一个变量名或数组变量路径
+	 * @return array 返回储存于$_SESSION的post()值和$this->input->post()值取并集的结果
+	 * 对于交集键，取$_SESSION的post()中的值
+	 */
+	function sessionPost($index){
+		$post=array();
+		
+		$session_post=post($index);
+		if(is_array($session_post)){
+			$post+=$session_post;
+		}
+		
+		$http_post=$this->post($index);
+		if(is_array($http_post)){
+			$post+=$http_post;
+		}
+		
+		return $post;
+	}
+	
 	function _clean_input_keys($str){   
 		$config = &get_config('config');   
 		if( ! preg_match("/^[".$config['permitted_uri_chars']."]+$/i", rawurlencode($str))){   

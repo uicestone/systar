@@ -1,11 +1,4 @@
 <form method="post" name="query" id="<?=$this->query->id?>">
-	<div class="contentTableMenu">
-		<div class="right">
-			<button type="submit" name="submit[advanced]">高级</button>
-			|
-			<button type="submit" name="submit[query]">保存</button>
-		</div>
-	</div>
 	<div class="contentTableBox">
 		<div class="contentTable">
 	
@@ -20,6 +13,9 @@
 				<input type="text" name="cases[first_contact]" value="<?=$this->value('cases/first_contact')?>" title="首次接待时间" placeholder="首次接待时间" class="date" />
 				<select name="labels[咨询方式]">
 					<?=options(array('面谈','电话','网络'),$this->value('labels/咨询方式'),'咨询方式')?>
+				</select>
+				<select name="labels[领域]">
+					<?=options($this->config->item('案件领域'), $this->value('labels/领域'), '领域')?>
 				</select>
 			</div>
 	
@@ -51,22 +47,17 @@
 			
 			<div class="item">
 				<div class="title"><label>概况：</label></div>
-				<select name="labels[领域]"><?=options($this->config->item('案件领域'), $this->value('labels/领域'), '领域')?></select>
 				<textarea name="cases[summary]" rows="7"><?=$this->value('cases/summary'); ?></textarea>
 			</div>
 	
 			<div class="item">
 				<div class="title"><label>报价：</label></div>
-				<input type="text" name="cases[quote]" value="<?=$this->value('cases/quote');?>" style="width:100%;padding:0;margin:0;border:0;" />
+				<input type="text" name="cases[quote]" value="<?=$this->value('cases/quote');?>" style="width:99%;" />
 			</div>
 			
 			<div class="item">
 				<div class="title"><label>备注：</label></div>
 				<textarea name="cases[comment]"><?=$this->value('cases/comment'); ?></textarea>
-			</div>
-	
-			<div class="submit">
-				<button type="submit" name="submit[query]">保存</button>
 			</div>
 		</div>
 	</div>

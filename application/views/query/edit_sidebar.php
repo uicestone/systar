@@ -1,0 +1,1 @@
+<button type="submit" name="submit[query]" class="major">保存</button>

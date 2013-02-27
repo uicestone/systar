@@ -61,6 +61,8 @@ $(function(){
 	$('.item[name="staff"]').on('autocompleteselect',function(event,data){
 		/*有自动完成结果且已选择*/
 		$(this).find('[name="staff[id]"]').val(data.value).trigger('change');
+	}).on('autocompleteresponse',function(){
+		$(this).find('[name="staff[id]"]').val('').trigger('change');
 	});
 
 	//勾选"计时收费"时，显示计时收费列表和表单

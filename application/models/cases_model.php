@@ -179,6 +179,52 @@ class Cases_model extends SS_Model{
 		return $this->db->query($query)->result_array();
 	}
 	
+	function getPeoplesByRole($case_id,$role=NULL){
+		$case_id=intval($case_id);
+		$query="
+			SELECT
+				people.id,people.name,people.abbreviation,people.type
+				case_people.role
+			FROM
+				people INNER JOIN case_people ON case_people.people=people.id
+			WHERE people.display=1
+		";
+		$result_array=$this->db->query($query)->result_array();
+		$peoples=array();
+		foreach($result_array as $row){
+			$peoples[$row['role']][$row['id']]=$row;
+		}
+		
+		if(is_null($role)){
+			return $peoples;
+		}elseif(isset($peoples[$role])){
+			return $peoples[$role];
+		}
+	}
+	
+	function getPeoplesByType($case_id,$type=NULL){
+		$case_id=intval($case_id);
+		$query="
+			SELECT
+				people.id,people.name,people.abbreviation,people.type
+				case_people.role
+			FROM
+				people INNER JOIN case_people ON case_people.people=people.id
+			WHERE people.display=1
+		";
+		$result_array=$this->db->query($query)->result_array();
+		$peoples=array();
+		foreach($result_array as $row){
+			$peoples[$row['type']][$row['id']]=$row;
+		}
+		
+		if(is_null($type)){
+			return $peoples;
+		}elseif(isset($peoples[$type])){
+			return $peoples[$type];
+		}
+	}
+	
 	function addPeople($case_id,$people_id,$type,$role=NULL){
 		
 		$this->db->insert('case_people',array(
@@ -988,30 +1034,6 @@ class Cases_model extends SS_Model{
 		return $my_role;
 	}
 	
-	function getClientRole($case_id){
-		//获得当前案件的客户-相对方名称
-		$case_id=intval($case_id);
-		
-		$query="
-			SELECT * FROM
-			(
-				SELECT case_people.people AS client,IF(people.abbreviation IS NULL,people.name,people.abbreviation) AS client_name,role AS client_role 
-				FROM case_people INNER JOIN people ON case_people.type='客户' AND case_people.people=people.id 
-				WHERE `case`=$case_id
-				ORDER BY case_people.id
-				LIMIT 1
-			)client LEFT JOIN
-			(
-				SELECT case_people.people AS opposite,IF(people.abbreviation IS NULL,people.name,people.abbreviation) AS opposite_name,role AS opposite_role 
-				FROM case_people INNER JOIN people ON case_people.type='相对方' AND case_people.people=people.id 
-				WHERE `case`=$case_id
-				LIMIT 1
-			)opposite
-			ON 1
-		";
-		return $this->db->query($query)->row_array();
-	}
-	
 	/*
 	 * 根据案件信息，获得案号
 	 * $case参数为array，需要包含is_query,filed,classification,type,type_lock,first_contact/time_contract键
@@ -1056,51 +1078,6 @@ class Cases_model extends SS_Model{
 		return $num;
 	}
 
-	/**
-	 * 更新案件名称
-	 */
-	function getName($case_client_role,$is_query=false,$classification=NULL,$type=NULL,$name_extra=NULL){
-		$case_name=$case_client_role['client_name'];
-		
-		if($is_query){
-			$case_name.=' 咨询';
-			return $case_name;
-		}
-		
-		if(isset($case_client_role['opposite_name'])){
-			
-			if($classification=='诉讼' && ($case_client_role['client_role']=='原告' || $case_client_role['client_role']=='申请人') && ($case_client_role['opposite_role']=='被告' || $case_client_role['opposite_role']=='被申请人')){
-					$case_name.=' 诉 '.$case_client_role['opposite_name'].'('.$type.')';
-
-			}elseif($classification=='诉讼' && ($case_client_role['client_role']=='被告' || $case_client_role['client_role']=='被申请人') && ($case_client_role['opposite_role']=='原告' || $case_client_role['opposite_role']=='申请人')){
-					$case_name.=' 应诉 '.$case_client_role['opposite_name'].'('.$type.')';
-
-			}elseif($classification=='诉讼' && $case_client_role['client_role']=='上诉人'){
-				$case_name.=' 上诉 '.$case_client_role['opposite_name'].'('.$type.')';
-
-			}elseif($classification=='诉讼' && $case_client_role['client_role']=='被上诉人'){
-				$case_name.=' 应 '.$case_client_role['opposite_name'].' 上诉('.$type.')';
-
-			}elseif($classification=='诉讼' && ($case_client_role['client_role']=='第三人' || $case_client_role['opposite_role']=='第三人')){
-				$case_name.=' 与 '.$case_client_role['opposite_role'].' '.$case_client_role['opposite_name'].'('.$type.')';
-			}
-			
-		}
-		
-		if(isset($classification) && $classification=='法律顾问'){
-			$case_name.='('.$classification.')';
-
-		}elseif(isset($type)){
-			$case_name.='('.$type.')';
-		}
-		
-		if(isset($name_extra)){
-			$case_name.=(' '.$name_extra);
-		}
-		
-		return $case_name;
-	}
-	
 	/**
 	 * 更新归档状态
 	 */

@@ -1,9 +1,4 @@
 <form name="account" id="<?=$this->account->id?>">
-<div class="contentTableMenu">
-	<div class="right">
-		<button type="submit" name="submit[account]">保存</button>
-	</div>
-</div>
 <div class="contentTableBox">
 	<div class="contentTable">
 		<div class="item">
@@ -34,10 +29,6 @@
 		<div class="item">
 			<div class="title"><label>备注：</label></div>
 			<textarea name="account[comment]"><?=$this->value('account/comment')?></textarea>
-		</div>
-
-		<div class="submit">
-			<button type="submit" name="submit[account]">保存</button>
 		</div>
 	</div>
 </div>

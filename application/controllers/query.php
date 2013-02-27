@@ -47,12 +47,12 @@ class Query extends SS_controller{
 		$labels=$this->query->getLabels($this->query->id);
 		
 		if(!$query['name']){
-			$query['name']='未命名咨询';
+			$this->output->setData('未命名咨询','name');
+		}else{
+			$this->output->setData(strip_tags($query['name']), 'name');
 		}
 		
 		$this->load->addViewData('cases', $query);
-		
-		$this->output->setData(strip_tags($query['name']), 'name');
 
 		$this->load->view('query/edit');
 	}
@@ -64,7 +64,7 @@ class Query extends SS_controller{
 		$this->load->model('client_model','client');
 		$this->load->model('staff_model','staff');
 		
-		$query=array_merge($this->query->fetch($id),(array)post('cases'))+(array)$this->input->post('cases');
+		$query=array_merge($this->query->fetch($id),$this->input->sessionPost('cases'));
 		
 		try{
 			
@@ -75,7 +75,7 @@ class Query extends SS_controller{
 		
 			elseif($submit=='query'){
 				
-				$labels=(array)post('labels')+$this->input->post('labels');
+				$labels=$this->input->sessionPost('labels');
 				
 				if(!$labels['咨询方式']){
 					$this->output->message('请选择咨询方式','warning');
@@ -92,16 +92,26 @@ class Query extends SS_controller{
 					throw new Exception;
 				}
 				
-				$related_staff_name=(array)post('related_staff_name')+$this->input->post('related_staff_name');
+				$related_staff_name=$this->input->sessionPost('related_staff_name');
+				
+				if(!$related_staff_name['接洽律师']){
+					$this->output->message('请填写接洽律师（跟进人员中间一项）');
+					throw new Exception;
+				}
 				
 				$related_staff=array();
-				foreach($related_staff_name as $role => $staff_name){
-					$related_staff[$role]=$this->staff->check($staff_name);
+				try{
+					foreach($related_staff_name as $role => $staff_name){
+						$related_staff[$role]=$this->staff->check($staff_name);
+					}
+				}
+				catch(Exception $e){
+					//截获staff->check可能抛出的错误
 				}
 				
 				$query['is_query']=true;
 
-				$client=(array)post('client')+$this->input->post('client');
+				$client=$this->input->sessionPost('client');
 				
 				if(!$client['id']){
 					if(!$client['name']){
@@ -109,7 +119,7 @@ class Query extends SS_controller{
 						throw new Exception;
 					}
 					
-					$client_profiles=(array)post('client_profiles')+$this->input->post('client_profiles');
+					$client_profiles=$this->input->sessionPost('client_profiles');
 					
 					if(!$client_profiles['电话'] && !$client_profiles['电子邮件']){
 						$this->output->message('至少输入一种联系方式','warning');
@@ -120,7 +130,7 @@ class Query extends SS_controller{
 						$client['staff']=$this->staff->check($client['staff_name']);
 					}
 					
-					$client_source=(array)post('client_source')+$this->input->post('client_source');
+					$client_source=$this->input->sessionPost('client_source');
 					
 					$client['source']=$this->client->setSource($client_source['type'], @$client_source['detail']);
 
@@ -134,7 +144,6 @@ class Query extends SS_controller{
 				$query['num']=$this->query->getNum($this->query->id,NULL,$labels['领域'],true,$query['first_contact']);
 
 				$client_role=array('client_name'=>$client['name']);
-				$query['name']=$this->query->getName($client_role,true);
 
 				$query['display']=true;
 				
@@ -143,20 +152,14 @@ class Query extends SS_controller{
 				$this->query->updateLabels($this->query->id, $labels);
 
 				$this->query->addPeople($this->query->id,$client['id'],'客户');
-
-				$this->query->addStaff($this->query->id,$related_staff['督办人'],'督办人');
-				$this->query->addStaff($this->query->id,$related_staff['接洽律师'],'接洽律师');
-				$this->query->addStaff($this->query->id,$related_staff['律师助理'],'律师助理');
-				$this->query->calcContribute($this->query->id);
 				
+				foreach($related_staff as $role=>$staff){
+					$this->query->addStaff($this->query->id,$staff,$role);
+				}
 			}
-
-			if($submit=='advanced'){
-				$this->output->status='redirect';
-				$this->output->data='cases/edit/'.$this->query->id;
+			if(!$this->output->status){
+				$this->output->status='success';
 			}
-			
-			$this->output->status='success';
 			
 		}catch(exception $e){
 			$this->output->status='fail';

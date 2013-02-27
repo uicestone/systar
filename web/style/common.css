@@ -47,9 +47,6 @@ header .throbber{
 	position:absolute;
 	top:2px;left:2px
 }
-header #tabs .ui-icon.ui-icon-closethick{
-	float:right;
-}
 .date{
 	width:110px;
 }
@@ -178,6 +175,11 @@ nav [level="1"] a{
 nav a:hover{
 	text-decoration:none;
 }
+nav .arrow{
+	color:#FFF;
+	font-size:10px;
+	margin-right:5px;
+}
 
 #tabs{
 	position:absolute;
@@ -187,6 +189,9 @@ nav a:hover{
 	float:left;
 	padding:0 7px;
 	height:25px;
+}
+#tabs li .icon-x{
+	color:#FFF;font-size:10px;
 }
 #tabs a{
 	font-size:15px;
@@ -260,7 +265,7 @@ nav a:hover{
 .contentTable thead{
 	background:#69C;
 	color:#FFF;
-	font-size:17px;
+	font-size:15px;
 }
 .contentTable thead th{
 	padding:2px 7px;
@@ -363,6 +368,11 @@ aside .contentTable.search-bar tbody td{
 aside .contentTable.search-bar tbody td input[type=text]{
 	width:240px;
 }
+aside button.major{
+	width:230px;
+	font-size:16px;
+	margin-top:5px;
+}
 
 /*插入界面*/
 .contentTable .item{
@@ -374,11 +384,15 @@ aside .contentTable.search-bar tbody td input[type=text]{
 .contentTable .item input[type="password"],
 .contentTable .item textarea,
 .contentTable .item select{
-	font-size:15px;
+	/*font-size:15px;*/
 }
+
+.contentTable .item input{
+	margin:0 auto;
+}
+
 .contentTable .item textarea{
-	width:100%;
-	padding:0;margin:0;border:0;
+	width:99%;
 }
 .contentTable .item .title{
 	padding-left:1em;

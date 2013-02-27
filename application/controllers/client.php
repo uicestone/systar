@@ -54,16 +54,7 @@ class Client extends SS_Controller{
 		if($item=='relative'){
 			$field=array(
 				'relative_name'=>array(
-					'title'=>'<input type="submit" name="submit[relative_delete]" value="删" />名称', 
-					'eval'=>true, 
-					'content'=>"
-						\$return='<input type=\"checkbox\" name=\"relative_check[]\" value=\"{id}\" >';
-						\$return.='{relative_name}';
-						if('{is_default_contact}'){
-							\$return.='*';
-						}
-						return \$return;
-					",
+					'title'=>'名称',
 					'td'=>'hash="client/edit/{relative}"',
 					'orderby'=>false
 				), 
@@ -81,7 +72,7 @@ class Client extends SS_Controller{
 		//资料项
 		elseif($item=='profile'){
 			$field=array(
-				'name'=>array('title'=>'<input type="submit" name="submit[people_profile_delete]" value="删" />名称', 'content'=>'<input type="checkbox" name="people_profile_check[]" value="{id}" />{name}', 'orderby'=>false), 
+				'name'=>array('title'=>'名称', 'content'=>'{name}', 'orderby'=>false), 
 				'content'=>array('title'=>'内容', 'eval'=>true, 'content'=>"
 					if('{name}'=='电子邮件'){
 						return '<a href=\"mailto:{content}\" target=\"_blank\">{content}</a>';
@@ -170,7 +161,7 @@ class Client extends SS_Controller{
 	function submit($submit,$id){
 		$this->client->id=$id;
 		
-		$client=array_merge($this->client->fetch($id),(array)post('client'))+(array)$this->input->post('client');
+		$client=array_merge($this->client->fetch($id),$this->input->sessionPost('client'));
 
 		try{
 		
@@ -182,7 +173,7 @@ class Client extends SS_Controller{
 			elseif($submit=='client'){
 				$this->load->model('staff_model','staff');
 				
-				$labels=(array)post('labels')+$this->input->post('labels');
+				$labels=$this->input->sessionPost('labels');
 
 				if($client['character'] != '个人' && $client['abbreviation'] == ''){
 					//单位简称必填
@@ -195,7 +186,7 @@ class Client extends SS_Controller{
 					throw new Exception;
 				}
 				
-				$source=(array)post('source')+$this->input->post('source');
+				$source=$this->input->sessionPost('source');
 
 				post('client/source', $this->client->setSource($source['type'], isset($source['detail'])?$source['detail']:NULL));
 				
@@ -254,9 +245,9 @@ class Client extends SS_Controller{
 			}
 
 			elseif($submit=='profile'){
-				$profile=(array)post('profile')+$this->input->post('profile');
+				$profile=$this->input->sessionPost('profile');
 				
-				if($profile['name']==''){
+				if(!$profile['name']){
 					$this->output->message('请选择资料项名称','warning');
 					throw new Exception;
 				}
