@@ -154,11 +154,11 @@ class Client extends SS_Controller{
 		$this->subList('profile');
 		$this->subList('case');
 
-		$this->load->addViewArrayData(compact('client','labels','available_options','profile_name_options','source'));
-
 		if($client['staff']){
 			$client['staff_name']=$this->staff->fetch($client['staff'],'name');
 		}
+
+		$this->load->addViewArrayData(compact('client','labels','available_options','profile_name_options','source'));
 
 		if($this->input->post('character') && in_array($this->input->post('character'),array('个人','单位'))){
 			post('client/character', $this->input->post('character'));
