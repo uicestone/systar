@@ -1,4 +1,4 @@
-var hash,controller,action,username,sysname,uriSegments;
+var page,nav,topbar,tabs,aside,hash,controller,action,username,sysname,uriSegments;
 
 $(window).on('hashchange',function(){
 	hash=$.locationHash();
@@ -56,6 +56,7 @@ $(window).on('hashchange',function(){
 });
 
 $(document).ready(function(){
+	page=$('#page');nav=$('nav');aside=$('aside');topbar=$('#top-bar');tabs=topbar.children('#tabs');
 	
 	if($.browser.msie && ($.browser.version<8 || document.documentMode && document.documentMode<8)){
 		$.showMessage('您正在使用不被推荐的浏览器，请关闭浏览器兼容模式。如果问题仍然存在，<a href="/browser">请点此下载推荐的浏览器</a>','warning');
@@ -85,16 +86,163 @@ $(document).ready(function(){
  	}
 	
 	$('body').trigger('sectionload');
-})
-/*手动刷新*/
-.on('click','a[href^="#"]',function(){
-	if($(this).attr('href').substr(1)===hash){
-		$('#top-bar>.throbber').fadeIn(500).rotate({animateTo:18000,duration:100000});
-		$.get(hash,function(response){
-			$('#top-bar>.throbber').stop().fadeOut(200).stopRotate();
+	
+	/*手动刷新*/
+	$('nav,#tabs').on('click','a[href^="#"]',function(){
+		if($(this).attr('href').substr(1)===hash){
+			$('#top-bar>.throbber').fadeIn(500).rotate({animateTo:18000,duration:100000});
+			$.get(hash,function(response){
+				$('#top-bar>.throbber').stop().fadeOut(200).stopRotate();
+				$(document).setBlock(response);
+			},'json');
+		}
+	});
+	
+	page.on('sectionload sectionshow','section',function(){
+		document.title=affair+' - '+(username?username+' - ':'')+sysname;
+	});
+	
+	page.on('sectionload','section',function(){
+		$(this)
+		/*编辑页的提交按钮点击事件，提交数据到后台，在页面上反馈数据和提示*/
+		.on('click','form input:submit, form button:submit',function(){
+			var section = $(this).closest('section');
+			var form = section.children('form');
+
+			var id = section.find('form[name="'+controller+'"]').attr('id');
+			var submit = $(this).attr('name').replace('submit[','').replace(']','');
+
+			var postURI='/'+controller+'/submit/'+submit;
+
+			if(id){
+				postURI+='/'+id;
+			}
+
+			form.ajaxForm({url:postURI,dataType:'json',success:function(response){
+
+				if($.browser.msie){
+					$.showMessage('您正使用IE浏览器，如果按下按钮后，页面没有反应，或者显示不正常，那是正常现象。重新点击本页标签刷新即可');
+				}
+
+				$('#page>section[hash="'+hash+'"]').setBlock(response);
+
+				if(response.status==='success'){
+					if(submit===controller || submit==='cancel'){
+						$.closeTab(hash);
+					}
+				}
+
+			}});
+
+			/*$.post(postURI,$('#page>section[hash="'+hash+'"]>form').serialize(),function(response){
+			},'json');*/
+
+			//return false;
+		})
+		/*edit表单元素更改时实时提交到后台 */
+		.on('change','form:[id] :input',function(){
+			var value=$(this).val();
+			if($(this).is(':checkbox') && !$(this).is(':checked')){
+				value=0;
+			}
+			var id = $('#page>section[hash="'+hash+'"]>form').attr('id');
+			var name = $(this).attr('name').replace('[','/').replace(']','');
+			var data={};data[name]=value;
+
+			if(controller && id){
+				$.post('/'+controller+'/setfields/'+id,data);
+			}
+		})
+		/*自动完成*/
+		.on('focus','[autocomplete-model]',function(){
+			var autocompleteModel=$(this).attr('autocomplete-model');
+			$(this).autocomplete({
+				source: function(request, response){
+					$.post('/'+autocompleteModel+'/match',{term:request.term},function(responseJSON){
+						response(responseJSON.data);
+					},'json');
+				},
+				select: function(event,ui){
+					$(this).val(ui.item.label).trigger('autocompleteselect',{value:ui.item.value}).trigger('change');
+					return false;
+				},
+				focus: function(event,ui){
+					//$(this).val(ui.item.label);
+					return false;
+				},
+				response: function(event,ui){
+					if(ui.content.length===0){
+						$(this).trigger('autocompletenoresult');
+					}
+					//$(this).trigger('change');
+				}
+			})
+			/*.bind('input.autocomplete', function(){
+				//修正firefox下中文不自动search的bug
+				$(this).trigger('keydown.autocomplete'); 
+			})*/
+			//.autocomplete('search')
+			;
+		})
+		//响应每一栏标题上的"+"并显示/隐藏添加菜单
+		.on('click','.item>.title>.toggle-add-form',function(){
+			var addForm=$(this).closest('.item').find('.add-form');
+			if(addForm.is(':hidden')){
+				addForm.show(200);
+				$(this).html('-');
+			}else{
+				addForm.hide(200);
+				$(this).html('+');
+			}
+		})
+		.on('enable','[display-for]:not([locked-by])',function(){
+			$(this).find(':input:disabled:not([locked-by])').trigger('change').removeAttr('disabled');
+			$(this).show();
+
+		})
+		.on('disable','[display-for]:not([locked-by])',function(){
+			$(this).hide();
+			$(this).find(':input:enabled').trigger('change').attr('disabled','disabled');
+
+		}).on('mouseenter mouseleave','.contentTable>tbody>tr',function(){
+			$(this).toggleClass('highlighted');
+
+		}).on('click','.contentTable>tbody>tr:has(td:first[hash])',function(){
+			$.locationHash($(this).children('td:first').attr('hash'));
+
+		}).on('click','.contentTable>tbody a, .contentTable :input',function(event){
+			event.stopPropagation();
+
+		});
+	});
+
+	/*边栏提交按钮的点击事件*/
+	aside.on('click','input:submit',function(){
+
+		$.post($(this).closest('aside').attr('for'),$(this).closest('form').serialize()+'&submit='+$(this).attr('name'),function(response){
 			$(document).setBlock(response);
 		},'json');
-	}
+
+		return false;
+	})/*边栏选框自动提交*/
+	.on('change','select.filter[method!="get"]',function(){
+		post($(this).attr('name'),$(this).val());
+	})
+	/*边栏选框自动提交*/
+	.on('change','select.filter[method="get"]',function(){
+		redirectPara($(this));
+	});
+	
+	/*标签选项卡上的关闭按钮*/
+	tabs.on('mouseenter','#tabs>li',function(){
+		$('<span class="ui-icon ui-icon-close">').appendTo(this)
+		.click(function(){
+			$.closeTab($(this).parent('li').attr('for'));
+		});
+	}).on('mouseleave','#tabs>li',function(){
+		$(this).children('span.ui-icon.ui-icon-close').remove();
+	});
+
 })
 /*主体页面加载事件*/
 .on('blockload','*',function(event){
@@ -116,158 +264,19 @@ $(document).ready(function(){
 		});
 	}
 })
-.on('sectionload sectionshow','#page>section',function(){
-	document.title=affair+' - '+(username?username+' - ':'')+sysname;
-})
-/*编辑页的提交按钮点击事件，提交数据到后台，在页面上反馈数据和提示*/
-.on('click','#page>section>form input:submit, #page>section>form button:submit',function(){
-	var section = $(this).closest('section');
-	var form = section.children('form');
-	
-	var id = section.find('form[name="'+controller+'"]').attr('id');
-	var submit = $(this).attr('name').replace('submit[','').replace(']','');
-	
-	var postURI='/'+controller+'/submit/'+submit;
-	
-	if(id){
-		postURI+='/'+id;
-	}
-	
-	form.ajaxForm({url:postURI,dataType:'json',success:function(response){
-		
-		if($.browser.msie){
-			$.showMessage('您正使用IE浏览器，如果按下按钮后，页面没有反应，或者显示不正常，那是正常现象。重新点击本页标签刷新即可');
-		}
-		
-		$('#page>section[hash="'+hash+'"]').setBlock(response);
-
-		if(response.status==='success'){
-			if(submit===controller || submit==='cancel'){
-				$.closeTab(hash);
-			}
-		}
-
-	}});
-	
-	/*$.post(postURI,$('#page>section[hash="'+hash+'"]>form').serialize(),function(response){
-	},'json');*/
-
-	//return false;
-})
-/*边栏提交按钮的点击事件*/
-.on('click','#side-bar>aside input:submit',function(){
-
-	$.post($(this).closest('aside').attr('for'),$(this).closest('form').serialize()+'&submit='+$(this).attr('name'),function(response){
-		$(document).setBlock(response);
-	},'json');
-	
-	return false;
-})
 /*分页按钮响应*/
 .on('click','.pagination button',function(){
-	
+
 	$('#top-bar>.throbber').fadeIn(500).rotate({animateTo:18000,duration:100000});
 
 	$.post('/'+hash,{start:$(this).attr('target-page-start')},function(response){
 		$('#top-bar>.throbber').stop().fadeOut(200).stopRotate();
 		$(document).setBlock(response);
 	},'json');
-	
+
 	return false;
 })
-/*edit表单元素更改时实时提交到后台 */
-.on('change','#page>section>form:[id] :input',function(){
-	var value=$(this).val();
-	if($(this).is(':checkbox') && !$(this).is(':checked')){
-		value=0;
-	}
-	var id = $('#page>section[hash="'+hash+'"]>form').attr('id');
-	var name = $(this).attr('name').replace('[','/').replace(']','');
-	var data={};data[name]=value;
-	
-	if(controller && id){
-		$.post('/'+controller+'/setfields/'+id,data);
-	}
-})
-/*边栏选框自动提交*/
-.on('change','select.filter[method!="get"]',function(){
-	post($(this).attr('name'),$(this).val());
-})
-/*边栏选框自动提交*/
-.on('change','select.filter[method="get"]',function(){
-	redirectPara($(this));
-})
-/*自动完成*/
-.on('focus','[autocomplete-model]',function(){
-	var autocompleteModel=$(this).attr('autocomplete-model');
-	$(this).autocomplete({
-		source: function(request, response){
-			$.post('/'+autocompleteModel+'/match',{term:request.term},function(responseJSON){
-				response(responseJSON.data);
-			},'json');
-		},
-		select: function(event,ui){
-			$(this).val(ui.item.label).trigger('autocompleteselect',{value:ui.item.value}).trigger('change');
-			return false;
-		},
-		focus: function(event,ui){
-			//$(this).val(ui.item.label);
-			return false;
-		},
-		response: function(event,ui){
-			if(ui.content.length===0){
-				$(this).trigger('autocompletenoresult');
-			}
-			//$(this).trigger('change');
-		}
-	})
-	/*.bind('input.autocomplete', function(){
-		//修正firefox下中文不自动search的bug
-		$(this).trigger('keydown.autocomplete'); 
-	})*/
-	//.autocomplete('search')
-	;
-})
-//响应每一栏标题上的"+"并显示/隐藏添加菜单
-.on('click','.item>.title>.toggle-add-form',function(){
-	var addForm=$(this).closest('.item').find('.add-form');
-	if(addForm.is(':hidden')){
-		addForm.show(200);
-		$(this).html('-');
-	}else{
-		addForm.hide(200);
-		$(this).html('+');
-	}
-})
-.on('enable','[display-for]:not([locked-by])',function(){
-	$(this).find(':input:disabled:not([locked-by])').trigger('change').removeAttr('disabled');
-	$(this).show();
 
-})
-.on('disable','[display-for]:not([locked-by])',function(){
-	$(this).hide();
-	$(this).find(':input:enabled').trigger('change').attr('disabled','disabled');
-
-}).on('mouseenter mouseleave','.contentTable>tbody>tr',function(){
-	$(this).toggleClass('highlighted');
-
-}).on('click','.contentTable>tbody>tr:has(td:first[hash])',function(){
-	$.locationHash($(this).children('td:first').attr('hash'));
-
-}).on('click','.contentTable>tbody a, .contentTable :input',function(event){
-	event.stopPropagation();
-
-})
-/*标签选项卡上的关闭按钮*/
-.on('mouseenter','#tabs>li',function(){
-	$('<span class="ui-icon ui-icon-close">').appendTo(this)
-	.click(function(){
-		$.closeTab($(this).parent('li').attr('for'));
-	});
-
-}).on('mouseleave','#tabs>li',function(){
-	$(this).children('span.ui-icon.ui-icon-close').remove();
-})
 
 /*toggle button文字根据change时间显示*/
 .on('change',':checkbox',function(){
