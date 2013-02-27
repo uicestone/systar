@@ -77,12 +77,12 @@ class Query extends SS_controller{
 				
 				$labels=(array)post('labels')+$this->input->post('labels');
 				
-				if(!isset($labels['咨询方式'])){
+				if(!$labels['咨询方式']){
 					$this->output->message('请选择咨询方式','warning');
 					throw new Exception;
 				}
 				
-				if(!isset($labels['领域'])){
+				if(!$labels['领域']){
 					$this->output->message('请选择业务领域','warning');
 					throw new Exception;
 				}

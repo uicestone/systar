@@ -1000,14 +1000,15 @@ class Cases_model extends SS_Model{
 				WHERE `case`=$case_id
 				ORDER BY case_people.id
 				LIMIT 1
-			)client CROSS JOIN
+			)client LEFT JOIN
 			(
 				SELECT case_people.people AS opposite,IF(people.abbreviation IS NULL,people.name,people.abbreviation) AS opposite_name,role AS opposite_role 
 				FROM case_people INNER JOIN people ON case_people.type='相对方' AND case_people.people=people.id 
 				WHERE `case`=$case_id
 				LIMIT 1
 			)opposite
-		";	
+			ON 1
+		";
 		return $this->db->query($query)->row_array();
 	}
 	

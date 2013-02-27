@@ -47,10 +47,8 @@ header .throbber{
 	position:absolute;
 	top:2px;left:2px
 }
-header #tabs .ui-icon.ui-icon-close{
-	position:absolute;
-	top: 0;
-	right: 0;
+header #tabs .ui-icon.ui-icon-closethick{
+	float:right;
 }
 .date{
 	width:110px;

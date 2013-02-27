@@ -45,7 +45,7 @@ $(window).on('hashchange',function(){
 			
 			/*如果请求的hash在导航菜单中不存在，则生成标签选项卡*/
 			if($('nav a[href="#'+hash+'"]').length===0 && response.data.name){
-				$('#tabs').append('<li for="'+hash+'" class="activated"><a href="#'+hash+'">'+response.data.name.content+'</a></li>');
+				tabs.append('<li for="'+hash+'" class="activated"><a href="#'+hash+'">'+response.data.name.content+'</a></li>');
 			}
 			
 			$(document).setBlock(response);
@@ -103,9 +103,21 @@ $(document).ready(function(){
 	});
 	
 	page.on('sectionload','section',function(){
-		$(this)
+
+		/*响应每一栏标题上的"+"并显示/隐藏添加菜单*/
+		$(this).find('.item>.title>.toggle-add-form').on('click',function(){
+			var addForm=$(this).closest('.item').find('.add-form');
+			if(addForm.is(':hidden')){
+				addForm.show(200);
+				$(this).html('-');
+			}else{
+				addForm.hide(200);
+				$(this).html('+');
+			}
+		});
+		
 		/*编辑页的提交按钮点击事件，提交数据到后台，在页面上反馈数据和提示*/
-		.on('click','form input:submit, form button:submit',function(){
+		$(this).find('form input:submit, form button:submit').on('click',function(){
 			var section = $(this).closest('section');
 			var form = section.children('form');
 
@@ -138,9 +150,10 @@ $(document).ready(function(){
 			},'json');*/
 
 			//return false;
-		})
+		});
+		
 		/*edit表单元素更改时实时提交到后台 */
-		.on('change','form:[id] :input',function(){
+		$(this).find('form:[id] :input').on('change',function(){
 			var value=$(this).val();
 			if($(this).is(':checkbox') && !$(this).is(':checked')){
 				value=0;
@@ -152,34 +165,31 @@ $(document).ready(function(){
 			if(controller && id){
 				$.post('/'+controller+'/setfields/'+id,data);
 			}
-		})
-		//响应每一栏标题上的"+"并显示/隐藏添加菜单
-		.on('click','.item>.title>.toggle-add-form',function(){
-			var addForm=$(this).closest('.item').find('.add-form');
-			if(addForm.is(':hidden')){
-				addForm.show(200);
-				$(this).html('-');
-			}else{
-				addForm.hide(200);
-				$(this).html('+');
-			}
-		})
-		.on('enable','[display-for]:not([locked-by])',function(){
+		});
+		
+		$(this).find('[display-for]:not([locked-by])').on('enable',function(){
 			$(this).find(':input:disabled:not([locked-by])').trigger('change').removeAttr('disabled');
 			$(this).show();
 
-		})
-		.on('disable','[display-for]:not([locked-by])',function(){
+		});
+		
+		$(this).find('[display-for]:not([locked-by])').on('disable',function(){
 			$(this).hide();
 			$(this).find(':input:enabled').trigger('change').attr('disabled','disabled');
 
-		}).on('mouseenter mouseleave','.contentTable>tbody>tr',function(){
+		});
+				
+		$(this).find('.contentTable>tbody>tr').on('mouseenter mouseleave',function(){
 			$(this).toggleClass('highlighted');
 
-		}).on('click','.contentTable>tbody>tr:has(td:first[hash])',function(){
+		})
+				
+		$(this).find('.contentTable>tbody>tr:has(td:first[hash])').on('click',function(){
 			$.locationHash($(this).children('td:first').attr('hash'));
 
-		}).on('click','.contentTable>tbody a, .contentTable :input',function(event){
+		});
+		
+		$(this).find('.contentTable>tbody a, .contentTable :input').on('click',function(event){
 			event.stopPropagation();
 
 		});
@@ -202,18 +212,19 @@ $(document).ready(function(){
 		.on('change','select.filter[method="get"]',function(){
 			redirectPara($(this));
 		});
-
-		/*标签选项卡上的关闭按钮*/
-		tabs.on('mouseenter','#tabs>li',function(){
-			$('<span class="ui-icon ui-icon-close">').appendTo(this)
-			.click(function(){
-				$.closeTab($(this).parent('li').attr('for'));
-			});
-		}).on('mouseleave','#tabs>li',function(){
-			$(this).children('span.ui-icon.ui-icon-close').remove();
-		});
 	});
 
+	tabs
+	/*标签选项卡上的关闭按钮*/
+	.on('mouseenter','li',function(){
+		$('<span class="ui-icon ui-icon-closethick">').appendTo(this)
+		.click(function(){
+			$.closeTab($(this).parent('li').attr('for'));
+		});
+	})
+	.on('mouseleave','li',function(){
+		$(this).children('span.ui-icon.ui-icon-closethick').remove();
+	});
 })
 /*主体页面加载事件*/
 .on('blockload','*',function(event){
