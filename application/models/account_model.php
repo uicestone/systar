@@ -55,7 +55,7 @@ class Account_model extends SS_Model{
 		$query="
 			SELECT
 				account.id,account.time,account.name,account.amount,account.date,
-				client.abbreviation AS client_name
+				IF(client.abbreviation IS NULL,client.name,client.abbreviation) AS client_name
 			FROM account LEFT JOIN people client ON account.people=client.id
 			WHERE amount<>0
 		";

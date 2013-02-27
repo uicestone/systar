@@ -9,7 +9,7 @@ class Account extends SS_controller{
 	function lists(){
 		
 		$field=array(
-			'date'=>array('title'=>'日期','td'=>'href="#account/edit/{id}"'),
+			'date'=>array('title'=>'日期','td'=>'hash="account/edit/{id}"'),
 			'name'=>array('title'=>'名目'),
 			'_type'=>array('title'=>'方向','eval'=>true,'content'=>"
 				if({amount}>0){
