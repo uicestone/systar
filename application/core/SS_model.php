@@ -140,7 +140,7 @@ class SS_Model extends CI_Model{
 			}
 		}
 		
-		$rows=$this->db->query($q_rows)->row()->rows;
+		$rows=array_pop($this->db->query($q_rows)->row_array());
 
 		if(option('pagination/start')>$rows || $rows==0){
 			//已越界或空列表时，列表起点归零
