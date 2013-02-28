@@ -160,7 +160,7 @@ $(document).ready(function(){
 		}
 		
 		/*编辑页的提交按钮点击事件，提交数据到后台，在页面上反馈数据和提示*/
-		$(this).find('button:submit').on('click',function(){
+		section.find('button:submit').on('click',function(){
 			var form = section.children('form');
 
 			var id = section.find('form[name="'+controller+'"]').attr('id');
@@ -183,7 +183,7 @@ $(document).ready(function(){
 		});
 		
 		/*edit表单元素更改时实时提交到后台 */
-		$(this).find('form:[id] :input').on('change',function(){
+		section.children('form:[id]').on('change',':input',function(){
 			var value=$(this).val();
 			if($(this).is(':checkbox') && !$(this).is(':checked')){
 				value=0;

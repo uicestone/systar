@@ -132,7 +132,7 @@ class SS_Model extends CI_Model{
 		if(is_null($q_rows)){
 			$q_rows=$query;
 			if(preg_match('/GROUP BY[^()]*?[ORDER BY].*?$/',$q_rows)){
-				$q_rows="SELECT COUNT(*) AS number FROM (".$q_rows.")query";
+				$q_rows="SELECT COUNT(*) AS rows FROM (".$q_rows.")query";
 			}else{
 				$q_rows=preg_replace('/^[\s\S]*?FROM /','SELECT COUNT(1) AS rows FROM ',$q_rows);
 				$q_rows=preg_replace('/GROUP BY(?![\s\S]*?WHERE)[\s\S]*?$/','',$q_rows);
@@ -140,7 +140,7 @@ class SS_Model extends CI_Model{
 			}
 		}
 		
-		$rows=190;
+		$rows=$this->db->query($q_rows)->row()->rows;
 
 		if(option('pagination/start')>$rows || $rows==0){
 			//已越界或空列表时，列表起点归零
