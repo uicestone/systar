@@ -17,6 +17,11 @@ class user extends SS_controller{
 	
 	function login(){
 		
+		if($this->user->isLogged()){
+			//用户已登陆，则不显示登录界面
+			redirect();
+		}
+		
 		if($this->input->post('login')){
 			
 			$user=array();
@@ -26,7 +31,7 @@ class user extends SS_controller{
 				$ucenter_user=uc_user_login($this->input->post('username'),$this->input->post('password'));//ucenter验证密码
 
 				if(!$ucenter_user){
-					showMessage('ucenter Error','warning');
+					$this->load->addViewData('warning','用户名或密码错');
 
 				}elseif($ucenter_user[0]>0){
 					$user=$this->user->fetch($ucenter_user[0]);
@@ -62,20 +67,15 @@ class user extends SS_controller{
 				}
 
 			}else{
-				showMessage('名字或密码错','warning');
+				$this->load->addViewData('warning','用户名或密码错');
 			}
 		}
 		
-		if($this->user->isLogged()){
-			//用户已登陆，则不显示登录界面
-			$this->output->setData('uri');
-		}else{
-			$this->output->as_ajax=false;
-		
-			$this->load->view('head');
-			$this->load->view('user/login');
-			$this->load->view('foot');
-		}
+		$this->output->as_ajax=false;
+
+		$this->load->view('head_simple');
+		$this->load->view('user/login');
+		$this->load->view('foot');
 
 	}
 

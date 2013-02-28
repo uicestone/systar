@@ -5,24 +5,9 @@
 	<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><![endif]-->
 	<?=stylesheet('style/redmond/jquery-ui-1.9.2.custom')?>
 	<?=stylesheet('style/common')?>
-	<?=stylesheet('style/icomoon/style')?>
 	
 	<?=javascript('jQuery/jquery-1.7.2')?>
-	<?=javascript('jQuery/jQueryRotate.2.2')?>
-	<?=javascript('jQuery/jquery.hashchange-us')?>
 	<?=javascript('jQuery/jquery.placeholder')?>
-	<?=javascript('jQuery/jquery-ui-1.9.2.custom')?>
-	<?=javascript('jQuery/Jeditable/jquery.jeditable.mini')?>
-	<?=javascript('jQuery/jquery-ui.etc')?>
-	<?=javascript('common')?>
-
-	<?=stylesheet('js/jQuery/fullcalendar/fullcalendar')?>
-	<?=javascript('jQuery/fullcalendar/fullcalendar')?>
-	<?=javascript('jQuery/highcharts/highcharts')?>
-	<?=javascript('jQuery/chosen/chosen.jquery')?>
-	<?=javascript('schedule')?>
-
-	<?=javascript('jQuery/jquery.form')?>
 
 	<link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
 	<title><?=$this->company->sysname?></title>

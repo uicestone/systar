@@ -1,5 +1,16 @@
-<div class="login-form" style="background-image:url('/images/bg_<?=$this->company->syscode?>.gif')">
-	<form method="post">
+<script type="text/javascript">
+$(function(){
+	$(':input[placeholder]').placeholder();
+});
+</script>
+<form method="post">
+	<div class="login-form">
+<?if(isset($warning)){?>
+		<span class="message ui-corner-all ui-state-error" title="点击隐藏提示">
+			<span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+			<?=$warning?>
+		</span>
+<?}?>
 		<div class="item">
 			<input type="text" id="username" name="username" placeholder="用户名" />
 		</div>
@@ -7,5 +18,5 @@
 			<input name="password" type="password" id="password" placeholder="密码" />
 		</div>
 		<div class="submit"><input type="submit" name="login" value="登录" /></div>
-	</form>
-</div>
+	</div>
+</form>

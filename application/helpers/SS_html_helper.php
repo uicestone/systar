@@ -78,25 +78,4 @@ function forceExport(){
 	ob_end_clean();   //清空并关闭输出缓冲区
 	echo str_repeat(' ',10240);
 }
-
-/**
- * deprecated
- */
-function showMessage($message,$type='notice',$direct_export=false){
-	$output='';
-	if($direct_export){
-		$output=$message;
-	}else{
-		if($type=='notice'){
-			$notice_class='ui-state-highlight ';
-			$notice_symbol='<span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>';
-		}elseif($type=='warning'){
-			$notice_class='ui-state-error';
-			$notice_symbol='<span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>';
-		}
-		$output='<span class="message ui-corner-all '.$notice_class.'" title="点击隐藏提示">'.$notice_symbol.$message.'</span>';
-	}
-	$CI=&get_instance();
-	$CI->output->append_output($output);
-}
 ?>
