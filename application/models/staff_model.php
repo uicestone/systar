@@ -87,10 +87,12 @@ class Staff_model extends People_model{
 
 	function getMyManager($field=NULL){
 		$manager=$this->db->query("SELECT * FROM people WHERE id = (SELECT relative FROM people_relationship WHERE people = {$this->user->id} AND relation='主管')")->row_array();
-		if(is_null($field)){
+		if(is_null($field) && isset($manager['id'])){
 			return $manager['id'];
-		}else{
+		}elseif(isset($manager[$field])){
 			return $manager[$field];
+		}else{
+			return false;
 		}
 	}
 	
