@@ -6,8 +6,9 @@ class SS_Loader extends CI_Loader{
 
 	var $view_data=array();//要传递给视图的参数
 	
+	var $blocks=array();
+	
 	var $inner_js='';
-	var $sidebar_data='';
 	
 	/**
 	 * 传统视图输出内容被以ajax方式传输时，指定载入到页面的位置
@@ -53,17 +54,27 @@ class SS_Loader extends CI_Loader{
 	}
 	
 	/**
-	 * @param $return: FALSE:进入输出缓存,TRUE:作为字符串返回,'sidebar':加入边栏
+	 * @param $part_name: FALSE:进入输出缓存, 否则存入Loader::part[$part_name]
 	 */
-	function view($view, array $vars = array(), $return = FALSE){
+	function view($view, $return=FALSE, $block_name = FALSE){
 		
-		$vars=array_merge($vars,$this->getViewData());//每次载入视图时，都将当前视图数据传递给他一次
+		$vars=array_merge($this->getViewData());//每次载入视图时，都将当前视图数据传递给他一次
 		
-		if($return === 'sidebar'){
-			$this->sidebar_data.=parent::view($view, $vars, TRUE);
-		}else{
+		if($block_name===FALSE){
 			return parent::view($view, $vars, $return);
 		}
+		else{
+			if(!array_key_exists($block_name, $this->blocks)){
+				$this->blocks[$block_name]='';
+			}
+			
+			$block=parent::view($view, $vars, TRUE);
+			
+			$this->blocks[$block_name].=$block;
+			
+			return $block;
+		}
+		
 	}
 	
 	/**

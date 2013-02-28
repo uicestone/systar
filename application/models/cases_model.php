@@ -3,6 +3,8 @@ class Cases_model extends SS_Model{
 	
 	var $id;
 	
+	var $table='case';
+	
 	var $fields=array(
 		'name'=>'名称',
 		'num'=>'编号',
@@ -32,41 +34,6 @@ class Cases_model extends SS_Model{
 	
 	function __construct(){
 		parent::__construct();
-	}
-	
-	/**
-	 * 抓取一条案件信息
-	 * @param int $id 案件id
-	 * @param mixed $field 需要指定抓取的字段，留空则返回整个数组
-	 * @return 一条信息的数组，或者一个字段的值，如果指定字段且字段不存在，返回false
-	 */
-	function fetch($id,$field=NULL){
-		$id=intval($id);
-		
-		//finance和manager可以看到所有案件，其他律师只能看到自己涉及的案件
-		$query="
-			SELECT * 
-			FROM `case` 
-			WHERE id=$id AND company={$this->company->id}
-				AND (
-					'".($this->user->isLogged('manager') || $this->user->isLogged('finance') || $this->user->isLogged('admin'))."'='1' 
-					OR uid={$this->user->id} 
-					OR id IN (
-						SELECT `case` FROM case_people WHERE type='律师' AND people={$this->user->id}
-					)
-				)
-		";
-		$row=$this->db->query($query)->row_array();
-		
-		//$row+=$this->getLabels($id,true);
-		
-		if(is_null($field)){
-			return $row;
-		}elseif(isset($row[$field])){
-			return $row[$field];
-		}else{
-			return false;
-		}
 	}
 	
 	function match($part_of_name){

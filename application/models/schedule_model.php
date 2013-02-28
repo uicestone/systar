@@ -3,6 +3,8 @@ class Schedule_model extends SS_Model{
 	
 	var $id;
 	
+	var $table='schedule';
+	
 	var $fields=array(
 		'name'=>'标题',
 		'content'=>'内容',
@@ -20,22 +22,14 @@ class Schedule_model extends SS_Model{
 		parent::__construct();
 	}
 
-	function fetch($id){
-		$id=intval($id);
-
-		$q_schedule="
-			SELECT id,name,content,place,fee,fee_name,`case`,people,time_start,time_end,all_day,completed
-			FROM schedule
-			WHERE id = $id
-				AND display=1
-				AND company = {$this->company->id}
-		";
+	function fetch($id,$field=NULL){
+		$schedule=parent::fetch($id,$field);
 		
-		$schedule=$this->db->query($q_schedule)->row_array();
-
-		isset($schedule['time_start']) && $schedule['time_start']=date('Y-m-d H:i',$schedule['time_start']);
-		isset($schedule['time_end']) && $schedule['time_end']=date('Y-m-d H:i',$schedule['time_end']);
-	
+		if(is_null($field)){
+			isset($schedule['time_start']) && $schedule['time_start']=date('Y-m-d H:i',$schedule['time_start']);
+			isset($schedule['time_end']) && $schedule['time_end']=date('Y-m-d H:i',$schedule['time_end']);
+		}
+		
 		return $schedule;
 	}
 	

@@ -55,6 +55,7 @@ class Query extends SS_controller{
 		$this->load->addViewData('cases', $query);
 
 		$this->load->view('query/edit');
+		$this->load->view('query/edit_sidebar',true,'sidebar');
 	}
 	
 	function submit($submit,$id){

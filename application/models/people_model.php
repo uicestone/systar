@@ -6,6 +6,8 @@ class People_model extends SS_Model{
 	 */
 	var $id;
 	
+	var $table='people';
+	
 	/**
 	 * people表下的字段及其显示名
 	 */
@@ -31,35 +33,6 @@ class People_model extends SS_Model{
 		parent::__construct();
 	}
 
-	/**
-	 * 抓取一条人员信息
-	 * @param int $id 人员id
-	 * @param mixed $field 需要指定抓取的字段，留空则返回整个数组
-	 * @return 一条信息的数组，或者一个字段的值，如果指定字段且字段不存在，返回false
-	 */
-	function fetch($id,$field=NULL){
-		$id=intval($id);
-		
-		$query="
-			SELECT *
-			FROM people
-			WHERE id = $id AND company={$this->company->id}
-		";
-		
-		$row=$this->db->query($query)->row_array();
-
-		if(is_null($field)){
-			return $row;
-	
-		}elseif(isset($row[$field])){
-			return $row[$field];
-
-		}else{
-			return false;
-		}
-		
-	}
-	
 	/**
 	 * 根据部分人员名称返回匹配的id、名称和；类别列表
 	 * @param $part_of_name

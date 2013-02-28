@@ -59,7 +59,7 @@ class Mail extends SS_Controller{
 				$this->load->addViewData('articles', $articles);
 				$this->load->addViewData('header_img', $header['file_name']);
 				
-				$mail_html=$this->load->view('mail/express_template',array(),true);
+				$mail_html=$this->load->view('mail/express_template',true);
 
 				$this->session->set_userdata('mail/express/mail_html',$mail_html);
 				$this->session->set_userdata('mail/express/title','星瀚律师 - '.$this->input->post('title'));

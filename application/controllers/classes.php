@@ -31,6 +31,7 @@ class Classes extends SS_controller{
 	}
 
 	function edit($id=NULL){
+		
 		$this->load->model('staff_model','staff');
 		
 		$this->getPostData($id);

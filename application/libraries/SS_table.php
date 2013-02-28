@@ -249,7 +249,7 @@ class SS_Table extends CI_Table{
 		}
 		
 		if($this->wrap_box){
-			$this->setMenu($this->load->view('pagination',array(),true));
+			$this->setMenu($this->load->view('pagination',true,'pagination'));
 		}
 
 		if(isset($this->menu['head'])){

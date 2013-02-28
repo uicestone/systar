@@ -4,6 +4,34 @@ class SS_Model extends CI_Model{
 		parent::__construct();
 	}
 	
+	function fetch($id,$field=NULL,$query=NULL){
+		
+		$id=intval($id);
+		
+		$row=array();
+		
+		if(is_null($query)){
+			$row=$this->db->get_where($this->table,array('id'=>$id,'display'=>true,'company'=>$this->company->id))->row_array();
+		}
+		else{
+			$row=$this->db->query($query)->row_array();
+		}
+		
+		if(!$row){
+			throw new Exception('item_not_found');
+		}
+		
+		if(is_null($field)){
+			return $row;
+	
+		}elseif(isset($row[$field])){
+			return $row[$field];
+
+		}else{
+			return false;
+		}
+	}
+	
 	//TODO 此处用来处理list的搜索条件及视图。这种做法不太科学。而且与label_model和各小model中的search方法（现在还叫match方法）重名。
 	function search($query, array $search_fields, $generate_view=true){
 		
@@ -31,7 +59,7 @@ class SS_Model extends CI_Model{
 		
 		if($generate_view){
 			$this->load->addViewData('search_fields',$search_fields);
-			$this->load->view('search',array(),'sidebar');
+			$this->load->view('search',true,'sidebar');
 		}
 
 		return $query;
@@ -55,7 +83,7 @@ class SS_Model extends CI_Model{
 		
 		if($generate_view){
 			$this->load->addViewData('date_field',$date_field);
-			$this->load->view('daterange',array(),'sidebar');
+			$this->load->view('daterange',true,'sidebar');
 		}
 		
 		return $query;
@@ -173,23 +201,5 @@ class SS_Model extends CI_Model{
 		return $query;
 	}
 	
-	/**
-	 * deprecated
-	 * 在每个add/edit页面之前获得数据ID，插入新数据或者根据数据ID获得数据数组
-	 * @param $id 需要获得的数据id，如果是添加新数据，那么为NULL
-	 */
-	function getPostData($id=NULL){
-		if(is_null($id)){
-			$id=$this->add();
-		}
-	
-		if($id){
-			$this->id=$id;
-		}else{
-			show_error('获得数据条目id失败');
-		}
-
-		return $this->fetch($id);
-	}
 }
 ?>

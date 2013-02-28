@@ -135,16 +135,17 @@ class SS_Controller extends CI_Controller{
 		}
 		
 		if($output){
-			//如果在这个方法运行之前，页面就有输出，那么说明是一个旧式的输出html的页面，我们给它直接加上嵌入页面的js
-			$output.=$this->load->view('innerjs',array(),true);
-			$output=str_replace("\n",'',$output);
+			/*
+			 * 如果在这个方法运行之前，页面就有输出，那么说明是一个旧式的输出html的页面
+			 * 我们给它直接加上嵌入页面的js
+			 * 并作为data的content键封装json传输到前段
+			 */
+			$output.=$this->load->view('innerjs',true);
 			$this->output->setData($output,'content','html','article>section[hash="'.substr($this->input->server('REQUEST_URI'),1).'"]');
 		}
 		
-		$sidebar=$this->load->sidebar_data.
-			(is_file(APPPATH.'views/'.$this->controller.'/'.$this->method.'_sidebar'.EXT)?$this->load->view("{$this->controller}/{$this->method}_sidebar",array(),true):'');
-		if($sidebar){
-			$this->output->setData($sidebar,'sidebar','html','aside>section[for="'.substr($this->input->server('REQUEST_URI'),1).'"]');
+		if(array_key_exists('sidebar',$this->load->blocks)){
+			$this->output->setData($this->load->blocks['sidebar'],'sidebar','html','aside>section[for="'.substr($this->input->server('REQUEST_URI'),1).'"]');
 		}
 		
 		$output_array=array(

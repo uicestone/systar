@@ -126,36 +126,45 @@ class Client extends SS_Controller{
 		$this->load->model('staff_model','staff');
 		$this->load->model('cases_model','cases');
 
-		$client=$this->client->fetch($this->client->id);
-		$labels=$this->client->getLabels($this->client->id);
-		
-		//取得当前客户的"来源"数据
-		$source=$this->client->fetchSource($client['source']);
+		try{
+			$client=$this->client->fetch($this->client->id);
+			$labels=$this->client->getLabels($this->client->id);
 
-		if(!$client['abbreviation'] && !$client['name']){
-			$client['name']='未命名客户';
+			//取得当前客户的"来源"数据
+			$source=$this->client->fetchSource($client['source']);
+
+			if(!$client['abbreviation'] && !$client['name']){
+				$client['name']='未命名客户';
+			}
+
+			$this->output->setData($client['abbreviation']?$client['abbreviation']:$client['name'],'name');
+
+			$available_options=$this->client->getHotlabelsOfTypes();
+			$profile_name_options=$this->client->getProfileNames();
+
+			$this->subList('relative');
+			$this->subList('profile');
+			$this->subList('case');
+
+			if($client['staff']){
+				$client['staff_name']=$this->staff->fetch($client['staff'],'name');
+			}
+
+			$this->load->addViewArrayData(compact('client','labels','available_options','profile_name_options','source'));
+
+			if($this->input->post('character') && in_array($this->input->post('character'),array('个人','单位'))){
+				post('client/character', $this->input->post('character'));
+			}
+
+			$this->load->view('client/edit');
+			$this->load->view('client/edit_sidebar',true,'sidebar');
 		}
-		
-		$this->output->setData($client['abbreviation']?$client['abbreviation']:$client['name'],'name');
-
-		$available_options=$this->client->getHotlabelsOfTypes();
-		$profile_name_options=$this->client->getProfileNames();
-		
-		$this->subList('relative');
-		$this->subList('profile');
-		$this->subList('case');
-
-		if($client['staff']){
-			$client['staff_name']=$this->staff->fetch($client['staff'],'name');
+		catch(Exception $e){
+			$this->output->status='fail';
+			if($e->getMessage()){
+				$this->output->message($e->getMessage(), 'warning');
+			}
 		}
-
-		$this->load->addViewArrayData(compact('client','labels','available_options','profile_name_options','source'));
-
-		if($this->input->post('character') && in_array($this->input->post('character'),array('个人','单位'))){
-			post('client/character', $this->input->post('character'));
-		}
-		
-		$this->load->view('client/edit');
 	}
 
 	function submit($submit,$id){

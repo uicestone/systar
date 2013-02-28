@@ -3,6 +3,8 @@ class Account_model extends SS_Model{
 	
 	var $id;
 	
+	var $table='account';
+	
 	var $fields=array(
 		'name'=>'摘要',
 		'amount'=>'数额',
@@ -18,17 +20,6 @@ class Account_model extends SS_Model{
 		parent::__construct();
 	}
 
-	function fetch($id){
-		$id=intval($id);
-		
-		$query="
-			SELECT * 
-			FROM account 
-			WHERE id=$id AND company={$this->company->id}
-		";
-		return $this->db->query($query)->row_array();
-	}
-	
 	function add(array $data=array()){
 		
 		if(!isset($data['date'])){

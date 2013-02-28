@@ -40,6 +40,8 @@ class Schedule extends SS_controller{
 		$this->load->addViewData('sidebar_tables',$sidebar_tables);
 		
 		$this->load->view('schedule/calendar');
+		
+		$this->load->view('schedule/calendar_sidebar',true,'sidebar');
 	}
 	
 	function mine(){
@@ -426,21 +428,23 @@ class Schedule extends SS_controller{
 	 */
 	function edit($schedule_id=NULL,$mode='edit'){
 		
-		$this->schedule->id=$schedule_id;
+		if(isset($schedule_id)){
+			$this->schedule->id=$schedule_id;
 
-		$schedule=$this->schedule->fetch($schedule_id);
-		
-		if(isset($schedule['case'])){
-			$case=$this->cases->fetch($schedule['case']);
-			$case_name=strip_tags($case['name']);
-			$this->load->addViewData('case_name', $case_name);
+			$schedule=$this->schedule->fetch($schedule_id);
+
+			if(isset($schedule['case'])){
+				$case=$this->cases->fetch($schedule['case']);
+				$case_name=strip_tags($case['name']);
+				$this->load->addViewData('case_name', $case_name);
+			}
+
+			$this->load->addViewData('schedule', $schedule);
+
+			isset($schedule['name']) && $this->output->setData($schedule['name'],'name');
+
+			isset($schedule['completed']) && $this->output->setData($schedule['completed'],'completed');
 		}
-		
-		$this->load->addViewData('schedule', $schedule);
-		
-		isset($schedule['name']) && $this->output->setData($schedule['name'],'name');
-		
-		isset($schedule['completed']) && $this->output->setData($schedule['completed'],'completed');
 		
 		$this->output->setData($this->load->view("schedule/$mode",array(),true));
 	}

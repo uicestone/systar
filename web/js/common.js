@@ -11,6 +11,7 @@ $(window).on('hashchange',function(){
 	
 	nav.find('li').removeClass('activated');
 	nav.find('li#nav-'+uriSegments[0]).addClass('activated');
+	/*默认展开当前二级导航所在的子导航*/
 	nav.find('li#nav-'+uriSegments[0]+'-'+uriSegments[1]).addClass('activated').parent('ul').show();
 
 	/*
@@ -528,8 +529,9 @@ jQuery.fn.setBlock=function(response){
 };
 
 jQuery.closeTab=function(hash){
-	$('#tabs>li[for="'+hash+'"]').remove();
-	$('article>section[hash="'+hash+'"]').remove();
+	tabs.children('li[for="'+hash+'"]').remove();
+	page.children('section[hash="'+hash+'"]').remove();
+	aside.children('section[[for="'+hash+'"]]').remove();
 
 	var lastAccessedHash;
 	var lastAccessTime=0;

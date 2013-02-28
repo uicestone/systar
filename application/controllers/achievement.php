@@ -69,6 +69,7 @@ class Achievement extends SS_controller{
 		$achievement_view_data=compact('achievement_dashboard','achievement_sum');
 		$this->load->addViewArrayData($achievement_view_data);
 		$this->load->view('list');
+		$this->load->view('achievement/list_sidebar',true,'sidebar');
 	}
 
 	function receivable($method=NULL){
@@ -96,7 +97,7 @@ class Achievement extends SS_controller{
 		$this->load->addViewData('receivable_sum', $receivable_sum['sum']);
 
 		$this->load->view('list');	
-		
+		$this->load->view('achievement/receivable_sidebar');
 	}
 	
 	function caseBonus(){
@@ -114,6 +115,7 @@ class Achievement extends SS_controller{
 		$this->load->addViewData('list',$table);
 		
 		$this->load->view('list');
+		$this->load->view('achievement/casebonus_sidebar',true,'sidebar');
 	}
 
 	function teambonus(){

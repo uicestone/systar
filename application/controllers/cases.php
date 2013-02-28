@@ -119,7 +119,7 @@ class Cases extends SS_controller{
 			if($para['timing_fee']){
 				$fields['hourly_fee']=array('title'=>'计时收费小时费率','td'=>'class="editable" id="{id}"','orderby'=>false);
 			}
-			$list=$this->cases->table->setFields($fields)
+			$list=$this->table->setFields($fields)
 				->setAttribute('name',$item)
 				->generate($this->cases->getStaffList($this->cases->id));
 
@@ -141,7 +141,7 @@ class Cases extends SS_controller{
 				'condition'=>array('title'=>'条件','td'=>'class="ellipsis" title="{condition}"','orderby'=>false),
 				'pay_date'=>array('title'=>'预计时间','orderby'=>false)
 			);
-			$list=$this->cases->table->setFields($fields)
+			$list=$this->table->setFields($fields)
 					->setAttribute('name',$item)
 					->generate($this->cases->getFeeList($this->cases->id));
 		}
@@ -241,62 +241,72 @@ class Cases extends SS_controller{
 		$this->load->model('client_model','client');
 		$this->load->model('schedule_model','schedule');
 
-		$cases=$this->cases->fetch($this->cases->id);
-		
-		$labels=$this->cases->getLabels($this->cases->id);
+		try{
+			$cases=$this->cases->fetch($this->cases->id);
 
-		if(!$cases['name']){
-			$this->output->setData('未命名案件','name');
-		}else{
-			$this->output->setData(strip_tags($cases['name']), 'name');
+			$labels=$this->cases->getLabels($this->cases->id);
+
+			if(!$cases['name']){
+				$this->output->setData('未命名案件','name');
+			}else{
+				$this->output->setData(strip_tags($cases['name']), 'name');
+			}
+
+			$case_role=$this->cases->getRoles($this->cases->id);
+
+			$responsible_partner=$this->cases->getPartner($case_role);
+			//获得本案督办人的id
+
+			$lawyers=$this->cases->getLawyers($case_role);
+			//获得本案办案人员的id
+
+			$my_roles=$this->cases->getMyRoles($case_role);
+			//本人的本案职位
+
+			$this->load->addViewArrayData(compact('cases','labels','case_role','responsible_partner','lawyers','my_roles'));
+
+			//计算本案有效日志总时间
+			$this->load->view_data['schedule_time']=$this->schedule->calculateTime($this->cases->id);
+
+			$this->load->view_data['case_status']=$this->cases->getStatusById($this->cases->id);
+
+			$this->load->view_data['case_type_array']=array('诉前','一审','二审','再审','执行','劳动仲裁','商事仲裁');
+
+			if(post('cases/is_query')){
+				$this->load->view_data['staff_role_array']=array('督办人','接洽律师','律师助理');
+			}else{
+				$this->load->view_data['staff_role_array']=array('案源人','督办人','接洽律师','主办律师','协办律师','律师助理');
+			}
+
+			if($cases['timing_fee']){
+				$this->load->view_data['case_fee_timing_string']=$this->cases->getTimingFeeString($this->cases->id);
+			}
+
+			$this->subList('client',false,array('client_lock'=>$cases['client_lock']));
+
+			$this->subList('staff',false,array('staff_lock'=>$cases['staff_lock'],'timing_fee'=>$cases['timing_fee']));
+
+			$this->subList('fee',false,array('fee_lock'=>$cases['fee_lock']));
+
+			$this->subList('miscfee',false,array('fee_lock'=>$cases['fee_lock']));
+
+			$this->subList('schedule');
+
+			$this->subList('plan');
+
+			$this->subList('document',false,array('apply_file'=>$cases['apply_file']));
+
+			$this->load->view('cases/edit');
+			
+			$this->load->view('cases/edit_sidebar',true,'sidebar');
+		}
+		catch(Exception $e){
+			$this->output->status='fail';
+			if($e->getMessage()){
+				$this->output->message($e->getMessage(), 'warning');
+			}
 		}
 
-		$case_role=$this->cases->getRoles($this->cases->id);
-		
-		$responsible_partner=$this->cases->getPartner($case_role);
-		//获得本案督办人的id
-		
-		$lawyers=$this->cases->getLawyers($case_role);
-		//获得本案办案人员的id
-		
-		$my_roles=$this->cases->getMyRoles($case_role);
-		//本人的本案职位
-		
-		$this->load->addViewArrayData(compact('cases','labels','case_role','responsible_partner','lawyers','my_roles'));
-		
-		//计算本案有效日志总时间
-		$this->load->view_data['schedule_time']=$this->schedule->calculateTime($this->cases->id);
-		
-		$this->load->view_data['case_status']=$this->cases->getStatusById($this->cases->id);
-		
-		$this->load->view_data['case_type_array']=array('诉前','一审','二审','再审','执行','劳动仲裁','商事仲裁');
-		
-		if(post('cases/is_query')){
-			$this->load->view_data['staff_role_array']=array('督办人','接洽律师','律师助理');
-		}else{
-			$this->load->view_data['staff_role_array']=array('案源人','督办人','接洽律师','主办律师','协办律师','律师助理');
-		}
-		
-		if($cases['timing_fee']){
-			$this->load->view_data['case_fee_timing_string']=$this->cases->getTimingFeeString($this->cases->id);
-		}
-		
-		$this->subList('client',false,array('client_lock'=>$cases['client_lock']));
-		
-		$this->subList('staff',false,array('staff_lock'=>$cases['staff_lock'],'timing_fee'=>$cases['timing_fee']));
-		
-		$this->subList('fee',false,array('fee_lock'=>$cases['fee_lock']));
-		
-		$this->subList('miscfee',false,array('fee_lock'=>$cases['fee_lock']));
-		
-		$this->subList('schedule');
-		
-		$this->subList('plan');
-		
-		$this->subList('document',false,array('apply_file'=>$cases['apply_file']));
-		
-		$this->load->view('cases/edit');
-		
 	}
 
 	function submit($submit,$id){

@@ -33,6 +33,7 @@ class Account extends SS_controller{
 		);
 		
 		$this->load->view('list');
+		$this->load->view('account/list_sidebar',true,'sidebar');
 	}
 
 	function add(){
@@ -56,38 +57,47 @@ class Account extends SS_controller{
 		$this->load->model('client_model','client');
 		$this->load->model('cases_model','cases');
 		
-		$account=$this->account->fetch($this->account->id);
-		
-		if($account['name']){
-			$tab_title=$account['name'];
-		}
-		
-		if($account['people']){
-			$client=$this->client->fetch($account['people']);
-			
-			if(isset($client['abbreviation'])){
-				$tab_title=$client['abbreviation'].' '.$tab_title;
-			}else{
-				$tab_title=$client['name'].' '.$tab_title;
+		try{
+			$account=$this->account->fetch($this->account->id);
+
+			if($account['name']){
+				$tab_title=$account['name'];
 			}
 
-			//根据客户ID获得收费array
-			$case_fee_array=$this->cases->getFeeListByClient($account['people']);
-		}else{
-			$tab_title='未命名流水';
-		}
-		
-		$this->output->setData($tab_title,'name');
+			if($account['people']){
+				$client=$this->client->fetch($account['people']);
 
-		if($account['case']){
-			//根据案件ID获得收费array
-			$case_fee_array=$this->cases->getFeeOptions($account['case']);
-			$case_client_array=array_sub($this->cases->getClientList($account['case']),'name','people');
+				if(isset($client['abbreviation'])){
+					$tab_title=$client['abbreviation'].' '.$tab_title;
+				}else{
+					$tab_title=$client['name'].' '.$tab_title;
+				}
+
+				//根据客户ID获得收费array
+				$case_fee_array=$this->cases->getFeeListByClient($account['people']);
+			}else{
+				$tab_title='未命名流水';
+			}
+
+			$this->output->setData($tab_title,'name');
+
+			if($account['case']){
+				//根据案件ID获得收费array
+				$case_fee_array=$this->cases->getFeeOptions($account['case']);
+				$case_client_array=array_sub($this->cases->getClientList($account['case']),'name','people');
+			}
+
+			$this->load->addViewArrayData(compact('account','client','case_fee_array','case_client_array'));
+			$this->load->view('account/edit');
+			$this->load->view('account/edit_sidebar',true,'sidebar');
 		}
-		
-		$this->load->addViewArrayData(compact('account','client','case_fee_array','case_client_array'));
-		$this->load->view('account/edit');
-		
+		catch(Exception $e){
+			$this->output->status='fail';
+			if($e->getMessage()){
+				$this->output->message($e->getMessage(), 'warning');
+			}
+		}
+
 	}
 	
 	function submit($submit,$id){
