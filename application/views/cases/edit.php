@@ -49,7 +49,7 @@
 		
 			<?=$client_list?>
 	
-			<button type="button" class="toggle-add-form">+</button>
+			<button type="button" class="toggle-add-form">＋</button>
 			<span class="add-form hidden">
 				<input type="text" name="client[name]" value="<?=$this->value('client/name')?>" placeholder="名称" autocomplete-model="client" />
 				<input type="text" name="case_client[client]" class="hidden" />
@@ -89,6 +89,13 @@
 			</span>
 		 </div>
 	
+<? if(isset($labels['分类']) && in_array($labels['分类'],array('诉讼','非诉讼'))){?>
+		<div class="item">
+			<div class="title"><label>争议焦点：（案件标的）</label></div>
+			<input name="cases[focus]" type="text" value="<?=$this->value('cases/focus')?>" style="width:99%" />
+		</div>
+<? }?>
+	
 		<div class="item" name="staff">
 			<div class="title"><label>律师：</label>
 <?if($responsible_partner==$this->user->id && !$cases['staff_lock'] && $cases['is_reviewed']){?>
@@ -101,7 +108,7 @@
 	
 			<?=$staff_list?>
 			
-			<button type="button" class="toggle-add-form">+</button>
+			<button type="button" class="toggle-add-form">＋</button>
 			<span class="add-form hidden">
 				<input type="text" name="staff[name]" value="<?=$this->value('staff/name');?>" placeholder="姓名" autocomplete-model="staff" />
 				<input name="staff[id]" class="hidden" />
@@ -160,7 +167,7 @@
 	
 			<?=$fee_list?>	
 <? if(!$cases['fee_lock']){?>
-			<button type="button" class="toggle-add-form">+</button>
+			<button type="button" class="toggle-add-form">＋</button>
 			<span class="add-form hidden">
 				<select name="case_fee[type]">
 					<?=options($cases['is_query']?array('咨询费'):array('固定','风险','计时预付'),$this->value('case_fee/type'),'类型');?>
@@ -178,7 +185,7 @@
 			<div class="title"><label>办案费约定情况：</label></div>
 	
 			<?=$miscfee_list?>
-			<button type="button" class="toggle-add-form">+</button>
+			<button type="button" class="toggle-add-form">＋</button>
 			<span class="add-form hidden">
 				<select name="case_fee_misc[receiver]">
 					<?=options(array('承办律师','律所'),$this->value('case_fee_misc[receiver]'),'收款方');?>
@@ -234,13 +241,6 @@
 			</div>
 			<?$plan_list?>
 		</div>
-	
-<? if(!$cases['is_query'] && !in_array('法律顾问',$labels)){?>
-		<div class="item">
-			<div class="title"><label>争议焦点：（案件标的）</label></div>
-			<textarea class="item" name="cases[focus]" type="text" rows="2"><?=$this->value('cases/focus')?></textarea>
-		</div>
-<? }?>
 	
 		<div class="item">
 			<div class="title"><label>案情简介：</label></div>

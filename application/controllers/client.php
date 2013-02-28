@@ -115,7 +115,7 @@ class Client extends SS_Controller{
 		if(!$client_id){//没有指定$client_id，是在edit方法内调用
 			$this->load->addViewData($item.'_list', $list);
 		}else{
-			return array('selector'=>'.item[name="'.$item.'"]>.contentTable','content'=>$list,'type'=>'html','method'=>'replace');
+			return array('selector'=>'.item[name="'.$item.'"]>.contentTable','content'=>$list,'type'=>'html','method'=>'replace','content_name'=>'content-table');
 		}
 
 	}

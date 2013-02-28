@@ -141,15 +141,15 @@ class Query extends SS_controller{
 					);
 				}
 
-				$query['num']=$this->query->getNum($this->query->id,NULL,$labels['领域'],true,$query['first_contact']);
+				post('cases/num',$this->query->getNum($this->query->id,NULL,$labels['领域'],true,$query['first_contact']));
 
-				$client_role=array('client_name'=>$client['name']);
-
-				$query['display']=true;
+				post('cases/display',true);
 				
-				$this->query->update($this->query->id,$query);
+				post('cases/name',$client['name'].' 咨询');
 				
-				$this->query->updateLabels($this->query->id, $labels);
+				$this->query->update($this->query->id,post('cases'));
+				
+				$this->query->updateLabels($this->query->id, post('labels'));
 
 				$this->query->addPeople($this->query->id,$client['id'],'客户');
 				

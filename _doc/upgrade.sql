@@ -177,3 +177,6 @@ ALTER TABLE  `staff` ADD FOREIGN KEY (  `position` ) REFERENCES  `syssh`.`positi
 `id`
 ) ON DELETE NO ACTION ON UPDATE CASCADE ;
 -- uice 2/25
+
+ALTER TABLE  `schedule` CHANGE  `username`  `username` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
+-- uice 2/28

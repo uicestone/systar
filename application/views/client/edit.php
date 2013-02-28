@@ -35,7 +35,7 @@
 		<div class="item" name="profile">
 			<div class="title"><label>资料项</label></div>
 			<?=$profile_list?>
-			<button type="button" class="toggle-add-form">+</button>
+			<button type="button" class="toggle-add-form">＋</button>
 			<span class="add-form hidden">
 				<select name="profile[name]">
 					<?=options($profile_name_options,$this->value('profile/name'),'资料项名称')?>
@@ -50,7 +50,7 @@
 		<div class="item" name="relative">
 			<div class="title"><label>相关人</label></div>
 			<?=$relative_list?>
-			<button type="button" class="toggle-add-form">+</button>
+			<button type="button" class="toggle-add-form">＋</button>
 			<span class="add-form hidden">
 				<input type="text" name="relative[name]" value="<?=$this->value('relative/name')?>" placeholder="名称" autocomplete-model="client" />
 				<input name="relative[id]" class="hidden" />

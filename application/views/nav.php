@@ -13,7 +13,7 @@ foreach($this->user->permission as $controller_name => $controller){
 			'<a href="#'.$controller_name.'" class="controller'.($has_sub_menu?'':' dink').'" hidefocus="true">'.$controller['_controller_name'].'</a>';
 
 		if(isset($controller['_add_action']) && $this->user->isPermitted($controller_name,'add')){
-			echo '<a href="#'.$controller['_add_action'].'" hidefocus="true"> <span style="font-size:12px;color:#CEDDEC">+</span></a>';
+			echo '<a href="#'.$controller['_add_action'].'" class="add" hidefocus="true"> <span style="font-size:12px;color:#CEDDEC">+</span></a>';
 		}
 		if($has_sub_menu){
 			echo '<ul level="1">';

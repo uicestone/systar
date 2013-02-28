@@ -13,7 +13,7 @@ class Schedule_model extends SS_Model{
 		'hours_bill'=>'账单时长',
 		'all_day'=>'全天',
 		'completed'=>'已完成',
-		'case'=>'关联案件'//deprecated
+		'case'=>'关联案件'
 	);
 	
 	function __construct(){
@@ -44,6 +44,10 @@ class Schedule_model extends SS_Model{
 	 */
 	function add(array $data=array()){
 		
+		if(isset($data['people'])){
+			$people=$data['people'];
+		}
+		
 		$data=array_intersect_key($data, $this->fields);
 		
 		if(isset($data['time_start']) && isset($data['time_end'])){
@@ -54,8 +58,13 @@ class Schedule_model extends SS_Model{
 		$data+=uidTime(true,true);
 		
 		$this->db->insert('schedule',$data);
+		$schedule_id=$this->db->insert_id();
 		
-		return $this->db->insert_id();
+		if(isset($people)){
+			$this->addPeople($schedule_id,$people);
+		}
+		
+		return $schedule_id;
 	}
 	
 	function update($schedule_id,$data){
@@ -121,6 +130,14 @@ class Schedule_model extends SS_Model{
 		return array_sub($result,'name');
 	}
 	
+	function addPeople($schedule_id,$people){
+		$schedule_id=intval($schedule_id);
+		
+		if(is_numeric($people)){
+			$this->db->insert('schedule_people',array('schedule'=>$schedule_id,'people'=>$people));
+		}
+	}
+	
 	/**
 	 * 获得一个时间范围内的多个日程
 	 * @param $start 开始时间戳
@@ -133,14 +150,19 @@ class Schedule_model extends SS_Model{
 		$start=intval($start);
 		$end=intval($end);
 	
-		$q_calendar="SELECT * FROM schedule WHERE company = {$this->company->id} AND display = 1 AND time_start>=$start AND time_start<$end";
-		
 		if($staff){
-			$staff=intval($staff);
-			$q_calendar.=" AND `uid` = $staff";
+			$people=intval($staff);
 		}else{
-			$q_calendar.=" AND `uid` = {$this->user->id}";
+			$people=$this->user->id;
 		}
+		
+		$q_calendar="
+			SELECT * 
+			FROM schedule
+			WHERE company = {$this->company->id} AND display = 1 
+				AND time_start>=$start AND time_start<$end
+				AND (uid = $people OR id IN (SELECT schedule FROM schedule_people WHERE people = $people))
+		";
 		
 		if($case){
 			$case=intval($case);

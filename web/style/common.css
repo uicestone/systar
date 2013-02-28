@@ -75,7 +75,7 @@ body{
 	font-size:13px;
 	line-height:1.5;
 }
-input,select,textarea{
+input,select,textarea,button{
 	font-family:'Microsoft Yahei';
 }
 
@@ -143,6 +143,12 @@ header,nav{
 }
 nav a:focus{
 	outline:none;
+}
+nav li{
+	cursor:pointer;
+}
+nav li .arrow{
+	cursor:default;
 }
 nav [level="0"] li.activated{
 	background-color:#091F35;
