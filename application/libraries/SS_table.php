@@ -1,38 +1,24 @@
 <?php
 class SS_Table extends CI_Table{
 	
-	protected $fields;//表格每列的输出方式
-	protected $data;//表格的原始数据
-	protected $menu;//表格头尾的菜单
-	protected $wrap_form;//表格是否包围form标签
-	protected $wrap_box;//表格是否包围div class="contentTableBox"标签，若是，表格位置将为absolute
-	protected $attributes;//表格、box和首位菜单的html属性
-	protected $show_line_id;//是否在表格第一列显示行号
-	protected $trim_columns;//是否清空空列
+	var $fields;//表格每列的输出方式
+	var $attributes;//表格、box和首位菜单的html属性
+	var $row_attr;//行html元素属性
+	var $show_line_id;//是否在表格第一列显示行号
+	var $trim_columns;//是否清空空列
 	
 	function __construct(){
 		parent::__construct();
-		$this->fields=$this->data=NULL;
-		$this->menu=array(
-			'head'=>NULL,
-			'foot'=>NULL
-		);
-		$this->wrap_form=false;
-		$this->wrap_box=NULL;
+		$this->fields=NULL;
 		$this->attributes=array();
+		$this->row_attr=array();
 		$this->show_line_id=false;
 		$this->trim_columns=false;
 		
 	}
 	
 	/**
-	 * __get
-	 *
-	 * Allows tables to access CI's loaded classes using the same
-	 * syntax as controllers.
-	 *
-	 * @param	string
-	 * @access private
+	 * 允许Table类内访问CI控制器中加载的其他对象
 	 */
 	function __get($key)
 	{
@@ -43,7 +29,7 @@ class SS_Table extends CI_Table{
 	/**
 	 * 将字符串形式的html标签属性组转换为数组
 	 */
-	protected function _parseAttributesToArray($attributes_string){
+	function _parseAttributesToArray($attributes_string){
 		$attributes_array=array();
 		preg_match_all('/(\S+\="[\s\S]*?")/',$attributes_string,$attributes);
 		foreach($attributes[0] as $attribute){
@@ -58,262 +44,325 @@ class SS_Table extends CI_Table{
 	/**
 	 * 将field->content等值中包含的变量占位替换为数据结果中他们的值
 	 */
-	protected function _variableReplace($content,$row){
+	function _variableReplace($content,$row){
 		while(preg_match('/{(\S*?)}/',$content,$match)){
 			if(!isset($row[$match[1]])){
 				$row[$match[1]]=NULL;
 			}
-			$content=str_replace($match[0],$row[$match[1]],$content);
+			$content=str_replace($match[0],$row[$match[1]]['data'],$content);
 		}
 		return $content;
 	}
 
-	protected function _variableReplaceSelf(&$content,$key,$row){
-		$content=$this->_variableReplace($content,$row);
+	function _set_from_object($query) {
+		parent::_set_from_object($query);
+		$this->_compile_rows();
+	}
+	
+	function _set_from_array($data, $set_heading = TRUE) {
+		parent::_set_from_array($data, $set_heading);
+		$this->_compile_rows();
 	}
 	
 	/**
+	 * 根据$this->fields和输入的$data数据，返回一个新的$data_compiled
+	 */
+	function _compile_rows(){
+		
+		if(!is_array($this->fields)){
+			return;
+		}
+
+		$rows_compiled=array();
+		foreach($this->rows as $row){
+			$row_compiled=array();
+			
+			if(isset($row['id'])){
+				$row_compiled['_attr']['id']=$row['id']['data'];
+			}
+			
+			foreach($this->row_attr as $attr_name => $attr_value){
+				$row_compiled['_attr'][$attr_name]=$this->_variableReplace($attr_value, $row);
+			}
+			
+			foreach($this->fields as $field_name => $field){
+				$cell=array('data'=>NULL);
+				//如果列设定中没有cell,或者cell是数组但没有data键，那么使用原始数据
+				if(!isset($field['cell']) || (is_array($field['cell']) && !isset($field['cell']['data']))){
+					if(isset($row[$field_name]['data'])){
+						$cell['data']=$row[$field_name]['data'];
+					}
+				}
+				else{
+					if(is_array($field['cell'])){
+						$cell=$field['cell'];
+					}else{
+						$cell['data']=$field['cell'];
+					}
+					
+				}
+
+				foreach($cell as $attr_name => $attr_value){
+					$cell[$attr_name]=$this->_variableReplace($attr_value,$row);
+				}
+				
+				//@deprecated 应该用函数调用替代eval
+				if(isset($field['eval']) && $field['eval']){
+					$cell['data']=eval($cell['data']);
+				}
+				
+				$row_compiled[$field_name]=$cell;
+			}
+			$rows_compiled[]=$row_compiled;
+		}
+		
+		$this->rows=$rows_compiled;
+	}
+
+	/**
 		$field:输出表的列定义
 			array(
+				'_attr'=>array(
+					行属性名=>行属性值
+				),
 				'查询结果的列名'=>array(
-						'title'=>'列的显示标题'
-						'wrap_title'=>array(
-								'mark'=>'标签名，如 a',
-								'标签的属性名如href'=>'标签的值如http://www.google.com',
-							)标题单元格文字需要嵌套的HTML标签
-						'wrap'=>同上
-						'td_title'=>HTML String	该列标题单元格的html属性字符串
-						'td'=>HTML String 该列所有内容单元格的html属性字符串
-						'eval'=>false，'是否'将content作为源代码运行
-						'content'=>'显示的内容，可以用如{client}来显示变量，{client}是数据库查询结果的字段名'
+						'heading'=>表头单元格元素，可以是html，也可以是带data键的数组，其中data是html内容，其余是表头元素的的html属性
+						'cell'=>单元格元素，同上
+						'eval'=>false，'是否'将声称的cell的data代码作为源代码运行@deprecated
 					)
 			)
 	*/
 	function setFields(array $fields){
-		//对于定义列显示方式的表格，默认包围div class="contentTableBox"
-		//适用于完整生成表格的用法
 		$this->fields=$fields;
+		
 		$heading=array();
-		foreach($fields as $field_name=>$field){
-			$cell=array();
-			$cell['data']=$field['title'];
-			$cell['field']=$field_name;
+		
+		foreach($this->fields as $field_name => $field){
 			
-			if(isset($field['td_title'])){
-				$cell+=$this->_parseAttributesToArray($field['td_title']);
+			$cell=array('data'=>NULL);
+			
+			if(isset($field['heading'])){
+				if(is_array($field['heading']) && isset($field['heading']['data'])){
+					$heading[]=$field['heading'];
+				}else{
+					$heading[]=array('data'=>$field['heading']);
+				}
 			}
-			
-			if(isset($field['wrap_title'])){
-				$cell['data']=wrap($cell['data'],$field['wrap_title']);
-				
-			}/*elseif(!isset($field['orderby']) || $field['orderby']){
-				$cell['data']=wrap($cell['data'],array('mark'=>'a','href'=>"javascript:postOrderby('".$field_name."')"));
-			}*/
-			
-			$heading[]=$cell;
 		}
+		
 		$this->set_heading($heading);
 		return $this;
 	}
 	
-	function wrapBox($wrap_box=true){
-		$this->wrap_box=$wrap_box;
-		return $this;
-	}
-	
-	function wrapForm($wrap_form=true){
-		$this->wrap_form=$wrap_form;
-		return $this;
-	}
-	
-	function setAttribute($name,$value){
+	function setAttributes($name,$value){
 		$this->attributes[$name]=$value;
 		return $this;
 	}
 	
-	function setMenu($html,$class='right',$position='head'){
-		if(!isset($this->menu[$position][$class])){
-			$this->menu[$position][$class]='';
-		}
-		
-		$this->menu[$position][$class].=$html;
+	function setRowAttributes(array $attributes){
+		$this->row_attr=$attributes;
 		return $this;
 	}
 	
-	function setData($data){
-		$this->data=$data;
+	function setData($table_data){
+		if (is_object($table_data))
+		{
+			$this->_set_from_object($table_data);
+		}
+		elseif (is_array($table_data))
+		{
+			$set_heading = (count($this->heading) == 0 AND $this->auto_heading == FALSE) ? FALSE : TRUE;
+			$this->_set_from_array($table_data, $set_heading);
+		}
+
 		return $this;
 	}
 	
 	function trimColumns(){
-		$this->trim_columns=true;
+		$column_is_empty=array();
+
+		foreach($this->heading as $column_id => $column_title){
+			$column_is_empty[$column_id]=true;
+		}
+
+		foreach($this->rows as $row_id => $row){
+			foreach($row as $column_id => $cell){
+				if($cell['data']!=='' || $cell['data']!==NULL){
+					$column_is_empty[$column_id]=false;
+				}
+			}
+		}
+
+		foreach($this->rows as $row_id => $row){
+			foreach($row as $column_id => $cell){
+				if($column_is_empty[$column_id]){
+					unset($this->rows[$row_id][$column_id]);
+				}
+			}
+		}
+
+		foreach($this->heading as $column_id => $column_title){
+			if($column_is_empty[$column_id]){
+				unset($this->heading[$column_id]);
+			}
+		}
+
 		return $this;
 	}
 	
-	/**
-	 * 根据$fields设置，将$this->data数据导入$rows
-	 * 如果没有设置$fields，那么将$this->data全部导入$rows
-	 */
-	function generateData(){
-		//如果在输出时尚未指定列显示方式$fields，也没有设置wrap_box，那么不包围div class="contentTableBox"
-		//适用于生成表格的简写$this->table->generate($data);
-		if(is_null($this->wrap_box)){
-			$this->wrap_box=false;
+	function generate($table_data = NULL){
+		
+		// The table data can optionally be passed to this function
+		// either as a database result object or an array
+		if ( ! is_null($table_data))
+		{
+			$this->setData($table_data);
 		}
-		//echo 'data:'.print_r($this->data,true);
-		if(!empty($this->fields)){
-			foreach($this->data as $row_data){
-				$row=array();
-				foreach($this->fields as $field_name => $field){
-					$str=isset($field['content']) ? $field['content'] : (isset($row_data[$field_name])?$row_data[$field_name]:NULL);
-					$str=$this->_variableReplace($str,$row_data);
-					if(isset($field['eval']) && $field['eval']){
-						$str=eval($str);
+
+		// Is there anything to display?  No?  Smite them!
+		if (count($this->heading) == 0 AND count($this->rows) == 0)
+		{
+			return 'Undefined table data';
+		}
+
+		// Compile and validate the template date
+		$this->_compile_template();
+
+		// set a custom cell manipulation function to a locally scoped variable so its callable
+		$function = $this->function;
+
+		// Build the table!
+
+		$out = $this->template['table_open'];
+		$out .= $this->newline;
+
+		// Add any caption here
+		if ($this->caption)
+		{
+			$out .= $this->newline;
+			$out .= '<caption>' . $this->caption . '</caption>';
+			$out .= $this->newline;
+		}
+
+		// Is there a table heading to display?
+		if (count($this->heading) > 0)
+		{
+			$out .= $this->template['thead_open'];
+			$out .= $this->newline;
+			$out .= $this->template['heading_row_start'];
+			$out .= $this->newline;
+
+			foreach ($this->heading as $heading)
+			{
+				$temp = $this->template['heading_cell_start'];
+
+				foreach ($heading as $key => $val)
+				{
+					if ($key != 'data')
+					{
+						//$temp = str_replace('<th', "<th $key='$val'", $temp);	uicestone 2012/11/7
+						$temp = str_replace('<th', "<th $key=\"$val\"", $temp);
 					}
-					if(isset($field['wrap'])){
-						array_walk($field['wrap'],array($this,'_variableReplaceSelf'),$row_data);
-						$str=wrap($str,$field['wrap']);
-					}
-					if(is_null($str)){
-						$str='<p></p>';
-					}
-					$cell=array();
-					$cell['data']=$str;
-					$cell['field']=$field_name;
-					if(isset($field['td'])){
-						$cell+=$this->_parseAttributesToArray($this->_variableReplace($field['td'],$row_data));
-					}
-					$row[]=$cell;
 				}
-				$this->add_row($row);
+
+				$out .= $temp;
+				$out .= isset($heading['data']) ? $heading['data'] : '';
+				$out .= $this->template['heading_cell_end'];
 			}
-			$this->data=NULL;
+
+			$out .= $this->template['heading_row_end'];
+			$out .= $this->newline;
+			$out .= $this->template['thead_close'];
+			$out .= $this->newline;
 		}
+
+		// Build the table rows
+		if (count($this->rows) > 0)
+		{
+			$out .= $this->template['tbody_open'];
+			$out .= $this->newline;
+
+			$i = 1;
+			foreach ($this->rows as $row)
+			{
+				if ( ! is_array($row))
+				{
+					break;
+				}
+				
+				// We use modulus to alternate the row colors
+				$name = (fmod($i++, 2)) ? '' : 'alt_';
+
+				$temp = $this->template['row_'.$name.'start'];
+				
+				foreach ($row['_attr'] as $key => $val){
+					$temp = str_replace('<tr', "<tr $key=\"$val\"", $temp);
+				}
+				
+				unset($row['_attr']);
+
+				$out .= $temp;
+				$out .= $this->newline;
+
+				foreach ($row as $cell)
+				{
+					$temp = $this->template['cell_'.$name.'start'];
+
+					foreach ($cell as $key => $val)
+					{
+						if ($key != 'data')
+						{
+							//$temp = str_replace('<td', "<td $key='$val'", $temp);	uicestone 2012/11/7
+							$temp = str_replace('<td', "<td $key=\"$val\"", $temp);
+						}
+					}
+
+					$cell = isset($cell['data']) ? $cell['data'] : '';
+					$out .= $temp;
+
+					if ($cell === "" OR $cell === NULL)
+					{
+						$out .= $this->empty_cells;
+					}
+					else
+					{
+						if ($function !== FALSE && is_callable($function))
+						{
+							$out .= call_user_func($function, $cell);
+						}
+						else
+						{
+							$out .= $cell;
+						}
+					}
+
+					$out .= $this->template['cell_'.$name.'end'];
+				}
+
+				$out .= $this->template['row_'.$name.'end'];
+				$out .= $this->newline;
+			}
+
+			$out .= $this->template['tbody_close'];
+			$out .= $this->newline;
+		}
+
+		$out .= $this->template['table_close'];
+
+		// Clear table class properties before generating the table
+		$this->clear();
+
+		return $out;
+	}
+	
+	function _default_template() {
+		$default_template=parent::_default_template();
+		$default_template['table_open']='<table class="contentTable" cellpadding="0" cellspacing="0"'.(isset($this->attributes['name'])?' name="'.$this->attributes['name'].'"':'').'>';
+		$default_template['row_alt_start']='<tr class="oddLine">';
+		return $default_template;
 	}
 
-	// --------------------------------------------------------------------
-
-	/**
-	 * Generate the table
-	 *
-	 * @access	public
-	 * @param	mixed
-	 * @return	string
-	 */
-	function generate($table_data = NULL)
-	{
-		if(isset($table_data)){
-			$this->data=$table_data;
-		}
-		
-		if(is_null($this->wrap_box)){
-			$this->wrap_box=!isset($table_data);
-		}
-		
-		$this->generateData();
-
-		if($this->trim_columns){
-			$column_is_empty=array();
-
-			foreach($this->heading as $column_id => $column_title){
-				$column_is_empty[$column_id]=true;
-			}
-
-			foreach($this->rows as $row_id => $row){
-				foreach($row as $column_id => $cell){
-					if(((strip_tags($cell['data'])!=''))){
-						$column_is_empty[$column_id]=false;
-					}
-				}
-			}
-
-			foreach($this->rows as $row_id => $row){
-				foreach($row as $column_id => $cell){
-					if($column_is_empty[$column_id]){
-						unset($this->rows[$row_id][$column_id]);
-					}
-				}
-			}
-			
-			foreach($this->heading as $column_id => $column_title){
-				if($column_is_empty[$column_id]){
-					unset($this->heading[$column_id]);
-				}
-			}
-		}
-
-		$prepend=$append='';
-
-		if($this->wrap_form){
-			$prepend.='<form method="post">'."\n";
-		}
-		
-		if($this->wrap_box){
-			$this->setMenu($this->load->view('pagination',true,'pagination'));
-		}
-
-		if(isset($this->menu['head'])){
-			$prepend.='<div class="contentTableMenu"';
-
-			foreach($this->attributes as $attribute_name => $attribute_value){
-				$prepend.=' '.$attribute_name.'="'.$attribute_value.'"';
-			}
-
-			$prepend.='>'."\n";
-			
-			foreach($this->menu['head'] as $menu_div_class=>$menu_data){
-				$prepend.='<div class="'.$menu_div_class.'">'.$menu_data.'</div>';
-			}
-			
-			$prepend.='</div>'."\n";
-		}
-
-		if($this->wrap_box){
-			$prepend.='<div class="contentTableBox">'."\n";
-		}
-		
-		if($this->wrap_box){
-			if(isset($this->menu['foot'])){
-				$append.='<div class="contentTableFoot"';
-
-				foreach($this->attributes as $attribute_name => $attribute_value){
-					$append.=' '.$attribute_name.'="'.$attribute_value.'"';
-				}
-
-				$append.='>'."\n";
-
-				foreach($this->menu['foot'] as $menu_div_class=>$menu_data){
-					$append.='<div class="'.$menu_div_class.'">'.$menu_data.'</div>';
-				}
-
-				$append.='</div>'."\n";
-			}
-
-			$append.='</div>'."\n";
-		}
-		
-		if($this->wrap_form){
-			$append.='</form>'."\n";
-		}
-
-		$this->template['table_open']='<table class="contentTable" cellpadding="0" cellspacing="0"'.(isset($this->attributes['name'])?' name="'.$this->attributes['name'].'"':'').'>';
-		$this->template['row_alt_start']='<tr class="oddLine">';
-
-		$table=parent::generate($this->data);
-
-		return $prepend.$table.$append;
-	}
-
-	// --------------------------------------------------------------------
-
-	/**
-	 * Clears the table arrays.  Useful if multiple tables are being generated
-	 *
-	 * @access	public
-	 * @return	void
-	 */
-	function clear()
-	{
+	function clear(){
 		parent::clear();
 		$this->__construct();
 	}

@@ -23,6 +23,7 @@ class SS_Controller extends CI_Controller{
 	
 	function __construct(){
 		parent::__construct();
+		//$this->output->enable_profiler(TRUE);
 		
 		/*
 		 * 处理$class和$method，并定义为常量

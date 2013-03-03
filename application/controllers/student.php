@@ -71,29 +71,29 @@ class Student extends SS_controller{
 		$this->load->addViewArrayData(compact('student','student_class','class','student_extra'));
 		
 		$fields_student_relatives=array(
-			'checkbox'=>array('title'=>'<input type="submit" name="submit[student_relatives_delete]" value="删" />','orderby'=>false,'content'=>'<input type="checkbox" name="student_relatives_check[{id}]" >','td_title'=>' width="25px"'),
-			'name'=>array('title'=>'姓名','orderby'=>false),
-			'relation'=>array('title'=>'关系','orderby'=>false),
-			'contact'=>array('title'=>'电话','orderby'=>false),
-			'work_for'=>array('title'=>'单位','orderby'=>false)
+			'checkbox'=>array('title'=>'<input type="submit" name="submit[student_relatives_delete]" value="删" />','content'=>'<input type="checkbox" name="student_relatives_check[{id}]" >','td_title'=>' width="25px"'),
+			'name'=>array('title'=>'姓名'),
+			'relation'=>array('title'=>'关系'),
+			'contact'=>array('title'=>'电话'),
+			'work_for'=>array('title'=>'单位')
 		);
 		$relatives=$this->table->setFields($fields_student_relatives)
 			->generate($this->student->getRelativeList($this->student->id));
 		
 		$fields_student_behaviour=array(
-			'type'=>array('title'=>'类别','td_title'=>'width="10%"','orderby'=>false),
-			'date'=>array('title'=>'日期','orderby'=>false),
-			'name'=>array('title'=>'名称','td_title'=>'width="40%"','td'=>'title="{content}"','orderby'=>false),
-			'level'=>array('title'=>'级别','orderby'=>false)
+			'type'=>array('title'=>'类别','td_title'=>'width="10%"'),
+			'date'=>array('title'=>'日期'),
+			'name'=>array('title'=>'名称','td_title'=>'width="40%"','td'=>'title="{content}"'),
+			'level'=>array('title'=>'级别')
 		);
 		$behaviour=$this->table->setFields($fields_student_behaviour)
 			->generate($this->student->getBehaviourList($this->student->id));
 		
 		$fields_student_comment=array(
-			'title'=>array('title'=>'标题','orderby'=>false),
-			'content'=>array('title'=>'内容','td_title'=>'width="60%"','orderby'=>false),
-			'username'=>array('title'=>'留言人','orderby'=>false),
-			'time'=>array('title'=>'时间','orderby'=>false)
+			'title'=>array('title'=>'标题'),
+			'content'=>array('title'=>'内容','td_title'=>'width="60%"'),
+			'username'=>array('title'=>'留言人'),
+			'time'=>array('title'=>'时间')
 		);
 		$comments=$this->table->setFields($fields_student_comment)
 				->generate($this->student->getCommentList($this->student->id));

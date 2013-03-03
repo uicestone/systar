@@ -13,7 +13,7 @@ class Excel extends SS_controller{
 		$field=array(
 			'name'=>array('title'=>'标题'),
 			'content'=>array('title'=>'内容'),
-			'time_start'=>array('title'=>'时间','eval'=>true,'content'=>"return date('m-d H:i',{time_start});",'orderby'=>false),
+			'time_start'=>array('title'=>'时间','eval'=>true,'content'=>"return date('m-d H:i',{time_start});"),
 			'hours_own'=>array('title'=>'自报小时'),
 			'staff_name'=>array('title'=>'律师')
 		);

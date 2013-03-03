@@ -29,18 +29,21 @@ class Cases extends SS_controller{
 		$this->output->setData('案件', 'name');
 
 		$field=array(
-			'time_contract'=>array('title'=>'案号','td_title'=>'width="140pxpx"','td'=>'title="立案时间：{time_contract}" hash="cases/edit/{id}"','content'=>'{num}'),
-			'name'=>array('title'=>'案名','content'=>'{name}'),
-			'lawyers'=>array('title'=>'主办律师','td_title'=>'width="100px"'),
-			'schedule_grouped.time_start'=>array('title'=>'最新日志','eval'=>true,'content'=>"
+			'time_contract'=>array(
+				'heading'=>array('data'=>'案号','width'=>'140px'),
+				'cell'=>array('data'=>'{num}','title'=>'立案时间：{time_contract}')
+			),
+			'name'=>array('heading'=>'案名','cell'=>'{name}'),
+			'lawyers'=>array('heading'=>array('data'=>'主办律师','width'=>'100px')),
+			'schedule_grouped.time_start'=>array('heading'=>'最新日志','eval'=>true,'cell'=>"
 				return '<span class=\"create-schedule\" case=\"{id}\">+</span> <a href=\"#schedule/lists?case={id}\" title=\"{schedule_name}\">'.str_getSummary('{schedule_name}').'</a>';
 			"),
-			'plan_grouped.time_start'=>array('title'=>'最近提醒','eval'=>true,'content'=>"
+			'plan_grouped.time_start'=>array('heading'=>'最近提醒','eval'=>true,'cell'=>"
 				return '<span class=\"create-schedule\" case=\"{id}\" completed=\"0\">+</span> {plan_time} <a href=\"#schedule/list/plan?case={id}\" title=\"{plan_name}\">'.str_getSummary('{plan_name}').'</a>';
 			"),
-			'is_reviewed'=>array('title'=>'状态','td_title'=>'width="75px"','eval'=>true,'content'=>"
+			'is_reviewed'=>array('heading'=>array('data'=>'状态','width'=>'70px'),'eval'=>true,'cell'=>"
 				return \$this->cases->getStatus('{is_reviewed}','{locked}',{apply_file},{is_query},{finance_review},{info_review},{manager_review},{filed},'{contribute_sum}','{uncollected}').' {status}';
-			",'orderby'=>false)
+			")
 		);
 		
 		if(!$this->user->isLogged('lawyer') && $this->user->isLogged('finance')){
@@ -50,12 +53,13 @@ class Cases extends SS_controller{
 				'lawyers'=>array('title'=>'主办律师','td_title'=>'width="100px"'),
 				'is_reviewed'=>array('title'=>'状态','td_title'=>'width="75px"','eval'=>true,'content'=>"
 					return \$this->cases->getStatus('{is_reviewed}','{locked}',{apply_file},{is_query},{finance_review},{info_review},{manager_review},{filed},'{contribute_sum}','{uncollected}').' {status}';
-				",'orderby'=>false)
+				")
 			);
 
 		}
 		
 		$table=$this->table->setFields($field)
+			->setRowAttributes(array('hash'=>'cases/edit/{id}'))
 			->setData($this->cases->getList($para))
 			->generate();
 		$this->load->addViewData('list',$table);
@@ -85,11 +89,11 @@ class Cases extends SS_controller{
 		if($item=='client'){
 
 			$fields=array(
-				'name'=>array('title'=>'名称','orderby'=>false,'td'=>'hash="client/edit/{people}"'),
+				'name'=>array('title'=>'名称','td'=>'hash="client/edit/{people}"'),
 				'phone'=>array('title'=>'电话','td'=>'class="ellipsis" title="{phone}"'),
 				'email'=>array('title'=>'电邮','wrap'=>array('mark'=>'a','href'=>'mailto:{email}','title'=>'{email}','target'=>'_blank'),'td'=>'class="ellipsis"'),
-				'role'=>array('title'=>'本案地位','orderby'=>false),
-				'type'=>array('title'=>'类型','td_title'=>'width="60px"','orderby'=>false)
+				'role'=>array('title'=>'本案地位'),
+				'type'=>array('title'=>'类型','td_title'=>'width="60px"')
 			);
 			$list=$this->table->setFields($fields)
 				->setAttribute('name',$item)
@@ -105,8 +109,8 @@ class Cases extends SS_controller{
 			}
 			
 			$fields=array(
-				'staff_name'=>array('title'=>'名称','content'=>'{staff_name}','orderby'=>false),
-				'role'=>array('title'=>'本案职位','orderby'=>false),
+				'staff_name'=>array('title'=>'名称','content'=>'{staff_name}'),
+				'role'=>array('title'=>'本案职位'),
 				'contribute'=>array('title'=>'贡献','eval'=>true,'content'=>"
 					\$hours_sum_string='';
 					if('{hours_sum}'){
@@ -114,10 +118,10 @@ class Cases extends SS_controller{
 					}
 
 					return \$hours_sum_string.'<span>{contribute}'.('{contribute_amount}'?' ({contribute_amount})':'').'</span>';
-				",'orderby'=>false)
+				")
 			);
 			if($para['timing_fee']){
-				$fields['hourly_fee']=array('title'=>'计时收费小时费率','td'=>'class="editable" id="{id}"','orderby'=>false);
+				$fields['hourly_fee']=array('title'=>'计时收费小时费率','td'=>'class="editable" id="{id}"');
 			}
 			$list=$this->table->setFields($fields)
 				->setAttribute('name',$item)
@@ -130,16 +134,16 @@ class Cases extends SS_controller{
 			}
 			
 			$fields=array(
-				'type'=>array('title'=>'类型','td'=>'id="{id}"','content'=>'{type}','orderby'=>false),
+				'type'=>array('title'=>'类型','td'=>'id="{id}"','content'=>'{type}'),
 				'fee'=>array('title'=>'数额','eval'=>true,'content'=>"
 					\$return='{fee}'.('{fee_received}'==''?'':' <span title=\"{fee_received_time}\">（到账：{fee_received}）</span>');
 					if('{reviewed}'){
 						\$return=wrap(\$return,array('mark'=>'span','style'=>'color:#AAA'));
 					}
 					return \$return;
-				",'orderby'=>false),
-				'condition'=>array('title'=>'条件','td'=>'class="ellipsis" title="{condition}"','orderby'=>false),
-				'pay_date'=>array('title'=>'预计时间','orderby'=>false)
+				"),
+				'condition'=>array('title'=>'条件','td'=>'class="ellipsis" title="{condition}"'),
+				'pay_date'=>array('title'=>'预计时间')
 			);
 			$list=$this->table->setFields($fields)
 					->setAttribute('name',$item)
@@ -151,12 +155,12 @@ class Cases extends SS_controller{
 			}
 			
 			$fields=array(
-				'receiver'=>array('title'=>'收款方','orderby'=>false),
+				'receiver'=>array('title'=>'收款方'),
 				'fee'=>array('title'=>'数额','eval'=>true,'content'=>"
 					return '{fee}'.('{fee_received}'==''?'':' （到账：{fee_received}）');
-				",'orderby'=>false),
-				'comment'=>array('title'=>'备注','orderby'=>false),
-				'pay_date'=>array('title'=>'预计时间','orderby'=>false)
+				"),
+				'comment'=>array('title'=>'备注'),
+				'pay_date'=>array('title'=>'预计时间')
 			);
 			$list=$this->table->setFields($fields)
 					->setAttribute('name',$item)
@@ -164,11 +168,11 @@ class Cases extends SS_controller{
 		}
 		elseif($item=='schedule'){
 			$fields=array(
-				'name'=>array('title'=>'标题','td_title'=>'width="150px"','wrap'=>array('mark'=>'span','class'=>'show-schedule','id'=>'{id}'),'orderby'=>false),
+				'name'=>array('title'=>'标题','td_title'=>'width="150px"','wrap'=>array('mark'=>'span','class'=>'show-schedule','id'=>'{id}')),
 				'time_start'=>array('title'=>'时间','td_title'=>'width="60px"','eval'=>true,'content'=>"
 					return date('m-d H:i',{time_start});
-				",'orderby'=>false),
-				'username'=>array('title'=>'填写人','td_title'=>'width="90px"','orderby'=>false)
+				"),
+				'username'=>array('title'=>'填写人','td_title'=>'width="90px"')
 			);
 			$list=$this->table->setFields($fields)
 					->setAttribute('name',$item)
@@ -176,11 +180,11 @@ class Cases extends SS_controller{
 		}
 		elseif($item=='plan'){
 			$fields=array(
-				'name'=>array('title'=>'标题','td_title'=>'width="150px"','wrap'=>array('mark'=>'span','class'=>'show-schedule','id'=>'{id}'),'orderby'=>false),
+				'name'=>array('title'=>'标题','td_title'=>'width="150px"','wrap'=>array('mark'=>'span','class'=>'show-schedule','id'=>'{id}')),
 				'time_start'=>array('title'=>'时间','td_title'=>'width="60px"','eval'=>true,'content'=>"
 					return date('m-d H:i',{time_start});
-				",'orderby'=>false),
-				'username'=>array('title'=>'填写人','td_title'=>'width="90px"','orderby'=>false)
+				"),
+				'username'=>array('title'=>'填写人','td_title'=>'width="90px"')
 			);
 			$list=$this->table->setFields($fields)
 					->setAttribute('name',$item)
@@ -209,9 +213,9 @@ class Cases extends SS_controller{
 					'td_title'=>'width="40px"',
 					'orderby'=>false
 				),
-				'name'=>array('title'=>'文件名','td_title'=>'width="150px"','wrap'=>array('mark'=>'a','href'=>'/document/download/{id}'),'orderby'=>false),
+				'name'=>array('title'=>'文件名','td_title'=>'width="150px"','wrap'=>array('mark'=>'a','href'=>'/document/download/{id}')),
 				'type'=>array('title'=>'类型','td_title'=>'width="80px"'),
-				'comment'=>array('title'=>'备注','orderby'=>false),
+				'comment'=>array('title'=>'备注'),
 				'time'=>array('title'=>'时间','td_title'=>'width="60px"','eval'=>true,'content'=>"
 					return date('m-d H:i',{time});
 				"),

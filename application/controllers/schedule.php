@@ -64,27 +64,27 @@ class Schedule extends SS_controller{
 			$this->schedule->review($this->input->post('schedule_check'));
 		}
 		$field=array(
-			'checkbox'=>array('title'=>'<input type="checkbox" name="schedule_checkall">','content'=>'<input type="checkbox" name="schedule_check[{id}]" >','td_title'=>' width="38px"','orderby'=>false),
+			'checkbox'=>array('title'=>'<input type="checkbox" name="schedule_checkall">','content'=>'<input type="checkbox" name="schedule_check[{id}]" >','td_title'=>' width="38px"'),
 		
-			'case.id'=>array('title'=>'案件','content'=>'{case_name}<p style="font-size:11px;text-align:right;"><a href="#schedule/lists?case={case}">本案日志</a> <a href="#cases/edit/{case}">案件</a></p>','orderby'=>false),
+			'case.id'=>array('title'=>'案件','content'=>'{case_name}<p style="font-size:11px;text-align:right;"><a href="#schedule/lists?case={case}">本案日志</a> <a href="#cases/edit/{case}">案件</a></p>'),
 		
-			'staff_name'=>array('title'=>'人员','content'=>'<a href="#schedule/list?staff={staff}"> {staff_name}</a>','td_title'=>'width="60px"','orderby'=>false),
+			'staff_name'=>array('title'=>'人员','content'=>'<a href="#schedule/list?staff={staff}"> {staff_name}</a>','td_title'=>'width="60px"'),
 		
 			'name'=>array('title'=>'标题','eval'=>true,'content'=>"
 				return '<a href=\"javascript:showWindow(\'schedule/edit/{id}\')\" title=\"{name}\">'.str_getSummary('{name}').'</a>';
-			",'orderby'=>false),
+			"),
 		
 			'content'=>array('title'=>'内容','eval'=>true,'content'=>"
 				return '<div title=\"{content}\">'.str_getSummary('{content}').'&nbsp;'.'</div>';
-			",'orderby'=>false),
+			"),
 		
 			'schedule_experience'=>array('title'=>'心得','eval'=>true,'content'=>"
 				return ({review_permission}||\$this->user->id=='{staff}')?'<div title=\"{experience}\">'.str_getSummary('{experience}').'&nbsp;'.'</div>':'-';
-			",'orderby'=>false),
+			"),
 		
 			'time_start'=>array('title'=>'时间','td_title'=>'width="60px"','eval'=>true,'content'=>"
 				return date('m-d H:i',{time_start});
-			",'orderby'=>false),
+			"),
 		
 			'hours_own'=>array('title'=>'时长','td_title'=>'width="55px"','eval'=>true,'content'=>"
 				if('{hours_checked}'==''){
@@ -92,7 +92,7 @@ class Schedule extends SS_controller{
 				}else{
 					return '<span class=\"hours_checked'.({review_permission}?' editable':'').'\" id={id} name=\"hours\" title=\"自报：{hours_own}\">{hours_checked}</span>';
 				}
-			",'orderby'=>false),
+			"),
 		
 			'comment'=>array('title'=>'评语','eval'=>true,'content'=>"
 				if({review_permission}){
@@ -105,7 +105,7 @@ class Schedule extends SS_controller{
 					}
 				}
 				
-			",'orderby'=>false)
+			")
 		);
 		
 		if($method=='mine'){
@@ -446,7 +446,7 @@ class Schedule extends SS_controller{
 			isset($schedule['completed']) && $this->output->setData($schedule['completed'],'completed');
 		}
 		
-		$this->output->setData($this->load->view("schedule/$mode",array(),true));
+		$this->output->setData($this->load->view("schedule/$mode",true));
 	}
 }
 ?>

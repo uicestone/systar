@@ -69,7 +69,7 @@ class Achievement extends SS_controller{
 		$achievement_view_data=compact('achievement_dashboard','achievement_sum');
 		$this->load->addViewArrayData($achievement_view_data);
 		$this->load->view('list');
-		$this->load->view('achievement/list_sidebar',true,'sidebar');
+		$this->load->view('achievement/lists_sidebar',true,'sidebar');
 	}
 
 	function receivable($method=NULL){

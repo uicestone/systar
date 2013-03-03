@@ -92,7 +92,7 @@
 <? if(isset($labels['分类']) && in_array($labels['分类'],array('诉讼','非诉讼'))){?>
 		<div class="item">
 			<div class="title"><label>争议焦点：（案件标的）</label></div>
-			<input name="cases[focus]" type="text" value="<?=$this->value('cases/focus')?>" style="width:99%" />
+			<input name="cases[focus]" type="text" value="<?=$this->value('cases/focus')?>" style="width:99%;font-size:1.2em;" />
 		</div>
 <? }?>
 	

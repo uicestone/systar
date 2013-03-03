@@ -12,7 +12,7 @@ class File extends SS_Controller{
 			'lawyers'=>array('title'=>'主办律师','td_title'=>'width="100px"'),
 			'is_reviewed'=>array('title'=>'状态','td_title'=>'width="75px"','eval'=>true,'content'=>"
 				return \$this->cases->getStatus('{is_reviewed}','{locked}',{apply_file},{is_query},{finance_review},{info_review},{manager_review},{filed},'{contribute_sum}','{uncollected}').' {status}';
-			",'orderby'=>false)
+			")
 		);
 		
 		$table=$this->table->setFields($field)
