@@ -26,28 +26,36 @@ $(window).on('hashchange',function(){
 		aside.children('section[for="'+hash+'"]').show().trigger('sidebarshow');
 		
 	}else{
-		throbber.fadeIn(500).rotate({animateTo:18000,duration:100000});
-		
-		$.get(hash,function(response){
-			
-			throbber.stop().fadeOut(200).stopRotate();
-			
-			page.children('section[hash!="'+hash+'"]').hide();
-			aside.children('section[for!="'+hash+'"]').hide();
+		$.ajax({
+			url:hash,
+			beforeSend:function(){
+				throbber.fadeIn(500).rotate({animateTo:18000,duration:100000});
+			},
+			complete:function(){
+				throbber.stop().fadeOut(200).stopRotate();
+			},
+			success:function(response){
+				page.children('section[hash!="'+hash+'"]').hide();
+				aside.children('section[for!="'+hash+'"]').hide();
 
-			//只对成功的响应生成标签选项卡、边栏和主页面元素
-			if(response.status==='success'){
-				$('<section hash="'+hash+'" time-access="'+$.now()+'"></section>').appendTo(page).trigger('sectioncreate');
-				$('<section for="'+hash+'"></section>').appendTo(aside).trigger('sidebarcreate');
-				/*如果请求的hash在导航菜单中不存在，则生成标签选项卡*/
-				if(nav.find('a[href="#'+hash+'"]').length===0 && response.data.name){
-					tabs.append('<li for="'+hash+'" class="activated"><a href="#'+hash+'">'+response.data.name.content+'</a></li>');
+				//只对成功的响应生成标签选项卡、边栏和主页面元素
+				if(response.status==='success'){
+					$('<section hash="'+hash+'" time-access="'+$.now()+'"></section>').appendTo(page).trigger('sectioncreate');
+					$('<section for="'+hash+'"></section>').appendTo(aside).trigger('sidebarcreate');
+					/*如果请求的hash在导航菜单中不存在，则生成标签选项卡*/
+					if(nav.find('a[href="#'+hash+'"]').length===0 && response.data.name){
+						tabs.append('<li for="'+hash+'" class="activated"><a href="#'+hash+'">'+response.data.name.content+'</a></li>');
+					}
 				}
-			}
-			
-			$(document).setBlock(response);
+
+				$(document).setBlock(response);
 	
-		},'json');
+			},
+			error:function(){
+				$.showMessage('服务器返回了错误的数据','warning');
+			},
+			dataType:'json'
+		});
 	}
 	
 });
