@@ -2,8 +2,8 @@
 <form method="post">
 <div class="contentTableMenu">
 	<div class="right">
-		<input type="submit" name="submit[contact]" value="保存" />
-		<input type="submit" name="submit[cancel]" value="关闭" />
+		<button type="submit" name="submit[contact]">保存</button>
+		<button type="submit" name="submit[cancel]">关闭</button>
 	</div>
 </div>
 <div class="contentTableBox">
@@ -48,7 +48,7 @@
 				<input type="text" name="contact_contact[content]" value="<?=$this->value('contact_contact/content')?>" style="width:30%" />
 				<input type="text" name="contact_contact[comment]" value="<?=$this->value('contact_contact/comment')?>" style="width:30%" />
 
-				<input type="submit" name="submit[contact_contact]" value="添加" />
+				<button type="submit" name="submit[contact_contact]">添加</button>
 			</div>
 		 </div>
 
@@ -64,7 +64,7 @@
 				<select name="contact_related[role]" style="width:13%">
 					<?=options(array('父','母',($this->value('contact/gender')=='男'?'妻':'夫'),'亲属','朋友','其他','代理人'),$this->value('contact_related/role'))?>
 				</select>
-				<input type="submit" name="submit[contact_related]" value="添加" />
+				<button type="submit" name="submit[contact_related]">添加</button>
 
 				<br />
 				<?=checkbox('单位','contact_related_extra[character]',$this->value('contact_related_extra/character'),'单位')?>
@@ -92,8 +92,8 @@
 		</div>
 
 		<div class="submit">
-			<input type="submit" name="submit[contact]" value="保存" />
-			<input type="submit" name="submit[cancel]" value="关闭" />
+			<button type="submit" name="submit[contact]">保存</button>
+			<button type="submit" name="submit[cancel]">关闭</button>
 		</div>
 	</div>
 </div>

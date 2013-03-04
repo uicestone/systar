@@ -43,7 +43,7 @@
 				<input type="text" name="profile[content]" value="<?=$this->value('profile/content')?>" placeholder="资料项内容" />
 				<input type="text" name="profile[comment]" value="<?=$this->value('profile/comment')?>" placeholder="备注" />
 
-				<input type="submit" name="submit[profile]" value="添加" />
+				<button type="submit" name="submit[profile]">添加</button>
 			</span>
 		 </div>
 
@@ -64,7 +64,7 @@
 					<input type="text" name="relative_profiles[电话]" value="<?=$this->value('relative_profiles/电话')?>" placeholder="电话" />
 					<input type="text" name="relative_profiles[电子邮件]" value="<?=$this->value('relative_profiles/电子邮件')?>" placeholder="电子邮件" />
 				</span>
-				<input type="submit" name="submit[relative]" value="添加" />
+				<button type="submit" name="submit[relative]">添加</button>
 			</span>
 		 </div>
 

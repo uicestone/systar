@@ -1,7 +1,7 @@
 <form method="post">
 <div class="contentTableMenu">
 	<div class="right">
-		<input type="submit" name="submit[classes]" value="保存" />
+		<button type="submit" name="submit[classes]">保存</button>
 	</div>
 </div>
 <div class="contentTableBox">
@@ -22,7 +22,7 @@
 		</div>
 
 		<div class="submit">
-			<input type="submit" name="submit[classes]" value="保存" />
+			<button type="submit" name="submit[classes]">保存</button>
 		</div>
 	</div>
 </div>

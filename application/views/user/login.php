@@ -17,6 +17,6 @@ $(function(){
 		<div class="item">
 			<input name="password" type="password" id="password" placeholder="密码" />
 		</div>
-		<div class="submit"><input type="submit" name="login" value="登录" /></div>
+		<div class="submit"><button type="submit" name="login">登录</button></div>
 	</div>
 </form>

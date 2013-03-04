@@ -1,7 +1,7 @@
 <form method="post">
 <div class="contentTableMenu">
 	<div class="right">
-		<input type="submit" name="submit[express]" value="保存" />
+		<button type="submit" name="submit[express]">保存</button>
 	</div>
 </div>
 <div class="contentTableBox">
@@ -43,7 +43,7 @@
 		</div>
 
 		<div class="submit">
-			<input type="submit" name="submit[express]" value="保存" />
+			<button type="submit" name="submit[express]">保存</button>
 		</div>
 	</div>
 </div>

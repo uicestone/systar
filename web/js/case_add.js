@@ -68,7 +68,7 @@ $(function(){
 	//勾选"计时收费"时，显示计时收费列表和表单
 	$('input[name="cases[timing_fee]"]').change(function(){
 		var caseTimingFeeSave=$('label#caseTimingFeeSave');
-		caseTimingFeeSave.html('<input type="submit" name="submit[case_fee_timing]" value="保存" />');
+		caseTimingFeeSave.html('<button type="submit" name="submit[case_fee_timing]">保存</button>');
 
 		var caseFeeTimingAddForm=$(this).closest('.item').find('.timing-fee-detail');
 		if($(this).is(':checked')){
@@ -81,8 +81,8 @@ $(function(){
 	//审核按钮的触发
 	$('button[name="submit[review]"]').click(function(){
 		$(this)
-		.after('<input type="submit" name="submit[send_message]" value="退回" />')
-		.after('<input type="submit" name="'+$(this).attr('name')+'" value="通过" />')
+		.after('<button type="submit" name="submit[send_message]">退回</button>')
+		.after('<button type="submit" name="'+$(this).attr('name')+'">通过</button>')
 		.after('<input type="text" name="review_message" />')
 		.remove();
 	});

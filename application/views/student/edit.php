@@ -2,7 +2,7 @@
 <form method="post" name="<?=CONTROLLER?>" id="<?=$this->student->id?>">
 <div class="contentTableMenu">
 	<div class="right">
-		<input type="submit" name="submit[student]" value="保存" />
+		<button type="submit" name="submit[student]">保存</button>
 	</div>
 </div>
 <div class="contentTableBox">
@@ -63,7 +63,7 @@
 				</select>
 				<input type="text" name="student_relatives[contact]" value="<?=$this->value('student_relatives/contact')?>" placeholder="联系电话" style="width:25%" />
 				<input type="text" name="student_relatives[work_for]" value="<?=$this->value('student_relatives/work_for')?>" placeholder="工作单位" style="width:25%" />
-				<input type="submit" name="submit[student_relatives]" value="添加" />
+				<button type="submit" name="submit[student_relatives]">添加</button>
 			</div>
 		 </div>
 
@@ -102,7 +102,7 @@
 				<?=options(array('_ENUM','student_behaviour','level'),$this->value('student_behaviour/level')) ?>
 				</select>
 
-				<input type="submit" name="submit[student_behaviour]" value="添加" />
+				<button type="submit" name="submit[student_behaviour]">添加</button>
 				<br />
 				<textarea name="student_behaviour[content]" placeholder="具体事项记载" rows="1"><?=$this->value('student_behaviour/content') ?></textarea>
 			</div>
@@ -120,7 +120,7 @@
 			<div id="studentCommentAddForm">
 				<input type="text" name="student_comment[title]" value="<?=$this->value('student_comment/title') ?>" placeholder="标题" style="width:80%" />
 				<!--<input type="text" name="student_comment_extra[recipients_name]" value="<?=$this->value('student_comment_extra/recipients_name') ?>" placeholder="密送至" title="留空则家长和所有任课老师可见" style="width:10%" />-->
-				<input type="submit" name="submit[student_comment]" value="保存" />
+				<button type="submit" name="submit[student_comment]">保存</button>
 				<br />
 				<textarea name="student_comment[content]" placeholder="正文"><?=$this->value('student_comment/content') ?></textarea>
 			</div>
@@ -128,7 +128,7 @@
 		 <? } ?>
 
 		<div class="submit">
-			<input type="submit" name="submit[student]" value="保存" />			
+			<button type="submit" name="submit[student]">保存</button>			
 		</div>
 	</div>
 </div>

@@ -6,9 +6,9 @@
 			<tr><td>结束：</td><td><input type="text" name="date_to" value="<?=option('date_range/to')?>" class="date" /></td></tr>
 			<input style="display:none;" name="date_field" value="<?=$date_field?>" />
 
-			<tr><td colspan="2"><input type="submit" name="date_range" value="提交" />
+			<tr><td colspan="2"><button type="submit" name="date_range">提交</button>
 <?if(option('in_date_range')){?>
-				<input type="submit" name="date_range_cancel" value="取消" tabindex="1" />
+				<button type="submit" name="date_range_cancel">取消" tabindex="1</button>
 <?}?>
 			</td></tr>
 		</tbody>

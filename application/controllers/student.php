@@ -72,7 +72,7 @@ class Student extends SS_controller{
 		
 		$fields_student_relatives=array(
 			'checkbox'=>array(
-				'heading'=>array('data'=>'<input type="submit" name="submit[student_relatives_delete]" value="删" />','width'=>'25px'),
+				'heading'=>array('data'=>'<button type="submit" name="submit[student_relatives_delete]">删</button>','width'=>'25px'),
 				'cell'=>'<input type="checkbox" name="student_relatives_check[{id}]" >'
 			),
 			'name'=>array('heading'=>'姓名'),

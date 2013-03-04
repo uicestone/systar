@@ -10,7 +10,7 @@ $(document).ready(function(){
 <div class="contentTableMenu">
     <div class="right">
         <? if($this->value('news/uid')==$this->user->id){?>
-        <input type="submit" name="submit[news]" value="保存" />
+        <button type="submit" name="submit[news]">保存</button>
         <? }?>
     </div>
 </div>
@@ -32,7 +32,7 @@ $(document).ready(function(){
 
 		<div class="submit">
 	<? if($this->value('news/uid')==$this->user->id){?>
-			<input type="submit" name="submit[news]" value="保存" />
+			<button type="submit" name="submit[news]">保存</button>
 	<? }?>
 		</div>
 	</div>
