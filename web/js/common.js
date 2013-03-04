@@ -145,6 +145,14 @@ $(document).ready(function(){
 					.on('click',function(){
 						event.stopPropagation();
 					});
+			
+			$(this).children('tbody').children('tr')
+				.mouseenter(function(){
+					$(this).children('td:first').children('.hover').show();
+				})
+				.mouseleave(function(){
+					$(this).children('td:first').children('.hover').hide();
+				});
 		});
 		
 		section.find('.contentTable').trigger('contenttableload');
@@ -483,10 +491,10 @@ jQuery.fn.setBlock=function(response){
 		
 		else if(data.method==='replace'){
 			if(data.selector){
+				var grandParent=parent.parent();
 				if(parent.is(data.selector)){
 					parent.replaceWith(data.content);
-					block=$(data.selector);
-					block.trigger('blockload');
+					block=grandParent.children(data.selector).trigger('blockload');
 				}else{
 					parent.find(data.selector).replaceWith(data.content);
 					block=parent.find(data.selector).trigger('blockload');
