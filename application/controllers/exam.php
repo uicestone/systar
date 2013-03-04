@@ -10,24 +10,23 @@ class Exam extends SS_controller{
 		}
 		
 		$field=array(
-			'id'=>array('title'=>'编号','td_title'=>'width="70px"'),
-			'name'=>array('title'=>'考试名称','eval'=>true,'content'=>"
+			'id'=>array('heading'=>'编号','td_title'=>'width="70px"'),
+			'name'=>array('heading'=>'考试名称','eval'=>true,'cell'=>"
 				return '<a href=\"exam/paperlist/{id}\" style=\"float:left;\">{depart}-{grade_name}-{name}</a>'.({seat_allocated}?' <a href=\"/exam/viewseat/{id}\" style=\"float:right;\">座位表</a>':'');
 			"),
-			'term'=>array('title'=>'学期'),
-			'is_on'=>array('title'=>'激活','eval'=>true,'content'=>"
+			'term'=>array('heading'=>'学期'),
+			'is_on'=>array('heading'=>'激活','eval'=>true,'cell'=>"
 				return '<input type=\"checkbox\" name=\"is_on\" id=\"{id}\" '.({is_on}?'checked=\"checked\"':'').' />';
 			")
 		);
 		
 		$list=$this->table->setFields($field)
 			->setData($this->exam->getList())
-			->setMenu('<button type="button" id="addExam">添加</button>'.
-				'<input type="submit" name="allocate_seat" value="排座位" title="根据当前教室设置，为已激活的考试生成座位表" />','left')
 			->wrapForm()
 			->generate();
 		
 		$this->load->addViewData('list', $list);
+		$this->load->view('exam/lists');
 	}
 
 	/**
@@ -139,34 +138,33 @@ class Exam extends SS_controller{
 		post('exam/id',intval($exam_id));
 		
 		$field=array(
-			'id'=>array('title'=>'编号','td_title'=>'width="70px"'),
-			'course'=>array('title'=>'学科','content'=>'{course_name}'),
-			'students'=>array('title'=>'考试人数'),
-			'teacher_group_name'=>array('title'=>'备课组'),
-			'is_extra_course'=>array('title'=>'分科考试','eval'=>true,'content'=>"
+			'id'=>array('heading'=>'编号','td_title'=>'width="70px"'),
+			'course'=>array('heading'=>'学科','cell'=>'{course_name}'),
+			'students'=>array('heading'=>'考试人数'),
+			'teacher_group_name'=>array('heading'=>'备课组'),
+			'is_extra_course'=>array('heading'=>'分科考试','eval'=>true,'cell'=>"
 				return '<input type=\"checkbox\" '.({is_extra_course}?'checked=\"checked\"':'').' disabled=\"disabled\" />';
 			"),
-			'is_scoring'=>array('title'=>'开启登分','eval'=>true,'content'=>"
+			'is_scoring'=>array('heading'=>'开启登分','eval'=>true,'cell'=>"
 				return '<input type=\"checkbox\" name=\"is_scoring\" id=\"{id}\" '.({is_scoring}?'checked=\"checked\"':'').' />';
 			")
 		);
 		
 		$list=$this->table->setFields($field)
 			->setData($this->exam->getPaperList($exam_id))
-			->setMenu('<button type="button" id="addExamPaper">添加</button>'.
-				'<button type="button" onclick="location.href=\'/exam\'">返回</button>', 'left')
 			->generate();
 		
 		$this->load->addViewData('list', $list);
+		$this->load->view('exam/paperlist');
 	}
 
 	function viewSeat($exam_id){
 		$field=array(
-			'num'=>array('title'=>'学号'),
-			'student_name'=>array('title'=>'姓名'),
-			'room'=>array('title'=>'教室'),
-			'seat'=>array('title'=>'座位'),
-			'course_name'=>array('title'=>'加科')
+			'num'=>array('heading'=>'学号'),
+			'student_name'=>array('heading'=>'姓名'),
+			'room'=>array('heading'=>'教室'),
+			'seat'=>array('heading'=>'座位'),
+			'course_name'=>array('heading'=>'加科')
 		);
 		
 		$list=$this->table->setFields($field)

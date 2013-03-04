@@ -48,10 +48,10 @@ class Cases extends SS_controller{
 		
 		if(!$this->user->isLogged('lawyer') && $this->user->isLogged('finance')){
 			$field=array(
-				'time_contract'=>array('title'=>'案号','td_title'=>'width="140px"','td'=>'title="立案时间：{time_contract}" hash="cases/edit/{id}"','content'=>'{num}'),
-				'name'=>array('title'=>'案名','content'=>'{name}'),
-				'lawyers'=>array('title'=>'主办律师','td_title'=>'width="100px"'),
-				'is_reviewed'=>array('title'=>'状态','td_title'=>'width="75px"','eval'=>true,'content'=>"
+				'time_contract'=>array('heading'=>array('data'=>'案号','width'=>'140px'),'cell'=>array('data'=>'{num}','title'=>'立案时间：{time_contract}')),
+				'name'=>array('heading'=>'案名','cell'=>'{name}'),
+				'lawyers'=>array('heading'=>'主办律师','td_title'=>'width="100px"'),
+				'is_reviewed'=>array('heading'=>'状态','td_title'=>'width="75px"','eval'=>true,'cell'=>"
 					return \$this->cases->getStatus('{is_reviewed}','{locked}',{apply_file},{is_query},{finance_review},{info_review},{manager_review},{filed},'{contribute_sum}','{uncollected}').' {status}';
 				")
 			);
@@ -89,13 +89,14 @@ class Cases extends SS_controller{
 		if($item=='client'){
 
 			$fields=array(
-				'name'=>array('title'=>'名称','td'=>'hash="client/edit/{people}"'),
-				'phone'=>array('title'=>'电话','td'=>'class="ellipsis" title="{phone}"'),
-				'email'=>array('title'=>'电邮','wrap'=>array('mark'=>'a','href'=>'mailto:{email}','title'=>'{email}','target'=>'_blank'),'td'=>'class="ellipsis"'),
-				'role'=>array('title'=>'本案地位'),
-				'type'=>array('title'=>'类型','td_title'=>'width="60px"')
+				'name'=>array('heading'=>'名称'),
+				'phone'=>array('heading'=>'电话','cell'=>array('class'=>'ellipsis','title'=>'{phone}')),
+				'email'=>array('heading'=>'电邮','cell'=>array('data'=>'<a href = "mailto:{email}">{email}</a>','class'=>'ellipsis')),
+				'role'=>array('heading'=>'本案地位'),
+				'type'=>array('heading'=>array('data'=>'类型','width'=>'60px'))
 			);
 			$list=$this->table->setFields($fields)
+				->setRowAttributes(array('hash'=>'client/edit/{people}'))
 				->setAttribute('name',$item)
 				->generate($this->cases->getClientList($this->cases->id));
 		}
@@ -109,9 +110,9 @@ class Cases extends SS_controller{
 			}
 			
 			$fields=array(
-				'staff_name'=>array('title'=>'名称','content'=>'{staff_name}'),
-				'role'=>array('title'=>'本案职位'),
-				'contribute'=>array('title'=>'贡献','eval'=>true,'content'=>"
+				'staff_name'=>array('heading'=>'名称','cell'=>'{staff_name}'),
+				'role'=>array('heading'=>'本案职位'),
+				'contribute'=>array('heading'=>'贡献','eval'=>true,'cell'=>"
 					\$hours_sum_string='';
 					if('{hours_sum}'){
 						\$hours_sum_string='<span class=\"right\">{hours_sum}小时</span>';
@@ -121,9 +122,10 @@ class Cases extends SS_controller{
 				")
 			);
 			if($para['timing_fee']){
-				$fields['hourly_fee']=array('title'=>'计时收费小时费率','td'=>'class="editable" id="{id}"');
+				$fields['hourly_fee']=array('heading'=>'计时收费小时费率');
 			}
 			$list=$this->table->setFields($fields)
+				->setRowAttributes(array('hash'=>'client/edit/{people}'))
 				->setAttribute('name',$item)
 				->generate($this->cases->getStaffList($this->cases->id));
 
@@ -134,16 +136,16 @@ class Cases extends SS_controller{
 			}
 			
 			$fields=array(
-				'type'=>array('title'=>'类型','td'=>'id="{id}"','content'=>'{type}'),
-				'fee'=>array('title'=>'数额','eval'=>true,'content'=>"
+				'type'=>array('heading'=>'类型'),
+				'fee'=>array('heading'=>'数额','eval'=>true,'cell'=>"
 					\$return='{fee}'.('{fee_received}'==''?'':' <span title=\"{fee_received_time}\">（到账：{fee_received}）</span>');
 					if('{reviewed}'){
 						\$return=wrap(\$return,array('mark'=>'span','style'=>'color:#AAA'));
 					}
 					return \$return;
 				"),
-				'condition'=>array('title'=>'条件','td'=>'class="ellipsis" title="{condition}"'),
-				'pay_date'=>array('title'=>'预计时间')
+				'condition'=>array('heading'=>'条件','cell'=>array('class'=>'ellipsis','title'=>'{condition}')),
+				'pay_date'=>array('heading'=>'预计时间')
 			);
 			$list=$this->table->setFields($fields)
 					->setAttribute('name',$item)
@@ -155,12 +157,12 @@ class Cases extends SS_controller{
 			}
 			
 			$fields=array(
-				'receiver'=>array('title'=>'收款方'),
-				'fee'=>array('title'=>'数额','eval'=>true,'content'=>"
+				'receiver'=>array('heading'=>'收款方'),
+				'fee'=>array('heading'=>'数额','eval'=>true,'cell'=>"
 					return '{fee}'.('{fee_received}'==''?'':' （到账：{fee_received}）');
 				"),
-				'comment'=>array('title'=>'备注'),
-				'pay_date'=>array('title'=>'预计时间')
+				'comment'=>array('heading'=>'备注'),
+				'pay_date'=>array('heading'=>'预计时间')
 			);
 			$list=$this->table->setFields($fields)
 					->setAttribute('name',$item)
@@ -168,11 +170,11 @@ class Cases extends SS_controller{
 		}
 		elseif($item=='schedule'){
 			$fields=array(
-				'name'=>array('title'=>'标题','td_title'=>'width="150px"','wrap'=>array('mark'=>'span','class'=>'show-schedule','id'=>'{id}')),
-				'time_start'=>array('title'=>'时间','td_title'=>'width="60px"','eval'=>true,'content'=>"
+				'name'=>array('heading'=>'标题','td_title'=>'width="150px"','wrap'=>array('mark'=>'span','class'=>'show-schedule','id'=>'{id}')),
+				'time_start'=>array('heading'=>'时间','td_title'=>'width="60px"','eval'=>true,'cell'=>"
 					return date('m-d H:i',{time_start});
 				"),
-				'username'=>array('title'=>'填写人','td_title'=>'width="90px"')
+				'username'=>array('heading'=>'填写人','td_title'=>'width="90px"')
 			);
 			$list=$this->table->setFields($fields)
 					->setAttribute('name',$item)
@@ -180,11 +182,11 @@ class Cases extends SS_controller{
 		}
 		elseif($item=='plan'){
 			$fields=array(
-				'name'=>array('title'=>'标题','td_title'=>'width="150px"','wrap'=>array('mark'=>'span','class'=>'show-schedule','id'=>'{id}')),
-				'time_start'=>array('title'=>'时间','td_title'=>'width="60px"','eval'=>true,'content'=>"
+				'name'=>array('heading'=>'标题','td_title'=>'width="150px"','wrap'=>array('mark'=>'span','class'=>'show-schedule','id'=>'{id}')),
+				'time_start'=>array('heading'=>'时间','td_title'=>'width="60px"','eval'=>true,'cell'=>"
 					return date('m-d H:i',{time_start});
 				"),
-				'username'=>array('title'=>'填写人','td_title'=>'width="90px"')
+				'username'=>array('heading'=>'填写人','td_title'=>'width="90px"')
 			);
 			$list=$this->table->setFields($fields)
 					->setAttribute('name',$item)
@@ -200,7 +202,7 @@ class Cases extends SS_controller{
 				'extname'=>array(
 					'title'=>'',
 					'eval'=>true,
-					'content'=>"
+					'cell'=>"
 						if('{extname}'==''){
 							\$image='folder';
 						}elseif(is_file('web/images/file_type/{extname}.png')){
@@ -213,17 +215,17 @@ class Cases extends SS_controller{
 					'td_title'=>'width="40px"',
 					'orderby'=>false
 				),
-				'name'=>array('title'=>'文件名','td_title'=>'width="150px"','wrap'=>array('mark'=>'a','href'=>'/document/download/{id}')),
-				'type'=>array('title'=>'类型','td_title'=>'width="80px"'),
-				'comment'=>array('title'=>'备注'),
-				'time'=>array('title'=>'时间','td_title'=>'width="60px"','eval'=>true,'content'=>"
+				'name'=>array('heading'=>'文件名','td_title'=>'width="150px"','wrap'=>array('mark'=>'a','href'=>'/document/download/{id}')),
+				'type'=>array('heading'=>'类型','td_title'=>'width="80px"'),
+				'comment'=>array('heading'=>'备注'),
+				'time'=>array('heading'=>'时间','td_title'=>'width="60px"','eval'=>true,'cell'=>"
 					return date('m-d H:i',{time});
 				"),
-				'username'=>array('title'=>'上传人','td_title'=>'width="90px"')
+				'username'=>array('heading'=>'上传人','td_title'=>'width="90px"')
 			);
 			if($para['apply_file']){
 				array_splice($fields,0,0,array(
-					'id'=>array('title'=>'','td_title'=>'width="37px"','content'=>'<input type="checkbox" name="case_document_check[{id}]" checked="checked" />')
+					'id'=>array('heading'=>'','td_title'=>'width="37px"','cell'=>'<input type="checkbox" name="case_document_check[{id}]" checked="checked" />')
 				));
 			}
 			$list=$this->table->setFields($fields)
@@ -234,7 +236,7 @@ class Cases extends SS_controller{
 		if(!$case_id){//没有指定$case_id，是在edit方法内调用
 			$this->load->addViewData($item.'_list', $list);
 		}else{
-			return array('selector'=>'.item[name="'.$item.'"]>.contentTable','content'=>$list,'type'=>'html','method'=>'replace','content_name'=>'content-table');
+			return array('selector'=>'.item[name="'.$item.'"]>.contentTable','cell'=>$list,'type'=>'html','method'=>'replace','content_name'=>'content-table');
 		}
 	}
 

@@ -12,16 +12,17 @@ class Query extends SS_controller{
 	function lists($para=NULL){
 
 		$field=array(
-			'first_contact'=>array('title'=>'日期','td_title'=>'width="95px"','td'=>'hash="cases/edit/{id}"'),
-			'num'=>array('title'=>'编号','td_title'=>'width="143px"'),
-			'client_name'=>array('title'=>'咨询人','wrap'=>array('mark'=>'a','href'=>'#client/edit/{client}')),
-			'type'=>array('title'=>'方式','td_title'=>'width="80px"'),
-			'source'=>array('title'=>'来源'),
-			'staff_names'=>array('title'=>'接洽人'),
-			'summary'=>array('title'=>'概况','td'=>'class="ellipsis" title="{summary}"'),
-			'comment'=>array('title'=>'备注','td'=>'class="ellipsis" title="{comment}"')
+			'first_contact'=>array('heading'=>array('data'=>'日期','width'=>'95px')),
+			'num'=>array('heading'=>array('data'=>'编号','width'=>'143px')),
+			'client_name'=>array('heading'=>'咨询人','cell'=>'<a href="#client/edit/{client}">{client_name}</a>'),
+			'type'=>array('heading'=>array('data'=>'方式','width'=>'80px')),
+			'source'=>array('heading'=>'来源'),
+			'staff_names'=>array('heading'=>'接洽人'),
+			'summary'=>array('heading'=>'概况','cell'=>array('class'=>'ellipsis','title'=>'{summary}')),
+			'comment'=>array('heading'=>'备注','cell'=>array('class'=>'ellipsis','title'=>'{summary}'))
 		);
 		$table=$this->table->setFields($field)
+			->setRowAttributes(array('hash'=>'cases/edit/{id}'))
 			->setData($this->query->getList($para))
 			->generate();
 

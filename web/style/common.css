@@ -286,6 +286,9 @@ nav .arrow{
 .contentTable tbody tr{
 	background:#FFF;
 }
+.contentTable tbody tr[hash]{
+	cursor:pointer;
+}
 .contentTable tbody tr.highlighted{
 	background:#FFFFE8;
 }

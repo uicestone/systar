@@ -38,10 +38,16 @@ $(function(){
 	$('[name="is_on"]').change(function(){
 		var is_on=Number($(this).is(':checked'));
 		var id=$(this).attr('id');
-		$.post('/exam/listsave?update=1',{table:'exam',field:'is_on',id:id,value:is_on},function(result){
+		$.post('exam/listsave?update=1',{table:'exam',field:'is_on',id:id,value:is_on},function(result){
 			showMessage('考试'+id+'已'+(is_on?'激活':'取消激活'));
 		});
 	});
 });
 </script>
-<?=$list?>
+<div class="contentTableMenu">
+	<button type="button" id="addExam">添加</button>
+	<input type="submit" name="allocate_seat" value="排座位" title="根据当前教室设置，为已激活的考试生成座位表" />
+</div>
+<div class="contentTableBox">
+	<?=$list?>
+</div>

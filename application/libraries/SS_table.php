@@ -154,7 +154,7 @@ class SS_Table extends CI_Table{
 		return $this;
 	}
 	
-	function setAttributes($name,$value){
+	function setAttribute($name,$value){
 		$this->attributes[$name]=$value;
 		return $this;
 	}
@@ -295,11 +295,15 @@ class SS_Table extends CI_Table{
 
 				$temp = $this->template['row_'.$name.'start'];
 				
-				foreach ($row['_attr'] as $key => $val){
-					$temp = str_replace('<tr', "<tr $key=\"$val\"", $temp);
-				}
+				if(isset($row['_attr'])){
 				
-				unset($row['_attr']);
+					foreach ($row['_attr'] as $key => $val){
+						$temp = str_replace('<tr', "<tr $key=\"$val\"", $temp);
+					}
+
+					unset($row['_attr']);
+				
+				}
 
 				$out .= $temp;
 				$out .= $this->newline;

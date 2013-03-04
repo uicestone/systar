@@ -12,24 +12,22 @@ class Contact extends SS_controller{
 			$this->client->delete($contacts_to_delete);
 		}
 		$field=array(
-			'abbreviation'=>array('title'=>'名称','content'=>'<input type="checkbox" name="contact_check[{id}]" />
+			'abbreviation'=>array('heading'=>'名称','cell'=>'<input type="checkbox" name="contact_check[{id}]" />
 			<a href="javascript:showWindow(\'contact/edit/{id}\')" title="{name}">{abbreviation}</a>',
 				'td'=>'class="ellipsis"'
 			),
-			'work_for'=>array('title'=>'单位'),
-			'position'=>array('title'=>'职务'),
-			'phone'=>array('title'=>'电话','td'=>'class="ellipsis" title="{phone}"'
+			'work_for'=>array('heading'=>'单位'),
+			'position'=>array('heading'=>'职务'),
+			'phone'=>array('heading'=>'电话','td'=>'class="ellipsis" title="{phone}"'
 			),
-			'address'=>array('title'=>'地址','td'=>'class="ellipsis" title="{address}"'
+			'address'=>array('heading'=>'地址','td'=>'class="ellipsis" title="{address}"'
 			),
-			'comment'=>array('title'=>'备注','td'=>'class="ellipsis"','eval'=>true,'content'=>"
+			'comment'=>array('heading'=>'备注','td'=>'class="ellipsis"','eval'=>true,'cell'=>"
 				return str_getSummary('{comment}',50);
 			",
 			)
 		);
 		$table=$this->table->setFields($field)
-			->setMenu('<input type="submit" name="delete" value="删除" />','left')
-			->wrapForm()
 			->setData($this->contact->getList())
 			->generate();
 		$this->load->addViewData('list',$table);

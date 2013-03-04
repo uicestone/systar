@@ -14,25 +14,23 @@ class Client extends SS_Controller{
 
 		$field=array(
 			'abbreviation'=>array(
-				'title'=>'名称',
-				'content'=>'{abbreviation}',
-				'td'=>'class="ellipsis" title="{name}" hash="client/edit/{id}"'
+				'heading'=>'名称',
+				'cell'=>array('data'=>'{abbreviation}',	'class'=>"ellipsis",'title'=>'{name}')
 			),
-			'phone'=>array('title'=>'电话', 'td'=>'class="ellipsis" title="{phone}"'),
+			'phone'=>array('heading'=>'电话','cell'=>array('class'=>'ellipsis','title'=>'{phone}')),
 			'address'=>array(
-				'title'=>'地址', 'td_title'=>'width="240px"',
-				'td'=>'class="ellipsis" title="{address}"'
+				'heading'=>array('data'=>'地址','width'=>'240px'),
+				'cell'=>array('class'=>'ellipsis','title'=>'{address}')
 			),
 			'comment'=>array(
-				'title'=>'备注',
-				'td'=>'class="ellipsis" title="{comment}"',
+				'heading'=>'备注',
 				'eval'=>true,
-				'content'=>"return str_getSummary('{comment}',50);"
+				'cell'=>array('data'=>"return str_getSummary('{comment}',50);",'class'=>'ellipsis','title'=>'{comment}')
 			)
 		);
 		
 		$table=$this->table->setFields($field)
-			->wrapForm()
+			->setRowAttributes(array('hash'=>'client/edit/{id}'))
 			->setData($this->client->getList($method))
 			->generate();
 		$this->load->addViewData('list', $table);
@@ -54,38 +52,35 @@ class Client extends SS_Controller{
 		if($item=='relative'){
 			$field=array(
 				'relative_name'=>array(
-					'title'=>'名称',
-					'td'=>'hash="client/edit/{relative}"',
-					'orderby'=>false
+					'heading'=>'名称'
 				), 
-				'relative_phone'=>array('title'=>'电话', 'orderby'=>false), 
-				'relative_email'=>array('title'=>'电邮', 'wrap'=>array('mark'=>'a', 'href'=>'mailto:{relative_email}')), 
-				'relation'=>array('title'=>'关系', 'orderby'=>false)
+				'relative_phone'=>array('heading'=>'电话', 'orderby'=>false), 
+				'relative_email'=>array('heading'=>'电邮', 'wrap'=>array('mark'=>'a', 'href'=>'mailto:{relative_email}')), 
+				'relation'=>array('heading'=>'关系', 'orderby'=>false)
 			);
 			
 			$list=$this->table->setFields($field)
+				->setRowAttributes(array('hash'=>'client/edit/{reltive}'))
 				->setData($this->client->getRelatives($this->client->id))
-				->wrapBox(false)
 				->generate();
 
 		}
 		//资料项
 		elseif($item=='profile'){
 			$field=array(
-				'name'=>array('title'=>'名称', 'content'=>'{name}', 'orderby'=>false), 
-				'content'=>array('title'=>'内容', 'eval'=>true, 'content'=>"
+				'name'=>array('heading'=>'名称', 'cell'=>'{name}', 'orderby'=>false), 
+				'content'=>array('heading'=>'内容', 'eval'=>true, 'cell'=>"
 					if('{name}'=='电子邮件'){
 						return '<a href=\"mailto:{content}\" target=\"_blank\">{content}</a>';
 					}else{
 						return '{content}';
 					}
 				", 'orderby'=>false), 
-				'comment'=>array('title'=>'备注', 'orderby'=>false)
+				'comment'=>array('heading'=>'备注', 'orderby'=>false)
 			);
 			
 			$list=$this->table->setFields($field)
 				->setData($this->client->getProfiles($this->client->id))
-				->wrapBox(false)
 				->generate();
 
 		}
@@ -93,22 +88,18 @@ class Client extends SS_Controller{
 		elseif($item=='case'){
 			$field=array(
 				'num'=>array(
-					'title'=>'案号',
-					'td'=>'hash="cases/edit/{id}"',
-					'orderby'=>false
+					'heading'=>'案号'
 				),
 				'case_name'=>array(
-					'title'=>'案名', 
-					'orderby'=>false
+					'heading'=>'案名'
 				), 
 				'lawyers'=>array(
-					'title'=>'主办律师', 
-					'orderby'=>false
+					'heading'=>'主办律师' 
 				)
 			);
 			$list=$this->table->setFields($field)
+				->setRowAttributes(array('hash'=>'cases/edit/{id}'))
 				->setData($this->cases->getListByPeople($this->client->id))
-				->wrapBox(false)
 				->generate();
 		}
 		

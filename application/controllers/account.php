@@ -9,20 +9,24 @@ class Account extends SS_controller{
 	function lists(){
 		
 		$field=array(
-			'date'=>array('title'=>'日期','td'=>'hash="account/edit/{id}"'),
-			'name'=>array('title'=>'名目'),
-			'_type'=>array('title'=>'方向','eval'=>true,'content'=>"
-				if({amount}>0){
-					return '<span style=\"color:#0F0\"><<</span>';
-				}else{
-					return '<span style=\"color:#F00\">>></span>';
-				}
-			",'td_title'=>'width="55px"','td'=>'style="text-align:center"'),
-			'amount'=>array('title'=>'金额'),
-			'client_name'=>array('title'=>'付款/收款人')
+			'date'=>array('heading'=>'日期'),
+			'name'=>array('heading'=>'名目'),
+			'type'=>array('heading'=>'方向','eval'=>true,'cell'=>array(
+				'data'=>"
+					if({amount}>0){
+						return '<span style=\"color:#0F0\"><<</span>';
+					}else{
+						return '<span style=\"color:#F00\">>></span>';
+					}
+				",
+				'style'=>'text-align:center'
+			)),
+			'amount'=>array('heading'=>'金额'),
+			'client_name'=>array('heading'=>'付款/收款人')
 		);
 		
 		$list=$this->table->setFields($field)
+				->setRowAttributes(array('hash'=>'account/edit/{id}'))
 				->setData($this->account->getList())
 				->generate();
 		$this->load->addViewData('list', $list);

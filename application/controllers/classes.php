@@ -12,10 +12,10 @@ class Classes extends SS_controller{
 		}
 		
 		$field=array(
-			'class.id'=>array('title'=>'名称','td'=>'title="编号：{id}"','content'=>'{name}','wrap'=>array('mark'=>'a','href'=>'/classes/edit/{id}')),
-			'depart'=>array('title'=>'部门'),
-			'extra_course_name'=>array('title'=>'加一'),
-			'class_teacher_name'=>array('title'=>'班主任')
+			'class.id'=>array('heading'=>'名称','cell'=>'<a href = "#classes/edit/{id}">{name}</a>','title'=>'编号：{id}'),
+			'depart'=>array('heading'=>'部门'),
+			'extra_course_name'=>array('heading'=>'加一'),
+			'class_teacher_name'=>array('heading'=>'班主任')
 		);
 		
 		$list=$this->table->setFields($field)
@@ -53,8 +53,8 @@ class Classes extends SS_controller{
 		post('classes/class_teacher')>0 && post('classes_extra/class_teacher_name',$this->classes->fetchLeader(post('classes/id'),'name'));
 		
 		$field_class_leadership=array(
-			'student.name'=>array('title'=>'学生'),
-			'student_class.position'=>array('title'=>'职务')
+			'student.name'=>array('heading'=>'学生'),
+			'student_class.position'=>array('heading'=>'职务')
 		);
 		$leaders=$this->table->setFields($field_class_leadership)
 			->generate($this->classes->getLeadersList(post('classes/id')));

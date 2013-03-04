@@ -9,14 +9,14 @@ class Express extends SS_controller{
 		
 		
 		$field=array(
-			'content'=>array('title'=>'寄送内容','wrap'=>array('mark'=>'a','href'=>'/express/edit/{id}'),'td'=>'class="ellipsis" title="{content}"'),
-			'time_send'=>array('title'=>'日期','td_title'=>'width="60px"','eval'=>true,'content'=>"
+			'content'=>array('heading'=>'寄送内容','cell'=>array('data'=>'<a href="#express/edit/{id}">{content}</a>','class'=>'ellipsis','title'=>'{content}')),
+			'time_send'=>array('heading'=>array('data'=>'日期','width'=>'60px'),'eval'=>true,'cell'=>"
 				return date('m-d',{time_send});
 			"),
-			'sender_name'=>array('title'=>'寄送人'),
-			'destination'=>array('title'=>'寄送地点','td'=>'class="ellipsis" title="{destination}"'),
-			'num'=>array('title'=>'单号'),
-			'comment'=>array('title'=>'备注','td'=>'class="ellipsis"')
+			'sender_name'=>array('heading'=>'寄送人'),
+			'destination'=>array('heading'=>'寄送地点','cell'=>array('class'=>'ellipsis','title'=>'{destination}')),
+			'num'=>array('heading'=>'单号'),
+			'comment'=>array('heading'=>'备注','cell'=>array('class'=>'ellipsis'))
 		);
 		
 		$table=$this->table->setFields($field)

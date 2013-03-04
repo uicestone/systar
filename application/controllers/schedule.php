@@ -14,23 +14,21 @@ class Schedule extends SS_controller{
 		
 		$field_news=array(
 			'title'=>array(
-				'title'=>'公告 <a href="#news" style="font-size:14px">更多</a>',
-				'content'=>"
+				'heading'=>'公告 <a href="#news" style="font-size:14px">更多</a>',
+				'cell'=>"
 					\$return='{title}';
 					if('{time}'>\$this->config->item('timestamp')-86400*7){
 						\$return.=' <img src=\"images/new.gif\" alt=\"new\" />';
 					}
 					return \$return;
 				",
-				'eval'=>true,
-				'td'=>'hash="#news/edit/{id}"',
-				'orderby'=>false
+				'eval'=>true
 			),
 		);
 		
 		$table_news=$this->table->setFields($field_news)
+			->setRowAttributes(array('hash'=>'news/edit/{id}'))
 			->setData($this->news->getList(5))
-			->wrapBox(false)
 			->generate();
 		
 		$this->load->addViewData('table_news',$table_news);
@@ -64,29 +62,29 @@ class Schedule extends SS_controller{
 			$this->schedule->review($this->input->post('schedule_check'));
 		}
 		$field=array(
-			'checkbox'=>array('title'=>'<input type="checkbox" name="schedule_checkall">','content'=>'<input type="checkbox" name="schedule_check[{id}]" >','td_title'=>' width="38px"'),
+			'checkbox'=>array('heading'=>array('data'=>'<input type="checkbox" name="schedule_checkall">','width'=>'38px'),'cell'=>'<input type="checkbox" name="schedule_check[{id}]" >'),
 		
-			'case.id'=>array('title'=>'案件','content'=>'{case_name}<p style="font-size:11px;text-align:right;"><a href="#schedule/lists?case={case}">本案日志</a> <a href="#cases/edit/{case}">案件</a></p>'),
+			'case.id'=>array('heading'=>'案件','cell'=>'{case_name}<p style="font-size:11px;text-align:right;"><a href="#schedule/lists?case={case}">本案日志</a> <a href="#cases/edit/{case}">案件</a></p>'),
 		
-			'staff_name'=>array('title'=>'人员','content'=>'<a href="#schedule/list?staff={staff}"> {staff_name}</a>','td_title'=>'width="60px"'),
+			'staff_name'=>array('heading'=>'人员','cell'=>'<a href="#schedule/list?staff={staff}"> {staff_name}</a>','td_title'=>'width="60px"'),
 		
-			'name'=>array('title'=>'标题','eval'=>true,'content'=>"
+			'name'=>array('heading'=>'标题','eval'=>true,'cell'=>"
 				return '<a href=\"javascript:showWindow(\'schedule/edit/{id}\')\" title=\"{name}\">'.str_getSummary('{name}').'</a>';
 			"),
 		
-			'content'=>array('title'=>'内容','eval'=>true,'content'=>"
+			'content'=>array('heading'=>'内容','eval'=>true,'cell'=>"
 				return '<div title=\"{content}\">'.str_getSummary('{content}').'&nbsp;'.'</div>';
 			"),
 		
-			'schedule_experience'=>array('title'=>'心得','eval'=>true,'content'=>"
+			'schedule_experience'=>array('heading'=>'心得','eval'=>true,'cell'=>"
 				return ({review_permission}||\$this->user->id=='{staff}')?'<div title=\"{experience}\">'.str_getSummary('{experience}').'&nbsp;'.'</div>':'-';
 			"),
 		
-			'time_start'=>array('title'=>'时间','td_title'=>'width="60px"','eval'=>true,'content'=>"
+			'time_start'=>array('heading'=>'时间','td_title'=>'width="60px"','eval'=>true,'cell'=>"
 				return date('m-d H:i',{time_start});
 			"),
 		
-			'hours_own'=>array('title'=>'时长','td_title'=>'width="55px"','eval'=>true,'content'=>"
+			'hours_own'=>array('heading'=>'时长','td_title'=>'width="55px"','eval'=>true,'cell'=>"
 				if('{hours_checked}'==''){
 					return '<span class=\"hours_own'.({review_permission}?' editable':'').'\" id={id} name=\"hours\" title=\"自报：{hours_own}\">{hours_own}</span>';
 				}else{
@@ -94,7 +92,7 @@ class Schedule extends SS_controller{
 				}
 			"),
 		
-			'comment'=>array('title'=>'评语','eval'=>true,'content'=>"
+			'comment'=>array('heading'=>'评语','eval'=>true,'cell'=>"
 				if({review_permission}){
 					return '<textarea name=\"schedule_list_comment[{id}]\" style=\"width:95%;height:70%\">{comment}</textarea>';
 				}else{
@@ -116,11 +114,11 @@ class Schedule extends SS_controller{
 			$this->output->as_ajax=false;
 			
 			$field=array(
-				'name'=>array('title'=>'标题'),
-				'content'=>array('title'=>'内容'),
-				'time_start'=>array('title'=>'时间','eval'=>true,'content'=>"return date('m-d H:i',{time_start});"),
-				'hours_own'=>array('title'=>'自报小时'),
-				'staff_name'=>array('title'=>'律师')
+				'name'=>array('heading'=>'标题'),
+				'content'=>array('heading'=>'内容'),
+				'time_start'=>array('heading'=>'时间','eval'=>true,'cell'=>"return date('m-d H:i',{time_start});"),
+				'hours_own'=>array('heading'=>'自报小时'),
+				'staff_name'=>array('heading'=>'律师')
 			);
 			
 			$this->table->setFields($field)
@@ -130,8 +128,7 @@ class Schedule extends SS_controller{
 			$tableView=
 				$this->table
 					->setFields($field)
-					->setData($this->schedule->getList($method))->setMenu(($this->user->isLogged('partner')?'<input type="submit" name="review_selected" value="审核" />':'').'<button type="button" name="export-excel">导出</button>','left')
-					->wrapForm()
+					->setData($this->schedule->getList($method))
 					->generate();
 			$this->load->addViewData('list',$tableView);
 			$this->load->view('schedule/list');
@@ -164,13 +161,13 @@ class Schedule extends SS_controller{
 		
 		
 		$field=Array(
-			'staff_name'=>array('title'=>'人员','content'=>'<a href="#schedule/lists?staff={staff}"> {staff_name}</a>','td_title'=>'width="60px"'),
+			'staff_name'=>array('heading'=>'人员','cell'=>'<a href="#schedule/lists?staff={staff}"> {staff_name}</a>','td_title'=>'width="60px"'),
 		
-			'time_start'=>array('title'=>'时间','td_title'=>'width="60px"','eval'=>true,'content'=>"
+			'time_start'=>array('heading'=>'时间','td_title'=>'width="60px"','eval'=>true,'cell'=>"
 				return date('m-d H:i',{time_start});
 			"),
 		
-			'place'=>array('title'=>'外出地点','td_title'=>'width="25%"')
+			'place'=>array('heading'=>'外出地点','td_title'=>'width="25%"')
 		);
 		
 		$table=$this->table->setFields($field)
@@ -218,13 +215,12 @@ class Schedule extends SS_controller{
 		$chart_staffly_workhours_series=json_encode($chart_staffly_workhours_series,JSON_NUMERIC_CHECK);
 
 		$field=array(
-			'staff_name'=>array('title'=>'姓名'),
-			'sum'=>array('title'=>'总工作时间'),
-			'avg'=>array('title'=>'工作日平均')
+			'staff_name'=>array('heading'=>'姓名'),
+			'sum'=>array('heading'=>'总工作时间'),
+			'avg'=>array('heading'=>'工作日平均')
 		);
 		
 		$work_hour_stat=$this->table->setFields($field)
-				->wrapBox(false)
 				->generate($staffly_workhours);
 
 		$this->load->addViewArrayData(compact('chart_staffly_workhours_catogary','chart_staffly_workhours_series','work_hour_stat'));

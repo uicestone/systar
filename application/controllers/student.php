@@ -33,9 +33,9 @@ class Student extends SS_controller{
 		}
 		
 		$field=array(
-			'num'=>array('title'=>'学号','td'=>'id="{id}" '),
-			'student.name'=>array('title'=>'姓名','content'=>'<a href="/student/edit/{id}">{name}</a>'),
-			'student_num.class'=>array('title'=>'班级','content'=>'{class_name}')
+			'num'=>array('heading'=>'学号'),
+			'student.name'=>array('heading'=>'姓名','cell'=>'<a href="/student/edit/{id}">{name}</a>'),
+			'student_num.class'=>array('heading'=>'班级','cell'=>'{class_name}')
 		);
 
 		$list=$this->table->setFields($field)
@@ -71,48 +71,48 @@ class Student extends SS_controller{
 		$this->load->addViewArrayData(compact('student','student_class','class','student_extra'));
 		
 		$fields_student_relatives=array(
-			'checkbox'=>array('title'=>'<input type="submit" name="submit[student_relatives_delete]" value="删" />','content'=>'<input type="checkbox" name="student_relatives_check[{id}]" >','td_title'=>' width="25px"'),
-			'name'=>array('title'=>'姓名'),
-			'relation'=>array('title'=>'关系'),
-			'contact'=>array('title'=>'电话'),
-			'work_for'=>array('title'=>'单位')
+			'checkbox'=>array('heading'=>'<input type="submit" name="submit[student_relatives_delete]" value="删" />','cell'=>'<input type="checkbox" name="student_relatives_check[{id}]" >','td_title'=>' width="25px"'),
+			'name'=>array('heading'=>'姓名'),
+			'relation'=>array('heading'=>'关系'),
+			'contact'=>array('heading'=>'电话'),
+			'work_for'=>array('heading'=>'单位')
 		);
 		$relatives=$this->table->setFields($fields_student_relatives)
 			->generate($this->student->getRelativeList($this->student->id));
 		
 		$fields_student_behaviour=array(
-			'type'=>array('title'=>'类别','td_title'=>'width="10%"'),
-			'date'=>array('title'=>'日期'),
-			'name'=>array('title'=>'名称','td_title'=>'width="40%"','td'=>'title="{content}"'),
-			'level'=>array('title'=>'级别')
+			'type'=>array('heading'=>'类别','td_title'=>'width="10%"'),
+			'date'=>array('heading'=>'日期'),
+			'name'=>array('heading'=>array('data'=>'名称','width'=>'40%'),'cell'=>array('title'=>'{content}')),
+			'level'=>array('heading'=>'级别')
 		);
 		$behaviour=$this->table->setFields($fields_student_behaviour)
 			->generate($this->student->getBehaviourList($this->student->id));
 		
 		$fields_student_comment=array(
-			'title'=>array('title'=>'标题'),
-			'content'=>array('title'=>'内容','td_title'=>'width="60%"'),
-			'username'=>array('title'=>'留言人'),
-			'time'=>array('title'=>'时间')
+			'title'=>array('heading'=>'标题'),
+			'cell'=>array('heading'=>'内容','td_title'=>'width="60%"'),
+			'username'=>array('heading'=>'留言人'),
+			'time'=>array('heading'=>'时间')
 		);
 		$comments=$this->table->setFields($fields_student_comment)
 				->generate($this->student->getCommentList($this->student->id));
 		
 		$fields_scores=array(
-			'exam_name'=>array('title'=>'考试'),
-			'course_1'=>array('title'=>'语文','content'=>'{course_1}<span class="rank">{rank_1}</span>'),
-			'course_2'=>array('title'=>'数学','content'=>'{course_2}<span class="rank">{rank_2}</span>'),
-			'course_3'=>array('title'=>'英语','content'=>'{course_3}<span class="rank">{rank_3}</span>'),
-			'course_4'=>array('title'=>'物理','content'=>'{course_4}<span class="rank">{rank_4}</span>'),
-			'course_5'=>array('title'=>'化学','content'=>'{course_5}<span class="rank">{rank_5}</span>'),
-			'course_6'=>array('title'=>'生物','content'=>'{course_6}<span class="rank">{rank_6}</span>'),
-			'course_7'=>array('title'=>'地理','content'=>'{course_7}<span class="rank">{rank_7}</span>'),
-			'course_8'=>array('title'=>'历史','content'=>'{course_8}<span class="rank">{rank_8}</span>'),
-			'course_9'=>array('title'=>'政治','content'=>'{course_9}<span class="rank">{rank_9}</span>'),
-			'course_10'=>array('title'=>'信息','content'=>'{course_10}<span class="rank">{rank_10}</span>'),
-			'course_sum_3'=>array('title'=>'3总','content'=>'{course_sum_3}<span class="rank">{rank_sum_3}</span>'),
-			'course_sum_5'=>array('title'=>'4总/5总','content'=>'{course_sum_5}<span class="rank">{rank_sum_5}</span>'),
-			'course_sum_8'=>array('title'=>'8总','content'=>'{course_sum_8}<span class="rank">{rank_sum_8}</span>')
+			'exam_name'=>array('heading'=>'考试'),
+			'course_1'=>array('heading'=>'语文','cell'=>'{course_1}<span class="rank">{rank_1}</span>'),
+			'course_2'=>array('heading'=>'数学','cell'=>'{course_2}<span class="rank">{rank_2}</span>'),
+			'course_3'=>array('heading'=>'英语','cell'=>'{course_3}<span class="rank">{rank_3}</span>'),
+			'course_4'=>array('heading'=>'物理','cell'=>'{course_4}<span class="rank">{rank_4}</span>'),
+			'course_5'=>array('heading'=>'化学','cell'=>'{course_5}<span class="rank">{rank_5}</span>'),
+			'course_6'=>array('heading'=>'生物','cell'=>'{course_6}<span class="rank">{rank_6}</span>'),
+			'course_7'=>array('heading'=>'地理','cell'=>'{course_7}<span class="rank">{rank_7}</span>'),
+			'course_8'=>array('heading'=>'历史','cell'=>'{course_8}<span class="rank">{rank_8}</span>'),
+			'course_9'=>array('heading'=>'政治','cell'=>'{course_9}<span class="rank">{rank_9}</span>'),
+			'course_10'=>array('heading'=>'信息','cell'=>'{course_10}<span class="rank">{rank_10}</span>'),
+			'course_sum_3'=>array('heading'=>'3总','cell'=>'{course_sum_3}<span class="rank">{rank_sum_3}</span>'),
+			'course_sum_5'=>array('heading'=>'4总/5总','cell'=>'{course_sum_5}<span class="rank">{rank_sum_5}</span>'),
+			'course_sum_8'=>array('heading'=>'8总','cell'=>'{course_sum_8}<span class="rank">{rank_sum_8}</span>')
 		);
 		$scores=$this->table->setFields($fields_scores)
 				->trimColumns()
@@ -345,11 +345,11 @@ class Student extends SS_controller{
 			$list_locator=$this->processMultiPage($q);
 			
 			$field=array(
-				'name'=>array('title'=>'姓名'),
-				'gender'=>array('title'=>'性别'),
-				'course_1'=>array('title'=>'语文'),
-				'course_2'=>array('title'=>'数学'),
-				'course_3'=>array('title'=>'英语')
+				'name'=>array('heading'=>'姓名'),
+				'gender'=>array('heading'=>'性别'),
+				'course_1'=>array('heading'=>'语文'),
+				'course_2'=>array('heading'=>'数学'),
+				'course_3'=>array('heading'=>'英语')
 			);
 			
 			$menu=array('head'=>'<div class="right">'.$list_locator.'</div>');
@@ -390,14 +390,13 @@ class Student extends SS_controller{
 		}
 		
 		$field=array(
-			'date'=>array('title'=>'日期','td_title'=>'width="100px"'),
-			'username'=>array('title'=>'用户','td_title'=>'width="120px"'),
-			'student_name'=>array('title'=>'学生','td_title'=>'width="60px"','wrap'=>array('mark'=>'a','href'=>'student?edit={student}')),
-			'title'=>array('title'=>'标题','td_title'=>'width="120px"','td'=>'class="ellipsis" title="{title}"'),
-			'content'=>array('title'=>'内容','td'=>'class="ellipsis" title="{content}"')
+			'date'=>array('heading'=>'日期','td_title'=>'width="100px"'),
+			'username'=>array('heading'=>'用户','td_title'=>'width="120px"'),
+			'student_name'=>array('heading'=>'学生','td_title'=>'width="60px"','wrap'=>array('mark'=>'a','href'=>'student?edit={student}')),
+			'title'=>array('heading'=>array('data'=>'标题','width'=>'120px'),'cell'=>array('class'=>'ellipsis','title'=>'{title}')),
+			'content'=>array('heading'=>'内容','cell'=>array('class'=>'ellipsis','title'=>'{content}'))
 		);
 		$list=$this->table->setFields($field)
-			->setMenu(template('student/interactive_send'),'center','foot')
 			->setData($this->student->getInteractiveList())
 			->generate();
 		$this->load->addViewData('list', $list);
@@ -445,20 +444,20 @@ class Student extends SS_controller{
 		$this->load->addViewArrayData(compact('series','category'));
 		
 		$fields_scores=array(
-			'exam_name'=>array('title'=>'考试'),
-			'course_1'=>array('title'=>'语文','content'=>'{course_1}<span class="rank">{rank_1}</span>'),
-			'course_2'=>array('title'=>'数学','content'=>'{course_2}<span class="rank">{rank_2}</span>'),
-			'course_3'=>array('title'=>'英语','content'=>'{course_3}<span class="rank">{rank_3}</span>'),
-			'course_4'=>array('title'=>'物理','content'=>'{course_4}<span class="rank">{rank_4}</span>'),
-			'course_5'=>array('title'=>'化学','content'=>'{course_5}<span class="rank">{rank_5}</span>'),
-			'course_6'=>array('title'=>'生物','content'=>'{course_6}<span class="rank">{rank_6}</span>'),
-			'course_7'=>array('title'=>'地理','content'=>'{course_7}<span class="rank">{rank_7}</span>'),
-			'course_8'=>array('title'=>'历史','content'=>'{course_8}<span class="rank">{rank_8}</span>'),
-			'course_9'=>array('title'=>'政治','content'=>'{course_9}<span class="rank">{rank_9}</span>'),
-			'course_10'=>array('title'=>'信息','content'=>'{course_10}<span class="rank">{rank_10}</span>'),
-			'course_sum_3'=>array('title'=>'3总','content'=>'{course_sum_3}<span class="rank">{rank_sum_3}</span>'),
-			'course_sum_5'=>array('title'=>'4总/5总','content'=>'{course_sum_5}<span class="rank">{rank_sum_5}</span>'),
-			'course_sum_8'=>array('title'=>'8总','content'=>'{course_sum_8}<span class="rank">{rank_sum_8}</span>')
+			'exam_name'=>array('heading'=>'考试'),
+			'course_1'=>array('heading'=>'语文','cell'=>'{course_1}<span class="rank">{rank_1}</span>'),
+			'course_2'=>array('heading'=>'数学','cell'=>'{course_2}<span class="rank">{rank_2}</span>'),
+			'course_3'=>array('heading'=>'英语','cell'=>'{course_3}<span class="rank">{rank_3}</span>'),
+			'course_4'=>array('heading'=>'物理','cell'=>'{course_4}<span class="rank">{rank_4}</span>'),
+			'course_5'=>array('heading'=>'化学','cell'=>'{course_5}<span class="rank">{rank_5}</span>'),
+			'course_6'=>array('heading'=>'生物','cell'=>'{course_6}<span class="rank">{rank_6}</span>'),
+			'course_7'=>array('heading'=>'地理','cell'=>'{course_7}<span class="rank">{rank_7}</span>'),
+			'course_8'=>array('heading'=>'历史','cell'=>'{course_8}<span class="rank">{rank_8}</span>'),
+			'course_9'=>array('heading'=>'政治','cell'=>'{course_9}<span class="rank">{rank_9}</span>'),
+			'course_10'=>array('heading'=>'信息','cell'=>'{course_10}<span class="rank">{rank_10}</span>'),
+			'course_sum_3'=>array('heading'=>'3总','cell'=>'{course_sum_3}<span class="rank">{rank_sum_3}</span>'),
+			'course_sum_5'=>array('heading'=>'4总/5总','cell'=>'{course_sum_5}<span class="rank">{rank_sum_5}</span>'),
+			'course_sum_8'=>array('heading'=>'8总','cell'=>'{course_sum_8}<span class="rank">{rank_sum_8}</span>')
 		);
 
 		$scores=$this->table->setFields($fields_scores)

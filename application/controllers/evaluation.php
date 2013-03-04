@@ -8,8 +8,8 @@ class Evaluation extends SS_controller{
 	function staffList(){
 
 		$field=array(
-			'name'=>array('title'=>'姓名','wrap'=>array('mark'=>'a','href'=>'javascript:showWindow(\'evaluation/score/{id}\')')),
-			'position.id'=>array('title'=>'职位','content'=>'{position_name}')
+			'name'=>array('heading'=>'姓名','wrap'=>array('mark'=>'a','href'=>'javascript:showWindow(\'evaluation/score/{id}\')')),
+			'position.id'=>array('heading'=>'职位','cell'=>'{position_name}')
 		);
 		
 		$table=$this->table->setFields($field)
@@ -21,9 +21,9 @@ class Evaluation extends SS_controller{
 	
 	function comment(){
 		$field=array(
-			'name'=>array('title'=>'评分项','content'=>'{name}({weight})'),
-			'comment'=>array('title'=>'附言'),
-			'staff_name'=>array('title'=>'评分人','content'=>'{staff_name}({position_name})')
+			'name'=>array('heading'=>'评分项','cell'=>'{name}({weight})'),
+			'comment'=>array('heading'=>'附言'),
+			'staff_name'=>array('heading'=>'评分人','cell'=>'{staff_name}({position_name})')
 		);
 		
 		$table=$this->table->setFields($field)
@@ -53,10 +53,10 @@ class Evaluation extends SS_controller{
 	 */
 	function result(){
 		$field=array(
-			'staff_name'=>array('title'=>'姓名'),
-			'each_other'=>array('title'=>'互评','content'=>'{each_other}({critics})'),
-			'self'=>array('title'=>'自评'),
-			'manager'=>array('title'=>'主管评分')
+			'staff_name'=>array('heading'=>'姓名'),
+			'each_other'=>array('heading'=>'互评','cell'=>'{each_other}({critics})'),
+			'self'=>array('heading'=>'自评'),
+			'manager'=>array('heading'=>'主管评分')
 		);
 
 		$table=$this->table->setFields($field)
@@ -91,15 +91,15 @@ class Evaluation extends SS_controller{
 		$staff_id=intval($staff_id);
 		
 		$field=array(
-			'name'=>array('title'=>'考核指标','td'=>'id="{id}"','content'=>'{name}({weight})','td_title'=>'width="20%"'),
-			'score'=>array('title'=>'分数','td_title'=>'width="70px"','eval'=>true,'content'=>"
+			'name'=>array('heading'=>array('data'=>'考核指标','width'=>'20%'),'cell'=>array('data'=>'{name}({weight})')),
+			'score'=>array('heading'=>array('data'=>'分数','width'=>'70px'),'eval'=>true,'cell'=>"
 				if('{score}'==0){
 					return '<input type=\"text\" style=\"width:50px;\" />';
 				}else{
 					return '<span>{score}</span>';
 				}
 			"),
-			'comment'=>array('title'=>'附言','eval'=>true,'content'=>"
+			'comment'=>array('heading'=>'附言','eval'=>true,'cell'=>"
 				if(!'{comment}'){
 					return '<input type=\"text\" />';
 				}else{
@@ -110,16 +110,11 @@ class Evaluation extends SS_controller{
 		
 		$table=$this->table->setFields($field);
 			
-		
-		if(!is_logged('manager')){
-			$table=$table->setMenu('<button type="button" name="imfeelinglucky">手气不错</button>','left');
-		}
-		
 		$table=$table->setData($this->evaluation->getIndicatorList($staff_id))
 			->generate();
 		
 		$this->load->addViewData('list', $table);
-		$this->load->view('list');
+		$this->load->view('evaluation/score');
 	}
 }
 ?>

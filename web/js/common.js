@@ -40,6 +40,10 @@ $(window).on('hashchange',function(){
 				$.locationHash(response.data);
 				return;
 			}
+			
+			if(response.status==='fail'){
+				return;
+			}
 	
 			$('<section hash="'+hash+'" time-access="'+$.now()+'"></section>').appendTo(page);
 			$('<section for="'+hash+'"></section>').appendTo(aside);
@@ -141,10 +145,9 @@ $(document).ready(function(){
 		});
 		
 		section.on('contenttableload','.contentTable',function(){
-			$(this).children('tbody').children('tr:has(td:first[hash])')
-				.css({cursor:'pointer'})
+			$(this).children('tbody').children('tr[hash]')
 				.on('click',function(){
-					$.locationHash($(this).children('td:first').attr('hash'));
+					$.locationHash($(this).attr('hash'));
 				})
 				.find('a, :input')
 					.on('click',function(){

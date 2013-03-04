@@ -19,7 +19,7 @@ class News_model extends SS_Model{
 		$q="SELECT * FROM news WHERE display=1 AND company={$this->company->id}";
 		
 		if(is_null($rows)){
-			$q=$this->search($q,array('title'=>'标题'));		    
+			$q=$this->search($q,array('heading'=>'标题'));		    
 		}
 		$q=$this->orderby($q,'time','DESC');
 		if(is_null($rows)){

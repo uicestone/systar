@@ -11,11 +11,11 @@ class Excel extends SS_controller{
 	function index(){
 		$this->load->model('schedule_model','schedule');
 		$field=array(
-			'name'=>array('title'=>'标题'),
-			'content'=>array('title'=>'内容'),
-			'time_start'=>array('title'=>'时间','eval'=>true,'content'=>"return date('m-d H:i',{time_start});"),
-			'hours_own'=>array('title'=>'自报小时'),
-			'staff_name'=>array('title'=>'律师')
+			'name'=>array('heading'=>'标题'),
+			'content'=>array('heading'=>'内容'),
+			'time_start'=>array('heading'=>'时间','eval'=>true,'cell'=>"return date('m-d H:i',{time_start});"),
+			'hours_own'=>array('heading'=>'自报小时'),
+			'staff_name'=>array('heading'=>'律师')
 		);
 		$this->table->setFields($field)
 			->setData($this->schedule->getList())

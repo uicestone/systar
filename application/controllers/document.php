@@ -59,11 +59,11 @@ class Document extends SS_controller{
 			$_SESSION['document']['upID']='';
 		$field=option('in_search_mod')?
 			array(
-				'checkbox'=>array('title'=>'','content'=>'<input type="checkbox" name="document[{id}]" >','td_title'=>'width="38px"'),
+				'checkbox'=>array('heading'=>'','cell'=>'<input type="checkbox" name="document[{id}]" >','td_title'=>'width="38px"'),
 				'type'=>array(
 					'title'=>'类型',
 					'eval'=>true,
-					'content'=>"
+					'cell'=>"
 						if('{type}'==''){
 							\$image='folder';
 						}elseif(is_file('web/images/file_type/{type}.png')){
@@ -75,16 +75,16 @@ class Document extends SS_controller{
 					",
 					'td_title'=>'width="70px"'
 				),
-				'name'=>array('title'=>'文件名','td_title'=>'width="150px"','wrap'=>array('mark'=>'a','href'=>'/document/view/{id}')),
-				'path'=>array('title'=>'路径'),'comment'=>array('title'=>'备注')
+				'name'=>array('heading'=>'文件名','td_title'=>'width="150px"','wrap'=>array('mark'=>'a','href'=>'/document/view/{id}')),
+				'path'=>array('heading'=>'路径'),'comment'=>array('heading'=>'备注')
 			)
 			:
 			array(
-				'checkbox'=>array('title'=>'','content'=>'<input type="checkbox" name="document[{id}]" >','td_title'=>' width="38px"'),
+				'checkbox'=>array('heading'=>'','cell'=>'<input type="checkbox" name="document[{id}]" >','td_title'=>' width="38px"'),
 				'type'=>array(
 					'title'=>'类型',
 					'eval'=>true,
-					'content'=>"
+					'cell'=>"
 						if('{type}'==''){
 							\$image='folder';
 						}elseif(is_file('images/file_type/{type}.png')){
@@ -96,14 +96,11 @@ class Document extends SS_controller{
 					",
 					'td_title'=>'width="55px"'
 				),
-				'name'=>array('title'=>'文件名','td_title'=>'width="150px"','wrap'=>array('mark'=>'a','href'=>'/document/view/{id}')),
-				'username'=>array('title'=>'上传者','td_title'=>'width="70px"'),
-				'comment'=>array('title'=>'备注')
+				'name'=>array('heading'=>'文件名','td_title'=>'width="150px"','wrap'=>array('mark'=>'a','href'=>'/document/view/{id}')),
+				'username'=>array('heading'=>'上传者','td_title'=>'width="70px"'),
+				'comment'=>array('heading'=>'备注')
 			);
 		$table=$this->table->setFields($field)
-			->setMenu('<input type="submit" name="fav" value="收藏" />'.
-					($_SESSION['document']['currentDirID']>1?'<button type="button" onclick="location.href=\'/document/view/0\'">顶级</button><button type="button" onclick="location.href=\'/document/view/'.$_SESSION['document']['upID'].'\'">上级</button>':'').
-					(option('in_search_mod')?'':$_SESSION['document']['currentPath']),'left')
 			->setData($this->document->getList())
 			->generate();
 		$this->load->addViewData('list',$table);

@@ -12,16 +12,16 @@ class Staff extends SS_controller{
 		}
 		if($this->company->type=='school'){
 			$field=array(
-				'id'=>array('title'=>'姓名','content'=>'{name}'),
-				'course_name'=>array('title'=>'学科'),
-				'status'=>array('title'=>'职称')
+				'id'=>array('heading'=>'姓名','cell'=>'{name}'),
+				'course_name'=>array('heading'=>'学科'),
+				'status'=>array('heading'=>'职称')
 			);
 		}else{
 			$field=array(
-				'id'=>array('title'=>'姓名','content'=>'{name}'),
-				'position_name'=>array('title'=>'职位','content'=>'{position_name}'),
-				'modulus'=>array('title'=>'团奖系数'),
-				'timing_fee_default'=>array('title'=>'默认小时费率')
+				'id'=>array('heading'=>'姓名','cell'=>'{name}'),
+				'position_name'=>array('heading'=>'职位','cell'=>'{position_name}'),
+				'modulus'=>array('heading'=>'团奖系数'),
+				'timing_fee_default'=>array('heading'=>'默认小时费率')
 			);
 		}
 		$table=$this->table->setFields($field)

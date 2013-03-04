@@ -6,11 +6,11 @@ class News extends SS_controller{
 	
 	function lists(){
 		$field=array(
-			'time'=>array('title'=>'日期','td_title'=>'width="80px"','eval'=>true,'content'=>"
+			'time'=>array('heading'=>'日期','td_title'=>'width="80px"','eval'=>true,'cell'=>"
 				return date('m-d',{time});
 			"),
-			'title'=>array('title'=>'标题','content'=>'<a href="javascript:showWindow(\'news/edit/{id}\')">{title}</a>'),
-			'username'=>array('title'=>'发布人')
+			'title'=>array('heading'=>'标题','cell'=>'<a href="javascript:showWindow(\'news/edit/{id}\')">{title}</a>'),
+			'username'=>array('heading'=>'发布人')
 		);
 		
 		$list=$this->table->setField($field)

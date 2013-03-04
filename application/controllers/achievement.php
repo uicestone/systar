@@ -8,14 +8,14 @@ class Achievement extends SS_controller{
 	function mine(){
 
 		$field=array(
-			'case_name'=>array('title'=>'案件','td_title'=>'width="25%"','content'=>'<a href="/cases/edit/{case}" class="right" style="margin-left:10px;">查看</a>{case_name}'),
-			'client_name'=>array('title'=>'客户'),
-			'account_time'=>array('title'=>'到账时间','td_title'=>'width="100px"'),
-			'filed_time'=>array('title'=>'归档时间','td_title'=>'width="100px"'),
-			'amount'=>array('title'=>'创收','td_title'=>'width="100px"'),
-			'contribution'=>array('title'=>'贡献'),
-			'bonus'=>array('title'=>'奖金'),
-			'role'=>array('title'=>'角色')
+			'case_name'=>array('heading'=>'案件','td_title'=>'width="25%"','cell'=>'<a href="/cases/edit/{case}" class="right" style="margin-left:10px;">查看</a>{case_name}'),
+			'client_name'=>array('heading'=>'客户'),
+			'account_time'=>array('heading'=>'到账时间','td_title'=>'width="100px"'),
+			'filed_time'=>array('heading'=>'归档时间','td_title'=>'width="100px"'),
+			'amount'=>array('heading'=>'创收','td_title'=>'width="100px"'),
+			'contribution'=>array('heading'=>'贡献'),
+			'bonus'=>array('heading'=>'奖金'),
+			'role'=>array('heading'=>'角色')
 		);
 		$month_start_timestamp=strtotime(date('Y-m',$this->config->item('timestamp')).'-1');
 		$month_end_timestamp=mktime(0,0,0,date('m',$this->config->item('timestamp'))+1,1,date('Y',$this->config->item('timestamp')));
@@ -77,13 +77,13 @@ class Achievement extends SS_controller{
 		
 		
 		$field=array(
-			'type'=>array('title'=>'类别','td_title'=>'width="85px"'),
-			'case_name'=>array('title'=>'案件','td_title'=>'width="25%"','content'=>'<a href="/cases/edit/{case}" class="right" style="margin-left:10px;">查看</a>{case_name}'),
-			'lawyers'=>array('title'=>'主办律师'),
-			'fee'=>array('title'=>'预估','td_title'=>'width="100px"'),
-			'pay_time'=>array('title'=>'时间','td_title'=>'width="100px"'),
-			'uncollected'=>array('title'=>'未收','td_title'=>'width="100px"'),
-			'clients'=>array('title'=>'客户')
+			'type'=>array('heading'=>'类别','td_title'=>'width="85px"'),
+			'case_name'=>array('heading'=>'案件','td_title'=>'width="25%"','cell'=>'<a href="/cases/edit/{case}" class="right" style="margin-left:10px;">查看</a>{case_name}'),
+			'lawyers'=>array('heading'=>'主办律师'),
+			'fee'=>array('heading'=>'预估','td_title'=>'width="100px"'),
+			'pay_time'=>array('heading'=>'时间','td_title'=>'width="100px"'),
+			'uncollected'=>array('heading'=>'未收','td_title'=>'width="100px"'),
+			'clients'=>array('heading'=>'客户')
 		);
 		
 		$table=$this->table->setFields($field)
@@ -103,9 +103,9 @@ class Achievement extends SS_controller{
 	function caseBonus(){
 		
 		$field=array(
-			'staff_name'=>array('title'=>'人员'),
-			'contribute_sum'=>array('title'=>'合计贡献'),
-			'bonus_sum'=>array('title'=>'合计奖金')
+			'staff_name'=>array('heading'=>'人员'),
+			'contribute_sum'=>array('heading'=>'合计贡献'),
+			'bonus_sum'=>array('heading'=>'合计奖金')
 		);
 		
 		$table=$this->table->setFields($field)
@@ -123,8 +123,8 @@ class Achievement extends SS_controller{
 		
 		
 		$field=array(
-			'staff_name'=>array('title'=>'人员'),
-			'bonus_sum'=>array('title'=>'团奖')
+			'staff_name'=>array('heading'=>'人员'),
+			'bonus_sum'=>array('heading'=>'团奖')
 		);
 		
 		

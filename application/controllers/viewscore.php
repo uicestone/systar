@@ -7,20 +7,20 @@ class ViewScore extends SS_controller{
 	
 	function lists(){
 		$field=array(
-			'class'=>array('title'=>'班级','td_title'=>'width="90px"','content'=>'{class_name}'),
-			'name'=>array('title'=>'学生','content'=>'{name}','td_title'=>'width="50px"'),
-			'course_1'=>array('title'=>'语文','content'=>'{course_1}<br /><span class="rank">{rank_1}</span>'),
-			'course_2'=>array('title'=>'数学','content'=>'{course_2}<br /><span class="rank">{rank_2}</span>'),
-			'course_3'=>array('title'=>'英语','content'=>'{course_3}<br /><span class="rank">{rank_3}</span>'),
-			'course_4'=>array('title'=>'物理','content'=>'{course_4}<br /><span class="rank">{rank_4}</span>'),
-			'course_5'=>array('title'=>'化学','content'=>'{course_5}<br /><span class="rank">{rank_5}</span>'),
-			'course_6'=>array('title'=>'生物','content'=>'{course_6}<br /><span class="rank">{rank_6}</span>'),
-			'course_8'=>array('title'=>'历史','content'=>'{course_8}<br /><span class="rank">{rank_8}</span>'),
-			'course_7'=>array('title'=>'地理','content'=>'{course_7}<br /><span class="rank">{rank_7}</span>'),
-			'course_9'=>array('title'=>'政治','content'=>'{course_9}<br /><span class="rank">{rank_9}</span>'),
-			'course_10'=>array('title'=>'信息','content'=>'{course_10}<br /><span class="rank">{rank_10}</span>'),
-			'course_sum_3'=>array('title'=>'3总','content'=>'{course_sum_3}<br /><span class="rank">{rank_sum_3}</span>'),
-			'course_sum_5'=>array('title'=>'5总','content'=>'{course_sum_5}<br /><span class="rank">{rank_sum_5}</span>')
+			'class'=>array('heading'=>'班级','td_title'=>'width="90px"','cell'=>'{class_name}'),
+			'name'=>array('heading'=>'学生','cell'=>'{name}','td_title'=>'width="50px"'),
+			'course_1'=>array('heading'=>'语文','cell'=>'{course_1}<br /><span class="rank">{rank_1}</span>'),
+			'course_2'=>array('heading'=>'数学','cell'=>'{course_2}<br /><span class="rank">{rank_2}</span>'),
+			'course_3'=>array('heading'=>'英语','cell'=>'{course_3}<br /><span class="rank">{rank_3}</span>'),
+			'course_4'=>array('heading'=>'物理','cell'=>'{course_4}<br /><span class="rank">{rank_4}</span>'),
+			'course_5'=>array('heading'=>'化学','cell'=>'{course_5}<br /><span class="rank">{rank_5}</span>'),
+			'course_6'=>array('heading'=>'生物','cell'=>'{course_6}<br /><span class="rank">{rank_6}</span>'),
+			'course_8'=>array('heading'=>'历史','cell'=>'{course_8}<br /><span class="rank">{rank_8}</span>'),
+			'course_7'=>array('heading'=>'地理','cell'=>'{course_7}<br /><span class="rank">{rank_7}</span>'),
+			'course_9'=>array('heading'=>'政治','cell'=>'{course_9}<br /><span class="rank">{rank_9}</span>'),
+			'course_10'=>array('heading'=>'信息','cell'=>'{course_10}<br /><span class="rank">{rank_10}</span>'),
+			'course_sum_3'=>array('heading'=>'3总','cell'=>'{course_sum_3}<br /><span class="rank">{rank_sum_3}</span>'),
+			'course_sum_5'=>array('heading'=>'5总','cell'=>'{course_sum_5}<br /><span class="rank">{rank_sum_5}</span>')
 		);
 		$list=$this->table->setFields($field)
 			->trimColumns()
@@ -28,23 +28,22 @@ class ViewScore extends SS_controller{
 		$this->load->addViewData('list', $list);
 		
 		$field_avg=array(
-			'id'=>array('title'=>'','td_title'=>'width="154px"','content'=>'平均分'),
-			'course_1'=>array('title'=>''),
-			'course_2'=>array('title'=>''),
-			'course_3'=>array('title'=>''),
-			'course_4'=>array('title'=>''),
-			'course_5'=>array('title'=>''),
-			'course_6'=>array('title'=>''),
-			'course_8'=>array('title'=>''),
-			'course_7'=>array('title'=>''),
-			'course_9'=>array('title'=>''),
-			'course_10'=>array('title'=>''),
-			'course_sum_3'=>array('title'=>''),
-			'course_sum_5'=>array('title'=>'')
+			'id'=>array('heading'=>'','td_title'=>'width="154px"','cell'=>'平均分'),
+			'course_1'=>array('heading'=>''),
+			'course_2'=>array('heading'=>''),
+			'course_3'=>array('heading'=>''),
+			'course_4'=>array('heading'=>''),
+			'course_5'=>array('heading'=>''),
+			'course_6'=>array('heading'=>''),
+			'course_8'=>array('heading'=>''),
+			'course_7'=>array('heading'=>''),
+			'course_9'=>array('heading'=>''),
+			'course_10'=>array('heading'=>''),
+			'course_sum_3'=>array('heading'=>''),
+			'course_sum_5'=>array('heading'=>'')
 		);
 		$avg=$this->table->setFields($field_avg)
 			->trimColumns()
-			->wrapBox(false)
 			->generate($this->score->getAvg());
 		$this->load->addViewData('avg', $avg);
 		
@@ -249,7 +248,7 @@ class ViewScore extends SS_controller{
 		$this->processOrderby($q,'student_num');
 		
 		$field=array(
-			'type'=>array('title'=>'分类','td_title'=>'width=112px'),
+			'type'=>array('heading'=>'分类','td_title'=>'width=112px'),
 			'amount'=>'人数',
 			'course_1'=>'语文',
 			'course_2'=>'数学',
@@ -295,7 +294,7 @@ class ViewScore extends SS_controller{
 		$this->processOrderby($q_sum_3,'class');
 		
 		$field=array(
-			'class'=>array('title'=>'班级','td_title'=>'width=112px','content'=>'{class_name}'),
+			'class'=>array('heading'=>'班级','td_title'=>'width=112px','cell'=>'{class_name}'),
 			'top_50'=>'1~50',
 			'top_100'=>'51~100',
 			'top_200'=>'101~200',
