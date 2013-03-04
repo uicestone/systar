@@ -11,7 +11,7 @@ class SS_Model extends CI_Model{
 		$row=array();
 		
 		if(is_null($query)){
-			$row=$this->db->get_where($this->table,array('id'=>$id,'display'=>true,'company'=>$this->company->id))->row_array();
+			$row=$this->db->get_where($this->table,array('id'=>$id,'company'=>$this->company->id))->row_array();
 		}
 		else{
 			$row=$this->db->query($query)->row_array();

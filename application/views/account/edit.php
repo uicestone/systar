@@ -10,7 +10,7 @@
 
 	<div class="item" name="related">
 		<div class="title"><label>关联：</label></div>
-		<?if($case_client_array){?>
+		<?if(isset($case_client_array)){?>
 		<select name="account[people]">
 			<?=options($case_client_array, $this->value('account/people'), '客户', true)?>
 		</select>

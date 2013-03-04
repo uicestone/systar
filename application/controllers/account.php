@@ -11,7 +11,7 @@ class Account extends SS_controller{
 		$field=array(
 			'date'=>array('heading'=>'日期'),
 			'name'=>array('heading'=>'名目'),
-			'type'=>array('heading'=>'方向','eval'=>true,'cell'=>array(
+			'type'=>array('heading'=>array('data'=>'方向','width'=>'45px'),'eval'=>true,'cell'=>array(
 				'data'=>"
 					if({amount}>0){
 						return '<span style=\"color:#0F0\"><<</span>';
