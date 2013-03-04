@@ -534,7 +534,7 @@ jQuery.fn.setBlock=function(response){
 jQuery.closeTab=function(hash){
 	tabs.children('li[for="'+hash+'"]').remove();
 	page.children('section[hash="'+hash+'"]').remove();
-	aside.children('section[[for="'+hash+'"]]').remove();
+	aside.children('section[for="'+hash+'"]').remove();
 
 	var lastAccessedHash;
 	var lastAccessTime=0;
