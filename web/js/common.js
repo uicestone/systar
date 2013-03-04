@@ -215,7 +215,7 @@ $(document).ready(function(){
 	aside.on('sidebarload','section',function(){
 		var section=$(this);
 		/*边栏提交按钮的点击事件*/
-		section.on('click','input:submit',function(){
+		section.on('click','button:submit',function(){
 
 			$.post($(this).closest('section').attr('for'),$(this).closest('form').serialize()+'&submit='+$(this).attr('name'),function(response){
 				$(document).setBlock(response);
