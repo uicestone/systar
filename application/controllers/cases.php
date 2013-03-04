@@ -25,7 +25,7 @@ class Cases extends SS_controller{
 		$this->lists('review');
 	}
 	
-	function lists($para=NULL){echo '1';
+	function lists($para=NULL){
 		$this->output->setData('案件', 'name');
 
 		$field=array(
