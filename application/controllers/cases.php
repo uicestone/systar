@@ -50,8 +50,8 @@ class Cases extends SS_controller{
 			$field=array(
 				'time_contract'=>array('heading'=>array('data'=>'案号','width'=>'140px'),'cell'=>array('data'=>'{num}','title'=>'立案时间：{time_contract}')),
 				'name'=>array('heading'=>'案名','cell'=>'{name}'),
-				'lawyers'=>array('heading'=>'主办律师','td_title'=>'width="100px"'),
-				'is_reviewed'=>array('heading'=>'状态','td_title'=>'width="75px"','eval'=>true,'cell'=>"
+				'lawyers'=>array('heading'=>array('data'=>'主办律师','width'=>'100px')),
+				'is_reviewed'=>array('heading'=>array('data'=>'状态','width'=>'75px'),'eval'=>true,'cell'=>"
 					return \$this->cases->getStatus('{is_reviewed}','{locked}',{apply_file},{is_query},{finance_review},{info_review},{manager_review},{filed},'{contribute_sum}','{uncollected}').' {status}';
 				")
 			);
@@ -170,11 +170,11 @@ class Cases extends SS_controller{
 		}
 		elseif($item=='schedule'){
 			$fields=array(
-				'name'=>array('heading'=>'标题','td_title'=>'width="150px"','wrap'=>array('mark'=>'span','class'=>'show-schedule','id'=>'{id}')),
-				'time_start'=>array('heading'=>'时间','td_title'=>'width="60px"','eval'=>true,'cell'=>"
+				'name'=>array('heading'=>array('data'=>'标题','width'=>'150px'),'wrap'=>array('mark'=>'span','class'=>'show-schedule','id'=>'{id}')),
+				'time_start'=>array('heading'=>array('data'=>'时间','width'=>'60px'),'eval'=>true,'cell'=>"
 					return date('m-d H:i',{time_start});
 				"),
-				'username'=>array('heading'=>'填写人','td_title'=>'width="90px"')
+				'username'=>array('heading'=>array('data'=>'填写人','width'=>'90px'))
 			);
 			$list=$this->table->setFields($fields)
 					->setAttribute('name',$item)
@@ -182,11 +182,11 @@ class Cases extends SS_controller{
 		}
 		elseif($item=='plan'){
 			$fields=array(
-				'name'=>array('heading'=>'标题','td_title'=>'width="150px"','wrap'=>array('mark'=>'span','class'=>'show-schedule','id'=>'{id}')),
-				'time_start'=>array('heading'=>'时间','td_title'=>'width="60px"','eval'=>true,'cell'=>"
+				'name'=>array('heading'=>array('data'=>'标题','width'=>'150px'),'wrap'=>array('mark'=>'span','class'=>'show-schedule','id'=>'{id}')),
+				'time_start'=>array('heading'=>array('data'=>'时间','width'=>'60px'),'eval'=>true,'cell'=>"
 					return date('m-d H:i',{time_start});
 				"),
-				'username'=>array('heading'=>'填写人','td_title'=>'width="90px"')
+				'username'=>array('heading'=>array('data'=>'填写人','width'=>'90px'))
 			);
 			$list=$this->table->setFields($fields)
 					->setAttribute('name',$item)
@@ -200,7 +200,7 @@ class Cases extends SS_controller{
 			
 			$fields=array(
 				'extname'=>array(
-					'title'=>'',
+					'heading'=>array('data'=>'','width'=>'40px'),
 					'eval'=>true,
 					'cell'=>"
 						if('{extname}'==''){
@@ -211,21 +211,19 @@ class Cases extends SS_controller{
 							\$image='unknown';
 						}
 						return '<img src=\"/images/file_type/'.\$image.'.png\" alt=\"{extname}\" />';
-					",
-					'td_title'=>'width="40px"',
-					'orderby'=>false
+					"
 				),
-				'name'=>array('heading'=>'文件名','td_title'=>'width="150px"','wrap'=>array('mark'=>'a','href'=>'/document/download/{id}')),
-				'type'=>array('heading'=>'类型','td_title'=>'width="80px"'),
+				'name'=>array('heading'=>array('data'=>'文件名','width'=>'150px'),'wrap'=>array('mark'=>'a','href'=>'/document/download/{id}')),
+				'type'=>array('heading'=>array('data'=>'类型','width'=>'80px')),
 				'comment'=>array('heading'=>'备注'),
-				'time'=>array('heading'=>'时间','td_title'=>'width="60px"','eval'=>true,'cell'=>"
+				'time'=>array('heading'=>array('data'=>'时间','width'=>'60px'),'eval'=>true,'cell'=>"
 					return date('m-d H:i',{time});
 				"),
-				'username'=>array('heading'=>'上传人','td_title'=>'width="90px"')
+				'username'=>array('heading'=>array('data'=>'上传人','width'=>'90px'))
 			);
 			if($para['apply_file']){
 				array_splice($fields,0,0,array(
-					'id'=>array('heading'=>'','td_title'=>'width="37px"','cell'=>'<input type="checkbox" name="case_document_check[{id}]" checked="checked" />')
+					'id'=>array('heading'=>array('data'=>'','width'=>'37px'),'cell'=>'<input type="checkbox" name="case_document_check[{id}]" checked="checked" />')
 				));
 			}
 			$list=$this->table->setFields($fields)

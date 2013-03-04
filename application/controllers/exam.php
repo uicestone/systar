@@ -10,7 +10,7 @@ class Exam extends SS_controller{
 		}
 		
 		$field=array(
-			'id'=>array('heading'=>'编号','td_title'=>'width="70px"'),
+			'id'=>array('heading'=>array('data'=>'编号','width'=>'70px')),
 			'name'=>array('heading'=>'考试名称','eval'=>true,'cell'=>"
 				return '<a href=\"exam/paperlist/{id}\" style=\"float:left;\">{depart}-{grade_name}-{name}</a>'.({seat_allocated}?' <a href=\"/exam/viewseat/{id}\" style=\"float:right;\">座位表</a>':'');
 			"),
@@ -22,7 +22,6 @@ class Exam extends SS_controller{
 		
 		$list=$this->table->setFields($field)
 			->setData($this->exam->getList())
-			->wrapForm()
 			->generate();
 		
 		$this->load->addViewData('list', $list);
@@ -138,7 +137,7 @@ class Exam extends SS_controller{
 		post('exam/id',intval($exam_id));
 		
 		$field=array(
-			'id'=>array('heading'=>'编号','td_title'=>'width="70px"'),
+			'id'=>array('heading'=>array('data'=>'编号','width'=>'70px')),
 			'course'=>array('heading'=>'学科','cell'=>'{course_name}'),
 			'students'=>array('heading'=>'考试人数'),
 			'teacher_group_name'=>array('heading'=>'备课组'),
@@ -169,7 +168,6 @@ class Exam extends SS_controller{
 		
 		$list=$this->table->setFields($field)
 			->setData($this->exam->getSeatList($exam_id))
-			->setMenu('<button type="button" onclick="location.href=\'/exam\'">返回</button>','left')
 			->generate();
 		
 		$this->load->addViewData('list', $list);

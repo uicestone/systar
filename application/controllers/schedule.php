@@ -66,7 +66,7 @@ class Schedule extends SS_controller{
 		
 			'case.id'=>array('heading'=>'案件','cell'=>'{case_name}<p style="font-size:11px;text-align:right;"><a href="#schedule/lists?case={case}">本案日志</a> <a href="#cases/edit/{case}">案件</a></p>'),
 		
-			'staff_name'=>array('heading'=>'人员','cell'=>'<a href="#schedule/list?staff={staff}"> {staff_name}</a>','td_title'=>'width="60px"'),
+			'staff_name'=>array('heading'=>array('data'=>'人员','cell'=>'<a href="#schedule/list?staff={staff}"> {staff_name}</a>','width'=>'60px')),
 		
 			'name'=>array('heading'=>'标题','eval'=>true,'cell'=>"
 				return '<a href=\"javascript:showWindow(\'schedule/edit/{id}\')\" title=\"{name}\">'.str_getSummary('{name}').'</a>';
@@ -80,11 +80,11 @@ class Schedule extends SS_controller{
 				return ({review_permission}||\$this->user->id=='{staff}')?'<div title=\"{experience}\">'.str_getSummary('{experience}').'&nbsp;'.'</div>':'-';
 			"),
 		
-			'time_start'=>array('heading'=>'时间','td_title'=>'width="60px"','eval'=>true,'cell'=>"
+			'time_start'=>array('heading'=>array('data'=>'时间','width'=>'60px'),'eval'=>true,'cell'=>"
 				return date('m-d H:i',{time_start});
 			"),
 		
-			'hours_own'=>array('heading'=>'时长','td_title'=>'width="55px"','eval'=>true,'cell'=>"
+			'hours_own'=>array('heading'=>array('data'=>'时长','width'=>'55px'),'eval'=>true,'cell'=>"
 				if('{hours_checked}'==''){
 					return '<span class=\"hours_own'.({review_permission}?' editable':'').'\" id={id} name=\"hours\" title=\"自报：{hours_own}\">{hours_own}</span>';
 				}else{
@@ -161,13 +161,13 @@ class Schedule extends SS_controller{
 		
 		
 		$field=Array(
-			'staff_name'=>array('heading'=>'人员','cell'=>'<a href="#schedule/lists?staff={staff}"> {staff_name}</a>','td_title'=>'width="60px"'),
+			'staff_name'=>array('heading'=>array('data'=>'人员','cell'=>'<a href="#schedule/lists?staff={staff}"> {staff_name}</a>','width'=>'60px')),
 		
-			'time_start'=>array('heading'=>'时间','td_title'=>'width="60px"','eval'=>true,'cell'=>"
+			'time_start'=>array('heading'=>array('data'=>'时间','width'=>'60px'),'eval'=>true,'cell'=>"
 				return date('m-d H:i',{time_start});
 			"),
 		
-			'place'=>array('heading'=>'外出地点','td_title'=>'width="25%"')
+			'place'=>array('heading'=>array('data'=>'外出地点','width'=>'25%'))
 		);
 		
 		$table=$this->table->setFields($field)

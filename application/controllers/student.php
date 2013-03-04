@@ -71,7 +71,10 @@ class Student extends SS_controller{
 		$this->load->addViewArrayData(compact('student','student_class','class','student_extra'));
 		
 		$fields_student_relatives=array(
-			'checkbox'=>array('heading'=>'<input type="submit" name="submit[student_relatives_delete]" value="删" />','cell'=>'<input type="checkbox" name="student_relatives_check[{id}]" >','td_title'=>' width="25px"'),
+			'checkbox'=>array(
+				'heading'=>array('data'=>'<input type="submit" name="submit[student_relatives_delete]" value="删" />','width'=>'25px'),
+				'cell'=>'<input type="checkbox" name="student_relatives_check[{id}]" >'
+			),
 			'name'=>array('heading'=>'姓名'),
 			'relation'=>array('heading'=>'关系'),
 			'contact'=>array('heading'=>'电话'),
@@ -81,7 +84,7 @@ class Student extends SS_controller{
 			->generate($this->student->getRelativeList($this->student->id));
 		
 		$fields_student_behaviour=array(
-			'type'=>array('heading'=>'类别','td_title'=>'width="10%"'),
+			'type'=>array('heading'=>array('data'=>'类别','width'=>'10%')),
 			'date'=>array('heading'=>'日期'),
 			'name'=>array('heading'=>array('data'=>'名称','width'=>'40%'),'cell'=>array('title'=>'{content}')),
 			'level'=>array('heading'=>'级别')
@@ -91,7 +94,7 @@ class Student extends SS_controller{
 		
 		$fields_student_comment=array(
 			'title'=>array('heading'=>'标题'),
-			'cell'=>array('heading'=>'内容','td_title'=>'width="60%"'),
+			'cell'=>array('heading'=>array('data'=>'内容','width'=>'60%')),
 			'username'=>array('heading'=>'留言人'),
 			'time'=>array('heading'=>'时间')
 		);
@@ -390,9 +393,9 @@ class Student extends SS_controller{
 		}
 		
 		$field=array(
-			'date'=>array('heading'=>'日期','td_title'=>'width="100px"'),
-			'username'=>array('heading'=>'用户','td_title'=>'width="120px"'),
-			'student_name'=>array('heading'=>'学生','td_title'=>'width="60px"','wrap'=>array('mark'=>'a','href'=>'student?edit={student}')),
+			'date'=>array('heading'=>array('data'=>'日期','width'=>'100px')),
+			'username'=>array('heading'=>array('data'=>'用户','width'=>'120px')),
+			'student_name'=>array('heading'=>array('data'=>'学生','width'=>'60px'),'wrap'=>array('mark'=>'a','href'=>'student?edit={student}')),
 			'title'=>array('heading'=>array('data'=>'标题','width'=>'120px'),'cell'=>array('class'=>'ellipsis','title'=>'{title}')),
 			'content'=>array('heading'=>'内容','cell'=>array('class'=>'ellipsis','title'=>'{content}'))
 		);

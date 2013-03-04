@@ -59,9 +59,9 @@ class Document extends SS_controller{
 			$_SESSION['document']['upID']='';
 		$field=option('in_search_mod')?
 			array(
-				'checkbox'=>array('heading'=>'','cell'=>'<input type="checkbox" name="document[{id}]" >','td_title'=>'width="38px"'),
+				'checkbox'=>array('heading'=>array('data'=>'','cell'=>'<input type="checkbox" name="document[{id}]" >','width'=>'38px')),
 				'type'=>array(
-					'title'=>'类型',
+					'heading'=>array('data'=>'类型','width'=>'70px'),
 					'eval'=>true,
 					'cell'=>"
 						if('{type}'==''){
@@ -72,17 +72,16 @@ class Document extends SS_controller{
 							\$image='unknown';
 						}
 						return '<img src=\"images/file_type/'.\$image.'.png\" alt=\"{type}\" />';
-					",
-					'td_title'=>'width="70px"'
+					"
 				),
-				'name'=>array('heading'=>'文件名','td_title'=>'width="150px"','wrap'=>array('mark'=>'a','href'=>'/document/view/{id}')),
+				'name'=>array('heading'=>array('data'=>'文件名','width'=>'150px'),'wrap'=>array('mark'=>'a','href'=>'/document/view/{id}')),
 				'path'=>array('heading'=>'路径'),'comment'=>array('heading'=>'备注')
 			)
 			:
 			array(
-				'checkbox'=>array('heading'=>'','cell'=>'<input type="checkbox" name="document[{id}]" >','td_title'=>' width="38px"'),
+				'checkbox'=>array('heading'=>array('data'=>'','width'=>'38px'),'cell'=>'<input type="checkbox" name="document[{id}]" >'),
 				'type'=>array(
-					'title'=>'类型',
+					'heading'=>array('data'=>'类型','width'=>'55px'),
 					'eval'=>true,
 					'cell'=>"
 						if('{type}'==''){
@@ -93,11 +92,10 @@ class Document extends SS_controller{
 							\$image='unknown';
 						}
 						return '<img src=\"/images/file_type/'.\$image.'.png\" alt=\"{type}\" />';
-					",
-					'td_title'=>'width="55px"'
+					"
 				),
-				'name'=>array('heading'=>'文件名','td_title'=>'width="150px"','wrap'=>array('mark'=>'a','href'=>'/document/view/{id}')),
-				'username'=>array('heading'=>'上传者','td_title'=>'width="70px"'),
+				'name'=>array('heading'=>array('data'=>'文件名','width'=>'150px'),'wrap'=>array('mark'=>'a','href'=>'/document/view/{id}')),
+				'username'=>array('heading'=>array('data'=>'上传者','width'=>'70px')),
 				'comment'=>array('heading'=>'备注')
 			);
 		$table=$this->table->setFields($field)

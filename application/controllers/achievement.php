@@ -8,11 +8,11 @@ class Achievement extends SS_controller{
 	function mine(){
 
 		$field=array(
-			'case_name'=>array('heading'=>'案件','td_title'=>'width="25%"','cell'=>'<a href="/cases/edit/{case}" class="right" style="margin-left:10px;">查看</a>{case_name}'),
+			'case_name'=>array('heading'=>array('data'=>'案件','width'=>'25%'),'cell'=>'<a href="/cases/edit/{case}" class="right" style="margin-left:10px;">查看</a>{case_name}'),
 			'client_name'=>array('heading'=>'客户'),
-			'account_time'=>array('heading'=>'到账时间','td_title'=>'width="100px"'),
-			'filed_time'=>array('heading'=>'归档时间','td_title'=>'width="100px"'),
-			'amount'=>array('heading'=>'创收','td_title'=>'width="100px"'),
+			'account_time'=>array('heading'=>array('data'=>'到账时间','width'=>'100px')),
+			'filed_time'=>array('heading'=>array('data'=>'归档时间','width'=>'100px')),
+			'amount'=>array('heading'=>array('data'=>'创收','width'=>'100px')),
 			'contribution'=>array('heading'=>'贡献'),
 			'bonus'=>array('heading'=>'奖金'),
 			'role'=>array('heading'=>'角色')
@@ -77,12 +77,12 @@ class Achievement extends SS_controller{
 		
 		
 		$field=array(
-			'type'=>array('heading'=>'类别','td_title'=>'width="85px"'),
-			'case_name'=>array('heading'=>'案件','td_title'=>'width="25%"','cell'=>'<a href="/cases/edit/{case}" class="right" style="margin-left:10px;">查看</a>{case_name}'),
+			'type'=>array('heading'=>array('data'=>'类别','width'=>'85px')),
+			'case_name'=>array('heading'=>array('data'=>'案件','width'=>'25%'),'cell'=>'<a href="/cases/edit/{case}" class="right" style="margin-left:10px;">查看</a>{case_name}'),
 			'lawyers'=>array('heading'=>'主办律师'),
-			'fee'=>array('heading'=>'预估','td_title'=>'width="100px"'),
-			'pay_time'=>array('heading'=>'时间','td_title'=>'width="100px"'),
-			'uncollected'=>array('heading'=>'未收','td_title'=>'width="100px"'),
+			'fee'=>array('heading'=>array('data'=>'预估','width'=>'100px')),
+			'pay_time'=>array('heading'=>array('data'=>'时间','width'=>'100px')),
+			'uncollected'=>array('heading'=>array('data'=>'未收','width'=>'100px')),
 			'clients'=>array('heading'=>'客户')
 		);
 		

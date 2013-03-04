@@ -7,8 +7,8 @@ class ViewScore extends SS_controller{
 	
 	function lists(){
 		$field=array(
-			'class'=>array('heading'=>'班级','td_title'=>'width="90px"','cell'=>'{class_name}'),
-			'name'=>array('heading'=>'学生','cell'=>'{name}','td_title'=>'width="50px"'),
+			'class'=>array('heading'=>array('data'=>'班级','width'=>'90px'),'cell'=>'{class_name}'),
+			'name'=>array('heading'=>array('data'=>'学生','cell'=>'{name}','width'=>'50px')),
 			'course_1'=>array('heading'=>'语文','cell'=>'{course_1}<br /><span class="rank">{rank_1}</span>'),
 			'course_2'=>array('heading'=>'数学','cell'=>'{course_2}<br /><span class="rank">{rank_2}</span>'),
 			'course_3'=>array('heading'=>'英语','cell'=>'{course_3}<br /><span class="rank">{rank_3}</span>'),
@@ -28,7 +28,7 @@ class ViewScore extends SS_controller{
 		$this->load->addViewData('list', $list);
 		
 		$field_avg=array(
-			'id'=>array('heading'=>'','td_title'=>'width="154px"','cell'=>'平均分'),
+			'id'=>array('heading'=>array('data'=>'','width'=>'154px'),'cell'=>'平均分'),
 			'course_1'=>array('heading'=>''),
 			'course_2'=>array('heading'=>''),
 			'course_3'=>array('heading'=>''),
@@ -248,7 +248,7 @@ class ViewScore extends SS_controller{
 		$this->processOrderby($q,'student_num');
 		
 		$field=array(
-			'type'=>array('heading'=>'分类','td_title'=>'width=112px'),
+			'type'=>array('heading'=>array('data'=>'分类','width'=>'112px')),
 			'amount'=>'人数',
 			'course_1'=>'语文',
 			'course_2'=>'数学',
@@ -294,7 +294,7 @@ class ViewScore extends SS_controller{
 		$this->processOrderby($q_sum_3,'class');
 		
 		$field=array(
-			'class'=>array('heading'=>'班级','td_title'=>'width=112px','cell'=>'{class_name}'),
+			'class'=>array('heading'=>array('data'=>'班级','width'=>'112px'),'cell'=>'{class_name}'),
 			'top_50'=>'1~50',
 			'top_100'=>'51~100',
 			'top_200'=>'101~200',

@@ -6,7 +6,7 @@ class News extends SS_controller{
 	
 	function lists(){
 		$field=array(
-			'time'=>array('heading'=>'日期','td_title'=>'width="80px"','eval'=>true,'cell'=>"
+			'time'=>array('heading'=>array('data'=>'日期','width'=>'80px'),'eval'=>true,'cell'=>"
 				return date('m-d',{time});
 			"),
 			'title'=>array('heading'=>'标题','cell'=>'<a href="javascript:showWindow(\'news/edit/{id}\')">{title}</a>'),
