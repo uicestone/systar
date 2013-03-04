@@ -204,9 +204,9 @@ class Cases_model extends SS_Model{
 		return $this->db->insert_id();
 	}
 	
-	function removePeople($case_id,array $case_people_ids){
-		$condition = db_implode($case_people_ids, $glue = ' OR ','id');
-		return $this->db->delete('case_people',$condition);
+	function removePeople($case_id,$case_people_id){
+		$case_people_id=intval($case_people_id);
+		return $this->db->delete('case_people',array('id'=>$case_people_id));
 	}
 	
 	function getStaffList($case_id){
@@ -317,9 +317,10 @@ class Cases_model extends SS_Model{
 		return $this->db->insert_id();
 	}
 	
-	function removeFee(array $case_fee_ids){
-		$condition = db_implode($case_fee_ids, $glue = ' OR ','id');
-		return $this->db->delete('case_fee',$condition);
+	function removeFee($case_id,$case_fee_id){
+		$case_id=intval($case_id);
+		$case_fee_id=intval($case_fee_id);
+		return $this->db->delete('case_fee',array('id'=>$case_fee_id,'case'=>$case_id));
 	}
 	
 	function addDocument($case_id,$document_id){
@@ -338,15 +339,17 @@ class Cases_model extends SS_Model{
 		return $this->db->insert_id();
 	}
 	
-	function removeDocument($case_document_ids){
-		
+	function removeDocument($case_id,$case_document_id){
+		$case_id=intval($case_id);
+		$case_document_id=intval($case_document_id);
+		return $this->db->delete('case_document',array('id'=>$case_document_id,'case'=>$case_id));
 	}
 	
 	function getDocumentList($case_id){
 		$case_id=intval($case_id);
 		
 		$query="
-			SELECT document.id,document.name,extname,type.name AS type,document.comment,document.time,document.username
+			SELECT case_document.id,document.id AS document,document.name,extname,type.name AS type,document.comment,document.time,document.username
 			FROM 
 				document
 				INNER JOIN case_document ON document.id=case_document.document

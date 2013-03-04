@@ -89,7 +89,7 @@ class Cases extends SS_controller{
 		if($item=='client'){
 
 			$fields=array(
-				'name'=>array('heading'=>'名称'),
+				'name'=>array('heading'=>'名称','cell'=>array('data'=>'{name}<button type="submit" name="submit[remove_people]" id="{id}" class="hover">删除</button>')),
 				'phone'=>array('heading'=>'电话','cell'=>array('class'=>'ellipsis','title'=>'{phone}')),
 				'email'=>array('heading'=>'电邮','cell'=>array('data'=>'<a href = "mailto:{email}">{email}</a>','class'=>'ellipsis')),
 				'role'=>array('heading'=>'本案地位'),
@@ -110,7 +110,7 @@ class Cases extends SS_controller{
 			}
 			
 			$fields=array(
-				'staff_name'=>array('heading'=>'名称','cell'=>'{staff_name}'),
+				'staff_name'=>array('heading'=>'名称','cell'=>'{staff_name}<button type="submit" name="submit[remove_staff]" id="{id}" class="hover">删除</button>'),
 				'role'=>array('heading'=>'本案职位'),
 				'contribute'=>array('heading'=>'贡献','eval'=>true,'cell'=>"
 					\$hours_sum_string='';
@@ -136,7 +136,7 @@ class Cases extends SS_controller{
 			}
 			
 			$fields=array(
-				'type'=>array('heading'=>'类型'),
+				'type'=>array('heading'=>'类型','cell'=>'{type}<button type="submit" name="submit[remove_fee]" id="{id}" class="hover">删除</button>'),
 				'fee'=>array('heading'=>'数额','eval'=>true,'cell'=>"
 					\$return='{fee}'.('{fee_received}'==''?'':' <span title=\"{fee_received_time}\">（到账：{fee_received}）</span>');
 					if('{reviewed}'){
@@ -157,7 +157,7 @@ class Cases extends SS_controller{
 			}
 			
 			$fields=array(
-				'receiver'=>array('heading'=>'收款方'),
+				'receiver'=>array('heading'=>'收款方','cell'=>'{receiver}<button type="submit" name="submit[remove_miscfee]" id="{id}" class="hover">删除</button>'),
 				'fee'=>array('heading'=>'数额','eval'=>true,'cell'=>"
 					return '{fee}'.('{fee_received}'==''?'':' （到账：{fee_received}）');
 				"),
@@ -210,7 +210,7 @@ class Cases extends SS_controller{
 						}else{
 							\$image='unknown';
 						}
-						return '<img src=\"/images/file_type/'.\$image.'.png\" alt=\"{extname}\" />';
+						return '<img src=\"/images/file_type/'.\$image.'.png\" alt=\"{extname}\" /><button type=\"submit\" name=\"submit[remove_document]\" id=\"{id}\" class=\"hover\">删除</button>';
 					"
 				),
 				'name'=>array('heading'=>array('data'=>'文件名','width'=>'150px'),'wrap'=>array('mark'=>'a','href'=>'/document/download/{id}')),
@@ -223,7 +223,7 @@ class Cases extends SS_controller{
 			);
 			if($para['apply_file']){
 				array_splice($fields,0,0,array(
-					'id'=>array('heading'=>array('data'=>'','width'=>'37px'),'cell'=>'<input type="checkbox" name="case_document_check[{id}]" checked="checked" />')
+					'id'=>array('heading'=>array('data'=>'','width'=>'37px'),'cell'=>'<input type="checkbox" name="case_document_check[{document}]" checked="checked" />')
 				));
 			}
 			$list=$this->table->setFields($fields)
@@ -234,7 +234,7 @@ class Cases extends SS_controller{
 		if(!$case_id){//没有指定$case_id，是在edit方法内调用
 			$this->load->addViewData($item.'_list', $list);
 		}else{
-			return array('selector'=>'.item[name="'.$item.'"]>.contentTable','cell'=>$list,'type'=>'html','method'=>'replace','content_name'=>'content-table');
+			return array('selector'=>'.item[name="'.$item.'"]>.contentTable','content'=>$list,'type'=>'html','method'=>'replace','content_name'=>'content-table');
 		}
 	}
 
@@ -313,7 +313,7 @@ class Cases extends SS_controller{
 
 	}
 
-	function submit($submit,$id){
+	function submit($submit,$id,$button_id=NULL){
 		
 		$this->cases->id=$id;
 		
@@ -438,8 +438,8 @@ class Cases extends SS_controller{
 				}
 			}
 
-			elseif($submit=='case_client_delete'){
-				if($this->cases->removePeople($this->cases->id,$this->input->post('case_client_check'))){
+			elseif($submit=='remove_people'){
+				if($this->cases->removePeople($this->cases->id,$button_id)){
 					$this->output->setData($this->subList('client',$this->cases->id));
 				}
 			}
@@ -491,8 +491,8 @@ class Cases extends SS_controller{
 				$this->cases->calcContribute($this->cases->id);
 			}
 			
-			elseif($submit=='staff_delete'){
-				if($this->cases->removePeople($this->cases->id,$this->input->post('staff_check'))){
+			elseif($submit=='remove_staff'){
+				if($this->cases->removePeople($this->cases->id,$button_id)){
 					$this->output->setData($this->subList('staff',$this->cases->id));
 				}
 			}
@@ -525,10 +525,10 @@ class Cases extends SS_controller{
 				}
 			}
 			
-			elseif($submit=='case_fee_delete' || $submit=='case_fee_misc_delete'){
-				$this->cases->removeFee($this->input->post('case_fee_check'));
+			elseif($submit=='remove_fee' || $submit=='remove_miscfee'){
+				$this->cases->removeFee($this->cases->id,$button_id);
 				
-				if($submit=='case_fee_delete'){
+				if($submit=='remove_fee'){
 					$this->output->setData($this->subList('fee',$this->cases->id));
 				}else{
 					$this->output->setData($this->subList('miscfee',$this->cases->id));
@@ -635,6 +635,12 @@ class Cases extends SS_controller{
 				$this->output->setData($this->subList('document', $this->cases->id));
 				
 				unset($_SESSION['cases']['post'][$this->cases->id]['case_document']);
+			}
+			
+			elseif($submit=='remove_document'){
+				if($this->cases->removeDocument($this->cases->id,$button_id)){
+					$this->output->setData($this->subList('document',$this->cases->id));
+				}
 			}
 			
 			elseif($submit=='file_document_list'){

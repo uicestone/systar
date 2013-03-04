@@ -61,6 +61,10 @@ button.transparent{
 	background:transparent;
 	border:none;
 }
+button.hover{
+	display:none;
+	position:absolute;left:0;
+}
 
 .ui-autocomplete {
 	max-height: 200px;

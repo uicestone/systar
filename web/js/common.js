@@ -153,6 +153,35 @@ $(document).ready(function(){
 				.mouseleave(function(){
 					$(this).children('td:first').children('.hover').hide();
 				});
+			
+			$(this).find('button:submit').on('click',function(){
+				var form = section.children('form');
+
+				var id = section.find('form[name="'+controller+'"]').attr('id');
+				var buttonId = $(this).attr('id');
+				var submit = $(this).attr('name').replace('submit[','').replace(']','');
+
+				var postURI='/'+controller+'/submit/'+submit;
+
+				if(id){
+					postURI+='/'+id;
+
+					if(buttonId){
+						postURI+='/'+buttonId;
+					}
+
+				}
+
+				form.ajaxForm({url:postURI,dataType:'json',success:function(response){
+					$('article>section[hash="'+hash+'"]').setBlock(response);
+				}});
+
+				/*$.post(postURI,$('article>section[hash="'+hash+'"]>form').serialize(),function(response){
+				},'json');*/
+
+				//return false;
+
+			});
 		});
 		
 		section.find('.contentTable').trigger('contenttableload');
@@ -168,12 +197,18 @@ $(document).ready(function(){
 			var form = section.children('form');
 
 			var id = section.find('form[name="'+controller+'"]').attr('id');
+			var buttonId = $(this).attr('id');
 			var submit = $(this).attr('name').replace('submit[','').replace(']','');
 
 			var postURI='/'+controller+'/submit/'+submit;
 
 			if(id){
 				postURI+='/'+id;
+				
+				if(buttonId){
+					postURI+='/'+buttonId;
+				}
+				
 			}
 
 			form.ajaxForm({url:postURI,dataType:'json',success:function(response){
