@@ -43,20 +43,29 @@ class Query extends SS_controller{
 		$this->load->model('client_model','client');
 		$this->load->model('staff_model','staff');
 		
-		$query=$this->query->fetch($id);
-		
-		$labels=$this->query->getLabels($this->query->id);
-		
-		if(!$query['name']){
-			$this->output->setData('未命名咨询','name');
-		}else{
-			$this->output->setData(strip_tags($query['name']), 'name');
-		}
-		
-		$this->load->addViewData('cases', $query);
+		try{
+			$query=$this->query->fetch($id);
 
-		$this->load->view('query/edit');
-		$this->load->view('query/edit_sidebar',true,'sidebar');
+			$labels=$this->query->getLabels($this->query->id);
+
+			if(!$query['name']){
+				$this->output->setData('未命名咨询','name');
+			}else{
+				$this->output->setData(strip_tags($query['name']), 'name');
+			}
+
+			$this->load->addViewData('cases', $query);
+
+			$this->load->view('query/edit');
+			$this->load->view('query/edit_sidebar',true,'sidebar');
+		}
+		catch(Exception $e){
+			$this->output->status='fail';
+			if($e->getMessage()){
+				$this->output->message($e->getMessage(), 'warning');
+			}
+		}
+
 	}
 	
 	function submit($submit,$id){

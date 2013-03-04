@@ -87,10 +87,7 @@ class SS_Table extends CI_Table{
 			
 			foreach($this->fields as $field_name => $field){
 				$cell=array('data'=>NULL);
-				//如果存在cell设定并且是数组，那么合并到当前cell
-				if(isset($field['cell']) && is_array($field['cell'])){print_r($field['ceil']);
-					$cell+=$field['ceil'];
-				}
+				
 				//如果列设定中没有cell,或者cell是数组但没有data键，那么使用原始数据
 				if(!isset($field['cell']) || (is_array($field['cell']) && !isset($field['cell']['data']))){
 					if(isset($row[$field_name]['data'])){
@@ -104,6 +101,10 @@ class SS_Table extends CI_Table{
 						$cell['data']=$field['cell'];
 					}
 					
+				}
+				
+				if(array_key_exists('cell', $field) && is_array($field['cell'])){
+					$cell+=$field['cell'];
 				}
 				
 				foreach($cell as $attr_name => $attr_value){

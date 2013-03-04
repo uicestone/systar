@@ -8,7 +8,7 @@
 
 			<tr><td colspan="2"><button type="submit" name="date_range">提交</button>
 <?if(option('in_date_range')){?>
-				<button type="submit" name="date_range_cancel">取消" tabindex="1</button>
+				<button type="submit" name="date_range_cancel" tabindex="1">取消</button>
 <?}?>
 			</td></tr>
 		</tbody>

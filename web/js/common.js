@@ -35,22 +35,14 @@ $(window).on('hashchange',function(){
 			page.children('section[hash!="'+hash+'"]').hide();
 			aside.children('section[for!="'+hash+'"]').hide();
 
-			/*如果需要redirect，则在构造<section>等元素前return掉*/
-			if(response.status==='redirect'){
-				$.locationHash(response.data);
-				return;
-			}
-			
-			if(response.status==='fail'){
-				return;
-			}
-	
-			$('<section hash="'+hash+'" time-access="'+$.now()+'"></section>').appendTo(page);
-			$('<section for="'+hash+'"></section>').appendTo(aside);
-			
-			/*如果请求的hash在导航菜单中不存在，则生成标签选项卡*/
-			if(nav.find('a[href="#'+hash+'"]').length===0 && response.data.name){
-				tabs.append('<li for="'+hash+'" class="activated"><a href="#'+hash+'">'+response.data.name.content+'</a></li>');
+			//只对成功的响应生成标签选项卡、边栏和主页面元素
+			if(response.status==='success'){
+				$('<section hash="'+hash+'" time-access="'+$.now()+'"></section>').appendTo(page);
+				$('<section for="'+hash+'"></section>').appendTo(aside);
+				/*如果请求的hash在导航菜单中不存在，则生成标签选项卡*/
+				if(nav.find('a[href="#'+hash+'"]').length===0 && response.data.name){
+					tabs.append('<li for="'+hash+'" class="activated"><a href="#'+hash+'">'+response.data.name.content+'</a></li>');
+				}
 			}
 			
 			$(document).setBlock(response);
@@ -477,6 +469,10 @@ jQuery.fn.setBlock=function(response){
 	
 	$.parseMessage(response.message);
 	
+	if(response.status==='fail'){
+		return;
+	}
+
 	$.each(response.data,function(dataName,data){
 		
 		var block;

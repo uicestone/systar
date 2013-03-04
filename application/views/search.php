@@ -8,9 +8,9 @@
 			</tr>
 <?}?>
 			<tr>
-				<td><button type="submit" name="search">搜索" tabindex="0</button>
+				<td><button type="submit" name="search" tabindex="0">搜索</button>
 <?if(option('in_search_mod')){?>
-					<button type="submit" name="search_cancel">取消" tabindex="1</button>
+					<button type="submit" name="search_cancel" tabindex="1">取消</button>
 <?}?>
 				</td>
 			</tr>

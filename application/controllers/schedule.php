@@ -62,11 +62,9 @@ class Schedule extends SS_controller{
 			$this->schedule->review($this->input->post('schedule_check'));
 		}
 		$field=array(
-			'checkbox'=>array('heading'=>array('data'=>'<input type="checkbox" name="schedule_checkall">','width'=>'38px'),'cell'=>'<input type="checkbox" name="schedule_check[{id}]" >'),
-		
 			'case.id'=>array('heading'=>'案件','cell'=>'{case_name}<p style="font-size:11px;text-align:right;"><a href="#schedule/lists?case={case}">本案日志</a> <a href="#cases/edit/{case}">案件</a></p>'),
 		
-			'staff_name'=>array('heading'=>array('data'=>'人员','cell'=>'<a href="#schedule/list?staff={staff}"> {staff_name}</a>','width'=>'60px')),
+			'staff_name'=>array('heading'=>array('data'=>'人员','width'=>'60px'),'cell'=>'<a href="#schedule/list?staff={staff}"> {staff_name}</a>'),
 		
 			'name'=>array('heading'=>'标题','eval'=>true,'cell'=>"
 				return '<a href=\"javascript:showWindow(\'schedule/edit/{id}\')\" title=\"{name}\">'.str_getSummary('{name}').'</a>';

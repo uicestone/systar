@@ -149,6 +149,10 @@ class SS_Controller extends CI_Controller{
 			$this->output->setData($this->load->blocks['sidebar'],'sidebar','html','aside>section[for="'.substr($this->input->server('REQUEST_URI'),1).'"]');
 		}
 		
+		if(is_null($this->output->status)){
+			$this->output->status='success';
+		}
+		
 		$output_array=array(
 			'status'=>$this->output->status,
 			'message'=>$this->output->message,
