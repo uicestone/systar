@@ -37,8 +37,8 @@ $(window).on('hashchange',function(){
 
 			//只对成功的响应生成标签选项卡、边栏和主页面元素
 			if(response.status==='success'){
-				$('<section hash="'+hash+'" time-access="'+$.now()+'"></section>').appendTo(page);
-				$('<section for="'+hash+'"></section>').appendTo(aside);
+				$('<section hash="'+hash+'" time-access="'+$.now()+'"></section>').appendTo(page).trigger('sectioncreate');
+				$('<section for="'+hash+'"></section>').appendTo(aside).trigger('sidebarcreate');
 				/*如果请求的hash在导航菜单中不存在，则生成标签选项卡*/
 				if(nav.find('a[href="#'+hash+'"]').length===0 && response.data.name){
 					tabs.append('<li for="'+hash+'" class="activated"><a href="#'+hash+'">'+response.data.name.content+'</a></li>');
@@ -56,19 +56,30 @@ $(document).ready(function(){
 	page=$('article');nav=$('nav');aside=$('aside');header=$('header');
 	tabs=header.children('#tabs');throbber=header.children('.throbber');
 	
+	/*老浏览器警告*/
 	if($.browser.msie && ($.browser.version<8 || document.documentMode && document.documentMode<8)){
 		$.showMessage('您正在使用不被推荐的浏览器，请关闭浏览器兼容模式。如果问题仍然存在，<a href="/browser">请点此下载推荐的浏览器</a>','warning');
 	}
 	
+	/*为主体载入指定页面或默认页面*/
+	if(window.location.hash){
+		$(window).trigger('hashchange');
+	}else if(page.attr('default-uri')){
+ 		$.locationHash(page.attr('default-uri'));
+ 	}
+	
 	/*导航栏配置*/
 	nav.find('a').click(function(event){
 		if($(this).hasClass('add')){
+			/*点击添加按钮的时候不触发外层li的点击事件*/
 			event.stopPropagation();
 		}else{
+			/*若点到链接，阻止默认动作，触发外层li的点击事件*/
 			event.preventDefault();
 		}
 	});
 	
+	/*将点击事件绑定在li上，从而整个菜单都可以响应点击*/
 	nav.find('li').click(function(event){
 		event.stopPropagation();
 		$.locationHash($(this).children('a').attr('href').substr(1));
@@ -98,13 +109,6 @@ $(document).ready(function(){
 		}
 	});
 	
-	/*为主体载入指定页面或默认页面*/
-	if(window.location.hash){
-		$(window).trigger('hashchange');
-	}else if(page.attr('default-uri')){
- 		$.locationHash(page.attr('default-uri'));
- 	}
-	
 	/*标签手动刷新*/
 	tabs.on('click','a[href^="#"]',function(){
 		if($(this).attr('href').substr(1)===hash){
@@ -116,27 +120,17 @@ $(document).ready(function(){
 		}
 	});
 	
+	/*主页面被切换至，或被加载时，都要重新设置文档标题*/
 	page.on('sectionload sectionshow','section',function(){
 		document.title=affair+' - '+(username?username+' - ':'')+sysname;
 	});
 	
-	page.on('sectionload','section',function(){
-		
+	page.on('sectioncreate','section',function(){
+		//console.log('section create');
 		var section = $(this);
-
-		/*每一栏标题上的"+"并显示/隐藏添加菜单*/
-		section.find('.item>.toggle-add-form').on('click',function(){
-			var addForm=$(this).siblings('.add-form');
-			if(addForm.is(':hidden')){
-				addForm.fadeIn(200);
-				$(this).html('－');
-			}else{
-				addForm.fadeOut(200);
-				$(this).html('＋');
-			}
-		});
-		
+		/*为表格代理绑定事件*/
 		section.on('contenttableload','.contentTable',function(){
+			//console.log('contenttableload');
 			$(this).children('tbody').children('tr[hash]')
 				.on('click',function(){
 					$.locationHash($(this).attr('hash'));
@@ -173,7 +167,7 @@ $(document).ready(function(){
 				}
 
 				form.ajaxForm({url:postURI,dataType:'json',success:function(response){
-					$('article>section[hash="'+hash+'"]').setBlock(response);
+					section.setBlock(response);
 				}});
 
 				/*$.post(postURI,$('article>section[hash="'+hash+'"]>form').serialize(),function(response){
@@ -182,15 +176,35 @@ $(document).ready(function(){
 				//return false;
 
 			});
+
+			if(!$.browser.msie){
+				$(this).find('tbody>tr').each(function(index){
+					$(this).delay(15*index).css('opacity',0).css('visibility','visible').animate({opacity:'1'},500);
+				});
+			}
+		
+		});
+		
+	});
+	
+	page.on('sectionload','section',function(){
+		//console.log('section load');
+		
+		var section = $(this);
+
+		/*每一栏标题上的"+"并显示/隐藏添加菜单*/
+		section.find('.item>.toggle-add-form').on('click',function(){
+			var addForm=$(this).siblings('.add-form');
+			if(addForm.is(':hidden')){
+				addForm.fadeIn(200);
+				$(this).html('－');
+			}else{
+				addForm.fadeOut(200);
+				$(this).html('＋');
+			}
 		});
 		
 		section.find('.contentTable').trigger('contenttableload');
-		
-		if(!$.browser.msie){
-			$(this).find('.contentTable>tbody>tr').each(function(index){
-				$(this).delay(15*index).css('opacity',0).css('visibility','visible').animate({opacity:'1'},500);
-			});
-		}
 		
 		/*编辑页的提交按钮点击事件，提交数据到后台，在页面上反馈数据和提示*/
 		section.find('button:submit').on('click',function(){
@@ -212,7 +226,7 @@ $(document).ready(function(){
 			}
 
 			form.ajaxForm({url:postURI,dataType:'json',success:function(response){
-				$('article>section[hash="'+hash+'"]').setBlock(response);
+				section.setBlock(response);
 			}});
 
 			/*$.post(postURI,$('article>section[hash="'+hash+'"]>form').serialize(),function(response){
@@ -237,14 +251,14 @@ $(document).ready(function(){
 		});
 		
 		$(this).find('[display-for]:not([locked-by])').on('enable',function(){
-			$(this).find(':input:disabled:not([locked-by])').trigger('change').removeAttr('disabled');
+			$(this).find(':input:disabled:not([locked-by])').removeAttr('disabled');
 			$(this).show();
 
 		});
 		
 		$(this).find('[display-for]:not([locked-by])').on('disable',function(){
 			$(this).hide();
-			$(this).find(':input:enabled').trigger('change').attr('disabled','disabled');
+			$(this).find(':input:enabled').attr('disabled','disabled');
 
 		});
 				
@@ -257,29 +271,29 @@ $(document).ready(function(){
 	
 	aside.on('sidebarload','section',function(){
 		var section=$(this);
-		/*边栏提交按钮的点击事件*/
-		section.on('click','button:submit',function(){
-
+		/*边栏普通提交按钮（提交给当前page地址，以刷新page）*/
+		section.find('button:submit:not(.major)').on('click',function(){
 			$.post($(this).closest('section').attr('for'),$(this).closest('form').serialize()+'&submit='+$(this).attr('name'),function(response){
 				$(document).setBlock(response);
 			},'json');
 
 			return false;
-		})/*边栏选框自动提交*/
-		.on('change','select.filter[method!="get"]',function(){
-			post($(this).attr('name'),$(this).val());
-		})
+		});
 		/*边栏选框自动提交*/
-		.on('change','select.filter[method="get"]',function(){
+		section.find('select.filter[method!="get"]').on('change',function(){
+			post($(this).attr('name'),$(this).val());
+		});
+		/*边栏选框自动提交*/
+		section.find('select.filter[method="get"]').on('change',function(){
 			redirectPara($(this));
 		});
 		
-		/*编辑页的提交按钮点击事件，提交数据到后台，在页面上反馈数据和提示*/
+		/*边栏主要提交按钮（提交到controller/submit/{submit_name}/{item_id}）*/
 		section.find('button:submit.major').on('click',function(event){
 			var pageSection = $('article>section[hash="'+hash+'"]');
 			var form = pageSection.children('form');
 
-			var id = pageSection.find('form[name="'+controller+'"]').attr('id');
+			var id = form.attr('id');
 			var submit = $(this).attr('name').replace('submit[','').replace(']','');
 
 			var postURI='/'+controller+'/submit/'+submit;
@@ -288,8 +302,8 @@ $(document).ready(function(){
 				postURI+='/'+id;
 			}
 
-			$.post(postURI,$('article>section[hash="'+hash+'"]>form').serialize(),function(response){
-				$('article>section[hash="'+hash+'"]').setBlock(response);
+			$.post(postURI,form.serialize(),function(response){
+				section.setBlock(response);
 
 				if(response.status==='success'){
 					if(submit===controller || submit==='cancel'){
@@ -305,7 +319,7 @@ $(document).ready(function(){
 			},'json');
 			
 			event.preventDefault();
-		});
+		});		
 		
 	});
 
@@ -323,9 +337,7 @@ $(document).ready(function(){
 })
 /*主体页面加载事件*/
 .on('blockload','*',function(event){
-	/*section触发事件后不再传递到body*/
-	event.stopPropagation();
-	
+
 	$(this).find('[placeholder]').placeholder();
 	$(this).find('.date').datepicker();
 	$(this).find('.birthday').datepicker({

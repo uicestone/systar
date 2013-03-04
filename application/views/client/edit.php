@@ -1,6 +1,5 @@
 <form method="post" name="<?=CONTROLLER?>" id="<?=$this->client->id?>" enctype="multipart/form-data">
-<div class="contentTableBox">
-	<div class="contentTable">
+	<div class="contentTableBox">
 		<div class="item">
 			<div class="title"><label>基本信息：</label></div>
 			<input name="client[name]" value="<?=$this->value('client/name'); ?>" type="text" placeholder="中文名" />
@@ -78,6 +77,5 @@
 			<textarea name="client[comment]"><?=$this->value('client/comment')?></textarea>
 		</div>
 	</div>
-</div>
 </form>
 <?=javascript('client_add')?>

@@ -125,7 +125,6 @@ class Cases extends SS_controller{
 				$fields['hourly_fee']=array('heading'=>'计时收费小时费率');
 			}
 			$list=$this->table->setFields($fields)
-				->setRowAttributes(array('hash'=>'client/edit/{people}'))
 				->setAttribute('name',$item)
 				->generate($this->cases->getStaffList($this->cases->id));
 
@@ -343,13 +342,11 @@ class Cases extends SS_controller{
 				}
 				if(isset($labels['分类']) && in_array($labels['分类'],array('诉讼','非诉讼')) && !$case['is_query'] && !$case['focus']){
 					$this->output->message('请填写案件争议焦点','warning');
-					throw new Exception();
+					throw new Exception;
 				}
 				
 				$this->cases->update($this->cases->id,post('cases'));
 				$this->cases->updateLabels($this->cases->id,post('labels'));
-				
-				
 				
 				unset($_SESSION['cases']['post'][$this->cases->id]);
 			}

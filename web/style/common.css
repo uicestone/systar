@@ -63,7 +63,7 @@ button.transparent{
 }
 button.hover{
 	display:none;
-	position:absolute;left:0;
+	position:absolute;
 }
 
 .ui-autocomplete {
@@ -388,26 +388,26 @@ aside button.major{
 }
 
 /*插入界面*/
-.contentTable .item{
+.contentTableBox .item{
 	/*font-size:17px;*/
 	margin-bottom:10px;
 	text-align:left;
 }
-.contentTable .item input[type="text"],
-.contentTable .item input[type="password"],
-.contentTable .item textarea,
-.contentTable .item select{
+.contentTableBox .item input[type="text"],
+.contentTableBox .item input[type="password"],
+.contentTableBox .item textarea,
+.contentTableBox .item select{
 	/*font-size:15px;*/
 }
 
-.contentTable .item input{
+.contentTableBox .item input{
 	margin:0 auto;
 }
 
-.contentTable .item textarea{
+.contentTableBox .item textarea{
 	width:99%;
 }
-.contentTable .item .title{
+.contentTableBox .item .title{
 	padding-left:1em;
 	background:url("../images/bg_main.png");
 	color:#173C66;
@@ -415,16 +415,16 @@ aside button.major{
 	line-height:2;
 	min-height:30px;
 }
-.contentTable .item .content{
+.contentTableBox .item .content{
 	background:#FFF;
 	border:#999 solid 1px;
 	padding:5px;
 }
-.contentTable .item p{
+.contentTableBox .item p{
 	margin-bottom:0.5em;
 	text-indent:2em;
 }
-.contentTable .submit{
+.contentTableBox .submit{
 	text-align:center;
 }
 
