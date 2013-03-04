@@ -223,7 +223,7 @@ nav .arrow{
 .login-form .item input{
 	font-size:18px;
 }
-.login-form .submit input{
+.login-form .submit button{
 	width:120px;
 	height:35px;
 	font-size:18px;

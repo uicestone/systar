@@ -22,7 +22,7 @@ class user extends SS_controller{
 			redirect();
 		}
 		
-		if($this->input->post('login')){
+		if($this->input->post('username')){
 			
 			$user=array();
 			
