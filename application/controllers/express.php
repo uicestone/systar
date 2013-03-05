@@ -2,6 +2,7 @@
 class Express extends SS_controller{
 
 	function __construct(){
+		$this->default_method='lists';
 		parent::__construct();
 	}
 	
