@@ -8,7 +8,7 @@ $(function(){
 	})
 	.on('autocompleteresponse',function(){
 		/*自动完成响应*/
-		$(this).closest('.contentTable').find('[display-for~="new"]').trigger('enable');
+		$(this).closest('section').find('[display-for~="new"]').trigger('enable');
 		$(this).find('[name="client[id]"]').val('').trigger('change');
 	});
 	
