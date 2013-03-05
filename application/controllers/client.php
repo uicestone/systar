@@ -45,15 +45,13 @@ class Client extends SS_Controller{
 	
 	function subList($item,$client_id=false){
 		if($client_id){
-			$client=$this->client->getPostData($client_id);
+			$client=$this->client->fetch($client_id);
 		}
 
 		//客户相关人
 		if($item=='relative'){
 			$field=array(
-				'relative_name'=>array(
-					'heading'=>'名称'
-				), 
+				'relative_name'=>array('heading'=>'名称','cell'=>'{relative_name}<button type="submit" id="{id}" name="submit[remove_relative]" class="hover">删除</button>'), 
 				'relative_phone'=>array('heading'=>'电话', 'orderby'=>false), 
 				'relative_email'=>array('heading'=>'电邮', 'wrap'=>array('mark'=>'a', 'href'=>'mailto:{relative_email}')), 
 				'relation'=>array('heading'=>'关系', 'orderby'=>false)
@@ -68,7 +66,7 @@ class Client extends SS_Controller{
 		//资料项
 		elseif($item=='profile'){
 			$field=array(
-				'name'=>array('heading'=>'名称', 'cell'=>'{name}', 'orderby'=>false), 
+				'name'=>array('heading'=>'名称','cell'=>'{name}<button type="submit" id="{id}" name="submit[remove_profile]" class="hover">删除</button>'), 
 				'content'=>array('heading'=>'内容', 'eval'=>true, 'cell'=>"
 					if('{name}'=='电子邮件'){
 						return '<a href=\"mailto:{content}\" target=\"_blank\">{content}</a>';
@@ -158,7 +156,7 @@ class Client extends SS_Controller{
 		}
 	}
 
-	function submit($submit,$id){
+	function submit($submit,$id,$button_id=NULL){
 		$this->client->id=$id;
 		
 		$client=array_merge($this->client->fetch($id),$this->input->sessionPost('client'));
@@ -239,8 +237,8 @@ class Client extends SS_Controller{
 
 			}
 
-			elseif($submit=='relative_delete'){
-				$this->client->removeRelationship($this->input->post('relative_check'));
+			elseif($submit=='remove_relative'){
+				$this->client->removeRelationship($this->client->id,$button_id);
 				$this->output->setData($this->subList('relative',$this->client->id));
 			}
 
@@ -259,8 +257,8 @@ class Client extends SS_Controller{
 				unset($_SESSION['client']['post'][$this->client->id]['profile']);
 			}
 
-			elseif($submit=='people_profile_delete'){
-				$this->client->removeProfile($this->input->post('people_profile_check'));
+			elseif($submit=='remove_profile'){
+				$this->client->removeProfile($this->client->id,$button_id);
 				$this->output->setData($this->subList('profile',$this->client->id));
 			}
 			

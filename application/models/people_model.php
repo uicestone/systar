@@ -221,9 +221,10 @@ class People_model extends SS_Model{
 	/**
 	 * 删除客户联系方式
 	 */
-	function removeProfile($people_profile_ids){
-		$condition = db_implode($people_profile_ids, $glue = ' OR ','id');
-		$this->db->delete('people_profile',$condition);
+	function removeProfile($people_id,$people_profile_id){
+		$people_id=intval($people_id);
+		$people_profile_id=intval($people_profile_id);
+		return $this->db->delete('people_profile',array('id'=>$people_profile_id,'people'=>$people_id));
 	}
 	
 	/**
@@ -259,9 +260,10 @@ class People_model extends SS_Model{
 	/**
 	 * 删除相关人
 	 */
-	function removeRelationship($people_relaionship_ids){
-		$condition = db_implode($people_relaionship_ids, $glue = ' OR ','id');
-		$this->db->delete('people_relationship',$condition);
+	function removeRelationship($people_id,$people_relaionship_id){
+		$people_id=intval($people_id);
+		$people_relaionship_id=intval($people_relaionship_id);
+		return $this->db->delete('people_relationship',array('id'=>$people_relaionship_id,'people'=>$people_id));
 	}
 	
 	function getRelatives($people_id){
