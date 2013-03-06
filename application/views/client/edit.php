@@ -21,6 +21,7 @@
 <?}?>
 		</div>
 
+<?if(!isset($client['type']) || $client['type']=='客户'){?>		
 		<div class="item">
 			<div class="title"><label>来源：</label></div>
 			<select name="source[type]">
@@ -30,6 +31,7 @@
 			<input type="text" name="source[detail]" value="<?=$this->value('source/detail')?>" <?if(!$this->value('source/detail')){?>class="hidden" disabled="disabled"<?}?> />
 			<input type="text" name="client[staff_name]" placeholder="来源律师" value="<?=$this->value('client/staff_name')?$this->value('client/staff_name'):$this->user->name?>" />
 		</div>
+<?}?>
 
 		<div class="item" name="profile">
 			<div class="title"><label>资料项</label></div>

@@ -173,9 +173,14 @@ class Client extends SS_Controller{
 				
 				$labels=$this->input->sessionPost('labels');
 
-				if($client['character'] != '个人' && $client['abbreviation'] == ''){
+				if($client['character'] == '单位' && $client['abbreviation'] == ''){
 					//单位简称必填
 					$this->output->message('请填写单位简称','warning');
+					throw new Exception;
+				}
+				
+				if($client['character']!='单位' && !$client['gender']){
+					$this->output->message('选择性别','warning');
 					throw new Exception;
 				}
 				
@@ -184,14 +189,14 @@ class Client extends SS_Controller{
 					throw new Exception;
 				}
 				
-				$source=$this->input->sessionPost('source');
-
-				post('client/source', $this->client->setSource($source['type'], isset($source['detail'])?$source['detail']:NULL));
-				
-				post('client/staff', $this->staff->check($client['staff_name']));
-				
 				if(!$client['type']){
 					post('client/type','客户');
+				}
+				
+				if(post('client/type')=='客户'){
+					$source=$this->input->sessionPost('source');
+					post('client/source', $this->client->setSource($source['type'], isset($source['detail'])?$source['detail']:NULL));
+					post('client/staff', $this->staff->check($client['staff_name']));
 				}
 
 				$this->client->update($this->client->id,post('client'));

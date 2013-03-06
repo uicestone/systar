@@ -100,13 +100,13 @@ class Client_model extends People_model{
 		
 		if(!$type){
 			$this->output->message('请选择客户来源','warning');
-			return false;
+			throw new Exception;
 		}
 	
 		if($type=='老客户介绍'){
 			$client_check=$this->check($detail,'array');
 			if($client_check<0){
-				return false;
+				throw new Exception;
 			}else{
 				post('source/client',$client_check['id']);
 				post('source/detail',$client_check['abbreviation']);
