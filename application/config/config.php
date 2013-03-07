@@ -393,6 +393,8 @@ function __autoload($class) {
 		require_once APPPATH."models/".strtolower($class).EXT;  
 	}elseif(file_exists(APPPATH.'libraries/.'.strtolower($class).EXT)){
 		require_once APPPATH."libraries/".strtolower($class).EXT;  
+	}elseif(file_exists(APPPATH."controllers/".strtolower($class).EXT)){
+		require_once APPPATH."controllers/".strtolower($class).EXT;  
 	}
 } 
 

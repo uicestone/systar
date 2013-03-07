@@ -64,7 +64,7 @@ class Schedule extends SS_controller{
 		$field=array(
 			'case.id'=>array('heading'=>'案件','cell'=>'{case_name}<p style="font-size:11px;text-align:right;"><a href="#schedule/lists?case={case}">本案日志</a> <a href="#cases/edit/{case}">案件</a></p>'),
 		
-			'staff_name'=>array('heading'=>array('data'=>'人员','width'=>'60px'),'cell'=>'<a href="#schedule/list?staff={staff}"> {staff_name}</a>'),
+			'staff_name'=>array('heading'=>array('data'=>'人员','width'=>'60px'),'cell'=>'<a href="#schedule/list?staff={staff}">{staff_name}</a>'),
 		
 			'name'=>array('heading'=>'标题','eval'=>true,'cell'=>"
 				return '<a href=\"javascript:showWindow(\'schedule/edit/{id}\')\" title=\"{name}\">'.str_getSummary('{name}').'</a>';
@@ -156,10 +156,8 @@ class Schedule extends SS_controller{
 	
 	function outPlan(){
 		
-		
-		
 		$field=Array(
-			'staff_name'=>array('heading'=>array('data'=>'人员','cell'=>'<a href="#schedule/lists?staff={staff}"> {staff_name}</a>','width'=>'60px')),
+			'staff_name'=>array('heading'=>array('data'=>'人员','width'=>'60px'),'cell'=>'<a href="#schedule/lists?staff={staff}"> {staff_name}</a>'),
 		
 			'time_start'=>array('heading'=>array('data'=>'时间','width'=>'60px'),'eval'=>true,'cell'=>"
 				return date('m-d H:i',{time_start});

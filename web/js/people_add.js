@@ -1,7 +1,7 @@
 $(function(){
 	var section = $('article>section[hash="'+hash+'"]');
 	/*判别个人或单位，激活不同的表单*/
-	$('[name="client[character]"]').on('change',function(){
+	$('[name="people[character]"]').on('change',function(){
 		var character=$(this).is(':checked')?'单位':'个人';
 		$.post(hash,{character:character},function(response){
 			section.setBlock(response);
@@ -17,14 +17,14 @@ $(function(){
 		}
 	});
 	
-	$('input[name="client[birthday]"]').click(function(){
+	$('input[name="people[birthday]"]').click(function(){
 		$(this).select();
 	});
 	
 	//根据身份证生成生日
-	$('input[name="client[id_card]"]').blur(function(){
+	$('input[name="people[id_card]"]').blur(function(){
 		if($(this).val().length===18){
-			$('input[name="client[birthday]"]').val($(this).val().substr(6,4)+'-'+$(this).val().substr(10,2)+'-'+$(this).val().substr(12,2));
+			$('input[name="people[birthday]"]').val($(this).val().substr(6,4)+'-'+$(this).val().substr(10,2)+'-'+$(this).val().substr(12,2));
 		}
 	});
 	

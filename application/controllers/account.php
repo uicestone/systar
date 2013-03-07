@@ -113,7 +113,7 @@ class Account extends SS_controller{
 			
 			if($submit=='cancel'){
 				unset($_SESSION[CONTROLLER]['post'][$this->account->id]);
-				//$this->account->clearUserTrash();
+				$this->output->status='close';
 			}
 			
 			if($submit=='account'){
@@ -147,9 +147,12 @@ class Account extends SS_controller{
 				$this->account->update($this->account->id,post('account'));
 				
 				unset($_SESSION[CONTROLLER]['post'][$this->account->id]);
+				$this->output->status='close';
 			}
 			
-			$this->output->status='success';
+			if(is_null($this->output->status)){
+				$this->output->status='success';
+			}
 			
 		}catch(Exception $e){
 			$this->output->status='fail';

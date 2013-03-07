@@ -180,3 +180,6 @@ ALTER TABLE  `staff` ADD FOREIGN KEY (  `position` ) REFERENCES  `syssh`.`positi
 
 ALTER TABLE  `schedule` CHANGE  `username`  `username` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
 -- uice 2/28
+
+ALTER TABLE  `people` CHANGE  `type`  `type` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+-- uice 3/7

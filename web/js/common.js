@@ -313,16 +313,8 @@ $(document).ready(function(){
 			$.post(postURI,form.serialize(),function(response){
 				section.setBlock(response);
 
-				if(response.status==='success'){
-					if(submit===controller || submit==='cancel'){
-						$.closeTab(hash);
-						if(submit===controller){
-							$.get(controller,function(response){
-								throbber.stop().fadeOut(200).stopRotate();
-								$(document).setBlock(response);
-							},'json');
-						}
-					}
+				if(response.status==='close'){
+					$.closeTab(hash);
 				}
 			},'json');
 			

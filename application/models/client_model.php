@@ -4,6 +4,14 @@ class Client_model extends People_model{
 		parent::__construct();
 	}
 	
+	function add($data=array('type'=>'客户')){
+		if(!isset($data['type'])){
+			$data['type']='客户';
+		}
+		
+		return parent::add($data);
+	}
+	
 	/**
 	 * 检查客户名，返回错误信息或获取唯一客户的信息
 	 * @param $client_name 要检查的完整或部分客户姓名
@@ -255,23 +263,6 @@ class Client_model extends People_model{
 		$q=$this->pagination($q/*,$q_rows*/);
 		
 		return $this->db->query($q)->result_array();
-	}
-	
-	/**
-	 * 返回一个人的资料项列表
-	 * @param $client_id
-	 * @return type
-	 */
-	function getProfiles($client_id){
-		$client_id=intval($client_id);
-		
-		$query="
-			SELECT 
-				people_profile.id,people_profile.comment,people_profile.content,people_profile.name
-			FROM people_profile INNER JOIN people ON people_profile.people=people.id
-			WHERE people_profile.people = $client_id
-		";
-		return $this->db->query($query)->result_array();
 	}
 	
 	/**

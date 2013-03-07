@@ -252,7 +252,7 @@ class Cases extends SS_controller{
 			if(!$cases['name']){
 				$this->output->setData('未命名案件','name');
 			}else{
-				$this->output->setData(strip_tags($cases['name']), 'name');
+				$this->output->setData($cases['name'], 'name');
 			}
 
 			$case_role=$this->cases->getRoles($this->cases->id);
@@ -332,6 +332,7 @@ class Cases extends SS_controller{
 		
 			if($submit=='cancel'){
 				unset($_SESSION[CONTROLLER]['post'][$this->cases->id]);
+				$this->output->status='close';
 			}
 		
 			elseif($submit=='cases'){
@@ -349,6 +350,7 @@ class Cases extends SS_controller{
 				$this->cases->updateLabels($this->cases->id,post('labels'));
 				
 				unset($_SESSION['cases']['post'][$this->cases->id]);
+				$this->output->status='close';
 			}
 			
 			elseif($submit=='case_client'){
@@ -784,7 +786,7 @@ class Cases extends SS_controller{
 				$this->output->status='refresh';
 			}
 
-			if(!$this->output->status){
+			if(!is_null($this->output->status)){
 				$this->output->status='success';
 			}
 

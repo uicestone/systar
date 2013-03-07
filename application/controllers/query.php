@@ -1,5 +1,5 @@
 <?php
-class Query extends SS_controller{
+class Query extends Cases{
 	function __construct(){
 		$this->default_method='lists';
 		parent::__construct();
@@ -81,7 +81,7 @@ class Query extends SS_controller{
 			
 			if($submit=='cancel'){
 				unset($_SESSION[CONTROLLER]['post'][$this->query->id]);
-				$this->query->clearUserTrash();
+				$this->output->status='close';
 			}
 		
 			elseif($submit=='query'){
@@ -168,7 +168,7 @@ class Query extends SS_controller{
 					$this->query->addStaff($this->query->id,$staff,$role);
 				}
 			}
-			if(!$this->output->status){
+			if(is_null($this->output->status)){
 				$this->output->status='success';
 			}
 			

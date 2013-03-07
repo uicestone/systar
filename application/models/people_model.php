@@ -199,10 +199,6 @@ class People_model extends SS_Model{
 		return $hot_labels_of_types;
 	}
 	
-	function clearUserTrash(){
-		return $this->db->delete('people', array('display'=>0,'uid'=>$this->user->id));
-	}
-	
 	function addProfile($people_id,$name,$content,$comment=NULL){
 		$data=array(
 			'people'=>$people_id,
@@ -216,6 +212,45 @@ class People_model extends SS_Model{
 		$this->db->insert('people_profile',$data);
 		
 		return $this->db->insert_id();
+	}
+	
+	/**
+	 * 对于指定人，在people_profiles中写入一组资料项
+	 * @param int $people_id
+	 * @param array $profiles: array($name=>$content,...)
+	 */
+	function updateProfiles($people_id,$profiles){
+		$people_id=intval($people_id);
+		
+		foreach((array)$profiles as $name => $content){
+			
+			$set=array('content'=>$content);
+			$where=array('people'=>$people_id,'name'=>$name);
+			
+			$this->db->update('people_profile',$set,$where);
+			
+			if($this->db->affected_rows()===0){
+				$this->db->insert('people_profile',$set+$where+uidTime());
+			}
+			
+		}
+	}
+	
+	/**
+	 * 返回一个人的资料项列表
+	 * @param $people_id
+	 * @return type
+	 */
+	function getProfiles($client_id){
+		$client_id=intval($client_id);
+		
+		$query="
+			SELECT 
+				people_profile.id,people_profile.comment,people_profile.content,people_profile.name
+			FROM people_profile INNER JOIN people ON people_profile.people=people.id
+			WHERE people_profile.people = $client_id
+		";
+		return $this->db->query($query)->result_array();
 	}
 	
 	/**
