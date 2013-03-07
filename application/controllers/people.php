@@ -1,17 +1,24 @@
 <?php
 /**
  * 这是一个半抽象的控制器类
- * 它既可以被直接使用
+ * 它既可以被直接使用，如搜索不特定人People::match()
  * 也可以被其他控制器比如Client继承
  * 注意：此类中调用同类model时，必须使用$this->$controller而不是$this->people
  *	当然，不要忘了在每个方法的开始定义$controller变量
- * 注意：在子类的实例中调用模型时，只可调用对应的子模型，不可直接调用People_model
+ * 注意：在子类的实例中调用模型时，只可调用对应的子模型如Client_model，不可直接调用People_model
  */
 class People extends SS_Controller{
+	
+	var $form_validation_rules=array();
 	
 	function __construct() {
 		$this->require_permission_check=false;
 		parent::__construct();
+		$this->form_validation_rules['relative'][]=array(
+			'field'=>'relative_profiles[电子邮件]',
+			'label'=>'电子邮件',
+			'rules'=>'valid_email'
+		);
 	}
 	
 	/**
@@ -137,17 +144,25 @@ class People extends SS_Controller{
 		$this->$controller->id=$id;
 		
 		$people=array_merge($this->$controller->fetch($id),$this->input->sessionPost('people'));
-
-		try{
 		
+		if(isset($this->form_validation_rules[$submit])){
+			$this->load->library('form_validation');
+			$this->form_validation->set_rules($this->form_validation_rules[$submit]);
+		}
+		
+		try{
+			
+			if(isset($this->form_validation_rules[$submit]) && $this->form_validation->run()===false){
+				$this->output->message(validation_errors(),'warning');
+				throw new Exception;
+			}
+
 			if($submit=='cancel'){
 				unset($_SESSION[CONTROLLER]['post'][$this->$controller->id]);
 				$this->output->status='close';
 			}
 
 			elseif($submit=='people'){
-				$this->load->model('staff_model','staff');
-				
 				$labels=$this->input->sessionPost('labels');
 				$profiles=$this->input->sessionPost('profiles');
 
@@ -158,6 +173,7 @@ class People extends SS_Controller{
 				}
 				
 				if($people['character']!='单位' && !$people['gender']){
+					//个人，则性别必填
 					$this->output->message('选择性别','warning');
 					throw new Exception;
 				}
@@ -167,16 +183,6 @@ class People extends SS_Controller{
 					throw new Exception;
 				}
 				
-				if(!$people['type']){
-					post('people/type','客户');
-				}
-				
-				if(post('people/type')=='客户'){
-					$source=$this->input->sessionPost('source');
-					post('people/source', $this->$controller->setSource($source['type'], isset($source['detail'])?$source['detail']:NULL));
-					post('people/staff', $this->staff->check($people['staff_name']));
-				}
-
 				$this->$controller->update($this->$controller->id,post('people'));
 				$this->$controller->updateLabels($this->$controller->id,$labels);
 				$this->$controller->updateProfiles($this->$controller->id,$profiles);
@@ -187,7 +193,7 @@ class People extends SS_Controller{
 
 			elseif($submit=='relative'){
 				
-				$relative=(array)post('relative');
+				$relative=$this->input->sessionPost('relative');
 				
 				if(!isset($relative['relation'])){
 					$this->output->message('请选择相关人与客户关系','warning');
@@ -195,7 +201,7 @@ class People extends SS_Controller{
 				}
 				
 				if(!$relative['id']){
-					$profiles=(array)post('relative_profiles');
+					$profiles=$this->input->sessionPost('relative_profiles');
 					
 					if(count($profiles)==0){
 						$this->output->message('请至少输入一种联系方式','warning');
@@ -244,6 +250,10 @@ class People extends SS_Controller{
 			elseif($submit=='remove_profile'){
 				$this->$controller->removeProfile($this->$controller->id,$button_id);
 				$this->output->setData($this->subList('profile',$this->$controller->id));
+			}
+			
+			elseif($submit=='changetype'){
+				$this->$controller->update($this->$controller->id,array('type'=>$this->input->post('type')));
 			}
 			
 			if(is_null($this->output->status)){

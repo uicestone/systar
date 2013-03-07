@@ -5,7 +5,11 @@ class Client extends People{
 	
 	function __construct(){
 		parent::__construct();
-		
+		$this->form_validation_rules['people'][]=array(
+			'field'=>'profiles[来源类型]',
+			'label'=>'客户来源类型',
+			'rules'=>'required'
+		);
 	}
 
 	function potential(){

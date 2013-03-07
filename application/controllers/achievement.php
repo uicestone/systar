@@ -74,8 +74,6 @@ class Achievement extends SS_controller{
 
 	function receivable($method=NULL){
 		
-		
-		
 		$field=array(
 			'type'=>array('heading'=>array('data'=>'类别','width'=>'85px')),
 			'case_name'=>array('heading'=>array('data'=>'案件','width'=>'25%'),'cell'=>'<a href="/cases/edit/{case}" class="right" style="margin-left:10px;">查看</a>{case_name}'),
@@ -97,7 +95,7 @@ class Achievement extends SS_controller{
 		$this->load->addViewData('receivable_sum', $receivable_sum['sum']);
 
 		$this->load->view('list');	
-		$this->load->view('achievement/receivable_sidebar');
+		$this->load->view('achievement/receivable_sidebar',true,'sidebar');
 	}
 	
 	function caseBonus(){

@@ -217,54 +217,6 @@ class Client_model extends People_model{
 		return $this->db->query($query)->result_array();
 	}
 
-	function getList($method=NULL){
-		$q="
-			SELECT people.id,people.name,IF(people.abbreviation IS NULL,people.name,people.abbreviation) AS abbreviation,people.time,people.comment,
-				phone.content AS phone,address.content AS address
-			FROM people
-				LEFT JOIN (
-					SELECT people,GROUP_CONCAT(content) AS content FROM people_profile WHERE name IN('手机','电话') GROUP BY people
-				)phone ON people.id=phone.people
-				LEFT JOIN (
-					SELECT people,GROUP_CONCAT(content) AS content FROM people_profile WHERE name='地址' GROUP BY people
-				)address ON people.id=address.people
-			WHERE display=1 AND type='客户'
-		";
-		$q_rows="
-			SELECT COUNT(*)
-			FROM people 
-			WHERE display=1 AND type='客户'
-		";
-		$condition='';
-
-		if($method=='potential'){
-			$condition.=" AND people.id IN (SELECT people FROM people_label WHERE label_name='潜在客户')";
-		
-		}else{
-			$condition.="
-				AND people.id IN (SELECT people FROM people_label WHERE label_name='成交客户')
-			";
-			
-			if(!$this->user->isLogged('service') && !$this->user->isLogged('developer')){
-				$condition.="
-					AND people.id IN (
-						SELECT people FROM case_people WHERE `case` IN (
-							SELECT `case` FROM case_people WHERE people = {$this->user->id}
-						)
-					)
-				";
-			}
-		}
-		
-		$condition=$this->search($condition,array('name'=>'姓名','phone.content'=>'电话','work_for'=>'单位','address'=>'地址','comment'=>'备注'));
-		$condition=$this->orderBy($condition,'time','DESC',array('abbreviation','type','address','comment'));
-		$q.=$condition;
-		$q_rows.=$condition;
-		$q=$this->pagination($q/*,$q_rows*/);
-		
-		return $this->db->query($q)->result_array();
-	}
-	
 	/**
 	 * 获得系统中所有客户的email
 	 */

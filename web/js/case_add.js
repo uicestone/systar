@@ -1,7 +1,9 @@
 $(function(){
+	var section = $('article>section[hash="'+hash+'"]');
 
 	/*客户添加表单－客户名称自动完成事件的响应*/
-	$('.item[name="client"]').on('autocompleteselect',function(event,data){
+	section.find('.item[name="client"]')
+	.on('autocompleteselect',function(event,data){
 		/*有自动完成结果且已选择*/
 		$(this).find('[name="case_client[client]"]').val(data.value).trigger('change');
 
@@ -13,12 +15,12 @@ $(function(){
 		$(this).find('[name="case_client[client]"]').val('').trigger('change');
 	});
 	
-	$('[name="client[name]"]').focus(function(){
+	section.find('[name="client[name]"]').focus(function(){
 		$(this).select();
 	});
 
 	/*案下客户类别联动*/
-	$('[name="client[type]"]').on('change',function(){
+	section.find('[name="client[type]"]').on('change',function(){
 		
 		var addForm=$(this).parents('.add-form:first');
 
@@ -40,7 +42,7 @@ $(function(){
 	});
 
 	//响应案下客户的本案地位的"其他"选项
-	$('select[name="case_client[role]"]').on('change',function(){
+	section.find('select[name="case_client[role]"]').on('change',function(){
 		if($(this).val()==''){
 			$(this).after('<input type="text" name="case_client[role]" placeholder="本案地位" />');
 		}else{
@@ -49,7 +51,7 @@ $(function(){
 	});
 
 	//响应客户来源选项
-	$('[name="client_source[type]"]').on('change',function(){
+	section.find('[name="client_source[type]"]').on('change',function(){
 		if($.inArray($(this).val(),['其他网络','媒体','老客户介绍','合作单位介绍','其他'])==-1){
 			$('[name="client_source[detail]"]').hide().attr('disabled','disabled').val('');
 		}else{
@@ -58,7 +60,7 @@ $(function(){
 	});
 
 	/*职员添加表单－职员名称自动完成事件的响应*/
-	$('.item[name="staff"]').on('autocompleteselect',function(event,data){
+	section.find('.item[name="staff"]').on('autocompleteselect',function(event,data){
 		/*有自动完成结果且已选择*/
 		$(this).find('[name="staff[id]"]').val(data.value).trigger('change');
 	}).on('autocompleteresponse',function(){
@@ -66,7 +68,7 @@ $(function(){
 	});
 
 	//勾选"计时收费"时，显示计时收费列表和表单
-	$('input[name="cases[timing_fee]"]').change(function(){
+	section.find('input[name="cases[timing_fee]"]').change(function(){
 		var caseTimingFeeSave=$('label#caseTimingFeeSave');
 		caseTimingFeeSave.html('<button type="submit" name="submit[case_fee_timing]">保存</button>');
 

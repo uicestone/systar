@@ -35,11 +35,12 @@ $(window).on('hashchange',function(){
 				throbber.stop().fadeOut(200).stopRotate();
 			},
 			success:function(response){
-				page.children('section[hash!="'+hash+'"]').hide();
-				aside.children('section[for!="'+hash+'"]').hide();
-
+				
 				//只对成功的响应生成标签选项卡、边栏和主页面元素
 				if(response.status==='success'){
+					page.children('section[hash!="'+hash+'"]').hide();
+					aside.children('section[for!="'+hash+'"]').hide();
+
 					$('<section hash="'+hash+'" time-access="'+$.now()+'"></section>').appendTo(page).trigger('sectioncreate');
 					$('<section for="'+hash+'"></section>').appendTo(aside).trigger('sidebarcreate');
 					/*如果请求的hash在导航菜单中不存在，则生成标签选项卡*/
@@ -96,11 +97,7 @@ $(document).ready(function(){
 
 		/*重复点击当前导航：手动刷新*/
 		if($(this).children('a').attr('href').substr(1)===hash){
-			throbber.fadeIn(500).rotate({animateTo:18000,duration:100000});
-			$.get(hash,function(response){
-				throbber.stop().fadeOut(200).stopRotate();
-				$(document).setBlock(response);
-			},'json');
+			$.refresh(hash);
 		}
 	})
 	
@@ -337,7 +334,12 @@ $(document).ready(function(){
 })
 /*主体页面加载事件*/
 .on('blockload','*',function(event){
-
+	
+	/*
+	 * 区域加载后要一次性执行的代码
+	 * 都通过find来执行，因此不需要事件冒泡，避免重复执行
+	 */
+	event.stopPropagation();
 	$(this).find('[placeholder]').placeholder();
 	$(this).find('.date').datepicker();
 	$(this).find('.birthday').datepicker({
@@ -512,14 +514,12 @@ jQuery.fn.setBlock=function(response){
 	}
 
 	else if(response.status==='redirect'){
-		$.locationHash(response.data);
+		$.redirect(response.data)
 		return this;
 	}
 	
 	else if(response.status==='refresh'){
-		$.get(hash,function(response){
-			$(document).setBlock(response);
-		});
+		$.refresh(hash);
 	}
 	
 	$.parseMessage(response.message);
@@ -582,6 +582,10 @@ jQuery.fn.setBlock=function(response){
 	return this;
 };
 
+/**
+ * 关闭当前标签选项卡并回到之前访问的选项卡
+ * 如果没有之前访问的选项卡，则打开默认页面
+ */
 jQuery.closeTab=function(hash){
 	tabs.children('li[for="'+hash+'"]').remove();
 	page.children('section[hash="'+hash+'"]').remove();
@@ -602,5 +606,33 @@ jQuery.closeTab=function(hash){
 	}else{
 		$.locationHash($('article').attr('default-uri'));
 	}
+}
 
+/**
+ * 关闭当前标签选项卡并打开一个新的标签选项卡
+ */
+jQuery.redirect=function(newhash){
+	tabs.children('li[for="'+hash+'"]').remove();
+	page.children('section[hash="'+hash+'"]').remove();
+	aside.children('section[for="'+hash+'"]').remove();
+	$.locationHash(newhash);
+}
+
+jQuery.refresh=function(hash){
+	$.ajax({
+		url:hash,
+		beforeSend:function(){
+			throbber.fadeIn(500).rotate({animateTo:18000,duration:100000});
+		},
+		complete:function(){
+			throbber.stop().fadeOut(200).stopRotate();
+		},
+		success:function(response){
+			$(document).setBlock(response);
+		},
+		error:function(){
+			$.showMessage('服务器返回了错误的数据','warning');
+		},
+		dataType:'json'
+	});
 }

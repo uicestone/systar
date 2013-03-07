@@ -18,8 +18,12 @@
 
 	<?=stylesheet('js/jQuery/fullcalendar/fullcalendar')?>
 	<?=javascript('jQuery/fullcalendar/fullcalendar')?>
+	
 	<?=javascript('jQuery/highcharts/highcharts')?>
+	
+	<?=stylesheet('js/jQuery/chosen/chosen')?>
 	<?=javascript('jQuery/chosen/chosen.jquery')?>
+	
 	<?=javascript('schedule')?>
 
 	<?=javascript('jQuery/jquery.form')?>
