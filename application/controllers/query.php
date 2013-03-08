@@ -86,8 +86,60 @@ class Query extends Cases{
 		
 			elseif($submit=='query'){
 				
+				$client=$this->input->sessionPost('client');
 				$labels=$this->input->sessionPost('labels');
 				
+				$this->load->library('form_validation');
+				
+				if(!$client['id']){
+					if(!$client['name']){
+						$this->output->message('请填写咨询人', 'warning');
+						throw new Exception;
+					}
+					
+					$client_profiles=$this->input->sessionPost('client_profiles');
+					
+					if(!$client['gender']){
+						$this->output->message('请选择性别','warning');
+						throw new Exception;
+					}
+					
+					if(!$client_profiles['电话'] && !$client_profiles['电子邮件']){
+						$this->output->message('至少输入一种联系方式','warning');
+						throw new Exception;
+					}
+					
+					foreach($client_profiles as $name => $content){
+						if($name=='电话'){
+							if($this->client->isMobileNumber($content)){
+								$client_profiles+=array('手机'=>$content);
+								unset($client_profiles['电话']);
+							}
+						}elseif($name=='电子邮件' && $content){
+							if(!$this->form_validation->valid_email($content)){
+								$this->output->message('请填写正确的Email地址', 'warning');
+								throw new Exception;
+							}
+						}
+					}
+
+					if(!isset($client['staff'])){
+						$client['staff']=$this->staff->check($client['staff_name']);
+					}
+					
+					$client['id']=$this->client->add(
+						$client
+						+array(
+							'profiles'=>$client_profiles,
+							'labels'=>array('类型'=>'潜在客户')
+						)
+					);
+					
+					$this->query->addPeople($this->query->id,$client['id'],'客户');
+					
+					post('client/id',$client['id']);
+				}
+
 				if(!$labels['咨询方式']){
 					$this->output->message('请选择咨询方式','warning');
 					throw new Exception;
@@ -95,11 +147,6 @@ class Query extends Cases{
 				
 				if(!$labels['领域']){
 					$this->output->message('请选择业务领域','warning');
-					throw new Exception;
-				}
-				
-				if(!$query['summary']){
-					$this->output->message('请填写咨询概况','warning');
 					throw new Exception;
 				}
 				
@@ -111,46 +158,19 @@ class Query extends Cases{
 				}
 				
 				$related_staff=array();
-				try{
-					foreach($related_staff_name as $role => $staff_name){
+				
+				foreach($related_staff_name as $role => $staff_name){
+					if($staff_name){
 						$related_staff[$role]=$this->staff->check($staff_name);
 					}
 				}
-				catch(Exception $e){
-					//截获staff->check可能抛出的错误
+				
+				if(!$query['summary']){
+					$this->output->message('请填写咨询概况','warning');
+					throw new Exception;
 				}
 				
 				$query['is_query']=true;
-
-				$client=$this->input->sessionPost('client');
-				
-				if(!$client['id']){
-					if(!$client['name']){
-						$this->output->message('请填写咨询人', 'warning');
-						throw new Exception;
-					}
-					
-					$client_profiles=$this->input->sessionPost('client_profiles');
-					
-					if(!$client_profiles['电话'] && !$client_profiles['电子邮件']){
-						$this->output->message('至少输入一种联系方式','warning');
-						throw new Exception;
-					}
-					
-					if(!isset($client['staff'])){
-						$client['staff']=$this->staff->check($client['staff_name']);
-					}
-					
-					$client_source=$this->input->sessionPost('client_source');
-					
-					$client['source']=$this->client->setSource($client_source['type'], @$client_source['detail']);
-
-					$client['id']=$this->client->add(
-						$client
-						+array('profiles'=>$client_profiles)
-						+array('labels'=>array('类型'=>'潜在客户'))
-					);
-				}
 
 				post('cases/num',$this->query->getNum($this->query->id,NULL,$labels['领域'],true,$query['first_contact']));
 
@@ -162,11 +182,15 @@ class Query extends Cases{
 				
 				$this->query->updateLabels($this->query->id, post('labels'));
 
-				$this->query->addPeople($this->query->id,$client['id'],'客户');
-				
+				post('staffs',array());
 				foreach($related_staff as $role=>$staff){
-					$this->query->addStaff($this->query->id,$staff,$role);
+					if(!in_array($staff,post('staffs'))){
+						$this->query->addStaff($this->query->id,$staff,$role);
+						post('staffs',post('staffs')+array($staff));
+					}
 				}
+				
+				$this->output->status='close';
 			}
 			if(is_null($this->output->status)){
 				$this->output->status='success';

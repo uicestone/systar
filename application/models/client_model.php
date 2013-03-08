@@ -63,11 +63,6 @@ class Client_model extends People_model{
 		}
 	}
 	
-	function addSource($data){
-		$this->db->insert('client_source',$data);
-		return $this->db->insert_id();
-	}
-	
 	function setDefaultRelated($people_relationship_id,$client){
 		$this->clearDefaultRelated($client);
 		
@@ -82,76 +77,6 @@ class Client_model extends People_model{
 			return true;
 		}
 		return false;
-	}
-	
-	function checkSource($detail,$checktype){
-		if($checktype=='client'){
-			$q_source="SELECT id FROM client_source WHERE client='".intval($detail)."' LIMIT 1";
-			
-		}elseif($checktype=='staff'){
-			$q_source="SELECT id FROM client_source WHERE staff='".intval($detail)."' LIMIT 1";
-	
-		}else{
-			$q_source="SELECT id FROM client_source WHERE type='$checktype' AND detail='$detail' LIMIT 1";
-		}
-		
-		$row_source=$this->db->query($q_source)->row();
-		
-		if($row_source){
-			return $row_source->id;
-		}else{
-			return false;
-		}
-	}
-	
-	function setSource($type,$detail=NULL){
-		
-		if(!$type){
-			$this->output->message('请选择客户来源','warning');
-			throw new Exception;
-		}
-	
-		if($type=='老客户介绍'){
-			$client_check=$this->check($detail,'array');
-			if($client_check<0){
-				throw new Exception;
-			}else{
-				post('source/client',$client_check['id']);
-				post('source/detail',$client_check['abbreviation']);
-			}
-			$client_source=$this->checkSource(post('source/client'),'client');
-	
-		}else{
-			$client_source=$this->checkSource($detail,$type);
-		}
-		//试图获得现存"来源"的ID
-		if($client_source===false){
-			//插入一种新来源
-			$client_source_array=array(
-				'type'=>$type,
-				'detail'=>$detail
-			);
-			if(in_array($client_source_array['type'],array('其他网络','媒体','老客户介绍','中介机构介绍','其他'))){
-				$client_source_array['detail']=post('source/detail');
-				if($client_source_array['type']=='老客户介绍'){
-					$client_source_array['client']=post('source/client');
-				}
-			}else{
-				post('source/detail','');
-			}
-			$client_source=$this->addSource($client_source_array);
-		}
-		
-		if(!$client_source){
-			$this->output->message('客户来源识别错误','warning');
-			throw new Exception;
-		}
-		
-		return $client_source;
-	}
-	
-	function fetchSource($source_id){
-		return $this->db->query("SELECT type,detail FROM client_source WHERE id='{$source_id}'")->row_array();
 	}
 	
 	/**
@@ -197,26 +122,6 @@ class Client_model extends People_model{
 		return $option_array;	
 	}
 	
-	/**
-	 * 根据部分客户名称返回匹配的客户id和名称列表
-	 * @param $part_of_name
-	 * @return array
-	 */
-	function match($part_of_name){
-		$part_of_name=mysql_real_escape_string($part_of_name);
-		
-		$query="
-			SELECT people.id,people.name 
-			FROM people
-			WHERE people.company={$this->company->id} AND people.display=1 
-				AND type='客户'
-				AND (name LIKE '%$part_of_name%' OR abbreviation LIKE '$part_of_name' OR name_en LIKE '%$part_of_name%')
-			ORDER BY people.id DESC
-		";
-		
-		return $this->db->query($query)->result_array();
-	}
-
 	/**
 	 * 获得系统中所有客户的email
 	 */

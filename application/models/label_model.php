@@ -129,16 +129,19 @@ class Label_model extends SS_Model{
 	}
 	
 	/**
-	 * 接受一个label_id，返回与其相关的label的id和name构成的数组
+	 * 接受一个label name，返回与其相关的label的id和name构成的数组
 	 * @param type $label
 	 * @param type $relation
 	 */
 	function getRelatives($label,$relation=NULL){
-		$label=intval($label);
-		
-		$query="SELECT label.id,label.name FROM label WHERE id IN (
-			SELECT relative FROM label_relationship WHERE label = $label
-		)";
+
+		$query="
+			SELECT relative.id,relative.name
+			FROM label_relationship
+				INNER JOIN label ON label.id=label_relationship.label
+				INNER JOIN label relative ON relative.id=label_relationship.relative
+			WHERE label.name='$label' OR label.id='$label'
+		";
 		
 		return array_sub($this->db->query($query)->result_array(),'name','id');
 	}

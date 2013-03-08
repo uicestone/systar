@@ -19,13 +19,13 @@
 		<select id="classification" name="labels[分类]"<?if($cases['type_lock']){?> disabled="disabled"<?}?>>
 		<?=options(array('诉讼','非诉讼','法律顾问'),$this->value('labels/分类'),'分类');?>
 		</select>
+		<select name="labels[阶段]"<?if(!isset($labels['分类']) || $labels['分类']!='诉讼'){?> class="hidden" disabled="disabled"<?}?>>
+		<?=options($case_type_array,$this->value('labels/阶段'),'阶段');?>
+		</select>
 		<input type="text" name="cases[name]" value="<?=$this->value('cases/name')?>" placeholder="案件名称" style="width:300px;">
 <?	if(!$cases['num']){?>
 		<button type="submit" name="submit[apply_case_num]" class="major">获得案号</button>
 <?	}?>
-		<select id="stage" name="labels[阶段]">
-		<?=options($case_type_array,$this->value('labels/阶段'),'阶段');?>
-		</select>
 <?}?>
 <?if($cases['is_query']){ ?>
 		<input type="text" name="cases[first_contact]" value="<?=$this->value('cases/first_contact')?>" placeholder="首次接待日期" title="首次接待日期" class="date" />
@@ -61,10 +61,12 @@
 				<?=checkbox('单位','client[character]',$this->value('client/character'),'单位','disabled="disabled"')?>
 
 				<select name="client[type]" disabled="disabled">
-					<?=options($cases['client_lock']?array('联系人','相对方'):array('客户','相对方','联系人'),$this->value('case_client_extra/classification'));?>
+					<?=options($cases['client_lock']?array('联系人'):array('客户','联系人'),$this->value('client/type'),'人员类型');?>
 				</select>
 
-				<select name="client_labels[类型]" disabled="disabled"></select>
+				<select name="client_labels[类型]" disabled="disabled">
+					<?=options($this->label->getRelatives($this->value('client/type')),$this->value('client_labels/类型'),$this->value('client/type').'类型');?>
+				</select>
 
 			</span>
 
@@ -78,10 +80,10 @@
 
 			<span display-for="new client" class="hidden">
 				<label>来源：</label>
-				<select name="client_source[type]" disabled="disabled">
-					<?=options($this->config->item('客户来源类型'),$this->value('client_source/type'),'来源类型')?>
+				<select name="client_profiles[来源类型]" disabled="disabled">
+					<?=options($this->config->item('客户来源类型'),$this->value('client_profiles/来源类型'),'来源类型')?>
 				</select>
-				<input type="text" name="client_source[detail]" value="<?=$this->value('client_source/detail')?>" class="hidden" disabled="disabled" locked-by="case_client_extra[source_type]" />
+				<input type="text" name="client_profiles[来源]" value="<?=$this->value('client_profiles/来源')?>" class="hidden" disabled="disabled" locked-by="client_profiles[来源类型]" />
 				<input type="text" name="client[staff_name]" placeholder="来源律师" value="<?=$this->value('client/staff_name')?$this->value('client/staff_name'):$this->user->name?>" disabled="disabled" />
 			</span>
 			<button type="submit" name="submit[case_client]">添加</button>

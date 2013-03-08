@@ -61,13 +61,17 @@ class People_model extends SS_Model{
 		
 		if(isset($data['profiles'])){
 			foreach($data['profiles'] as $name => $value){
-				$this->addProfile($new_people_id,$name,$value);
+				if(!is_null($value) && $value!==''){
+					$this->addProfile($new_people_id,$name,$value);
+				}
 			}
 		}
 		
 		if(isset($data['labels'])){
 			foreach($data['labels'] as $type => $name){
-				$this->addLabel($new_people_id,$name,$type);
+				if(!is_null($value) && $value!==''){
+					$this->addLabel($new_people_id,$name,$type);
+				}
 			}
 		}
 		

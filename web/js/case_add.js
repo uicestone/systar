@@ -1,5 +1,15 @@
 $(function(){
-	var section = $('article>section[hash="'+hash+'"]');
+	var section = page.children('section[hash="'+hash+'"]');
+	
+	/*根据案件分类显示/隐藏案件阶段选项*/
+	section.find('[name="labels[分类]"]')
+	.on('change',function(){
+		if($(this).val()==='诉讼'){
+			$(this).siblings('[name="labels[阶段]"]').removeAttr('disabled').show();
+		}else{
+			$(this).siblings('[name="labels[阶段]"]').hide().attr('disabled','disabled');
+		}
+	});
 
 	/*客户添加表单－客户名称自动完成事件的响应*/
 	section.find('.item[name="client"]')
@@ -11,7 +21,7 @@ $(function(){
 	})
 	.on('autocompleteresponse',function(){
 		/*自动完成响应*/
-		$(this).find('[display-for~="new"]').trigger('enable');
+		$(this).find('[display-for~="new"]:hidden').trigger('enable')
 		$(this).find('[name="case_client[client]"]').val('').trigger('change');
 	});
 	
@@ -20,7 +30,7 @@ $(function(){
 	});
 
 	/*案下客户类别联动*/
-	section.find('[name="client[type]"]').on('change',function(){
+	section.find('[name="client[type]"]').on('show change',function(){
 		
 		var addForm=$(this).parents('.add-form:first');
 
@@ -51,11 +61,11 @@ $(function(){
 	});
 
 	//响应客户来源选项
-	section.find('[name="client_source[type]"]').on('change',function(){
+	section.find('[name="client_profiles[来源类型]"]').on('change',function(){
 		if($.inArray($(this).val(),['其他网络','媒体','老客户介绍','合作单位介绍','其他'])==-1){
-			$('[name="client_source[detail]"]').hide().attr('disabled','disabled').val('');
+			$('[name="client_profiles[来源]"]').hide().attr('disabled','disabled').val('');
 		}else{
-			$('[name="client_source[detail]"]').removeAttr('disabled').show();
+			$('[name="client_profiles[来源]"]').removeAttr('disabled').show();
 		}
 	});
 

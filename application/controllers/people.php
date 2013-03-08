@@ -97,7 +97,7 @@ class People extends SS_Controller{
 		$this->load->model('cases_model','cases');
 
 		try{
-			$people=$this->$controller->fetch($this->$controller->id);
+			$people=array_merge($this->$controller->fetch($id),$this->input->sessionPost('people'));
 			$labels=$this->$controller->getLabels($this->$controller->id);
 			$profiles=array_sub($this->$controller->getProfiles($this->$controller->id),'content','name');
 
@@ -145,18 +145,18 @@ class People extends SS_Controller{
 		
 		$people=array_merge($this->$controller->fetch($id),$this->input->sessionPost('people'));
 		
-		if(isset($this->form_validation_rules[$submit])){
-			$this->load->library('form_validation');
-			$this->form_validation->set_rules($this->form_validation_rules[$submit]);
-		}
+		$this->load->library('form_validation');
 		
 		try{
 			
-			if(isset($this->form_validation_rules[$submit]) && $this->form_validation->run()===false){
-				$this->output->message(validation_errors(),'warning');
-				throw new Exception;
+			if(isset($this->form_validation_rules[$submit])){
+				$this->form_validation->set_rules($this->form_validation_rules[$submit]);
+				if($this->form_validation->run()===false){
+					$this->output->message(validation_errors(),'warning');
+					throw new Exception;
+				}
 			}
-
+		
 			if($submit=='cancel'){
 				unset($_SESSION[CONTROLLER]['post'][$this->$controller->id]);
 				$this->output->status='close';

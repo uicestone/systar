@@ -255,22 +255,22 @@ $(document).ready(function(){
 			}
 		});
 		
-		$(this).find('[display-for]:not([locked-by])').on('enable',function(){
+		section.find('[display-for]:not([locked-by])').on('enable',function(){
 			$(this).find(':input:disabled:not([locked-by])').removeAttr('disabled');
 			$(this).show();
 
 		});
 		
-		$(this).find('[display-for]:not([locked-by])').on('disable',function(){
+		section.find('[display-for]:not([locked-by])').on('disable',function(){
 			$(this).hide();
 			$(this).find(':input:enabled').attr('disabled','disabled');
 
 		});
 				
-		$(this).find('.contentTable>tbody>tr').on('mouseenter mouseleave',function(){
+		section.find('.contentTable>tbody>tr').on('mouseenter mouseleave',function(){
 			$(this).toggleClass('highlighted');
-
-		})
+		
+		});
 				
 	});
 	
@@ -587,6 +587,23 @@ jQuery.fn.setBlock=function(response){
  * 如果没有之前访问的选项卡，则打开默认页面
  */
 jQuery.closeTab=function(hash){
+	
+	var uriSegments=hash.split('/');
+	
+	$.ajax({
+		url:'/'+uriSegments[0]+'/submit/cancel/'+uriSegments[2],
+		beforeSend:function(){
+			throbber.fadeIn(500).rotate({animateTo:18000,duration:100000});
+		},
+		complete:function(){
+			throbber.stop().fadeOut(200).stopRotate();
+		},
+		error:function(){
+			$.showMessage('关闭标签后，服务器返回了错误的数据','warning');
+		},
+		dataType:'json'
+	});
+	
 	tabs.children('li[for="'+hash+'"]').remove();
 	page.children('section[hash="'+hash+'"]').remove();
 	aside.children('section[for="'+hash+'"]').remove();
@@ -594,7 +611,7 @@ jQuery.closeTab=function(hash){
 	var lastAccessedHash;
 	var lastAccessTime=0;
 
-	var sections = $('article>section').each(function(){
+	var sections = page.children('section').each(function(){
 		if($(this).attr('time-access')>lastAccessTime){
 			lastAccessedHash=$(this).attr('hash');
 			lastAccessTime=$(this).attr('time-access');
@@ -604,8 +621,9 @@ jQuery.closeTab=function(hash){
 	if(sections>0){
 		$.locationHash(lastAccessedHash);
 	}else{
-		$.locationHash($('article').attr('default-uri'));
+		$.locationHash(page.attr('default-uri'));
 	}
+	
 }
 
 /**

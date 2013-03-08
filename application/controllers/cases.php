@@ -1,7 +1,9 @@
 <?php
 class Cases extends SS_controller{
+	
+	var $form_validation_rules=array();
+	
 	function __construct(){
-		$this->default_method='lists';
 		parent::__construct();
 	}
 	
@@ -25,7 +27,7 @@ class Cases extends SS_controller{
 		$this->lists('review');
 	}
 	
-	function lists($para=NULL){
+	function index($para=NULL){
 		$this->output->setData('案件', 'name');
 
 		$field=array(
@@ -245,9 +247,9 @@ class Cases extends SS_controller{
 		$this->load->model('schedule_model','schedule');
 
 		try{
-			$cases=$this->cases->fetch($this->cases->id);
+			$cases=array_merge($this->cases->fetch($id),$this->input->sessionPost('cases'));
 
-			$labels=$this->cases->getLabels($this->cases->id);
+			$labels=array_merge($this->cases->getLabels($this->cases->id),$this->input->sessionPost('labels'));
 
 			if(!$cases['name']){
 				$this->output->setData('未命名案件','name');
@@ -321,15 +323,20 @@ class Cases extends SS_controller{
 		
 		//$case是用来汇总，读的，因此尽可能获取最新的，最多的信息。post('cases')是要写入数据库的，只是要更改的部分。
 		$case=array_merge($this->cases->fetch($id),$this->input->sessionPost('cases'));
+		$labels=array_merge($this->cases->getLabels($this->cases->id),$this->input->sessionPost('labels'));
 		
-		$labels=$this->cases->getLabels($this->cases->id);
-		$labels_unsaved_changes=post('labels');
-		if($labels_unsaved_changes){
-			$labels+=$labels_unsaved_changes;
-		}
+		$this->load->library('form_validation');
 		
 		try{
 		
+			if(isset($this->form_validation_rules[$submit])){
+				$this->form_validation->set_rules($this->form_validation_rules[$submit]);
+				if($this->form_validation->run()===false){
+					$this->output->message(validation_errors(),'warning');
+					throw new Exception;
+				}
+			}
+
 			if($submit=='cancel'){
 				unset($_SESSION[CONTROLLER]['post'][$this->cases->id]);
 				$this->output->status='close';
@@ -381,41 +388,46 @@ class Cases extends SS_controller{
 						'labels'=>$client_labels
 					);
 
-					if($client['type']=='客户'){//客户必须输入来源
-						$client_source=$this->input->sessionPost('client_source');
-						$client['source']=$this->client->setSource($client_source['type'],isset($client_source['detail'])?$client_source['detail']:NULL);
+					if(!$client_profiles['电话'] && !$client_profiles['电子邮件']){
+						$this->output->message('至少输入一种联系方式', 'warning');
+						throw new Exception;
+					}
+					
+					foreach($client_profiles as $name => $content){
+						if($name=='电话'){
+							if($this->client->isMobileNumber($content)){
+								$new_client['profiles']['手机']=$content;
+							}else{
+								$new_client['profiles']['电话']=$content;
+							}
+						}elseif($name=='电子邮件' && $content){
+							if(!$this->form_validation->valid_email($content)){
+								$this->output->message('请填写正确的Email地址', 'warning');
+								throw new Exception;
+							}
+						}else{
+							$new_client['profiles'][$name]=$content;
+						}
+					}
 
+					if($client['type']=='客户'){//客户必须输入来源
+						if(!$client_profiles['来源类型']){
+							$this->output->message('请选择客户来源类型','warning');
+							throw new Exception;
+						}
 						$client['staff']=$this->staff->check($client['staff_name']);
 
 						$new_client['staff']=$client['staff'];
-						$new_client['source']=$client['source'];
 
 					}else{//非客户必须输入工作单位
-						if($client['work_for']){
-							$new_client['work_for']=$client['work_for'];
-						}else{
+						if(!$client['work_for']){
 							$this->output->message('请输入工作单位','warning');
+							throw new Exception;
 						}
 					}
 					
-					if(!$client_profiles['电话'] && !$client_profiles['电子邮件']){
-						$this->output->message('至少输入一种联系方式', 'warning');
-					}
-
-					if(isset($client_profiles['电话'])){
-						if($this->client->isMobileNumber($client_profiles['电话'])){
-							$new_client['profiles']['手机']=$client_profiles['电话'];
-						}else{
-							$new_client['profiles']['电话']=$client_profiles['电话'];
-						}
-					}
-
-					if($client_profiles['电子邮件']){
-						$new_client['profiles']['电子邮件']=$client_profiles['电子邮件'];
-					}
-
-					if($this->output->message['warning']){
-						throw new Exception();
+					if($client['work_for']){
+						$new_client['work_for']=$client['work_for'];
 					}
 					
 					$case_client['client']=$this->client->add($new_client);
@@ -427,13 +439,13 @@ class Cases extends SS_controller{
 						$client['type'].' '.$client['name'].
 						' 已经添加，点击编辑详细信息</a>'
 					);
-
 				}
 
 				if($this->cases->addPeople($this->cases->id,$case_client['client'],'客户',$case_client['role'])){
 					$this->output->setData($this->subList('client',$this->cases->id));
 				}else{
 					$this->output->message('客户添加错误', 'warning');
+					throw new Exception;
 				}
 			}
 
@@ -786,7 +798,7 @@ class Cases extends SS_controller{
 				$this->output->status='refresh';
 			}
 
-			if(!is_null($this->output->status)){
+			if(is_null($this->output->status)){
 				$this->output->status='success';
 			}
 
