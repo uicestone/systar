@@ -214,7 +214,7 @@ class Cases extends SS_controller{
 						return '<img src=\"/images/file_type/'.\$image.'.png\" alt=\"{extname}\" /><button type=\"submit\" name=\"submit[remove_document]\" id=\"{id}\" class=\"hover\">删除</button>';
 					"
 				),
-				'name'=>array('heading'=>array('data'=>'文件名','width'=>'150px'),'wrap'=>array('mark'=>'a','href'=>'/document/download/{id}')),
+				'name'=>array('heading'=>array('data'=>'文件名','width'=>'150px'),'cell'=>'<a href="/document/download/{document}">{name}</a>'),
 				'type'=>array('heading'=>array('data'=>'类型','width'=>'80px')),
 				'comment'=>array('heading'=>'备注'),
 				'time'=>array('heading'=>array('data'=>'时间','width'=>'60px'),'eval'=>true,'cell'=>"

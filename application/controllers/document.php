@@ -122,7 +122,7 @@ class Document extends SS_controller{
 	}
 
 	function download($id){
-		$this->export->as_ajax=false;
+		$this->output->as_ajax=false;
 
 		$document=$this->document->fetch($id);
 		
