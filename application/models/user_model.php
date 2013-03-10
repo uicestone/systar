@@ -1,6 +1,8 @@
 <?php
 class User_model extends People_model{
 	
+	var $table='user';
+	
 	var $id;
 	var $name;
 	var $group=array();

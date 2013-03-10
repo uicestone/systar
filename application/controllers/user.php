@@ -13,7 +13,11 @@ class user extends SS_controller{
 	
 	function logout(){
 		$this->user->sessionLogout();
-		redirect('login');
+		if($this->company->ucenter){
+			redirect('login','js');
+		}else{
+			redirect('login');
+		}
 	}
 	
 	function login(){
@@ -63,8 +67,10 @@ class user extends SS_controller{
 
 				if(!$this->company->ucenter && !isset($user['password'])){
 					redirect('#user/profile');
-				}else{
+				}elseif(!$this->company->ucenter){
 					redirect();
+				}else{
+					redirect('','js');
 				}
 
 			}else{
