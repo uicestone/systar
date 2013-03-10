@@ -57,13 +57,9 @@ class User_model extends People_model{
 			SELECT id,name,password,`group`,lastip,lastlogin,company
 			FROM user 
 			WHERE (name = '$username' OR alias='$username')
-				AND (password = '{$this->input->post('password')}' OR password IS NULL)
+				AND (password = '$password' OR password IS NULL)
 				AND company={$this->company->id}
 			";
-		
-			if(!$this->config->item('debug_mode')){
-				$q_user=" AND (password = '$password' OR password IS NULL)";
-			}
 		
 		$user=$this->db->query($q_user)->row_array();
 		
