@@ -5,7 +5,7 @@ class Schedule_model extends SS_Model{
 	
 	var $table='schedule';
 	
-	var $fields=array(
+	static $fields=array(
 		'name'=>'标题',
 		'content'=>'内容',
 		'time_start'=>'开始时间',
@@ -42,7 +42,7 @@ class Schedule_model extends SS_Model{
 			$people=$data['people'];
 		}
 		
-		$data=array_intersect_key($data, $this->fields);
+		$data=array_intersect_key($data, self::$fields);
 		
 		if(isset($data['time_start']) && isset($data['time_end'])){
 			$data['hours_own'] = round(($data['time_end']-$data['time_start'])/3600,2);
@@ -64,7 +64,7 @@ class Schedule_model extends SS_Model{
 	function update($schedule_id,$data){
 		$schedule_id=intval($schedule_id);
 
-		$data=array_intersect_key($data, $this->fields);
+		$data=array_intersect_key($data, self::$fields);
 		
 		return $this->db->update('schedule',$data,array('id'=>$schedule_id));
 	}

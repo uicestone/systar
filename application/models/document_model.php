@@ -3,7 +3,7 @@ class Document_model extends SS_Model{
 	
 	var $id;
 	
-	var $fields=array(
+	static $fields=array(
 		'name'=>'文件名',
 		'extname'=>'扩展名',
 		'size'=>'大小',
@@ -27,7 +27,7 @@ class Document_model extends SS_Model{
 	}
 	
 	function add(array $data=array()){
-		$data=array_intersect_key($data, $this->fields);
+		$data=array_intersect_key($data, self::$fields);
 		
 		$data+=uidTime(true,true);
 		

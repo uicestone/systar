@@ -8,10 +8,6 @@ class Frame extends SS_Controller{
 	function index(){
 		$this->output->as_ajax=false;
 		
-		if(!$this->user->isLogged()){
-			redirect('login');
-		}
-		
 		$this->load->view('head');
 		$this->load->view('nav');
 		$this->load->view('menu');

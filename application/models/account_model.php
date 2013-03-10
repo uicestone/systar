@@ -5,7 +5,7 @@ class Account_model extends SS_Model{
 	
 	var $table='account';
 	
-	var $fields=array(
+	static $fields=array(
 		'name'=>'摘要',
 		'amount'=>'数额',
 		'date'=>'日期',
@@ -26,7 +26,7 @@ class Account_model extends SS_Model{
 			$data['date']=$this->config->item('date');
 		}
 
-		$data=array_intersect_key($data, $this->fields);
+		$data=array_intersect_key($data, self::$fields);
 		
 		$data+=uidTime(true,true);
 		
@@ -35,7 +35,7 @@ class Account_model extends SS_Model{
 	}
 	
 	function update($id,array $data){
-		$data=array_intersect_key($data, $this->fields);
+		$data=array_intersect_key($data, self::$fields);
 		
 		$data+=uidTime(false);
 		

@@ -131,9 +131,9 @@ class SS_Table extends CI_Table{
 					行属性名=>行属性值
 				),
 				'查询结果的列名'=>array(
-						'heading'=>表头单元格元素，可以是html，也可以是带data键的数组，其中data是html内容，其余是表头元素的的html属性
-						'cell'=>单元格元素，同上
-						'eval'=>false，'是否'将声称的cell的data代码作为源代码运行@deprecated
+						'heading'=>表头单元格元素，可以是html，也可以是数组，其中data键(如果有)是html内容，其余是表头元素的的html属性
+						'cell'=>单元格元素
+						'eval'=>false，'是否'将生成的cell的data代码作为源代码运行@deprecated
 					)
 			)
 	*/

@@ -32,6 +32,7 @@ class School_model extends SS_Model{
  */
 	}
 
+/*
 	function student_setSession($user_id){
 		$user_id=intval($user_id);
 		
@@ -43,7 +44,8 @@ class School_model extends SS_Model{
 		$this->session->set_userdata('user/grade', $student['grade']);
 		$this->session->set_userdata('user/grade_name', $student['grade_name']);
 	}
-	
+*/
+
 	function teacher_setSession($user_id){
 		$user_id=intval($user_id);
 		

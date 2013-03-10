@@ -11,7 +11,7 @@ class People_model extends SS_Model{
 	/**
 	 * people表下的字段及其显示名
 	 */
-	var $fields=array(
+	static $fields=array(
 		'character'=>'性质',
 		'name'=>'名称',
 		'name_en'=>'英文名',
@@ -51,7 +51,7 @@ class People_model extends SS_Model{
 	}
 
 	function add(array $data=array()){
-		$people=array_intersect_key($data,$this->fields);
+		$people=array_intersect_key($data,self::$fields);
 		$people+=uidTime(true,true);
 		$people['display']=1;
 		
@@ -85,7 +85,7 @@ class People_model extends SS_Model{
 			return true;
 		}
 		
-		$people_data=array_intersect_key($data, $this->fields);
+		$people_data=array_intersect_key($data, self::$fields);
 		
 		$people_data['display']=1;
 		
@@ -232,10 +232,10 @@ class People_model extends SS_Model{
 			$set=array('content'=>$content);
 			$where=array('people'=>$people_id,'name'=>$name);
 			
-			$this->db->update('people_profile',$set,$where);
-			
-			if($this->db->affected_rows()===0){
-				$this->db->insert('people_profile',$set+$where+uidTime(false));
+			if($this->db->from('people_profile')->where($where)->count_all_results()===0){
+				$this->addProfile($people_id,$name,$content);
+			}else{
+				$this->db->update('people_profile',$set,$where);
 			}
 			
 		}
@@ -246,14 +246,14 @@ class People_model extends SS_Model{
 	 * @param $people_id
 	 * @return type
 	 */
-	function getProfiles($client_id){
-		$client_id=intval($client_id);
+	function getProfiles($people_id){
+		$people_id=intval($people_id);
 		
 		$query="
 			SELECT 
 				people_profile.id,people_profile.comment,people_profile.content,people_profile.name
 			FROM people_profile INNER JOIN people ON people_profile.people=people.id
-			WHERE people_profile.people = $client_id
+			WHERE people_profile.people = $people_id
 		";
 		return $this->db->query($query)->result_array();
 	}

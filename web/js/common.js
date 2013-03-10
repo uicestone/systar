@@ -65,8 +65,8 @@ $(document)
 .tooltip({
 	tooltipClass:'pre-line',
 	position:{
-		my:'left bottom',
-		at:'left top',
+		my:'right bottom',
+		at:'right top',
 	}
 })
 .ready(function(){
@@ -249,17 +249,22 @@ $(document)
 		});
 		
 		/*edit表单元素更改时实时提交到后台 */
-		section.children('form:[id]').on('change',':input',function(){
+		section.children('form').on('change',':input',function(){
 			var value=$(this).val();
 			if($(this).is(':checkbox') && !$(this).is(':checked')){
 				value=0;
 			}
-			var id = $('article>section[hash="'+hash+'"]>form').attr('id');
+			var id = section.children('form').attr('id');
 			var name = $(this).attr('name').replace('[','/').replace(']','');
 			var data={};data[name]=value;
+			
+			if(controller){
+				var uri='/'+controller+'/setfields';
+				if(id){
+					uri+='/'+id;
+				}
 
-			if(controller && id){
-				$.post('/'+controller+'/setfields/'+id,data);
+				$.post(uri,data);
 			}
 		});
 		
@@ -303,7 +308,7 @@ $(document)
 		
 		/*边栏主要提交按钮（提交到controller/submit/{submit_name}/{item_id}）*/
 		section.find('button:submit.major').on('click',function(event){
-			var pageSection = $('article>section[hash="'+hash+'"]');
+			var pageSection = page.children('section[hash="'+hash+'"]');
 			var form = pageSection.children('form');
 
 			var id = form.attr('id');
@@ -349,8 +354,8 @@ $(document)
 	 */
 	event.stopPropagation();
 	$(this).find('[placeholder]').placeholder();
-	$(this).find('.date').datepicker();
-	$(this).find('.birthday').datepicker({
+	$(this).find('.date[type="text"]').datepicker();
+	$(this).find('.birthday[type="text"]').datepicker({
 		changeMonth: true,
 		changeYear: true
 	});
@@ -598,19 +603,23 @@ jQuery.closeTab=function(hash){
 	
 	var uriSegments=hash.split('/');
 	
-	$.ajax({
-		url:'/'+uriSegments[0]+'/submit/cancel/'+uriSegments[2],
-		beforeSend:function(){
-			throbber.fadeIn(500).rotate({animateTo:18000,duration:100000});
-		},
-		complete:function(){
-			throbber.stop().fadeOut(200).stopRotate();
-		},
-		error:function(){
-			$.showMessage('关闭标签后，服务器返回了错误的数据','warning');
-		},
-		dataType:'json'
-	});
+	if(typeof uriSegments[2] !=='undefined'){
+	
+		$.ajax({
+			url:'/'+uriSegments[0]+'/submit/cancel/'+uriSegments[2],
+			beforeSend:function(){
+				throbber.fadeIn(500).rotate({animateTo:18000,duration:100000});
+			},
+			complete:function(){
+				throbber.stop().fadeOut(200).stopRotate();
+			},
+			error:function(){
+				$.showMessage('关闭标签后，服务器返回了错误的数据','warning');
+			},
+			dataType:'json'
+		});
+	
+	}
 	
 	tabs.children('li[for="'+hash+'"]').remove();
 	page.children('section[hash="'+hash+'"]').remove();

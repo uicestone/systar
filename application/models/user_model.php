@@ -15,6 +15,13 @@ class User_model extends People_model{
 	var $grade;
 	var $grade_name;
 	
+	static $fields=array(
+		'name'=>'用户名',
+		'alias'=>'别名',
+		'group'=>'用户组',
+		'password'=>'密码'
+	);
+	
 	function __construct(){
 		parent::__construct();
 		
@@ -28,8 +35,19 @@ class User_model extends People_model{
 		$this->preparePermission();
 	}
 	
-	function fetch($id){
-		return $this->db->get_where('user',array('id'=>$id))->row_array();
+	function add($data=array()){
+		$data['type']='学生';
+		$user_id=parent::add($data);
+
+		$data['group']='candidate';
+		$data=array_intersect_key($data, self::$fields);
+		
+		$data['id']=$user_id;
+		$data['company']=$this->company->id;
+
+		$this->db->insert('user',$data);
+		
+		return $this->db->insert_id();
 	}
 	
 	function verify($username,$password){

@@ -5,7 +5,7 @@ class Cases_model extends SS_Model{
 	
 	var $table='case';
 	
-	var $fields=array(
+	static $fields=array(
 		'name'=>'名称',
 		'num'=>'编号',
 		'name_extra'=>'补充名称',
@@ -49,7 +49,7 @@ class Cases_model extends SS_Model{
 	}
 
 	function add($data=array()){
-		$data=array_intersect_key($data, $this->fields);
+		$data=array_intersect_key($data, self::$fields);
 		
 		if(isset($data['is_query']) && $data['is_query']){
 			$data['first_contact']=$this->config->item('date');
@@ -66,7 +66,7 @@ class Cases_model extends SS_Model{
 	
 	function update($id,$data){
 		$id=intval($id);
-	    $data=array_intersect_key((array)$data,$this->fields);
+	    $data=array_intersect_key((array)$data,self::$fields);
 		
 		$data+=uidTime();
 	    

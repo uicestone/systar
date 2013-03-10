@@ -183,3 +183,7 @@ ALTER TABLE  `schedule` CHANGE  `username`  `username` VARCHAR( 255 ) CHARACTER 
 
 ALTER TABLE  `people` CHANGE  `type`  `type` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
 -- uice 3/7
+
+ALTER TABLE  `people` CHANGE  `username`  `username` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
+ALTER TABLE  `people_profile` CHANGE  `content`  `content` MEDIUMTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
+-- uice 3/10

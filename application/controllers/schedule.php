@@ -34,8 +34,11 @@ class Schedule extends SS_controller{
 		$this->load->addViewData('table_news',$table_news);
 
 		$sidebar_function=$this->company->syscode.'_'.'schedule_side_table';
-		$sidebar_tables=$this->company->$sidebar_function();
-		$this->load->addViewData('sidebar_tables',$sidebar_tables);
+		
+		if(method_exists($this->company, $sidebar_function)){
+			$sidebar_tables=$this->company->$sidebar_function();
+			$this->load->addViewData('sidebar_tables',$sidebar_tables);
+		}
 		
 		$this->load->view('schedule/calendar');
 		

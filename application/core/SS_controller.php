@@ -152,10 +152,10 @@ class SS_Controller extends CI_Controller{
 	 * 在一个form中，用户修改任何input/select值时，就发送一个请求，保存到$_SESSION中
 	 * 如此一来到发生保存请求时，只需要把$_SESSION中的新值保存即可
 	 */
-	function setFields($item_id){
+	function setFields($item_id=NULL){
 
 		$controller=CONTROLLER;
-		$this->$controller->id=$item_id;
+		$item_id && $this->$controller->id=$item_id;
 		
 		if(!is_array($this->input->post())){
 			$this->output->status='fail';
