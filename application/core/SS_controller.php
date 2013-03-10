@@ -1,18 +1,8 @@
 <?php
 class SS_Controller extends CI_Controller{
 	
-	/**
-	 * 当前调用的控制器和方法
-	 * @var type 
-	 */
-	var $controller;
-	var $method;
-	
 	var $default_method='index';
 
-	//var $as_popup_window=false;争取这一个属性也不用了！
-	//var $as_controller_default_page=false;这个也是
-	
 	/**
 	 * 当前控制器是否需要检查权限，只能在控制器构造函数中，父构造函数调用之前使用——因为现在的权限校验是放在大控制器的构造函数里的
 	 */
@@ -39,13 +29,9 @@ class SS_Controller extends CI_Controller{
 		define('CONTROLLER',$class);
 		define('METHOD',$method);
 		
-		$this->controller=$class;
-		$this->method=$method;
-		
 		/*
 		 * 自动载入的资源，没有使用autoload.php是因为后者载入以后不能起简称...
 		 */
-		$this->load->helper('function_common');
 		$this->load->model('company_model','company');
 		$this->load->model('user_model','user');
 		$this->load->model('label_model','label');
@@ -167,9 +153,8 @@ class SS_Controller extends CI_Controller{
 	 * 如此一来到发生保存请求时，只需要把$_SESSION中的新值保存即可
 	 */
 	function setFields($item_id){
-		
 
-		$controller=$this->controller;
+		$controller=CONTROLLER;
 		$this->$controller->id=$item_id;
 		
 		if(!is_array($this->input->post())){

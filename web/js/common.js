@@ -61,7 +61,15 @@ $(window).on('hashchange',function(){
 	
 });
 
-$(document).ready(function(){
+$(document)
+.tooltip({
+	tooltipClass:'pre-line',
+	position:{
+		my:'left bottom',
+		at:'left top',
+	}
+})
+.ready(function(){
 	page=$('article');nav=$('nav');aside=$('aside');header=$('header');
 	tabs=header.children('#tabs');throbber=header.children('.throbber');
 	
