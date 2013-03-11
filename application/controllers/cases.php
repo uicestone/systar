@@ -774,7 +774,7 @@ class Cases extends SS_controller{
 
 			elseif($submit=='apply_case_num'){
 				
-				$labels=$this->input->post('labels');
+				$labels=$this->input->sessionPost('labels');
 				
 				if(!$labels['领域']){
 					$this->output->message('获得案号前要先选择案件领域','warning');
