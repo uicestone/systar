@@ -4,6 +4,8 @@ class user extends SS_controller{
 	function __construct(){
 		$this->require_permission_check=false;
 		parent::__construct();
+		
+		$this->load->model('people_model','people');
 
 		if($this->company->ucenter){
 			require APPPATH.'third_party/ucenter_client/config.php';
@@ -88,7 +90,7 @@ class user extends SS_controller{
 	
 	function profile(){
 		
-		$people=array_merge_recursive($this->user->fetch($this->user->id),$this->input->sessionPost('people'));
+		$people=array_merge_recursive($this->people->fetch($this->user->id),$this->input->sessionPost('people'));
 		$people_profiles=array_merge_recursive(array_sub($this->user->getProfiles($this->user->id),'content','name'),$this->input->sessionPost('people'));
 		$this->load->addViewArrayData(compact('people','people_profiles'));
 		
@@ -147,8 +149,10 @@ class user extends SS_controller{
 				
 				$user_id=$this->user->add($data);
 				
-				$this->output->status='login_required';
-
+				$this->user->__construct($user_id);
+				
+				$this->output->status='redirect_href';
+				$this->output->data='';
 			}
 		}
 		catch (Exception $e){

@@ -535,6 +535,11 @@ jQuery.fn.setBlock=function(response){
 		$.refresh(hash);
 	}
 	
+	else if(response.status==='redirect_href'){
+		window.location.href='/'+response.data;
+		return this
+	}
+	
 	$.parseMessage(response.message);
 	
 	if(response.status==='fail'){

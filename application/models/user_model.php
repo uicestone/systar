@@ -24,8 +24,17 @@ class User_model extends People_model{
 		'password'=>'密码'
 	);
 	
-	function __construct(){
+	function __construct($uid=NULL){
 		parent::__construct();
+		
+		if($uid){
+			$user=$this->fetch($uid);
+			$this->session->set_userdata('user/id', $user['id']);
+			$this->session->set_userdata('user/name', $user['name']);
+
+			$user['group']=explode(',',$user['group']);
+			$this->session->set_userdata('user/group', $user['group']);
+		}
 		
 		$session=$this->session->all_userdata();
 		foreach($session as $key => $value){
@@ -49,7 +58,7 @@ class User_model extends People_model{
 
 		$this->db->insert('user',$data);
 		
-		return $this->db->insert_id();
+		return $user_id;
 	}
 	
 	function verify($username,$password){

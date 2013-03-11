@@ -410,9 +410,14 @@ aside button.major{
 .contentTableBox .item input{
 	margin:0 auto;
 }
-
 .contentTableBox .item textarea{
 	width:99%;
+}
+.contentTableBox .item .large-field{
+	display:block;
+	width:99%;
+	font-size:18px;
+	margin:5px auto;
 }
 .contentTableBox .item .title{
 	padding-left:1em;
