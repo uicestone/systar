@@ -3,6 +3,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><![endif]-->
+	<?=javascript('html5')?>
 	<?=stylesheet('style/redmond/jquery-ui-1.9.2.custom')?>
 	<?=stylesheet('style/common')?>
 	<?=stylesheet('style/icomoon/style')?>

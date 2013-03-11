@@ -66,7 +66,7 @@ $(document)
 	tooltipClass:'pre-line',
 	position:{
 		my:'right bottom',
-		at:'right top',
+		at:'right top'
 	}
 })
 .ready(function(){
@@ -142,7 +142,7 @@ $(document)
 		//console.log('section create');
 		var section = $(this);
 		/*为表格代理绑定事件*/
-		section.on('contenttableload','.contentTable',function(){
+		section.on('contenttableload','.contentTable',function(event){
 			//console.log('contenttableload');
 			$(this).children('tbody').children('tr[hash]')
 				.on('click',function(){
