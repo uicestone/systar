@@ -2,12 +2,15 @@
 /**
  * 保存控制单元相关配置时候用，比如列表页的页码，搜索的关键词等
  */
-function option($arrayindex,$set_to=NULL){
-	if(is_null($set_to)){
+function option($arrayindex){
+	
+	$args=func_get_args();
+	
+	if(count($args)==1){
 		return array_dir('_SESSION/'.CONTROLLER.'/'.METHOD.'/'.$arrayindex);
 
-	}else{
-		return array_dir('_SESSION/'.CONTROLLER.'/'.METHOD.'/'.$arrayindex,$set_to);
+	}elseif(count($args==2)){
+		return array_dir('_SESSION/'.CONTROLLER.'/'.METHOD.'/'.$arrayindex,$args[1]);
 	}
 }
 

@@ -45,7 +45,8 @@ class People extends SS_Controller{
 	/**
 	 * 列表页
 	 */
-	function index($method=NULL){
+	function index(){
+		
 		$controller=CONTROLLER;
 
 		$field=array(
@@ -54,10 +55,6 @@ class People extends SS_Controller{
 				'cell'=>array('data'=>'{abbreviation}','class'=>"ellipsis",'title'=>'{name}')
 			),
 			'phone'=>array('heading'=>'电话','cell'=>array('class'=>'ellipsis','title'=>'{phone}')),
-			'address'=>array(
-				'heading'=>array('data'=>'地址','width'=>'240px'),
-				'cell'=>array('class'=>'ellipsis','title'=>'{address}')
-			),
 			'comment'=>array(
 				'heading'=>'备注',
 				'eval'=>true,
@@ -65,12 +62,37 @@ class People extends SS_Controller{
 			)
 		);
 		
+		//点击了取消搜索按钮，则清空session中的搜索项
+		if($this->input->post('submit')=='search_cancel'){
+			option('search/labels',array());
+			option('search/name',NULL);
+		}
+		
+		//提交了搜索项，但搜索项中没有labels项，我们将session中搜索项的labels项清空
+		if($this->input->post('submit')==='search' && $this->input->post('search/labels')===false){
+			option('search/labels',array());
+		}
+		
+		//监测有效的名称选项
+		if($this->input->post('name')!==false && $this->input->post('name')!==''){
+			option('search/name',$this->input->post('name'));
+		}
+		
+		if($this->input->post('labels')!==false){
+			if(is_null(option('search/labels'))){
+				option('search/labels',array());
+			}
+			option('search/labels',$this->input->post('labels')+option('search/labels'));
+		}
+		
 		$table=$this->table->setFields($field)
 			->setRowAttributes(array('hash'=>CONTROLLER.'/edit/{id}'))
-			->setData($this->$controller->getList($method))
+			->setData($this->$controller->getList(option('search')))
 			->generate();
 		$this->load->addViewData('list', $table);
 		$this->load->view('list');
+		
+		$this->load->view('people/list_sidebar',true,'sidebar');
 	}
 	
 	/**
