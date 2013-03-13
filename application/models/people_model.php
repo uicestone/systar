@@ -210,10 +210,9 @@ class People_model extends SS_Model{
 			if(is_null($type) && $row_array['type']){
 				$all_labels[$row_array['type']][]=$row_array['name'];
 			}else{
-				$all_labels[]=$row_array['label_name'];
+				$all_labels[]=$row_array['name'];
 			}
 		}
-		
 		return $all_labels;
 	}
 	
