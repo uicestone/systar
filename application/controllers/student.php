@@ -1,59 +1,32 @@
 <?php
-class Student extends SS_controller{
+class Student extends People{
 	function __construct(){
 		parent::__construct();
 		$this->load->model('classes_model','classes');
 	}
 	
-	function lists(){
+	function index(){
 		
-		//如果以家长或学生身份登陆，显示的是编辑查看页面，而非列表页面
-		if($this->user->isLogged('parent') || $this->user->isLogged('student')){
-
-			$this->as_controller_default_page=true;
-			
-			if($this->user->isLogged('student')){
-				post('student/id',$this->user->id);
-	
-			}elseif($this->user->isLogged('parent')){
-				post('student/id',$_SESSION['child']);
-	
-			}
-			
-			$this->edit(post('student/id'));
-			
-			return;
-		}
-		
-		
+		option('search/type','学生');
 		
 		if($this->input->get('update')){
 			$this->student->updateView();
-			showMessage('学生视图更新完成');
+			$this->output->message('学生视图更新完成');
 		}
 		
-		$field=array(
-			'num'=>array('heading'=>'学号'),
-			'student.name'=>array('heading'=>'姓名','cell'=>'<a href="/student/edit/{id}">{name}</a>'),
-			'student_num.class'=>array('heading'=>'班级','cell'=>'{class_name}')
-		);
-
-		$list=$this->table->setFields($field)
-				->setData($this->student->getList())
-				->generate();
+		parent::index();
 		
-		$this->load->addViewData('list', $list);
 	}
 
 	function add(){
-		$this->edit();
+		//$this->edit();
 	}
 	
 	/**
 	 * 编辑／添加／查看页面
 	 * $id==NULL时，自动添加一条新纪录，然后开始编辑
 	 */
-	function edit($id=NULL){
+/*	function edit($id){
 
 		$student=$this->student->getPostData($id);
 		
@@ -125,88 +98,7 @@ class Student extends SS_controller{
 		$this->load->view('student/edit');
 		
 	}
-
-	/**
-	 * 点击提交按钮，包括编辑页总保存按钮和编辑页小表添加按钮
-	 * @param $submit 提交按钮的名称如student,或student_relatives
-	 * @param $id
-	 */
-	function submit($submit,$id){
-		
-		
-		if(parent::submit($submit)){
-			echo 'success';
-			return;
-		}
-		
-		$this->student->id=$id;
-
-		$this->load->library('form_validation');
-		
-		$this->form_validation->set_rules('student[name]','姓名','required');
-		
-		if($this->user->isLogged('student') && $submit=='student'){
-			$this->form_validation->set_rules('student[birthday]','生日','required');
-			$this->form_validation->set_rules('student[id_card]','身份证号','required');
-			$this->form_validation->set_rules('student[race]','民族','required');
-			$this->form_validation->set_rules('student[junior_school]','初中','required');
-			$this->form_validation->set_rules('student[mobile]','手机','required');
-			$this->form_validation->set_rules('student[phone]','固定电话','required');
-			$this->form_validation->set_rules('student[email]','电子邮件','required');
-			$this->form_validation->set_rules('student[address]','地址','required');
-			$this->form_validation->set_rules('student[neighborhood_committees]','居委会','required');
-			$this->form_validation->set_rules('student[bank_account]','银行卡号','required');
-		}
-
-		if(!$this->form_validation->run()){
-			echo validation_errors();
-			return;
-		}
-		
-		try{
-			if($submit=='student_relatives'){
-				$this->student->addRelatives($this->student->id,post('student_relatives'));
-			}
-
-			if($submit=='student_relatives_delete'){
-				$this->student->deleteRelatives($this->input->post('student_relatives_check'));
-			}
-
-			if($submit=='student_behaviour'){
-				$this->student->addBehaviour($this->student->id,post('student_behaviour'));
-			}
-
-			if(($submit=='student_comment' || $submit=='student') && 
-				(post('student_comment/title')!='' || post('student_comment/content')!='')
-			){
-				$this->student->addComment($this->student->id,post('student_comment'));
-			}
-
-			if($this->user->isLogged('student') && db_fetch_field("SELECT COUNT(id) FROM student_relatives WHERE student = {$this->user->id}")<2){
-				$this->json_error_message('请至少输入两位亲属，每输入一行需要点击“添加”按钮');
-			}
-
-			$this->student->updateClass($this->student->id,post('student_class/class'),post('student_class/num_in_class'),$this->school->current_term);
-			
-			if($this->json_error_message){
-				throw new Exception($this->json_error_message);
-			}
-			
-			if($submit=='student'){
-				if($this->student->update($this->student->id,post(CONTROLLER))){
-					unset($_SESSION[CONTROLLER]['post']);
-					echo 'success';
-				}else{
-					echo '保存失败';
-				}
-			}
-
-		}catch(Exception $e){
-			echo json_encode($e->getMessage());
-		}
-
-	}
-	
+*/
 	function classDiv(){
 		$classes=2;
 		$subjects=4;

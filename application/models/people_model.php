@@ -96,6 +96,18 @@ class People_model extends SS_Model{
 		return $this->db->update('people',$people_data,array('id'=>$people));
 	}
 	
+	function getTypes(){
+		$query="
+			SELECT people.type,COUNT(*) AS hits
+			FROM people
+			WHERE people.company={$this->company->id}
+			GROUP BY people.type
+			ORDER BY hits DESC
+		";
+		
+		return array_sub($this->db->query($query)->result_array(),'type');
+	}
+	
 	/**
 	 * 为人添加标签，而不论标签是否存在
 	 * @param type $people people.id
@@ -174,26 +186,52 @@ class People_model extends SS_Model{
 	 * @param $type
 	 * @return array([$type=>]$label_name,...) 一个由标签类别为键名（如果标签类别存在），标签名称为键值构成的数组
 	 */
-	function getHotLabels($type=NULL){
+	function getAllLabels($type=NULL){
 		$query="
-			SELECT type,label_name AS name,COUNT(*) AS hits
-			FROM people_label
+			SELECT people_label.type,people_label.label_name AS name,COUNT(*) AS hits
+			FROM people_label INNER JOIN people ON people.id=people_label.people
+			WHERE people.company={$this->company->id}
 		";
 		
 		if(isset($type)){
-			$query.=" WHERE type='$type";
+			$query.=" AND type='$type";
 		}
 		
 		$query.="
-			GROUP BY label
+			GROUP BY people_label.label
 			ORDER BY hits DESC
 		";
 		
-		return $this->db->query($query)->result_array();
+		$result_array = $this->db->query($query)->result_array();
+		
+		$all_labels=array();
+		
+		foreach($result_array as $row_array){
+			if(is_null($type) && $row_array['type']){
+				$all_labels[$row_array['type']][]=$row_array['name'];
+			}else{
+				$all_labels[]=$row_array['label_name'];
+			}
+		}
+		
+		return $all_labels;
 	}
 	
+	/**
+	 * 返回本公司所有“人”数据的标签，按热门度排序，按类别分组
+	 * @return array(
+	 *	type1=>array(
+	 *		label1,label2,label3
+	 *	),
+	 *	type2=>array(
+	 *		label1,label2,label3
+	 *	),
+	 *	ungrouped_label1,
+	 *	ungrouped_label2
+	 * )
+	 */
 	function getHotlabelsOfTypes(){
-		$hot_labels=$this->getHotLabels();
+		$hot_labels=$this->getAllLabels();
 		
 		$hot_labels_of_types=array();
 		foreach($hot_labels as $label){
@@ -358,13 +396,9 @@ class People_model extends SS_Model{
 		 * 这是一个model方法，它具有配置独立性，即所有条件接口均通过参数$config来传递，不接受其他系统变量
 		 */
 		
-		$q="
-			SELECT people.id,people.name,IF(people.abbreviation IS NULL,people.name,people.abbreviation) AS abbreviation,
-				phone.content AS phone
+		$q=isset($config['query'])?$config['query']:"
+			SELECT people.id,people.name,IF(people.abbreviation IS NULL,people.name,people.abbreviation) AS abbreviation,people.phone,people.email
 			FROM people
-				LEFT JOIN (
-					SELECT people,GROUP_CONCAT(content) AS content FROM people_profile WHERE name = '手机' OR name LIKE '%电话%' GROUP BY people
-				)phone ON people.id=phone.people
 		";
 		
 		$q_rows="SELECT COUNT(*) FROM people";
@@ -408,8 +442,8 @@ class People_model extends SS_Model{
 			";
 		}
 		
-		$q_rows.=$inner_join.$where;
-		$q.=$inner_join.$where;
+		$q_rows.=$inner_join.$where.(isset($config['where'])?$config['where']:'');
+		$q.=$inner_join.$where.(isset($config['where'])?$config['where']:'');
 		
 		if(!isset($config['orderby'])){
 			$config['orderby']='people.id DESC';

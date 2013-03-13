@@ -7,7 +7,7 @@
 			</tr>
 			<tr>
 				<td>
-					<select name="labels[]" data-placeholder="标签" multiple="multiple"><?=options(array('潜在客户','成交客户'),option('search/labels'))?></select>
+					<select name="labels[]" data-placeholder="标签" multiple="multiple"><?=options($this->$controller->getAllLabels(),option('search/labels'))?></select>
 				</td>
 			</tr>
 			<tr>

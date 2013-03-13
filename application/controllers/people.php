@@ -54,7 +54,8 @@ class People extends SS_Controller{
 				'heading'=>'名称',
 				'cell'=>array('data'=>'{abbreviation}','class'=>"ellipsis",'title'=>'{name}')
 			),
-			'phone'=>array('heading'=>'电话','cell'=>array('class'=>'ellipsis','title'=>'{phone}')),
+			'phone'=>array('heading'=>'电话'),
+			'email'=>array('heading'=>'电邮'),
 			'comment'=>array(
 				'heading'=>'备注',
 				'eval'=>true,
@@ -78,10 +79,12 @@ class People extends SS_Controller{
 			option('search/name',$this->input->post('name'));
 		}
 		
-		if($this->input->post('labels')!==false){
+		if(is_array($this->input->post('labels'))){
+			
 			if(is_null(option('search/labels'))){
 				option('search/labels',array());
 			}
+			
 			option('search/labels',$this->input->post('labels')+option('search/labels'));
 		}
 		
@@ -90,6 +93,7 @@ class People extends SS_Controller{
 			->setData($this->$controller->getList(option('search')))
 			->generate();
 		$this->load->addViewData('list', $table);
+		$this->load->addViewData('controller', $controller);
 		$this->load->view('list');
 		
 		$this->load->view('people/list_sidebar',true,'sidebar');
