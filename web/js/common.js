@@ -67,6 +67,12 @@ $(document)
 	position:{
 		my:'right bottom',
 		at:'right top'
+	},
+	hide:{
+		delay:1000
+	},
+	show:{
+		delay:500
 	}
 })
 .ready(function(){
@@ -290,13 +296,33 @@ $(document)
 	aside.on('sidebarload','section',function(){
 		var section=$(this);
 		/*边栏普通提交按钮（提交给当前page地址，以刷新page）*/
-		section.find('button:submit:not(.major)').on('click',function(){
+		section.find('button:submit:not(.major)').on('click',function(event){
+			
+			event.preventDefault();
+			
+/*			if($(this).attr('name')==='search'){
+				var searchButton=$(this);
+				searchButton.closest('form').find(':input:not(.default,:submit)').each(function(){
+					if($(this).val()!=='' && $(this).val()!==null){
+						searchButton.next('[name="search_cancel"]').show();
+						return;
+					}
+				});
+			}
+*/			
+			if($(this).attr('name')==='search_cancel'){
+				$(this).closest('form').reset();
+				//$(this).hide();
+			}
+
 			$.post($(this).closest('section').attr('for'),$(this).closest('form').serialize()+'&submit='+$(this).attr('name'),function(response){
 				$(document).setBlock(response);
 			},'json');
 
-			return false;
 		});
+		
+		section.find('select').chosen();
+		
 		/*边栏选框自动提交*/
 		section.find('select.filter[method!="get"]').on('change',function(){
 			post($(this).attr('name'),$(this).val());
@@ -396,7 +422,7 @@ $(document)
 
 	throbber.fadeIn(500).rotate({animateTo:18000,duration:100000});
 
-	$.post('/'+hash,{start:$(this).attr('target-page-start')},function(response){
+	$.post('/'+hash,{start:$(this).attr('target-page-start'),submit:'pagination'},function(response){
 		throbber.stop().fadeOut(200).stopRotate();
 		$(document).setBlock(response);
 	},'json');
@@ -598,6 +624,12 @@ jQuery.fn.setBlock=function(response){
 	});
 	
 	return this;
+};
+
+jQuery.fn.reset=function(){
+	$(this).find(':input').val('');
+	$(this).find('select').trigger('liszt:updated').find('option').removeAttr('checked');
+	$(this).find(':checkbox, :radio').removeAttr('checked');
 };
 
 /**

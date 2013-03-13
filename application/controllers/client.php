@@ -13,12 +13,24 @@ class Client extends People{
 	}
 
 	function potential(){
-		$this->index('potential');
+		if(is_null(option('search/labels'))){
+			option('search/labels',array('潜在客户'));
+		}
+		
+		$this->index();
 	}
 
-	function index($method=NULL){
+	function index(){
 		$this->output->setData($this->section_name, 'name');
-		parent::index($method);
+		
+		if(is_null(option('search/labels'))){
+			option('search/labels',array('成交客户'));
+		}
+		
+		option('search/type','客户');
+		option('search/in_my_case',true);
+		
+		parent::index();
 	}
 
 }

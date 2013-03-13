@@ -86,47 +86,8 @@ class Student_model extends People_model{
 		return true;
 	}
 	
-	function getList(){
-		$q="
-			SELECT 
-				people.id,people.name AS name,people.id_card,
-				student_num.num,
-				team.name AS class_name
-			FROM 
-				people
-				INNER JOIN (
-					SELECT people,team,
-						right((1000000 + CONCAT(team.num,right((100 + team_people.id_in_team),2))),6) AS num
-					FROM team_people INNER JOIN team ON team.id=team_people.team
-					WHERE team_people.term = '{$this->school->current_term}'
-				)student_num ON student_num.people=people.id
-				INNER JOIN team ON team.id=student_num.team
-				INNER JOIN team_relationship ON team.id=team_relationship.relative
-				INNER JOIN (
-					SELECT id,num FROM team WHERE type='grade'
-				)grade ON grade.id=team_relationship.team
-			WHERE people.display=1
-				AND (
-					team.leader={$this->user->id}
-					OR '".($this->user->isLogged('jiaowu') || $this->user->isLogged('zhengjiao') || $this->user->isLogged('health'))."'='1'
-				)
-		";
-		//班主任可以看到自己班级的学生，教务和政教可以看到其他班级的学生
-		
-		//将班主任的视图定位到自己班级
-		if(!option('class') && !option('grade') && isset($this->user->manage_class)){
-			option('class',$this->user->manage_class['id']);
-			option('grade',$this->user->manage_class['grade']);
-		}
-		$q=$this->addCondition($q,array('class'=>'team.id','grade'=>'grade.id'),array('grade'=>'class'));
-				
-		$q=$this->search($q,array('student_num.num'=>'学号','people.name'=>'姓名'));
-		
-		$q=$this->orderby($q,'student_num.num','ASC',array('student_num.num','student.name'));
-		
-		$q=$this->pagination($q);
-		
-		return $this->db->query($q)->result_array();
+	function getList($config=array()){
+		return parent::getList($config);
 	}
 	
 	/**

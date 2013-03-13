@@ -5,7 +5,7 @@
 			<input name="people[name]" value="<?=$this->value('people/name'); ?>" type="text" placeholder="中文名" />
 			
 			<select name="people[type]">
-				<?=options(array('客户','联系人'),$this->value('people/type'),'人员类型')?>
+				<?=options($this->$controller->getTypes(),$this->value('people/type'),'人员类型')?>
 			</select>
 			
 			<select name="labels[类型]">

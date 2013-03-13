@@ -96,6 +96,18 @@ class People_model extends SS_Model{
 		return $this->db->update('people',$people_data,array('id'=>$people));
 	}
 	
+	function getTypes(){
+		$query="
+			SELECT people.type,COUNT(*) AS hits
+			FROM people
+			WHERE people.company={$this->company->id}
+			GROUP BY people.type
+			ORDER BY hits DESC
+		";
+		
+		return array_sub($this->db->query($query)->result_array(),'type');
+	}
+	
 	/**
 	 * 为人添加标签，而不论标签是否存在
 	 * @param type $people people.id
@@ -174,26 +186,52 @@ class People_model extends SS_Model{
 	 * @param $type
 	 * @return array([$type=>]$label_name,...) 一个由标签类别为键名（如果标签类别存在），标签名称为键值构成的数组
 	 */
-	function getHotLabels($type=NULL){
+	function getAllLabels($type=NULL){
 		$query="
-			SELECT type,label_name AS name,COUNT(*) AS hits
-			FROM people_label
+			SELECT people_label.type,people_label.label_name AS name,COUNT(*) AS hits
+			FROM people_label INNER JOIN people ON people.id=people_label.people
+			WHERE people.company={$this->company->id}
 		";
 		
 		if(isset($type)){
-			$query.=" WHERE type='$type";
+			$query.=" AND type='$type";
 		}
 		
 		$query.="
-			GROUP BY label
+			GROUP BY people_label.label
 			ORDER BY hits DESC
 		";
 		
-		return $this->db->query($query)->result_array();
+		$result_array = $this->db->query($query)->result_array();
+		
+		$all_labels=array();
+		
+		foreach($result_array as $row_array){
+			if(is_null($type) && $row_array['type']){
+				$all_labels[$row_array['type']][]=$row_array['name'];
+			}else{
+				$all_labels[]=$row_array['label_name'];
+			}
+		}
+		
+		return $all_labels;
 	}
 	
+	/**
+	 * 返回本公司所有“人”数据的标签，按热门度排序，按类别分组
+	 * @return array(
+	 *	type1=>array(
+	 *		label1,label2,label3
+	 *	),
+	 *	type2=>array(
+	 *		label1,label2,label3
+	 *	),
+	 *	ungrouped_label1,
+	 *	ungrouped_label2
+	 * )
+	 */
 	function getHotlabelsOfTypes(){
-		$hot_labels=$this->getHotLabels();
+		$hot_labels=$this->getAllLabels();
 		
 		$hot_labels_of_types=array();
 		foreach($hot_labels as $label){
@@ -328,51 +366,111 @@ class People_model extends SS_Model{
 		return $this->db->query($query)->result_array();
 	}
 	
-	function getList($method=NULL){
-		$q="
-			SELECT people.id,people.name,IF(people.abbreviation IS NULL,people.name,people.abbreviation) AS abbreviation,people.time,people.comment,
-				phone.content AS phone,address.content AS address
-			FROM people
-				LEFT JOIN (
-					SELECT people,GROUP_CONCAT(content) AS content FROM people_profile WHERE name IN('手机','电话') GROUP BY people
-				)phone ON people.id=phone.people
-				LEFT JOIN (
-					SELECT people,GROUP_CONCAT(content) AS content FROM people_profile WHERE name='地址' GROUP BY people
-				)address ON people.id=address.people
-			WHERE display=1 AND type='客户'
-		";
-		$q_rows="
-			SELECT COUNT(*)
-			FROM people 
-			WHERE display=1 AND type='客户'
-		";
-		$condition='';
-
-		if($method=='potential'){
-			$condition.=" AND people.id IN (SELECT people FROM people_label WHERE label_name='潜在客户')";
+	/**
+	 * 
+	 * @param $config
+	 * array(
+	 *	limit=>array(
+	 *		显示行数,
+	 *		起始行
+	 *	),
+	 *	orderby=>array(
+	 *		'people.time DESC',
+	 *		...
+	 *	)
+	 *	'in_my_case'=>FALSE //与当前用户有相同的相关案件
+	 *	name=>'匹配部分people.name, people.abbreviation, people.name_en',
+	 *	type=>'匹配类别',
+	 *	labels=>array(
+	 *		'匹配标签名',
+	 *		'匹配标签名,
+	 *		...
+	 *	)
+	 *	
+	 * )
+	 * @return array
+	 */
+	function getList($config=array()){
 		
-		}else{
-			$condition.="
-				AND people.id IN (SELECT people FROM people_label WHERE label_name='成交客户')
-			";
+		/**
+		 * 这是一个model方法，它具有配置独立性，即所有条件接口均通过参数$config来传递，不接受其他系统变量
+		 */
+		
+		$q=isset($config['query'])?$config['query']:"
+			SELECT people.id,people.name,IF(people.abbreviation IS NULL,people.name,people.abbreviation) AS abbreviation,people.phone,people.email
+			FROM people
+		";
+		
+		$q_rows="SELECT COUNT(*) FROM people";
+		
+		$inner_join='';
+
+		//使用INNER JOIN的方式来筛选标签，聪明又机灵
+		if(isset($config['labels']) && is_array($config['labels'])){
 			
-			if(!$this->user->isLogged('service') && !$this->user->isLogged('developer')){
-				$condition.="
-					AND people.id IN (
-						SELECT people FROM case_people WHERE `case` IN (
-							SELECT `case` FROM case_people WHERE people = {$this->user->id}
-						)
-					)
+			foreach($config['labels'] as $id => $label_name){
+				
+				//针对空表单的提交
+				if($label_name===''){
+					continue;
+				}
+				
+				//每次连接people_label表需要定一个唯一的名字
+				$inner_join.="
+					INNER JOIN people_label t_$id ON people.id=t_$id.people AND t_$id.label_name = '$label_name'
 				";
+				
 			}
+			
 		}
 		
-		$condition=$this->search($condition,array('name'=>'姓名','phone.content'=>'电话','work_for'=>'单位','address'=>'地址','comment'=>'备注'));
-		$condition=$this->orderBy($condition,'time','DESC',array('abbreviation','type','address','comment'));
-		$q.=$condition;
-		$q_rows.=$condition;
-		$q=$this->pagination($q/*,$q_rows*/);
+		$where=" WHERE company={$this->company->id} AND display=1 AND people.type='{$config['type']}'";
 		
+		if(isset($config['name']) && $config['name']!==''){
+			$where.="
+				AND people.name LIKE '%{$config['name']}%' OR people.abbreviation LIKE '%{$config['name']}%' OR people.name_en LIKE '%{$config['name']}%'
+			";
+		}
+		
+		if(isset($config['in_my_case']) && $config['in_my_case'] && !$this->user->isLogged('developer')){
+			$where.="
+				AND people.id IN (
+					SELECT people FROM case_people WHERE `case` IN (
+						SELECT `case` FROM case_people WHERE people = {$this->user->id}
+					)
+				)
+			";
+		}
+		
+		$q_rows.=$inner_join.$where.(isset($config['where'])?$config['where']:'');
+		$q.=$inner_join.$where.(isset($config['where'])?$config['where']:'');
+		
+		if(!isset($config['orderby'])){
+			$config['orderby']='people.id DESC';
+		}
+		
+		$q.=" ORDER BY ";
+		if(is_array($config['orderby'])){
+			foreach($config['orderby'] as $orderby){
+				$q.=$orderby;
+			}
+		}else{
+			$q.=$config['orderby'];
+		}
+		
+		if(!isset($config['limit'])){
+			$config['limit']=$this->limit($q_rows);
+		}
+		
+		if(is_array($config['limit']) && count($config['limit'])==2){
+			$q.=" LIMIT {$config['limit'][1]}, {$config['limit'][0]}";
+		}elseif(is_array($config['limit']) && count($config['limit'])==1){
+			$q.=" LIMIT {$config['limit'][0]}";
+		}elseif(!is_array($config['limit'])){
+			$q.=" LIMIT ".$config['limit'];
+		}
+		
+		//echo $this->db->_prep_query($q);
 		return $this->db->query($q)->result_array();
 	}
 	

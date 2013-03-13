@@ -173,7 +173,7 @@ nav [level="0"] a{
 	line-height:3;
 }
 nav [level="0"] a.controller.dink{
-	margin-left:22px;
+	margin-left:27px;
 }
 nav [level="1"]{
 	display:none;
@@ -355,19 +355,6 @@ aside .minimize-button,aside .maximize-button{
     font-size: 18px;
     color: #FFF;
 }
-aside ul{
-	text-align:left;
-	font-size:20px;
-	line-height:30px;
-	margin-top:30px;
-}
-aside ul li{
-	list-style-type:disc;
-}
-aside select{
-	width:100%;
-	font-size:17px;
-}
 aside .contentTable{
 	margin-bottom:10px;
 }
@@ -382,11 +369,18 @@ aside .contentTable.search-bar tbody tr{
 aside .contentTable.search-bar tbody td{
 	background-color:transparent;
 	border:0;
-	text-align:right;
 	padding:0;
 }
-aside .contentTable.search-bar tbody td input[type=text]{
-	width:240px;
+.contentTable.search-bar tbody td input[type=text]{
+	width:225px;
+	padding: 5px;
+	margin: 1px 0;
+}
+aside .contentTable.search-bar tbody td select{
+	width:239px;
+}
+aside .contentTable.search-bar tbody td.submit{
+	text-align:right;
 }
 aside button.major{
 	width:230px;
