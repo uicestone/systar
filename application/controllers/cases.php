@@ -8,23 +8,23 @@ class Cases extends SS_controller{
 	}
 	
 	function host(){
-		$this->lists('host');
+		$this->index('host');
 	}
 	
 	function consultant(){
-		$this->lists('consultant');
+		$this->index('consultant');
 	}
 	
 	function etc(){
-		$this->lists('etc');
+		$this->index('etc');
 	}
 	
 	function file(){
-		$this->lists('file');
+		$this->index('file');
 	}
 	
 	function review(){
-		$this->lists('review');
+		$this->index('review');
 	}
 	
 	function index($para=NULL){
