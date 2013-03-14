@@ -2,6 +2,7 @@ $(function(){
 	var section = page.children('section[hash="'+hash+'"]');
 	
 	/*为子表添加悬停按钮*/
+/*	
 	section.find('.contentTable>tbody>tr[id]')
 	.tooltip({
 		position:{
@@ -17,6 +18,7 @@ $(function(){
 	.on('mouseenter',function(){
 		$(this).tooltip('open');
 	});
+*/
 	
 	/*根据案件分类显示/隐藏案件阶段选项*/
 	section.find('[name="labels[分类]"]')
