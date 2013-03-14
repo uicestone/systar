@@ -250,6 +250,8 @@ class People extends SS_Controller{
 				$this->$controller->addRelationship($this->$controller->id,$relative['id'],$relative['relation']);
 
 				$this->output->setData($this->subList('relative',$this->$controller->id));
+				
+				unset($_SESSION[CONTROLLER]['post'][$this->$controller->id]['relative']);
 
 			}
 
@@ -270,7 +272,7 @@ class People extends SS_Controller{
 				
 				$this->output->setData($this->subList('profile',$this->$controller->id));
 				
-				unset($_SESSION['people']['post'][$this->$controller->id]['profile']);
+				unset($_SESSION[CONTROLLER]['post'][$this->$controller->id]['profile']);
 			}
 
 			elseif($submit=='remove_profile'){

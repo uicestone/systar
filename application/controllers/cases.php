@@ -447,6 +447,11 @@ class Cases extends SS_controller{
 					$this->output->message('客户添加错误', 'warning');
 					throw new Exception;
 				}
+				
+				unset($_SESSION[CONTROLLER]['post'][$this->$controller->id]['case_client']);
+				unset($_SESSION[CONTROLLER]['post'][$this->$controller->id]['client']);
+				unset($_SESSION[CONTROLLER]['post'][$this->$controller->id]['client_profiles']);
+				unset($_SESSION[CONTROLLER]['post'][$this->$controller->id]['client_labels']);
 			}
 
 			elseif($submit=='remove_people'){
@@ -500,6 +505,8 @@ class Cases extends SS_controller{
 				}
 
 				$this->cases->calcContribute($this->cases->id);
+				
+				unset($_SESSION[CONTROLLER]['post'][$this->$controller->id]['staff']);
 			}
 			
 			elseif($submit=='remove_staff'){
@@ -534,6 +541,7 @@ class Cases extends SS_controller{
 				}else{
 					$this->output->message('收费添加错误', 'warning');
 				}
+				unset($_SESSION[CONTROLLER]['post'][$this->$controller->id]['case_fee']);
 			}
 			
 			elseif($submit=='remove_fee' || $submit=='remove_miscfee'){
@@ -600,6 +608,7 @@ class Cases extends SS_controller{
 				}else{
 					$this->output->message('收费添加错误', 'warning');
 				}
+				unset($_SESSION[CONTROLLER]['post'][$this->$controller->id]['case_fee_misc']);
 			}
 			
 			elseif($submit=='case_document'){
@@ -645,7 +654,7 @@ class Cases extends SS_controller{
 				
 				$this->output->setData($this->subList('document', $this->cases->id));
 				
-				unset($_SESSION['cases']['post'][$this->cases->id]['case_document']);
+				unset($_SESSION[CONTROLLER]['post'][$this->$controller->id]['case_document']);
 			}
 			
 			elseif($submit=='remove_document'){

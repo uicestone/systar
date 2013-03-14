@@ -223,6 +223,11 @@ $(document)
 			}
 		});
 		
+		/*添加表单的提交按钮 清空表单*/
+		section.find('.add-form button:submit').on('click',function(){
+			$(this).closest('.add-form').reset();
+		});
+		
 		section.find('.contentTable').trigger('contenttableload');
 		
 		/*编辑页的提交按钮点击事件，提交数据到后台，在页面上反馈数据和提示*/
