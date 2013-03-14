@@ -117,7 +117,7 @@ class Schedule extends SS_controller{
 			$field=array(
 				'name'=>array('heading'=>'标题'),
 				'content'=>array('heading'=>'内容'),
-				'time_start'=>array('heading'=>'时间','eval'=>true,'cell'=>"return date('m-d H:i',{time_start});"),
+				'time_start'=>array('heading'=>'时间','eval'=>true,'cell'=>"return date('Y-m-d H:i',{time_start});"),
 				'hours_own'=>array('heading'=>'自报小时'),
 				'staff_name'=>array('heading'=>'律师')
 			);

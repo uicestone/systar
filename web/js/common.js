@@ -68,9 +68,6 @@ $(document)
 		my:'right bottom',
 		at:'right top'
 	},
-	hide:{
-		delay:1000
-	},
 	show:{
 		delay:500
 	}
