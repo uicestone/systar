@@ -73,48 +73,6 @@ class Cases_model extends SS_Model{
 		return $this->db->update('case',$data,array('id'=>$id));
 	}
 	
-	function getLabels($id,$type=NULL){
-		$id=intval($id);
-		
-		$query="
-			SELECT label.name, case_label.type
-			FROM label INNER JOIN case_label ON label.id=case_label.label
-			WHERE case_label.case = $id
-		";
-		
-		if($type===true){
-			$query.=" AND case_label.type IS NOT NULL";
-		}
-		elseif(isset($type)){
-			$query.=" AND case_label.type = '$type'";
-		}
-		
-		$result=$this->db->query($query)->result_array();
-		
-		$labels=array_sub($result,'name','type');
-		
-		return $labels;
-	}
-	
-	/**
-	 * 对于指定案件，在case_label中写入一组label
-	 * 对于不存在的label，当场在label表中添加
-	 * @param int $case_id
-	 * @param array $labels: array([$type=>]$name,...)
-	 */
-	function updateLabels($case_id,$labels){
-		$case_id=intval($case_id);
-		foreach((array)$labels as $type => $name){
-			$label_id=$this->label->match($name);
-			$set=array('label'=>$label_id,'label_name'=>$name);
-			$where=array('case'=>$case_id);
-			if(!is_integer($type)){
-				$where['type']=$type;
-			}
-			$this->db->replace('case_label',$set+$where);
-		}
-	}
-	
 	//子表列表、增删
 	
 	function getClientList($case_id,$relation='客户'){

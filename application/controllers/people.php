@@ -133,7 +133,7 @@ class People extends SS_Controller{
 				$this->output->setData($people['abbreviation']?$people['abbreviation']:$people['name'],'name');
 			}
 
-			$available_options=$this->$controller->getHotlabelsOfTypes();
+			$available_options=$this->$controller->getAllLabels();
 			$profile_name_options=$this->$controller->getProfileNames();
 
 			$this->subList('relative');
@@ -306,10 +306,10 @@ class People extends SS_Controller{
 		//相关人
 		if($item=='relative'){
 			$field=array(
-				'relative_name'=>array('heading'=>'名称','cell'=>'{relative_name}<button type="submit" id="{id}" name="submit[remove_relative]" class="hover">删除</button>'), 
-				'relative_phone'=>array('heading'=>'电话', 'orderby'=>false), 
-				'relative_email'=>array('heading'=>'电邮', 'wrap'=>array('mark'=>'a', 'href'=>'mailto:{relative_email}')), 
-				'relation'=>array('heading'=>'关系', 'orderby'=>false)
+				'name'=>array('heading'=>'名称','cell'=>'{name}<button type="submit" id="{id}" name="submit[remove_relative]" class="hover">删除</button>'), 
+				'phone'=>array('heading'=>'电话'), 
+				'email'=>array('heading'=>'电邮'), 
+				'relation'=>array('heading'=>'关系')
 			);
 			
 			$list=$this->table->setFields($field)

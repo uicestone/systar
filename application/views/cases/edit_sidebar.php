@@ -1,4 +1,4 @@
-<? if($this->user->isLogged('manager') || $responsible_partner==$this->user->id && !$cases['is_reviewed'] && !$cases['is_query']){?>
+<? if(($this->user->isLogged('manager') || $responsible_partner==$this->user->id) && !$cases['is_reviewed'] && !$cases['is_query']){?>
 		<button type="submit" name="submit[review]" class="major">立案审核</button>
 <? }//TODO: 批量替换多余的空格?>
 <? if($responsible_partner!=$this->user->id && !$cases['client_lock'] && $cases['is_reviewed']){?>

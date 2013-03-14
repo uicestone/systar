@@ -32,6 +32,111 @@ class SS_Model extends CI_Model{
 		}
 	}
 	
+	/**
+	 * 添加标签，而不论标签是否存在
+	 * @param type {item} id
+	 * @param type $label_name 标签内容或标签id（须将下方input_as_id定义为true）
+	 * @param type $type 标签内容在此类对象的应用的意义，如“分类”，“类别”，案件的”阶段“等
+	 * @return type 返回{item}_label的insert_id
+	 */
+	function addLabel($item_id,$label_name,$type=NULL){
+		$item_id=intval($item_id);
+		$label_id=$this->label->match($label_name);
+		$this->db->insert($this->table.'_label',array($this->table=>$item_id,'label'=>$label_id,'type'=>$type,'label_name'=>$label_name));
+		return $this->db->insert_id();
+	}
+	
+	function removeLabel($item_id,$label_name){
+		$item_id=intval($item_id);
+		return $this->db->delete($this->table.'_label',array($this->table=>$item_id,'label_name'=>$label_name));
+	}
+	
+	function getLabels($item_id,$type=NULL){
+		$item_id=intval($item_id);
+		
+		$query="
+			SELECT label.name,{$this->table}_label.type
+			FROM label INNER JOIN {$this->table}_label ON label.id={$this->table}_label.label
+			WHERE {$this->table}_label.{$this->table} = $item_id
+		";
+		
+		if($type===true){
+			$query.=" AND {$this->table}_label.type IS NOT NULL";
+		}
+		elseif(isset($type)){
+			$query.=" AND {$this->table}_label.type = '$type'";
+		}
+		
+		$result=$this->db->query($query)->result_array();
+		
+		$labels=array_sub($result,'name','type');
+		
+		return $labels;
+	}
+	
+	/**
+	 * 获得所有或指定类别的标签名称，按热门程度排序
+	 * @param $type
+	 * @return array([$type=>]$label_name,...) 一个由标签类别为键名（如果标签类别存在），标签名称为键值构成的数组
+	 */
+	function getAllLabels($type=NULL){
+		$query="
+			SELECT {$this->table}_label.type,{$this->table}_label.label_name AS name,COUNT(*) AS hits
+			FROM {$this->table}_label INNER JOIN {$this->table} ON {$this->table}.id={$this->table}_label.{$this->table}
+			WHERE {$this->table}.company={$this->company->id}
+		";
+		
+		if(isset($type)){
+			$query.=" AND type='$type";
+		}
+		
+		$query.="
+			GROUP BY {$this->table}_label.label
+			ORDER BY hits DESC
+		";
+		
+		$result_array = $this->db->query($query)->result_array();
+		
+		$all_labels=array();
+		
+		foreach($result_array as $row_array){
+			if(is_null($type) && $row_array['type']){
+				$all_labels[$row_array['type']][]=$row_array['name'];
+			}else{
+				$all_labels[]=$row_array['name'];
+			}
+		}
+		return $all_labels;
+	}
+	
+	/**
+	 * 对于指定{item}，在{item}_label中写入一组label
+	 * 对于不存在的label，当场在label表中添加
+	 * 注意，只有带type选项的label才可能被update，否则需要逐个remove或add
+	 * @param int {item}_id
+	 * @param array $labels: array($type=>$name,...)
+	 */
+	function updateLabels($item_id,$labels){
+		$item_id=intval($item_id);
+		
+		//没有在参数列表中直接做出限制，用来兼容一些特殊情况
+		if(!is_array($labels)){
+			return;
+		}
+		
+		foreach($labels as $type => $name){
+			$label_id=$this->label->match($name);
+			$set=array('label'=>$label_id,'label_name'=>$name);
+			$where=array($this->table=>$item_id,'type'=>$type);
+			$result=$this->db->get_where($this->table.'_label',$where);
+			if($result->num_rows()===0){
+				return $this->db->insert($this->table.'_label',$set+$where);
+			}else{
+				return $this->db->update($this->table.'_label',$set,$where);
+			}
+		}
+	}
+	
 	//TODO 此处用来处理list的搜索条件及视图。这种做法不太科学。而且与label_model和各小model中的search方法（现在还叫match方法）重名。
 	function search($query, array $search_fields, $generate_view=true){
 		

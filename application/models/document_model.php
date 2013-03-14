@@ -3,6 +3,8 @@ class Document_model extends SS_Model{
 	
 	var $id;
 	
+	var $table='document';
+	
 	static $fields=array(
 		'name'=>'文件名',
 		'extname'=>'扩展名',
@@ -27,11 +29,11 @@ class Document_model extends SS_Model{
 	}
 	
 	function add(array $data=array()){
-		$data=array_intersect_key($data, self::$fields);
+		$document=array_intersect_key($data, self::$fields);
 		
-		$data+=uidTime(true,true);
+		$document+=uidTime(true,true);
 		
-		$this->db->insert('document',$data);
+		$this->db->insert('document',$document);
 		
 		return $this->db->insert_id();
 				

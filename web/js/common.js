@@ -220,16 +220,12 @@ $(document)
 			}
 		});
 		
-		/*添加表单的提交按钮 清空表单*/
-		section.find('.add-form button:submit').on('click',function(){
-			$(this).closest('.add-form').reset();
-		});
-		
 		section.find('.contentTable').trigger('contenttableload');
 		
 		/*编辑页的提交按钮点击事件，提交数据到后台，在页面上反馈数据和提示*/
 		section.find('button:submit').on('click',function(){
 			var form = section.children('form');
+			var button = $(this);
 
 			var id = section.find('form[name="'+controller+'"]').attr('id');
 			var buttonId = $(this).attr('id');
@@ -248,6 +244,11 @@ $(document)
 
 			form.ajaxForm({url:postURI,dataType:'json',success:function(response){
 				section.setBlock(response);
+				/*添加表单的提交按钮 清空表单*/
+				
+				/*如果被点击的按钮在一个sublist的add-form里面，那么重置这个add-form*/
+				button.closest('.add-form').reset();
+		
 			}});
 
 			/*$.post(postURI,$('article>section[hash="'+hash+'"]>form').serialize(),function(response){

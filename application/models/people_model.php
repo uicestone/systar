@@ -60,16 +60,16 @@ class People_model extends SS_Model{
 		$new_people_id=$this->db->insert_id();
 		
 		if(isset($data['profiles'])){
-			foreach($data['profiles'] as $name => $value){
-				if(!is_null($value) && $value!==''){
-					$this->addProfile($new_people_id,$name,$value);
+			foreach($data['profiles'] as $name => $content){
+				if(!is_null($content) && $content!==''){
+					$this->addProfile($new_people_id,$name,$content);
 				}
 			}
 		}
 		
 		if(isset($data['labels'])){
 			foreach($data['labels'] as $type => $name){
-				if(!is_null($value) && $value!==''){
+				if(!is_null($name) && $name!==''){
 					$this->addLabel($new_people_id,$name,$type);
 				}
 			}
@@ -106,139 +106,6 @@ class People_model extends SS_Model{
 		";
 		
 		return array_sub($this->db->query($query)->result_array(),'type');
-	}
-	
-	/**
-	 * 为人添加标签，而不论标签是否存在
-	 * @param type $people people.id
-	 * @param type $label_name 标签内容或标签id（须将下方input_as_id定义为true）
-	 * @param type $type 标签内容在此类对象的应用的意义，如“分类”，“类别”，案件的”阶段“等
-	 * @return type 返回people_label的insert_id
-	 */
-	function addLabel($people,$label_name,$type=NULL){
-		$result=$this->db->get_where('label',array('name'=>$label_name));
-
-		$label_id=0;
-
-		if($result->num_rows()==0){
-			$this->db->insert('label',array('name'=>$label_name));
-			$label_id=$this->db->insert_id();
-		}else{
-			$label_id=$result->row()->id;
-		}
-		
-		$this->db->insert('people_label',array('people'=>$people,'label'=>$label_id,'type'=>$type,'label_name'=>$label_name));
-		
-		return $this->db->insert_id();
-	}
-	
-	/**
-	 * 对于指定客户，在people_label中写入一组label
-	 * 对于不存在的label，当场在label表中添加
-	 * @param int $people_id
-	 * @param array $labels: array([$type=>]$name,...)
-	 */
-	function updateLabels($people_id,$labels){
-		$people_id=intval($people_id);
-		foreach((array)$labels as $type => $name){
-			$label_id=$this->label->match($name);
-			$set=array('label'=>$label_id,'label_name'=>$name);
-			$where=array('people'=>$people_id);
-			if(!is_integer($type)){
-				$where['type']=$type;
-			}
-			$this->db->replace('people_label',$set+$where);
-		}
-	}
-	
-	/**
-	 * 返回一个人员的指定类别的／所有的标签
-	 * @param int $id people.id
-	 * @param $type 为NULL时返回所有标签，为true时返回所有带类别的标签，为其他值时返回所有该类别的标签
-	 * 标签的类别，指标签用于某种分类时，分类的名称，如案件的“阶段”，客户的“类别”
-	 * @return array([$type=>]$label_name,...) 一个由标签类别为键名（如果标签类别存在），标签名称为键值构成的数组
-	 */
-	function getLabels($id,$type=NULL){
-		$id=intval($id);
-		
-		$query="
-			SELECT label.name, people_label.type
-			FROM label INNER JOIN people_label ON label.id=people_label.label
-			WHERE people_label.people = $id
-		";
-		
-		if($type===true){
-			$query.=" AND people_label.type IS NOT NULL";
-		}
-		elseif(isset($type)){
-			$query.=" AND people_label.type = '$type'";
-		}
-		
-		$result=$this->db->query($query)->result_array();
-		
-		$labels=array_sub($result,'name','type');
-		
-		return $labels;
-	}
-	
-	/**
-	 * 获得所有或指定类别的标签名称，按热门程度排序
-	 * @param $type
-	 * @return array([$type=>]$label_name,...) 一个由标签类别为键名（如果标签类别存在），标签名称为键值构成的数组
-	 */
-	function getAllLabels($type=NULL){
-		$query="
-			SELECT people_label.type,people_label.label_name AS name,COUNT(*) AS hits
-			FROM people_label INNER JOIN people ON people.id=people_label.people
-			WHERE people.company={$this->company->id}
-		";
-		
-		if(isset($type)){
-			$query.=" AND type='$type";
-		}
-		
-		$query.="
-			GROUP BY people_label.label
-			ORDER BY hits DESC
-		";
-		
-		$result_array = $this->db->query($query)->result_array();
-		
-		$all_labels=array();
-		
-		foreach($result_array as $row_array){
-			if(is_null($type) && $row_array['type']){
-				$all_labels[$row_array['type']][]=$row_array['name'];
-			}else{
-				$all_labels[]=$row_array['name'];
-			}
-		}
-		return $all_labels;
-	}
-	
-	/**
-	 * 返回本公司所有“人”数据的标签，按热门度排序，按类别分组
-	 * @return array(
-	 *	type1=>array(
-	 *		label1,label2,label3
-	 *	),
-	 *	type2=>array(
-	 *		label1,label2,label3
-	 *	),
-	 *	ungrouped_label1,
-	 *	ungrouped_label2
-	 * )
-	 */
-	function getHotlabelsOfTypes(){
-		$hot_labels=$this->getAllLabels();
-		
-		$hot_labels_of_types=array();
-		foreach($hot_labels as $label){
-			if(isset($label['type'])){
-				$hot_labels_of_types[$label['type']][]=$label['name'];
-			}
-		}
-		return $hot_labels_of_types;
 	}
 	
 	function addProfile($people_id,$name,$content,$comment=NULL){
@@ -348,17 +215,11 @@ class People_model extends SS_Model{
 		
 		$query="
 			SELECT 
-				people_relationship.id AS id,people_relationship.relation,people_relationship.relative,people_relationship.is_default_contact,
-				people.abbreviation AS relative_name,
-				phone.content AS relative_phone,email.content AS relative_email
+				people_relationship.id AS id,people_relationship.relation,people_relationship.relative,
+				IF(people.abbreviation IS NULL,people.name,people.abbreviation) AS name,
+				people.phone,people.email
 			FROM 
 				people_relationship INNER JOIN people ON people_relationship.relative=people.id
-				LEFT JOIN (
-					SELECT people,GROUP_CONCAT(content) AS content FROM people_profile WHERE name IN('电话','手机','固定电话') GROUP BY people
-				)phone ON people.id=phone.people
-				LEFT JOIN (
-					SELECT people,GROUP_CONCAT(content) AS content FROM people_profile WHERE name='电子邮件' GROUP BY people
-				)email ON people.id=email.people
 			WHERE people_relationship.people = $people_id
 			ORDER BY relation
 		";

@@ -315,6 +315,7 @@ class Cases extends SS_controller{
 	}
 
 	function submit($submit,$id,$button_id=NULL){
+		$controller=CONTROLLER;
 		
 		$this->cases->id=$id;
 		
@@ -634,27 +635,29 @@ class Cases extends SS_controller{
 					throw new Exception;
 				}
 				
-				$document=$this->upload->data();
+				$upload_info=$this->upload->data();
 				
 				if(!$document_labels['类型']){
 					$this->output->message('请选择文件类型','warning');
 					throw new Exception;
 				}
 				
-				$document['name']=$document['client_name'];
-				$document['size']=$document['file_size'];
-				$document['extname']=$document['file_ext'];
-				$document['type']=$document['file_type'];
+				$document['name']=$upload_info['client_name'];
+				$document['size']=$upload_info['file_size'];
+				$document['extname']=$upload_info['file_ext'];
+				$document['type']=$upload_info['file_type'];
 				
 				$document['id']=$this->document->add($document);
 				
+				$this->document->updateLabels($document['id'],$document_labels);
+				
 				$this->cases->addDocument($this->cases->id, $document['id']);
 				
-				rename($this->config->item('document_path').$document['file_name'], $this->config->item('document_path').$document['id']);
+				rename($this->config->item('document_path').$upload_info['file_name'], $this->config->item('document_path').$document['id']);
 				
 				$this->output->setData($this->subList('document', $this->cases->id));
 				
-				unset($_SESSION[CONTROLLER]['post'][$this->$controller->id]['case_document']);
+				unset($_SESSION[CONTROLLER]['post'][$this->$controller->id]['document']);
 			}
 			
 			elseif($submit=='remove_document'){

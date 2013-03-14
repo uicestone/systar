@@ -19,6 +19,11 @@ class Label_model extends SS_Model{
 		}
 	}
 	
+	function add($label_name){
+		$this->db->insert('label',array('name'=>$label_name));
+		return $this->db->insert_id();
+	}
+	
 	/**
 	 * 测试一个标签名
 	 * 如果存在则返回id
