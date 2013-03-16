@@ -7,13 +7,10 @@ class Contact extends People{
 		parent::__construct();
 	}
 
-	function contact(){
-		$this->index('contact');
-	}
-
-	function index($method=NULL){
+	function index(){
 		$this->output->setData($this->section_name, 'name');
-		parent::index($method);
+		option('search/type','联系人');
+		parent::index();
 	}
 
 }
