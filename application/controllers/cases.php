@@ -505,7 +505,7 @@ class Cases extends SS_controller{
 					$this->output->message('人员添加错误', 'warning');
 				}
 
-				$this->cases->calcContribute($this->cases->id);
+				//$this->cases->calcContribute($this->cases->id);
 				
 				unset($_SESSION[CONTROLLER]['post'][$this->$controller->id]['staff']);
 			}

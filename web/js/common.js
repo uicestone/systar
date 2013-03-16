@@ -247,7 +247,9 @@ $(document)
 				/*添加表单的提交按钮 清空表单*/
 				
 				/*如果被点击的按钮在一个sublist的add-form里面，那么重置这个add-form*/
-				button.closest('.add-form').reset();
+				if(response.status==='success'){
+					button.closest('.add-form').reset();
+				}
 		
 			}});
 
