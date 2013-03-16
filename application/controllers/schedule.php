@@ -233,6 +233,7 @@ class Schedule extends SS_controller{
 			$data = $this->input->post();
 			
 			$new_schedule_id = $this->schedule->add($data);
+			$this->schedule->updateProfiles($new_schedule_id, $this->input->post('profiles'));
 			
 			if($new_schedule_id){
 				$this->output->status='success';
@@ -240,15 +241,15 @@ class Schedule extends SS_controller{
 			}
 			
 		}elseif($action=='delete'){//删除任务
-			if($this->schedule->delete($schedule_id)){
+			if($this->schedule->remove($schedule_id)){
 				$this->output->status='success';
 			}
 		
 		}elseif($action=='update'){//更新任务内容
-			if($this->schedule->update($schedule_id,$this->input->post())){
-				$this->output->status='success';
-				$this->output->data=array('id'=>$schedule_id,'name'=>$this->input->post('name'),'completed'=>$this->input->post('completed'));
-			}
+			$this->schedule->update($schedule_id,$this->input->post());
+			$this->schedule->updateProfiles($schedule_id, $this->input->post('profiles'));
+			$this->output->status='success';
+			$this->output->data=array('id'=>$schedule_id,'name'=>$this->input->post('name'),'completed'=>$this->input->post('completed'));
 		
 		}elseif($action=='resize'){//更新任务时间
 			$time_delta=intval($this->input->post('dayDelta'))*86400+intval($this->input->post('minuteDelta'))*60;
@@ -427,6 +428,8 @@ class Schedule extends SS_controller{
 			$this->schedule->id=$schedule_id;
 
 			$schedule=$this->schedule->fetch($schedule_id);
+			
+			$profiles=$this->schedule->getProfiles($schedule_id);
 
 			if(isset($schedule['case'])){
 				$case=$this->cases->fetch($schedule['case']);
@@ -435,6 +438,7 @@ class Schedule extends SS_controller{
 			}
 
 			$this->load->addViewData('schedule', $schedule);
+			$this->load->addViewData('profiles', $profiles);
 
 			isset($schedule['name']) && $this->output->setData($schedule['name'],'name');
 

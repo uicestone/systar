@@ -137,6 +137,63 @@ class SS_Model extends CI_Model{
 		}
 	}
 	
+	function addProfile($item_id,$name,$content,$comment=NULL){
+		$data=array(
+			$this->table=>$item_id,
+			'name'=>$name,
+			'content'=>$content,
+			'comment'=>$comment
+		);
+		
+		$data+=uidTime(false);
+		
+		$this->db->insert($this->table.'_profile',$data);
+		
+		return $this->db->insert_id();
+	}
+	
+	/**
+	 * 对于指定对象，在{item}_profiles中写入一组资料项
+	 * @param int $item_id
+	 * @param array $profiles: array($name=>$content,...)
+	 */
+	function updateProfiles($item_id,$profiles){
+		$item_id=intval($item_id);
+		
+		if(!is_array($profiles)){
+			return true;
+		}
+		
+		foreach($profiles as $name => $content){
+			
+			$set=array('content'=>$content);
+			$where=array($this->table=>$item_id,'name'=>$name);
+			
+			if($this->db->from($this->table.'_profile')->where($where)->count_all_results()===0){
+				$this->addProfile($item_id,$name,$content);
+			}else{
+				$this->db->update($this->table.'_profile',$set,$where);
+			}
+			
+		}
+	}
+	
+	/**
+	 * 返回一个可用的profile name列表
+	 */
+	function getProfileNames(){
+		$query="
+			SELECT name,COUNT(*) AS hits
+			FROM `{$this->table}_profile`
+			GROUP BY name
+			ORDER BY hits DESC;
+		";
+		
+		$result=$this->db->query($query)->result_array();
+		
+		return array_sub($result,'name');
+	}
+	
 	//TODO 此处用来处理list的搜索条件及视图。这种做法不太科学。而且与label_model和各小model中的search方法（现在还叫match方法）重名。
 	function search($query, array $search_fields, $generate_view=true){
 		
@@ -170,6 +227,32 @@ class SS_Model extends CI_Model{
 		return $query;
 	}
 
+	/**
+	 * 返回一个item的资料项列表
+	 * @param ${item}_id
+	 * @return type
+	 */
+	function getProfiles($item_id){
+		$item_id=intval($item_id);
+		
+		$query="
+			SELECT 
+				{$this->table}_profile.id,{$this->table}_profile.comment,{$this->table}_profile.content,{$this->table}_profile.name
+			FROM {$this->table}_profile INNER JOIN {$this->table} ON {$this->table}_profile.{$this->table}={$this->table}.id
+			WHERE {$this->table}_profile.{$this->table} = $item_id
+		";
+		return $this->db->query($query)->result_array();
+	}
+	
+	/**
+	 * 删除信息资料项
+	 */
+	function removeProfile($item_id,$profile_id){
+		$item_id=intval($item_id);
+		$profile_id=intval($profile_id);
+		return $this->db->delete($this->table.'_profile',array('id'=>$profile_id,$this->table=>$item_id));
+	}
+	
 	/*
 	 * 为查询语句加上日期条件
 	 */
@@ -192,33 +275,6 @@ class SS_Model extends CI_Model{
 		}
 		
 		return $query;
-	}
-
-	function addCondition(&$q,$condition_array,$unset=array()){
-		
-		$method=METHOD;
-		
-		foreach($unset as $changed_variable => $unset_array){
-			if(!is_array($unset_array)){
-			  $unset_array=array($unset_array);
-			}
-			foreach($unset_array as $unset_variable){
-				if($this->input->post($changed_variable)!==false){
-					unset($_SESSION[CONTROLLER][METHOD][$this->$method->id][$unset_variable]);
-				}
-			}
-		}
-
-		foreach($condition_array as $variable=>$field){
-			if($this->input->post($variable)!==false){
-				option($variable,$_POST[$variable]);
-			}
-
-			if(!is_null(option($variable)) && option($variable)!=''){
-				$q.=' AND '.db_field_name($field)."='".option($variable)."'";
-			}
-		}
-		return $q;
 	}
 
 	/*

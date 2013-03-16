@@ -31,13 +31,14 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 				that.options.selection.closest('.fc').fullCalendar('unselect');
 			}
 			that.element.remove();
-		}
+		};
 		
 		this.options.buttons=[
 			{
 				text: "+",
 				click: function(){
-					that.element.append('<input class="text" placeholder="信息名称" style="width:22%" /><input class="text" placeholder="信息内容" style="width:70%" />');
+					var lastProfile=that.element.find('.profile:last');
+					lastProfile.after(lastProfile.clone()).show();
 				}
 			},
 
@@ -57,7 +58,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			}
 		}
 		
-		if(this.options.method=='create'){
+		if(this.options.method==='create'){
 			this.options.event={
 				start:that.options.startDate,
 				end:that.options.endDate,
@@ -65,7 +66,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			};
 		}
 		
-		if(this.options.method=='view'){
+		if(this.options.method==='view'){
 			this.options.buttons.splice(1,0,{
 				text:'编辑',
 				click:function(){
@@ -91,6 +92,8 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 	_getContent:function(){
 		
 		var uri,that=this;
+		
+		/*根据当前请求的类型判断是使用view视图还是edit视图*/
 		switch(this.options.method){
 			case 'view':uri='/schedule/view/'+this.options.id;break;
 			case 'create':uri='/schedule/edit';break;
@@ -98,35 +101,52 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 		}
 		
 		$.get(uri,function(response){
+			
+			/*根据响应，刷新日程标题*/
 			if(response.data.name){
 				that.option('title',response.data.name.content);
 			}
 			
+			/*根据响应，设置completed选项*/
 			response.data.completed && that.option('completed',Boolean(Number(response.data.completed.content)));
 			
-			if(that.options.method=='create'){
+			/*对于新建日程，由当前时间和日程时间给出预设的completed值*/
+			if(that.options.method==='create'){
 				that.option('completed',that.options.startDate<new Date());
 			}
 			
+			/*根据completed选项，设置“已完成”按钮状态*/
 			if(that.options.completed){
 				that.widget().find(':checkbox#completed').attr('checked','checked');
 			}
 			
+			/*触发一次“已完成”按钮，来使显示按钮文字*/
 			that.widget().find(':checkbox#completed').trigger('change');
 
+			/*载入日程内容*/
 			that.element.html(response.data.content.content).trigger('blockload')
 			.find('[name="content"]').focus();
 			
-			that.widget().find(':input').on('change',function(){
+			that.widget().on('change',':input',function(){
 				$(this).attr('changed','changed');
 			});
 
+			/*案件名称自动完成*/
 			that.element.on('autocompleteselect','[name="case_name"]',function(event,data){
 				$(this).siblings('[name="case"]').val(data.value).trigger('change');
 			})
 			.on('autocompleteresponse','[name="case_name"]',function(event,data){
 				$(this).siblings('[name="case"]').val('');
 			});
+			
+			that.element.on('focus','[name^="profiles"]',function(){
+				$(this).attr('name','profiles['+$(this).prev('.profile-name').val()+']');
+			});
+			
+			that.element.on('change','.profile-name',function(){
+				$(this).next('[name^="profiles"]').attr('name','profiles['+$(this).val()+']');
+			});
+			
 		},'json');
 	},
 	
@@ -134,22 +154,26 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 		var that=this;
 		if(this.options.startDate && this.options.endDate){
 			
+			/*根据completed按钮状态设定completed值*/
 			this.options.event.completed
 				=this.options.completed
 				=this.element.siblings('.ui-dialog-buttonpane').find(':checkbox[name="completed"]').is(':checked');
 
+			/*将content第一行作为name*/
 			if(that.element.find(':input[name="content"]').length){
 				this.options.event.title
 					=this.options.title
 					=this.element.find(':input[name="content"]').val().split("\n").shift();
 			}
 			
+			/*初始化准备提交的数据*/
 			var data={
 				completed:Number(this.options.completed),
 				name:this.options.title
 			};
 			
-			if(this.options.method=='create'){
+			/*对于新建日程，添加日历时间数据*/
+			if(this.options.method==='create'){
 				$.extend(data,{
 					time_start:this.options.startDate.getTime()/1000,
 					time_end:this.options.endDate.getTime()/1000,
@@ -161,11 +185,11 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 				data[$(this).attr('name')]=$(this).val();
 			});
 			
-			var uri=this.options.method=='create'?'/schedule/writecalendar/add':'/schedule/writecalendar/update/'+this.options.id;
+			var uri=this.options.method==='create'?'/schedule/writecalendar/add':'/schedule/writecalendar/update/'+this.options.id;
 
 			$.post(uri,data,function(response){
 				
-				if(response.status=='success' && $(calendar)){
+				if(response.status==='success' && $(calendar)){
 	
 					that.options.id=that.options.event.id=response.data.id;
 				
@@ -179,7 +203,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 						}
 					}
 					$(calendar)
-					.fullCalendar(that.options.method=='create'?'renderEvent':'updateEvent',that.options.event);
+					.fullCalendar(that.options.method==='create'?'renderEvent':'updateEvent',that.options.event);
 					that.element.schedule('close');
 				}
 			},'json');
@@ -242,11 +266,11 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			text:'删除',
 			click:function(){
 				$.get('/schedule/writecalendar/delete/'+that.options.id,function(response){
-					if(response.status=='success'){
+					if(response.status==='success'){
 						that.element.schedule('close');
 						$(calendar).fullCalendar('removeEvents',that.options.id);
 					}
-				},'json')
+				},'json');
 			}
 		});
 		this.option('buttons',this.options.buttons);

@@ -191,3 +191,6 @@ ALTER TABLE  `people_profile` CHANGE  `content`  `content` MEDIUMTEXT CHARACTER 
 ALTER TABLE  `people` ADD  `phone` VARCHAR( 255 ) NULL AFTER  `gender` ,
 ADD  `email` VARCHAR( 255 ) NULL AFTER  `phone`
 -- uice 3/13
+
+ALTER TABLE  `schedule_profile` CHANGE  `comment`  `comment` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+-- uice 3/16

@@ -69,59 +69,10 @@ class Schedule_model extends SS_Model{
 		return $this->db->update('schedule',$data,array('id'=>$schedule_id));
 	}
 	
-	function delete($schedule_id){
+	function remove($schedule_id){
 		$schedule_id=intval($schedule_id);
 		
-		return $this->db->delete('schedule',array('id'=>$schedule_id,'uid'=>$this->user->id));	
-	}
-	
-	/**
-	 * 给一条日程添加一个资料项
-	 * @param int $schedule_id
-	 * @param $name 资料项名称
-	 * @param $content 资料项内容
-	 * @param $comment 备注
-	 * @return type 
-	 */
-	function addProfile($schedule_id,$name,$content,$comment=NULL){
-		$schedule_id=intval($schedule_id);
-		
-		$data=array(
-			'schedule'=>$schedule_id,
-			'name'=>$name,
-			'content'=>$content,
-			'comment'=>$comment
-		);
-		
-		$data+=uidTime(false);
-		
-		$this->db->insert('schedule_profile',$data);
-		
-		return $this->db->insert_id();
-	}
-	
-	/**
-	 * 删除日程资料项
-	 */
-	function removeProfile($schedule_profile_ids){
-		$condition = db_implode($schedule_profile_ids, $glue = ' OR ','id');
-		$this->db->delete('schedule_profile',$condition);
-	}
-	
-	/**
-	 * 返回一个可用的profile name列表
-	 */
-	function getProfileNames(){
-		$query="
-			SELECT name,COUNT(*) AS hits
-			FROM `schedule_profile`
-			GROUP BY name
-			ORDER BY hits DESC;
-		";
-		
-		$result=$this->db->query($query)->result_array();
-		
-		return array_sub($result,'name');
+		return $this->db->update('schedule',array('display'=>false),array('id'=>$schedule_id));	
 	}
 	
 	function addPeople($schedule_id,$people){
