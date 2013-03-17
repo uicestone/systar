@@ -91,7 +91,7 @@ class user extends SS_controller{
 	function profile(){
 		
 		$people=array_merge_recursive($this->people->fetch($this->user->id),$this->input->sessionPost('people'));
-		$people_profiles=array_merge_recursive(array_sub($this->user->getProfiles($this->user->id),'content','name'),$this->input->sessionPost('people'));
+		$people_profiles=array_merge_recursive(array_sub($this->people->getProfiles($this->user->id),'content','name'),$this->input->sessionPost('people'));
 		$this->load->addViewArrayData(compact('people','people_profiles'));
 		
 		$this->output->setData('用户资料','name');

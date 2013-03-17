@@ -178,8 +178,14 @@ class People_model extends SS_Model{
 		 */
 		
 		$q=isset($config['query'])?$config['query']:"
-			SELECT people.id,people.name,IF(people.abbreviation IS NULL,people.name,people.abbreviation) AS abbreviation,people.phone,people.email
+			SELECT people.id,people.name,IF(people.abbreviation IS NULL,people.name,people.abbreviation) AS abbreviation,people.phone,people.email,
+				labels.labels
 			FROM people
+				LEFT JOIN (
+					SELECT `people`, GROUP_CONCAT(label_name) AS labels
+					FROM people_label
+					GROUP BY people_label.people
+				)labels ON labels.people=people.id
 		";
 		
 		$q_rows="SELECT COUNT(*) FROM people";
@@ -205,7 +211,11 @@ class People_model extends SS_Model{
 			
 		}
 		
-		$where=" WHERE company={$this->company->id} AND display=1 AND people.type='{$config['type']}'";
+		$where=" WHERE company={$this->company->id} AND display=1";
+		
+		if(isset($config['type']) && $config['type']){
+			$where.=" AND people.type = '{$config['type']}'";
+		}
 		
 		if(isset($config['name']) && $config['name']!==''){
 			$where.="

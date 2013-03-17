@@ -191,11 +191,16 @@ ALTER TABLE  `people_profile` CHANGE  `content`  `content` MEDIUMTEXT CHARACTER 
 ALTER TABLE  `people` ADD  `phone` VARCHAR( 255 ) NULL AFTER  `gender` ,
 ADD  `email` VARCHAR( 255 ) NULL AFTER  `phone`
 -- uice 3/13
+-- server upgraded
 
 ALTER TABLE  `schedule_profile` CHANGE  `comment`  `comment` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
 -- uice 3/16
 
 ALTER TABLE  `case` ADD  `type` VARCHAR( 255 ) NOT NULL AFTER  `name`;
+
+UPDATE `case` SET type='业务';
+UPDATE `case` SET type='行政事务' WHERE id IN (SELECT `case` FROM case_label WHERE label_name = '内部行政');
+
 ALTER TABLE  `case` DROP  `name_extra` ,
 DROP  `is_reviewed` ,
 DROP  `type_lock` ,

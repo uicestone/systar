@@ -97,7 +97,7 @@ $(function(){
 	});
 
 	//勾选"计时收费"时，显示计时收费列表和表单
-	section.find('input[name="cases[timing_fee]"]').change(function(){
+	section.find('input[name="project[timing_fee]"]').change(function(){
 		var caseTimingFeeSave=$('label#caseTimingFeeSave');
 		caseTimingFeeSave.html('<button type="submit" name="submit[case_fee_timing]">保存</button>');
 

@@ -1,11 +1,11 @@
-<form method="post" name="<?=CONTROLLER?>" id="<?=$this->$controller->id?>" enctype="multipart/form-data">
+<form method="post" name="<?=CONTROLLER?>" id="<?=$this->people->id?>" enctype="multipart/form-data">
 	<div class="contentTableBox">
 		<div class="item">
 			<div class="title"><label>基本信息：</label></div>
 			<input name="people[name]" value="<?=$this->value('people/name'); ?>" type="text" placeholder="中文名" />
 			
 			<select name="people[type]">
-				<?=options($this->$controller->getTypes(),$this->value('people/type'),'人员类型')?>
+				<?=options($this->people->getTypes(),$this->value('people/type'),'人员类型')?>
 			</select>
 			
 			<select name="labels[类型]">

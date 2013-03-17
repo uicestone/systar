@@ -1,15 +1,18 @@
 <?php
-class Query extends Cases{
+class Query extends Project{
 	function __construct(){
-		$this->default_method='lists';
 		parent::__construct();
+		$this->project=$this->query;
 	}
 	
 	function filed(){
-		$this->lists('filed');
+		
+		option('search/labels',array(''));
+		
+		$this->index();
 	}
 	
-	function lists($para=NULL){
+	function index(){
 
 		$field=array(
 			'first_contact'=>array('heading'=>array('data'=>'日期','width'=>'95px')),
@@ -21,13 +24,15 @@ class Query extends Cases{
 			'summary'=>array('heading'=>'概况','cell'=>array('class'=>'ellipsis','title'=>'{summary}')),
 			'comment'=>array('heading'=>'备注','cell'=>array('class'=>'ellipsis','title'=>'{summary}'))
 		);
-		$table=$this->table->setFields($field)
-			->setRowAttributes(array('hash'=>'cases/edit/{id}'))
-			->setData($this->query->getList($para))
-			->generate();
-
-		$this->load->addViewData('list',$table);
-		$this->load->view('list');
+		
+		if(!is_array(option('search/labels'))){
+			option('search/labels',array());
+		}
+		
+		option('search/labels',array('咨询')+option('search/labels'));
+		
+		parent::index();
+		
 	}
 
 	function add(){

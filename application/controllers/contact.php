@@ -5,6 +5,7 @@ class Contact extends People{
 	
 	function __construct(){
 		parent::__construct();
+		$this->people=$this->contact;
 	}
 
 	function index(){

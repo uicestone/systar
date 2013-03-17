@@ -3,9 +3,6 @@
  * 这是一个半抽象的控制器类
  * 它既可以被直接使用，如搜索不特定人People::match()
  * 也可以被其他控制器比如Client继承
- * 注意：此类中调用同类model时，必须使用$this->$controller而不是$this->people
- *	当然，不要忘了在每个方法的开始定义$controller变量
- * 注意：在子类的实例中调用模型时，只可调用对应的子模型如Client_model，不可直接调用People_model
  */
 class People extends SS_Controller{
 	
@@ -25,11 +22,10 @@ class People extends SS_Controller{
 	 * 根据请求的字符串返回匹配的人员id，名称和类别
 	 */
 	function match(){
-		$controller=CONTROLLER;
 
 		$term=$this->input->post('term');
 		
-		$result=$this->$controller->match($term);
+		$result=$this->people->match($term);
 
 		$array=array();
 
@@ -47,8 +43,6 @@ class People extends SS_Controller{
 	 */
 	function index(){
 		
-		$controller=CONTROLLER;
-
 		$field=array(
 			'abbreviation'=>array(
 				'heading'=>'名称',
@@ -56,11 +50,7 @@ class People extends SS_Controller{
 			),
 			'phone'=>array('heading'=>'电话'),
 			'email'=>array('heading'=>'电邮'),
-			'comment'=>array(
-				'heading'=>'备注',
-				'eval'=>true,
-				'cell'=>array('data'=>"return str_getSummary('{comment}',50);",'class'=>'ellipsis','title'=>'{comment}')
-			)
+			'labels'=>array('heading'=>'标签')
 		);
 		
 		//点击了取消搜索按钮，则清空session中的搜索项
@@ -90,10 +80,9 @@ class People extends SS_Controller{
 		
 		$table=$this->table->setFields($field)
 			->setRowAttributes(array('hash'=>CONTROLLER.'/edit/{id}'))
-			->setData($this->$controller->getList(option('search')))
+			->setData($this->people->getList(option('search')))
 			->generate();
 		$this->load->addViewData('list', $table);
-		$this->load->addViewData('controller', $controller);
 		$this->load->view('list');
 		
 		$this->load->view('people/list_sidebar',true,'sidebar');
@@ -105,27 +94,25 @@ class People extends SS_Controller{
 	 * @TODO存在无法后退，容易造成数据库垃圾的问题
 	 */
 	function add(){
-		$controller=CONTROLLER;
-		$this->$controller->id=$this->client->add();
+		$this->people->id=$this->client->add();
 		$this->output->status='redirect';
-		$this->output->data=$controller.'/edit/'.$this->$controller->id;
+		$this->output->data=$controller.'/edit/'.$this->people->id;
 	}
 	
 	/**
 	 * 查看/编辑页面
 	 */
 	function edit($id){
-		$controller=CONTROLLER;
 
-		$this->$controller->id=$id;
+		$this->people->id=$id;
 		
 		$this->load->model('staff_model','staff');
 		$this->load->model('cases_model','cases');
 
 		try{
-			$people=array_merge($this->$controller->fetch($id),$this->input->sessionPost('people'));
-			$labels=$this->$controller->getLabels($this->$controller->id);
-			$profiles=array_sub($this->$controller->getProfiles($this->$controller->id),'content','name');
+			$people=array_merge($this->people->fetch($id),$this->input->sessionPost('people'));
+			$labels=$this->people->getLabels($this->people->id);
+			$profiles=array_sub($this->people->getProfiles($this->people->id),'content','name');
 
 			if(!$people['name'] && !$people['abbreviation']){
 				$this->output->setData('未命名'.$this->section_name,'name');
@@ -133,8 +120,8 @@ class People extends SS_Controller{
 				$this->output->setData($people['abbreviation']?$people['abbreviation']:$people['name'],'name');
 			}
 
-			$available_options=$this->$controller->getAllLabels();
-			$profile_name_options=$this->$controller->getProfileNames();
+			$available_options=$this->people->getAllLabels();
+			$profile_name_options=$this->people->getProfileNames();
 
 			$this->subList('relative');
 			$this->subList('profile');
@@ -165,11 +152,10 @@ class People extends SS_Controller{
 	 * 提交处理
 	 */
 	function submit($submit,$id,$button_id=NULL){
-		$controller=CONTROLLER;
 
-		$this->$controller->id=$id;
+		$this->people->id=$id;
 		
-		$people=array_merge($this->$controller->fetch($id),$this->input->sessionPost('people'));
+		$people=array_merge($this->people->fetch($id),$this->input->sessionPost('people'));
 		
 		$this->load->library('form_validation');
 		
@@ -184,7 +170,7 @@ class People extends SS_Controller{
 			}
 		
 			if($submit=='cancel'){
-				unset($_SESSION[CONTROLLER]['post'][$this->$controller->id]);
+				unset($_SESSION[CONTROLLER]['post'][$this->people->id]);
 				$this->output->status='close';
 			}
 
@@ -209,11 +195,11 @@ class People extends SS_Controller{
 					throw new Exception;
 				}
 				
-				$this->$controller->update($this->$controller->id,post('people'));
-				$this->$controller->updateLabels($this->$controller->id,$labels);
-				$this->$controller->updateProfiles($this->$controller->id,$profiles);
+				$this->people->update($this->people->id,post('people'));
+				$this->people->updateLabels($this->people->id,$labels);
+				$this->people->updateProfiles($this->people->id,$profiles);
 
-				unset($_SESSION[CONTROLLER]['post'][$this->$controller->id]);
+				unset($_SESSION[CONTROLLER]['post'][$this->people->id]);
 				$this->output->status='close';
 			}
 
@@ -241,23 +227,23 @@ class People extends SS_Controller{
 						'profiles'=>$profiles,
 						'labels'=>array('类型'=>'潜在客户')
 					);
-					$relative['id']=$this->$controller->add($relative);
+					$relative['id']=$this->people->add($relative);
 					$this->output->message('新客户 <a href="#'.CONTROLLER.'/edit/' . $relative['id'] . '">' . $relative['name'] . ' </a>已经添加');
 				}else{
 					$this->output->message('系统中已经存在 ' . $relative['name'] . '，已自动识别并添加');
 				}
 
-				$this->$controller->addRelationship($this->$controller->id,$relative['id'],$relative['relation']);
+				$this->people->addRelationship($this->people->id,$relative['id'],$relative['relation']);
 
-				$this->output->setData($this->subList('relative',$this->$controller->id));
+				$this->output->setData($this->subList('relative',$this->people->id));
 				
-				unset($_SESSION[CONTROLLER]['post'][$this->$controller->id]['relative']);
+				unset($_SESSION[CONTROLLER]['post'][$this->people->id]['relative']);
 
 			}
 
 			elseif($submit=='remove_relative'){
-				$this->$controller->removeRelationship($this->$controller->id,$button_id);
-				$this->output->setData($this->subList('relative',$this->$controller->id));
+				$this->people->removeRelationship($this->people->id,$button_id);
+				$this->output->setData($this->subList('relative',$this->people->id));
 			}
 
 			elseif($submit=='profile'){
@@ -268,20 +254,20 @@ class People extends SS_Controller{
 					throw new Exception;
 				}
 				
-				$this->$controller->addProfile($this->$controller->id,$profile['name'],$profile['content'],$profile['comment']);
+				$this->people->addProfile($this->people->id,$profile['name'],$profile['content'],$profile['comment']);
 				
-				$this->output->setData($this->subList('profile',$this->$controller->id));
+				$this->output->setData($this->subList('profile',$this->people->id));
 				
-				unset($_SESSION[CONTROLLER]['post'][$this->$controller->id]['profile']);
+				unset($_SESSION[CONTROLLER]['post'][$this->people->id]['profile']);
 			}
 
 			elseif($submit=='remove_profile'){
-				$this->$controller->removeProfile($this->$controller->id,$button_id);
-				$this->output->setData($this->subList('profile',$this->$controller->id));
+				$this->people->removeProfile($this->people->id,$button_id);
+				$this->output->setData($this->subList('profile',$this->people->id));
 			}
 			
 			elseif($submit=='changetype'){
-				$this->$controller->update($this->$controller->id,array('type'=>$this->input->post('type')));
+				$this->people->update($this->people->id,array('type'=>$this->input->post('type')));
 			}
 			
 			if(is_null($this->output->status)){
@@ -297,10 +283,9 @@ class People extends SS_Controller{
 	 * 查看/编辑页中的子列表
 	 */
 	function subList($item,$people_id=false){
-		$controller=CONTROLLER;
 
 		if($people_id){
-			$people=$this->$controller->fetch($people_id);
+			$people=$this->people->fetch($people_id);
 		}
 
 		//相关人
@@ -314,7 +299,7 @@ class People extends SS_Controller{
 			
 			$list=$this->table->setFields($field)
 				->setRowAttributes(array('hash'=>CONTROLLER.'/edit/{reltive}'))
-				->setData($this->$controller->getRelatives($this->$controller->id))
+				->setData($this->people->getRelatives($this->people->id))
 				->generate();
 
 		}
@@ -333,7 +318,7 @@ class People extends SS_Controller{
 			);
 			
 			$list=$this->table->setFields($field)
-				->setData($this->$controller->getProfiles($this->$controller->id))
+				->setData($this->people->getProfiles($this->people->id))
 				->generate();
 
 		}
@@ -352,7 +337,7 @@ class People extends SS_Controller{
 			);
 			$list=$this->table->setFields($field)
 				->setRowAttributes(array('hash'=>'cases/edit/{id}'))
-				->setData($this->cases->getListByPeople($this->$controller->id))
+				->setData($this->cases->getListByPeople($this->people->id))
 				->generate();
 		}
 		

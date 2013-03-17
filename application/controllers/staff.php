@@ -2,6 +2,7 @@
 class Staff extends SS_controller{
 	function __construct(){
 		parent::__construct();
+		$this->people=$this->staff;
 	}
 	
 	function index(){

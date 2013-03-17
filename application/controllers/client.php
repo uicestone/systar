@@ -5,6 +5,9 @@ class Client extends People{
 	
 	function __construct(){
 		parent::__construct();
+		
+		$this->people=$this->client;
+		
 		$this->form_validation_rules['people'][]=array(
 			'field'=>'profiles[来源类型]',
 			'label'=>'客户来源类型',
