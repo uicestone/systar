@@ -80,49 +80,6 @@ class Client_model extends People_model{
 	}
 	
 	/**
-	 * 返回一个案件的客户列表
-	 * @param type $case_id
-	 * @return type
-	 */
-	function getListByCase($case_id){
-		$option_array=array();
-		
-		$q_option_array="SELECT id,abbreviation FROM client WHERE display=1 AND classification='客户'";
-		if($case_id>20){
-			$q_option_array.=" AND id IN (SELECT client FROM case_client WHERE `case`='".$case_id."')";
-		
-		}elseif($case_id==11){
-			//潜在客户维护
-			$q_option_array.=" AND type='潜在客户' AND id NOT IN (SELECT client FROM case_client)";
-	
-		}elseif($case_id==12){
-			//老客户维护
-			$q_option_array.=" AND type='成交客户' 
-				AND id IN (
-					SELECT client FROM case_client WHERE `case` IN (
-						SELECT id FROM `case` WHERE filed=1
-							AND id IN (
-								SELECT `case` FROM case_lawyer 
-								WHERE lawyer={$this->user->id} OR uid={$this->user->id}
-							)
-					)
-			)";
-	
-		}elseif($case_id==13){
-			//咨询跟踪
-			$q_option_array.="
-				AND id IN (SELECT client FROM query WHERE display=1 AND filed=0 AND (partner={$this->user->id} OR lawyer={$this->user->id} OR assistant={$this->user->id}))
-			";
-		}
-		$q_option_array.=" ORDER BY id DESC";
-		
-		$option_array=$this->db->query($q_option_array)->result_array();
-		$option_array=array_sub($option_array,'abbreviation','id');
-	
-		return $option_array;	
-	}
-	
-	/**
 	 * 获得系统中所有客户的email
 	 */
 	function getAllEmails(){

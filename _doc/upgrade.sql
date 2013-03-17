@@ -194,3 +194,18 @@ ADD  `email` VARCHAR( 255 ) NULL AFTER  `phone`
 
 ALTER TABLE  `schedule_profile` CHANGE  `comment`  `comment` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
 -- uice 3/16
+
+ALTER TABLE  `case` ADD  `type` VARCHAR( 255 ) NOT NULL AFTER  `name`;
+ALTER TABLE  `case` DROP  `name_extra` ,
+DROP  `is_reviewed` ,
+DROP  `type_lock` ,
+DROP  `client_lock` ,
+DROP  `staff_lock` ,
+DROP  `fee_lock` ,
+DROP  `apply_file` ,
+DROP  `is_query` ,
+DROP  `finance_review` ,
+DROP  `info_review` ,
+DROP  `manager_review` ,
+DROP  `filed` ;
+-- uice 3/17

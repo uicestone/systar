@@ -8,7 +8,6 @@ class Cases_model extends SS_Model{
 	static $fields=array(
 		'name'=>'名称',
 		'num'=>'编号',
-		'name_extra'=>'补充名称',
 		'first_contact'=>'首次接洽时间',
 		'time_contract'=>'签约时间',
 		'time_end'=>'（预估）完结时间',
@@ -16,18 +15,6 @@ class Cases_model extends SS_Model{
 		'timing_fee'=>'是计时收费',
 		'focus'=>'焦点',
 		'summary'=>'概况',
-		'source'=>'来源',
-		'is_reviewed'=>'立项已审核',
-		'type_lock'=>'类别已锁定',
-		'client_lock'=>'客户已锁定',
-		'staff_lock'=>'员工已锁定',
-		'fee_lock'=>'收款已锁定',
-		'apply_file'=>'已申请归档',
-		'is_query'=>'是咨询',
-		'finance_review'=>'已通过财务审核',
-		'info_review'=>'已通过信息审核',
-		'manager_review'=>'已通过主管审核',
-		'filed'=>'已归档',
 		'comment'=>'备注',
 		'display'=>'显示在列表中'
 	);
@@ -358,354 +345,96 @@ class Cases_model extends SS_Model{
 		return $this->db->query($query)->result_array();
 	}
 	
-	//大列表
-	function getList($method=NULL){
+	function getList($config=array()){
 		$q="
 			SELECT
 				case.id,case.name,case.num,case.time_contract,
-				case.is_reviewed,case.apply_file,case.is_query,
-				case.type_lock*case.client_lock*case.staff_lock*case.fee_lock AS locked,
-				case.finance_review,case.info_review,case.manager_review,case.filed,
-				uncollected.uncollected,
-				schedule_grouped.id AS schedule,schedule_grouped.name AS schedule_name,schedule_grouped.time_start,schedule_grouped.username AS schedule_username,
-				plan_grouped.id AS plan,plan_grouped.name AS plan_name,FROM_UNIXTIME(plan_grouped.time_start,'%m-%d') AS plan_time,plan_grouped.username AS plan_username,
-				lawyers.lawyers
+				staffs.staffs
 			FROM 
 				`case`
 				
 				LEFT JOIN
 				(
-					SELECT * FROM(
-						SELECT * FROM `schedule` WHERE completed=1 AND display=1 ORDER BY time_start DESC LIMIT 1000
-					)schedule_id_desc 
-					GROUP BY `case`
-				)schedule_grouped
-				ON `case`.id = schedule_grouped.`case`
-				
-				LEFT JOIN
-				(
-					SELECT * FROM(
-						SELECT * FROM `schedule` WHERE completed=0 AND display=1 AND time_start>{$this->config->item('timestamp')} ORDER BY time_start LIMIT 1000
-					)schedule_id_asc 
-					GROUP BY `case`
-				)plan_grouped
-				ON `case`.id = plan_grouped.`case`
-				
-				LEFT JOIN
-				(
-					SELECT `case`,GROUP_CONCAT(staff.name) AS lawyers
-					FROM case_people INNER JOIN people staff ON case_people.type='律师' AND case_people.people=staff.id AND case_people.role='主办律师'
-					GROUP BY case_people.`case`
-				)lawyers
-				ON `case`.id=lawyers.`case`
-				
-				LEFT JOIN 
-				(
-					SELECT `case`,SUM(contribute) AS contribute_sum
-					FROM case_people
-					WHERE type='律师'
-					GROUP BY `case`
-				)contribute_allocate
-				ON `case`.id=contribute_allocate.case
-				
-				LEFT JOIN
-				(
-					SELECT `case`,IF(amount_sum IS NULL,fee_sum,fee_sum-amount_sum) AS uncollected FROM
-					(
-						SELECT `case`,SUM(fee) AS fee_sum FROM case_fee WHERE type<>'办案费' AND reviewed=0 GROUP BY `case`
-					)case_fee_grouped
-					INNER JOIN
-					(
-						SELECT `case`, SUM(amount) AS amount_sum FROM account GROUP BY `case`
-					)account_grouped
-					USING (`case`)
-				)uncollected
-				ON case.id=uncollected.case
-				
-			WHERE case.company={$this->company->id} AND case.display=1 AND is_query=0 AND case.filed=0
+					SELECT case_people.case, GROUP_CONCAT(DISTINCT people.name) AS staffs
+					FROM staff INNER JOIN case_people ON case_people.people=staff.id
+						INNER JOIN people ON people.id=staff.id
+					GROUP BY case_people.case
+				)staffs
+				ON `case`.id=staffs.`case`
 		";
+		
 		$q_rows="
-			SELECT
-				COUNT(id)
-			FROM 
-				`case`
-			WHERE case.company={$this->company->id} AND case.display=1 AND is_query=0 AND case.filed=0
+			SELECT COUNT(*) FROM `case`
 		";
 		
-		$condition='';
+		$inner_join='';
 		
-		if($method=='host'){
-			$condition.=" AND case.apply_file=0 AND case.id IN (SELECT `case` FROM case_people WHERE type='律师' AND people={$this->user->id} AND role='主办律师')";
-		
-		}elseif($method=='consultant'){
-			$condition.=" AND case.apply_file=0 AND (case.id IN (SELECT `case` FROM case_people WHERE type='律师' AND people={$this->user->id}) OR case.uid={$this->user->id})";
-			$condition.=" AND case.id IN (SELECT `case` FROM case_label WHERE label_name='法律顾问')";
-		}elseif($method=='etc'){
-			$condition.=" AND case.apply_file=0 AND (case.id IN (SELECT `case` FROM case_people WHERE type='律师' AND people={$this->user->id} AND role<>'主办律师') OR case.uid={$this->user->id})";
-			$condition.=" AND case.id NOT IN (SELECT `case` FROM case_label WHERE label_name='法律顾问')";
+		//使用INNER JOIN的方式来筛选标签，聪明又机灵
+		if(isset($config['labels']) && is_array($config['labels'])){
 			
-		}elseif($method=='file'){
-			$condition.=" AND case.apply_file=1 AND (case.id IN (SELECT `case` FROM case_people WHERE type='律师' AND people={$this->user->id} AND role<>'主办律师') OR case.uid={$this->user->id})";
-			$condition.=" AND case.id NOT IN (SELECT `case` FROM case_label WHERE label_name='法律顾问')";
-			
-		}elseif(!$this->user->isLogged('developer') && !$this->user->isLogged('finance')){
-			$condition.=" AND (case.id IN (SELECT `case` FROM case_people WHERE type='律师' AND people={$this->user->id} AND role IN ('接洽律师','接洽律师（次要）','主办律师','协办律师','律师助理','督办人')) OR case.uid={$this->user->id})";
-		}
-		$condition=$this->search($condition, array('case.num'=>'案号','case.type'=>'类别','case.name'=>'名称','lawyers.lawyers'=>'主办律师'));
-		$condition=$this->orderBy($condition,'time_contract','DESC',array('case.name','lawyers'));
-		$q.=$condition;
-		$q_rows.=$condition;
-		$q=$this->pagination($q,$q_rows);
-		return $this->db->query($q)->result_array();
-	}
-	
-	/**
-	 * 已归档案件列表
-	 */
-	function getFiledList(){
-		$query="
-			SELECT
-				case.id,case.name,case.time_contract,case.time_end,case.num,
-				case.is_reviewed,case.apply_file,case.is_query,
-				case.type_lock*case.client_lock*case.staff_lock*case.fee_lock AS locked,
-				case.finance_review,case.info_review,case.manager_review,case.filed,
-				lawyers.lawyers,
-				contribute_allocate.contribute_sum,
-				uncollected.uncollected
-			FROM 
-				`case` INNER JOIN case_num ON `case`.id=case_num.`case`
-
-				LEFT JOIN
-				(
-					SELECT `case`,GROUP_CONCAT(staff.name) AS lawyers
-					FROM case_people INNER JOIN people staff ON case_people.people=staff.id AND case_people.type='律师' AND case_people.role='主办律师'
-					GROUP BY case_people.`case`
-				)lawyers
-				ON `case`.id=lawyers.`case`
-
-				LEFT JOIN 
-				(
-					SELECT `case`,SUM(contribute) AS contribute_sum
-					FROM case_people
-					WHERE case_people.type='律师'
-					GROUP BY `case`
-				)contribute_allocate
-				ON `case`.id=contribute_allocate.case
-
-				LEFT JOIN
-				(
-					SELECT `case`,IF(amount_sum IS NULL,fee_sum,fee_sum-amount_sum) AS uncollected FROM
-					(
-						SELECT `case`,SUM(fee) AS fee_sum FROM case_fee WHERE type<>'办案费' GROUP BY `case`
-					)case_fee_grouped
-					LEFT JOIN
-					(
-						SELECT `case`, SUM(amount) AS amount_sum FROM account WHERE 1 GROUP BY `case`
-					)account_grouped
-					USING (`case`)
-				)uncollected
-				ON case.id=uncollected.case
-
-			WHERE case.company={$this->company->id} AND case.display=1 AND case.filed=1 AND case.is_query=0
-		";
-		
-		$query=$this->search($query,array('case_num_grouped.num'=>'案号','case.name'=>'名称','lawyers.lawyers'=>'主办律师'));
-		
-		$query=$this->orderby($query,'time_contract','DESC',array('case.name','lawyers'));
-		
-		$query=$this->pagination($query);
-		
-		return $this->db->query($query)->result_array();
-	}
-	
-	function getTobeFiledList(){
-		$query="
-			SELECT
-				case.id,case.name,case.num,case.stage,case.time_contract,case.time_end,
-				case.is_reviewed,case.apply_file,case.is_query,
-				case.type_lock*case.client_lock*case.staff_lock*case.fee_lock AS locked,
-				case.finance_review,case.info_review,case.manager_review,case.filed,
-				contribute_allocate.contribute_sum,
-				uncollected.uncollected,
-				lawyers.lawyers
-
-			FROM 
-				`case` LEFT JOIN
-				(
-					SELECT `case`,GROUP_CONCAT(staff.name) AS lawyers
-					FROM case_people INNER JOIN staff ON case_people.people=staff.id AND case_people.type='律师' AND case_people.role='主办律师'
-					GROUP BY case_people.`case`
-				)lawyers
-				ON `case`.id=lawyers.`case`
-
-				LEFT JOIN 
-				(
-					SELECT `case`,SUM(contribute) AS contribute_sum
-					FROM case_people
-					WHERE type='律师'
-					GROUP BY `case`
-				)contribute_allocate
-				ON `case`.id=contribute_allocate.case
-
-				LEFT JOIN
-				(
-					SELECT `case`,IF(amount_sum IS NULL,fee_sum,fee_sum-amount_sum) AS uncollected FROM
-					(
-						SELECT `case`,SUM(fee) AS fee_sum FROM case_fee WHERE type<>'办案费' GROUP BY `case`
-					)case_fee_grouped
-					LEFT JOIN
-					(
-						SELECT `case`, SUM(amount) AS amount_sum FROM account WHERE 1 GROUP BY `case`
-					)account_grouped
-					USING (`case`)
-				)uncollected
-				ON case.id=uncollected.case
-
-			WHERE case.display=1 AND case.id>=20 AND case.apply_file=1 AND filed=0
-		";
-		
-		$query=$this->search($query,array('case_num_grouped.num'=>'案号','case.name'=>'名称','lawyers.lawyers'=>'主办律师'));
-		
-		$query=$this->orderby($query,'case.time_contract','ASC',array('case.name','lawyers'));
-		
-		$query=$this->pagination($query);
-		
-		return $this->db->query($query)->result_array();
-	}
-
-	function getStatus($is_reviewed,$locked,$apply_file,$is_query,$finance_review,$info_review,$manager_review,$filed,$contribute_sum,$uncollected){
-		$status_expression='';
-	
-		$file_review=array(
-			'finance'=>$finance_review,
-			'info'=>$info_review,
-			'manager'=>$manager_review,
-			'filed'=>$filed
-		);
-		
-		$file_review_name=array(
-			'finance'=>'财务审核',
-			'info'=>'信息审核',
-			'manager'=>'主管审核',
-			'filed'=>'实体归档'
-		);
-		
-		$status_color=array(
-			-1=>'800',//红：异常
-			0=>'000',//黑：正常
-			1=>'080',//绿：完成
-			2=>'F80',//黄：警告，提示
-			3=>'08F',//蓝：超目标完成
-			4=>'888'//灰：忽略
-		);
-		
-		if($is_query){
-			return '咨询';
-	
-		}elseif($apply_file){
-			$review_status=0;//归档审核状态
-			if($finance_review==1 && $info_review==1 && $manager_review==1){
-				$review_status=1;
-			}elseif($finance_review==-1 || $info_review==-1 || $manager_review==-1){
-				$review_status=-1;
-			}elseif($finance_review==1 || $info_review==1 || $manager_review==1){
-				$review_status=2;
-			}
-			
-			$review_status_string='';
-			
-			foreach($file_review as $name => $value){
-				switch($value){
-					case 1:$review_status_string.=$file_review_name[$name].'：通过';break;
-					case -1:$review_status_string.=$file_review_name[$name].'：驳回';break;
-					case 0:$review_status_string.=$file_review_name[$name].'：等待';
-				}
-				$review_status_string.="\n";
-			}
-			
-			$status_expression.='<span title="'.$review_status_string.'" style="color:#'.$status_color[$review_status].'">归</span>';
-	
-		}else{
-			$review_status_string='';
-			switch($is_reviewed){
-				case 1:$review_status_string.='立案审核：通过';break;
-				case -1:$review_status_string.='立案审核：驳回';break;
-				case 0:$review_status_string.='立案审核：等待';
-			}
-			$status_expression.='<span title="'.$review_status_string.'" style="color:#'.$status_color[$is_reviewed].'">立</span>';
-		}
-		
-		if($locked){
-			$status_expression.='<span title="已锁定" style="color:#080">锁</span>';
-		}else{
-			$status_expression.='<span title="部分未锁定" style="color:#800">锁</span>';
-		}
-
-		if($contribute_sum<0.7){
-			$status_expression.='<span title="贡献已分配'.($contribute_sum*100).'%" style="color:#800">配</span>';
-		}elseif($contribute_sum<1){
-			$status_expression.='<span title="贡献已分配'.($contribute_sum*100).'%" style="color:#F80">配</span>';
-		}else{
-			$status_expression.='<span title="贡献已分配'.($contribute_sum*100).'%" style="color:#080">配</span>';
-		}
-		
-		if($uncollected>0){
-			$status_expression.='<span title="未收款：'.$uncollected.'"元 style="color:#800">款</span>';
-		}elseif($uncollected<0){
-			$status_expression.='<span title="费用已到账（超预估收款：'.-$uncollected.'元）" style="color:#08F">款</span>';
-		}elseif($uncollected==='0.00'){
-			$status_expression.='<span title="费用已到账" style="color:#080">款</span>';
-		}else{
-			$status_expression.='<span title="未预估收费" style="color:#888">款</span>';
-		}
-			
-		return $status_expression;
-	}
-	
-	function getStatusById($case_id){
-		$case_id=intval($case_id);
-		
-		$query="
-			SELECT is_reviewed,type_lock,client_lock,staff_lock,fee_lock,is_query,apply_file,
-				finance_review,info_review,manager_review,filed
-			FROM `case` 
-			WHERE id = $case_id
-		";
-		
-		$case_data=$this->db->query($query)->row_array();
-		extract($case_data);
-		if($type_lock && $client_lock && $staff_lock && $fee_lock){
-			$locked=true;
-		}else{
-			$locked=false;
-		}
-		
-		$uncollected=$this->db->query("
-			SELECT IF(amount_sum IS NULL,fee_sum,fee_sum-amount_sum) AS uncollected FROM
-			(
-				SELECT `case`,SUM(fee) AS fee_sum FROM case_fee WHERE type<>'办案费' AND reviewed=0 AND `case`='{$case_id}'
-			)case_fee_grouped
-			LEFT JOIN
-			(
-				SELECT `case`, SUM(amount) AS amount_sum FROM account WHERE `case`='{$case_id}'
-			)account_grouped
-			USING (`case`)
-		")->row()->uncollected;
+			foreach($config['labels'] as $id => $label_name){
 				
-		$contribute_sum=$this->db->query("
-			SELECT SUM(contribute) AS contribute_sum
-			FROM case_people
-			WHERE type='律师' AND `case`=$case_id
-		")->row()->contribute_sum;
-		
-		return $this->getStatus($is_reviewed,$locked,$apply_file,$is_query,$finance_review,$info_review,$manager_review,$filed,$contribute_sum,$uncollected);
-	}
-	
-	function reviewMessage($reviewWord,$lawyers){
-		$message='案件[url=http://sys.lawyerstars.com/cases/edit/'.post('cases/id').']'.strip_tags(post('cases/name')).'[/url]'.$reviewWord.'，"'.post('review_message').'"';
-		foreach($lawyers as $lawyer){
-			$this->user->sendMessage($lawyer,$message);
+				//针对空表单的提交
+				if($label_name===''){
+					continue;
+				}
+				
+				//每次连接people_label表需要定一个唯一的名字
+				$inner_join.="
+					INNER JOIN case_label `t_$id` ON case.id=`t_$id`.case AND `t_$id`.label_name = '$label_name'
+				";
+				
+			}
+			
 		}
+		
+		$where="
+			WHERE case.company={$this->company->id} AND case.display=1
+		";
+		
+		if(isset($config['type'])){
+			$where.=" AND case.type='{$config['type']}'";
+		}
+		
+		if(isset($config['role'])){
+			$where.=" AND case.id IN (SELECT `case` FROM case_people WHERE people={$this->user->id} AND role='{$config['role']}')";
+		}
+		
+		if(isset($config['num'])){
+			$where.=" AND case.num='{$config['num']}'";
+		}
+		
+		$q.=$inner_join.$where;
+		$q_rows.=$inner_join.$where;
+		
+		if(!isset($config['orderby'])){
+			$config['orderby']='case.id DESC';
+		}
+		
+		$q.=" ORDER BY ";
+		if(is_array($config['orderby'])){
+			foreach($config['orderby'] as $orderby){
+				$q.=$orderby;
+			}
+		}else{
+			$q.=$config['orderby'];
+		}
+		
+		if(!isset($config['limit'])){
+			$config['limit']=$this->limit($q_rows);
+		}
+		
+		if(is_array($config['limit']) && count($config['limit'])==2){
+			$q.=" LIMIT {$config['limit'][1]}, {$config['limit'][0]}";
+		}elseif(is_array($config['limit']) && count($config['limit'])==1){
+			$q.=" LIMIT {$config['limit'][0]}";
+		}elseif(!is_array($config['limit'])){
+			$q.=" LIMIT ".$config['limit'];
+		}
+		
+		//echo $this->db->_prep_query($q);
+		
+		return $this->db->query($q)->result_array();
 	}
 	
 	function getIdByCaseFee($case_fee_id){
@@ -746,38 +475,6 @@ class Cases_model extends SS_Model{
 
 	}
 
-	/*
-		日志添加界面，根据日志类型获得案件列表
-		$schedule_type:0:案件,1:所务,2:营销
-	*/
-	function getListByScheduleType($schedule_type){
-		
-		$option_array=array();
-		
-		$q_option_array="SELECT id,name FROM `case` WHERE display=1";
-		
-		if($schedule_type==0){
-			$q_option_array.=" AND ((id>=20 AND filed=0 AND (id IN (SELECT `case` FROM case_people WHERE type='律师' AND people={$this->user->id}) OR uid = {$this->user->id})) OR id=10)";
-		
-		}elseif($schedule_type==1){
-			$q_option_array.=" AND id<10 AND id>0";
-		
-		}elseif($schedule_type==2){
-			$q_option_array.=" AND id<=20 AND id>10";
-	
-		}
-		
-		$q_option_array.=" ORDER BY time_contract DESC";
-		$option_array=$this->db->query($q_option_array)->result_array();
-		$option_array=array_sub($option_array,'name','id');
-		
-		foreach($option_array as $case_id => $case_name){
-			$option_array[$case_id]=strip_tags($case_name);
-		}
-	
-		return $option_array;	
-	}
-	
 	//根据客户id获得其参与案件的收费
 	function getFeeListByClient($client_id){
 		$client_id=intval($client_id);
@@ -998,10 +695,7 @@ class Cases_model extends SS_Model{
 		$case_num['year_code']=substr($is_query?$first_contact:$time_contract,0,4);
 		$this->db->insert('case_num',$case_num);
 		$case_num['number']=$this->db->query("SELECT number FROM case_num WHERE `case` = $case_id")->row()->number;
-		if(!$is_query){
-			post('cases/type_lock',1);//申请正式案号之后不可以再改变案件类别
-		}
-		post('cases/display',1);//申请案号以后案件方可见
+
 		$num=$case_num['classification_code'].$case_num['type_code'].$case_num['year_code'].'第'.$case_num['number'].'号';
 		return $num;
 	}

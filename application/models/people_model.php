@@ -198,7 +198,7 @@ class People_model extends SS_Model{
 				
 				//每次连接people_label表需要定一个唯一的名字
 				$inner_join.="
-					INNER JOIN people_label t_$id ON people.id=t_$id.people AND t_$id.label_name = '$label_name'
+					INNER JOIN people_label `t_$id` ON people.id=`t_$id`.people AND `t_$id`.label_name = '$label_name'
 				";
 				
 			}

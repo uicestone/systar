@@ -21,8 +21,6 @@ class Client extends People{
 	}
 
 	function index(){
-		$this->output->setData($this->section_name, 'name');
-		
 		if(is_null(option('search/labels'))){
 			option('search/labels',array('成交客户'));
 		}

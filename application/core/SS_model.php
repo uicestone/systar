@@ -82,7 +82,7 @@ class SS_Model extends CI_Model{
 	function getAllLabels($type=NULL){
 		$query="
 			SELECT {$this->table}_label.type,{$this->table}_label.label_name AS name,COUNT(*) AS hits
-			FROM {$this->table}_label INNER JOIN {$this->table} ON {$this->table}.id={$this->table}_label.{$this->table}
+			FROM {$this->table}_label INNER JOIN `{$this->table}` ON {$this->table}.id={$this->table}_label.{$this->table}
 			WHERE {$this->table}.company={$this->company->id}
 		";
 		

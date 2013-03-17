@@ -32,12 +32,6 @@ class Query_model extends Cases_model{
 			";
 		}
 		
-		if($method=='filed'){
-			$q.=" AND case.filed=1";
-		}else{
-			$q.=" AND case.filed=0";
-		}
-
 		$q=$this->search($q,array('client.name'=>'咨询人'));
 		$q.=" GROUP BY case.id";
 		$q=$this->orderBy($q,'first_contact','DESC');
