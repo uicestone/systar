@@ -160,7 +160,8 @@ class Document extends SS_controller{
 	}
 	
 	function upload(){
-		if ($_FILES["file"]["error"] > 0){
+		/*
+if ($_FILES["file"]["error"] > 0){
 			echo "error code: " . $_FILES["file"]["error"] . "<br />";
 		}
 		else{
@@ -193,6 +194,15 @@ class Document extends SS_controller{
 			//db_insert('document',$fileInfo,false,$db_replace);
 			redirect('document');
 		}
+*/
+		$this->load->view('document/document.php');
+	}
+	
+	function submit(){
+		error_reporting(E_ALL | E_STRICT);
+		echo dirname('../temp');
+		require(APPPATH.'third_party/'.'blueimp/'.'UploadHandler.php');
+		$upload_handler = new UploadHandler();
 	}
 }
 ?>
