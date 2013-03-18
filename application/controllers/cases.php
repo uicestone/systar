@@ -21,7 +21,7 @@ class Cases extends Project{
 	
 	function file(){
 		if(is_null(option('search/labels'))){
-			option('search/labels',array('申请归档','案卷归档'));
+			option('search/labels',array('已申请归档','案卷已归档'));
 		}
 		
 		$this->index();
@@ -31,7 +31,7 @@ class Cases extends Project{
 		if(is_null(option('search/labels'))){
 			option('search/labels',array('案件'));
 		}
-		
+
 		parent::index();
 	}
 }

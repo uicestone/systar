@@ -1,6 +1,3 @@
-UPDATE `case` SET type='业务';
-UPDATE `case` SET type='行政事务' WHERE id IN (SELECT `case` FROM case_label WHERE label_name = '内部行政');
-
 delete from permission where ui_name = '其他案件';
 
 delete from permission where controller = 'contact';
@@ -19,56 +16,56 @@ INSERT INTO  `syssh`.`permission` (
 VALUES (
 NULL ,  'lawyer',  'contact',  '',  '1',  '', NULL ,  '0',  '1'
 );
-insert into label (name) value ('申请归档'),('立案审核'),('财务审核'),('信息审核'),('案卷归档'),('职员锁定'),('客户锁定'),('费用锁定'),('全额到账'),('类型锁定'),('主管审核'),('案件'),('咨询');
+insert into label (name) value ('已申请归档'),('等待立案审核'),('在办'),('通过财务审核'),('通过信息审核'),('案卷已归档'),('职员已锁定'),('客户已锁定'),('费用已锁定'),('已全额到账'),('类型已锁定'),('通过主管审核'),('案件'),('咨询');
 
 INSERT INTO case_label (`case`,label,label_name)
 SELECT case.id,label.id,label.name FROM
-`case` LEFT JOIN label ON label.name = '申请归档'
+`case` LEFT JOIN label ON label.name = '已申请归档'
 where case.apply_file=1;
 
 INSERT INTO case_label (`case`,label,label_name)
 SELECT case.id,label.id,label.name FROM
-`case` LEFT JOIN label ON label.name = '立案审核'
-where case.is_reviewed=1;
+`case` LEFT JOIN label ON label.name = '等待立案审核'
+where case.is_reviewed=0 AND is_query=0;
 
 INSERT INTO case_label (`case`,label,label_name)
 SELECT case.id,label.id,label.name FROM
-`case` LEFT JOIN label ON label.name = '财务审核'
+`case` LEFT JOIN label ON label.name = '通过财务审核'
 where case.finance_review=1;
 
 INSERT INTO case_label (`case`,label,label_name)
 SELECT case.id,label.id,label.name FROM
-`case` LEFT JOIN label ON label.name = '信息审核'
+`case` LEFT JOIN label ON label.name = '通过信息审核'
 where case.info_review=1;
 
 INSERT INTO case_label (`case`,label,label_name)
 SELECT case.id,label.id,label.name FROM
-`case` LEFT JOIN label ON label.name = '案卷归档'
+`case` LEFT JOIN label ON label.name = '案卷已归档'
 where case.filed=1;
 
 INSERT INTO case_label (`case`,label,label_name)
 SELECT case.id,label.id,label.name FROM
-`case` LEFT JOIN label ON label.name = '职员锁定'
+`case` LEFT JOIN label ON label.name = '职员已锁定'
 where case.staff_lock=1;
 
 INSERT INTO case_label (`case`,label,label_name)
 SELECT case.id,label.id,label.name FROM
-`case` LEFT JOIN label ON label.name = '客户锁定'
+`case` LEFT JOIN label ON label.name = '客户已锁定'
 where case.client_lock=1;
 
 INSERT INTO case_label (`case`,label,label_name)
 SELECT case.id,label.id,label.name FROM
-`case` LEFT JOIN label ON label.name = '费用锁定'
+`case` LEFT JOIN label ON label.name = '费用已锁定'
 where case.fee_lock=1;
 
 INSERT INTO case_label (`case`,label,label_name)
 SELECT case.id,label.id,label.name FROM
-`case` LEFT JOIN label ON label.name = '类型锁定'
+`case` LEFT JOIN label ON label.name = '类型已锁定'
 where case.type_lock=1;
 
 INSERT INTO case_label (`case`,label,label_name)
 SELECT case.id,label.id,label.name FROM
-`case` LEFT JOIN label ON label.name = '主管审核'
+`case` LEFT JOIN label ON label.name = '通过主管审核'
 where case.manager_review=1;
 
 INSERT INTO case_label (`case`,label,label_name)

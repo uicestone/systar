@@ -52,6 +52,8 @@
 * @property Express_model $express
 * @property Instrument_model $instrument
 * @property News_model $news
+* @property People_model $people
+* @property Project_model $project
 * @property Query_model $query
 * @property Schedule_model $schedule
 * @property Score_model $score
@@ -116,6 +118,8 @@ class CI_Controller {};
 * @property Express_model $express
 * @property Instrument_model $instrument
 * @property News_model $news
+* @property People_model $people
+* @property Project_model $project
 * @property Query_model $query
 * @property Schedule_model $schedule
 * @property Score_model $score

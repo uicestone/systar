@@ -38,13 +38,6 @@ class Project_model extends SS_Model{
 	function add($data=array()){
 		$data=array_intersect_key($data, self::$fields);
 		
-		if(isset($data['is_query']) && $data['is_query']){
-			$data['first_contact']=$this->config->item('date');
-		}else{
-			$data['time_contract']=$this->config->item('date');
-			$data['time_end']=date('Y-m-d',$this->config->item('timestamp')+100*86400);
-		}
-		
 	    $data+=uidTime(true,true);
 	
 	    $this->db->insert('case',$data);
@@ -287,9 +280,9 @@ class Project_model extends SS_Model{
 				
 				LEFT JOIN
 				(
-					SELECT case_label.case, GROUP_CONCAT(DISTINCT case_label.label_name) AS labels
-					FROM case_label
-					GROUP BY case_label.case
+					SELECT case_label.case, GROUP_CONCAT(DISTINCT label.name ORDER BY label.order DESC) AS labels
+					FROM case_label INNER JOIN label ON case_label.label=label.id
+					GROUP BY `case`
 				)labels ON labels.case=case.id
 		";
 		

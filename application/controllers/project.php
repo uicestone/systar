@@ -56,6 +56,7 @@ class Project extends SS_controller{
 	
 	function add(){
 		$this->project->id=$this->project->add();
+		$this->project->addLabel($this->project->id, '等待立案审核');
 		$this->edit($this->project->id);
 	}
 	
@@ -633,6 +634,7 @@ class Project extends SS_controller{
 			elseif($submit=='new_case'){
 				$this->project->removeLabel($this->project->id, '已归档');
 				$this->project->removeLabel($this->project->id, '咨询');
+				$this->project->addLabel($this->project->id, '等待立案审核');
 				$this->project->addLabel($this->project->id, '案件');
 				$this->project->update($this->project->id,array(
 					'num'=>NULL,
@@ -652,7 +654,8 @@ class Project extends SS_controller{
 			}
 			
 			elseif($submit=='review'){
-				$this->project->addLabel($this->project->id, '立案审核');
+				$this->project->removeLabel($this->project->id, '等待立案审核');
+				$this->project->addLabel($this->project->id, '在办');
 				$this->output->status='refresh';
 				$this->output->message('通过立案审核');
 			}
@@ -662,42 +665,42 @@ class Project extends SS_controller{
 			}
 			
 			elseif($submit=='lock_type'){
-				$this->project->addLabel($this->project->id, '类型锁定');
+				$this->project->addLabel($this->project->id, '类型已锁定');
 				$this->output->status='refresh';
 			}
 			
 			elseif($submit=='lock_client'){
-				$this->project->addLabel($this->project->id, '客户锁定');
+				$this->project->addLabel($this->project->id, '客户已锁定');
 				$this->output->status='refresh';
 			}
 			
 			elseif($submit=='lock_staff'){
-				$this->project->addLabel($this->project->id, '职员锁定');
+				$this->project->addLabel($this->project->id, '职员已锁定');
 				$this->output->status='refresh';
 			}
 			
 			elseif($submit=='lock_fee'){
-				$this->project->addLabel($this->project->id, '费用锁定');
+				$this->project->addLabel($this->project->id, '费用已锁定');
 				$this->output->status='refresh';
 			}
 			
 			elseif($submit=='unlock_client'){
-				$this->project->removeLabel($this->project->id, '客户锁定');
+				$this->project->removeLabel($this->project->id, '客户已锁定');
 				$this->output->status='refresh';
 			}
 			
 			elseif($submit=='unlock_staff'){
-				$this->project->removeLabel($this->project->id, '职员锁定');
+				$this->project->removeLabel($this->project->id, '职员已锁定');
 				$this->output->status='refresh';
 			}
 			
 			elseif($submit=='unlock_fee'){
-				$this->project->removeLabel($this->project->id, '费用锁定');
+				$this->project->removeLabel($this->project->id, '费用已锁定');
 				$this->output->status='refresh';
 			}
 			
 			elseif($submit=='apply_file'){
-				$this->project->addLabel($this->project->id, '申请归档');
+				$this->project->addLabel($this->project->id, '已申请归档');
 				$this->project->update($this->project->id,array(
 					'time_end'=>$this->config->item('date')
 				));
@@ -706,19 +709,19 @@ class Project extends SS_controller{
 			}
 			
 			elseif($submit=='review_finance'){
-				$this->project->addLabel($this->project->id, '财务审核');
+				$this->project->addLabel($this->project->id, '通过财务审核');
 				$this->output->status='refresh';
 				$this->output->message('结案财务状况已经审核');
 			}
 			
 			elseif($submit=='review_info'){
-				$this->project->addLabel($this->project->id, '信息审核');
+				$this->project->addLabel($this->project->id, '通过信息审核');
 				$this->output->status='refresh';
 				$this->output->message('案件信息已经审核');
 			}
 			
 			elseif($submit=='review_manager'){
-				$this->project->addLabel($this->project->id, '主管审核');
+				$this->project->addLabel($this->project->id, '通过主管审核');
 				$this->project->update($this->project->id,array(
 					'time_end'=>$this->config->item('date'),
 				));
@@ -727,8 +730,8 @@ class Project extends SS_controller{
 			}
 			
 			elseif(!in_array('咨询',$labels) && $submit=='file'){
-				$this->project->removeLabel($this->project->id, '申请归档');
-				$this->project->addLabel($this->project->id, '案卷归档');
+				$this->project->removeLabel($this->project->id, '已申请归档');
+				$this->project->addLabel($this->project->id, '案卷已归档');
 				$this->output->status='refresh';
 				$this->output->message('案卷归档归档完成');
 			}
@@ -751,7 +754,7 @@ class Project extends SS_controller{
 					'num'=>$this->project->getNum($this->project->id, $labels['分类'], $labels['领域'], $project['is_query'], $project['first_contact'], $project['time_contract']),
 				);
 				
-				$labels[]='类型锁定';
+				$labels[]='类型已锁定';
 				
 				$this->project->update($this->project->id,$data);
 				

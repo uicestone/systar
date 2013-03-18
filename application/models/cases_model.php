@@ -4,6 +4,11 @@ class Cases_model extends Project_model{
 		parent::__construct();
 	}
 	
+	function add(){
+		$this->addLabel($this->id, '等待立案审核');
+		parent::add();
+	}
+	
 	function getClientList($project_id,$relation='客户'){
 		$project_id=intval($project_id);
 		

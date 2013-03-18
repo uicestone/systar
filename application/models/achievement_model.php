@@ -34,7 +34,7 @@ class Achievement_model extends SS_Model{
 				WHERE type<>'办案费' 
 					AND `case` IN (
 						SELECT case.id FROM `case`
-							INNER JOIN case_label reviewed ON reviewed.label_name='立案审核' AND reviewed.case=case.id
+							INNER JOIN case_label reviewed ON reviewed.label_name='在办' AND reviewed.case=case.id
 						WHERE
 							time_contract>='$date_start' 
 							AND time_contract<'$date_end'
@@ -63,7 +63,7 @@ class Achievement_model extends SS_Model{
 							AND case_fee.`case` IN (
 								SELECT case.id 
 								FROM `case`
-									INNER JOIN case_label reviewed ON reviewed.label_name='立案审核' AND reviewed.case=case.id
+									INNER JOIN case_label reviewed ON reviewed.label_name='在办' AND reviewed.case=case.id
 								WHERE
 									time_contract>='$date_start' 
 									AND time_contract<'$date_end'
@@ -82,8 +82,8 @@ class Achievement_model extends SS_Model{
 						FROM case_label unfiled
 							INNER JOIN case_label fee_lock
 							ON fee_lock.case=
-								AND unfiled.label_name<>'案卷归档'
-								AND fee_lock.label_name='费用锁定'
+								AND unfiled.label_name<>'案卷已归档'
+								AND fee_lock.label_name='费用已锁定'
 					)
 					AND reviewed=0
 					AND pay_date>='$date_start'
@@ -114,8 +114,8 @@ class Achievement_model extends SS_Model{
 								FROM case_label unfiled
 									INNER JOIN case_label fee_lock
 									ON fee_lock.case=
-										AND unfiled.label_name<>'案卷归档'
-										AND fee_lock.label_name='费用锁定'
+										AND unfiled.label_name<>'案卷已归档'
+										AND fee_lock.label_name='费用已锁定'
 							) 
 						GROUP BY case_fee.id
 					)case_fee_contribute
@@ -175,7 +175,7 @@ class Achievement_model extends SS_Model{
 						FROM account 
 							INNER JOIN case_people ON case_people.case=account.case AND case_people.type='律师'
 							INNER JOIN `case` ON case.id=account.case
-							INNER JOIN case_label ON case_label.case=case.id AND case_label.label_name='案卷归档'
+							INNER JOIN case_label ON case_label.case=case.id AND case_label.label_name='案卷已归档'
 						WHERE account.name <> '办案费'
 							AND date>='$date_start'
 							AND date<'$date_end''
@@ -265,7 +265,7 @@ class Achievement_model extends SS_Model{
 				AND case_fee.reviewed=0
 				AND (account_grouped.amount_sum IS NULL OR case_fee.fee-account_grouped.amount_sum>0) -- 款未到/未到齐
 				AND case_fee.case NOT IN (
-					SELECT `case` FROM case_label WHERE label_name='案卷归档'
+					SELECT `case` FROM case_label WHERE label_name='案卷已归档'
 				)
 		";
 		
@@ -334,7 +334,7 @@ class Achievement_model extends SS_Model{
 		}else{
 			$q=$this->dateRange($q, 'case.time_end',false);
 			$q.=" AND case_people.role='实际贡献' AND case.id IN (
-				SELECT `case` FROM case_label WHERE label_name='案卷归档'
+				SELECT `case` FROM case_label WHERE label_name='案卷已归档'
 			)";
 		}
 		
@@ -385,7 +385,7 @@ class Achievement_model extends SS_Model{
 			AND case_fee.reviewed=0
 			AND (account_grouped.amount_sum IS NULL OR case_fee.fee-account_grouped.amount_sum>0) -- 款未到/未到齐
 			AND case.id NOT IN (
-				SELECT `case` FROM case_label WHERE label_name='案卷归档'
+				SELECT `case` FROM case_label WHERE label_name='案卷已归档'
 			)
 		";
 		
@@ -416,12 +416,12 @@ class Achievement_model extends SS_Model{
 	}
 
 	function getCaseBonusList(){
-		$q_cases_to_distribute="SELECT id FROM `case` INNER JOIN case_label ON case.id=case_label.case AND case_label.label_name='职员锁定'  WHERE TRUE";
+		$q_cases_to_distribute="SELECT id FROM `case` INNER JOIN case_label ON case.id=case_label.case AND case_label.label_name='职员已锁定'  WHERE TRUE";
 		
 		if($this->input->get('contribute_type')=='actual'){
 			$contribute_type='actual';
 			$q_cases_to_distribute.=" AND case.id IN (
-				SELECT `case` FROM case_label WHERE label_name='案卷归档'
+				SELECT `case` FROM case_label WHERE label_name='案卷已归档'
 			)";
 			$q_cases_to_distribute=$this->dateRange($q_cases_to_distribute,'case.time_end',false);
 		}else{
@@ -637,7 +637,7 @@ class Achievement_model extends SS_Model{
 			}else{
 				option('in_date_range') && $q.=" AND case.time_end>='$from_date' AND case.time_end<'$to_date'";
 				$q.=" AND case_people.role='实际贡献' AND case.id IN (
-					SELECT `case` FROM case_label WHERE label_name='案卷归档'
+					SELECT `case` FROM case_label WHERE label_name='案卷已归档'
 				)";
 			}
 		}

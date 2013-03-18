@@ -214,3 +214,7 @@ DROP  `info_review` ,
 DROP  `manager_review` ,
 DROP  `filed` ;
 -- uice 3/17
+
+ALTER TABLE  `label` ADD  `order` INT NOT NULL DEFAULT  '0' COMMENT  '标签组合在一起时的顺序',
+ADD INDEX (  `order` );
+-- uice 3/18
