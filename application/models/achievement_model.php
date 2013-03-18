@@ -4,14 +4,14 @@ class Achievement_model extends SS_Model{
 		parent::__construct();
 	}
 
+	/**
+	 * 计算各项业绩总值
+	 * $type:contracted,estimated,collected
+	 * $range:total,my,contribute
+	 * $time_start,$time_end采用timestamp格式
+	 * $ten_thousand_unit:万元为单位
+	 */
 	function sum($type,$range=NULL,$time_start=NULL,$time_end=NULL,$ten_thousand_unit=true){
-		/*
-		计算各项业绩总值
-		$type:contracted,estimated,collected
-		$range:total,my,contribute
-		$time_start,$time_end采用timestamp格式
-		$ten_thousand_unit:万元为单位
-		*/
 		if(is_null($time_start)){
 			//$time_start默认为本年年初的timestamp
 			$time_start=strtotime(date('Y',$this->config->item('timestamp')).'-01-01');
@@ -291,9 +291,9 @@ class Achievement_model extends SS_Model{
 			";
 		}
 		
-		$q=$this->search($q,array('case.name'=>'案件','lawyers.names'=>'主办律师'),false);
+		//$q=$this->search($q,array('case.name'=>'案件','lawyers.names'=>'主办律师'),false);
 		
-		$q=$this->dateRange($q,'pay_date',true,false);
+		//$q=$this->dateRange($q,'pay_date',true,false);
 
 		$result_array=$this->db->query($q)->row_array();
 		if(!isset($result_array['sum'])){
@@ -308,38 +308,91 @@ class Achievement_model extends SS_Model{
 		return $result_array;
 	}
 	
-	function getList(){
+	/**
+	 * 个人业绩列表
+	 * @param array $config:array(
+	 *	from
+	 *	to
+	 *	contribute_type
+	 *	
+	 * )
+	 * @return type
+	 */
+	function getList($config=array()){
+		if(!isset($config['date_from'])){
+			$config['date_from']=$this->date->year_begin;
+		}
+		
+		if(!isset($config['date_to'])){
+			$config['date_to']=$this->date->today;
+		}
+
 		$q="
-			SELECT account.amount, case_people.role, client.name AS client_name, 
+			SELECT account.amount, case_people.role, IF(client.abbreviation IS NULL,client.name,client.abbreviation) AS client_name, 
 				account.date AS account_time,
-				IF(case.manager_review, case.time_end, '在办') AS filed_time,
 				ROUND(account.amount*case_people.contribute) AS contribution, ROUND(account.amount*case_people.contribute*0.15) AS bonus,
-				case.name AS case_name
+				case.name AS case_name,case.id AS `case`
 			FROM account
 				INNER JOIN `case` ON account.case=case.id
 				INNER JOIN people client ON client.type='客户' AND client.id=account.people
 				INNER JOIN case_people USING(`case`)
 		";
 		
-		$q.="	
+		$q_rows="
+			SELECT COUNT(*)
+			FROM account
+				INNER JOIN `case` ON account.case=case.id
+				INNER JOIN people client ON client.type='客户' AND client.id=account.people
+				INNER JOIN case_people USING(`case`)
+		";
+
+		$where="	
 			WHERE case_people.role<>'督办人'
 				AND case_people.people={$this->user->id}
 		";
 		
-		$contribute_type=$this->input->get('contribute_type')=='actual'?'actual':'fixed';
-		
-		if($contribute_type=='fixed'){
-			$q=$this->dateRange($q, 'account.date',false);
-			$q.=" AND case_people.role<>'实际贡献'";
+		if(!isset($config['contribute_type']) || $config['contribute_type']=='fixed'){
+			$where.=" AND TO_DAYS(account.date)>=TO_DAYS('{$config['date_from']}') AND TO_DAYS(account.date)<=TO_DAYS('{$config['date_to']}')";
+			$where.=" AND case_people.role<>'实际贡献'";
 		}else{
-			$q=$this->dateRange($q, 'case.time_end',false);
-			$q.=" AND case_people.role='实际贡献' AND case.id IN (
+			$where.=" AND TO_DAYS(case.time_end)>=TO_DAYS('{$config['date_from']}') AND TO_DAYS(case.time_end)<=TO_DAYS('{$config['date_to']}')";
+			$where.=" AND case_people.role='实际贡献' AND case.id IN (
 				SELECT `case` FROM case_label WHERE label_name='案卷已归档'
 			)";
 		}
 		
-		$q=$this->orderBy($q,'account.date','DESC');
-		$q=$this->pagination($q);
+		$q.=$where;
+		$q_rows.=$where;
+		
+		if(!isset($config['orderby'])){
+			$config['orderby']='account_time DESC';
+		}
+		
+		$q.=" ORDER BY ";
+		if(is_array($config['orderby'])){
+			foreach($config['orderby'] as $orderby){
+				$q.=$orderby;
+			}
+		}else{
+			$q.=$config['orderby'];
+		}
+		
+		if(!isset($config['limit'])){
+			$config['limit']=$this->limit($q_rows);
+		}
+		
+		if(!isset($config['limit'])){
+			$config['limit']=$this->limit($q_rows);
+		}
+		
+		if(is_array($config['limit']) && count($config['limit'])==2){
+			$q.=" LIMIT {$config['limit'][1]}, {$config['limit'][0]}";
+		}elseif(is_array($config['limit']) && count($config['limit'])==1){
+			$q.=" LIMIT {$config['limit'][0]}";
+		}elseif(!is_array($config['limit'])){
+			$q.=" LIMIT ".$config['limit'];
+		}
+		
 		return $this->db->query($q)->result_array();
 	}
 	
@@ -406,7 +459,7 @@ class Achievement_model extends SS_Model{
 		
 		$q=$this->search($q,array('case.name'=>'案件','lawyers.lawyers'=>'主办律师'));
 		
-		$q=$this->dateRange($q,'pay_date',false);
+		//$q=$this->dateRange($q,'pay_date',false);
 		
 		$q=$this->orderBy($q,'case_fee.pay_date'); //添加排序条件
 		
@@ -423,10 +476,10 @@ class Achievement_model extends SS_Model{
 			$q_cases_to_distribute.=" AND case.id IN (
 				SELECT `case` FROM case_label WHERE label_name='案卷已归档'
 			)";
-			$q_cases_to_distribute=$this->dateRange($q_cases_to_distribute,'case.time_end',false);
+			//$q_cases_to_distribute=$this->dateRange($q_cases_to_distribute,'case.time_end',false);
 		}else{
 		  $contribute_type='fixed';
-		  $q_cases_to_distribute=$this->dateRange($q_cases_to_distribute,'account.date');
+		  //$q_cases_to_distribute=$this->dateRange($q_cases_to_distribute,'account.date');
 		}
 		
 		if($this->user->isLogged('finance') && $this->input->post('distribute')){
@@ -466,35 +519,6 @@ class Achievement_model extends SS_Model{
 		$q.="GROUP BY case_contribute.lawyer";
 		
 		$q_rows="SELECT COUNT(id) FROM staff";
-		
-		$q=$this->orderby($q,'staff.id','ASC',array('staff_name'));
-		
-		$q=$this->pagination($q,$q_rows);
-		return $this->db->query($q)->result_array();
-		
-	}
-	
-	function getTeambonusList(){
-		
-		$q="
-		SELECT
-			staff.name AS staff_name,
-			ROUND((account_sum.sum-600000)*0.04*staff.modulus/(SELECT SUM(modulus) FROM `staff` WHERE company=1 AND modulus>0),2) AS bonus_sum
-		FROM staff CROSS JOIN
-		(
-			SELECT SUM(amount) AS sum
-			FROM account
-			WHERE name <> '办案费'
-		";
-		
-		$q=$this->dateRange($q,'time_occur');
-		
-		$q.="
-		)account_sum
-		WHERE (account_sum.sum-600000)*0.04*staff.modulus>0
-		";
-		
-		$q_rows="SELECT COUNT(id) FROM staff WHERE modulus>0";
 		
 		$q=$this->orderby($q,'staff.id','ASC',array('staff_name'));
 		
@@ -644,5 +668,6 @@ class Achievement_model extends SS_Model{
 		
 		return $this->db->query($q)->row()->bonus;
 	}
+	
 }
 ?>

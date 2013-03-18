@@ -256,7 +256,7 @@ class SS_Model extends CI_Model{
 	/*
 	 * 为查询语句加上日期条件
 	 */
-	function dateRange($query,$date_field,$date_field_is_timestamp=true, $generate_view=true){
+/*	function dateRange($query,$date_field,$date_field_is_timestamp=true, $generate_view=true){
 
 		if(option('in_date_range')){
 
@@ -276,7 +276,7 @@ class SS_Model extends CI_Model{
 		
 		return $query;
 	}
-
+*/
 	/*
 	 * 为sql语句添加排序依据，无反回值
 	 */

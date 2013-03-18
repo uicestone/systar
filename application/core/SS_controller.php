@@ -68,7 +68,7 @@ class SS_Controller extends CI_Controller{
 			exit;
 		}
 
-		if($this->input->post('submit')=='date_range'){
+/*		if($this->input->post('submit')=='date_range'){
 			if(!strtotime($this->input->post('date_from')) || !strtotime($this->input->post('date_to'))){
 				$this->output->message('日期格式错误','warning');
 
@@ -82,7 +82,7 @@ class SS_Controller extends CI_Controller{
 				option('in_date_range',true);
 			}
 		}
-
+*/
 		if($this->input->post('submit')=='date_range_cancel'){
 			unset($_SESSION[CONTROLLER][METHOD]['in_date_range']);
 			unset($_SESSION[CONTROLLER][METHOD]['date_range']);

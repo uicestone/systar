@@ -305,12 +305,12 @@ class Project extends SS_controller{
 					$this->output->message('尚未获取案号，请选择案件分类和阶段后获取案号','warning');
 					throw new Exception();
 				}
-				if(isset($labels['分类']) && in_array($labels['分类'],array('诉讼','非诉讼')) && !in_array('咨询', $labelsc) && !$project['focus']){
+				if(isset($labels['分类']) && in_array($labels['分类'],array('诉讼','非诉讼')) && !in_array('咨询', $labels) && !$project['focus']){
 					$this->output->message('请填写案件争议焦点','warning');
 					throw new Exception;
 				}
 				
-				$this->project->update($this->project->id,post(CONTROLLER));
+				$this->project->update($this->project->id,post('project'));
 				$this->project->updateLabels($this->project->id,post('labels'));
 				
 				unset($_SESSION[CONTROLLER]['post'][$this->project->id]);

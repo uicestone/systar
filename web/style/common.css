@@ -80,6 +80,9 @@ button.hover{
 .ui-dialog{
 	padding:0;
 }
+.chzn-container{
+	margin-bottom: 5px;
+}
 
 body{
 	font-family:'Microsoft Yahei';

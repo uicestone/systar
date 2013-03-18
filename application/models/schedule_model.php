@@ -209,6 +209,58 @@ class Schedule_model extends SS_Model{
 		return $this->db->query($q)->row()->time;
 	}
 	
+	/**
+	 * 计算特定职员在特定案件上所消耗的时间
+	 * @param $project_id 接受一个项目的id，或一组项目id构成的数组
+	 * @param $people_id 接受一个人员的id，或一组人员id构成的数组
+	 * @param $team_id 接受一个人员组的id，或一组人员组id构成的数组
+	 * @return type
+	 */
+	function timeSpent($project_id=NULL,$people_id=NULL,$team_id=NULL){
+		//@TODO 现在仍用schedule.uid来判断相关人员，应该使用schedule_people
+		$q="
+			SELECT SUM(IF(hours_checked IS NULL,hours_own,hours_checked)) AS time 
+			FROM schedule 
+			WHERE company={$this->company->id} AND display=1 AND completed=1
+		";
+			
+		if(isset($project_id)){
+			if(is_array($project_id)){
+				$project_ids=implode(',',$project_id);
+				$q.=" AND schedule.case IN ($project_ids)";
+			}else{
+				$project_id=intval($project_id);
+				$q.=" AND schedule.case = $project_id";
+			}
+		}
+		
+		if(isset($people_id)){
+			if(is_array($people_id)){
+				$people_ids=implode(',',$people_id);
+				$q.=" AND schedule.uid IN ($people_ids)";
+			}else{
+				$people_id=intval($people_id);
+				$q.=" AND schedule.uid = $people_id";
+			}
+		}
+		
+		if(isset($team_id)){
+			if(is_array($team_id)){
+				$team_ids=implode(',',$team_id);
+				$q.=" AND schedule.uid IN (
+					SELECT people FROM team_people WHERE team IN ($team_ids)
+				)";
+			}else{
+				$team_id=intval($team_id);
+				$q.=" AND schedule.uid = IN (
+					SELECT people FROM team_people WHERE team = $team_id
+				)";
+			}
+		}
+		
+		return $this->db->query($q)->row()->time;
+	}
+	
 	function getList($para=NULL){
 		$q="
 			SELECT
@@ -373,5 +425,6 @@ class Schedule_model extends SS_Model{
 		
 		$this -> db -> insert('schedule_taskboard' , $data);
 	}
+	
 }
 ?>

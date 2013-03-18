@@ -9,6 +9,7 @@
 * @property CI_Cart $cart
 * @property CI_Config $config
 * @property SS_Controller $controller
+* @property SS_Date $date
 * @property CI_Email $email
 * @property CI_Encrypt $encrypt
 * @property CI_Exceptions $exceptions
@@ -75,6 +76,7 @@ class CI_Controller {};
 * @property CI_Cart $cart
 * @property CI_Config $config
 * @property SS_Controller $controller
+* @property SS_Date $date
 * @property CI_Email $email
 * @property CI_Encrypt $encrypt
 * @property CI_Exceptions $exceptions
