@@ -7,7 +7,7 @@
 			</tr>
 			<tr>
 				<td>
-					<select name="labels[]" data-placeholder="标签" multiple="multiple"><?=options($this->project->getAllLabels(),option('search/labels'))?></select>
+					<select id="labels" name="labels[]" data-placeholder="标签" multiple="multiple"><?=options($this->project->getAllLabels(),option('search/labels'))?></select>
 				</td>
 			</tr>
 			<tr>

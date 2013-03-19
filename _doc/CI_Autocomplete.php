@@ -60,6 +60,7 @@
 * @property Score_model $score
 * @property Staff_model $staff
 * @property Student_model $student
+* @property Team_model $team
 * @property User_model $user
 * @property School_model $school
 * @property Label_model $label
@@ -127,6 +128,7 @@ class CI_Controller {};
 * @property Score_model $score
 * @property Staff_model $staff
 * @property Student_model $student
+* @property Team_model $team
 * @property User_model $user
 * @property School_model $school
 * @property Label_model $label

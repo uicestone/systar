@@ -2,6 +2,7 @@
 class Student extends People{
 	function __construct(){
 		parent::__construct();
+		$this->people=$this->student;
 		$this->load->model('classes_model','classes');
 	}
 	
@@ -12,6 +13,10 @@ class Student extends People{
 		if($this->input->get('update')){
 			$this->student->updateView();
 			$this->output->message('学生视图更新完成');
+		}
+		
+		if($this->input->post('team')){
+			option('search/team',$this->input->post('team'));
 		}
 		
 		parent::index();

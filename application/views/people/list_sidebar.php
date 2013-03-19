@@ -7,7 +7,12 @@
 			</tr>
 			<tr>
 				<td>
-					<select name="labels[]" data-placeholder="标签" multiple="multiple"><?=options($this->people->getAllLabels(),option('search/labels'))?></select>
+					<select id="labels" name="labels[]" data-placeholder="标签" multiple="multiple"><?=options($this->people->getAllLabels(),option('search/labels'))?></select>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<select name="team"><?=options($this->team->getArray(array('type'=>'年级'),'name','id'),option('search/team'))?></select>
 				</td>
 			</tr>
 			<tr>

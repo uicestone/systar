@@ -166,7 +166,8 @@ class People_model extends SS_Model{
 	 *		'匹配标签名',
 	 *		'匹配标签名,
 	 *		...
-	 *	)
+	 *	),
+	 *	team=>int OR array
 	 *	
 	 * )
 	 * @return array
@@ -231,6 +232,24 @@ class People_model extends SS_Model{
 					)
 				)
 			";
+		}
+		
+		if(isset($config['team'])){
+			if(is_array($config['team'])){
+				$teams=implode(',',$config['team']);
+				$where.=" AND people.id IN (SELECT people FROM team WHERE team IN ($teams))";
+			}else{
+				$team=intval($config['team']);
+				
+				$where.=" AND 
+					people.id IN (
+						SELECT people FROM team WHERE 
+							team = $team OR team IN (
+								SELECT team FROM team_relationship WHERE relative = $team
+							)
+					)
+				";//@TODO 需要写成递归
+			}
 		}
 		
 		$q_rows.=$inner_join.$where.(isset($config['where'])?$config['where']:'');

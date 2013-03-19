@@ -11,6 +11,9 @@ class People extends SS_Controller{
 	function __construct() {
 		$this->require_permission_check=false;
 		parent::__construct();
+		
+		$this->load->model('team_model', 'team');
+		
 		$this->form_validation_rules['relative'][]=array(
 			'field'=>'relative_profiles[电子邮件]',
 			'label'=>'电子邮件',

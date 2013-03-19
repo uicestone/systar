@@ -32,6 +32,38 @@ class SS_Model extends CI_Model{
 		}
 	}
 	
+	function getList($args=array()){
+		
+		$this->db->select('id, name')->from($this->table);
+		
+		if(isset($args['labels']) && is_array($args['labels'])){
+			
+			foreach($args['labels'] as $id => $label_name){
+				
+				//针对空表单的提交
+				if($label_name===''){
+					continue;
+				}
+				
+				//每次连接people_label表需要定一个唯一的名字
+				$this->db->join('people_label `t_$id`', "people.id=`t_$id`.people AND `t_$id`.label_name = '$label_name'", 'inner');
+			}
+			
+		}
+		
+		$this->db->where(array('company'=>$this->company->id,'display'=>true));
+		
+		if(isset($args['type'])){
+			$this->db->where('type',$args['type']);
+		}
+		
+		return $this->db->get()->result_array();
+	}
+	
+	function getArray($args=array(),$keyname,$keyname_forkey=NULL){
+		return array_sub($this->getList($args),$keyname,$keyname_forkey);
+	}
+	
 	/**
 	 * 添加标签，而不论标签是否存在
 	 * @param type {item} id
