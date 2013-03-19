@@ -260,7 +260,7 @@ class Project_model extends SS_Model{
 		return $this->db->query($query)->result_array();
 	}
 	
-	function getList($config=array()){
+	function getList($args=array()){
 		$q="
 			SELECT
 				case.id,case.name,case.num,case.time_contract,
@@ -293,9 +293,9 @@ class Project_model extends SS_Model{
 		$inner_join='';
 		
 		//使用INNER JOIN的方式来筛选标签，聪明又机灵
-		if(isset($config['labels']) && is_array($config['labels'])){
+		if(isset($args['labels']) && is_array($args['labels'])){
 			
-			foreach($config['labels'] as $id => $label_name){
+			foreach($args['labels'] as $id => $label_name){
 				
 				//针对空表单的提交
 				if($label_name===''){
@@ -315,48 +315,48 @@ class Project_model extends SS_Model{
 			WHERE case.company={$this->company->id} AND case.display=1
 		";
 		
-		if(isset($config['type'])){
-			$where.=" AND case.type='{$config['type']}'";
+		if(isset($args['type'])){
+			$where.=" AND case.type='{$args['type']}'";
 		}
 		
-		if(isset($config['role'])){
-			$where.=" AND case.id IN (SELECT `case` FROM case_people WHERE people={$this->user->id} AND role='{$config['role']}')";
+		if(isset($args['role'])){
+			$where.=" AND case.id IN (SELECT `case` FROM case_people WHERE people={$this->user->id} AND role='{$args['role']}')";
 		}
 		
-		if(isset($config['num'])){
-			$where.=" AND case.num='{$config['num']}'";
+		if(isset($args['num'])){
+			$where.=" AND case.num='{$args['num']}'";
 		}
 		
-		if(isset($config['name'])){
-			$where.=" AND case.name LIKE '%{$config['name']}%'";
+		if(isset($args['name'])){
+			$where.=" AND case.name LIKE '%{$args['name']}%'";
 		}
 		
 		$q.=$inner_join.$where;
 		$q_rows.=$inner_join.$where;
 		
-		if(!isset($config['orderby'])){
-			$config['orderby']='case.id DESC';
+		if(!isset($args['orderby'])){
+			$args['orderby']='case.id DESC';
 		}
 		
 		$q.=" ORDER BY ";
-		if(is_array($config['orderby'])){
-			foreach($config['orderby'] as $orderby){
+		if(is_array($args['orderby'])){
+			foreach($args['orderby'] as $orderby){
 				$q.=$orderby;
 			}
 		}else{
-			$q.=$config['orderby'];
+			$q.=$args['orderby'];
 		}
 		
-		if(!isset($config['limit'])){
-			$config['limit']=$this->limit($q_rows);
+		if(!isset($args['limit'])){
+			$args['limit']=$this->limit($q_rows);
 		}
 		
-		if(is_array($config['limit']) && count($config['limit'])==2){
-			$q.=" LIMIT {$config['limit'][1]}, {$config['limit'][0]}";
-		}elseif(is_array($config['limit']) && count($config['limit'])==1){
-			$q.=" LIMIT {$config['limit'][0]}";
-		}elseif(!is_array($config['limit'])){
-			$q.=" LIMIT ".$config['limit'];
+		if(is_array($args['limit']) && count($args['limit'])==2){
+			$q.=" LIMIT {$args['limit'][1]}, {$args['limit'][0]}";
+		}elseif(is_array($args['limit']) && count($args['limit'])==1){
+			$q.=" LIMIT {$args['limit'][0]}";
+		}elseif(!is_array($args['limit'])){
+			$q.=" LIMIT ".$args['limit'];
 		}
 		
 		//echo $this->db->_prep_query($q);

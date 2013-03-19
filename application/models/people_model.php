@@ -172,13 +172,13 @@ class People_model extends SS_Model{
 	 * )
 	 * @return array
 	 */
-	function getList($config=array()){
+	function getList($args=array()){
 		
 		/**
-		 * 这是一个model方法，它具有配置独立性，即所有条件接口均通过参数$config来传递，不接受其他系统变量
+		 * 这是一个model方法，它具有配置独立性，即所有条件接口均通过参数$args来传递，不接受其他系统变量
 		 */
 		
-		$q=isset($config['query'])?$config['query']:"
+		$q=isset($args['query'])?$args['query']:"
 			SELECT people.id,people.name,IF(people.abbreviation IS NULL,people.name,people.abbreviation) AS abbreviation,people.phone,people.email,
 				labels.labels
 			FROM people
@@ -194,9 +194,9 @@ class People_model extends SS_Model{
 		$inner_join='';
 
 		//使用INNER JOIN的方式来筛选标签，聪明又机灵
-		if(isset($config['labels']) && is_array($config['labels'])){
+		if(isset($args['labels']) && is_array($args['labels'])){
 			
-			foreach($config['labels'] as $id => $label_name){
+			foreach($args['labels'] as $id => $label_name){
 				
 				//针对空表单的提交
 				if($label_name===''){
@@ -214,17 +214,17 @@ class People_model extends SS_Model{
 		
 		$where=" WHERE company={$this->company->id} AND display=1";
 		
-		if(isset($config['type']) && $config['type']){
-			$where.=" AND people.type = '{$config['type']}'";
+		if(isset($args['type']) && $args['type']){
+			$where.=" AND people.type = '{$args['type']}'";
 		}
 		
-		if(isset($config['name']) && $config['name']!==''){
+		if(isset($args['name']) && $args['name']!==''){
 			$where.="
-				AND people.name LIKE '%{$config['name']}%' OR people.abbreviation LIKE '%{$config['name']}%' OR people.name_en LIKE '%{$config['name']}%'
+				AND people.name LIKE '%{$args['name']}%' OR people.abbreviation LIKE '%{$args['name']}%' OR people.name_en LIKE '%{$args['name']}%'
 			";
 		}
 		
-		if(isset($config['in_my_case']) && $config['in_my_case'] && !$this->user->isLogged('developer')){
+		if(isset($args['in_my_case']) && $args['in_my_case'] && !$this->user->isLogged('developer')){
 			$where.="
 				AND people.id IN (
 					SELECT people FROM case_people WHERE `case` IN (
@@ -234,12 +234,12 @@ class People_model extends SS_Model{
 			";
 		}
 		
-		if(isset($config['team'])){
-			if(is_array($config['team'])){
-				$teams=implode(',',$config['team']);
+		if(isset($args['team'])){
+			if(is_array($args['team'])){
+				$teams=implode(',',$args['team']);
 				$where.=" AND people.id IN (SELECT people FROM team WHERE team IN ($teams))";
 			}else{
-				$team=intval($config['team']);
+				$team=intval($args['team']);
 				
 				$where.=" AND 
 					people.id IN (
@@ -252,32 +252,32 @@ class People_model extends SS_Model{
 			}
 		}
 		
-		$q_rows.=$inner_join.$where.(isset($config['where'])?$config['where']:'');
-		$q.=$inner_join.$where.(isset($config['where'])?$config['where']:'');
+		$q_rows.=$inner_join.$where.(isset($args['where'])?$args['where']:'');
+		$q.=$inner_join.$where.(isset($args['where'])?$args['where']:'');
 		
-		if(!isset($config['orderby'])){
-			$config['orderby']='people.id DESC';
+		if(!isset($args['orderby'])){
+			$args['orderby']='people.id DESC';
 		}
 		
 		$q.=" ORDER BY ";
-		if(is_array($config['orderby'])){
-			foreach($config['orderby'] as $orderby){
+		if(is_array($args['orderby'])){
+			foreach($args['orderby'] as $orderby){
 				$q.=$orderby;
 			}
 		}else{
-			$q.=$config['orderby'];
+			$q.=$args['orderby'];
 		}
 		
-		if(!isset($config['limit'])){
-			$config['limit']=$this->limit($q_rows);
+		if(!isset($args['limit'])){
+			$args['limit']=$this->limit($q_rows);
 		}
 		
-		if(is_array($config['limit']) && count($config['limit'])==2){
-			$q.=" LIMIT {$config['limit'][1]}, {$config['limit'][0]}";
-		}elseif(is_array($config['limit']) && count($config['limit'])==1){
-			$q.=" LIMIT {$config['limit'][0]}";
-		}elseif(!is_array($config['limit'])){
-			$q.=" LIMIT ".$config['limit'];
+		if(is_array($args['limit']) && count($args['limit'])==2){
+			$q.=" LIMIT {$args['limit'][1]}, {$args['limit'][0]}";
+		}elseif(is_array($args['limit']) && count($args['limit'])==1){
+			$q.=" LIMIT {$args['limit'][0]}";
+		}elseif(!is_array($args['limit'])){
+			$q.=" LIMIT ".$args['limit'];
 		}
 		
 		//echo $this->db->_prep_query($q);
