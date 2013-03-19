@@ -14,12 +14,12 @@ class Achievement_model extends SS_Model{
 	function sum($type,$range=NULL,$time_start=NULL,$time_end=NULL,$ten_thousand_unit=true){
 		if(is_null($time_start)){
 			//$time_start默认为本年年初的timestamp
-			$time_start=strtotime(date('Y',$this->config->item('timestamp')).'-01-01');
+			$time_start=strtotime(date('Y',$this->date->now).'-01-01');
 		}
 		
 		if(is_null($time_end)){
 			//$time_end默认为次年年初的timestamp
-			$time_end=strtotime((date('Y',$this->config->item('timestamp'))+1).'-01-01');
+			$time_end=strtotime((date('Y',$this->date->now)+1).'-01-01');
 		}
 		
 		$date_start=date('Y-m-d',$time_start);
@@ -270,10 +270,10 @@ class Achievement_model extends SS_Model{
 		";
 		
 		if($type=='recent'){
-			$q.=" AND pay_date>='{$this->config->item('date')}'";
+			$q.=" AND pay_date>='{$this->date->today}'";
 		
 		}elseif($type=='expired'){
-			$q.=" AND pay_date<'{$this->config->item('date')}'";
+			$q.=" AND pay_date<'{$this->date->today}'";
 		}
 		
 		if(isset($date_from)){
@@ -443,10 +443,10 @@ class Achievement_model extends SS_Model{
 		";
 		
 		if($type=='recent'){
-			$q.=" AND pay_date>='{$this->config->item('date')}'";
+			$q.=" AND pay_date>='{$this->date->today}'";
 			
 		}elseif($type=='expired'){
-			$q.=" AND pay_date<'{$this->config->item('date')}'";
+			$q.=" AND pay_date<'{$this->date->today}'";
 		}
 		
 		if(!$this->user->isLogged('finance')){
@@ -535,12 +535,12 @@ class Achievement_model extends SS_Model{
 			FROM (
 				SELECT LEFT(first_contact,7) AS month, COUNT(id) AS queries, SUM(IF(filed=1,1,0)) AS filed_queries, SUM(IF(filed=0,1,0)) AS live_queries
 				FROM `case` 
-				WHERE company={$this->company->id} AND display=1 AND is_query=1 AND LEFT(first_contact,4)='".date('Y',$this->config->item('timestamp'))."'
+				WHERE company={$this->company->id} AND display=1 AND is_query=1 AND LEFT(first_contact,4)='".date('Y',$this->date->now)."'
 				GROUP BY LEFT(first_contact,7)
 			)query INNER JOIN (
 				SELECT LEFT(time_contract,7) AS month, COUNT(id) AS cases
 				FROM `case`
-				WHERE company={$this->company->id} AND display=1 AND is_query=0 AND LEFT(time_contract,4)='".date('Y',$this->config->item('timestamp'))."'
+				WHERE company={$this->company->id} AND display=1 AND is_query=0 AND LEFT(time_contract,4)='".date('Y',$this->date->now)."'
 					AND id NOT IN (SELECT `case` FROM case_label WHERE label_name='内部行政')
 				GROUP BY LEFT(time_contract,7)
 			)`case` USING(month)
@@ -556,7 +556,7 @@ class Achievement_model extends SS_Model{
 			FROM `case` 
 				INNER JOIN case_people ON case.id=case_people.case 
 				INNER JOIN people ON people.id=case_people.people AND case_people.role = '接洽律师'
-			WHERE case.display=1 AND LEFT(first_contact,4)='".date('Y',$this->config->item('timestamp'))."'
+			WHERE case.display=1 AND LEFT(first_contact,4)='".date('Y',$this->date->now)."'
 			GROUP BY people.id
 			ORDER BY live_queries DESC, queries DESC
 		";
@@ -574,7 +574,7 @@ class Achievement_model extends SS_Model{
 				INNER JOIN (
 					SELECT `case`,label_name FROM case_label WHERE type='咨询方式'
 				)query_type ON query_type.case=case.id
-			WHERE is_query=1 AND LEFT(first_contact,4)='".date('Y',$this->config->item('timestamp'))."'
+			WHERE is_query=1 AND LEFT(first_contact,4)='".date('Y',$this->date->now)."'
 			GROUP BY people.id
 			ORDER BY face_queries DESC, call_queries DESC, online_queries DESC
 		";
@@ -596,7 +596,7 @@ class Achievement_model extends SS_Model{
 				FROM case_fee INNER JOIN `case` ON case.id=case_fee.case
 				GROUP BY LEFT(case.time_contract,7)
 			)contract USING (month)
-			-- WHERE LEFT(month,4)='".date('Y',$this->config->item('timestamp'))."'
+			-- WHERE LEFT(month,4)='".date('Y',$this->date->now)."'
 		";
 		
 		return $this->db->query($query)->result_array();

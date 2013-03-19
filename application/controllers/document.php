@@ -188,7 +188,7 @@ class Document extends SS_controller{
 				'comment'=>$this->input->post('comment'),
 				'uid'=>$this->user->id,
 				'username'=>$_SESSION['username'],
-				'time'=>$this->config->item('timestamp')
+				'time'=>$this->date->now
 			);
 			//db_insert('document',$fileInfo,false,$db_replace);
 			redirect('document');

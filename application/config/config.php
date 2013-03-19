@@ -375,28 +375,5 @@ date_default_timezone_set('Asia/Shanghai');
 session_set_cookie_params(86400); 
 session_start();
 
-$config['timestamp']=time();
-$config['microtime']=microtime(true);
-
-$config['date']=date('Y-m-d',$config['timestamp']);
-
-//当前季度
-$config['quarter']=date('y',$config['timestamp']).ceil(date('m',$config['timestamp'])/3);
-		
-/**
- * 启用php5风格的autoloader
- * 从此不再需要$this->load->model('company_model','company')
- * 只需要$this->company=new Company_model();
- */
-function __autoload($class) {  
-	if (file_exists(APPPATH."models/".strtolower($class).EXT)) {  
-		require_once APPPATH."models/".strtolower($class).EXT;  
-	}elseif(file_exists(APPPATH.'libraries/.'.strtolower($class).EXT)){
-		require_once APPPATH."libraries/".strtolower($class).EXT;  
-	}elseif(file_exists(APPPATH."controllers/".strtolower($class).EXT)){
-		require_once APPPATH."controllers/".strtolower($class).EXT;  
-	}
-} 
-
 /* End of file config.php */
 /* Location: ./application/config/config.php */

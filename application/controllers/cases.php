@@ -1,4 +1,5 @@
 <?php
+require_once APPPATH.'/controllers/project.php';
 class Cases extends Project{
 	function __construct() {
 		parent::__construct();

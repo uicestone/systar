@@ -638,8 +638,8 @@ class Project extends SS_controller{
 				$this->project->addLabel($this->project->id, '案件');
 				$this->project->update($this->project->id,array(
 					'num'=>NULL,
-					'time_contract'=>$this->config->item('date'),
-					'time_end'=>date('Y-m-d',$this->config->item('timestamp')+100*86400)
+					'time_contract'=>$this->date->today,
+					'time_end'=>date('Y-m-d',$this->date->now+100*86400)
 				));
 				
 				$this->output->message('已立案，请立即获得案号');
@@ -702,7 +702,7 @@ class Project extends SS_controller{
 			elseif($submit=='apply_file'){
 				$this->project->addLabel($this->project->id, '已申请归档');
 				$this->project->update($this->project->id,array(
-					'time_end'=>$this->config->item('date')
+					'time_end'=>$this->date->today
 				));
 				$this->output->status='refresh';
 				$this->output->message('归档申请已接受');
@@ -723,7 +723,7 @@ class Project extends SS_controller{
 			elseif($submit=='review_manager'){
 				$this->project->addLabel($this->project->id, '通过主管审核');
 				$this->project->update($this->project->id,array(
-					'time_end'=>$this->config->item('date'),
+					'time_end'=>$this->date->today,
 				));
 				$this->output->status='refresh';
 				$this->output->message('案件已经审核，已正式归档');

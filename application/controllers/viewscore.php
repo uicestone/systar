@@ -103,7 +103,7 @@ class ViewScore extends SS_controller{
 				view_score.course_5=score_view.course_5,view_score.course_6=score_view.course_6,
 				view_score.course_7=score_view.course_7,view_score.course_8=score_view.course_8,
 				view_score.course_9=score_view.course_9,view_score.course_10=score_view.course_10,
-				view_score.time='{$this->config->item('timestamp')}'
+				view_score.time='{$this->date->now}'
 				WHERE view_score.student=score_view.student AND view_score.exam=score_view.exam
 			");
 			
@@ -112,7 +112,7 @@ class ViewScore extends SS_controller{
 				INSERT IGNORE INTO view_score (student,extra_course,exam,exam_name,course_1,course_2,course_3,course_4,course_5,course_6,course_7,course_8,course_9,course_10,time)
 				SELECT 
 					student,extra_course,exam,exam_name,
-					course_1,course_2,course_3,course_4,course_5,course_6,course_7,course_8,course_9,course_10,'{$this->config->item('timestamp')}'
+					course_1,course_2,course_3,course_4,course_5,course_6,course_7,course_8,course_9,course_10,'{$this->date->now}'
 				FROM
 				(
 					SELECT score_sum.student,student.extra_course,score_sum.exam,score_sum.exam_paper,exam.name AS exam_name,

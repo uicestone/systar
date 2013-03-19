@@ -1,4 +1,5 @@
 <?php
+require_once APPPATH.'/controllers/people.php';
 class user extends SS_controller{
 	
 	function __construct(){

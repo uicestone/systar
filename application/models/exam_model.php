@@ -94,7 +94,7 @@ class Exam_model extends SS_Model{
 			//向exam_student表插入学生，生成随机数，教室和座位留空
 			$this->db->query("
 				INSERT INTO exam_student (exam,student,depart,extra_course,time,rand)
-				SELECT ".$exam['id'].",id,depart,extra_course,".$this->config->item('timestamp').",1000*rand() FROM view_student 
+				SELECT ".$exam['id'].",id,depart,extra_course,".$this->date->now.",1000*rand() FROM view_student 
 				WHERE grade = ".$exam['grade']." AND depart='".$exam['depart']."'
 				ORDER BY extra_course
 			");

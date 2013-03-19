@@ -64,8 +64,8 @@ class Company_model extends SS_Model{
 			)
 		);
 		
-		$month_start_timestamp=strtotime(date('Y-m',$this->config->item('timestamp')).'-1');
-		$month_end_timestamp=mktime(0,0,0,date('m',$this->config->item('timestamp'))+1,1,date('Y',$this->config->item('timestamp')));
+		$month_start_timestamp=strtotime(date('Y-m',$this->date->now).'-1');
+		$month_end_timestamp=mktime(0,0,0,date('m',$this->date->now)+1,1,date('Y',$this->date->now));
 		
 		$sidebar_table[]=array(
 			'_heading'=>array(
@@ -98,7 +98,7 @@ class Company_model extends SS_Model{
 		);
 		
 		
-		$recent_collect=$this->achievement->receivableSum('recent',NULL,date('Y-m-d',$this->config->item('timestamp')+86400*30));
+		$recent_collect=$this->achievement->receivableSum('recent',NULL,date('Y-m-d',$this->date->now+86400*30));
 		$expired_collect=$this->achievement->receivableSum('expired');
 		
 		$sidebar_table[]=array(

@@ -1,4 +1,5 @@
 <?php
+require_once APPPATH.'/controllers/team.php';
 class Classes extends SS_controller{
 	function __construct(){
 		parent::__construct();

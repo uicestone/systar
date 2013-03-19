@@ -20,7 +20,7 @@ foreach($table_array as $line_name=>$line){
 // Save File
 $objWriter = PHPWord_IOFactory::createWriter($PHPWord, 'Word2007');
 
-$filename=$_SESSION['username'].$this->config->item('timestamp').'.docx';
+$filename=$_SESSION['username'].$this->date->now.'.docx';
 
 $path=iconv('utf-8','gbk','temp/'.$filename);
 

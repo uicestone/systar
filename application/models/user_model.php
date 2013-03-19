@@ -1,4 +1,5 @@
 <?php
+require_once APPPATH.'/models/people_model.php';
 class User_model extends People_model{
 	
 	var $table='user';
@@ -114,7 +115,7 @@ class User_model extends People_model{
 	function updateLoginTime(){
 		$this->db->update('user',
 			array('lastip'=>$this->session->userdata('ip_address'),
-				'lastlogin'=>$this->config->item('timestamp')
+				'lastlogin'=>$this->date->now
 			),
 			array('id'=>$this->id,'company'=>$this->company->id)
 		);

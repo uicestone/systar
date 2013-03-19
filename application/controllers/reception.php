@@ -24,8 +24,8 @@ class Reception extends SS_Controller{
 				'name'=>$this->input->post('title'),
 				'people'=>$receptionist,
 				'content'=>$content,
-				'time_start'=>$this->config->item('timestamp'),
-				'time_end'=>$this->config->item('timestamp')+3600,
+				'time_start'=>$this->date->now,
+				'time_end'=>$this->date->now+3600,
 				'completed'=>false
 			));
 

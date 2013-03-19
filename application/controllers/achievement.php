@@ -36,8 +36,8 @@ class Achievement extends SS_controller{
 		
 		$this->load->addViewData('list',$table);
 		
-		$month_start_timestamp=strtotime(date('Y-m',$this->config->item('timestamp')).'-1');
-		$month_end_timestamp=mktime(0,0,0,date('m',$this->config->item('timestamp'))+1,1,date('Y',$this->config->item('timestamp')));
+		$month_start_timestamp=strtotime(date('Y-m',$this->date->now).'-1');
+		$month_end_timestamp=mktime(0,0,0,date('m',$this->date->now)+1,1,date('Y',$this->date->now));
 		
 		$achievement_sum=array(
 			'_field'=>array(

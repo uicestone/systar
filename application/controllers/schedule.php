@@ -17,7 +17,7 @@ class Schedule extends SS_controller{
 				'heading'=>'公告 <a href="#news" style="font-size:14px">更多</a>',
 				'cell'=>"
 					\$return='{title}';
-					if('{time}'>\$this->config->item('timestamp')-86400*7){
+					if('{time}'>\$this->date->now-86400*7){
 						\$return.=' <img src=\"images/new.gif\" alt=\"new\" />';
 					}
 					return \$return;
@@ -192,16 +192,16 @@ class Schedule extends SS_controller{
 	function workHours(){
 
 		if(date('w')==1){//今天是星期一
-			$start_of_this_week=strtotime($this->config->item('date'));
+			$start_of_this_week=strtotime($this->date->today);
 		}else{
 			$start_of_this_week=strtotime("-1 Week Monday");
 		}
 		
 		if(!option('in_date_range')){
 			option('date_range/from',date('Y-m-d',$start_of_this_week));
-			option('date_range/to',$this->config->item('date'));
+			option('date_range/to',$this->date->today);
 			option('date_range/from_timestamp',$start_of_this_week);
-			option('date_range/to_timestamp',$this->config->item('timestamp'));
+			option('date_range/to_timestamp',$this->date->now);
 			option('in_date_range',true);
 		}
 		

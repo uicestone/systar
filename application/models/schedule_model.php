@@ -122,7 +122,7 @@ class Schedule_model extends SS_Model{
 			if($schedule['completed']){
 				$schedule['color']='#36C';
 			}else{
-				if($schedule['time_start']<$this->config->item('timestamp')){
+				if($schedule['time_start']<$this->date->now){
 					$schedule['color']='#555';
 				}else{
 					$schedule['color']='#E35B00';
@@ -413,7 +413,7 @@ class Schedule_model extends SS_Model{
 	{
 		$uid=intval($uid);
 		$data['sort_data'] = $sort_data;
-		$this -> db -> update('schedule_taskboard' , $data , array('uid'=>$uid,'time'=>$this->config->item('timestamp')));
+		$this -> db -> update('schedule_taskboard' , $data , array('uid'=>$uid,'time'=>$this->date->now));
 	}
 	
 	function createTaskBoard($sort_data ,$uid)
@@ -421,7 +421,7 @@ class Schedule_model extends SS_Model{
 		//$data['id'] = "NULL";这是？
 		$data['sort_data'] = $sort_data;
 		$data['uid'] = $uid;
-		$data['time'] = $this->config->item('timestamp');
+		$data['time'] = $this->date->now;
 		
 		$this -> db -> insert('schedule_taskboard' , $data);
 	}

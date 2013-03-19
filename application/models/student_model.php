@@ -1,4 +1,5 @@
 <?php
+require_once APPPATH.'/models/people_model.php';
 class Student_model extends People_model{
 	
 	var $profile=array(

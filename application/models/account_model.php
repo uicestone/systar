@@ -23,7 +23,7 @@ class Account_model extends SS_Model{
 	function add(array $data=array()){
 		
 		if(!isset($data['date'])){
-			$data['date']=$this->config->item('date');
+			$data['date']=$this->date->today;
 		}
 
 		$data=array_intersect_key($data, self::$fields);
