@@ -1,4 +1,3 @@
-<?=$table_news?>
 <?if(isset($sidebar_tables)){?>
 <?	foreach($sidebar_tables as $sidebar_table){?>
 <div>

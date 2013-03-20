@@ -10,29 +10,7 @@ class Schedule extends SS_controller{
 	
 	function calendar(){
 		$this->load->model('achievement_model','achievement');
-		$this->load->model('news_model','news');
 		
-		$field_news=array(
-			'title'=>array(
-				'heading'=>'公告 <a href="#news" style="font-size:14px">更多</a>',
-				'cell'=>"
-					\$return='{title}';
-					if('{time}'>\$this->date->now-86400*7){
-						\$return.=' <img src=\"images/new.gif\" alt=\"new\" />';
-					}
-					return \$return;
-				",
-				'eval'=>true
-			),
-		);
-		
-		$table_news=$this->table->setFields($field_news)
-			->setRowAttributes(array('hash'=>'news/edit/{id}'))
-			->setData($this->news->getList(5))
-			->generate();
-		
-		$this->load->addViewData('table_news',$table_news);
-
 		$sidebar_function=$this->company->syscode.'_'.'schedule_side_table';
 		
 		if(method_exists($this->company, $sidebar_function)){

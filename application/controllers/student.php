@@ -1,5 +1,4 @@
 <?php
-require_once APPPATH.'/controllers/people.php';
 class Student extends People{
 	function __construct(){
 		parent::__construct();

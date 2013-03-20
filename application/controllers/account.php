@@ -1,31 +1,31 @@
 <?php
 class Account extends SS_controller{
+	
+	var $list_args=array(
+		'date'=>array('heading'=>'日期'),
+		'name'=>array('heading'=>'名目'),
+		'type'=>array('heading'=>array('data'=>'方向','width'=>'45px'),'eval'=>true,'cell'=>array(
+			'data'=>"
+				if({amount}>0){
+					return '<span style=\"color:#0F0\"><<</span>';
+				}else{
+					return '<span style=\"color:#F00\">>></span>';
+				}
+			",
+			'style'=>'text-align:center'
+		)),
+		'amount'=>array('heading'=>'金额'),
+		'client_name'=>array('heading'=>'付款/收款人')
+	);
+	
 	function __construct(){
-		$this->default_method='lists';
 		parent::__construct();
 		$this->load->model('achievement_model','achievement');
 	}
 	
-	function lists(){
+	function index(){
 		
-		$field=array(
-			'date'=>array('heading'=>'日期'),
-			'name'=>array('heading'=>'名目'),
-			'type'=>array('heading'=>array('data'=>'方向','width'=>'45px'),'eval'=>true,'cell'=>array(
-				'data'=>"
-					if({amount}>0){
-						return '<span style=\"color:#0F0\"><<</span>';
-					}else{
-						return '<span style=\"color:#F00\">>></span>';
-					}
-				",
-				'style'=>'text-align:center'
-			)),
-			'amount'=>array('heading'=>'金额'),
-			'client_name'=>array('heading'=>'付款/收款人')
-		);
-		
-		$list=$this->table->setFields($field)
+		$list=$this->table->setFields($this->list_args)
 				->setRowAttributes(array('hash'=>'account/edit/{id}'))
 				->setData($this->account->getList())
 				->generate();

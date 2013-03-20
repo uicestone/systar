@@ -88,6 +88,65 @@ class Cases_model extends Project_model{
 		
 		return $this->db->insert_id();
 	}
+	
+	/**
+	 * 获得一个案件的主办律师名
+	 * @return string
+	 */
+	function getResponsibleStaffNames($case_id){
+		$case_id=intval($case_id);
+		
+		$this->db->select("GROUP_CONCAT(people.name) names",false)
+			->from('case_people')
+			->join('people',"case_people.people = people.id AND case_people.role = '主办律师'",'INNER')
+			->where('case_people.case',$case_id);
+		
+		return $this->db->get()->row()->names;
+	}
+	
+	/**
+	 * 根据案件id获得标签，进而生成描述性字符串
+	 * @return string
+	 */
+	function getCompiledLabels($case_id){
+		$case_id=intval($case_id);
+		
+		$this->db->select('label.id,label.name,label.order,label.color')
+			->from('case_label')
+			->join('label',"case_label.label = label.id",'INNER')
+			->where('case_label.case',$case_id)
+			->order_by('label.order','DESC');
+		
+		$result=$this->db->get()->result_array();
+		
+		$labels=array();
+		
+		foreach($result as $row){
+			$labels[$row['name']]=$row;
+		}
+		
+		if(isset($labels['类型已锁定']) && isset($labels['客户已锁定']) && isset($labels['职员已锁定']) && isset($labels['费用已锁定'])){
+			unset($labels['类型已锁定']);unset($labels['客户已锁定']);unset($labels['职员已锁定']);unset($labels['费用已锁定']);
+			$labels['已锁定']=array('name'=>'已锁定','color'=>'#080');
+		}
+		
+		if(isset($labels['通过财务审核']) && isset($labels['通过信息审核']) && isset($labels['通过主管审核']) && isset($labels['案卷已归档'])){
+			unset($labels['通过财务审核']);unset($labels['通过信息审核']);unset($labels['通过主管审核']);unset($labels['案卷已归档']);
+			$labels['已归档']=array('name'=>'已归档','color'=>'#888');
+		}
+		
+		$labels_string='<div class="chzn-container-multi"><ul class="chzn-choices">';
+		
+		foreach($labels as $key=>$label){
+			if(!is_array(option('search/labels')) || !in_array($key,option('search/labels'))){
+				$labels_string.='<li class="search-choice" style="color:'.$label['color'].'">'.$label['name'].'</li>';
+			}
+		}
+		
+		$labels_string.='</ul></div>';
+		
+		return $labels_string;
+	}
 
 }
 ?>

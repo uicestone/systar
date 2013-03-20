@@ -3,6 +3,9 @@ class BaseItem_model extends SS_Model{
 	
 	var $id;
 	
+	/**
+	 * 具体对象存放于数据库的表名
+	 */
 	var $table;
 	
 	function __construct() {

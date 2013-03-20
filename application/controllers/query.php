@@ -1,5 +1,4 @@
 <?php
-require_once APPPATH.'/controllers/project.php';
 class Query extends Project{
 	function __construct(){
 		parent::__construct();

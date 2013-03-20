@@ -1,22 +1,23 @@
 <?php
 class Achievement extends SS_controller{
+	
+	var $list_args=array(
+		'case_name'=>array('heading'=>array('data'=>'案件','width'=>'25%'),'cell'=>'<a href="#cases/edit/{case}" class="right" style="margin-left:10px;">查看</a>{case_name}'),
+		'client_name'=>array('heading'=>'客户'),
+		'account_time'=>array('heading'=>'到账时间'),
+		'amount'=>array('heading'=>'创收'),
+		'contribution'=>array('heading'=>'贡献'),
+		'bonus'=>array('heading'=>'奖金'),
+		'role'=>array('heading'=>'角色')
+	);
+	
 	function __construct(){
-		$this->default_method='mine';
+		$this->default_method='index';
 		parent::__construct();
 	}
 	
-	function mine(){
+	function index(){
 		
-		$field=array(
-			'case_name'=>array('heading'=>array('data'=>'案件','width'=>'25%'),'cell'=>'<a href="#cases/edit/{case}" class="right" style="margin-left:10px;">查看</a>{case_name}'),
-			'client_name'=>array('heading'=>'客户'),
-			'account_time'=>array('heading'=>'到账时间'),
-			'amount'=>array('heading'=>'创收'),
-			'contribution'=>array('heading'=>'贡献'),
-			'bonus'=>array('heading'=>'奖金'),
-			'role'=>array('heading'=>'角色')
-		);
-
 		if($this->input->post('date_from')){
 			option('search/date_from',$this->input->post('date_from'));
 		}
@@ -30,7 +31,7 @@ class Achievement extends SS_controller{
 			option('search/date_ro',NULL);
 		}
 		
-		$table=$this->table->setFields($field)
+		$table=$this->table->setFields($this->list_args)
 			->setData($this->achievement->getList(option('search')))
 			->generate();
 		

@@ -259,9 +259,7 @@ class Project_model extends BaseItem_model{
 	
 	function getList($args=array()){
 		$this->db->select("
-			case.id,case.name,case.num,case.time_contract,
-			staffs.staffs,
-			labels.labels
+			case.id,case.name,case.num,case.time_contract,case_labels.labels
 		",false);
 
 		if(isset($args['role'])){

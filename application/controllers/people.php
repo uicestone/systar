@@ -8,6 +8,16 @@ class People extends SS_Controller{
 	
 	var $form_validation_rules=array();
 	
+	var $list_args=array(
+		'abbreviation'=>array(
+			'heading'=>'名称',
+			'cell'=>array('data'=>'{abbreviation}','class'=>"ellipsis",'title'=>'{name}')
+		),
+		'phone'=>array('heading'=>'电话'),
+		'email'=>array('heading'=>'电邮'),
+		'labels'=>array('heading'=>'标签')
+	);
+		
 	function __construct() {
 		$this->require_permission_check=false;
 		parent::__construct();
@@ -46,16 +56,6 @@ class People extends SS_Controller{
 	 */
 	function index(){
 		
-		$field=array(
-			'abbreviation'=>array(
-				'heading'=>'名称',
-				'cell'=>array('data'=>'{abbreviation}','class'=>"ellipsis",'title'=>'{name}')
-			),
-			'phone'=>array('heading'=>'电话'),
-			'email'=>array('heading'=>'电邮'),
-			'labels'=>array('heading'=>'标签')
-		);
-		
 		//点击了取消搜索按钮，则清空session中的搜索项
 		if($this->input->post('submit')=='search_cancel'){
 			option('search/labels',array());
@@ -81,7 +81,7 @@ class People extends SS_Controller{
 			option('search/labels',$this->input->post('labels')+option('search/labels'));
 		}
 		
-		$table=$this->table->setFields($field)
+		$table=$this->table->setFields($this->list_args)
 			->setRowAttributes(array('hash'=>CONTROLLER.'/edit/{id}'))
 			->setData($this->people->getList(option('search')))
 			->generate();

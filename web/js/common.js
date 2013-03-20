@@ -326,7 +326,7 @@ $(document)
 
 		});
 		
-		section.find('select.chosen,select#labels').chosen();
+		section.find('select').chosen();
 		
 		/*边栏选框自动提交*/
 		section.find('select.filter[method!="get"]').on('change',function(){

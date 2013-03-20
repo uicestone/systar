@@ -83,6 +83,10 @@ button.hover{
 .chzn-container{
 	margin-bottom: 5px;
 }
+/*主页面列表中的多选标签（用于标签）无右边距（用于显示“x”）*/
+article .contentTable .chzn-container-multi .chzn-choices .search-choice{
+	padding-right:5px;
+}
 
 body{
 	font-family:'Microsoft Yahei';

@@ -1,5 +1,4 @@
 <?php
-require_once APPPATH.'/controllers/people.php';
 class Contact extends People{
 	
 	var $section_name='联系人';

@@ -115,6 +115,14 @@ class SS_Table extends CI_Table{
 					$cell['data']=eval($cell['data']);
 				}
 				
+				//用指定函数来处理$cell[data]
+				if(isset($field['parser'])){
+					foreach($field['parser']['args'] as $key => $value){
+						$field['parser']['args'][$key]=$this->_variableReplace($value,$row);
+					}
+					$cell['data']=call_user_func_array($field['parser']['function'], $field['parser']['args']);
+				}
+				
 				$row_compiled[$field_name]=$cell;
 			}
 			$rows_compiled[]=$row_compiled;

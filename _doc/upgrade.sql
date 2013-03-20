@@ -218,3 +218,26 @@ DROP  `filed` ;
 ALTER TABLE  `label` ADD  `order` INT NOT NULL DEFAULT  '0' COMMENT  '标签组合在一起时的顺序',
 ADD INDEX (  `order` );
 -- uice 3/18
+
+CREATE TABLE IF NOT EXISTS `account_team` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `account` int(11) NOT NULL,
+  `team` int(11) NOT NULL,
+  `uid` int(11) NOT NULL,
+  `username` varchar(255) NOT NULL,
+  `time` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `account` (`account`),
+  KEY `team` (`team`),
+  KEY `uid` (`uid`),
+  KEY `time` (`time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+
+ALTER TABLE `account_team`
+  ADD CONSTRAINT `account_team_ibfk_3` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `account_team_ibfk_1` FOREIGN KEY (`account`) REFERENCES `account` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `account_team_ibfk_2` FOREIGN KEY (`team`) REFERENCES `team` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+
+ALTER TABLE  `label` ADD  `color` VARCHAR( 255 ) NOT NULL DEFAULT  'not specified';
+-- uice 3/20

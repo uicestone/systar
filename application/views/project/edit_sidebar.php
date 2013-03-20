@@ -31,6 +31,6 @@
 <? }?>
 		<button type="submit" name="submit[project]" class="major">保存</button>
 
-<select id="labels" data-placeholder="标签" multiple="multiple" style="width:239px;">
+<select data-placeholder="标签" multiple="multiple" style="width:239px;">
 	<?=options($this->project->getAllLabels(),$labels)?>
 </select>

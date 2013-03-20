@@ -3,21 +3,20 @@ class Project extends SS_controller{
 	
 	var $form_validation_rules=array();
 	
+	var $list_args=array(
+		'time_contract'=>array(
+			'heading'=>array('data'=>'案号','width'=>'140px'),
+			'cell'=>array('data'=>'{num}','title'=>'立案时间：{time_contract}')
+		),
+		'name'=>array('heading'=>'案名','cell'=>'{name}'),
+		'labels'=>array('heading'=>'标签')
+	);
+	
 	function __construct(){
 		parent::__construct();
 	}
 	
 	function index(){
-		
-		$field=array(
-			'time_contract'=>array(
-				'heading'=>array('data'=>'案号','width'=>'140px'),
-				'cell'=>array('data'=>'{num}','title'=>'立案时间：{time_contract}')
-			),
-			'name'=>array('heading'=>'案名','cell'=>'{name}'),
-			'staffs'=>array('heading'=>'职员'),
-			'labels'=>array('heading'=>'标签')
-		);
 		
 		//点击了取消搜索按钮，则清空session中的搜索项
 		if($this->input->post('submit')=='search_cancel'){
@@ -44,7 +43,7 @@ class Project extends SS_controller{
 			option('search/labels',$this->input->post('labels')+option('search/labels'));
 		}
 		
-		$table=$this->table->setFields($field)
+		$table=$this->table->setFields($this->list_args)
 			->setRowAttributes(array('hash'=>CONTROLLER.'/edit/{id}'))
 			->setData($this->project->getList(option('search')))
 			->generate();
