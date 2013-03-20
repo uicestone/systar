@@ -1,27 +1,8 @@
 <?php
-class Label_model extends SS_Model{
+class Label_model extends BaseItem_model{
 	function __construct() {
 		parent::__construct();
-	}
-	
-	function fetch($id,$field=NULL){
-		$id=intval($id);
-		
-		$query="SELECT * FROM label WHERE id = $id";
-		$row=$this->db->query($query)->row_array();
-
-		if(is_null($field)){
-			return $row;
-		}elseif(isset($row[$field])){
-			return $row[$field];
-		}else{
-			return false;
-		}
-	}
-	
-	function add($label_name){
-		$this->db->insert('label',array('name'=>$label_name));
-		return $this->db->insert_id();
+		$this->table='label';
 	}
 	
 	/**

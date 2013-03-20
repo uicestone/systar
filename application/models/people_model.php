@@ -1,12 +1,5 @@
 <?php
-class People_model extends SS_Model{
-	
-	/**
-	 * 当前编辑的“人”对象的id
-	 */
-	var $id;
-	
-	var $table='people';
+class People_model extends BaseItem_model{
 	
 	/**
 	 * people表下的字段及其显示名
@@ -31,6 +24,7 @@ class People_model extends SS_Model{
 	
 	function __construct() {
 		parent::__construct();
+		$this->table='people';
 	}
 
 	/**
@@ -148,140 +142,58 @@ class People_model extends SS_Model{
 	}
 	
 	/**
-	 * 
-	 * @param $config
-	 * array(
-	 *	limit=>array(
-	 *		显示行数,
-	 *		起始行
-	 *	),
-	 *	orderby=>array(
-	 *		'people.time DESC',
-	 *		...
-	 *	)
-	 *	'in_my_case'=>FALSE //与当前用户有相同的相关案件
-	 *	name=>'匹配部分people.name, people.abbreviation, people.name_en',
-	 *	type=>'匹配类别',
-	 *	labels=>array(
-	 *		'匹配标签名',
-	 *		'匹配标签名,
-	 *		...
-	 *	),
-	 *	team=>int OR array
-	 *	
-	 * )
-	 * @return array
+	 * 继承自SS_Model::getList()，具有基本的type,label,orderby和limit配置功能
+	 * 'in_my_case'=>FALSE //与当前用户有相同的相关案件
+	 * name=>'匹配部分people.name, people.abbreviation, people.name_en',
 	 */
 	function getList($args=array()){
-		
-		/**
-		 * 这是一个model方法，它具有配置独立性，即所有条件接口均通过参数$args来传递，不接受其他系统变量
-		 */
-		
-		$q=isset($args['query'])?$args['query']:"
-			SELECT people.id,people.name,IF(people.abbreviation IS NULL,people.name,people.abbreviation) AS abbreviation,people.phone,people.email,
-				labels.labels
-			FROM people
-				LEFT JOIN (
-					SELECT `people`, GROUP_CONCAT(label_name) AS labels
-					FROM people_label
-					GROUP BY people_label.people
-				)labels ON labels.people=people.id
-		";
-		
-		$q_rows="SELECT COUNT(*) FROM people";
-		
-		$inner_join='';
+		$this->db->select('
+			people.id,people.name,IF(people.abbreviation IS NULL,people.name,people.abbreviation) AS abbreviation,people.phone,people.email,
+			people_labels.labels
+		',false);
 
-		//使用INNER JOIN的方式来筛选标签，聪明又机灵
-		if(isset($args['labels']) && is_array($args['labels'])){
-			
-			foreach($args['labels'] as $id => $label_name){
-				
-				//针对空表单的提交
-				if($label_name===''){
-					continue;
-				}
-				
-				//每次连接people_label表需要定一个唯一的名字
-				$inner_join.="
-					INNER JOIN people_label `t_$id` ON people.id=`t_$id`.people AND `t_$id`.label_name = '$label_name'
-				";
-				
-			}
-			
-		}
-		
-		$where=" WHERE company={$this->company->id} AND display=1";
-		
-		if(isset($args['type']) && $args['type']){
-			$where.=" AND people.type = '{$args['type']}'";
-		}
-		
 		if(isset($args['name']) && $args['name']!==''){
-			$where.="
-				AND people.name LIKE '%{$args['name']}%' OR people.abbreviation LIKE '%{$args['name']}%' OR people.name_en LIKE '%{$args['name']}%'
-			";
+			
+			$this->db->where("
+				people.name LIKE '%{$args['name']}%' 
+					OR people.abbreviation LIKE '%{$args['name']}%' 
+					OR people.name_en LIKE '%{$args['name']}%
+			",NULL,false);
+
 		}
 		
 		if(isset($args['in_my_case']) && $args['in_my_case'] && !$this->user->isLogged('developer')){
-			$where.="
-				AND people.id IN (
+			
+			$this->db->where("
+				people.id IN (
 					SELECT people FROM case_people WHERE `case` IN (
 						SELECT `case` FROM case_people WHERE people = {$this->user->id}
 					)
 				)
-			";
+			",NULL,false);
 		}
 		
+		//根据people_team关系来查找
 		if(isset($args['team'])){
 			if(is_array($args['team'])){
 				$teams=implode(',',$args['team']);
-				$where.=" AND people.id IN (SELECT people FROM team WHERE team IN ($teams))";
+				$this->db->where(" AND people.id IN (SELECT people FROM team WHERE team IN ($teams))",NULL,false);
 			}else{
 				$team=intval($args['team']);
 				
-				$where.=" AND 
+				$this->db->where(" AND 
 					people.id IN (
 						SELECT people FROM team WHERE 
 							team = $team OR team IN (
 								SELECT team FROM team_relationship WHERE relative = $team
 							)
 					)
-				";//@TODO 需要写成递归
+				",NULL,false);//@TODO 需要写成递归
 			}
 		}
 		
-		$q_rows.=$inner_join.$where.(isset($args['where'])?$args['where']:'');
-		$q.=$inner_join.$where.(isset($args['where'])?$args['where']:'');
+		return parent::getList($args);
 		
-		if(!isset($args['orderby'])){
-			$args['orderby']='people.id DESC';
-		}
-		
-		$q.=" ORDER BY ";
-		if(is_array($args['orderby'])){
-			foreach($args['orderby'] as $orderby){
-				$q.=$orderby;
-			}
-		}else{
-			$q.=$args['orderby'];
-		}
-		
-		if(!isset($args['limit'])){
-			$args['limit']=$this->limit($q_rows);
-		}
-		
-		if(is_array($args['limit']) && count($args['limit'])==2){
-			$q.=" LIMIT {$args['limit'][1]}, {$args['limit'][0]}";
-		}elseif(is_array($args['limit']) && count($args['limit'])==1){
-			$q.=" LIMIT {$args['limit'][0]}";
-		}elseif(!is_array($args['limit'])){
-			$q.=" LIMIT ".$args['limit'];
-		}
-		
-		//echo $this->db->_prep_query($q);
-		return $this->db->query($q)->result_array();
 	}
 	
 	function isMobileNumber($number){

@@ -1,9 +1,5 @@
 <?php
-class Schedule_model extends SS_Model{
-	
-	var $id;
-	
-	var $table='schedule';
+class Schedule_model extends BaseItem_model{
 	
 	static $fields=array(
 		'name'=>'标题',
@@ -20,6 +16,7 @@ class Schedule_model extends SS_Model{
 	
 	function __construct(){
 		parent::__construct();
+		$this->table='schedule';
 	}
 
 	function fetch($id,$field=NULL){
@@ -259,89 +256,6 @@ class Schedule_model extends SS_Model{
 		}
 		
 		return $this->db->query($q)->row()->time;
-	}
-	
-	function getList($para=NULL){
-		$q="
-			SELECT
-				schedule.id,schedule.name,schedule.content,schedule.experience, schedule.time_start,schedule.hours_own,schedule.hours_checked,schedule.comment,schedule.place,
-				case.id AS `case`,case.name AS case_name,
-				staff.name AS staff_name,staff.id AS staff,
-				if(MAX(case_people.role)='督办人',1,0) AS review_permission
-		
-				#imperfect 2012/7/13 MAX ENUM排序依据为字符串，并非INDEX
-		
-			FROM schedule INNER JOIN `case` ON schedule.case=case.id
-				INNER JOIN case_people ON case.id=case_people.case AND case_people.type='律师'
-				LEFT JOIN people staff ON staff.id = schedule.uid
-			WHERE schedule.display=1 AND schedule.company={$this->company->id}
-				AND schedule.completed=".($this->input->get('plan')?'0':'1')."
-		";
-		
-		if(!$this->user->isLogged('developer')){
-			$q.="
-				AND case_people.people={$this->user->id}
-			";
-		}
-		
-		$condition='';
-		if($para=='mine'){
-			$condition.=" AND schedule.`uid`={$this->user->id}";
-		}else{
-			if($this->input->get('staff')){
-				$condition.=" AND schedule.`uid`='".intval($this->input->get('staff'))."'";
-			}
-		}
-
-		if($this->input->get('case')){
-			$condition.=" AND schedule.`case`='".intval($this->input->get('case'))."'";
-		}
-			
-		if($this->input->get('client')){
-			$condition.=" AND schedule.client='".intval($this->input->get('client'))."'";
-		}
-									
-		$q.=$condition;
-		$q=$this->search($q,array('case.name'=>'案件','staff.name'=>'人员'));
-		$q=$this->dateRange($q,'time_start');
-		$q.="
-			GROUP BY schedule.id
-			ORDER BY FROM_UNIXTIME(time_start,'%Y%m%d') ".($this->input->get('plan')?'ASC':'DESC').",schedule.uid,time_start ".($this->input->get('plan')?'ASC':'DESC')."
-		";
-
-		$q=$this->pagination($q);
-
-		return $this->db->query($q)->result_array();
-	}
-	
-	function getOutPlanList(){
-		
-		$q="
-			SELECT
-				schedule.id AS schedule,schedule.name AS schedule_name,schedule.content AS schedule_content,schedule.experience AS schedule_experience, schedule.time_start,schedule.hours_own,schedule.hours_checked,schedule.comment AS schedule_comment,schedule.place,
-				staff.name AS staff_name,staff.id AS staff
-			FROM schedule LEFT JOIN people staff ON staff.id = schedule.uid
-			WHERE schedule.display=1 AND schedule.place<>''
-		";
-		
-		if($this->input->get('case') && $this->input->get('staff')){
-			$q.=" AND schedule.`case`='".$this->input->get('case')."' AND uid='".$this->input->get('staff')."'";
-		
-		}elseif($this->input->get('case')){
-			$q.=" AND schedule.`case`='".$this->input->get('case')."'";
-		
-		}elseif($this->input->get('staff')){
-			$q.=" AND schedule.`uid`='".$this->input->get('staff')."'";
-		
-		}
-		
-		$q=$this->search($q,array('staff.name'=>'人员'));
-		
-		$q=$this->orderby($q,'time_start','DESC',array('place'));
-		
-		$q=$this->pagination($q);
-		
-		return $this->db->query($q)->result_array();
 	}
 	
 	/**

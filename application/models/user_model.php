@@ -1,10 +1,6 @@
 <?php
-require_once APPPATH.'/models/people_model.php';
 class User_model extends People_model{
 	
-	var $table='user';
-	
-	var $id;
 	var $name;
 	var $group=array();
 	var $permission=array();
@@ -27,6 +23,7 @@ class User_model extends People_model{
 	
 	function __construct($uid=NULL){
 		parent::__construct();
+		$this->table='user';
 		
 		if($uid){
 			$user=$this->fetch($uid);

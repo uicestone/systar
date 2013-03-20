@@ -1,9 +1,5 @@
 <?php
-class Document_model extends SS_Model{
-	
-	var $id;
-	
-	var $table='document';
+class Document_model extends BaseItem_model{
 	
 	static $fields=array(
 		'name'=>'文件名',
@@ -14,6 +10,7 @@ class Document_model extends SS_Model{
 	
 	function __construct(){
 		parent::__construct();
+		$this->table='document';
 		$this->load->library('filetype');
 	}
 	
@@ -95,16 +92,5 @@ class Document_model extends SS_Model{
 		}
 	}
 	
-	function getList(){
-		$q="SELECT *
-			FROM `document` 
-			WHERE 1=1 ";
-		$q=$this->search($q,array('name'=>'文件名'));
-		$q.=(option('in_search_mod')?'':"AND parent='".$_SESSION['document']['currentDirID']."'").'';
-		$q=$this->orderBy($q,'type','ASC');
-		$q=$this->pagination($q);
-		return $this->db->query($q)->result_array();
-	}
-
 }
 ?>

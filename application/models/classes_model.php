@@ -41,33 +41,6 @@ class Classes_model extends Team_model{
 		return $this->db->query($q_student_class)->row_array();
 	}
 	
-	function getList(){
-		$q="
-			SELECT class.id, class.name, grade.name AS grade_name, depart.name AS depart, course.name AS extra_course_name,
-				teacher.name AS class_teacher_name
-			FROM team AS class 
-				INNER JOIN team_relationship AS grade_class ON grade_class.relative=class.id
-				INNER JOIN team AS grade ON grade.id=grade_class.team AND grade.type='grade'
-				INNER JOIN team_relationship AS depart_class ON depart_class.relative=class.id
-				INNER JOIN team AS depart ON depart.id=depart_class.team AND depart.type='depart'
-				LEFT JOIN course ON course.id = class.extra_course
-				LEFT JOIN people AS teacher ON teacher.id = class.leader
-			WHERE class.company={$this->company->id} AND class.display=1 
-				AND class.type='class'
-				AND grade.num>='".$this->school->highest_grade."'
-		";
-		
-		$q=$this->addCondition($q,array('grade'=>'grade.id'));
-				
-		$q=$this->search($q,array('class.name'=>'班级','depart.name'=>'部门'));
-		
-		$q=$this->orderby($q,'class.num','ASC');
-		
-		$q=$this->pagination($q);
-		
-		return $this->db->query($q)->result_array();
-	}
-	
 	function check($class_name,$data_type='id',$show_error=true,$save_to=NULL){
 		//$data_type:id,array
 		if(!$class_name){

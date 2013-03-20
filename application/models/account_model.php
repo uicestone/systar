@@ -1,9 +1,5 @@
 <?php
-class Account_model extends SS_Model{
-	
-	var $id;
-	
-	var $table='account';
+class Account_model extends BaseItem_model{
 	
 	static $fields=array(
 		'name'=>'摘要',
@@ -18,6 +14,7 @@ class Account_model extends SS_Model{
 	
 	function __construct(){
 		parent::__construct();
+		$this->table='account';
 	}
 
 	function add(array $data=array()){
@@ -42,28 +39,5 @@ class Account_model extends SS_Model{
 		$this->db->update('account',$data,array('id'=>$id));
 	}
 	
-	function getList(){
-		$query="
-			SELECT
-				account.id,account.time,account.name,account.amount,account.date,
-				IF(client.abbreviation IS NULL,client.name,client.abbreviation) AS client_name
-			FROM account LEFT JOIN people client ON account.people=client.id
-			WHERE amount<>0
-		";
-		
-		if(!$this->user->isLogged('finance')){
-			$query.=" AND account.case IN (SELECT `case` FROM case_lawyer WHERE lawyer={$this->user->id} AND role='主办律师')";
-		}
-		
-		$query=$this->search($query,array('client.name'=>'客户','account.name'=>'名目','account.amount'=>'金额'));
-		
-		$query=$this->dateRange($query,'account.date',false);
-		
-		$query=$this->orderby($query,'date','DESC');
-		
-		$query=$this->pagination($query);
-		
-		return $this->db->query($query)->result_array();
-	}
 }
 ?>

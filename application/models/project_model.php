@@ -1,9 +1,5 @@
 <?php
-class Project_model extends SS_Model{
-	
-	var $id;
-	
-	var $table='case';
+class Project_model extends BaseItem_model{
 	
 	static $fields=array(
 		'name'=>'名称',
@@ -21,6 +17,7 @@ class Project_model extends SS_Model{
 	
 	function __construct(){
 		parent::__construct();
+		$this->table='case';
 	}
 	
 	function match($part_of_name){
@@ -261,107 +258,28 @@ class Project_model extends SS_Model{
 	}
 	
 	function getList($args=array()){
-		$q="
-			SELECT
-				case.id,case.name,case.num,case.time_contract,
-				staffs.staffs,
-				labels.labels
-			FROM 
-				`case`
-				
-				LEFT JOIN
-				(
-					SELECT case_people.case, GROUP_CONCAT(DISTINCT people.name) AS staffs
-					FROM staff INNER JOIN case_people ON case_people.people=staff.id
-						INNER JOIN people ON people.id=staff.id
-					GROUP BY case_people.case
-				)staffs
-				ON `case`.id=staffs.`case`
-				
-				LEFT JOIN
-				(
-					SELECT case_label.case, GROUP_CONCAT(DISTINCT label.name ORDER BY label.order DESC) AS labels
-					FROM case_label INNER JOIN label ON case_label.label=label.id
-					GROUP BY `case`
-				)labels ON labels.case=case.id
-		";
-		
-		$q_rows="
-			SELECT COUNT(*) FROM `case`
-		";
-		
-		$inner_join='';
-		
-		//使用INNER JOIN的方式来筛选标签，聪明又机灵
-		if(isset($args['labels']) && is_array($args['labels'])){
-			
-			foreach($args['labels'] as $id => $label_name){
-				
-				//针对空表单的提交
-				if($label_name===''){
-					continue;
-				}
-				
-				//每次连接people_label表需要定一个唯一的名字
-				$inner_join.="
-					INNER JOIN case_label `t_$id` ON case.id=`t_$id`.case AND `t_$id`.label_name = '$label_name'
-				";
-				
-			}
-			
-		}
-		
-		$where="
-			WHERE case.company={$this->company->id} AND case.display=1
-		";
-		
-		if(isset($args['type'])){
-			$where.=" AND case.type='{$args['type']}'";
-		}
-		
+		$this->db->select("
+			case.id,case.name,case.num,case.time_contract,
+			staffs.staffs,
+			labels.labels
+		",false);
+
 		if(isset($args['role'])){
-			$where.=" AND case.id IN (SELECT `case` FROM case_people WHERE people={$this->user->id} AND role='{$args['role']}')";
+			$this->db->where("
+				case.id IN (SELECT `case` FROM case_people WHERE people={$this->user->id} AND role='{$args['role']}')
+			",NULL,false);
 		}
 		
 		if(isset($args['num'])){
-			$where.=" AND case.num='{$args['num']}'";
+			$this->db->where('case.num',$args['num']);
 		}
 		
 		if(isset($args['name'])){
-			$where.=" AND case.name LIKE '%{$args['name']}%'";
+			$this->db->where('case.name',$args['name']);
 		}
 		
-		$q.=$inner_join.$where;
-		$q_rows.=$inner_join.$where;
+		return parent::getList($args);
 		
-		if(!isset($args['orderby'])){
-			$args['orderby']='case.id DESC';
-		}
-		
-		$q.=" ORDER BY ";
-		if(is_array($args['orderby'])){
-			foreach($args['orderby'] as $orderby){
-				$q.=$orderby;
-			}
-		}else{
-			$q.=$args['orderby'];
-		}
-		
-		if(!isset($args['limit'])){
-			$args['limit']=$this->limit($q_rows);
-		}
-		
-		if(is_array($args['limit']) && count($args['limit'])==2){
-			$q.=" LIMIT {$args['limit'][1]}, {$args['limit'][0]}";
-		}elseif(is_array($args['limit']) && count($args['limit'])==1){
-			$q.=" LIMIT {$args['limit'][0]}";
-		}elseif(!is_array($args['limit'])){
-			$q.=" LIMIT ".$args['limit'];
-		}
-		
-		//echo $this->db->_prep_query($q);
-		
-		return $this->db->query($q)->result_array();
 	}
 	
 	function getIdByCaseFee($project_fee_id){

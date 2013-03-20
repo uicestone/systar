@@ -1,12 +1,9 @@
 <?php
-class Team_model extends SS_model{
-	
-	var $id;
-	
-	var $table='team';
+class Team_model extends BaseItem_model{
 	
 	function __construct() {
 		parent::__construct();
+		$this->table='team';
 	}
 
 }

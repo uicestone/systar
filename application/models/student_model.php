@@ -87,10 +87,6 @@ class Student_model extends People_model{
 		return true;
 	}
 	
-	function getList($config=array()){
-		return parent::getList($config);
-	}
-	
 	/**
 	 * 获得一个学生的家庭成员列表
 	 */

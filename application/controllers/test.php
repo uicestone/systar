@@ -15,6 +15,15 @@ class Test extends SS_controller{
 		print_r($this->user->permission);
 	}
 	
+	function ar(){
+		$this->db->select('id,name');
+		$this->db->from('people');
+		$this->db->where('company',1);
+		$this->db->where("id IN (SELECT people FROM case_people)",NULL,false);
+		$this->db->get();
+		echo $this->db->last_query();
+	}
+	
 	/**
 		* CDS示例代码，id为4的用户在case栏目里搜索"一审"、"诉讼"、"法律"
 		*/

@@ -1,8 +1,8 @@
 <?php
 
 /**
-* @property CI_DB_active_record $db
 * @property CI_DB_mysql_driver $db
+* @property CI_DB_active_record $db
 * @property CI_DB_forge $dbforge
 * @property CI_Benchmark $benchmark
 * @property CI_Calendar $calendar
@@ -60,6 +60,7 @@
 * @property Score_model $score
 * @property Staff_model $staff
 * @property Student_model $student
+* @property Subquery $subquery
 * @property Team_model $team
 * @property User_model $user
 * @property School_model $school
@@ -69,8 +70,8 @@
 class CI_Controller {};
 
 /**
-* @property CI_DB_active_record $db
 * @property CI_DB_mysql_driver $db
+* @property CI_DB_active_record $db
 * @property CI_DB_forge $dbforge
 * @property CI_Benchmark $benchmark
 * @property CI_Calendar $calendar
@@ -128,6 +129,7 @@ class CI_Controller {};
 * @property Score_model $score
 * @property Staff_model $staff
 * @property Student_model $student
+* @property Subquery $subquery
 * @property Team_model $team
 * @property User_model $user
 * @property School_model $school

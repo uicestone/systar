@@ -1,7 +1,6 @@
 <?php
-class Company_model extends SS_Model{
+class Company_model extends BaseItem_model{
 	
-	var $id;
 	var $name;
 	var $type;
 	var $host;
@@ -12,6 +11,7 @@ class Company_model extends SS_Model{
 	
 	function __construct(){
 		parent::__construct();
+		$this->table='company';
 		$this->recognize($this->input->server('SERVER_NAME'));
 	}
 
