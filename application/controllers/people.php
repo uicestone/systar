@@ -8,15 +8,7 @@ class People extends SS_Controller{
 	
 	var $form_validation_rules=array();
 	
-	var $list_args=array(
-		'abbreviation'=>array(
-			'heading'=>'名称',
-			'cell'=>array('data'=>'{abbreviation}','class'=>"ellipsis",'title'=>'{name}')
-		),
-		'phone'=>array('heading'=>'电话'),
-		'email'=>array('heading'=>'电邮'),
-		'labels'=>array('heading'=>'标签')
-	);
+	var $list_args;
 		
 	function __construct() {
 		$this->require_permission_check=false;
@@ -56,15 +48,18 @@ class People extends SS_Controller{
 	 */
 	function index(){
 		
-		//点击了取消搜索按钮，则清空session中的搜索项
-		if($this->input->post('submit')=='search_cancel'){
-			option('search/labels',array());
-			option('search/name',NULL);
-		}
+		$this->list_args=array(
+			'abbreviation'=>array(
+				'heading'=>'名称',
+				'cell'=>array('data'=>'{abbreviation}','class'=>"ellipsis",'title'=>'{name}')
+			),
+			'phone'=>array('heading'=>'电话'),
+			'email'=>array('heading'=>'电邮'),
+			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->people,'getCompiledLabels'),'args'=>array('{id}')))
+		);
 		
-		//提交了搜索项，但搜索项中没有labels项，我们将session中搜索项的labels项清空
-		if($this->input->post('submit')==='search' && $this->input->post('search/labels')===false){
-			option('search/labels',array());
+		if($this->input->post('team')){
+			option('search/team',$this->input->post('team'));
 		}
 		
 		//监测有效的名称选项
@@ -78,7 +73,19 @@ class People extends SS_Controller{
 				option('search/labels',array());
 			}
 			
-			option('search/labels',$this->input->post('labels')+option('search/labels'));
+			option('search/labels',array_trim($this->input->post('labels'))+option('search/labels'));
+		}
+		
+		//点击了取消搜索按钮，则清空session中的搜索项
+		if($this->input->post('submit')==='search_cancel'){
+			option('search/labels',array());
+			option('search/name',NULL);
+			option('search/team',array());
+		}
+		
+		//提交了搜索项，但搜索项中没有labels项，我们将session中搜索项的labels项清空
+		if($this->input->post('submit')==='search' && $this->input->post('search/labels')===false){
+			option('search/labels',array());
 		}
 		
 		$table=$this->table->setFields($this->list_args)
@@ -86,9 +93,19 @@ class People extends SS_Controller{
 			->setData($this->people->getList(option('search')))
 			->generate();
 		$this->load->addViewData('list', $table);
-		$this->load->view('list');
 		
-		$this->load->view('people/list_sidebar',true,'sidebar');
+		if(file_exists(APPPATH.'/views/'.CONTROLLER.'/list'.EXT)){
+			$this->load->view(CONTROLLER.'/list');
+		}else{
+			$this->load->view('list');
+		}
+		
+		if(file_exists(APPPATH.'/views/'.CONTROLLER.'/list_sidebar'.EXT)){
+			$this->load->view(CONTROLLER.'/list_sidebar',true,'sidebar');
+		}else{
+			$this->load->view('people/list_sidebar',true,'sidebar');
+		}
+		
 	}
 	
 	/**

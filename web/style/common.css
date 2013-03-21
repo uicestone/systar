@@ -88,6 +88,10 @@ article .contentTable .chzn-container-multi .chzn-choices .search-choice{
 	padding-right:5px;
 }
 
+article .contentTable .chzn-container-multi .chzn-choices{
+	border:none;
+}
+
 body{
 	font-family:'Microsoft Yahei';
 	font-size:13px;

@@ -21,29 +21,6 @@ class Student_model extends People_model{
 		parent::__construct();
 	}
 	
-	/**
-	 * 获取一个学生的信息，包括people表和people_profile表中的信息
-	 * @param int $id
-	 * @return array $student_info
-	 */
-	function fetch($id){
-		$id=intval($id);
-		
-		$people_info=parent::fetch($id);
-		
-		$query="SELECT name,content FROM people_profile WHERE people=$id";
-		
-		//获得此人的全部资料项
-		//尽管people_profile采取保存所有历史更改不删除的方式，但转化成数组时此人的旧信息项会被最新的替换
-		$profile_all=array_sub($this->db->query($query)->result_array(),'content','name');
-
-		$student_profile=array_intersect_key($profile_all, $this->profile);
-		
-		$student_info=$people_info+$student_profile;
-		
-		return $student_info;
-	}
-
 	function updateClass($people,$team,$id_in_team,$term){
 		$team_people=array();
 		
@@ -56,57 +33,6 @@ class Student_model extends People_model{
 			$relation='就读';
 			$this->db->insert('team_people',compact('people','team','id_in_team','term','relation'));
 		}
-	}
-	
-	function update($student,$data){
-		
-		if(is_null($data)){
-			return true;
-		}
-		
-		$student_profile=array();
-		
-		if($data){//排除$data为NULL的情况
-			$student_profile=array_intersect_key($data, $this->profile);
-		}
-		
-		$student_profile_batch_data=array();
-		foreach($student_profile as $profile_field => $profile_value){
-			$student_profile_batch_data[]=array('name'=>$profile_field,'content'=>$profile_value,'people'=>$this->id);
-			$student_profile_batch_data[count($student_profile_batch_data)-1]+=uidTime(false);
-		}
-		
-		parent::update($student,$data);
-		
-		//$this->db->where(array('people'=>$this->id))->update_batch('people_profile', $student_profile_batch_data, 'name');
-		
-		if($student_profile_batch_data){
-			$this->db->insert_batch('people_profile', $student_profile_batch_data);
-		}
-		
-		return true;
-	}
-	
-	/**
-	 * 获得一个学生的家庭成员列表
-	 */
-	function getRelativeList($student_id){
-		$student_id=intval($student_id);
-		
-		$query="
-			SELECT 
-				relatives.id,relatives.name,people_relationship.relation,relatives.work_for,relatives_contact.content AS contact
-			FROM 
-				people AS relatives
-				INNER JOIN (
-					SELECT people,content FROM people_profile WHERE name='mobile'
-				)relatives_contact ON relatives_contact.people=relatives.id
-				INNER JOIN people_relationship ON people_relationship.relative=relatives.id 
-					AND people_relationship.relation_type='家庭成员'
-			WHERE people_relationship.people=$student_id
-		";
-		
-		return $this->db->query($query)->result_array();
 	}
 	
 	/**
@@ -205,19 +131,6 @@ class Student_model extends People_model{
 			
 			return $new_student_num;
 	
-		}else{
-			return false;
-		}
-	}
-	
-	function addRelatives($student,$data){
-		$relative_id=$this->add($data);
-		
-		$this->addProfile($relative_id,'mobile',$data['contact']);
-		
-		if($people_relationship_id=$this->addRelationship($student, $relative_id, $data['relationship'])){
-			unset($_SESSION[CONTROLLER]['post'][$this->id]['student_relatives']);
-			return $people_relationship_id;
 		}else{
 			return false;
 		}

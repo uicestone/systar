@@ -69,10 +69,11 @@ class BaseItem_model extends SS_Model{
 		/**
 		 * 这是一个model方法，它具有配置独立性，即所有条件接口均通过参数$args来传递，不接受其他系统变量
 		 */
+		if(!$this->db->ar_select){
+			$this->db->select($this->table.'.*');
+		}
 		
 		$this->db->from($this->table);
-		
-		$this->db->join($this->table.'_labels',"{$this->table}_labels.{$this->table}={$this->table}.id",'INNER');
 		
 		//使用INNER JOIN的方式来筛选标签，聪明又机灵
 		if(isset($args['labels']) && is_array($args['labels'])){
@@ -91,7 +92,7 @@ class BaseItem_model extends SS_Model{
 			
 		}
 		
-		$this->db->where(array('company'=>$this->company->id,'display'=>true));
+		$this->db->where(array($this->table.'.company'=>$this->company->id,$this->table.'.display'=>true));
 		
 		if(isset($args['type']) && $args['type']){
 			$this->db->where($this->table.'.type',$args['type']);
@@ -108,21 +109,23 @@ class BaseItem_model extends SS_Model{
 			foreach($args['orderby'] as $orderby){
 				$this->db->order_by($orderby[0],$orderby[1]);
 			}
-		}else{
+		}elseif($args['orderby']){
 			$this->db->order_by($args['orderby']);
 		}
 		
-		if(!isset($args['limit'])){
+		if(!isset($args['limit']) || $args['limit']!==false){
 			$args['limit']=$this->limit($num_rows);
 		}
 		
-		call_user_func_array(array($this->db,'limit'), $args['limit']);
+		if($args['limit']){
+			call_user_func_array(array($this->db,'limit'), $args['limit']);
+		}
 		
 		return $this->db->get()->result_array();
 	}
 	
 	
-	function getArray($args=array(),$keyname,$keyname_forkey=NULL){
+	function getArray($args=array(),$keyname=NULL,$keyname_forkey=NULL){
 		return array_sub($this->getList($args),$keyname,$keyname_forkey);
 	}
 	
@@ -148,20 +151,20 @@ class BaseItem_model extends SS_Model{
 	function getLabels($item_id,$type=NULL){
 		$item_id=intval($item_id);
 		
-		$query="
-			SELECT label.name,{$this->table}_label.type
-			FROM label INNER JOIN {$this->table}_label ON label.id={$this->table}_label.label
-			WHERE {$this->table}_label.{$this->table} = $item_id
-		";
+		$this->db->select("label.name,{$this->table}_label.type")
+			->from('label')
+			->join($this->table.'_label', "label.id={$this->table}_label.label", 'INNER');
+		
+		$this->db->where($this->table.'_label.'.$this->table, $item_id);
 		
 		if($type===true){
-			$query.=" AND {$this->table}_label.type IS NOT NULL";
+			$this->db->where("{$this->table}_label.type IS NOT NULL");
 		}
 		elseif(isset($type)){
-			$query.=" AND {$this->table}_label.type = '$type'";
+			$this->db->where($this->table.'_label.type',$type);
 		}
 		
-		$result=$this->db->query($query)->result_array();
+		$result=$this->db->get()->result_array();
 		
 		$labels=array_sub($result,'name','type');
 		
@@ -174,22 +177,20 @@ class BaseItem_model extends SS_Model{
 	 * @return array([$type=>]$label_name,...) 一个由标签类别为键名（如果标签类别存在），标签名称为键值构成的数组
 	 */
 	function getAllLabels($type=NULL){
-		$query="
-			SELECT {$this->table}_label.type,{$this->table}_label.label_name AS name,COUNT(*) AS hits
-			FROM {$this->table}_label INNER JOIN `{$this->table}` ON {$this->table}.id={$this->table}_label.{$this->table}
-			WHERE {$this->table}.company={$this->company->id}
-		";
+		
+		$this->db->select("{$this->table}_label.type,{$this->table}_label.label_name AS name,COUNT(*) AS hits")
+			->from("{$this->table}_label")
+			->join($this->table, "{$this->table}.id = {$this->table}_label.{$this->table}",'INNER')
+			->where($this->table.'.company',$this->company->id);
 		
 		if(isset($type)){
-			$query.=" AND type='$type";
+			$this->db->where('type',$type);
 		}
 		
-		$query.="
-			GROUP BY {$this->table}_label.label
-			ORDER BY hits DESC
-		";
+		$this->db->group_by($this->table.'_label.label')
+			->order_by('hits', 'DESC');
 		
-		$result_array = $this->db->query($query)->result_array();
+		$result_array = $this->db->get()->result_array();
 		
 		$all_labels=array();
 		
@@ -231,6 +232,33 @@ class BaseItem_model extends SS_Model{
 		}
 	}
 	
+	/**
+	 * 根据id获得标签，进而生成描述性字符串
+	 * @return string
+	 */
+	function getCompiledLabels($item_id){
+		$item_id=intval($item_id);
+		
+		$this->db->select('label.id,label.name,label.order,label.color')
+			->from($this->table.'_label')
+			->join('label',$this->table."_label.label = label.id",'INNER')
+			->where($this->table.'_label.'.$this->table,$item_id)
+			->order_by('label.order','DESC');
+		
+		$labels=$this->db->get()->result_array();
+		
+		$labels_string='<div class="chzn-container-multi"><ul class="chzn-choices">';
+		foreach($labels as $key=>$label){
+			if(!is_array(option('search/labels')) || !in_array($key,option('search/labels'))){
+				$labels_string.='<li class="search-choice" style="color:'.$label['color'].'">'.$label['name'].'</li>';
+			}
+		}
+		
+		$labels_string.='</ul></div>';
+		
+		return $labels_string;
+	}
+
 	function addProfile($item_id,$name,$content,$comment=NULL){
 		$data=array(
 			$this->table=>$item_id,

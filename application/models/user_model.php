@@ -202,31 +202,28 @@ class User_model extends People_model{
 	 * 根据当前用户组，将数据库中controller,permission两表中的用户权限读入$this->user->permission
 	 */
 	function preparePermission(){
-
-		$query="
-			SELECT
-				controller.name AS controller,
-				IF(permission.ui_name<>'', permission.ui_name, controller.ui_name) AS controller_name,
-				IF(permission.discription IS NOT NULL, permission.discription, controller.discription) AS discription,
-				controller.add_action,
-				permission.controller, permission.method, permission.display_in_nav AS display
-			FROM controller LEFT JOIN permission ON controller.name=permission.controller 
-			WHERE permission.company={$this->company->id}
-				AND controller.is_on=1
-		";
 		
-		if($this->group){
-			$query.="AND (".db_implode($this->group, $glue = ' OR ','permission.group').") ";
-		}else{
-			$query.="AND FALSE";
-		}
-				
-		$query.="
-			GROUP BY permission.controller,permission.method
-			ORDER BY controller.order, permission.order
-		";
+		$this->db->select("
+			controller.name AS controller,
+			IF(permission.ui_name<>'', permission.ui_name, controller.ui_name) AS controller_name,
+			IF(permission.discription IS NOT NULL, permission.discription, controller.discription) AS discription,
+			controller.add_action,
+			permission.controller, permission.method, permission.display_in_nav AS display
+		",false)
+			->from('controller')
+			->join('permission', "controller.name = permission.controller", 'LEFT')
+			->where(array('permission.company'=>$this->company->id,'controller.is_on'=>true));
 
-		$result_array=$this->db->query($query)->result_array();
+		if($this->group){
+			$this->db->where("(".db_implode($this->group, $glue = ' OR ','permission.group').")",NULL,false);
+		}else{
+			$this->db->where('FALSE',NULL,false);
+		}
+		
+		$this->db->group_by('permission.controller,permission.method')
+			->order_by('controller.order, permission.order');
+				
+		$result_array=$this->db->get()->result_array();
 
 		$permission=array();
 		foreach($result_array as $a){

@@ -222,44 +222,9 @@ class Project_model extends BaseItem_model{
 		return $this->db->query($query)->result_array();
 	}
 	
-	function getDocumentCatalog($project_id,$choosen_documents){
-		$query="
-			SELECT * FROM(
-				SELECT DISTINCT doctype FROM case_document WHERE `case`='$project_id' AND (".db_implode($choosen_documents,' OR ','id','=',"'","'",'`','key').") AND doctype<>'其他' ORDER BY doctype
-			)doctype
-			UNION
-			SELECT DISTINCT doctype_other FROM case_document WHERE `case`='$project_id' AND doctype='其他'
-		";
-		$array=$this->db->query($query)->result_array();
-		$doctypes=array_sub($array,'doctype');
-		return $doctypes;
-	}
-	
-	function getScheduleList($project_id){
-		$query="SELECT *
-			FROM 
-				schedule
-			WHERE display=1 AND completed=1 AND `case`='".$project_id."'
-			ORDER BY time_start DESC
-			LIMIT 10";
-		
-		return $this->db->query($query)->result_array();
-	}
-	
-	function getPlanList($project_id){
-		$query="SELECT *
-			FROM 
-				schedule
-			WHERE display=1 AND completed=0 AND `case`='".$project_id."'
-			ORDER BY time_start
-			LIMIT 10";
-		
-		return $this->db->query($query)->result_array();
-	}
-	
 	function getList($args=array()){
 		$this->db->select("
-			case.id,case.name,case.num,case.time_contract,case_labels.labels
+			case.id,case.name,case.num,case.time_contract
 		",false);
 
 		if(isset($args['role'])){

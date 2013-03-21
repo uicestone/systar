@@ -28,7 +28,7 @@ class SS_Controller extends CI_Controller{
 		define('CONTROLLER',$class);
 		define('METHOD',$method);
 		
-		//CONTROLLER !=='frame' && $this->output->enable_profiler(TRUE);
+		CONTROLLER !=='frame' && $this->output->enable_profiler(TRUE);
 
 		/*
 		 * 自动载入的资源，没有使用autoload.php是因为后者载入以后不能起简称...
@@ -67,36 +67,6 @@ class SS_Controller extends CI_Controller{
 			$this->output->status='denied';
 			$this->_output();
 			exit;
-		}
-
-/*		if($this->input->post('submit')=='date_range'){
-			if(!strtotime($this->input->post('date_from')) || !strtotime($this->input->post('date_to'))){
-				$this->output->message('日期格式错误','warning');
-
-			}else{
-				option('date_range/from_timestamp',strtotime($this->input->post('date_from')));
-				option('date_range/to_timestamp',strtotime($this->input->post('date_to'))+86400);
-
-				option('date_range/from',date('Y-m-d',option('date_range/from_timestamp')));
-				option('date_range/to',date('Y-m-d',option('date_range/to_timestamp')-86400));
-
-				option('in_date_range',true);
-			}
-		}
-*/
-		if($this->input->post('submit')=='date_range_cancel'){
-			unset($_SESSION[CONTROLLER][METHOD]['in_date_range']);
-			unset($_SESSION[CONTROLLER][METHOD]['date_range']);
-		}
-		
-		if($this->input->post('submit')=='search'){
-			option('keyword',array_trim($this->input->post('keyword')));
-			option('in_search_mod',true);
-		}
-
-		if($this->input->post('submit')=='search_cancel'){
-			unset($_SESSION[CONTROLLER][METHOD]['in_search_mod']);
-			unset($_SESSION[CONTROLLER][METHOD]['keyword']);
 		}
 		
 	}

@@ -3,20 +3,22 @@ class Project extends SS_controller{
 	
 	var $form_validation_rules=array();
 	
-	var $list_args=array(
-		'time_contract'=>array(
-			'heading'=>array('data'=>'案号','width'=>'140px'),
-			'cell'=>array('data'=>'{num}','title'=>'立案时间：{time_contract}')
-		),
-		'name'=>array('heading'=>'案名','cell'=>'{name}'),
-		'labels'=>array('heading'=>'标签')
-	);
+	var $list_args;
 	
 	function __construct(){
 		parent::__construct();
 	}
 	
 	function index(){
+		
+		$this->list_args=array(
+			'time_contract'=>array(
+				'heading'=>array('data'=>'案号','width'=>'140px'),
+				'cell'=>array('data'=>'{num}','title'=>'立案时间：{time_contract}')
+			),
+			'name'=>array('heading'=>'案名','cell'=>'{name}'),
+			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->project,'getCompiledLabels'),'args'=>array('{id}')))
+		);
 		
 		//点击了取消搜索按钮，则清空session中的搜索项
 		if($this->input->post('submit')=='search_cancel'){

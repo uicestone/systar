@@ -12,13 +12,15 @@
 			</tr>
 			<tr>
 				<td>
-					<select name="team"><?=options($this->team->getArray(array('type'=>'年级'),'name','id'),option('search/team'))?></select>
+					<select name="team[]" multiple="multiple" data-placeholder="组">
+						<?=options($this->team->getArray(array('limit'=>false,'people_type'=>option('search/type')),'name','id'),option('search/team'),NULL,true)?>
+					</select>
 				</td>
 			</tr>
 			<tr>
 				<td class="submit">
 					<button type="submit" name="search" tabindex="0">搜索</button>
-					<button type="submit" name="search_cancel" tabindex="1"<?if(is_null(option('search/name')) && !option('search/labels')){?> class="hidden"<?}?>>取消</button>
+					<button type="submit" name="search_cancel" tabindex="1"<?if(is_null(option('search/name')) && !option('search/labels') && !option('search/team')){?> class="hidden"<?}?>>取消</button>
 				</td>
 			</tr>
 		</tbody>

@@ -148,8 +148,7 @@ class People_model extends BaseItem_model{
 	 */
 	function getList($args=array()){
 		$this->db->select('
-			people.id,people.name,IF(people.abbreviation IS NULL,people.name,people.abbreviation) AS abbreviation,people.phone,people.email,
-			people_labels.labels
+			people.id,people.name,IF(people.abbreviation IS NULL,people.name,people.abbreviation) AS abbreviation,people.phone,people.email
 		',false);
 
 		if(isset($args['name']) && $args['name']!==''){
@@ -174,16 +173,16 @@ class People_model extends BaseItem_model{
 		}
 		
 		//根据people_team关系来查找
-		if(isset($args['team'])){
+		if(isset($args['team']) && $args['team']){
 			if(is_array($args['team'])){
 				$teams=implode(',',$args['team']);
-				$this->db->where(" AND people.id IN (SELECT people FROM team WHERE team IN ($teams))",NULL,false);
+				$this->db->where("people.id IN (SELECT people FROM team_people WHERE team IN ($teams))",NULL,false);
 			}else{
 				$team=intval($args['team']);
 				
-				$this->db->where(" AND 
+				$this->db->where("
 					people.id IN (
-						SELECT people FROM team WHERE 
+						SELECT people FROM team_people WHERE 
 							team = $team OR team IN (
 								SELECT team FROM team_relationship WHERE relative = $team
 							)

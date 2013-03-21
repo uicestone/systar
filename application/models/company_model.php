@@ -16,15 +16,14 @@ class Company_model extends BaseItem_model{
 	}
 
 	function recognize($host_name){
-		$query="
-			SELECT id,name,type,syscode,sysname,ucenter,default_controller
-			FROM company 
-			WHERE host='$host_name' OR syscode='$host_name'";
-		
-		$row_array=$this->db->query($query)->row_array();
+		$this->db->select('id,name,type,syscode,sysname,ucenter,default_controller')
+			->from('company')
+			->or_where(array('host'=>$host_name,'syscode'=>$host_name));
+
+		$row_array=$this->db->get()->row_array();
 		
 		if(!$row_array){
-			show_error('不存在此域名对应的公司');
+			show_error("We're sorry but no company called $host_name here.");
 		}
 		
 		foreach($row_array as $key => $value){
