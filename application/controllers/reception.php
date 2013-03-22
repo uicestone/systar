@@ -5,7 +5,6 @@
  */
 class Reception extends SS_Controller{
 	function __construct() {
-		$this->require_permission_check=false;
 		parent::__construct();
 	}
 	

@@ -11,7 +11,6 @@ class People extends SS_Controller{
 	var $list_args;
 		
 	function __construct() {
-		$this->require_permission_check=false;
 		parent::__construct();
 		
 		$this->load->model('team_model', 'team');

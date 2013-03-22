@@ -2,7 +2,6 @@
 class user extends SS_controller{
 	
 	function __construct(){
-		$this->require_permission_check=false;
 		parent::__construct();
 		
 		$this->load->model('people_model','people');
@@ -51,12 +50,8 @@ class user extends SS_controller{
 			if($user){
 
 				$this->session->set_userdata('user/id', $user['id']);
-				$this->session->set_userdata('user/name', $user['name']);
 
-				$user['group']=explode(',',$user['group']);
-				$this->session->set_userdata('user/group', $user['group']);
-
-				$this->user->__construct();
+				$this->user->__construct($user['id']);
 
 				foreach($this->user->group as $group){
 					$company_type=$this->company->type;

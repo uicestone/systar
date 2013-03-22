@@ -3,11 +3,6 @@ class SS_Controller extends CI_Controller{
 	
 	var $default_method='index';
 
-	/**
-	 * 当前控制器是否需要检查权限，只能在控制器构造函数中，父构造函数调用之前使用——因为现在的权限校验是放在大控制器的构造函数里的
-	 */
-	var $require_permission_check=true;
-	
 	var $company_type_model_loaded=false;
 	var $company_model_loaded=false;
 	
@@ -28,7 +23,7 @@ class SS_Controller extends CI_Controller{
 		define('CONTROLLER',$class);
 		define('METHOD',$method);
 		
-		CONTROLLER !=='frame' && $this->output->enable_profiler(TRUE);
+		//CONTROLLER !=='frame' && $this->output->enable_profiler(TRUE);
 
 		/*
 		 * 自动载入的资源，没有使用autoload.php是因为后者载入以后不能起简称...
@@ -54,17 +49,8 @@ class SS_Controller extends CI_Controller{
 		/*
 		 * 弹出未登录用户
 		 */
-		if($this->require_permission_check && !$this->user->isLogged()){
+		if(!$this->user->isLogged()){
 			$this->output->status='login_required';
-			$this->_output();
-			exit;
-		}
-		
-		/*
-		 * 屏蔽无权限用户
-		 */
-		if($this->require_permission_check && !$this->user->isPermitted($class)){
-			$this->output->status='denied';
 			$this->_output();
 			exit;
 		}

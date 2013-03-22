@@ -2,17 +2,8 @@
 class User_model extends People_model{
 	
 	var $name;
-	var $group=array();
-	var $permission=array();
-	
-	var $child;
-	var $manage_class;
-	var $teacher_group;
-	var $course;
-	var $class;
-	var $class_name;
-	var $grade;
-	var $grade_name;
+	var $teams;
+	var $group;
 	
 	static $fields=array(
 		'name'=>'用户名',
@@ -25,23 +16,28 @@ class User_model extends People_model{
 		parent::__construct();
 		$this->table='user';
 		
+		$this->load->model('team_model','team');
+		
+		if(is_null($uid)){
+			$uid=$this->session->userdata('user/id');
+		}
+		
 		if($uid){
 			$user=$this->fetch($uid);
-			$this->session->set_userdata('user/id', $user['id']);
-			$this->session->set_userdata('user/name', $user['name']);
-
-			$user['group']=explode(',',$user['group']);
-			$this->session->set_userdata('user/group', $user['group']);
+			$this->name=$user['name'];
+			$this->group=explode(',',$user['group']);
 		}
 		
 		$session=$this->session->all_userdata();
+		
+		$this->teams=$this->team->traceByPeople($this->id);
+
 		foreach($session as $key => $value){
 			if(preg_match('/^user\/(.*?)$/', $key,$matches)){
 				$this->$matches[1]=$value;
 			}
 		}
 
-		$this->preparePermission();
 	}
 	
 	function add($data=array()){
@@ -159,9 +155,6 @@ class User_model extends People_model{
 		
 		if($user=$this->db->query($q_user)->row_array()){
 			$this->session->set_userdata('user/id', $user['id']);
-			$this->session->set_userdata('user/group', explode(',',$user['group']));
-			$this->session->set_userdata('user/name', $user['username']);
-			$this->session->set_userdata('user/position', $user['position']);
 			return true;
 		}
 		return false;
@@ -198,64 +191,57 @@ class User_model extends People_model{
 		return true;
 	}
 
-	/**
-	 * 根据当前用户组，将数据库中controller,permission两表中的用户权限读入$this->user->permission
-	 */
-	function preparePermission(){
+	function generateNav(){
 		
-		$this->db->select("
-			controller.name AS controller,
-			IF(permission.ui_name<>'', permission.ui_name, controller.ui_name) AS controller_name,
-			IF(permission.discription IS NOT NULL, permission.discription, controller.discription) AS discription,
-			controller.add_action,
-			permission.controller, permission.method, permission.display_in_nav AS display
-		",false)
-			->from('controller')
-			->join('permission', "controller.name = permission.controller", 'LEFT')
-			->where(array('permission.company'=>$this->company->id,'controller.is_on'=>true));
-
-		if($this->group){
-			$this->db->where("(".db_implode($this->group, $glue = ' OR ','permission.group').")",NULL,false);
-		}else{
-			$this->db->where('FALSE',NULL,false);
+		$query="
+			SELECT * FROM (
+				SELECT * FROM nav
+				WHERE (company_type is null or company_type = '{$this->company->type}')
+					AND (company ={$this->company->id} OR company IS NULL)
+					AND (team IS NULL ".($this->teams?"OR team IN (".implode(',',$this->teams).")":'').")
+				ORDER BY company_type DESC,company DESC,team DESC
+			)nav_ordered
+			GROUP BY href
+			ORDER BY parent,`order`
+		";
+					
+		$result=$this->db->query($query);
+		
+		$nav=array();
+		
+		foreach($result->result() as $row){
+			if(is_null($row->parent)){
+				$nav[0][]=$row;
+			}else{
+				$nav[$row->parent][]=$row;
+			}
 		}
 		
-		$this->db->group_by('permission.controller,permission.method')
-			->order_by('controller.order, permission.order');
+		function generate($nav,$parent=0,$level=0){
+		
+			$out='<ul level="'.$level.'">';
+
+			foreach($nav[$parent] as $nav_item){
+				$out.='<li href="'.$nav_item->href.'">';
+				if(isset($nav[$nav_item->id])){
+					$out.='<span class="arrow"><img src="images/arrow_r.png" alt=">" /></span>';
+				}
+				$out.='<a href="'.$nav_item->href.'" '.(isset($nav[$nav_item->id])?'':'class="dink"').'>'.$nav_item->name.'</a>';
+				if($nav_item->add_href){
+					$out.='<a href="'.$nav_item->add_href.'"><span style="font-size:12px;color:#CEDDEC">+</span></a>';
+				}
+				if(isset($nav[$nav_item->id])){
+					$out.=generate($nav,$nav_item->id,$level+1);
+				}
+				$out.='</li>';
+
+			}
+			$out.='</ul>';
 				
-		$result_array=$this->db->get()->result_array();
-
-		$permission=array();
-		foreach($result_array as $a){
-			if(!isset($permission[$a['controller']])){
-				$permission[$a['controller']]=array();
-			}
-			if($a['method']==''){
-				//一级菜单
-				$permission[$a['controller']]
-				=array_replace_recursive($permission[$a['controller']],array('_controller_name'=>$a['controller_name'],'_add_action'=>$a['add_action'],'_display'=>$a['display']));
-			}else{
-				//二级菜单
-				$permission[$a['controller']][$a['method']]=array('_controller_name'=>$a['controller_name'],'_display'=>$a['display']);
-			}
+			return $out;
 		}
-		$this->permission=$permission;
-	}
-
-	/**
-	 * 根据已保存的$_SESSION['permission']判断权限
-	 * $action未定义时，只验证是否具有访问当前controller的权限
-	 */
-	function isPermitted($controller,$action=NULL){
-		if(isset($this->permission[$controller])){
-			if(is_null($action)){
-				return true;
-			}else{
-				return isset($this->permission[$controller][$action])?true:false;
-			}
-		}else{
-			return false;
-		}
+		
+		return generate($nav);
 	}
 
 	/**

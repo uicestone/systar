@@ -10,9 +10,8 @@ $(window).on('hashchange',function(){
 	tabs.children('[for!="'+hash+'"]').removeClass('activated');
 	
 	nav.find('li').removeClass('activated');
-	nav.find('li#nav-'+uriSegments[0]).addClass('activated');
+	nav.find('li[href="#'+hash+'"]').addClass('activated').parent('ul').show().parents('li').addClass('activated').children('.arrow').children('img').rotate(90);
 	/*默认展开当前二级导航所在的子导航*/
-	nav.find('li#nav-'+uriSegments[0]+'-'+uriSegments[1]).addClass('activated').parent('ul').show();
 
 	/*
 	 *根据当前hash，显示对应标签页面，隐藏其他页面。
@@ -102,7 +101,7 @@ $(document)
 	/*将点击事件绑定在li上，从而整个菜单都可以响应点击*/
 	nav.find('li').click(function(event){
 		event.stopPropagation();
-		$.locationHash($(this).children('a').attr('href').substr(1));
+		window.location.href=$(this).attr('href');
 		$(this).children('ul:hidden').show();
 		$(this).children('.arrow').children('img').rotate({animateTo:90,duration:200});
 
