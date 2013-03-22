@@ -30,6 +30,18 @@ class Schedule_model extends BaseItem_model{
 		return $schedule;
 	}
 	
+	function getList($args=array()){
+		if(isset($args['project'])){
+			$this->db->where('case',$args['project']);
+		}
+		
+		if(isset($args['completed'])){
+			$this->db->where('completed',$args['completed']);
+		}
+		
+		return parent::getList($args);
+	}
+	
 	/**
 	 * 插入一条日程，返回插入的id
 	 */

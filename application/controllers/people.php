@@ -115,9 +115,9 @@ class People extends SS_Controller{
 	 * @TODO存在无法后退，容易造成数据库垃圾的问题
 	 */
 	function add(){
-		$this->people->id=$this->client->add();
-		$this->output->status='redirect';
-		$this->output->data=$controller.'/edit/'.$this->people->id;
+		$this->people->id=$this->people->add();
+		$this->edit($this->people->id);
+		redirect('#'.CONTROLLER.'/edit/'.$this->people->id);
 	}
 	
 	/**

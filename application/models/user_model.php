@@ -24,8 +24,11 @@ class User_model extends People_model{
 		
 		if($uid){
 			$user=$this->fetch($uid);
+			$this->id=$user['id'];
 			$this->name=$user['name'];
 			$this->group=explode(',',$user['group']);
+		}else{
+			$this->id=0;
 		}
 		
 		$session=$this->session->all_userdata();
@@ -228,7 +231,7 @@ class User_model extends People_model{
 				}
 				$out.='<a href="'.$nav_item->href.'" '.(isset($nav[$nav_item->id])?'':'class="dink"').'>'.$nav_item->name.'</a>';
 				if($nav_item->add_href){
-					$out.='<a href="'.$nav_item->add_href.'"><span style="font-size:12px;color:#CEDDEC">+</span></a>';
+					$out.='<a href="'.$nav_item->add_href.'" class="add"> <span style="font-size:12px;color:#CEDDEC">+</span></a>';
 				}
 				if(isset($nav[$nav_item->id])){
 					$out.=generate($nav,$nav_item->id,$level+1);

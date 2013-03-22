@@ -43,8 +43,8 @@ $(window).on('hashchange',function(){
 					$('<section hash="'+hash+'" time-access="'+$.now()+'"></section>').appendTo(page).trigger('sectioncreate');
 					$('<section for="'+hash+'"></section>').appendTo(aside).trigger('sidebarcreate');
 					/*如果请求的hash在导航菜单中不存在，则生成标签选项卡*/
-					if(nav.find('a[href="#'+hash+'"]').length===0 && response.data.name){
-						tabs.append('<li for="'+hash+'" class="activated"><a href="#'+hash+'">'+response.data.name.content+'</a></li>');
+					if(nav.find('a[href="#'+hash+'"]').length===0 && response.section_title){
+						tabs.append('<li for="'+hash+'" class="activated"><a href="#'+hash+'">'+response.section_title+'</a></li>');
 					}
 				}
 

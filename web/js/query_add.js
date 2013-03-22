@@ -4,7 +4,7 @@ $(function(){
 		/*有自动完成结果且已选择*/
 		$(this).find('[name="client[id]"]').val(data.value).trigger('change');
 
-		$(this).closest('.contentTable').find('[display-for~="new"]').trigger('disable');
+		$(this).closest('.contentTableBox').find('[display-for~="new"]').trigger('disable');
 	})
 	.on('autocompleteresponse',function(){
 		/*自动完成响应*/

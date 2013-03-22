@@ -9,33 +9,30 @@ class Project extends SS_controller{
 	
 	function __construct(){
 		parent::__construct();
+		
+		$controller=CONTROLLER;
+		
+		$this->list_args=array(
+			'name'=>array('heading'=>'案名','cell'=>'{name}'),
+			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->$controller,'getCompiledLabels'),'args'=>array('{id}')))
+			/*
+			 * 此处被迫使用了$this->$controller来调用被继承后的model。
+			 * 因为Project::__construct()时，Cases::__construct()尚未运行，
+			 * $this->project=$this->cases也尚未运行，因此$this->project未定义
+			 */
+		);
 	}
 	
 	function index(){
 		
-		$this->list_args=array(
-			'time_contract'=>array(
-				'heading'=>array('data'=>'案号','width'=>'140px'),
-				'cell'=>array('data'=>'{num}','title'=>'立案时间：{time_contract}')
-			),
-			'name'=>array('heading'=>'案名','cell'=>'{name}'),
-			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->project,'getCompiledLabels'),'args'=>array('{id}')))
-		);
-		
-		//点击了取消搜索按钮，则清空session中的搜索项
-		if($this->input->post('submit')=='search_cancel'){
-			option('search/labels',array());
-			option('search/name',NULL);
-		}
-		
-		//提交了搜索项，但搜索项中没有labels项，我们将session中搜索项的labels项清空
-		if($this->input->post('submit')==='search' && $this->input->post('search/labels')===false){
-			option('search/labels',array());
-		}
 		
 		//监测有效的名称选项
-		if($this->input->post('name')!==false && $this->input->post('name')!==''){
+		if($this->input->post('name')!==false){
 			option('search/name',$this->input->post('name'));
+		}
+		
+		if($this->input->post('name')===''){
+			option('search/name',NULL);
 		}
 		
 		if(is_array($this->input->post('labels'))){
@@ -45,6 +42,17 @@ class Project extends SS_controller{
 			}
 			
 			option('search/labels',$this->input->post('labels')+option('search/labels'));
+		}
+		
+		//点击了取消搜索按钮，则清空session中的搜索项
+		if($this->input->post('submit')=='search_cancel'){
+			option('search/labels',array());
+			option('search/name',NULL);
+		}
+		
+		//提交了搜索项，但搜索项中没有labels项，我们将session中搜索项的labels项清空
+		if($this->input->post('submit')==='search' && $this->input->post('labels')===false){
+			option('search/labels',array());
 		}
 		
 		$table=$this->table->setFields($this->list_args)
@@ -59,8 +67,8 @@ class Project extends SS_controller{
 	
 	function add(){
 		$this->project->id=$this->project->add();
-		$this->project->addLabel($this->project->id, '等待立案审核');
 		$this->edit($this->project->id);
+		redirect('#'.CONTROLLER.'/edit/'.$this->people->id);
 	}
 	
 	/**
@@ -149,7 +157,7 @@ class Project extends SS_controller{
 			);
 			$list=$this->table->setFields($fields)
 					->setAttribute('name',$item)
-					->generate($this->project->getScheduleList($this->project->id));
+					->generate($this->schedule->getList(array('limit'=>10,'project'=>$this->project->id,'completed'=>true)));
 		}
 		elseif($item=='plan'){
 			$fields=array(
@@ -161,7 +169,7 @@ class Project extends SS_controller{
 			);
 			$list=$this->table->setFields($fields)
 					->setAttribute('name',$item)
-					->generate($this->project->getPlanList($this->project->id));
+					->generate($this->schedule->getList(array('limit'=>10,'project'=>$this->project->id,'completed'=>false)));
 		}
 		elseif($item=='document'){
 			$this->load->model('document_model','document');
@@ -216,7 +224,7 @@ class Project extends SS_controller{
 			if(!$project['name']){
 				$this->section_title='未命名案件';
 			}else{
-				$this->output->setData($project['name'], 'name');
+				$this->section_title=$project['name'];
 			}
 
 			$project_role=$this->project->getRoles($this->project->id);
@@ -754,7 +762,7 @@ class Project extends SS_controller{
 				}
 
 				$data=array(
-					'num'=>$this->project->getNum($this->project->id, $labels['分类'], $labels['领域'], $project['is_query'], $project['first_contact'], $project['time_contract']),
+					'num'=>$this->project->getNum($this->project->id, $labels['分类'], $labels['领域'], in_array('咨询', $labels), $project['first_contact'], $project['time_contract']),
 				);
 				
 				$labels[]='类型已锁定';

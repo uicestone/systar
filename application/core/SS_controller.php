@@ -48,15 +48,6 @@ class SS_Controller extends CI_Controller{
 			$this->company_model_loaded=true;
 		}
 	
-		/*
-		 * 弹出未登录用户
-		 */
-		if(!$this->user->isLogged()){
-			$this->output->status='login_required';
-			$this->_output();
-			exit;
-		}
-		
 	}
 	
 	/**
@@ -101,7 +92,8 @@ class SS_Controller extends CI_Controller{
 		$output_array=array(
 			'status'=>$this->output->status,
 			'message'=>$this->output->message,
-			'data'=>$this->output->data
+			'data'=>$this->output->data,
+			'section_title'=>$this->section_title
 		);
 		
 		echo json_encode($output_array);

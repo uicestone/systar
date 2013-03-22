@@ -53,8 +53,8 @@ class Account extends SS_controller{
 		}
 
 		$this->account->id=$this->account->add($data);
-		$this->output->status='redirect';
-		$this->output->data='account/edit/'.$this->account->id;
+		$this->edit($this->account->id);
+		redirect('#'.CONTROLLER.'/edit/'.$this->account->id);
 	}
 
 	function edit($id){

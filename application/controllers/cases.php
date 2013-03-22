@@ -23,6 +23,12 @@ class Cases extends Project{
 	
 	}
 	
+	function add(){
+		$this->cases->id=$this->cases->add(array('time_contract'=>$this->date->today,'time_end'=>date('Y-m-d',$this->date->now+100*86400)));
+		$this->edit($this->project->id);
+		redirect('#'.CONTROLLER.'/edit/'.$this->cases->id);
+	}
+	
 	function host(){
 		$this->section_title='主办案件';
 		option('search/role','主办律师');

@@ -39,9 +39,9 @@ class Query extends Project{
 	}
 
 	function add(){
-		$this->query->id=$this->query->add(array('is_query'=>true));
-		$this->output->status='redirect';
-		$this->output->data='query/edit/'.$this->query->id;
+		$this->query->id=$this->query->add(array('first_contact'=>$this->date->today));
+		$this->edit($this->query->id);
+		redirect('#'.CONTROLLER.'/edit/'.$this->query->id);
 	}
 
 	function edit($id){
@@ -193,7 +193,7 @@ class Query extends Project{
 				post('staffs',array());
 				foreach($related_staff as $role=>$staff){
 					if(!in_array($staff,post('staffs'))){
-						$this->query->addStaff($this->query->id,$staff,$role);
+						$this->query->addPeople($this->query->id,$staff,'律师',$role);
 						post('staffs',post('staffs')+array($staff));
 					}
 				}

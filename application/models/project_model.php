@@ -36,7 +36,7 @@ class Project_model extends BaseItem_model{
 		$data=array_intersect_key($data, self::$fields);
 		
 	    $data+=uidTime(true,true);
-	
+		
 	    $this->db->insert('case',$data);
 		return $this->db->insert_id();
 	}
@@ -45,6 +45,8 @@ class Project_model extends BaseItem_model{
 		$id=intval($id);
 	    $data=array_intersect_key((array)$data,self::$fields);
 		
+		$data['display']=true;
+
 		$data+=uidTime();
 	    
 		return $this->db->update('case',$data,array('id'=>$id));
@@ -238,7 +240,7 @@ class Project_model extends BaseItem_model{
 		}
 		
 		if(isset($args['name'])){
-			$this->db->where('case.name',$args['name']);
+			$this->db->like('case.name',$args['name']);
 		}
 		
 		return parent::getList($args);

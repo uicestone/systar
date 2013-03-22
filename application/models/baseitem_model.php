@@ -113,12 +113,17 @@ class BaseItem_model extends SS_Model{
 			$this->db->order_by($args['orderby']);
 		}
 		
-		if(!isset($args['limit']) || $args['limit']!==false){
+		if(!isset($args['limit'])){
 			$args['limit']=$this->limit($num_rows);
 		}
 		
-		if($args['limit']){
-			call_user_func_array(array($this->db,'limit'), $args['limit']);
+		if($args['limit']!==false){
+			if(is_array($args['limit'])){
+				call_user_func_array(array($this->db,'limit'), $args['limit']);
+			}else{
+				call_user_func(array($this->db,'limit'), $args['limit']);
+			}
+			
 		}
 		
 		return $this->db->get()->result_array();
