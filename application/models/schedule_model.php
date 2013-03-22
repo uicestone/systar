@@ -31,12 +31,20 @@ class Schedule_model extends BaseItem_model{
 	}
 	
 	function getList($args=array()){
+		
+		$this->db->select('schedule.*,case.name AS project_name')
+			->join('case',"case.id = schedule.case",'INNER');
+		
 		if(isset($args['project'])){
-			$this->db->where('case',$args['project']);
+			$this->db->where('schedule.case',$args['project']);
+		}
+		
+		if(isset($args['name'])){
+			$this->db->like('schedule.name',$args['name']);
 		}
 		
 		if(isset($args['completed'])){
-			$this->db->where('completed',$args['completed']);
+			$this->db->where('schedule.completed',$args['completed']);
 		}
 		
 		return parent::getList($args);

@@ -44,6 +44,10 @@ class Project extends SS_controller{
 			option('search/labels',$this->input->post('labels')+option('search/labels'));
 		}
 		
+		if(is_null(option('search/people'))){
+			option('search/people',$this->user->id);
+		}
+		
 		//点击了取消搜索按钮，则清空session中的搜索项
 		if($this->input->post('submit')=='search_cancel'){
 			option('search/labels',array());
@@ -320,7 +324,6 @@ class Project extends SS_controller{
 					$this->output->message('请填写案件争议焦点','warning');
 					throw new Exception;
 				}
-				
 				$this->project->update($this->project->id,post('project'));
 				$this->project->updateLabels($this->project->id,post('labels'));
 				
@@ -787,7 +790,7 @@ class Project extends SS_controller{
 
 		$term=$this->input->post('term');
 
-		$result=$this->project->getListByPeople($this->user->id);//只匹配到当前用户参与的案件
+		$result=$this->project->getList(array('people'=>$this->user->id));//只匹配到当前用户参与的案件
 
 		$array=array();
 

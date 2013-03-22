@@ -225,14 +225,20 @@ class BaseItem_model extends SS_Model{
 		}
 		
 		foreach($labels as $type => $name){
+			
+			if(is_integer($type)){
+				continue;
+				//如果是整数键名，那么跳过循环
+			}
+			
 			$label_id=$this->label->match($name);
 			$set=array('label'=>$label_id,'label_name'=>$name);
 			$where=array($this->table=>$item_id,'type'=>$type);
 			$result=$this->db->get_where($this->table.'_label',$where);
 			if($result->num_rows()===0){
-				return $this->db->insert($this->table.'_label',$set+$where);
+				$this->db->insert($this->table.'_label',$set+$where);
 			}else{
-				return $this->db->update($this->table.'_label',$set,$where);
+				$this->db->update($this->table.'_label',$set,$where);
 			}
 		}
 	}

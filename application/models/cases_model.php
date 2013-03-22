@@ -8,7 +8,7 @@ class Cases_model extends Project_model{
 	function add($data=array()){
 		$this->id=parent::add($data);
 		$this->addLabel($this->id, '等待立案审核');
-		$this->addLabel($thsi->id, '案件');
+		$this->addLabel($this->id, '案件');
 		return $this->id;
 	}
 	

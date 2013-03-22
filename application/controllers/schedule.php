@@ -3,11 +3,30 @@ class Schedule extends SS_controller{
 	
 	var $section_title='日程';
 	
+	var $list_args;
+	
 	function __construct(){
 		$this->default_method='calendar';
+		
 		parent::__construct();
+		
 		$this->load->model('cases_model','cases');
 		$this->load->model('client_model','client');
+		
+		$this->list_args=array(
+			'name'=>array('heading'=>'标题'),
+			'time'=>array('heading'=>'时间','parser'=>array('function'=>function($time_start){
+				return date('Y-m-d H:i',$time_start);
+			},'args'=>array('{time_start}'))),
+			'hours'=>array('heading'=>'时长','parser'=>array('function'=>function($hours_own,$hours_checked){
+				if($hours_checked!==''){
+					return $hours_checked;
+				}else{
+					return $hours_own;
+				}
+			},'args'=>array('{hours_own}','{hours_checked}'))),
+			'project'=>array('heading'=>'事项','cell'=>'{project_name}')
+		);
 	}
 	
 	function calendar(){
@@ -26,71 +45,34 @@ class Schedule extends SS_controller{
 	}
 	
 	function mine(){
-		$this->lists('mine');
+		$this->lists();
 	}
 	
 	function plan(){
-		$this->lists('plan');
+		option('completed',false);
+		$this->lists();
 	}
 	
-	function lists($method=NULL){
+	function lists(){
 		
 		if($this->input->get('case')){
 			$this->section_title='日程 - '.$this->cases->fetch($this->input->get('case'),'name');
 		}
 		
-
-		if($this->input->post('review_selected') && $this->user->isLogged('partner')){
-			//在列表中批量审核所选日志
-			$this->schedule->review($this->input->post('schedule_check'));
+		//监测有效的名称选项
+		if($this->input->post('name')!==false){
+			option('search/name',$this->input->post('name'));
 		}
-		$field=array(
-			'case.id'=>array('heading'=>'案件','cell'=>'{case_name}<p style="font-size:11px;text-align:right;"><a href="#schedule/lists?case={case}">本案日志</a> <a href="#cases/edit/{case}">案件</a></p>'),
 		
-			'staff_name'=>array('heading'=>array('data'=>'人员','width'=>'60px'),'cell'=>'<a href="#schedule/list?staff={staff}">{staff_name}</a>'),
+		if($this->input->post('name')===''){
+			option('search/name',NULL);
+		}
 		
-			'name'=>array('heading'=>'标题','eval'=>true,'cell'=>"
-				return '<a href=\"javascript:showWindow(\'schedule/edit/{id}\')\" title=\"{name}\">'.str_getSummary('{name}').'</a>';
-			"),
+		//点击了取消搜索按钮，则清空session中的搜索项
+		if($this->input->post('submit')=='search_cancel'){
+			option('search/name',NULL);
+		}
 		
-			'content'=>array('heading'=>'内容','eval'=>true,'cell'=>"
-				return '<div title=\"{content}\">'.str_getSummary('{content}').'&nbsp;'.'</div>';
-			"),
-		
-			'schedule_experience'=>array('heading'=>'心得','eval'=>true,'cell'=>"
-				return ({review_permission}||\$this->user->id=='{staff}')?'<div title=\"{experience}\">'.str_getSummary('{experience}').'&nbsp;'.'</div>':'-';
-			"),
-		
-			'time_start'=>array('heading'=>array('data'=>'时间','width'=>'60px'),'eval'=>true,'cell'=>"
-				return date('m-d H:i',{time_start});
-			"),
-		
-			'hours_own'=>array('heading'=>array('data'=>'时长','width'=>'55px'),'eval'=>true,'cell'=>"
-				if('{hours_checked}'==''){
-					return '<span class=\"hours_own'.({review_permission}?' editable':'').'\" id={id} name=\"hours\" title=\"自报：{hours_own}\">{hours_own}</span>';
-				}else{
-					return '<span class=\"hours_checked'.({review_permission}?' editable':'').'\" id={id} name=\"hours\" title=\"自报：{hours_own}\">{hours_checked}</span>';
-				}
-			"),
-		
-			'comment'=>array('heading'=>'评语','eval'=>true,'cell'=>"
-				if({review_permission}){
-					return '<textarea name=\"schedule_list_comment[{id}]\" style=\"width:95%;height:70%\">{comment}</textarea>';
-				}else{
-					if(\$this->user->id=='{staff}'){
-						return '<div title=\"{comment}\">'.str_getSummary('{comment}').'&nbsp;'.'</div>';
-					}else{
-						return '-';
-					}
-				}
-				
-			")
-		);
-		
-		if($method=='mine'){
-			unset($field['staff_name']);
-		}		
-
 		if($this->input->get('export')=='excel'){
 			$this->output->as_ajax=false;
 			
@@ -103,43 +85,25 @@ class Schedule extends SS_controller{
 			);
 			
 			$this->table->setFields($field)
-				->setData($this->schedule->getList($method))
+				->setData($this->schedule->getList(option('search')))
 				->generateExcel();
 		}else{
-			$tableView=
+			$table=
 				$this->table
-					->setFields($field)
-					->setData($this->schedule->getList($method))
+					->setFields($this->list_args)
+					->setData($this->schedule->getList(option('search')))
 					->generate();
-			$this->load->addViewData('list',$tableView);
+			$this->load->addViewData('list',$table);
 			$this->load->view('schedule/list');
+			$this->load->view('schedule/list_sidebar',true,'sidebar');
 		}		
 	}
 
-	function listWrite(){
-		if($this->input->post('schedule_list_comment')){
-			foreach($this->input->post('schedule_list_comment') as $id => $comment){
-				$schedule_list_comment_return=$this->schedule->setComment($id,$comment);
-				
-				echo $schedule_list_comment_return['comment'];
-				
-				$this->user->sendMessage($schedule_list_comment_return['uid'],
-		
-				$schedule_list_comment_return['comment'].'（日志：'.$schedule_list_comment_return['name'].'收到的点评）',
-				'你的日志："'.$schedule_list_comment_return['name'].'"收到点评');
-			}
-		}
-		
-		if($this->input->post('schedule_list_hours_checked') || $this->input->post('schedule_list_hours_checked')){
-			foreach($this->input->post('schedule_list_hours_checked') as $id => $hours_checked){
-				echo $this->schedule->check_hours($id,$hours_checked);
-			}
-		}
-	}
-	
 	function outPlan(){
 		
-		$field=Array(
+		option('search/profiles',array('外出地点'));
+		
+		$field=array(
 			'staff_name'=>array('heading'=>array('data'=>'人员','width'=>'60px'),'cell'=>'<a href="#schedule/lists?staff={staff}"> {staff_name}</a>'),
 		
 			'time_start'=>array('heading'=>array('data'=>'时间','width'=>'60px'),'eval'=>true,'cell'=>"

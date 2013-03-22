@@ -228,10 +228,16 @@ class Project_model extends BaseItem_model{
 		$this->db->select("
 			case.id,case.name,case.num,case.time_contract
 		",false);
+		
+		if(isset($args['people'])){
+			$this->db->where("
+				case.id IN (SELECT `case` FROM case_people WHERE people = {$args['people']})
+			",NULL,false);
+		}
 
 		if(isset($args['role'])){
 			$this->db->where("
-				case.id IN (SELECT `case` FROM case_people WHERE people={$this->user->id} AND role='{$args['role']}')
+				case.id IN (SELECT `case` FROM case_people WHERE people = {$this->user->id} AND role = '{$args['role']}')
 			",NULL,false);
 		}
 		

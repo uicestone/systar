@@ -93,7 +93,8 @@ class SS_Controller extends CI_Controller{
 			'status'=>$this->output->status,
 			'message'=>$this->output->message,
 			'data'=>$this->output->data,
-			'section_title'=>$this->section_title
+			'section_title'=>$this->section_title,
+			'db'=>$this->db->queries
 		);
 		
 		echo json_encode($output_array);
