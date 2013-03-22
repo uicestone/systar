@@ -25,6 +25,13 @@ class Document_model extends BaseItem_model{
 		return $this->db->query($query)->row_array();
 	}
 	
+	function getList($args=array()){
+		if(isset($args['name'])){
+			$this->db->like('document.name',$args['name']);
+		}
+		return parent::getList($args);
+	}
+	
 	function add(array $data=array()){
 		$document=array_intersect_key($data, self::$fields);
 		

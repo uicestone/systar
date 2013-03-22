@@ -241,3 +241,7 @@ ALTER TABLE `account_team`
 
 ALTER TABLE  `label` ADD  `color` VARCHAR( 255 ) NOT NULL DEFAULT  'not specified';
 -- uice 3/20
+
+ALTER TABLE  `account_label` ADD  `label_name` VARCHAR( 255 ) NOT NULL ,
+ADD INDEX (  `label_name` );
+-- uice 3/22

@@ -85,7 +85,7 @@ class People extends SS_Controller{
 		}
 		
 		//提交了搜索项，但搜索项中没有labels项，我们将session中搜索项的labels项清空
-		if($this->input->post('submit')==='search' && $this->input->post('search/labels')===false){
+		if($this->input->post('submit')==='search' && $this->input->post('labels')===false){
 			option('search/labels',array());
 		}
 		

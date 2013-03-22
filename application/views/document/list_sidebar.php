@@ -7,7 +7,7 @@
 			</tr>
 			<tr>
 				<td>
-					<select name="labels[]" data-placeholder="标签" multiple="multiple"><?=options($this->account->getAllLabels(),option('search/labels'))?></select>
+					<select name="labels[]" data-placeholder="标签" multiple="multiple"><?=options($this->document->getAllLabels(),option('search/labels'))?></select>
 				</td>
 			</tr>
 			<tr>
@@ -19,4 +19,3 @@
 		</tbody>
 	</table>
 </form>
-<?=$this->table->generate($account_sum)?>

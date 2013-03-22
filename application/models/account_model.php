@@ -16,6 +16,17 @@ class Account_model extends BaseItem_model{
 		parent::__construct();
 		$this->table='account';
 	}
+	
+	function getList($args=array()){
+		$this->db->select('account.*,people.name AS client_name');
+		$this->db->join('people',"people.id = account.people", 'LEFT');
+		
+		if(isset($args['name'])){
+			$this->db->like('account.name',$args['name']);
+		}
+		
+		return parent::getList($args);
+	}
 
 	function add(array $data=array()){
 		

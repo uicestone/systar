@@ -1,124 +1,63 @@
 <?php
 class Document extends SS_controller{
+	
+	var $list_args;
+	
+	var $section_title='文件';
+	
 	function __construct(){
 		parent::__construct();
+		
+		$controller=CONTROLLER;
+		
+		$this->list_args=array(
+			'name'=>array('heading'=>'文件名','cell'=>'<a href="/document/download/{id}">{name}</a>'),
+			'time_insert'=>array('heading'=>'上传时间','parser'=>array('function'=>function($time_insert){return date('Y-m-d H:i:s',$time_insert);},'args'=>array('{time_insert}'))),
+			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->$controller,'getCompiledLabels'),'args'=>array('{id}')))
+		);
 	}
 	
-	function office_document(){
-		$this->lists(869);
-	}
-	
-	function instrument(){
-		$this->lists(870);
-	}
-	
-	function contact_file(){
-		$this->lists(872);
-	}
-	
-	function rules(){
-		$this->lists(874);
-	}
-	
-	function contract(){
-		$this->lists(874);
-	}
-	
-	function view($folder_id){
-		$this->lists($folder_id);
-	}
-
-	function lists($folder_id=NULL){
-		if(isset($folder_id)){
-			option('in_search_mod',false);
-
-			$folder=$this->document->fetch($folder_id);
-
-			if($folder['type']!=''){
-				$this->download($folder['id']);
-				
-				return;
-			}else{
-				$_SESSION[CONTROLLER]['upID']=$folder['parent'];
-				$_SESSION[CONTROLLER]['currentDir']=$folder['name'];
-				$_SESSION[CONTROLLER]['currentDirID']=$folder['id'];
-				$_SESSION[CONTROLLER]['currentPath']=$folder['path'];
-			}
+	function index(){
+		
+		//监测有效的名称选项
+		if($this->input->post('name')!==false && $this->input->post('name')!==''){
+			option('search/name',$this->input->post('name'));
 		}
 		
-		if(!sessioned('currentPath',NULL,false))
-			$_SESSION['document']['currentPath']=$this->config->item('document_root');
+		if(is_array($this->input->post('labels'))){
+			
+			if(is_null(option('search/labels'))){
+				option('search/labels',array());
+			}
+			
+			option('search/labels',array_trim($this->input->post('labels'))+option('search/labels'));
+		}
 		
-		if(!sessioned('currentDir',NULL,false))
-			$_SESSION['document']['currentDir']='root';
-			
-		if(!sessioned('currentDirID',NULL,false))
-			$_SESSION['document']['currentDirID']=1;
-			
-		if(!sessioned('upID',NULL,false))
-			$_SESSION['document']['upID']='';
-		$field=option('in_search_mod')?
-			array(
-				'checkbox'=>array('heading'=>array('data'=>'','cell'=>'<input type="checkbox" name="document[{id}]" >','width'=>'38px')),
-				'type'=>array(
-					'heading'=>array('data'=>'类型','width'=>'70px'),
-					'eval'=>true,
-					'cell'=>"
-						if('{type}'==''){
-							\$image='folder';
-						}elseif(is_file('web/images/file_type/{type}.png')){
-							\$image='{type}';
-						}else{
-							\$image='unknown';
-						}
-						return '<img src=\"images/file_type/'.\$image.'.png\" alt=\"{type}\" />';
-					"
-				),
-				'name'=>array('heading'=>array('data'=>'文件名','width'=>'150px'),'wrap'=>array('mark'=>'a','href'=>'/document/view/{id}')),
-				'path'=>array('heading'=>'路径'),'comment'=>array('heading'=>'备注')
-			)
-			:
-			array(
-				'checkbox'=>array('heading'=>array('data'=>'','width'=>'38px'),'cell'=>'<input type="checkbox" name="document[{id}]" >'),
-				'type'=>array(
-					'heading'=>array('data'=>'类型','width'=>'55px'),
-					'eval'=>true,
-					'cell'=>"
-						if('{type}'==''){
-							\$image='folder';
-						}elseif(is_file('images/file_type/{type}.png')){
-							\$image='{type}';
-						}else{
-							\$image='unknown';
-						}
-						return '<img src=\"/images/file_type/'.\$image.'.png\" alt=\"{type}\" />';
-					"
-				),
-				'name'=>array('heading'=>array('data'=>'文件名','width'=>'150px'),'wrap'=>array('mark'=>'a','href'=>'/document/view/{id}')),
-				'username'=>array('heading'=>array('data'=>'上传者','width'=>'70px')),
-				'comment'=>array('heading'=>'备注')
-			);
-		$table=$this->table->setFields($field)
-			->setData($this->document->getList())
+		//点击了取消搜索按钮，则清空session中的搜索项
+		if($this->input->post('submit')==='search_cancel'){
+			option('search/labels',array());
+			option('search/name',NULL);
+		}
+		
+		//提交了搜索项，但搜索项中没有labels项，我们将session中搜索项的labels项清空
+		if($this->input->post('submit')==='search' && $this->input->post('labels')===false){
+			option('search/labels',array());
+		}
+		
+		$table=$this->table->setFields($this->list_args)
+			->setData($this->document->getList(option('search')))
 			->generate();
-		$this->load->addViewData('list',$table);
-		$this->load->view('list');
-	}
-
-	function createDir(){
-		$dirPath=iconv("utf-8","gbk",$_SESSION['document']['currentPath']."/".$this->input->post('dirName'));
-		mkdir($dirPath);
-		$dir=array(
-			'name'=>$this->input->post('dirName'),
-			'parent'=>$_SESSION['document']['currentDir'],
-			'level'=>$_SESSION['document']['currentLevel'],
-			'path'=>$_SESSION['document']['currentPath']."/".$this->input->post('dirName'),
-			'parent'=>$_SESSION['document']['currentDirID'],
-			'type'=>''
-		);
-		//db_insert('document',$dir);
 		
-		redirect('document');
+		$this->load->addViewData('list',$table);
+		
+		$this->load->view('list');
+		
+		if(file_exists(APPPATH.'/views/'.CONTROLLER.'/list_sidebar'.EXT)){
+			$this->load->view(CONTROLLER.'/list_sidebar',true,'sidebar');
+		}else{
+			$this->load->view('document/list_sidebar',true,'sidebar');
+		}
+
 	}
 
 	function download($id){
