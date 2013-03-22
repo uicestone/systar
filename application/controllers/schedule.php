@@ -1,6 +1,8 @@
 <?php
 class Schedule extends SS_controller{
 	
+	var $section_title='日程';
+	
 	function __construct(){
 		$this->default_method='calendar';
 		parent::__construct();
@@ -10,32 +12,13 @@ class Schedule extends SS_controller{
 	
 	function calendar(){
 		$this->load->model('achievement_model','achievement');
-		$this->load->model('news_model','news');
 		
-		$field_news=array(
-			'title'=>array(
-				'heading'=>'公告 <a href="#news" style="font-size:14px">更多</a>',
-				'cell'=>"
-					\$return='{title}';
-					if('{time}'>\$this->config->item('timestamp')-86400*7){
-						\$return.=' <img src=\"images/new.gif\" alt=\"new\" />';
-					}
-					return \$return;
-				",
-				'eval'=>true
-			),
-		);
-		
-		$table_news=$this->table->setFields($field_news)
-			->setRowAttributes(array('hash'=>'news/edit/{id}'))
-			->setData($this->news->getList(5))
-			->generate();
-		
-		$this->load->addViewData('table_news',$table_news);
-
 		$sidebar_function=$this->company->syscode.'_'.'schedule_side_table';
-		$sidebar_tables=$this->company->$sidebar_function();
-		$this->load->addViewData('sidebar_tables',$sidebar_tables);
+		
+		if(method_exists($this->company, $sidebar_function)){
+			$sidebar_tables=$this->company->$sidebar_function();
+			$this->load->addViewData('sidebar_tables',$sidebar_tables);
+		}
 		
 		$this->load->view('schedule/calendar');
 		
@@ -53,7 +36,7 @@ class Schedule extends SS_controller{
 	function lists($method=NULL){
 		
 		if($this->input->get('case')){
-			$this->output->setData('日程 - '.strip_tags($this->cases->fetch($this->input->get('case'),'name')),'name');
+			$this->section_title='日程 - '.$this->cases->fetch($this->input->get('case'),'name');
 		}
 		
 
@@ -64,7 +47,7 @@ class Schedule extends SS_controller{
 		$field=array(
 			'case.id'=>array('heading'=>'案件','cell'=>'{case_name}<p style="font-size:11px;text-align:right;"><a href="#schedule/lists?case={case}">本案日志</a> <a href="#cases/edit/{case}">案件</a></p>'),
 		
-			'staff_name'=>array('heading'=>array('data'=>'人员','width'=>'60px'),'cell'=>'<a href="#schedule/list?staff={staff}"> {staff_name}</a>'),
+			'staff_name'=>array('heading'=>array('data'=>'人员','width'=>'60px'),'cell'=>'<a href="#schedule/list?staff={staff}">{staff_name}</a>'),
 		
 			'name'=>array('heading'=>'标题','eval'=>true,'cell'=>"
 				return '<a href=\"javascript:showWindow(\'schedule/edit/{id}\')\" title=\"{name}\">'.str_getSummary('{name}').'</a>';
@@ -114,7 +97,7 @@ class Schedule extends SS_controller{
 			$field=array(
 				'name'=>array('heading'=>'标题'),
 				'content'=>array('heading'=>'内容'),
-				'time_start'=>array('heading'=>'时间','eval'=>true,'cell'=>"return date('m-d H:i',{time_start});"),
+				'time_start'=>array('heading'=>'时间','eval'=>true,'cell'=>"return date('Y-m-d H:i',{time_start});"),
 				'hours_own'=>array('heading'=>'自报小时'),
 				'staff_name'=>array('heading'=>'律师')
 			);
@@ -156,10 +139,8 @@ class Schedule extends SS_controller{
 	
 	function outPlan(){
 		
-		
-		
 		$field=Array(
-			'staff_name'=>array('heading'=>array('data'=>'人员','cell'=>'<a href="#schedule/lists?staff={staff}"> {staff_name}</a>','width'=>'60px')),
+			'staff_name'=>array('heading'=>array('data'=>'人员','width'=>'60px'),'cell'=>'<a href="#schedule/lists?staff={staff}"> {staff_name}</a>'),
 		
 			'time_start'=>array('heading'=>array('data'=>'时间','width'=>'60px'),'eval'=>true,'cell'=>"
 				return date('m-d H:i',{time_start});
@@ -191,16 +172,16 @@ class Schedule extends SS_controller{
 	function workHours(){
 
 		if(date('w')==1){//今天是星期一
-			$start_of_this_week=strtotime($this->config->item('date'));
+			$start_of_this_week=strtotime($this->date->today);
 		}else{
 			$start_of_this_week=strtotime("-1 Week Monday");
 		}
 		
 		if(!option('in_date_range')){
 			option('date_range/from',date('Y-m-d',$start_of_this_week));
-			option('date_range/to',$this->config->item('date'));
+			option('date_range/to',$this->date->today);
 			option('date_range/from_timestamp',$start_of_this_week);
-			option('date_range/to_timestamp',$this->config->item('timestamp'));
+			option('date_range/to_timestamp',$this->date->now);
 			option('in_date_range',true);
 		}
 		
@@ -232,6 +213,7 @@ class Schedule extends SS_controller{
 			$data = $this->input->post();
 			
 			$new_schedule_id = $this->schedule->add($data);
+			$this->schedule->updateProfiles($new_schedule_id, $this->input->post('profiles'));
 			
 			if($new_schedule_id){
 				$this->output->status='success';
@@ -239,15 +221,15 @@ class Schedule extends SS_controller{
 			}
 			
 		}elseif($action=='delete'){//删除任务
-			if($this->schedule->delete($schedule_id)){
+			if($this->schedule->remove($schedule_id)){
 				$this->output->status='success';
 			}
 		
 		}elseif($action=='update'){//更新任务内容
-			if($this->schedule->update($schedule_id,$this->input->post())){
-				$this->output->status='success';
-				$this->output->data=array('id'=>$schedule_id,'name'=>$this->input->post('name'),'completed'=>$this->input->post('completed'));
-			}
+			$this->schedule->update($schedule_id,$this->input->post());
+			$this->schedule->updateProfiles($schedule_id, $this->input->post('profiles'));
+			$this->output->status='success';
+			$this->output->data=array('id'=>$schedule_id,'name'=>$this->input->post('name'),'completed'=>$this->input->post('completed'));
 		
 		}elseif($action=='resize'){//更新任务时间
 			$time_delta=intval($this->input->post('dayDelta'))*86400+intval($this->input->post('minuteDelta'))*60;
@@ -426,6 +408,8 @@ class Schedule extends SS_controller{
 			$this->schedule->id=$schedule_id;
 
 			$schedule=$this->schedule->fetch($schedule_id);
+			
+			$profiles=$this->schedule->getProfiles($schedule_id);
 
 			if(isset($schedule['case'])){
 				$case=$this->cases->fetch($schedule['case']);
@@ -434,8 +418,9 @@ class Schedule extends SS_controller{
 			}
 
 			$this->load->addViewData('schedule', $schedule);
+			$this->load->addViewData('profiles', $profiles);
 
-			isset($schedule['name']) && $this->output->setData($schedule['name'],'name');
+			isset($schedule['name']) && $this->section_title=$schedule['name'];
 
 			isset($schedule['completed']) && $this->output->setData($schedule['completed'],'completed');
 		}

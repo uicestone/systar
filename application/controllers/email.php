@@ -1,5 +1,8 @@
 <?php
 class Email extends SS_Controller{
+	
+	var $section_title='邮件';
+	
 	function __construct() {
 		parent::__construct();
 		$this->load->library('email');

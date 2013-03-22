@@ -1,31 +1,33 @@
 <?php
 class Account extends SS_controller{
+	
+	var $section_title='资金';
+	
+	var $list_args=array(
+		'date'=>array('heading'=>'日期'),
+		'name'=>array('heading'=>'名目'),
+		'type'=>array('heading'=>array('data'=>'方向','width'=>'45px'),'eval'=>true,'cell'=>array(
+			'data'=>"
+				if({amount}>0){
+					return '<span style=\"color:#0F0\"><<</span>';
+				}else{
+					return '<span style=\"color:#F00\">>></span>';
+				}
+			",
+			'style'=>'text-align:center'
+		)),
+		'amount'=>array('heading'=>'金额'),
+		'client_name'=>array('heading'=>'付款/收款人')
+	);
+	
 	function __construct(){
-		$this->default_method='lists';
 		parent::__construct();
 		$this->load->model('achievement_model','achievement');
 	}
 	
-	function lists(){
+	function index(){
 		
-		$field=array(
-			'date'=>array('heading'=>'日期'),
-			'name'=>array('heading'=>'名目'),
-			'type'=>array('heading'=>array('data'=>'方向','width'=>'45px'),'eval'=>true,'cell'=>array(
-				'data'=>"
-					if({amount}>0){
-						return '<span style=\"color:#0F0\"><<</span>';
-					}else{
-						return '<span style=\"color:#F00\">>></span>';
-					}
-				",
-				'style'=>'text-align:center'
-			)),
-			'amount'=>array('heading'=>'金额'),
-			'client_name'=>array('heading'=>'付款/收款人')
-		);
-		
-		$list=$this->table->setFields($field)
+		$list=$this->table->setFields($this->list_args)
 				->setRowAttributes(array('hash'=>'account/edit/{id}'))
 				->setData($this->account->getList())
 				->generate();
@@ -51,8 +53,8 @@ class Account extends SS_controller{
 		}
 
 		$this->account->id=$this->account->add($data);
-		$this->output->status='redirect';
-		$this->output->data='account/edit/'.$this->account->id;
+		$this->edit($this->account->id);
+		redirect('#'.CONTROLLER.'/edit/'.$this->account->id);
 	}
 
 	function edit($id){
@@ -83,7 +85,7 @@ class Account extends SS_controller{
 				$tab_title='未命名流水';
 			}
 
-			$this->output->setData($tab_title,'name');
+			$this->section_title=$tab_title;
 
 			if($account['case']){
 				//根据案件ID获得收费array
@@ -113,7 +115,7 @@ class Account extends SS_controller{
 			
 			if($submit=='cancel'){
 				unset($_SESSION[CONTROLLER]['post'][$this->account->id]);
-				//$this->account->clearUserTrash();
+				$this->output->status='close';
 			}
 			
 			if($submit=='account'){
@@ -147,9 +149,12 @@ class Account extends SS_controller{
 				$this->account->update($this->account->id,post('account'));
 				
 				unset($_SESSION[CONTROLLER]['post'][$this->account->id]);
+				$this->output->status='close';
 			}
 			
-			$this->output->status='success';
+			if(is_null($this->output->status)){
+				$this->output->status='success';
+			}
 			
 		}catch(Exception $e){
 			$this->output->status='fail';

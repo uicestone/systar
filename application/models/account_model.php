@@ -1,11 +1,7 @@
 <?php
-class Account_model extends SS_Model{
+class Account_model extends BaseItem_model{
 	
-	var $id;
-	
-	var $table='account';
-	
-	var $fields=array(
+	static $fields=array(
 		'name'=>'摘要',
 		'amount'=>'数额',
 		'date'=>'日期',
@@ -18,15 +14,16 @@ class Account_model extends SS_Model{
 	
 	function __construct(){
 		parent::__construct();
+		$this->table='account';
 	}
 
 	function add(array $data=array()){
 		
 		if(!isset($data['date'])){
-			$data['date']=$this->config->item('date');
+			$data['date']=$this->date->today;
 		}
 
-		$data=array_intersect_key($data, $this->fields);
+		$data=array_intersect_key($data, self::$fields);
 		
 		$data+=uidTime(true,true);
 		
@@ -35,35 +32,12 @@ class Account_model extends SS_Model{
 	}
 	
 	function update($id,array $data){
-		$data=array_intersect_key($data, $this->fields);
+		$data=array_intersect_key($data, self::$fields);
 		
 		$data+=uidTime(false);
 		
 		$this->db->update('account',$data,array('id'=>$id));
 	}
 	
-	function getList(){
-		$query="
-			SELECT
-				account.id,account.time,account.name,account.amount,account.date,
-				IF(client.abbreviation IS NULL,client.name,client.abbreviation) AS client_name
-			FROM account LEFT JOIN people client ON account.people=client.id
-			WHERE amount<>0
-		";
-		
-		if(!$this->user->isLogged('finance')){
-			$query.=" AND account.case IN (SELECT `case` FROM case_lawyer WHERE lawyer={$this->user->id} AND role='主办律师')";
-		}
-		
-		$query=$this->search($query,array('client.name'=>'客户','account.name'=>'名目','account.amount'=>'金额'));
-		
-		$query=$this->dateRange($query,'account.date',false);
-		
-		$query=$this->orderby($query,'date','DESC');
-		
-		$query=$this->pagination($query);
-		
-		return $this->db->query($query)->result_array();
-	}
 }
 ?>

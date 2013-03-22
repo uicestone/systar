@@ -10,9 +10,8 @@ $(window).on('hashchange',function(){
 	tabs.children('[for!="'+hash+'"]').removeClass('activated');
 	
 	nav.find('li').removeClass('activated');
-	nav.find('li#nav-'+uriSegments[0]).addClass('activated');
+	nav.find('li[href="#'+hash+'"]').addClass('activated').parent('ul').show().parents('li').addClass('activated').children('.arrow').children('img').rotate(90);
 	/*默认展开当前二级导航所在的子导航*/
-	nav.find('li#nav-'+uriSegments[0]+'-'+uriSegments[1]).addClass('activated').parent('ul').show();
 
 	/*
 	 *根据当前hash，显示对应标签页面，隐藏其他页面。
@@ -35,16 +34,17 @@ $(window).on('hashchange',function(){
 				throbber.stop().fadeOut(200).stopRotate();
 			},
 			success:function(response){
-				page.children('section[hash!="'+hash+'"]').hide();
-				aside.children('section[for!="'+hash+'"]').hide();
-
+				
 				//只对成功的响应生成标签选项卡、边栏和主页面元素
 				if(response.status==='success'){
+					page.children('section[hash!="'+hash+'"]').hide();
+					aside.children('section[for!="'+hash+'"]').hide();
+
 					$('<section hash="'+hash+'" time-access="'+$.now()+'"></section>').appendTo(page).trigger('sectioncreate');
 					$('<section for="'+hash+'"></section>').appendTo(aside).trigger('sidebarcreate');
 					/*如果请求的hash在导航菜单中不存在，则生成标签选项卡*/
-					if(nav.find('a[href="#'+hash+'"]').length===0 && response.data.name){
-						tabs.append('<li for="'+hash+'" class="activated"><a href="#'+hash+'">'+response.data.name.content+'</a></li>');
+					if(nav.find('a[href="#'+hash+'"]').length===0 && response.section_title){
+						tabs.append('<li for="'+hash+'" class="activated"><a href="#'+hash+'">'+response.section_title+'</a></li>');
 					}
 				}
 
@@ -60,7 +60,18 @@ $(window).on('hashchange',function(){
 	
 });
 
-$(document).ready(function(){
+$(document)
+.tooltip({
+	tooltipClass:'pre-line',
+	position:{
+		my:'right bottom',
+		at:'right top'
+	},
+	show:{
+		delay:500
+	}
+})
+.ready(function(){
 	page=$('article');nav=$('nav');aside=$('aside');header=$('header');
 	tabs=header.children('#tabs');throbber=header.children('.throbber');
 	
@@ -90,17 +101,13 @@ $(document).ready(function(){
 	/*将点击事件绑定在li上，从而整个菜单都可以响应点击*/
 	nav.find('li').click(function(event){
 		event.stopPropagation();
-		$.locationHash($(this).children('a').attr('href').substr(1));
+		window.location.href=$(this).attr('href');
 		$(this).children('ul:hidden').show();
 		$(this).children('.arrow').children('img').rotate({animateTo:90,duration:200});
 
 		/*重复点击当前导航：手动刷新*/
 		if($(this).children('a').attr('href').substr(1)===hash){
-			throbber.fadeIn(500).rotate({animateTo:18000,duration:100000});
-			$.get(hash,function(response){
-				throbber.stop().fadeOut(200).stopRotate();
-				$(document).setBlock(response);
-			},'json');
+			$.refresh(hash);
 		}
 	})
 	
@@ -137,7 +144,7 @@ $(document).ready(function(){
 		//console.log('section create');
 		var section = $(this);
 		/*为表格代理绑定事件*/
-		section.on('contenttableload','.contentTable',function(){
+		section.on('contenttableload','.contentTable',function(event){
 			//console.log('contenttableload');
 			$(this).children('tbody').children('tr[hash]')
 				.on('click',function(){
@@ -217,6 +224,7 @@ $(document).ready(function(){
 		/*编辑页的提交按钮点击事件，提交数据到后台，在页面上反馈数据和提示*/
 		section.find('button:submit').on('click',function(){
 			var form = section.children('form');
+			var button = $(this);
 
 			var id = section.find('form[name="'+controller+'"]').attr('id');
 			var buttonId = $(this).attr('id');
@@ -235,6 +243,13 @@ $(document).ready(function(){
 
 			form.ajaxForm({url:postURI,dataType:'json',success:function(response){
 				section.setBlock(response);
+				/*添加表单的提交按钮 清空表单*/
+				
+				/*如果被点击的按钮在一个sublist的add-form里面，那么重置这个add-form*/
+				if(response.status==='success'){
+					button.closest('.add-form').reset();
+				}
+		
 			}});
 
 			/*$.post(postURI,$('article>section[hash="'+hash+'"]>form').serialize(),function(response){
@@ -244,49 +259,74 @@ $(document).ready(function(){
 		});
 		
 		/*edit表单元素更改时实时提交到后台 */
-		section.children('form:[id]').on('change',':input',function(){
+		section.children('form').on('change',':input',function(){
 			var value=$(this).val();
 			if($(this).is(':checkbox') && !$(this).is(':checked')){
 				value=0;
 			}
-			var id = $('article>section[hash="'+hash+'"]>form').attr('id');
+			var id = section.children('form').attr('id');
 			var name = $(this).attr('name').replace('[','/').replace(']','');
 			var data={};data[name]=value;
+			
+			if(controller){
+				var uri='/'+controller+'/setfields';
+				if(id){
+					uri+='/'+id;
+				}
 
-			if(controller && id){
-				$.post('/'+controller+'/setfields/'+id,data);
+				$.post(uri,data);
 			}
 		});
 		
-		$(this).find('[display-for]:not([locked-by])').on('enable',function(){
+		section.find('[display-for]:not([locked-by])').on('enable',function(){
 			$(this).find(':input:disabled:not([locked-by])').removeAttr('disabled');
 			$(this).show();
 
 		});
 		
-		$(this).find('[display-for]:not([locked-by])').on('disable',function(){
+		section.find('[display-for]:not([locked-by])').on('disable',function(){
 			$(this).hide();
 			$(this).find(':input:enabled').attr('disabled','disabled');
 
 		});
 				
-		$(this).find('.contentTable>tbody>tr').on('mouseenter mouseleave',function(){
+		section.find('.contentTable>tbody>tr').on('mouseenter mouseleave',function(){
 			$(this).toggleClass('highlighted');
-
-		})
+		
+		});
 				
 	});
 	
 	aside.on('sidebarload','section',function(){
 		var section=$(this);
 		/*边栏普通提交按钮（提交给当前page地址，以刷新page）*/
-		section.find('button:submit:not(.major)').on('click',function(){
+		section.find('button:submit:not(.major)').on('click',function(event){
+			
+			event.preventDefault();
+			
+/*			if($(this).attr('name')==='search'){
+				var searchButton=$(this);
+				searchButton.closest('form').find(':input:not(.default,:submit)').each(function(){
+					if($(this).val()!=='' && $(this).val()!==null){
+						searchButton.next('[name="search_cancel"]').show();
+						return;
+					}
+				});
+			}
+*/			
+			if($(this).attr('name')==='search_cancel'){
+				$(this).closest('form').reset();
+				//$(this).hide();
+			}
+
 			$.post($(this).closest('section').attr('for'),$(this).closest('form').serialize()+'&submit='+$(this).attr('name'),function(response){
 				$(document).setBlock(response);
 			},'json');
 
-			return false;
 		});
+		
+		section.find('select').chosen({search_contains:true});
+		
 		/*边栏选框自动提交*/
 		section.find('select.filter[method!="get"]').on('change',function(){
 			post($(this).attr('name'),$(this).val());
@@ -298,7 +338,7 @@ $(document).ready(function(){
 		
 		/*边栏主要提交按钮（提交到controller/submit/{submit_name}/{item_id}）*/
 		section.find('button:submit.major').on('click',function(event){
-			var pageSection = $('article>section[hash="'+hash+'"]');
+			var pageSection = page.children('section[hash="'+hash+'"]');
 			var form = pageSection.children('form');
 
 			var id = form.attr('id');
@@ -313,16 +353,8 @@ $(document).ready(function(){
 			$.post(postURI,form.serialize(),function(response){
 				section.setBlock(response);
 
-				if(response.status==='success'){
-					if(submit===controller || submit==='cancel'){
-						$.closeTab(hash);
-						if(submit===controller){
-							$.get(controller,function(response){
-								throbber.stop().fadeOut(200).stopRotate();
-								$(document).setBlock(response);
-							},'json');
-						}
-					}
+				if(response.status==='close'){
+					$.closeTab(hash);
 				}
 			},'json');
 			
@@ -345,10 +377,15 @@ $(document).ready(function(){
 })
 /*主体页面加载事件*/
 .on('blockload','*',function(event){
-
+	
+	/*
+	 * 区域加载后要一次性执行的代码
+	 * 都通过find来执行，因此不需要事件冒泡，避免重复执行
+	 */
+	event.stopPropagation();
 	$(this).find('[placeholder]').placeholder();
-	$(this).find('.date').datepicker();
-	$(this).find('.birthday').datepicker({
+	$(this).find('.date[type="text"]').datepicker();
+	$(this).find('.birthday[type="text"]').datepicker({
 		changeMonth: true,
 		changeYear: true
 	});
@@ -389,7 +426,7 @@ $(document).ready(function(){
 
 	throbber.fadeIn(500).rotate({animateTo:18000,duration:100000});
 
-	$.post('/'+hash,{start:$(this).attr('target-page-start')},function(response){
+	$.post('/'+hash,{start:$(this).attr('target-page-start'),submit:'pagination'},function(response){
 		throbber.stop().fadeOut(200).stopRotate();
 		$(document).setBlock(response);
 	},'json');
@@ -520,14 +557,17 @@ jQuery.fn.setBlock=function(response){
 	}
 
 	else if(response.status==='redirect'){
-		$.locationHash(response.data);
+		$.redirect(response.data)
 		return this;
 	}
 	
 	else if(response.status==='refresh'){
-		$.get(hash,function(response){
-			$(document).setBlock(response);
-		});
+		$.refresh(hash);
+	}
+	
+	else if(response.status==='redirect_href'){
+		window.location.href='/'+response.data;
+		return this
 	}
 	
 	$.parseMessage(response.message);
@@ -590,7 +630,38 @@ jQuery.fn.setBlock=function(response){
 	return this;
 };
 
+jQuery.fn.reset=function(){
+	$(this).find(':input').val('');
+	$(this).find('select').trigger('liszt:updated').find('option').removeAttr('checked');
+	$(this).find(':checkbox, :radio').removeAttr('checked');
+};
+
+/**
+ * 关闭当前标签选项卡并回到之前访问的选项卡
+ * 如果没有之前访问的选项卡，则打开默认页面
+ */
 jQuery.closeTab=function(hash){
+	
+	var uriSegments=hash.split('/');
+	
+	if(typeof uriSegments[2] !=='undefined'){
+	
+		$.ajax({
+			url:'/'+uriSegments[0]+'/submit/cancel/'+uriSegments[2],
+			beforeSend:function(){
+				throbber.fadeIn(500).rotate({animateTo:18000,duration:100000});
+			},
+			complete:function(){
+				throbber.stop().fadeOut(200).stopRotate();
+			},
+			error:function(){
+				$.showMessage('关闭标签后，服务器返回了错误的数据','warning');
+			},
+			dataType:'json'
+		});
+	
+	}
+	
 	tabs.children('li[for="'+hash+'"]').remove();
 	page.children('section[hash="'+hash+'"]').remove();
 	aside.children('section[for="'+hash+'"]').remove();
@@ -598,7 +669,7 @@ jQuery.closeTab=function(hash){
 	var lastAccessedHash;
 	var lastAccessTime=0;
 
-	var sections = $('article>section').each(function(){
+	var sections = page.children('section').each(function(){
 		if($(this).attr('time-access')>lastAccessTime){
 			lastAccessedHash=$(this).attr('hash');
 			lastAccessTime=$(this).attr('time-access');
@@ -608,7 +679,36 @@ jQuery.closeTab=function(hash){
 	if(sections>0){
 		$.locationHash(lastAccessedHash);
 	}else{
-		$.locationHash($('article').attr('default-uri'));
+		$.locationHash(page.attr('default-uri'));
 	}
+	
+}
 
+/**
+ * 关闭当前标签选项卡并打开一个新的标签选项卡
+ */
+jQuery.redirect=function(newhash){
+	tabs.children('li[for="'+hash+'"]').remove();
+	page.children('section[hash="'+hash+'"]').remove();
+	aside.children('section[for="'+hash+'"]').remove();
+	$.locationHash(newhash);
+}
+
+jQuery.refresh=function(hash){
+	$.ajax({
+		url:hash,
+		beforeSend:function(){
+			throbber.fadeIn(500).rotate({animateTo:18000,duration:100000});
+		},
+		complete:function(){
+			throbber.stop().fadeOut(200).stopRotate();
+		},
+		success:function(response){
+			$(document).setBlock(response);
+		},
+		error:function(){
+			$.showMessage('服务器返回了错误的数据','warning');
+		},
+		dataType:'json'
+	});
 }

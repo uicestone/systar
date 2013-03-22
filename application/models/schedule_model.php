@@ -1,11 +1,7 @@
 <?php
-class Schedule_model extends SS_Model{
+class Schedule_model extends BaseItem_model{
 	
-	var $id;
-	
-	var $table='schedule';
-	
-	var $fields=array(
+	static $fields=array(
 		'name'=>'标题',
 		'content'=>'内容',
 		'time_start'=>'开始时间',
@@ -20,6 +16,7 @@ class Schedule_model extends SS_Model{
 	
 	function __construct(){
 		parent::__construct();
+		$this->table='schedule';
 	}
 
 	function fetch($id,$field=NULL){
@@ -33,6 +30,18 @@ class Schedule_model extends SS_Model{
 		return $schedule;
 	}
 	
+	function getList($args=array()){
+		if(isset($args['project'])){
+			$this->db->where('case',$args['project']);
+		}
+		
+		if(isset($args['completed'])){
+			$this->db->where('completed',$args['completed']);
+		}
+		
+		return parent::getList($args);
+	}
+	
 	/**
 	 * 插入一条日程，返回插入的id
 	 */
@@ -42,7 +51,7 @@ class Schedule_model extends SS_Model{
 			$people=$data['people'];
 		}
 		
-		$data=array_intersect_key($data, $this->fields);
+		$data=array_intersect_key($data, self::$fields);
 		
 		if(isset($data['time_start']) && isset($data['time_end'])){
 			$data['hours_own'] = round(($data['time_end']-$data['time_start'])/3600,2);
@@ -64,64 +73,15 @@ class Schedule_model extends SS_Model{
 	function update($schedule_id,$data){
 		$schedule_id=intval($schedule_id);
 
-		$data=array_intersect_key($data, $this->fields);
+		$data=array_intersect_key($data, self::$fields);
 		
 		return $this->db->update('schedule',$data,array('id'=>$schedule_id));
 	}
 	
-	function delete($schedule_id){
+	function remove($schedule_id){
 		$schedule_id=intval($schedule_id);
 		
-		return $this->db->delete('schedule',array('id'=>$schedule_id,'uid'=>$this->user->id));	
-	}
-	
-	/**
-	 * 给一条日程添加一个资料项
-	 * @param int $schedule_id
-	 * @param $name 资料项名称
-	 * @param $content 资料项内容
-	 * @param $comment 备注
-	 * @return type 
-	 */
-	function addProfile($schedule_id,$name,$content,$comment=NULL){
-		$schedule_id=intval($schedule_id);
-		
-		$data=array(
-			'schedule'=>$schedule_id,
-			'name'=>$name,
-			'content'=>$content,
-			'comment'=>$comment
-		);
-		
-		$data+=uidTime(false);
-		
-		$this->db->insert('schedule_profile',$data);
-		
-		return $this->db->insert_id();
-	}
-	
-	/**
-	 * 删除日程资料项
-	 */
-	function removeProfile($schedule_profile_ids){
-		$condition = db_implode($schedule_profile_ids, $glue = ' OR ','id');
-		$this->db->delete('schedule_profile',$condition);
-	}
-	
-	/**
-	 * 返回一个可用的profile name列表
-	 */
-	function getProfileNames(){
-		$query="
-			SELECT name,COUNT(*) AS hits
-			FROM `schedule_profile`
-			GROUP BY name
-			ORDER BY hits DESC;
-		";
-		
-		$result=$this->db->query($query)->result_array();
-		
-		return array_sub($result,'name');
+		return $this->db->update('schedule',array('display'=>false),array('id'=>$schedule_id));	
 	}
 	
 	function addPeople($schedule_id,$people){
@@ -171,7 +131,7 @@ class Schedule_model extends SS_Model{
 			if($schedule['completed']){
 				$schedule['color']='#36C';
 			}else{
-				if($schedule['time_start']<$this->config->item('timestamp')){
+				if($schedule['time_start']<$this->date->now){
 					$schedule['color']='#555';
 				}else{
 					$schedule['color']='#E35B00';
@@ -258,87 +218,56 @@ class Schedule_model extends SS_Model{
 		return $this->db->query($q)->row()->time;
 	}
 	
-	function getList($para=NULL){
+	/**
+	 * 计算特定职员在特定案件上所消耗的时间
+	 * @param $project_id 接受一个项目的id，或一组项目id构成的数组
+	 * @param $people_id 接受一个人员的id，或一组人员id构成的数组
+	 * @param $team_id 接受一个人员组的id，或一组人员组id构成的数组
+	 * @return type
+	 */
+	function timeSpent($project_id=NULL,$people_id=NULL,$team_id=NULL){
+		//@TODO 现在仍用schedule.uid来判断相关人员，应该使用schedule_people
 		$q="
-			SELECT
-				schedule.id,schedule.name,schedule.content,schedule.experience, schedule.time_start,schedule.hours_own,schedule.hours_checked,schedule.comment,schedule.place,
-				case.id AS `case`,case.name AS case_name,
-				staff.name AS staff_name,staff.id AS staff,
-				if(MAX(case_people.role)='督办人',1,0) AS review_permission
-		
-				#imperfect 2012/7/13 MAX ENUM排序依据为字符串，并非INDEX
-		
-			FROM schedule INNER JOIN `case` ON schedule.case=case.id
-				INNER JOIN case_people ON case.id=case_people.case AND case_people.type='律师'
-				LEFT JOIN people staff ON staff.id = schedule.uid
-			WHERE schedule.display=1 AND schedule.company={$this->company->id}
-				AND schedule.completed=".($this->input->get('plan')?'0':'1')."
+			SELECT SUM(IF(hours_checked IS NULL,hours_own,hours_checked)) AS time 
+			FROM schedule 
+			WHERE company={$this->company->id} AND display=1 AND completed=1
 		";
-		
-		if(!$this->user->isLogged('developer')){
-			$q.="
-				AND case_people.people={$this->user->id}
-			";
-		}
-		
-		$condition='';
-		if($para=='mine'){
-			$condition.=" AND schedule.`uid`={$this->user->id}";
-		}else{
-			if($this->input->get('staff')){
-				$condition.=" AND schedule.`uid`='".intval($this->input->get('staff'))."'";
+			
+		if(isset($project_id)){
+			if(is_array($project_id)){
+				$project_ids=implode(',',$project_id);
+				$q.=" AND schedule.case IN ($project_ids)";
+			}else{
+				$project_id=intval($project_id);
+				$q.=" AND schedule.case = $project_id";
 			}
 		}
-
-		if($this->input->get('case')){
-			$condition.=" AND schedule.`case`='".intval($this->input->get('case'))."'";
-		}
-			
-		if($this->input->get('client')){
-			$condition.=" AND schedule.client='".intval($this->input->get('client'))."'";
-		}
-									
-		$q.=$condition;
-		$q=$this->search($q,array('case.name'=>'案件','staff.name'=>'人员'));
-		$q=$this->dateRange($q,'time_start');
-		$q.="
-			GROUP BY schedule.id
-			ORDER BY FROM_UNIXTIME(time_start,'%Y%m%d') ".($this->input->get('plan')?'ASC':'DESC').",schedule.uid,time_start ".($this->input->get('plan')?'ASC':'DESC')."
-		";
-
-		$q=$this->pagination($q);
-
-		return $this->db->query($q)->result_array();
-	}
-	
-	function getOutPlanList(){
 		
-		$q="
-			SELECT
-				schedule.id AS schedule,schedule.name AS schedule_name,schedule.content AS schedule_content,schedule.experience AS schedule_experience, schedule.time_start,schedule.hours_own,schedule.hours_checked,schedule.comment AS schedule_comment,schedule.place,
-				staff.name AS staff_name,staff.id AS staff
-			FROM schedule LEFT JOIN people staff ON staff.id = schedule.uid
-			WHERE schedule.display=1 AND schedule.place<>''
-		";
-		
-		if($this->input->get('case') && $this->input->get('staff')){
-			$q.=" AND schedule.`case`='".$this->input->get('case')."' AND uid='".$this->input->get('staff')."'";
-		
-		}elseif($this->input->get('case')){
-			$q.=" AND schedule.`case`='".$this->input->get('case')."'";
-		
-		}elseif($this->input->get('staff')){
-			$q.=" AND schedule.`uid`='".$this->input->get('staff')."'";
-		
+		if(isset($people_id)){
+			if(is_array($people_id)){
+				$people_ids=implode(',',$people_id);
+				$q.=" AND schedule.uid IN ($people_ids)";
+			}else{
+				$people_id=intval($people_id);
+				$q.=" AND schedule.uid = $people_id";
+			}
 		}
 		
-		$q=$this->search($q,array('staff.name'=>'人员'));
+		if(isset($team_id)){
+			if(is_array($team_id)){
+				$team_ids=implode(',',$team_id);
+				$q.=" AND schedule.uid IN (
+					SELECT people FROM team_people WHERE team IN ($team_ids)
+				)";
+			}else{
+				$team_id=intval($team_id);
+				$q.=" AND schedule.uid = IN (
+					SELECT people FROM team_people WHERE team = $team_id
+				)";
+			}
+		}
 		
-		$q=$this->orderby($q,'time_start','DESC',array('place'));
-		
-		$q=$this->pagination($q);
-		
-		return $this->db->query($q)->result_array();
+		return $this->db->query($q)->row()->time;
 	}
 	
 	/**
@@ -410,7 +339,7 @@ class Schedule_model extends SS_Model{
 	{
 		$uid=intval($uid);
 		$data['sort_data'] = $sort_data;
-		$this -> db -> update('schedule_taskboard' , $data , array('uid'=>$uid,'time'=>$this->config->item('timestamp')));
+		$this -> db -> update('schedule_taskboard' , $data , array('uid'=>$uid,'time'=>$this->date->now));
 	}
 	
 	function createTaskBoard($sort_data ,$uid)
@@ -418,9 +347,10 @@ class Schedule_model extends SS_Model{
 		//$data['id'] = "NULL";这是？
 		$data['sort_data'] = $sort_data;
 		$data['uid'] = $uid;
-		$data['time'] = $this->config->item('timestamp');
+		$data['time'] = $this->date->now;
 		
 		$this -> db -> insert('schedule_taskboard' , $data);
 	}
+	
 }
 ?>

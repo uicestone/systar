@@ -1,7 +1,6 @@
 <?php
-class Company_model extends SS_Model{
+class Company_model extends BaseItem_model{
 	
-	var $id;
 	var $name;
 	var $type;
 	var $host;
@@ -12,19 +11,19 @@ class Company_model extends SS_Model{
 	
 	function __construct(){
 		parent::__construct();
+		$this->table='company';
 		$this->recognize($this->input->server('SERVER_NAME'));
 	}
 
 	function recognize($host_name){
-		$query="
-			SELECT id,name,type,syscode,sysname,ucenter,default_controller
-			FROM company 
-			WHERE host='$host_name' OR syscode='$host_name'";
-		
-		$row_array=$this->db->query($query)->row_array();
+		$this->db->select('id,name,type,syscode,sysname,ucenter,default_controller')
+			->from('company')
+			->or_where(array('host'=>$host_name,'syscode'=>$host_name));
+
+		$row_array=$this->db->get()->row_array();
 		
 		if(!$row_array){
-			show_error('不存在此域名对应的公司');
+			show_error("We're sorry but no company called $host_name here.");
 		}
 		
 		foreach($row_array as $key => $value){
@@ -64,8 +63,8 @@ class Company_model extends SS_Model{
 			)
 		);
 		
-		$month_start_timestamp=strtotime(date('Y-m',$this->config->item('timestamp')).'-1');
-		$month_end_timestamp=mktime(0,0,0,date('m',$this->config->item('timestamp'))+1,1,date('Y',$this->config->item('timestamp')));
+		$month_start_timestamp=strtotime(date('Y-m',$this->date->now).'-1');
+		$month_end_timestamp=mktime(0,0,0,date('m',$this->date->now)+1,1,date('Y',$this->date->now));
 		
 		$sidebar_table[]=array(
 			'_heading'=>array(
@@ -98,7 +97,7 @@ class Company_model extends SS_Model{
 		);
 		
 		
-		$recent_collect=$this->achievement->receivableSum('recent',NULL,date('Y-m-d',$this->config->item('timestamp')+86400*30));
+		$recent_collect=$this->achievement->receivableSum('recent',NULL,date('Y-m-d',$this->date->now+86400*30));
 		$expired_collect=$this->achievement->receivableSum('expired');
 		
 		$sidebar_table[]=array(

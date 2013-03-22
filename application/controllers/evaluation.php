@@ -1,5 +1,8 @@
 <?php
 class Evaluation extends SS_controller{
+	
+	var $section_title='评价';
+	
 	function __construct(){
 		$this->default_method='comment';
 		parent::__construct();

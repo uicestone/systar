@@ -1,38 +1,22 @@
 <?php
-class Staff extends SS_controller{
+class Staff extends People{
+	
+	var $section_title='职员';
+	
 	function __construct(){
 		parent::__construct();
+		$this->people=$this->staff;
 	}
 	
 	function index(){
+		if(!option('search/type')){
+			option('search/type','职员');
+		}
 		
-
-		if($this->input->post('grade')){
-			option('grade',$this->input->post('grade'));
-		}
-		if($this->company->type=='school'){
-			$field=array(
-				'id'=>array('heading'=>'姓名','cell'=>'{name}'),
-				'course_name'=>array('heading'=>'学科'),
-				'status'=>array('heading'=>'职称')
-			);
-		}else{
-			$field=array(
-				'id'=>array('heading'=>'姓名','cell'=>'{name}'),
-				'position_name'=>array('heading'=>'职位','cell'=>'{position_name}'),
-				'modulus'=>array('heading'=>'团奖系数'),
-				'timing_fee_default'=>array('heading'=>'默认小时费率')
-			);
-		}
-		$table=$this->table->setFields($field)
-			->setData($this->staff->getList())
-			->generate();
-		$this->load->addViewData('list',$table);
-		$this->load->view('list');		
+		parent::index();
 	}
 	
 	function match(){
-		
 
 		$term=$this->input->post('term');
 		

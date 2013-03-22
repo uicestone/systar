@@ -1,24 +1,45 @@
 <?php
 class Achievement extends SS_controller{
+	
+	var $section_title='业绩';
+	
+	var $list_args=array(
+		'case_name'=>array('heading'=>array('data'=>'案件','width'=>'25%'),'cell'=>'<a href="#cases/edit/{case}" class="right" style="margin-left:10px;">查看</a>{case_name}'),
+		'client_name'=>array('heading'=>'客户'),
+		'account_time'=>array('heading'=>'到账时间'),
+		'amount'=>array('heading'=>'创收'),
+		'contribution'=>array('heading'=>'贡献'),
+		'bonus'=>array('heading'=>'奖金'),
+		'role'=>array('heading'=>'角色')
+	);
+	
 	function __construct(){
-		$this->default_method='mine';
 		parent::__construct();
 	}
 	
-	function mine(){
+	function index(){
+		
+		if($this->input->post('date_from')){
+			option('search/date_from',$this->input->post('date_from'));
+		}
 
-		$field=array(
-			'case_name'=>array('heading'=>array('data'=>'案件','width'=>'25%'),'cell'=>'<a href="/cases/edit/{case}" class="right" style="margin-left:10px;">查看</a>{case_name}'),
-			'client_name'=>array('heading'=>'客户'),
-			'account_time'=>array('heading'=>array('data'=>'到账时间','width'=>'100px')),
-			'filed_time'=>array('heading'=>array('data'=>'归档时间','width'=>'100px')),
-			'amount'=>array('heading'=>array('data'=>'创收','width'=>'100px')),
-			'contribution'=>array('heading'=>'贡献'),
-			'bonus'=>array('heading'=>'奖金'),
-			'role'=>array('heading'=>'角色')
-		);
-		$month_start_timestamp=strtotime(date('Y-m',$this->config->item('timestamp')).'-1');
-		$month_end_timestamp=mktime(0,0,0,date('m',$this->config->item('timestamp'))+1,1,date('Y',$this->config->item('timestamp')));
+		if($this->input->post('date_to')){
+			option('search/date_to',$this->input->post('date_to'));
+		}
+		
+		if($this->input->post('submit')=='date_range_cancel'){
+			option('search/date_from',NULL);
+			option('search/date_ro',NULL);
+		}
+		
+		$table=$this->table->setFields($this->list_args)
+			->setData($this->achievement->getList(option('search')))
+			->generate();
+		
+		$this->load->addViewData('list',$table);
+		
+		$month_start_timestamp=strtotime(date('Y-m',$this->date->now).'-1');
+		$month_end_timestamp=mktime(0,0,0,date('m',$this->date->now)+1,1,date('Y',$this->date->now));
 		
 		$achievement_sum=array(
 			'_field'=>array(
@@ -50,9 +71,9 @@ class Achievement extends SS_controller{
 			)
 		);
 		
-		$contribute_type=$this->input->get('contribute_type')=='actual'?'actual':'fixed';
+		option('search/contribute_type',$this->input->get('contribute_type')=='actual'?'actual':'fixed');
 		
-		$achievement=$this->achievement->myBonus(array('case',$contribute_type),option('date_range/from_timestamp'),option('date_range/to_timestamp'));
+		$achievement=$this->achievement->myBonus(array('case',option('search/contribute_type')),option('date_range/from_timestamp'),option('date_range/to_timestamp'));
 
 		$achievement_dashboard=array(
 			'_field'=>array(
@@ -62,10 +83,7 @@ class Achievement extends SS_controller{
 				$achievement
 			)
 		);
-		$table=$this->table->setFields($field)
-			->setData($this->achievement->getList())
-			->generate();
-		$this->load->addViewData('list',$table);
+
 		$achievement_view_data=compact('achievement_dashboard','achievement_sum');
 		$this->load->addViewArrayData($achievement_view_data);
 		$this->load->view('list');
@@ -73,8 +91,6 @@ class Achievement extends SS_controller{
 	}
 
 	function receivable($method=NULL){
-		
-		
 		
 		$field=array(
 			'type'=>array('heading'=>array('data'=>'类别','width'=>'85px')),
@@ -97,7 +113,7 @@ class Achievement extends SS_controller{
 		$this->load->addViewData('receivable_sum', $receivable_sum['sum']);
 
 		$this->load->view('list');	
-		$this->load->view('achievement/receivable_sidebar');
+		$this->load->view('achievement/receivable_sidebar',true,'sidebar');
 	}
 	
 	function caseBonus(){

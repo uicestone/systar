@@ -1,29 +1,15 @@
 <?php
 class SS_Controller extends CI_Controller{
 	
-	/**
-	 * 当前调用的控制器和方法
-	 * @var type 
-	 */
-	var $controller;
-	var $method;
-	
 	var $default_method='index';
+	
+	var $section_title='';
 
-	//var $as_popup_window=false;争取这一个属性也不用了！
-	//var $as_controller_default_page=false;这个也是
-	
-	/**
-	 * 当前控制器是否需要检查权限，只能在控制器构造函数中，父构造函数调用之前使用——因为现在的权限校验是放在大控制器的构造函数里的
-	 */
-	var $require_permission_check=true;
-	
 	var $company_type_model_loaded=false;
 	var $company_model_loaded=false;
 	
 	function __construct(){
 		parent::__construct();
-		//$this->output->enable_profiler(TRUE);
 		
 		/*
 		 * 处理$class和$method，并定义为常量
@@ -39,13 +25,11 @@ class SS_Controller extends CI_Controller{
 		define('CONTROLLER',$class);
 		define('METHOD',$method);
 		
-		$this->controller=$class;
-		$this->method=$method;
-		
+		//CONTROLLER !=='frame' && $this->output->enable_profiler(TRUE);
+
 		/*
 		 * 自动载入的资源，没有使用autoload.php是因为后者载入以后不能起简称...
 		 */
-		$this->load->helper('function_common');
 		$this->load->model('company_model','company');
 		$this->load->model('user_model','user');
 		$this->load->model('label_model','label');
@@ -64,54 +48,6 @@ class SS_Controller extends CI_Controller{
 			$this->company_model_loaded=true;
 		}
 	
-		/*
-		 * 弹出未登录用户
-		 */
-		if($this->require_permission_check && !$this->user->isLogged()){
-			$this->output->status='login_required';
-			$this->_output();
-			exit;
-		}
-		
-		/*
-		 * 屏蔽无权限用户
-		 */
-		if($this->require_permission_check && !$this->user->isPermitted($class)){
-			$this->output->status='denied';
-			$this->_output();
-			exit;
-		}
-
-		if($this->input->post('submit')=='date_range'){
-			if(!strtotime($this->input->post('date_from')) || !strtotime($this->input->post('date_to'))){
-				$this->output->message('日期格式错误','warning');
-
-			}else{
-				option('date_range/from_timestamp',strtotime($this->input->post('date_from')));
-				option('date_range/to_timestamp',strtotime($this->input->post('date_to'))+86400);
-
-				option('date_range/from',date('Y-m-d',option('date_range/from_timestamp')));
-				option('date_range/to',date('Y-m-d',option('date_range/to_timestamp')-86400));
-
-				option('in_date_range',true);
-			}
-		}
-
-		if($this->input->post('submit')=='date_range_cancel'){
-			unset($_SESSION[CONTROLLER][METHOD]['in_date_range']);
-			unset($_SESSION[CONTROLLER][METHOD]['date_range']);
-		}
-		
-		if($this->input->post('submit')=='search'){
-			option('keyword',array_trim($this->input->post('keyword')));
-			option('in_search_mod',true);
-		}
-
-		if($this->input->post('submit')=='search_cancel'){
-			unset($_SESSION[CONTROLLER][METHOD]['in_search_mod']);
-			unset($_SESSION[CONTROLLER][METHOD]['keyword']);
-		}
-		
 	}
 	
 	/**
@@ -156,7 +92,8 @@ class SS_Controller extends CI_Controller{
 		$output_array=array(
 			'status'=>$this->output->status,
 			'message'=>$this->output->message,
-			'data'=>$this->output->data
+			'data'=>$this->output->data,
+			'section_title'=>$this->section_title
 		);
 		
 		echo json_encode($output_array);
@@ -166,11 +103,10 @@ class SS_Controller extends CI_Controller{
 	 * 在一个form中，用户修改任何input/select值时，就发送一个请求，保存到$_SESSION中
 	 * 如此一来到发生保存请求时，只需要把$_SESSION中的新值保存即可
 	 */
-	function setFields($item_id){
-		
+	function setFields($item_id=NULL){
 
-		$controller=$this->controller;
-		$this->$controller->id=$item_id;
+		$controller=CONTROLLER;
+		$item_id && $this->$controller->id=$item_id;
 		
 		if(!is_array($this->input->post())){
 			$this->output->status='fail';

@@ -307,7 +307,8 @@ class CI_DB_active_record extends CI_DB_driver {
 	 * @param	string	the type of join
 	 * @return	object
 	 */
-	public function join($table, $cond, $type = '')
+	//public function join($table, $cond, $type = '')	//uicestone enable subquery in (join)
+	public function join($table, $cond, $type = '', $escape_cond = TRUE)
 	{
 		if ($type != '')
 		{
@@ -328,12 +329,14 @@ class CI_DB_active_record extends CI_DB_driver {
 		$this->_track_aliases($table);
 
 		// Strip apart the condition and protect the identifiers
-		if (preg_match('/([\w\.]+)([\W\s]+)(.+)/', $cond, $match))
-		{
-			$match[1] = $this->_protect_identifiers($match[1]);
-			$match[3] = $this->_protect_identifiers($match[3]);
+		if ($escape_cond){//add condition to support unescaped join, useful when join subqueries uicestone 2013/3/20
+			if(preg_match('/([\w\.]+)([\W\s]+)(.+)/', $cond, $match))
+			{
+				$match[1] = $this->_protect_identifiers($match[1]);
+				$match[3] = $this->_protect_identifiers($match[3]);
 
-			$cond = $match[1].$match[2].$match[3];
+				$cond = $match[1].$match[2].$match[3];
+			}
 		}
 
 		// Assemble the JOIN statement

@@ -42,7 +42,7 @@ class SS_Table extends CI_Table{
 	}
 	
 	/**
-	 * 将field->content等值中包含的变量占位替换为数据结果中他们的值
+	 * 将field->cell中包含的变量占位替换为数据结果中他们的值
 	 */
 	function _variableReplace($content,$row){
 		while(preg_match('/{(\S*?)}/',$content,$match)){
@@ -110,10 +110,17 @@ class SS_Table extends CI_Table{
 				foreach($cell as $attr_name => $attr_value){
 					$cell[$attr_name]=$this->_variableReplace($attr_value,$row);
 				}
-				
 				//@deprecated 应该用函数调用替代eval
 				if(isset($field['eval']) && $field['eval']){
 					$cell['data']=eval($cell['data']);
+				}
+				
+				//用指定函数来处理$cell[data]
+				if(isset($field['parser'])){
+					foreach($field['parser']['args'] as $key => $value){
+						$field['parser']['args'][$key]=$this->_variableReplace($value,$row);
+					}
+					$cell['data']=call_user_func_array($field['parser']['function'], $field['parser']['args']);
 				}
 				
 				$row_compiled[$field_name]=$cell;
@@ -131,9 +138,9 @@ class SS_Table extends CI_Table{
 					行属性名=>行属性值
 				),
 				'查询结果的列名'=>array(
-						'heading'=>表头单元格元素，可以是html，也可以是带data键的数组，其中data是html内容，其余是表头元素的的html属性
-						'cell'=>单元格元素，同上
-						'eval'=>false，'是否'将声称的cell的data代码作为源代码运行@deprecated
+						'heading'=>表头单元格元素，可以是html，也可以是数组，其中data键(如果有)是html内容，其余是表头元素的的html属性
+						'cell'=>单元格元素
+						'eval'=>false，'是否'将生成的cell的data代码作为源代码运行@deprecated
 					)
 			)
 	*/
@@ -383,8 +390,12 @@ class SS_Table extends CI_Table{
 	 * @return void
 	 */
 	//@TODO 缩进存在空格，建议使用$this->generateData处理根据$fields和$data处理$rows，然后根据后者输出表格。（输出时可以对每格数据执行一下strip_tags()）
-	function generateExcel(){
-		$this->generateData();
+	function generateExcel($table_data=NULL){
+		if (!is_null($table_data)){
+			$this->setData($table_data);
+		}
+		
+		//print_r($this->rows);exit;
 
 		require_once(APPPATH.'third_party/PHPExcel/PHPExcel.php');
 		//创建EXCEL对象，并获取当前的工作表
@@ -395,31 +406,37 @@ class SS_Table extends CI_Table{
 		$column_max_char_units=array_fill(0,count($this->heading),0);
 		
 		//对excel对象的每一行每一列写入相应的数据
-		for($row=1;$row<=count($this->rows)+1;$row++){
-			//第一行写列名
-			if($row==1){
-				foreach($this->heading as $column_index=>$column_array){
-					$cell_value=strip_tags($column_array['data']);
-					$this->compareAndSetColumnMaxCharUnit($column_max_char_units,$column_index,$cell_value);
-					$current_sheet->setCellValueByColumnAndRow($column_index,$row,$cell_value);
-				}
-			}
-			//其他行写该行每一列的数据
-			else{
-				$index_in_rows=$row-2;
-				foreach($this->rows[$index_in_rows] as $column_index=>$cell){
-					$cell_value=strip_tags($cell['data']);
-					$this->compareAndSetColumnMaxCharUnit($column_max_char_units,$column_index,$cell_value);
-					$current_sheet->setCellValueByColumnAndRow($column_index,$row,$cell_value);
-				}		
-			}
+		foreach($this->heading as $column_index=>$heading_cell){
+			$cell_value=strip_tags($heading_cell['data']);
+			$this->_compareAndSetColumnMaxCharUnit($column_max_char_units,$column_index,$cell_value);
+			$current_sheet->setCellValueByColumnAndRow($column_index,1,$cell_value);
 		}
+		
+		for($row_id=0;$row_id<count($this->rows);$row_id++){
+			//其他行写该行每一列的数据
+			$column_index=0;
+			foreach($this->rows[$row_id] as $cell_name => $cell){
+				
+				//过滤掉$this->rows中每一行数据中的行属性
+				if($cell_name==='_attr'){
+					continue;
+				}
+
+				$cell_value=strip_tags($cell['data']);
+				$this->_compareAndSetColumnMaxCharUnit($column_max_char_units,$column_index,$cell_value);
+				$current_sheet->setCellValueByColumnAndRow($column_index,$row_id+2,$cell_value);
+				$column_index++;
+			}		
+		}
+		
 		//根据最大字符单元和列宽因子计算列宽
+		/*
 		$widen_factor=2.5;
 		foreach($column_max_char_units as $column_index=>$max_char_unit){
 			$column_width=$max_char_unit*$widen_factor;
 			$current_sheet->getColumnDimensionByColumn($column_index)->setWidth($column_width);
 		}
+		*/
 
 		//output excel file to browser directly
 		$excel_writer=PHPExcel_IOFactory::createWriter($php_excel, 'Excel5');
@@ -443,7 +460,7 @@ class SS_Table extends CI_Table{
 	 * @param string $cell_value 单元格的值
 	 * @return void
 	 */
-	private function compareAndSetColumnMaxCharUnit(&$column_max_char_units,$column_index,$cell_value){
+	private function _compareAndSetColumnMaxCharUnit(&$column_max_char_units,$column_index,$cell_value){
 		$encoding=$this->config->item('charset');
 		$char_unit=mb_strlen($cell_value,$encoding);
 		if($char_unit>$column_max_char_units[$column_index]){

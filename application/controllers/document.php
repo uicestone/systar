@@ -122,7 +122,7 @@ class Document extends SS_controller{
 	}
 
 	function download($id){
-		$this->export->as_ajax=false;
+		$this->output->as_ajax=false;
 
 		$document=$this->document->fetch($id);
 		
@@ -189,7 +189,7 @@ if ($_FILES["file"]["error"] > 0){
 				'comment'=>$this->input->post('comment'),
 				'uid'=>$this->user->id,
 				'username'=>$_SESSION['username'],
-				'time'=>$this->config->item('timestamp')
+				'time'=>$this->date->now
 			);
 			//db_insert('document',$fileInfo,false,$db_replace);
 			redirect('document');

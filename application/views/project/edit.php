@@ -1,47 +1,47 @@
-<form method="post" name="<?=CONTROLLER?>" id="<?=$this->cases->id?>" enctype="multipart/form-data" encoding="multipart/form-data">
+<form method="post" name="<?=CONTROLLER?>" id="<?=$this->project->id?>" enctype="multipart/form-data" encoding="multipart/form-data">
 <div class="contentTableBox">
 	<div class="item">
 		<div class="title">
 			<span class="right">
-				<?=$case_status?>
+				<?//TODO case_label?>
 			</span>
-			<label title="内部ID：<?=$this->value('cases/id')?>"><?=$this->value('cases/num');?></label>
+			<label title="内部ID：<?=$this->value('project/id')?>"><?=$this->value('project/num');?></label>
 		</div>
 
-		<select id="type" name="labels[领域]"<?if($cases['type_lock']){?> disabled="disabled"<?}?>>
+		<select id="type" name="labels[领域]"<?if(in_array('类型已锁定',$labels)){?> disabled="disabled"<?}?>>
 		<?=options($this->config->item('案件领域'),$this->value('labels/领域'),'领域');?>
 		</select>
-<?if($cases['is_query']){ ?>
+<?if(in_array('咨询',$labels)){ ?>
 		<select id="classification" name="labels[咨询方式]">
 		<?=options($this->config->item('咨询方式'),$this->value('labels/咨询方式'),'咨询方式');?>
 		</select>
 <?}else{?>
-		<select id="classification" name="labels[分类]"<?if($cases['type_lock']){?> disabled="disabled"<?}?>>
+		<select id="classification" name="labels[分类]"<?if(in_array('类型已锁定',$labels)){?> disabled="disabled"<?}?>>
 		<?=options(array('诉讼','非诉讼','法律顾问'),$this->value('labels/分类'),'分类');?>
 		</select>
-		<input type="text" name="cases[name]" value="<?=$this->value('cases/name')?>" placeholder="案件名称" style="width:300px;">
-<?	if(!$cases['num']){?>
-		<button type="submit" name="submit[apply_case_num]" class="major">获得案号</button>
-<?	}?>
-		<select id="stage" name="labels[阶段]">
+		<select name="labels[阶段]"<?if(!isset($labels['分类']) || $labels['分类']!='诉讼'){?> class="hidden" disabled="disabled"<?}?>>
 		<?=options($case_type_array,$this->value('labels/阶段'),'阶段');?>
 		</select>
+		<input type="text" name="project[name]" value="<?=$this->value('project/name')?>" placeholder="案件名称" style="width:300px;">
+<?	if(!$project['num']){?>
+		<button type="submit" name="submit[apply_case_num]" class="major">获得案号</button>
+<?	}?>
 <?}?>
-<?if($cases['is_query']){ ?>
-		<input type="text" name="cases[first_contact]" value="<?=$this->value('cases/first_contact')?>" placeholder="首次接待日期" title="首次接待日期" class="date" />
+<?if(in_array('咨询',$labels)){ ?>
+		<input type="text" name="project[first_contact]" value="<?=$this->value('project/first_contact')?>" placeholder="首次接待日期" title="首次接待日期" class="date" />
 <?}else{?>
-		<input type="text" name="cases[time_contract]" value="<?=$this->value('cases/time_contract')?>" placeholder="立案日期" title="立案日期" class="date" <? if($cases['is_reviewed'])echo 'disabled';?> />
+		<input type="text" name="project[time_contract]" value="<?=$this->value('project/time_contract')?>" placeholder="立案日期" title="立案日期" class="date" <? if(in_array('在办',$labels))echo 'disabled';?> />
 		-
-		<input type="text" name="cases[time_end]" value="<?=$this->value('cases/time_end')?>" placeholder="预估结案日期" title="预估结案日期" class="date" <? if($cases['is_reviewed'])echo 'disabled';?> />
+		<input type="text" name="project[time_end]" value="<?=$this->value('project/time_end')?>" placeholder="预估结案日期" title="预估结案日期" class="date" <? if(in_array('在办',$labels))echo 'disabled';?> />
 <?}?>
 	</div>
 
 	<div class="item" name="client">
 		<div class="title"><label>客户及相关人：</label>
-<? if($responsible_partner==$this->user->id && !$cases['client_lock'] && $cases['is_reviewed']){?>
+<? if($responsible_partner==$this->user->id && !in_array('客户已锁定',$labels) && in_array('在办', $labels)){?>
 			<button type="submit" name="submit[lock_client]">锁定</button>
 <? }?>
-<? if($responsible_partner==$this->user->id && $cases['client_lock']){ ?>
+<? if($responsible_partner==$this->user->id && in_array('客户已锁定',$labels)){ ?>
 			<button type="submit" name="submit[unlock_client]">解锁</button>
 <? } ?>
 		</div>
@@ -61,10 +61,12 @@
 				<?=checkbox('单位','client[character]',$this->value('client/character'),'单位','disabled="disabled"')?>
 
 				<select name="client[type]" disabled="disabled">
-					<?=options($cases['client_lock']?array('联系人','相对方'):array('客户','相对方','联系人'),$this->value('case_client_extra/classification'));?>
+					<?=options(in_array('客户已锁定',$labels)?array('联系人'):array('客户','联系人'),$this->value('client/type'),'人员类型');?>
 				</select>
 
-				<select name="client_labels[类型]" disabled="disabled"></select>
+				<select name="client_labels[类型]" disabled="disabled">
+					<?=options($this->label->getRelatives($this->value('client/type')),$this->value('client_labels/类型'),$this->value('client/type').'类型');?>
+				</select>
 
 			</span>
 
@@ -78,10 +80,10 @@
 
 			<span display-for="new client" class="hidden">
 				<label>来源：</label>
-				<select name="client_source[type]" disabled="disabled">
-					<?=options($this->config->item('客户来源类型'),$this->value('client_source/type'),'来源类型')?>
+				<select name="client_profiles[来源类型]" disabled="disabled">
+					<?=options($this->config->item('客户来源类型'),$this->value('client_profiles/来源类型'),'来源类型')?>
 				</select>
-				<input type="text" name="client_source[detail]" value="<?=$this->value('client_source/detail')?>" class="hidden" disabled="disabled" locked-by="case_client_extra[source_type]" />
+				<input type="text" name="client_profiles[来源]" value="<?=$this->value('client_profiles/来源')?>" class="hidden" disabled="disabled" locked-by="client_profiles[来源类型]" />
 				<input type="text" name="client[staff_name]" placeholder="来源律师" value="<?=$this->value('client/staff_name')?$this->value('client/staff_name'):$this->user->name?>" disabled="disabled" />
 			</span>
 			<button type="submit" name="submit[case_client]">添加</button>
@@ -91,17 +93,17 @@
 <? if(isset($labels['分类']) && in_array($labels['分类'],array('诉讼','非诉讼'))){?>
 	<div class="item">
 		<div class="title"><label>争议焦点：（案件标的）</label></div>
-		<input name="cases[focus]" type="text" value="<?=$this->value('cases/focus')?>" style="width:99%;font-size:1.2em;" />
+		<input name="project[focus]" type="text" value="<?=$this->value('project/focus')?>" style="width:99%;font-size:1.2em;" />
 	</div>
 <? }?>
 
 	<div class="item" name="staff">
 		<div class="title"><label>律师：</label>
-<?if($responsible_partner==$this->user->id && !$cases['staff_lock'] && $cases['is_reviewed']){?>
-			<button type="submit" name="submit[lock_lawyer]">锁定</button>
+<?if($responsible_partner==$this->user->id && !in_array('职员已锁定',$labels) && in_array('在办', $labels)){?>
+			<button type="submit" name="submit[lock_staff]">锁定</button>
 <? }?>
-<? if($responsible_partner==$this->user->id && $cases['staff_lock']){ ?>
-			<button type="submit" name="submit[unlock_lawyer]">解锁</button>
+<? if($responsible_partner==$this->user->id && in_array('职员已锁定',$labels)){ ?>
+			<button type="submit" name="submit[unlock_staff]">解锁</button>
 <? } ?>
 		</div>
 
@@ -119,30 +121,30 @@
 		</span>
 	</div>
 
-<? if($cases['is_query']){//咨询阶段显示报价情况，不显示律师费和办案费?>
+<? if(in_array('咨询',$labels)){//咨询阶段显示报价情况，不显示律师费和办案费?>
 	<div class="item">
 		<div class="title"><label>报价：</label></div>
-		<input type="text" name="cases[quote]" value="<?=$this->value('cases/quote') ?>" style="width:99%" />
+		<input type="text" name="project[quote]" value="<?=$this->value('project/quote') ?>" style="width:99%" />
 	</div>
 <? }?>
 	<div class="item" name="fee">
 		<div class="title">
 			<label>签约律师费：</label>
-			<label><input type="checkbox" name="cases[timing_fee]" value="1"<?if($this->value('cases/timing_fee')){?> checked="checked"<?}?><?if($cases['fee_lock']){?> disabled="disabled"<?}?>/>计时收费</label> 
+			<label><input type="checkbox" name="project[timing_fee]" value="1"<?if($this->value('project/timing_fee')){?> checked="checked"<?}?><?if(in_array('费用已锁定',$labels)){?> disabled="disabled"<?}?>/>计时收费</label> 
 			<label id="caseTimingFeeSave">
 
-<? if($this->value('cases/timing_fee') && !isset($case_fee_timing_string)){?>
+<? if($this->value('project/timing_fee') && !isset($case_fee_timing_string)){?>
 				<button type="submit" name="submit[case_fee_timing]">保存</button>
 <? }?></label>
-<? if(($responsible_partner==$this->user->id || $this->user->isLogged('finance')) && !$cases['fee_lock']){?>
+<? if(($responsible_partner==$this->user->id || $this->user->isLogged('finance')) && !in_array('费用已锁定',$labels)){?>
 			<button type="submit" name="submit[lock_fee]">锁定</button>
 <? }?>
-<? if(($responsible_partner==$this->user->id || $this->user->isLogged('finance')) && $cases['fee_lock']){ ?>
+<? if(($responsible_partner==$this->user->id || $this->user->isLogged('finance')) && in_array('费用已锁定',$labels)){ ?>
 			<button type="submit" name="submit[unlock_fee]">解锁</button>
 <? } ?>
 
 <? if($this->user->isLogged('finance')){?>
-			<button type="button" onclick="$.locationHash('account/add?case=<?=$this->value('cases/id')?>')">到账</button>
+			<button type="button" onclick="$.locationHash('account/add?case=<?=$this->value('project/id')?>')">到账</button>
 <? }?>
 <? if($this->user->isLogged('finance')){?>
 			<button type="submit" name="submit[case_fee_review]" disabled="disabled" class="hidden">忽略</button>
@@ -150,7 +152,7 @@
 		</div>
 
 		<div>
-			<div class="timing-fee-detail<?if(!$this->value('cases/timing_fee')){?> hidden<?}?>">
+			<div class="timing-fee-detail<?if(!$this->value('project/timing_fee')){?> hidden<?}?>">
 <?if(isset($case_fee_timing_string) && $case_fee_timing_string!=''){?>
 				<?=$case_fee_timing_string?>
 <?}else{?>
@@ -165,11 +167,11 @@
 		</div>
 
 		<?=$fee_list?>	
-<? if(!$cases['fee_lock']){?>
+<? if(!in_array('费用已锁定',$labels)){?>
 		<button type="button" class="toggle-add-form">＋</button>
 		<span class="add-form hidden">
 			<select name="case_fee[type]">
-				<?=options($cases['is_query']?array('咨询费'):array('固定','风险','计时预付'),$this->value('case_fee/type'),'类型');?>
+				<?=options(in_array('咨询',$labels)?array('咨询费'):array('固定','风险','计时预付'),$this->value('case_fee/type'),'类型');?>
 			</select>
 			<input type="text" name="case_fee[fee]" value="<?=$this->value('case_fee/fee');?>" placeholder="数额" />
 			<input type="text" name="case_fee[condition]" value="<?=$this->value('case_fee/condition');?>" placeholder="付款条件" />
@@ -179,7 +181,7 @@
 <? }?>
 	</div>
 
-<?if(!$cases['is_query']){?>
+<?if(!in_array('咨询',$labels)){?>
 	<div class="item" name="miscfee">
 		<div class="title"><label>办案费约定情况：</label></div>
 
@@ -199,7 +201,7 @@
 
 	<div class="item" name="document">
 		<div class="title"><label>文件：</label>
-<? if($this->value('cases/apply_file')){ ?>
+<? if($this->value('project/apply_file')){ ?>
 			<button type="submit" name="submit[file_document_list]">下载目录</button>
 <? } ?>
 		</div>
@@ -220,10 +222,10 @@
 		<div class="title">
 			<span class="right">
 				<?=$schedule_time?>小时
-				<a href="#schedule/lists?case=<?=$this->value('cases/id')?>">所有日志>></a>
+				<a href="#schedule/lists?case=<?=$this->value('project/id')?>">所有日志>></a>
 			</span>
 			<label>最新日志：
-				<a href="javascript:createSchedule(null,null,null,<?=$this->value('cases/id'),true?>)">添加>></a>
+				<a href="javascript:createSchedule(null,null,null,<?=$this->value('project/id'),true?>)">添加>></a>
 			</label>
 		</div>
 		<?=$schedule_list?>
@@ -232,10 +234,10 @@
 	<div class="item" name="plan">
 		<div class="title">
 			<span class="right">
-				<a href="#schedule/plan?case=<? echo $this->value('cases/id')?>">所有计划>></a>
+				<a href="#schedule/plan?case=<? echo $this->value('project/id')?>">所有计划>></a>
 			</span>
 			<label>日程计划：
-				<a href="javascript:createSchedule(null,null,null,<?=$this->value('cases/id'),false?>)">添加>></a>
+				<a href="javascript:createSchedule(null,null,null,<?=$this->value('project/id'),false?>)">添加>></a>
 			</label>
 		</div>
 		<?$plan_list?>
@@ -243,17 +245,13 @@
 
 	<div class="item">
 		<div class="title"><label>案情简介：</label></div>
-		<textarea class="item" name="cases[summary]" type="text" rows="4"><?=$this->value('cases/summary')?></textarea>
+		<textarea class="item" name="project[summary]" type="text" rows="4"><?=$this->value('project/summary')?></textarea>
 	</div>
 
 	<div class="item">
 		<div class="title"><label>备注：</label></div>
-		<textarea class="item" name="cases[comment]" type="text" rows="3"><?=$this->value('cases/comment')?></textarea>
-	</div>
-
-	<div class="submit">
-		<button type="submit" name="submit[cases]">保存</button>
+		<textarea class="item" name="project[comment]" type="text" rows="3"><?=$this->value('project/comment')?></textarea>
 	</div>
 </div>
 </form>
-<?=javascript('case_add')?>
+<?=javascript('project_add')?>

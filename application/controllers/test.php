@@ -1,7 +1,6 @@
 <?php
 class Test extends SS_controller{
 	function __construct() {
-		$this->require_permission_check=false;
 		parent::__construct();
 		$this->output->as_ajax=false;
 	}
@@ -13,6 +12,20 @@ class Test extends SS_controller{
 		print_r($this->session->all_userdata());
 		print_r($_SESSION);
 		print_r($this->user->permission);
+	}
+	
+	function ar(){
+		$this->db->select('id,name');
+		$this->db->from('people');
+		$this->db->where('company',1);
+		$this->db->where("id IN (SELECT people FROM case_people)",NULL,false);
+		$this->db->get();
+		echo $this->db->last_query();
+	}
+	
+	function team(){
+		$this->load->model('team_model','team');
+		print_r($this->team->traceByPeople(8001));
 	}
 	
 	/**

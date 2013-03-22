@@ -1,9 +1,7 @@
 <?php
-class Document_model extends SS_Model{
+class Document_model extends BaseItem_model{
 	
-	var $id;
-	
-	var $fields=array(
+	static $fields=array(
 		'name'=>'文件名',
 		'extname'=>'扩展名',
 		'size'=>'大小',
@@ -12,6 +10,7 @@ class Document_model extends SS_Model{
 	
 	function __construct(){
 		parent::__construct();
+		$this->table='document';
 		$this->load->library('filetype');
 	}
 	
@@ -27,11 +26,11 @@ class Document_model extends SS_Model{
 	}
 	
 	function add(array $data=array()){
-		$data=array_intersect_key($data, $this->fields);
+		$document=array_intersect_key($data, self::$fields);
 		
-		$data+=uidTime(true,true);
+		$document+=uidTime(true,true);
 		
-		$this->db->insert('document',$data);
+		$this->db->insert('document',$document);
 		
 		return $this->db->insert_id();
 				
@@ -93,16 +92,5 @@ class Document_model extends SS_Model{
 		}
 	}
 	
-	function getList(){
-		$q="SELECT *
-			FROM `document` 
-			WHERE 1=1 ";
-		$q=$this->search($q,array('name'=>'文件名'));
-		$q.=(option('in_search_mod')?'':"AND parent='".$_SESSION['document']['currentDirID']."'").'';
-		$q=$this->orderBy($q,'type','ASC');
-		$q=$this->pagination($q);
-		return $this->db->query($q)->result_array();
-	}
-
 }
 ?>

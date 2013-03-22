@@ -1,35 +1,61 @@
 <?php
 class User_model extends People_model{
 	
-	var $id;
 	var $name;
-	var $group=array();
-	var $permission=array();
+	var $teams;
+	var $group;
 	
-	var $child;
-	var $manage_class;
-	var $teacher_group;
-	var $course;
-	var $class;
-	var $class_name;
-	var $grade;
-	var $grade_name;
+	static $fields=array(
+		'name'=>'用户名',
+		'alias'=>'别名',
+		'group'=>'用户组',
+		'password'=>'密码'
+	);
 	
-	function __construct(){
+	function __construct($uid=NULL){
 		parent::__construct();
+		$this->table='user';
+		
+		$this->load->model('team_model','team');
+		
+		if(is_null($uid)){
+			$uid=$this->session->userdata('user/id');
+		}
+		
+		if($uid){
+			$user=$this->fetch($uid);
+			$this->id=$user['id'];
+			$this->name=$user['name'];
+			$this->group=explode(',',$user['group']);
+		}else{
+			$this->id=0;
+		}
 		
 		$session=$this->session->all_userdata();
+		
+		$this->teams=$this->team->traceByPeople($this->id);
+
 		foreach($session as $key => $value){
 			if(preg_match('/^user\/(.*?)$/', $key,$matches)){
 				$this->$matches[1]=$value;
 			}
 		}
 
-		$this->preparePermission();
 	}
 	
-	function fetch($id){
-		return $this->db->get_where('user',array('id'=>$id))->row_array();
+	function add($data=array()){
+		$data['type']='学生';
+		$user_id=parent::add($data);
+
+		$data['group']='candidate';
+		$data=array_intersect_key($data, self::$fields);
+		
+		$data['id']=$user_id;
+		$data['company']=$this->company->id;
+
+		$this->db->insert('user',$data);
+		
+		return $user_id;
 	}
 	
 	function verify($username,$password){
@@ -37,13 +63,9 @@ class User_model extends People_model{
 			SELECT id,name,password,`group`,lastip,lastlogin,company
 			FROM user 
 			WHERE (name = '$username' OR alias='$username')
-				AND (password = '{$this->input->post('password')}' OR password IS NULL)
+				AND (password = '$password' OR password IS NULL)
 				AND company={$this->company->id}
 			";
-		
-			if(!$this->config->item('debug_mode')){
-				$q_user=" AND (password = '$password' OR password IS NULL)";
-			}
 		
 		$user=$this->db->query($q_user)->row_array();
 		
@@ -89,7 +111,7 @@ class User_model extends People_model{
 	function updateLoginTime(){
 		$this->db->update('user',
 			array('lastip'=>$this->session->userdata('ip_address'),
-				'lastlogin'=>$this->config->item('timestamp')
+				'lastlogin'=>$this->date->now
 			),
 			array('id'=>$this->id,'company'=>$this->company->id)
 		);
@@ -136,9 +158,6 @@ class User_model extends People_model{
 		
 		if($user=$this->db->query($q_user)->row_array()){
 			$this->session->set_userdata('user/id', $user['id']);
-			$this->session->set_userdata('user/group', explode(',',$user['group']));
-			$this->session->set_userdata('user/name', $user['username']);
-			$this->session->set_userdata('user/position', $user['position']);
 			return true;
 		}
 		return false;
@@ -175,67 +194,57 @@ class User_model extends People_model{
 		return true;
 	}
 
-	/**
-	 * 根据当前用户组，将数据库中controller,permission两表中的用户权限读入$this->user->permission
-	 */
-	function preparePermission(){
-
-		$query="
-			SELECT
-				controller.name AS controller,
-				IF(permission.ui_name<>'', permission.ui_name, controller.ui_name) AS controller_name,
-				IF(permission.discription IS NOT NULL, permission.discription, controller.discription) AS discription,
-				controller.add_action,
-				permission.controller, permission.method, permission.display_in_nav AS display
-			FROM controller LEFT JOIN permission ON controller.name=permission.controller 
-			WHERE permission.company={$this->company->id}
-				AND controller.is_on=1
-		";
+	function generateNav(){
 		
-		if($this->group){
-			$query.="AND (".db_implode($this->group, $glue = ' OR ','permission.group').") ";
-		}else{
-			$query.="AND FALSE";
-		}
-				
-		$query.="
-			GROUP BY permission.controller,permission.method
-			ORDER BY controller.order, permission.order
+		$query="
+			SELECT * FROM (
+				SELECT * FROM nav
+				WHERE (company_type is null or company_type = '{$this->company->type}')
+					AND (company ={$this->company->id} OR company IS NULL)
+					AND (team IS NULL ".($this->teams?"OR team IN (".implode(',',$this->teams).")":'').")
+				ORDER BY company_type DESC,company DESC,team DESC
+			)nav_ordered
+			GROUP BY href
+			ORDER BY parent,`order`
 		";
-
-		$result_array=$this->db->query($query)->result_array();
-
-		$permission=array();
-		foreach($result_array as $a){
-			if(!isset($permission[$a['controller']])){
-				$permission[$a['controller']]=array();
-			}
-			if($a['method']==''){
-				//一级菜单
-				$permission[$a['controller']]
-				=array_replace_recursive($permission[$a['controller']],array('_controller_name'=>$a['controller_name'],'_add_action'=>$a['add_action'],'_display'=>$a['display']));
+					
+		$result=$this->db->query($query);
+		
+		$nav=array();
+		
+		foreach($result->result() as $row){
+			if(is_null($row->parent)){
+				$nav[0][]=$row;
 			}else{
-				//二级菜单
-				$permission[$a['controller']][$a['method']]=array('_controller_name'=>$a['controller_name'],'_display'=>$a['display']);
+				$nav[$row->parent][]=$row;
 			}
 		}
-		$this->permission=$permission;
-	}
+		
+		function generate($nav,$parent=0,$level=0){
+		
+			$out='<ul level="'.$level.'">';
 
-	/**
-	 * 根据已保存的$_SESSION['permission']判断权限
-	 * $action未定义时，只验证是否具有访问当前controller的权限
-	 */
-	function isPermitted($controller,$action=NULL){
-		if(isset($this->permission[$controller])){
-			if(is_null($action)){
-				return true;
-			}else{
-				return isset($this->permission[$controller][$action])?true:false;
+			foreach($nav[$parent] as $nav_item){
+				$out.='<li href="'.$nav_item->href.'">';
+				if(isset($nav[$nav_item->id])){
+					$out.='<span class="arrow"><img src="images/arrow_r.png" alt=">" /></span>';
+				}
+				$out.='<a href="'.$nav_item->href.'" '.(isset($nav[$nav_item->id])?'':'class="dink"').'>'.$nav_item->name.'</a>';
+				if($nav_item->add_href){
+					$out.='<a href="'.$nav_item->add_href.'" class="add"> <span style="font-size:12px;color:#CEDDEC">+</span></a>';
+				}
+				if(isset($nav[$nav_item->id])){
+					$out.=generate($nav,$nav_item->id,$level+1);
+				}
+				$out.='</li>';
+
 			}
-		}else{
-			return false;
+			$out.='</ul>';
+				
+			return $out;
 		}
+		
+		return generate($nav);
 	}
 
 	/**

@@ -1,14 +1,15 @@
 <?php
 
 /**
-* @property CI_DB_active_record $db
 * @property CI_DB_mysql_driver $db
+* @property CI_DB_active_record $db
 * @property CI_DB_forge $dbforge
 * @property CI_Benchmark $benchmark
 * @property CI_Calendar $calendar
 * @property CI_Cart $cart
 * @property CI_Config $config
 * @property SS_Controller $controller
+* @property SS_Date $date
 * @property CI_Email $email
 * @property CI_Encrypt $encrypt
 * @property CI_Exceptions $exceptions
@@ -52,11 +53,15 @@
 * @property Express_model $express
 * @property Instrument_model $instrument
 * @property News_model $news
+* @property People_model $people
+* @property Project_model $project
 * @property Query_model $query
 * @property Schedule_model $schedule
 * @property Score_model $score
 * @property Staff_model $staff
 * @property Student_model $student
+* @property Subquery $subquery
+* @property Team_model $team
 * @property User_model $user
 * @property School_model $school
 * @property Label_model $label
@@ -65,14 +70,15 @@
 class CI_Controller {};
 
 /**
-* @property CI_DB_active_record $db
 * @property CI_DB_mysql_driver $db
+* @property CI_DB_active_record $db
 * @property CI_DB_forge $dbforge
 * @property CI_Benchmark $benchmark
 * @property CI_Calendar $calendar
 * @property CI_Cart $cart
 * @property CI_Config $config
 * @property SS_Controller $controller
+* @property SS_Date $date
 * @property CI_Email $email
 * @property CI_Encrypt $encrypt
 * @property CI_Exceptions $exceptions
@@ -116,11 +122,15 @@ class CI_Controller {};
 * @property Express_model $express
 * @property Instrument_model $instrument
 * @property News_model $news
+* @property People_model $people
+* @property Project_model $project
 * @property Query_model $query
 * @property Schedule_model $schedule
 * @property Score_model $score
 * @property Staff_model $staff
 * @property Student_model $student
+* @property Subquery $subquery
+* @property Team_model $team
 * @property User_model $user
 * @property School_model $school
 * @property Label_model $label

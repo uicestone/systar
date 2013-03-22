@@ -14,8 +14,18 @@ function options($options,$checked=NULL,$label=NULL,$array_key_as_option_value=f
 	}
 	
 	foreach($options as $option_key=>$option){
-		$value=$array_key_as_option_value?$option_key:$option;
-		$options_html.='<option value="'.$value.'"'.($value==$checked?' selected="selected"':'').'>'.$option.'</option>';
+		
+		if(is_array($option)){
+			$options_html.='<optgroup label="'.$option_key.'">';
+			foreach($option as $option_key => $option){
+				$value=$array_key_as_option_value?$option_key:$option;
+				$options_html.='<option value="'.$value.'"'.((is_array($checked)?in_array($value,$checked):$value==$checked)?' selected="selected"':'').'>'.$option.'</option>';
+			}
+			$options_html.='</optgroup>';
+		}else{
+			$value=$array_key_as_option_value?$option_key:$option;
+			$options_html.='<option value="'.$value.'"'.((is_array($checked)?in_array($value,$checked):$value==$checked)?' selected="selected"':'').'>'.$option.'</option>';
+		}
 	}
 	
 	if($etc_option){

@@ -13,12 +13,12 @@ class School_model extends SS_Model{
  */
 
 		$this->load->library('Lunar');
-		$year=date('y',$this->config->item('timestamp'));//两位数年份
+		$year=date('y',$this->date->now);//两位数年份
 		$term_begin_this_year_timestamp=strtotime($year.'-8-1');//今年8/1
 		$lunar_this_new_year_timestamp=$this->lunar->L2S($year.'-1-1');//今年农历新年的公历
-		if($this->config->item('timestamp')>=$term_begin_this_year_timestamp){
+		if($this->date->now>=$term_begin_this_year_timestamp){
 			$term=1;$term_year=$year;
-		}elseif($this->config->item('timestamp')<$lunar_this_new_year_timestamp){
+		}elseif($this->date->now<$lunar_this_new_year_timestamp){
 			$term=1;$term_year=$year-1;
 		}else{
 			$term=2;$term_year=$year-1;
@@ -32,6 +32,7 @@ class School_model extends SS_Model{
  */
 	}
 
+/*
 	function student_setSession($user_id){
 		$user_id=intval($user_id);
 		
@@ -43,7 +44,8 @@ class School_model extends SS_Model{
 		$this->session->set_userdata('user/grade', $student['grade']);
 		$this->session->set_userdata('user/grade_name', $student['grade_name']);
 	}
-	
+*/
+
 	function teacher_setSession($user_id){
 		$user_id=intval($user_id);
 		

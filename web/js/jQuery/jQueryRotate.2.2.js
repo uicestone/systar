@@ -18,7 +18,7 @@ var IE = eval('"v"=="\v"');
 jQuery.fn.extend({
     rotate:function(parameters)
     {
-        if (this.length===0||typeof parameters=="undefined") return;
+        if (this.length===0||typeof parameters=="undefined" || ($.browser.msie && $.browser.version<=8)) return;
             if (typeof parameters=="number") parameters={angle:parameters};
         var returned=[];
         for (var i=0,i0=this.length;i<i0;i++)
@@ -49,6 +49,8 @@ jQuery.fn.extend({
             return ret;
     },
     stopRotate: function(){
+		if(($.browser.msie && $.browser.version<=8)) return;
+		
         for (var i=0,i0=this.length;i<i0;i++)
             {
                 var element=this.get(i);	
@@ -148,7 +150,8 @@ Wilq32.PhotoEffect.prototype={
 		{
 			var width=this._img.width;
 			var height=this._img.height;
-			this._img.parentNode.removeChild(this._img);
+			//this._img.parentNode.removeChild(this._img);
+			jQuery(this._img).parent().find(this._img).remove();
 							
 			this._vimage = this.createVMLNode('image');
 			this._vimage.src=this._img.src;
