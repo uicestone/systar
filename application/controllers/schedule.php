@@ -1,6 +1,8 @@
 <?php
 class Schedule extends SS_controller{
 	
+	var $section_title='日程';
+	
 	function __construct(){
 		$this->default_method='calendar';
 		parent::__construct();
@@ -34,7 +36,7 @@ class Schedule extends SS_controller{
 	function lists($method=NULL){
 		
 		if($this->input->get('case')){
-			$this->output->setData('日程 - '.strip_tags($this->cases->fetch($this->input->get('case'),'name')),'name');
+			$this->section_title='日程 - '.$this->cases->fetch($this->input->get('case'),'name');
 		}
 		
 
@@ -418,7 +420,7 @@ class Schedule extends SS_controller{
 			$this->load->addViewData('schedule', $schedule);
 			$this->load->addViewData('profiles', $profiles);
 
-			isset($schedule['name']) && $this->output->setData($schedule['name'],'name');
+			isset($schedule['name']) && $this->section_title=$schedule['name'];
 
 			isset($schedule['completed']) && $this->output->setData($schedule['completed'],'completed');
 		}

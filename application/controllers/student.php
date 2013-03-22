@@ -1,5 +1,8 @@
 <?php
 class Student extends People{
+	
+	var $section_title='学生';
+	
 	function __construct(){
 		parent::__construct();
 		$this->people=$this->student;

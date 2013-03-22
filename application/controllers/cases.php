@@ -3,6 +3,8 @@
  * 案件，继承于 项目
  */
 class Cases extends Project{
+	
+	var $section_title='案件';
 
 	function __construct() {
 		parent::__construct();
@@ -22,6 +24,7 @@ class Cases extends Project{
 	}
 	
 	function host(){
+		$this->section_title='主办案件';
 		option('search/role','主办律师');
 		$this->index();
 	}

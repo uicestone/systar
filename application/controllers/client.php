@@ -1,7 +1,7 @@
 <?php
 class Client extends People{
 	
-	var $section_name='客户';
+	var $section_title='客户';
 	
 	function __construct(){
 		parent::__construct();

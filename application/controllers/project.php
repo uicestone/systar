@@ -1,6 +1,8 @@
 <?php
 class Project extends SS_controller{
 	
+	var $section_title='项目';
+	
 	var $form_validation_rules=array();
 	
 	var $list_args;
@@ -212,7 +214,7 @@ class Project extends SS_controller{
 			$labels=array_merge($this->project->getLabels($this->project->id),$this->input->sessionPost('labels'));
 
 			if(!$project['name']){
-				$this->output->setData('未命名案件','name');
+				$this->section_title='未命名案件';
 			}else{
 				$this->output->setData($project['name'], 'name');
 			}

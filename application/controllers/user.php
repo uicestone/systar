@@ -89,7 +89,7 @@ class user extends SS_controller{
 		$people_profiles=array_merge_recursive(array_sub($this->people->getProfiles($this->user->id),'content','name'),$this->input->sessionPost('people'));
 		$this->load->addViewArrayData(compact('people','people_profiles'));
 		
-		$this->output->setData('用户资料','name');
+		$this->section_title='用户资料';
 		$this->load->view('user/profile');
 		$this->load->view('user/profile_sidebar',true,'sidebar');
 	}
@@ -164,7 +164,7 @@ class user extends SS_controller{
 	 */
 	function browser(){
 		$this->output->as_ajax=false;
-		$this->output->setData('请更新您的浏览器','name');
+		$this->section_title='请更新您的浏览器';
 		$this->load->view('head');
 		$this->load->view('browser');
 		$this->load->view('foot');

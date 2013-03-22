@@ -1,5 +1,8 @@
 <?php
 class Classes extends Team{
+	
+	var $section_title='班级';
+	
 	function __construct(){
 		parent::__construct();
 	}

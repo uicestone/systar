@@ -9,6 +9,8 @@ class People extends SS_Controller{
 	var $form_validation_rules=array();
 	
 	var $list_args;
+	
+	var $section_title='人员';
 		
 	function __construct() {
 		parent::__construct();
@@ -134,9 +136,10 @@ class People extends SS_Controller{
 			$profiles=array_sub($this->people->getProfiles($this->people->id),'content','name');
 
 			if(!$people['name'] && !$people['abbreviation']){
-				$this->output->setData('未命名'.$this->section_name,'name');
+				
+				$this->section_title='未命名';
 			}else{
-				$this->output->setData($people['abbreviation']?$people['abbreviation']:$people['name'],'name');
+				$this->section_title=$people['abbreviation']?$people['abbreviation']:$people['name'];
 			}
 
 			$available_options=$this->people->getAllLabels();

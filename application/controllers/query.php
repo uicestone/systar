@@ -1,5 +1,8 @@
 <?php
 class Query extends Project{
+	
+	var $section_title='咨询';
+	
 	function __construct(){
 		parent::__construct();
 		$this->project=$this->query;
@@ -54,7 +57,7 @@ class Query extends Project{
 			$labels=$this->query->getLabels($this->query->id);
 
 			if(!$query['name']){
-				$this->output->setData('未命名咨询','name');
+				$this->section_title='未命名咨询';
 			}else{
 				$this->output->setData(strip_tags($query['name']), 'name');
 			}

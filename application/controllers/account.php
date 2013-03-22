@@ -1,6 +1,8 @@
 <?php
 class Account extends SS_controller{
 	
+	var $section_title='资金';
+	
 	var $list_args=array(
 		'date'=>array('heading'=>'日期'),
 		'name'=>array('heading'=>'名目'),
@@ -83,7 +85,7 @@ class Account extends SS_controller{
 				$tab_title='未命名流水';
 			}
 
-			$this->output->setData($tab_title,'name');
+			$this->section_title=$tab_title;
 
 			if($account['case']){
 				//根据案件ID获得收费array

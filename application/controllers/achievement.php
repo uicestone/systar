@@ -1,6 +1,8 @@
 <?php
 class Achievement extends SS_controller{
 	
+	var $section_title='业绩';
+	
 	var $list_args=array(
 		'case_name'=>array('heading'=>array('data'=>'案件','width'=>'25%'),'cell'=>'<a href="#cases/edit/{case}" class="right" style="margin-left:10px;">查看</a>{case_name}'),
 		'client_name'=>array('heading'=>'客户'),
@@ -12,7 +14,6 @@ class Achievement extends SS_controller{
 	);
 	
 	function __construct(){
-		$this->default_method='index';
 		parent::__construct();
 	}
 	

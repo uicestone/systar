@@ -2,6 +2,8 @@
 class SS_Controller extends CI_Controller{
 	
 	var $default_method='index';
+	
+	var $section_title='';
 
 	var $company_type_model_loaded=false;
 	var $company_model_loaded=false;
