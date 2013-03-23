@@ -1,32 +1,13 @@
--- phpMyAdmin SQL Dump
--- version 3.5.2.2
--- http://www.phpmyadmin.net
---
--- 主机: 127.0.0.1
--- 生成日期: 2013 年 02 月 16 日 16:17
--- 服务器版本: 5.5.27-log
--- PHP 版本: 5.3.15
-
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
-
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8 */;
 
---
--- 数据库: `syssh`
---
 CREATE DATABASE `syssh` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
 USE `syssh`;
-
--- --------------------------------------------------------
-
---
--- 表的结构 `account`
---
 
 CREATE TABLE IF NOT EXISTS `account` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -54,36 +35,41 @@ CREATE TABLE IF NOT EXISTS `account` (
   KEY `company` (`company`),
   KEY `amount` (`amount`),
   KEY `time_insert` (`time_insert`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='账目（主表）' AUTO_INCREMENT=600 ;
-
--- --------------------------------------------------------
-
---
--- 表的结构 `account_label`
---
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='账目（主表）' AUTO_INCREMENT=660 ;
 
 CREATE TABLE IF NOT EXISTS `account_label` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `account` int(11) NOT NULL,
   `label` int(11) NOT NULL,
   `type` enum('item') DEFAULT NULL,
+  `label_name` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `account_label` (`account`,`label`),
-  KEY `account` (`account`),
-  KEY `label` (`label`)
+  UNIQUE KEY `account-type` (`account`,`type`),
+  KEY `label` (`label`),
+  KEY `label_name` (`label_name`),
+  KEY `type` (`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
-
---
--- 表的结构 `case`
---
+CREATE TABLE IF NOT EXISTS `account_team` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `account` int(11) NOT NULL,
+  `team` int(11) NOT NULL,
+  `uid` int(11) NOT NULL,
+  `username` varchar(255) NOT NULL,
+  `time` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `account` (`account`),
+  KEY `team` (`team`),
+  KEY `uid` (`uid`),
+  KEY `time` (`time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `case` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
-  `num` char(20) NOT NULL DEFAULT '',
-  `name_extra` varchar(255) NOT NULL DEFAULT '',
+  `type` varchar(255) NOT NULL,
+  `num` char(20) DEFAULT NULL,
   `first_contact` date DEFAULT NULL,
   `time_contract` date DEFAULT NULL,
   `time_end` date DEFAULT NULL,
@@ -93,17 +79,6 @@ CREATE TABLE IF NOT EXISTS `case` (
   `focus` text,
   `summary` text,
   `source` int(11) DEFAULT NULL,
-  `is_reviewed` tinyint(1) NOT NULL DEFAULT '0',
-  `type_lock` tinyint(1) NOT NULL DEFAULT '0',
-  `client_lock` tinyint(1) NOT NULL DEFAULT '0',
-  `staff_lock` tinyint(1) NOT NULL DEFAULT '0',
-  `fee_lock` tinyint(1) NOT NULL DEFAULT '0',
-  `apply_file` tinyint(1) NOT NULL DEFAULT '0' COMMENT '已申请归档',
-  `is_query` tinyint(1) NOT NULL DEFAULT '0',
-  `finance_review` tinyint(1) NOT NULL DEFAULT '0',
-  `info_review` tinyint(1) NOT NULL DEFAULT '0',
-  `manager_review` tinyint(1) NOT NULL DEFAULT '0',
-  `filed` tinyint(1) NOT NULL DEFAULT '0',
   `company` int(11) DEFAULT NULL,
   `uid` int(11) DEFAULT NULL,
   `username` varchar(255) NOT NULL DEFAULT '',
@@ -121,13 +96,21 @@ CREATE TABLE IF NOT EXISTS `case` (
   KEY `time` (`time`),
   KEY `company` (`company`),
   KEY `time_insert` (`time_insert`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='项目（主表）' AUTO_INCREMENT=1340 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='项目（主表）' AUTO_INCREMENT=1516 ;
 
--- --------------------------------------------------------
-
---
--- 表的结构 `case_fee`
---
+CREATE TABLE IF NOT EXISTS `case_document` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `case` int(11) NOT NULL,
+  `document` int(11) NOT NULL,
+  `uid` int(11) NOT NULL,
+  `username` varchar(255) NOT NULL,
+  `time` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `case` (`case`),
+  KEY `document` (`document`),
+  KEY `uid` (`uid`),
+  KEY `time` (`time`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2160 ;
 
 CREATE TABLE IF NOT EXISTS `case_fee` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -150,13 +133,7 @@ CREATE TABLE IF NOT EXISTS `case_fee` (
   KEY `case` (`case`),
   KEY `fee` (`fee`),
   KEY `pay_date` (`pay_date`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='项目下收费' AUTO_INCREMENT=823 ;
-
--- --------------------------------------------------------
-
---
--- 表的结构 `case_fee_timing`
---
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='项目下收费' AUTO_INCREMENT=908 ;
 
 CREATE TABLE IF NOT EXISTS `case_fee_timing` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -178,12 +155,6 @@ CREATE TABLE IF NOT EXISTS `case_fee_timing` (
   KEY `case` (`case`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='项目计时收费规则' AUTO_INCREMENT=26 ;
 
--- --------------------------------------------------------
-
---
--- 表的结构 `case_label`
---
-
 CREATE TABLE IF NOT EXISTS `case_label` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `case` int(11) NOT NULL,
@@ -193,15 +164,10 @@ CREATE TABLE IF NOT EXISTS `case_label` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `case-label` (`case`,`label`),
   UNIQUE KEY `case-type` (`case`,`type`),
-  KEY `case` (`case`),
-  KEY `label` (`label`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5494 ;
-
--- --------------------------------------------------------
-
---
--- 表的结构 `case_num`
---
+  KEY `label` (`label`),
+  KEY `label_name` (`label_name`),
+  KEY `type` (`type`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=14686 ;
 
 CREATE TABLE IF NOT EXISTS `case_num` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -219,11 +185,7 @@ CREATE TABLE IF NOT EXISTS `case_num` (
   KEY `uid` (`uid`),
   KEY `time` (`time`),
   KEY `case` (`case`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='项目编号' AUTO_INCREMENT=1360 ;
-
---
--- 触发器 `case_num`
---
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='项目编号' AUTO_INCREMENT=1471 ;
 DROP TRIGGER IF EXISTS `trig_case_num_multiautoincrease`;
 DELIMITER //
 CREATE TRIGGER `trig_case_num_multiautoincrease` BEFORE INSERT ON `case_num`
@@ -234,12 +196,6 @@ CREATE TRIGGER `trig_case_num_multiautoincrease` BEFORE INSERT ON `case_num`
 )
 //
 DELIMITER ;
-
--- --------------------------------------------------------
-
---
--- 表的结构 `case_people`
---
 
 CREATE TABLE IF NOT EXISTS `case_people` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -260,13 +216,7 @@ CREATE TABLE IF NOT EXISTS `case_people` (
   KEY `time` (`time`),
   KEY `people` (`people`),
   KEY `role` (`role`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='项目人员关系' AUTO_INCREMENT=30273 ;
-
--- --------------------------------------------------------
-
---
--- 表的结构 `client_source`
---
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='项目人员关系' AUTO_INCREMENT=34868 ;
 
 CREATE TABLE IF NOT EXISTS `client_source` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -276,12 +226,6 @@ CREATE TABLE IF NOT EXISTS `client_source` (
   PRIMARY KEY (`id`),
   KEY `people` (`people`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='客户来源种类' AUTO_INCREMENT=117 ;
-
--- --------------------------------------------------------
-
---
--- 表的结构 `company`
---
 
 CREATE TABLE IF NOT EXISTS `company` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -295,12 +239,6 @@ CREATE TABLE IF NOT EXISTS `company` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='公司列表（系统表）' AUTO_INCREMENT=4 ;
 
--- --------------------------------------------------------
-
---
--- 表的结构 `controller`
---
-
 CREATE TABLE IF NOT EXISTS `controller` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
@@ -311,13 +249,7 @@ CREATE TABLE IF NOT EXISTS `controller` (
   `discription` varchar(255) DEFAULT NULL,
   `order` int(11) NOT NULL DEFAULT '0' COMMENT '显示顺序',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='控制器（系统表）' AUTO_INCREMENT=212 ;
-
--- --------------------------------------------------------
-
---
--- 表的结构 `course`
---
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='控制器（系统表）' AUTO_INCREMENT=215 ;
 
 CREATE TABLE IF NOT EXISTS `course` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -326,16 +258,8 @@ CREATE TABLE IF NOT EXISTS `course` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='课程' AUTO_INCREMENT=16 ;
 
--- --------------------------------------------------------
-
---
--- 表的结构 `document`
---
-
 CREATE TABLE IF NOT EXISTS `document` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `case` int(11) NOT NULL DEFAULT '0',
-  `people` int(11) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
   `extname` char(8) NOT NULL,
   `size` int(11) NOT NULL DEFAULT '0',
@@ -349,17 +273,9 @@ CREATE TABLE IF NOT EXISTS `document` (
   PRIMARY KEY (`id`),
   KEY `uid` (`uid`),
   KEY `time` (`time`),
-  KEY `case` (`case`),
-  KEY `client` (`people`),
   KEY `company` (`company`),
   KEY `time_insert` (`time_insert`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='项目下文件' AUTO_INCREMENT=1744 ;
-
--- --------------------------------------------------------
-
---
--- 表的结构 `document_label`
---
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='项目下文件' AUTO_INCREMENT=1861 ;
 
 CREATE TABLE IF NOT EXISTS `document_label` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -368,16 +284,12 @@ CREATE TABLE IF NOT EXISTS `document_label` (
   `type` varchar(255) NOT NULL,
   `label_name` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `document_label` (`document`,`label`),
-  KEY `document` (`document`),
-  KEY `label` (`label`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2780 ;
-
--- --------------------------------------------------------
-
---
--- 表的结构 `evaluation_indicator`
---
+  UNIQUE KEY `document-label` (`document`,`label`),
+  UNIQUE KEY `document-type` (`document`,`type`),
+  KEY `label` (`label`),
+  KEY `type` (`type`),
+  KEY `label_name` (`label_name`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=4254 ;
 
 CREATE TABLE IF NOT EXISTS `evaluation_indicator` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -391,12 +303,6 @@ CREATE TABLE IF NOT EXISTS `evaluation_indicator` (
   KEY `critic` (`critic`),
   KEY `position` (`position`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='考核指标' AUTO_INCREMENT=347 ;
-
--- --------------------------------------------------------
-
---
--- 表的结构 `evaluation_score`
---
 
 CREATE TABLE IF NOT EXISTS `evaluation_score` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -419,12 +325,6 @@ CREATE TABLE IF NOT EXISTS `evaluation_score` (
   KEY `quarter` (`quarter`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='考核分数' AUTO_INCREMENT=3492 ;
 
--- --------------------------------------------------------
-
---
--- 表的结构 `exam`
---
-
 CREATE TABLE IF NOT EXISTS `exam` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL DEFAULT '',
@@ -437,12 +337,6 @@ CREATE TABLE IF NOT EXISTS `exam` (
   KEY `grade` (`grade`),
   KEY `term` (`term`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='考试 一个年级的一次（主表）' AUTO_INCREMENT=30 ;
-
--- --------------------------------------------------------
-
---
--- 表的结构 `exam_paper`
---
 
 CREATE TABLE IF NOT EXISTS `exam_paper` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -461,12 +355,6 @@ CREATE TABLE IF NOT EXISTS `exam_paper` (
   KEY `term` (`term`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='试卷 一学科一张（主表）' AUTO_INCREMENT=211 ;
 
--- --------------------------------------------------------
-
---
--- 表的结构 `exam_part`
---
-
 CREATE TABLE IF NOT EXISTS `exam_part` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `exam_paper` int(11) NOT NULL,
@@ -477,12 +365,6 @@ CREATE TABLE IF NOT EXISTS `exam_part` (
   KEY `exam_paper` (`exam_paper`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='大题（主表）' AUTO_INCREMENT=294 ;
 
--- --------------------------------------------------------
-
---
--- 表的结构 `exam_room`
---
-
 CREATE TABLE IF NOT EXISTS `exam_room` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL DEFAULT '',
@@ -492,12 +374,6 @@ CREATE TABLE IF NOT EXISTS `exam_room` (
   PRIMARY KEY (`id`),
   KEY `grade` (`grade`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='考场' AUTO_INCREMENT=34 ;
-
--- --------------------------------------------------------
-
---
--- 表的结构 `exam_student`
---
 
 CREATE TABLE IF NOT EXISTS `exam_student` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -516,12 +392,6 @@ CREATE TABLE IF NOT EXISTS `exam_student` (
   KEY `time` (`time`),
   KEY `room` (`room`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='参加考试的学生' AUTO_INCREMENT=18481 ;
-
--- --------------------------------------------------------
-
---
--- 表的结构 `express`
---
 
 CREATE TABLE IF NOT EXISTS `express` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -545,12 +415,6 @@ CREATE TABLE IF NOT EXISTS `express` (
   KEY `sender` (`sender`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='快递（主表）' AUTO_INCREMENT=868 ;
 
--- --------------------------------------------------------
-
---
--- 表的结构 `ftp`
---
-
 CREATE TABLE IF NOT EXISTS `ftp` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL DEFAULT '',
@@ -569,12 +433,6 @@ CREATE TABLE IF NOT EXISTS `ftp` (
   KEY `type` (`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
-
---
--- 表的结构 `ftp_fav`
---
-
 CREATE TABLE IF NOT EXISTS `ftp_fav` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `file` int(11) NOT NULL DEFAULT '0',
@@ -588,12 +446,6 @@ CREATE TABLE IF NOT EXISTS `ftp_fav` (
   KEY `time` (`time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='文件收藏' AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
-
---
--- 表的结构 `holidays`
---
-
 CREATE TABLE IF NOT EXISTS `holidays` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `date` date NOT NULL,
@@ -602,12 +454,6 @@ CREATE TABLE IF NOT EXISTS `holidays` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=10 ;
 
--- --------------------------------------------------------
-
---
--- 表的结构 `idcard_region`
---
-
 CREATE TABLE IF NOT EXISTS `idcard_region` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `num` int(6) DEFAULT NULL,
@@ -615,24 +461,15 @@ CREATE TABLE IF NOT EXISTS `idcard_region` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='身份证地域区段（资源表）' AUTO_INCREMENT=3466 ;
 
--- --------------------------------------------------------
-
---
--- 表的结构 `label`
---
-
 CREATE TABLE IF NOT EXISTS `label` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
+  `order` int(11) NOT NULL DEFAULT '0' COMMENT '标签组合在一起时的顺序',
+  `color` varchar(255) NOT NULL DEFAULT 'not specified',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=106 ;
-
--- --------------------------------------------------------
-
---
--- 表的结构 `label_relationship`
---
+  UNIQUE KEY `name` (`name`),
+  KEY `order` (`order`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=152 ;
 
 CREATE TABLE IF NOT EXISTS `label_relationship` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -644,12 +481,6 @@ CREATE TABLE IF NOT EXISTS `label_relationship` (
   KEY `relative` (`relative`),
   KEY `relation` (`relation`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=12 ;
-
--- --------------------------------------------------------
-
---
--- 表的结构 `log`
---
 
 CREATE TABLE IF NOT EXISTS `log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -666,11 +497,41 @@ CREATE TABLE IF NOT EXISTS `log` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='系统请求日志（记录表）' AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `message` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL DEFAULT '',
+  `content` text,
+  `display` tinyint(1) NOT NULL DEFAULT '0',
+  `company` int(11) DEFAULT NULL,
+  `uid` int(11) DEFAULT NULL,
+  `username` varchar(255) NOT NULL DEFAULT '',
+  `time_insert` int(11) NOT NULL,
+  `time` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `uid` (`uid`),
+  KEY `time` (`time`),
+  KEY `company` (`company`),
+  KEY `time_insert` (`time_insert`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='公告（主表）' AUTO_INCREMENT=29 ;
 
---
--- 表的结构 `news`
---
+CREATE TABLE IF NOT EXISTS `nav` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `href` varchar(255) NOT NULL,
+  `add_href` varchar(255) DEFAULT NULL,
+  `parent` int(11) DEFAULT NULL,
+  `order` int(11) NOT NULL,
+  `team` int(11) DEFAULT NULL COMMENT 'href相同的条目，team.id大的将覆盖小的和NULL',
+  `company` int(11) DEFAULT NULL COMMENT 'href相同的条目，具体值将覆盖NULL',
+  `company_type` varchar(255) DEFAULT NULL COMMENT 'href相同的条目，具体值将覆盖NULL',
+  PRIMARY KEY (`id`),
+  KEY `parent` (`parent`),
+  KEY `team` (`team`),
+  KEY `company` (`company`),
+  KEY `href` (`href`),
+  KEY `company_type` (`company_type`),
+  KEY `order` (`order`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=35 ;
 
 CREATE TABLE IF NOT EXISTS `news` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -689,20 +550,16 @@ CREATE TABLE IF NOT EXISTS `news` (
   KEY `time_insert` (`time_insert`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='公告（主表）' AUTO_INCREMENT=29 ;
 
--- --------------------------------------------------------
-
---
--- 表的结构 `people`
---
-
 CREATE TABLE IF NOT EXISTS `people` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `character` enum('个人','单位') NOT NULL DEFAULT '个人',
+  `character` enum('单位','个人') NOT NULL DEFAULT '个人',
   `name` varchar(255) DEFAULT NULL,
   `name_en` varchar(255) NOT NULL DEFAULT '',
   `abbreviation` varchar(255) DEFAULT NULL,
-  `type` varchar(255) NOT NULL,
+  `type` varchar(255) DEFAULT NULL,
   `gender` enum('男','女') DEFAULT NULL,
+  `phone` varchar(255) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
   `id_card` char(18) DEFAULT NULL,
   `work_for` varchar(255) NOT NULL DEFAULT '',
   `position` varchar(255) DEFAULT NULL,
@@ -714,7 +571,7 @@ CREATE TABLE IF NOT EXISTS `people` (
   `race` char(20) DEFAULT NULL,
   `company` int(11) DEFAULT NULL,
   `uid` int(11) DEFAULT NULL,
-  `username` varchar(255) NOT NULL DEFAULT '',
+  `username` varchar(255) DEFAULT NULL,
   `time_insert` int(11) NOT NULL,
   `time` int(11) NOT NULL DEFAULT '0',
   `comment` text,
@@ -727,13 +584,7 @@ CREATE TABLE IF NOT EXISTS `people` (
   KEY `uid` (`uid`),
   KEY `time` (`time`),
   KEY `time_insert` (`time_insert`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='客户（主表）' AUTO_INCREMENT=11515 ;
-
--- --------------------------------------------------------
-
---
--- 表的结构 `people_label`
---
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='客户（主表）' AUTO_INCREMENT=12358 ;
 
 CREATE TABLE IF NOT EXISTS `people_label` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -743,22 +594,17 @@ CREATE TABLE IF NOT EXISTS `people_label` (
   `type` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `people-label` (`people`,`label`),
-  UNIQUE KEY `people` (`people`,`type`),
+  UNIQUE KEY `people-type` (`people`,`type`),
   KEY `label` (`label`),
-  KEY `type` (`type`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=11470 ;
-
--- --------------------------------------------------------
-
---
--- 表的结构 `people_profile`
---
+  KEY `type` (`type`),
+  KEY `label_name` (`label_name`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=17425 ;
 
 CREATE TABLE IF NOT EXISTS `people_profile` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `people` int(11) NOT NULL DEFAULT '0',
   `name` varchar(255) NOT NULL DEFAULT '手机',
-  `content` varchar(255) NOT NULL DEFAULT '',
+  `content` mediumtext NOT NULL,
   `comment` text,
   `uid` int(11) DEFAULT NULL,
   `username` varchar(255) NOT NULL DEFAULT '',
@@ -768,13 +614,7 @@ CREATE TABLE IF NOT EXISTS `people_profile` (
   KEY `time` (`time`),
   KEY `name` (`name`),
   KEY `people-name` (`people`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='客户联系方式' AUTO_INCREMENT=22855 ;
-
--- --------------------------------------------------------
-
---
--- 表的结构 `people_relationship`
---
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='客户联系方式' AUTO_INCREMENT=42867 ;
 
 CREATE TABLE IF NOT EXISTS `people_relationship` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -793,13 +633,7 @@ CREATE TABLE IF NOT EXISTS `people_relationship` (
   KEY `relative` (`relative`),
   KEY `relation` (`relation`),
   KEY `relation_type` (`relation_type`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='人员关系' AUTO_INCREMENT=453 ;
-
--- --------------------------------------------------------
-
---
--- 表的结构 `permission`
---
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='人员关系' AUTO_INCREMENT=8103 ;
 
 CREATE TABLE IF NOT EXISTS `permission` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -815,13 +649,7 @@ CREATE TABLE IF NOT EXISTS `permission` (
   KEY `company` (`company`),
   KEY `order` (`order`),
   KEY `affair` (`controller`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='用户组和权限（系统表）' AUTO_INCREMENT=112 ;
-
--- --------------------------------------------------------
-
---
--- 表的结构 `position`
---
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='用户组和权限（系统表）' AUTO_INCREMENT=118 ;
 
 CREATE TABLE IF NOT EXISTS `position` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -831,12 +659,6 @@ CREATE TABLE IF NOT EXISTS `position` (
   PRIMARY KEY (`id`),
   KEY `company` (`company`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='员工职位' AUTO_INCREMENT=10 ;
-
--- --------------------------------------------------------
-
---
--- 表的结构 `schedule`
---
 
 CREATE TABLE IF NOT EXISTS `schedule` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -859,7 +681,7 @@ CREATE TABLE IF NOT EXISTS `schedule` (
   `display` tinyint(1) NOT NULL DEFAULT '0',
   `company` int(11) DEFAULT NULL,
   `uid` int(11) DEFAULT NULL,
-  `username` varchar(255) NOT NULL DEFAULT '',
+  `username` varchar(255) DEFAULT NULL,
   `time_insert` int(11) NOT NULL,
   `time` int(11) DEFAULT NULL,
   `comment` text,
@@ -876,31 +698,21 @@ CREATE TABLE IF NOT EXISTS `schedule` (
   KEY `people` (`people`),
   KEY `document` (`document`),
   KEY `time_insert` (`time_insert`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='日程（主表）' AUTO_INCREMENT=17675 ;
-
--- --------------------------------------------------------
-
---
--- 表的结构 `schedule_label`
---
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='日程（主表）' AUTO_INCREMENT=18833 ;
 
 CREATE TABLE IF NOT EXISTS `schedule_label` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `schedule` int(11) NOT NULL,
   `label` int(11) NOT NULL,
   `type` varchar(255) DEFAULT NULL,
+  `label_name` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `schedule-label` (`schedule`,`label`),
-  KEY `schedule` (`schedule`),
+  UNIQUE KEY `schedule-type` (`schedule`,`type`),
   KEY `label` (`label`),
-  KEY `type` (`type`)
+  KEY `type` (`type`),
+  KEY `label_name` (`label_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
--- --------------------------------------------------------
-
---
--- 表的结构 `schedule_people`
---
 
 CREATE TABLE IF NOT EXISTS `schedule_people` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -909,20 +721,14 @@ CREATE TABLE IF NOT EXISTS `schedule_people` (
   PRIMARY KEY (`id`),
   KEY `schedule` (`schedule`),
   KEY `people` (`people`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
--- --------------------------------------------------------
-
---
--- 表的结构 `schedule_profile`
---
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
 
 CREATE TABLE IF NOT EXISTS `schedule_profile` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `schedule` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
   `content` varchar(255) NOT NULL,
-  `comment` text NOT NULL,
+  `comment` text,
   `uid` int(11) NOT NULL,
   `username` varchar(255) NOT NULL,
   `time` int(11) NOT NULL,
@@ -933,12 +739,6 @@ CREATE TABLE IF NOT EXISTS `schedule_profile` (
   KEY `time` (`time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
-
---
--- 表的结构 `schedule_taskboard`
---
-
 CREATE TABLE IF NOT EXISTS `schedule_taskboard` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `uid` int(11) DEFAULT NULL,
@@ -947,13 +747,7 @@ CREATE TABLE IF NOT EXISTS `schedule_taskboard` (
   PRIMARY KEY (`id`),
   KEY `uid` (`uid`),
   KEY `time` (`time`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
--- --------------------------------------------------------
-
---
--- 表的结构 `score`
---
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
 
 CREATE TABLE IF NOT EXISTS `score` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -977,28 +771,28 @@ CREATE TABLE IF NOT EXISTS `score` (
   KEY `time` (`time`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='阅卷分数' AUTO_INCREMENT=91272 ;
 
--- --------------------------------------------------------
-
---
--- 表的结构 `staff`
---
+CREATE TABLE IF NOT EXISTS `sessions` (
+  `session_id` varchar(40) NOT NULL DEFAULT '0',
+  `ip_address` varchar(16) NOT NULL DEFAULT '0',
+  `user_agent` varchar(120) NOT NULL,
+  `last_activity` int(10) unsigned NOT NULL DEFAULT '0',
+  `user_data` mediumtext,
+  PRIMARY KEY (`session_id`),
+  KEY `last_activity_idx` (`last_activity`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `staff` (
   `id` int(11) NOT NULL DEFAULT '0',
+  `position` int(11) DEFAULT NULL,
   `title` varchar(255) DEFAULT NULL COMMENT '职称',
   `modulus` decimal(3,2) NOT NULL DEFAULT '0.00' COMMENT '团奖系数',
   `course` int(11) DEFAULT NULL,
   `timing_fee_default` decimal(10,2) NOT NULL DEFAULT '0.00',
   PRIMARY KEY (`id`),
   KEY `course` (`course`),
-  KEY `id` (`id`)
+  KEY `id` (`id`),
+  KEY `position` (`position`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='员工（主表）';
-
--- --------------------------------------------------------
-
---
--- 表的结构 `student_behaviour`
---
 
 CREATE TABLE IF NOT EXISTS `student_behaviour` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1020,12 +814,6 @@ CREATE TABLE IF NOT EXISTS `student_behaviour` (
   KEY `time` (`time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='学生奖惩' AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
-
---
--- 表的结构 `student_comment`
---
-
 CREATE TABLE IF NOT EXISTS `student_comment` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(255) NOT NULL,
@@ -1044,24 +832,18 @@ CREATE TABLE IF NOT EXISTS `student_comment` (
   KEY `time` (`time`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='学生评价' AUTO_INCREMENT=626 ;
 
--- --------------------------------------------------------
-
---
--- 表的结构 `team`
---
-
 CREATE TABLE IF NOT EXISTS `team` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
   `type` varchar(255) DEFAULT NULL,
   `num` varchar(255) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
   `leader` int(11) DEFAULT NULL,
   `extra_course` int(11) DEFAULT NULL,
   `display` tinyint(1) NOT NULL DEFAULT '0',
   `company` int(11) DEFAULT NULL,
   `uid` int(11) DEFAULT NULL,
   `username` varchar(255) DEFAULT NULL,
-  `time_insert` int(11) NOT NULL,
+  `time_insert` int(11) DEFAULT NULL,
   `time` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `leader` (`leader`),
@@ -1071,30 +853,21 @@ CREATE TABLE IF NOT EXISTS `team` (
   KEY `time` (`time`),
   KEY `num` (`num`),
   KEY `time_insert` (`time_insert`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='团队（主表）' AUTO_INCREMENT=291 ;
-
--- --------------------------------------------------------
-
---
--- 表的结构 `team_label`
---
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='团队（主表）' AUTO_INCREMENT=452 ;
 
 CREATE TABLE IF NOT EXISTS `team_label` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `team` int(11) NOT NULL,
   `label` int(11) NOT NULL,
-  `type` enum('depart','grade','extra_course') DEFAULT NULL,
+  `type` varchar(255) DEFAULT NULL,
+  `label_name` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `team-label` (`team`,`label`),
-  KEY `team` (`team`),
-  KEY `label` (`label`)
+  UNIQUE KEY `team-type` (`team`,`type`),
+  KEY `label` (`label`),
+  KEY `label_name` (`label_name`),
+  KEY `type` (`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
--- --------------------------------------------------------
-
---
--- 表的结构 `team_people`
---
 
 CREATE TABLE IF NOT EXISTS `team_people` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1103,22 +876,14 @@ CREATE TABLE IF NOT EXISTS `team_people` (
   `relation` varchar(255) NOT NULL,
   `id_in_team` int(11) DEFAULT NULL,
   `position` varchar(255) DEFAULT NULL,
-  `term` char(4) NOT NULL DEFAULT '',
-  `time` int(10) NOT NULL DEFAULT '0',
+  `till` date DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `team` (`team`),
   KEY `relation` (`relation`),
   KEY `num_in_class` (`id_in_team`),
-  KEY `time` (`time`),
-  KEY `term` (`term`),
-  KEY `people` (`people`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='人与团队关系' AUTO_INCREMENT=1 ;
-
--- --------------------------------------------------------
-
---
--- 表的结构 `team_relationship`
---
+  KEY `people` (`people`),
+  KEY `till` (`till`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='人与团队关系' AUTO_INCREMENT=8192 ;
 
 CREATE TABLE IF NOT EXISTS `team_relationship` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1126,16 +891,11 @@ CREATE TABLE IF NOT EXISTS `team_relationship` (
   `relative` int(11) NOT NULL,
   `relation` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `team-relative` (`team`,`relative`),
   KEY `team` (`team`),
   KEY `relative` (`relative`),
   KEY `relation` (`relation`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='团队间关系' AUTO_INCREMENT=1 ;
-
--- --------------------------------------------------------
-
---
--- 表的结构 `user`
---
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='团队间关系' AUTO_INCREMENT=27 ;
 
 CREATE TABLE IF NOT EXISTS `user` (
   `id` int(11) NOT NULL,
@@ -1152,55 +912,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   KEY `password` (`password`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户';
 
--- --------------------------------------------------------
 
---
--- 表的结构 `view_score`
---
-
-CREATE TABLE IF NOT EXISTS `view_score` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `student` int(11) NOT NULL,
-  `extra_course` int(11) DEFAULT NULL,
-  `exam` int(11) NOT NULL,
-  `exam_name` varchar(255) NOT NULL,
-  `course_1` decimal(10,1) DEFAULT NULL,
-  `course_2` decimal(10,1) DEFAULT NULL,
-  `course_3` decimal(10,1) DEFAULT NULL,
-  `course_4` decimal(10,1) DEFAULT NULL,
-  `course_5` decimal(10,1) DEFAULT NULL,
-  `course_6` decimal(10,1) DEFAULT NULL,
-  `course_7` decimal(10,1) DEFAULT NULL,
-  `course_8` decimal(10,1) DEFAULT NULL,
-  `course_9` decimal(10,1) DEFAULT NULL,
-  `course_10` decimal(10,1) DEFAULT NULL,
-  `course_sum_3` int(11) DEFAULT NULL,
-  `course_sum_5` int(11) DEFAULT NULL,
-  `course_sum_8` int(11) DEFAULT NULL,
-  `rank_1` int(11) DEFAULT NULL,
-  `rank_2` int(11) DEFAULT NULL,
-  `rank_3` int(11) DEFAULT NULL,
-  `rank_4` int(11) DEFAULT NULL,
-  `rank_5` int(11) DEFAULT NULL,
-  `rank_6` int(11) DEFAULT NULL,
-  `rank_7` int(11) DEFAULT NULL,
-  `rank_8` int(11) DEFAULT NULL,
-  `rank_9` int(11) DEFAULT NULL,
-  `rank_10` int(11) DEFAULT NULL,
-  `rank_sum_3` int(11) DEFAULT NULL,
-  `rank_sum_5` int(11) DEFAULT NULL,
-  `rank_sum_8` int(11) DEFAULT NULL,
-  `time` int(11) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='分数汇总' AUTO_INCREMENT=1 ;
-
---
--- 限制导出的表
---
-
---
--- 限制表 `account`
---
 ALTER TABLE `account`
   ADD CONSTRAINT `account_ibfk_10` FOREIGN KEY (`case`) REFERENCES `case` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `account_ibfk_2` FOREIGN KEY (`case_fee`) REFERENCES `case_fee` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
@@ -1211,108 +923,74 @@ ALTER TABLE `account`
   ADD CONSTRAINT `account_ibfk_8` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `account_ibfk_9` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
---
--- 限制表 `account_label`
---
 ALTER TABLE `account_label`
   ADD CONSTRAINT `account_label_ibfk_1` FOREIGN KEY (`account`) REFERENCES `account` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `account_label_ibfk_2` FOREIGN KEY (`label`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
---
--- 限制表 `case`
---
+ALTER TABLE `account_team`
+  ADD CONSTRAINT `account_team_ibfk_3` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `account_team_ibfk_1` FOREIGN KEY (`account`) REFERENCES `account` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `account_team_ibfk_2` FOREIGN KEY (`team`) REFERENCES `team` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+
 ALTER TABLE `case`
   ADD CONSTRAINT `case_ibfk_2` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `case_ibfk_3` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
---
--- 限制表 `case_fee`
---
+ALTER TABLE `case_document`
+  ADD CONSTRAINT `case_document_ibfk_1` FOREIGN KEY (`case`) REFERENCES `case` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `case_document_ibfk_2` FOREIGN KEY (`document`) REFERENCES `document` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `case_document_ibfk_3` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+
 ALTER TABLE `case_fee`
   ADD CONSTRAINT `case_fee_ibfk_1` FOREIGN KEY (`case`) REFERENCES `case` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `case_fee_ibfk_2` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `case_fee_ibfk_3` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
---
--- 限制表 `case_fee_timing`
---
 ALTER TABLE `case_fee_timing`
   ADD CONSTRAINT `case_fee_timing_ibfk_1` FOREIGN KEY (`case`) REFERENCES `case` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `case_fee_timing_ibfk_2` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `case_fee_timing_ibfk_3` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
---
--- 限制表 `case_label`
---
 ALTER TABLE `case_label`
-  ADD CONSTRAINT `case_label_ibfk_1` FOREIGN KEY (`case`) REFERENCES `case` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `case_label_ibfk_2` FOREIGN KEY (`label`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+  ADD CONSTRAINT `case_label_ibfk_2` FOREIGN KEY (`label`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `case_label_ibfk_3` FOREIGN KEY (`case`) REFERENCES `case` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
---
--- 限制表 `case_num`
---
 ALTER TABLE `case_num`
   ADD CONSTRAINT `case_num_ibfk_2` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `case_num_ibfk_3` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `case_num_ibfk_4` FOREIGN KEY (`case`) REFERENCES `case` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
---
--- 限制表 `case_people`
---
 ALTER TABLE `case_people`
   ADD CONSTRAINT `case_people_ibfk_1` FOREIGN KEY (`case`) REFERENCES `case` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `case_people_ibfk_2` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `case_people_ibfk_3` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `case_people_ibfk_4` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
---
--- 限制表 `client_source`
---
 ALTER TABLE `client_source`
   ADD CONSTRAINT `client_source_ibfk_1` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
---
--- 限制表 `document`
---
 ALTER TABLE `document`
-  ADD CONSTRAINT `document_ibfk_1` FOREIGN KEY (`case`) REFERENCES `case` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `document_ibfk_2` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `document_ibfk_3` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `document_ibfk_4` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+  ADD CONSTRAINT `document_ibfk_3` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
---
--- 限制表 `document_label`
---
 ALTER TABLE `document_label`
   ADD CONSTRAINT `document_label_ibfk_1` FOREIGN KEY (`document`) REFERENCES `document` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `document_label_ibfk_2` FOREIGN KEY (`label`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
---
--- 限制表 `evaluation_indicator`
---
 ALTER TABLE `evaluation_indicator`
   ADD CONSTRAINT `evaluation_indicator_ibfk_1` FOREIGN KEY (`position`) REFERENCES `position` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `evaluation_indicator_ibfk_2` FOREIGN KEY (`critic`) REFERENCES `position` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `evaluation_indicator_ibfk_3` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
---
--- 限制表 `evaluation_score`
---
 ALTER TABLE `evaluation_score`
   ADD CONSTRAINT `evaluation_score_ibfk_1` FOREIGN KEY (`indicator`) REFERENCES `evaluation_indicator` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `evaluation_score_ibfk_2` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
---
--- 限制表 `exam_student`
---
 ALTER TABLE `exam_student`
   ADD CONSTRAINT `exam_student_ibfk_1` FOREIGN KEY (`exam`) REFERENCES `exam` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `exam_student_ibfk_2` FOREIGN KEY (`student`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `exam_student_ibfk_3` FOREIGN KEY (`extra_course`) REFERENCES `course` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
---
--- 限制表 `express`
---
 ALTER TABLE `express`
   ADD CONSTRAINT `express_ibfk_1` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `express_ibfk_2` FOREIGN KEY (`sender`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
@@ -1320,152 +998,93 @@ ALTER TABLE `express`
   ADD CONSTRAINT `express_ibfk_4` FOREIGN KEY (`sender`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `express_ibfk_5` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
---
--- 限制表 `label_relationship`
---
 ALTER TABLE `label_relationship`
   ADD CONSTRAINT `label_relationship_ibfk_1` FOREIGN KEY (`label`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `label_relationship_ibfk_2` FOREIGN KEY (`relative`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
---
--- 限制表 `news`
---
 ALTER TABLE `news`
   ADD CONSTRAINT `news_ibfk_1` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `news_ibfk_2` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
---
--- 限制表 `people`
---
 ALTER TABLE `people`
   ADD CONSTRAINT `people_ibfk_1` FOREIGN KEY (`source`) REFERENCES `client_source` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `people_ibfk_2` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `people_ibfk_3` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `people_ibfk_4` FOREIGN KEY (`staff`) REFERENCES `staff` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
---
--- 限制表 `people_label`
---
 ALTER TABLE `people_label`
-  ADD CONSTRAINT `people_label_ibfk_1` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `people_label_ibfk_2` FOREIGN KEY (`label`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+  ADD CONSTRAINT `people_label_ibfk_2` FOREIGN KEY (`label`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `people_label_ibfk_3` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
---
--- 限制表 `people_profile`
---
 ALTER TABLE `people_profile`
-  ADD CONSTRAINT `people_profile_ibfk_1` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `people_profile_ibfk_3` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+  ADD CONSTRAINT `people_profile_ibfk_3` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `people_profile_ibfk_4` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
---
--- 限制表 `people_relationship`
---
 ALTER TABLE `people_relationship`
   ADD CONSTRAINT `people_relationship_ibfk_1` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `people_relationship_ibfk_3` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `people_relationship_ibfk_4` FOREIGN KEY (`relative`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
---
--- 限制表 `schedule`
---
 ALTER TABLE `schedule`
   ADD CONSTRAINT `schedule_ibfk_1` FOREIGN KEY (`case`) REFERENCES `case` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `schedule_ibfk_2` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `schedule_ibfk_3` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `schedule_ibfk_4` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
---
--- 限制表 `schedule_label`
---
 ALTER TABLE `schedule_label`
   ADD CONSTRAINT `schedule_label_ibfk_2` FOREIGN KEY (`label`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `schedule_label_ibfk_4` FOREIGN KEY (`schedule`) REFERENCES `schedule` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
---
--- 限制表 `schedule_people`
---
 ALTER TABLE `schedule_people`
   ADD CONSTRAINT `schedule_people_ibfk_1` FOREIGN KEY (`schedule`) REFERENCES `schedule` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `schedule_people_ibfk_2` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
---
--- 限制表 `schedule_profile`
---
 ALTER TABLE `schedule_profile`
   ADD CONSTRAINT `schedule_profile_ibfk_1` FOREIGN KEY (`schedule`) REFERENCES `schedule` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `schedule_profile_ibfk_2` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
---
--- 限制表 `schedule_taskboard`
---
 ALTER TABLE `schedule_taskboard`
   ADD CONSTRAINT `schedule_taskboard_ibfk_1` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
---
--- 限制表 `score`
---
 ALTER TABLE `score`
   ADD CONSTRAINT `score_ibfk_1` FOREIGN KEY (`exam`) REFERENCES `exam` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `score_ibfk_2` FOREIGN KEY (`exam_paper`) REFERENCES `exam_paper` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `score_ibfk_4` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `score_ibfk_5` FOREIGN KEY (`exam_part`) REFERENCES `exam_part` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
---
--- 限制表 `staff`
---
 ALTER TABLE `staff`
   ADD CONSTRAINT `staff_ibfk_1` FOREIGN KEY (`id`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `staff_ibfk_2` FOREIGN KEY (`course`) REFERENCES `course` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+  ADD CONSTRAINT `staff_ibfk_2` FOREIGN KEY (`course`) REFERENCES `course` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `staff_ibfk_3` FOREIGN KEY (`position`) REFERENCES `position` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
---
--- 限制表 `student_behaviour`
---
 ALTER TABLE `student_behaviour`
   ADD CONSTRAINT `student_behaviour_ibfk_1` FOREIGN KEY (`student`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `student_behaviour_ibfk_2` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `student_behaviour_ibfk_3` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
---
--- 限制表 `student_comment`
---
 ALTER TABLE `student_comment`
   ADD CONSTRAINT `student_comment_ibfk_1` FOREIGN KEY (`student`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `student_comment_ibfk_2` FOREIGN KEY (`reply_to`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `student_comment_ibfk_3` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `student_comment_ibfk_4` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
---
--- 限制表 `team`
---
 ALTER TABLE `team`
   ADD CONSTRAINT `team_ibfk_1` FOREIGN KEY (`leader`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `team_ibfk_2` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `team_ibfk_3` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
---
--- 限制表 `team_label`
---
 ALTER TABLE `team_label`
   ADD CONSTRAINT `team_label_ibfk_1` FOREIGN KEY (`team`) REFERENCES `team` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `team_label_ibfk_2` FOREIGN KEY (`label`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
---
--- 限制表 `team_people`
---
 ALTER TABLE `team_people`
   ADD CONSTRAINT `team_people_ibfk_2` FOREIGN KEY (`team`) REFERENCES `team` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `team_people_ibfk_3` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
---
--- 限制表 `team_relationship`
---
 ALTER TABLE `team_relationship`
   ADD CONSTRAINT `team_relationship_ibfk_1` FOREIGN KEY (`team`) REFERENCES `team` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `team_relationship_ibfk_2` FOREIGN KEY (`relative`) REFERENCES `team` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
---
--- 限制表 `user`
---
 ALTER TABLE `user`
   ADD CONSTRAINT `user_ibfk_1` FOREIGN KEY (`id`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `user_ibfk_2` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;

@@ -69,79 +69,46 @@ class Document extends SS_controller{
 		
 		$filename=$this->config->item('document_path').$document['id'];
 		
-		$filename=iconv("utf-8","gbk",$filename);
+		$filename=iconv("utf-8","gbk",$filename);//Windows服务器的文件名采用gbk编码保存
 		readfile($filename);
 	}
 	
-	function favDelete(){
-		$fav_to_detele=array_trim($this->input->post());
-		unset($fav_to_detele['favDelete']);
-		if(isset($fav_to_detele)){
-			$condition = db_implode($_POST, $glue = ' OR ','file','=',"'","'", '`','key');
-			$q="DELETE FROM document_fav WHERE (".$condition.") AND uid={$this->user->id}";
-			$this->db->query($q);
-		}
-		redirect('document');
-	}
-	
-	function fav(){
-		$_POST=array_trim($_POST);
-		if(isset($_POST)){
-			$glue=$values='';
-			foreach($this->input->post('document') as $id=>$status){
-				$values.=$glue."('".$id."',{$this->user->id},'".time()."')";
-				$glue=','."\n";
-			}
-			$q="REPLACE INTO document_fav (file,uid,time) values ".$values;
-			$this->db->query($q);
-		}
-		redirect('document');
-	}
-	
-	function upload(){
-		/*
-if ($_FILES["file"]["error"] > 0){
-			echo "error code: " . $_FILES["file"]["error"] . "<br />";
-		}
-		else{
-			$storePath=iconv("utf-8","gbk",$_SESSION['document']['currentPath']."/".$_FILES["file"]["name"]);//存储路径转码
-			
-			if (is_file($storePath)){
-				unlink($storePath);
-				$db_replace=true;
-			}else{
-				$db_replace=false;
-			}
-			
-			move_uploaded_file($_FILES["file"]["tmp_name"], $storePath);
-		
-			if(preg_match('/\.(\w*?)$/',$_FILES["file"]["name"], $extname_match)){
-				$_FILES["file"]["type"]=$extname_match[1];
-			}else
-				$_FILES["file"]["type"]='none';
-			$fileInfo=array(
-				'name'=>$_FILES["file"]["name"],
-				'type'=>$_FILES["file"]["type"],
-				'size'=>$_FILES["file"]['size'],
-				'parent'=>$_SESSION['document']['currentDirID'],
-				'path'=>$_SESSION['document']['currentPath']."/".$_FILES["file"]["name"],
-				'comment'=>$this->input->post('comment'),
-				'uid'=>$this->user->id,
-				'username'=>$_SESSION['username'],
-				'time'=>$this->date->now
-			);
-			//db_insert('document',$fileInfo,false,$db_replace);
-			redirect('document');
-		}
-*/
-		$this->load->view('document/document.php');
-	}
-	
 	function submit(){
-		error_reporting(E_ALL | E_STRICT);
-		echo dirname('../temp');
-		require(APPPATH.'third_party/'.'blueimp/'.'UploadHandler.php');
-		$upload_handler = new UploadHandler();
+		
+		$config=array(
+			'upload_path'=>'../uploads/',
+			'allowed_types'=>'*',
+			'encrypt_name'=>true
+		);
+		
+		$this->load->library('upload', $config);
+		
+		try{
+			if (!$this->upload->do_upload('document')) {
+				$this->output->message($this->upload->display_errors(), 'warning');
+				throw new Exception;
+			}
+			
+			$file_info = $this->upload->data();
+			
+			$data=array(
+				'name'=>$file_info['client_name']
+			);
+
+			//$info->name = $file_info['file_name'];
+			//$info->size = $file_info['file_size'];
+			//$info->type = $file_info['file_type'];
+			//$info->url = $upload_path_url . $data['file_name'];
+			//$info->thumbnail_url = $upload_path_url . $data['file_name']; //I set this to original file since I did not create thumbs.  change to thumbnail directory if you do = $upload_path_url .'/thumbs' .$data['file_name']
+			//$info->delete_url = base_url() . 'upload/deleteImage/' . $data['file_name'];
+			//$info->delete_type = 'DELETE';
+
+			$this->output->data=$data;
+
+		}catch(Exception $e){
+			$this->output->status='fail';
+		}
+
 	}
 }
 ?>

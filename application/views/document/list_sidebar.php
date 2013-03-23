@@ -19,3 +19,17 @@
 		</tbody>
 	</table>
 </form>
+<input id="fileupload" type="file" name="document" data-url="/document/submit" multiple="multiple" />
+<?=javascript('jQuery/jquery.iframe-transport')?>
+<?=javascript('jQuery/jquery.fileupload')?>
+<script>
+$(function () {
+    $('#fileupload').fileupload({
+        dataType: 'json',
+		dropZone:aside,
+        done: function (event, data) {
+			$('<p/>').text(data.result.data.name).appendTo(aside.children('section[for="'+hash+'"]'));
+        }
+    });
+});
+</script>
