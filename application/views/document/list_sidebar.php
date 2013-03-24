@@ -28,7 +28,9 @@ $(function () {
         dataType: 'json',
 		dropZone:aside,
         done: function (event, data) {
-			$('<p/>').text(data.result.data.name).appendTo(aside.children('section[for="'+hash+'"]'));
+			$(data.result.data).appendTo(aside.children('section[for="document"]'))
+			.trigger('blockload')
+			.children('select').chosen({search_contains:true});
         }
     });
 });

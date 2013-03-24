@@ -91,9 +91,20 @@ class Document extends SS_controller{
 			
 			$file_info = $this->upload->data();
 			
+			$document_id=$this->document->add(array(
+				'name'=>$file_info['client_name'],
+				'extname'=>$file_info['file_ext'],
+				'size'=>$file_info['file_size']
+			));
+			
+			rename('../uploads/'.$file_info['file_name'],'../uploads/'.$document_id);
+			
 			$data=array(
+				'id'=>$document_id,
 				'name'=>$file_info['client_name']
 			);
+			
+			$this->load->addViewData('file', $data);
 
 			//$info->name = $file_info['file_name'];
 			//$info->size = $file_info['file_size'];
@@ -103,7 +114,7 @@ class Document extends SS_controller{
 			//$info->delete_url = base_url() . 'upload/deleteImage/' . $data['file_name'];
 			//$info->delete_type = 'DELETE';
 
-			$this->output->data=$data;
+			$this->output->data=$this->load->view('document/upload_list_item',true);
 
 		}catch(Exception $e){
 			$this->output->status='fail';

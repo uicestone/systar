@@ -4,7 +4,7 @@ function uidTime($company=true,$time_insert=false){
 	$array=array(
 		'uid'=>$CI->user->id,
 		'username'=>$CI->user->name,
-		'time'=>$CI->config->item('timestamp'),
+		'time'=>$CI->date->now,
 	);
 	
 	if($company){
@@ -12,7 +12,7 @@ function uidTime($company=true,$time_insert=false){
 	}
 	
 	if($time_insert){
-		$array['time_insert']=$CI->config->item('timestamp');
+		$array['time_insert']=$CI->date->now;
 	}
 	
 	return $array;

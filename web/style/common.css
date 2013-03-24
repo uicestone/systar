@@ -327,7 +327,7 @@ nav .arrow{
 .contentTable tbody td{
 	padding:6px 7px;
 }
-.contentTable td input[type="text"]{
+article .contentTable td input[type="text"]{
 	width:95%;
 }
 .contentTable td .rank{
@@ -382,12 +382,12 @@ aside .contentTable.search-bar tbody td{
 	border:0;
 	padding:0;
 }
-.contentTable.search-bar tbody td input[type=text]{
+aside input[type=text]{
 	width:225px;
 	padding: 5px;
 	margin: 1px 0;
 }
-aside .contentTable.search-bar tbody td select{
+aside select{
 	width:239px;
 }
 aside .contentTable.search-bar tbody td.submit{
