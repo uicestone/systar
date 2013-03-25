@@ -98,7 +98,7 @@ class Document extends SS_controller{
 				'size'=>$file_info['file_size']
 			));
 			
-			$this->document->updateLabels($document_id,$_SESSION['document']['index']['search']['labels']);
+			$this->document->updateLabels($document_id,array_dir('_SESSION/document/index/search/labels'));
 			
 			rename('../uploads/'.$file_info['file_name'],'../uploads/'.$document_id);
 			

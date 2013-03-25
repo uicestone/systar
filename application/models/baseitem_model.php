@@ -363,14 +363,14 @@ class BaseItem_model extends SS_Model{
 	 * 返回一个可用的profile name列表
 	 */
 	function getProfileNames(){
-		$query="
-			SELECT name,COUNT(*) AS hits
-			FROM `{$this->table}_profile`
-			GROUP BY name
-			ORDER BY hits DESC;
-		";
 		
-		$result=$this->db->query($query)->result_array();
+		$this->db->select('people_profile.name,COUNT(*) AS hits',false)
+			->from($this->table.'_profile')
+			->join('people',"people_profile.people = people.id AND people.company = {$this->company->id}")
+			->group_by('people_profile.name')
+			->order_by('hits', 'desc');
+		
+		$result=$this->db->get()->result_array();
 		
 		return array_sub($result,'name');
 	}

@@ -151,18 +151,20 @@ class SS_Table extends CI_Table{
 		
 		foreach($this->fields as $field_name => $field){
 			
-			$cell=array('data'=>NULL);
-			
 			if(isset($field['heading'])){
 				if(is_array($field['heading']) && isset($field['heading']['data'])){
-					$heading[]=$field['heading'];
+					$heading[$field_name]=$field['heading'];
 				}else{
-					$heading[]=array('data'=>$field['heading']);
+					$heading[$field_name]=array('data'=>$field['heading']);
 				}
 			}
 		}
 		
 		$this->set_heading($heading);
+		
+		unset($this->heading[0]);
+		//set_heading()方法在处理字符串键的表头时，误多处理了一个0键，其中又包含了整个表头。故将其释放。
+		
 		return $this;
 	}
 	
@@ -190,16 +192,23 @@ class SS_Table extends CI_Table{
 		return $this;
 	}
 	
+	/**
+	 * 删除全空列
+	 */
 	function trimColumns(){
 		$column_is_empty=array();
 
-		foreach($this->heading as $column_id => $column_title){
-			$column_is_empty[$column_id]=true;
+		foreach($this->heading as $column_name => $column_title){
+			$column_is_empty[$column_name]=true;
 		}
 
 		foreach($this->rows as $row_id => $row){
 			foreach($row as $column_id => $cell){
-				if($cell['data']!=='' || $cell['data']!==NULL){
+				if($column_id==='_attr'){
+					continue;
+				}
+				$cell['data']=strip_tags($cell['data']);
+				if($cell['data']!=='' && $cell['data']!==NULL){
 					$column_is_empty[$column_id]=false;
 				}
 			}
@@ -207,6 +216,9 @@ class SS_Table extends CI_Table{
 
 		foreach($this->rows as $row_id => $row){
 			foreach($row as $column_id => $cell){
+				if($column_id==='_attr'){
+					continue;
+				}
 				if($column_is_empty[$column_id]){
 					unset($this->rows[$row_id][$column_id]);
 				}

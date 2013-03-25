@@ -246,3 +246,65 @@ ALTER TABLE  `document` ADD  `filename` VARCHAR( 255 ) NOT NULL AFTER  `name`;
 update document set filename = name;
 ALTER TABLE  `document_label` CHANGE  `type`  `type` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
 -- uice 3/22
+
+RENAME TABLE  `syssh`.`case` TO  `syssh`.`project` ;
+RENAME TABLE  `syssh`.`case` TO  `syssh`.`project` ;
+RENAME TABLE  `syssh`.`case_document` TO  `syssh`.`project_document` ;
+RENAME TABLE  `syssh`.`case_fee` TO  `syssh`.`project_account` ;
+RENAME TABLE  `syssh`.`case_label` TO  `syssh`.`project_label` ;
+RENAME TABLE  `syssh`.`case_num` TO  `syssh`.`project_num` ;
+RENAME TABLE  `syssh`.`case_people` TO  `syssh`.`project_people` ;
+
+ALTER TABLE  `project_account` CHANGE  `type`  `type` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT  '固定';
+
+ALTER TABLE  `project_account` DROP FOREIGN KEY  `project_account_ibfk_1` ;
+ALTER TABLE  `project_document` DROP FOREIGN KEY  `project_document_ibfk_1` ;
+ALTER TABLE  `project_label` DROP FOREIGN KEY  `project_label_ibfk_3` ;
+ALTER TABLE  `project_num` DROP FOREIGN KEY  `project_num_ibfk_4` ;
+ALTER TABLE  `project_people` DROP FOREIGN KEY  `project_people_ibfk_1` ;
+ALTER TABLE  `schedule` DROP FOREIGN KEY  `schedule_ibfk_1` ;
+ALTER TABLE  `account` DROP FOREIGN KEY  `account_ibfk_10` ;
+
+ALTER TABLE  `project_account` CHANGE  `case`  `project` INT( 11 ) NULL DEFAULT NULL;
+ALTER TABLE  `project_document` CHANGE  `case`  `project` INT( 11 ) NULL DEFAULT NULL;
+ALTER TABLE  `project_label` CHANGE  `case`  `project` INT( 11 ) NULL DEFAULT NULL;
+ALTER TABLE  `project_num` CHANGE  `case`  `project` INT( 11 ) NULL DEFAULT NULL;
+ALTER TABLE  `project_people` CHANGE  `case`  `project` INT( 11 ) NULL DEFAULT NULL;
+ALTER TABLE  `schedule` CHANGE  `case`  `project` INT( 11 ) NULL DEFAULT NULL;
+ALTER TABLE  `account` CHANGE  `case`  `project` INT( 11 ) NULL DEFAULT NULL;
+
+ALTER TABLE  `project_account` ADD FOREIGN KEY (  `project` ) REFERENCES  `syssh`.`project` (
+`id`) ON DELETE NO ACTION ON UPDATE CASCADE ;
+ALTER TABLE  `project_document` ADD FOREIGN KEY (  `project` ) REFERENCES  `syssh`.`project` (
+`id`) ON DELETE NO ACTION ON UPDATE CASCADE ;
+ALTER TABLE  `project_label` ADD FOREIGN KEY (  `project` ) REFERENCES  `syssh`.`project` (
+`id`) ON DELETE NO ACTION ON UPDATE CASCADE ;
+ALTER TABLE  `project_num` ADD FOREIGN KEY (  `project` ) REFERENCES  `syssh`.`project` (
+`id`) ON DELETE NO ACTION ON UPDATE CASCADE ;
+ALTER TABLE  `project_people` ADD FOREIGN KEY (  `project` ) REFERENCES  `syssh`.`project` (
+`id`) ON DELETE NO ACTION ON UPDATE CASCADE ;
+ALTER TABLE  `schedule` ADD FOREIGN KEY (  `project` ) REFERENCES  `syssh`.`project` (
+`id`) ON DELETE NO ACTION ON UPDATE CASCADE ;
+ALTER TABLE  `account` ADD FOREIGN KEY (  `project` ) REFERENCES  `syssh`.`project` (
+`id`) ON DELETE NO ACTION ON UPDATE CASCADE ;
+
+DROP TABLE ftp;DROP TABLE ftp_fav;
+
+ALTER TABLE  `people` DROP FOREIGN KEY  `people_ibfk_1` ;
+ALTER TABLE `people` DROP `source`;
+ALTER TABLE `project` DROP `source`;
+
+DROP TABLE `client_source`;
+DROP TABLE `controller`;
+DROP TABLE `permission`;
+
+ALTER TABLE  `project` ADD  `team` INT NULL AFTER  `type` ,
+ADD INDEX (  `team` );
+
+ALTER TABLE `project` DROP timing_fee;
+
+ALTER TABLE  `project_people` DROP FOREIGN KEY  `project_people_ibfk_3` ;
+ALTER TABLE `project_people` DROP `username`;
+ALTER TABLE `project_people` DROP `company`;
+
+-- uice 3/25

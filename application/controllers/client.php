@@ -8,10 +8,17 @@ class Client extends People{
 		
 		$this->people=$this->client;
 		
-		$this->form_validation_rules['people'][]=array(
-			'field'=>'profiles[来源类型]',
-			'label'=>'客户来源类型',
-			'rules'=>'required'
+		$this->form_validation_rules['people']=array(
+			array(
+				'field'=>'profiles[来源类型]',
+				'label'=>'客户来源类型',
+				'rules'=>'required'
+			),
+			array(
+				'field'=>'labels[类型]',
+				'label'=>'客户类型',
+				'rules'=>'required'
+			),
 		);
 	}
 
@@ -33,6 +40,6 @@ class Client extends People{
 		
 		parent::index();
 	}
-
+	
 }
 ?>

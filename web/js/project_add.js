@@ -161,7 +161,7 @@ $(function(){
 		}
 	});
 	
-    $('#fileupload').fileupload({
+	section.find(':input:file[name="document"]').fileupload({
         dataType: 'json',
         done: function (event, data) {
 			var uploadItem=$(data.result.data).appendTo(aside.children('section[for="document"]'))
@@ -175,8 +175,6 @@ $(function(){
 			});
         }
     });
-	
-	section.find(':input:file[name="document"]').fileupload();
 
 	//案下文件类别选择'其他'时,显示输入框
 	section.find('[name="case_document[doctype]"]').change(function(){

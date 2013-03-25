@@ -238,7 +238,7 @@ $(document)
 				
 			}
 
-			form.ajaxForm({url:postURI,dataType:'json',success:function(response){
+			$.post(postURI,$('article>section[hash="'+hash+'"]>form').serialize(),function(response){
 				section.setBlock(response);
 				/*添加表单的提交按钮 清空表单*/
 				
@@ -247,12 +247,9 @@ $(document)
 					button.closest('.add-form').reset();
 				}
 		
-			}});
+			},'json');
 
-			/*$.post(postURI,$('article>section[hash="'+hash+'"]>form').serialize(),function(response){
-			},'json');*/
-
-			//return false;
+			return false;
 		});
 		
 		/*edit表单元素更改时实时提交到后台 */

@@ -11,6 +11,13 @@ class Student extends People{
 	
 	function index(){
 		
+		$this->list_args=array(
+			'num'=>array('heading'=>'学号'),
+			'name'=>array('heading'=>'姓名'),
+			'class_name'=>array('heading'=>'班级'),
+			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->people,'getCompiledLabels'),'args'=>array('{id}')))
+		);
+		
 		option('search/type','学生');
 		
 		if($this->input->get('update')){
@@ -26,6 +33,78 @@ class Student extends People{
 		//$this->edit();
 	}
 	
+	function edit($id){
+		$this->people->id=$id;
+		
+		try{
+			$people=array_merge($this->people->fetch($id),$this->input->sessionPost('people'));
+			$labels=$this->people->getLabels($this->people->id);
+			$profiles=array_sub($this->people->getProfiles($this->people->id),'content','name');
+
+			if(!$people['name'] && !$people['abbreviation']){
+				$this->section_title='未命名'.$this->section_title;
+			}else{
+				$this->section_title=$people['abbreviation']?$people['abbreviation']:$people['name'];
+			}
+
+			$available_options=$this->people->getAllLabels();
+			$profile_name_options=$this->people->getProfileNames();
+
+			$this->load->addViewData('score_list', $this->scoreList());
+			$this->load->addViewData('profile_list', $this->profileList());
+			$this->load->addViewData('relative_list', $this->relativeList());
+			$this->load->addViewArrayData(compact('controller','people','labels','profiles','available_options','profile_name_options'));
+
+			$this->load->view('student/edit');
+			$this->load->view('people/edit_sidebar',true,'sidebar');
+		}
+		catch(Exception $e){
+			$this->output->status='fail';
+			if($e->getMessage()){
+				$this->output->message($e->getMessage(), 'warning');
+			}
+		}
+	}
+	
+	function relativeList($id=NULL,$list_args=NULL){
+		if(is_null($list_args)){
+			$list_args=array(
+				'name'=>array('heading'=>'名称','cell'=>'{name}'), 
+				'phone'=>array('heading'=>'电话'), 
+				'email'=>array('heading'=>'电邮'), 
+				'relation'=>array('heading'=>'关系')
+			);
+		}
+		return parent::relativeList($id, $list_args);
+	}
+	
+	function scoreList(){
+		
+		$list_args=array(
+			'exam_name'=>array('heading'=>'考试'),
+			'course_1'=>array('heading'=>'语文','cell'=>'{course_1}<span class="rank">{rank_1}</span>'),
+			'course_2'=>array('heading'=>'数学','cell'=>'{course_2}<span class="rank">{rank_2}</span>'),
+			'course_3'=>array('heading'=>'英语','cell'=>'{course_3}<span class="rank">{rank_3}</span>'),
+			'course_4'=>array('heading'=>'物理','cell'=>'{course_4}<span class="rank">{rank_4}</span>'),
+			'course_5'=>array('heading'=>'化学','cell'=>'{course_5}<span class="rank">{rank_5}</span>'),
+			'course_6'=>array('heading'=>'生物','cell'=>'{course_6}<span class="rank">{rank_6}</span>'),
+			'course_7'=>array('heading'=>'地理','cell'=>'{course_7}<span class="rank">{rank_7}</span>'),
+			'course_8'=>array('heading'=>'历史','cell'=>'{course_8}<span class="rank">{rank_8}</span>'),
+			'course_9'=>array('heading'=>'政治','cell'=>'{course_9}<span class="rank">{rank_9}</span>'),
+			'course_10'=>array('heading'=>'信息','cell'=>'{course_10}<span class="rank">{rank_10}</span>'),
+			'course_sum_3'=>array('heading'=>'3总','cell'=>'{course_sum_3}<span class="rank">{rank_sum_3}</span>'),
+			'course_sum_5'=>array('heading'=>'4总/5总','cell'=>'{course_sum_5}<span class="rank">{rank_sum_5}</span>'),
+			'course_sum_8'=>array('heading'=>'8总','cell'=>'{course_sum_8}<span class="rank">{rank_sum_8}</span>')
+		);
+		
+		$score_list=$this->table->setFields($list_args)
+			->setData($this->student->getScores($this->student->id))
+			->trimColumns()
+			->generate();
+		
+		return $score_list;
+	}
+	
 	function classDiv(){
 		$classes=2;
 		$subjects=4;
@@ -38,7 +117,7 @@ class Student extends People{
 					course_1 AS `0`,
 					course_2 AS `1`,
 					course_3 AS `2`,
-					extra_course_score AS `3`
+					extra_course_view_score AS `3`
 				FROM student_classdiv 
 				WHERE type<>'借读'
 					AND new_class IS NULL
@@ -224,7 +303,7 @@ class Student extends People{
 		$this->load->addViewData('list', $list);
 	}
 	
-	function viewScore(){
+	function view_score(){
 		//TODO 图与表的sql请求合一
 		if($this->user->isLogged('student')){
 			$student=$this->user->id;
@@ -236,18 +315,18 @@ class Student extends People{
 		
 		$course_array=db_toArray("SELECT id,name,chart_color FROM course",true);
 		
-		$score_array=db_toArray("SELECT * FROM view_score WHERE student = '".$student."' ORDER BY exam");
+		$view_score_array=db_toArray("SELECT * FROM school_view_view_score WHERE student = '".$student."' ORDER BY exam");
 		
 		$category=$series_raw=$series=array();
 		
-		foreach($score_array as $score_line_id => $score){
-			$category[]=$score['exam_name'];
+		foreach($view_score_array as $view_score_line_id => $view_score){
+			$category[]=$view_score['exam_name'];
 			foreach($course_array as $course_id => $course){
 				if(!isset($series_raw[$course_id])){
 					$series_raw[$course_id]=array('name'=>$course['name'],'color'=>'#'.$course['chart_color']);
 				}
-				if(isset($score['rank_'.$course_id])){
-					$series_raw[$course_id]['data'][]=$score['rank_'.$course_id];
+				if(isset($view_score['rank_'.$course_id])){
+					$series_raw[$course_id]['data'][]=$view_score['rank_'.$course_id];
 				}else{
 					$series_raw[$course_id]['data'][]=NULL;
 				}
@@ -265,7 +344,7 @@ class Student extends People{
 		$category=json_encode($category);
 		$this->load->addViewArrayData(compact('series','category'));
 		
-		$fields_scores=array(
+		$fields_view_scores=array(
 			'exam_name'=>array('heading'=>'考试'),
 			'course_1'=>array('heading'=>'语文','cell'=>'{course_1}<span class="rank">{rank_1}</span>'),
 			'course_2'=>array('heading'=>'数学','cell'=>'{course_2}<span class="rank">{rank_2}</span>'),
@@ -282,11 +361,11 @@ class Student extends People{
 			'course_sum_8'=>array('heading'=>'8总','cell'=>'{course_sum_8}<span class="rank">{rank_sum_8}</span>')
 		);
 
-		$scores=$this->table->setFields($fields_scores)
+		$view_scores=$this->table->setFields($fields_view_scores)
 			->trimColumns()
-			->generate($this->student->getScores($student));
+			->generate($this->student->getview_scores($student));
 		
-		$this->load->addViewData('scores', $scores);
+		$this->load->addViewData('view_scores', $view_scores);
 	}
 }
 ?>

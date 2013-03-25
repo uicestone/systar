@@ -17,16 +17,16 @@ class Project_model extends BaseItem_model{
 	
 	function __construct(){
 		parent::__construct();
-		$this->table='case';
+		$this->table='project';
 	}
 	
 	function match($part_of_name){
 		$query="
-			SELECT case.id,case.num,case.name
-						FROM `case`
-			WHERE case.company={$this->company->id} AND case.display=1 
+			SELECT project.id,project.num,project.name
+						FROM `project`
+			WHERE project.company={$this->company->id} AND project.display=1 
 				AND (name LIKE '%$part_of_name%' OR num LIKE '%$part_of_name%' OR name_extra LIKE '%$part_of_name%')
-			ORDER BY case.id DESC
+			ORDER BY project.id DESC
 		";
 
 		return $this->db->query($query)->result_array();
@@ -37,7 +37,7 @@ class Project_model extends BaseItem_model{
 		
 	    $data+=uidTime(true,true);
 		
-	    $this->db->insert('case',$data);
+	    $this->db->insert('project',$data);
 		return $this->db->insert_id();
 	}
 	
@@ -49,7 +49,7 @@ class Project_model extends BaseItem_model{
 
 		$data+=uidTime();
 	    
-		return $this->db->update('case',$data,array('id'=>$id));
+		return $this->db->update('project',$data,array('id'=>$id));
 	}
 	
 	function getPeoplesByRole($project_id,$role=NULL){
@@ -57,9 +57,9 @@ class Project_model extends BaseItem_model{
 		$query="
 			SELECT
 				people.id,people.name,people.abbreviation,people.type
-				case_people.role
+				project_people.role
 			FROM
-				people INNER JOIN case_people ON case_people.people=people.id
+				people INNER JOIN project_people ON project_people.people=people.id
 			WHERE people.display=1
 		";
 		$result_array=$this->db->query($query)->result_array();
@@ -80,9 +80,9 @@ class Project_model extends BaseItem_model{
 		$query="
 			SELECT
 				people.id,people.name,people.abbreviation,people.type
-				case_people.role
+				project_people.role
 			FROM
-				people INNER JOIN case_people ON case_people.people=people.id
+				people INNER JOIN project_people ON project_people.people=people.id
 			WHERE people.display=1
 		";
 		$result_array=$this->db->query($query)->result_array();
@@ -100,8 +100,8 @@ class Project_model extends BaseItem_model{
 	
 	function addPeople($project_id,$people_id,$type,$role=NULL){
 		
-		$this->db->insert('case_people',array(
-			'case'=>$project_id,
+		$this->db->insert('project_people',array(
+			'project'=>$project_id,
 			'people'=>$people_id,
 			'type'=>$type,
 			'role'=>$role
@@ -112,7 +112,7 @@ class Project_model extends BaseItem_model{
 	
 	function removePeople($project_id,$project_people_id){
 		$project_people_id=intval($project_people_id);
-		return $this->db->delete('case_people',array('id'=>$project_people_id));
+		return $this->db->delete('project_people',array('id'=>$project_people_id));
 	}
 	
 	function getFeeList($project_id){
@@ -120,13 +120,13 @@ class Project_model extends BaseItem_model{
 		$project_id=intval($project_id);
 		
 		$query="
-			SELECT case_fee.id,case_fee.type,case_fee.receiver,case_fee.condition,case_fee.pay_date,case_fee.fee,case_fee.reviewed,
+			SELECT project_account.id,project_account.type,project_account.receiver,project_account.condition,project_account.pay_date,project_account.fee,project_account.reviewed,
 				if(SUM(account.amount) IS NULL,'',SUM(account.amount)) AS fee_received,
 				MAX(account.date) AS fee_received_time
 			FROM 
-				case_fee LEFT JOIN account ON case_fee.id=account.case_fee
-			WHERE case_fee.case=$project_id AND case_fee.type<>'办案费'
-			GROUP BY case_fee.id";
+				project_account LEFT JOIN account ON project_account.id=account.project_account
+			WHERE project_account.project=$project_id AND project_account.type<>'办案费'
+			GROUP BY project_account.id";
 		
 		return $this->db->query($query)->result_array();
 	}
@@ -135,12 +135,12 @@ class Project_model extends BaseItem_model{
 		$project_id=intval($project_id);
 		
 		$query="
-			SELECT case_fee.id,case_fee.type,case_fee.receiver,case_fee.comment,case_fee.pay_date,case_fee.fee,
+			SELECT project_account.id,project_account.type,project_account.receiver,project_account.comment,project_account.pay_date,project_account.fee,
 				if(SUM(account.amount) IS NULL,'',SUM(account.amount)) AS fee_received
 			FROM 
-				case_fee LEFT JOIN account ON case_fee.id=account.case_fee
-			WHERE case_fee.case = $project_id AND case_fee.type='办案费'
-			GROUP BY case_fee.id";
+				project_account LEFT JOIN account ON project_account.id=account.project_account
+			WHERE project_account.project = $project_id AND project_account.type='办案费'
+			GROUP BY project_account.id";
 		
 		return $this->db->query($query)->result_array();
 	}
@@ -148,7 +148,7 @@ class Project_model extends BaseItem_model{
 	function getTimingFeeString($project_id){
 		$project_id=intval($project_id);
 		
-		$query="SELECT CONCAT('包含',included_hours,'小时，','账单日：',bill_day,'，付款日：',payment_day,'，付款周期：',payment_cycle,'个月，合同周期：',contract_cycle,'个月，','合同起始日：',date_start) AS case_fee_timing_string FROM case_fee_timing WHERE `case` = $project_id";
+		$query="SELECT CONCAT('包含',included_hours,'小时，','账单日：',bill_day,'，付款日：',payment_day,'，付款周期：',payment_cycle,'个月，合同周期：',contract_cycle,'个月，','合同起始日：',date_start) AS case_fee_timing_string FROM case_fee_timing WHERE `project` = $project_id";
 		$row=$this->db->query($query)->row_array();
 		return $row['case_fee_timing_string'];
 	}
@@ -156,30 +156,30 @@ class Project_model extends BaseItem_model{
 	function setTimingFee($project_id,$date_start,$bill_day,$payment_day,$included_hours=0,$contract_cycle=12,$payment_cycle=1){
 		$project=intval($project_id);
 		
-		$this->db->update('case',array('timing_fee'=>1),array('id'=>$project));
+		$this->db->update('project',array('timing_fee'=>1),array('id'=>$project));
 		
-		$data=compact('case','date_start','included_hours','contract_cycle','payment_cycle','bill_day','payment_day');
+		$data=compact('project','date_start','included_hours','contract_cycle','payment_cycle','bill_day','payment_day');
 		return $this->db->insert('case_fee_timing',$data);
 	}
 	
 	function removeTimingFee($project_id){
 		$project_id=intval($project_id);
-		return $this->db->delete('case_timing_fee',array('case',$project_id));
+		return $this->db->delete('case_timing_fee',array('project',$project_id));
 	}
 	
 	function addFee($project,$fee,$pay_date,$type,$condition=NULL,$receiver=NULL,$comment=NULL){
 		$project=intval($project);
 		
-		$data=compact('case','fee','type','receiver','condition','pay_date','comment');
+		$data=compact('project','fee','type','receiver','condition','pay_date','comment');
 		
-		$this->db->insert('case_fee',$data);
+		$this->db->insert('project_account',$data);
 		return $this->db->insert_id();
 	}
 	
 	function removeFee($project_id,$project_fee_id){
 		$project_id=intval($project_id);
 		$project_fee_id=intval($project_fee_id);
-		return $this->db->delete('case_fee',array('id'=>$project_fee_id,'case'=>$project_id));
+		return $this->db->delete('project_account',array('id'=>$project_fee_id,'project'=>$project_id));
 	}
 	
 	function addDocument($project_id,$document_id){
@@ -187,13 +187,13 @@ class Project_model extends BaseItem_model{
 		$document_id=intval($document_id);
 		
 		$data=array(
-			'case'=>$project_id,
+			'project'=>$project_id,
 			'document'=>$document_id
 		);
 		
 		$data+=uidTime(false);
 		
-		$this->db->insert('case_document',$data);
+		$this->db->insert('project_document',$data);
 		
 		return $this->db->insert_id();
 	}
@@ -201,24 +201,24 @@ class Project_model extends BaseItem_model{
 	function removeDocument($project_id,$project_document_id){
 		$project_id=intval($project_id);
 		$project_document_id=intval($project_document_id);
-		return $this->db->delete('case_document',array('id'=>$project_document_id,'case'=>$project_id));
+		return $this->db->delete('project_document',array('id'=>$project_document_id,'project'=>$project_id));
 	}
 	
 	function getDocumentList($project_id){
 		$project_id=intval($project_id);
 		
 		$query="
-			SELECT case_document.id,document.id AS document,document.name,extname,type.name AS type,document.comment,document.time,document.username
+			SELECT project_document.id,document.id AS document,document.name,extname,type.name AS type,document.comment,document.time,document.username
 			FROM 
 				document
-				INNER JOIN case_document ON document.id=case_document.document
+				INNER JOIN project_document ON document.id=project_document.document
 				LEFT JOIN (
 					SELECT label.name,document_label.document
 					FROM document_label 
 						INNER JOIN label ON document_label.label=label.id
 					WHERE document_label.type='类型'
 				)type ON document.id=type.document
-			WHERE display=1 AND case_document.case = $project_id
+			WHERE display=1 AND project_document.project = $project_id
 			ORDER BY time DESC";
 
 		return $this->db->query($query)->result_array();
@@ -226,27 +226,27 @@ class Project_model extends BaseItem_model{
 	
 	function getList($args=array()){
 		$this->db->select("
-			case.id,case.name,case.num,case.time_contract
+			project.id,project.name,project.num,project.time_contract
 		",false);
 		
 		if(isset($args['people'])){
 			$this->db->where("
-				case.id IN (SELECT `case` FROM case_people WHERE people = {$args['people']})
+				project.id IN (SELECT `project` FROM project_people WHERE people = {$args['people']})
 			",NULL,false);
 		}
 
 		if(isset($args['role'])){
 			$this->db->where("
-				case.id IN (SELECT `case` FROM case_people WHERE people = {$this->user->id} AND role = '{$args['role']}')
+				project.id IN (SELECT `project` FROM project_people WHERE people = {$this->user->id} AND role = '{$args['role']}')
 			",NULL,false);
 		}
 		
 		if(isset($args['num'])){
-			$this->db->where('case.num',$args['num']);
+			$this->db->where('project.num',$args['num']);
 		}
 		
 		if(isset($args['name'])){
-			$this->db->like('case.name',$args['name']);
+			$this->db->like('project.name',$args['name']);
 		}
 		
 		return parent::getList($args);
@@ -256,15 +256,15 @@ class Project_model extends BaseItem_model{
 	function getIdByCaseFee($project_fee_id){
 		$project_fee_id=intval($project_fee_id);
 		
-		$query="SELECT `case` FROM case_fee WHERE id = $project_fee_id";
+		$query="SELECT `project` FROM project_account WHERE id = $project_fee_id";
 		
-		$result = $this->db->get_where('case_fee',array('id'=>$project_fee_id))->row();
+		$result = $this->db->get_where('project_account',array('id'=>$project_fee_id))->row();
 		
 		if(!$result){
 			return false;
 		}
 		
-		return $result->case;
+		return $result->project;
 	}
 	
 	/**
@@ -276,15 +276,15 @@ class Project_model extends BaseItem_model{
 		$people_id=intval($people_id);
 		
 		$query="
-			SELECT case.id,case.name AS case_name,case.num,	
+			SELECT project.id,project.name AS project_name,project.num,	
 				GROUP_CONCAT(DISTINCT staff.name) AS lawyers
-			FROM `case`
-				LEFT JOIN case_people ON case.id=case_people.case AND case_people.type='律师' AND case_people.role='主办律师'
-				LEFT JOIN people staff ON staff.id=case_people.people
-			WHERE case.id IN (
-				SELECT `case` FROM case_people WHERE people = $people_id
+			FROM `project`
+				LEFT JOIN project_people ON project.id=project_people.project AND project_people.type='律师' AND project_people.role='主办律师'
+				LEFT JOIN people staff ON staff.id=project_people.people
+			WHERE project.id IN (
+				SELECT `project` FROM project_people WHERE people = $people_id
 			)
-			GROUP BY case.id
+			GROUP BY project.id
 		";
 		
 		return $this->db->query($query)->result_array();
@@ -298,9 +298,9 @@ class Project_model extends BaseItem_model{
 		$option_array=array();
 		
 		$q_option_array="
-			SELECT case_fee.id,case_fee.type,case_fee.fee,case_fee.pay_date,case_fee.receiver,case.name
-			FROM case_fee INNER JOIN `case` ON case_fee.case=case.id
-			WHERE case.id IN (SELECT `case` FROM case_people WHERE people=$client_id)";
+			SELECT project_account.id,project_account.type,project_account.fee,project_account.pay_date,project_account.receiver,project.name
+			FROM project_account INNER JOIN `project` ON project_account.project=project.id
+			WHERE project.id IN (SELECT `project` FROM project_people WHERE people=$client_id)";
 		
 		$r_option_array=$this->db->query($q_option_array);
 		
@@ -318,9 +318,9 @@ class Project_model extends BaseItem_model{
 		$option_array=array();
 		
 		$q_option_array="
-			SELECT case_fee.id,case_fee.type,case_fee.fee,case_fee.pay_date,case_fee.receiver,case.name
-			FROM case_fee INNER JOIN `case` ON case_fee.case=case.id
-			WHERE case.id=$project_id";
+			SELECT project_account.id,project_account.type,project_account.fee,project_account.pay_date,project_account.receiver,project.name
+			FROM project_account INNER JOIN `project` ON project_account.project=project.id
+			WHERE project.id=$project_id";
 		
 		$result=$this->db->query($q_option_array)->result_array();
 		
@@ -335,7 +335,7 @@ class Project_model extends BaseItem_model{
 	function calcContribute($project_id){
 		$project_id=intval($project_id);
 		
-		$query="SELECT id,people lawyer,role FROM case_people WHERE type='律师' AND `case` = $project_id";
+		$query="SELECT id,people lawyer,role FROM project_people WHERE type='律师' AND `project` = $project_id";
 		
 		$project_lawyer_array=$this->db->query($query)->result_array();
 		
@@ -358,24 +358,24 @@ class Project_model extends BaseItem_model{
 		
 		foreach($project_lawyer_array as $id=>$role){
 			if($role=='接洽律师（次要）' && isset($role_count['接洽律师']) && $role_count['接洽律师']==1){
-				$this->db->update('case_people',array('contribute'=>$contribute['接洽']*0.3),array('id'=>$id));
+				$this->db->update('project_people',array('contribute'=>$contribute['接洽']*0.3),array('id'=>$id));
 	
 			}elseif($role=='接洽律师'){
 				if(isset($role_count['接洽律师（次要）']) && $role_count['接洽律师（次要）']==1){
-					$this->db->update('case_people',array('contribute'=>$contribute['接洽']*0.7),array('id'=>$id));
+					$this->db->update('project_people',array('contribute'=>$contribute['接洽']*0.7),array('id'=>$id));
 				}else{
-					$this->db->update('case_people',array('contribute'=>$contribute['接洽']/$role_count[$role]),array('id'=>$id));
+					$this->db->update('project_people',array('contribute'=>$contribute['接洽']/$role_count[$role]),array('id'=>$id));
 				}
 	
 			}elseif($role=='主办律师'){
 				if(isset($role_count['协办律师']) && $role_count['协办律师']){
-					$this->db->update('case_people',array('contribute'=>($contribute['办案']-0.05)/$role_count[$role]),array('id'=>$id));
+					$this->db->update('project_people',array('contribute'=>($contribute['办案']-0.05)/$role_count[$role]),array('id'=>$id));
 				}else{
-					$this->db->update('case_people',array('contribute'=>$contribute['办案']/$role_count[$role]),array('id'=>$id));
+					$this->db->update('project_people',array('contribute'=>$contribute['办案']/$role_count[$role]),array('id'=>$id));
 				}
 	
 			}elseif($role=='协办律师'){
-				$this->db->update('case_people',array('contribute'=>0.05/$role_count[$role]),array('id'=>$id));
+				$this->db->update('project_people',array('contribute'=>0.05/$role_count[$role]),array('id'=>$id));
 			}
 		}
 	}
@@ -383,12 +383,12 @@ class Project_model extends BaseItem_model{
 	function lawyerRoleCheck($project_id,$new_role,$actual_contribute=NULL){
 		$project_id=intval($project_id);
 		
-		if(strpos($new_role,'信息提供')!==false && $this->db->query("SELECT SUM(contribute) sum FROM case_people WHERE type='律师' AND role LIKE '信息提供%' AND `case`=$project_id")->row()->sum+substr($new_role,15,2)/100>0.2){
+		if(strpos($new_role,'信息提供')!==false && $this->db->query("SELECT SUM(contribute) sum FROM project_people WHERE type='律师' AND role LIKE '信息提供%' AND `project`=$project_id")->row()->sum+substr($new_role,15,2)/100>0.2){
 			//信息贡献已达到20%
 			showMessage('信息提供贡献已满额','warning');
 			return false;
 			
-		}elseif(strpos($new_role,'接洽律师')!==false && $this->db->query("SELECT COUNT(id) num FROM case_people WHERE type='律师' AND role LIKE '接洽律师%' AND `case`=$project_id")->row()->num>=2){
+		}elseif(strpos($new_role,'接洽律师')!==false && $this->db->query("SELECT COUNT(id) num FROM project_people WHERE type='律师' AND role LIKE '接洽律师%' AND `project`=$project_id")->row()->num>=2){
 			//接洽律师已达到2名
 			showMessage('接洽律师不能超过2位','warning');
 			return false;
@@ -405,7 +405,7 @@ class Project_model extends BaseItem_model{
 			
 			if(!$actual_contribute){
 				$actual_contribute_left=
-					0.3-$this->db->query("SELECT SUM(contribute) sum FROM case_people WHERE type='律师' AND `case`=$project_id AND role='实际贡献'")->row()->sum;
+					0.3-$this->db->query("SELECT SUM(contribute) sum FROM project_people WHERE type='律师' AND `project`=$project_id AND role='实际贡献'")->row()->sum;
 				if($actual_contribute_left>0){
 					return $actual_contribute_left;
 				}else{
@@ -413,7 +413,7 @@ class Project_model extends BaseItem_model{
 					return false;
 				}
 				
-			}elseif($this->db->query("SELECT SUM(contribute) sum FROM case_people WHERE type='律师' AND `case`=$project_id AND role='实际贡献'")->row()->sum+($actual_contribute/100)>0.3){
+			}elseif($this->db->query("SELECT SUM(contribute) sum FROM project_people WHERE type='律师' AND `project`=$project_id AND role='实际贡献'")->row()->sum+($actual_contribute/100)>0.3){
 				showMessage('实际贡献总数不能超过30%','warning');
 				return false;
 	
@@ -428,7 +428,7 @@ class Project_model extends BaseItem_model{
 	function getRoles($project_id){
 		$project_id=intval($project_id);
 		
-		$project_role=$this->db->query("SELECT people lawyer,role FROM case_people WHERE type='律师' AND `case`=$project_id")->result_array();
+		$project_role=$this->db->query("SELECT people lawyer,role FROM project_people WHERE type='律师' AND `project`=$project_id")->result_array();
 		
 		if($project_role){
 			return $project_role;
@@ -506,11 +506,11 @@ class Project_model extends BaseItem_model{
 				default:$project_num['type_code']='';
 			}
 		}
-		$project_num['case']=$project_id;
+		$project_num['project']=$project_id;
 		$project_num+=uidTime();
 		$project_num['year_code']=substr($is_query?$first_contact:$time_contract,0,4);
-		$this->db->insert('case_num',$project_num);
-		$project_num['number']=$this->db->query("SELECT number FROM case_num WHERE `case` = $project_id")->row()->number;
+		$this->db->insert('project_num',$project_num);
+		$project_num['number']=$this->db->query("SELECT number FROM project_num WHERE `project` = $project_id")->row()->number;
 
 		$num=$project_num['classification_code'].$project_num['type_code'].$project_num['year_code'].'第'.$project_num['number'].'号';
 		return $num;

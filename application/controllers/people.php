@@ -10,10 +10,28 @@ class People extends SS_Controller{
 	
 	var $list_args;
 	
+	var $relative_list_args;
+
+	var $profile_list_args;
+
+	var $project_list_args=array(
+		'num'=>array(
+			'heading'=>'案号'
+		),
+		'case_name'=>array(
+			'heading'=>'案名'
+		), 
+		'lawyers'=>array(
+			'heading'=>'主办律师' 
+		)
+	);
+
 	var $section_title='人员';
 		
 	function __construct() {
 		parent::__construct();
+		
+		$controller=CONTROLLER;
 		
 		$this->load->model('team_model', 'team');
 		
@@ -22,6 +40,36 @@ class People extends SS_Controller{
 			'label'=>'电子邮件',
 			'rules'=>'valid_email'
 		);
+		
+		$this->list_args=array(
+			'abbreviation'=>array(
+				'heading'=>'名称',
+				'cell'=>array('data'=>'{abbreviation}','class'=>"ellipsis",'title'=>'{name}')
+			),
+			'phone'=>array('heading'=>'电话'),
+			'email'=>array('heading'=>'电邮'),
+			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->$controller,'getCompiledLabels'),'args'=>array('{id}')))
+		);
+		
+		$this->relative_list_args=array(
+			'name'=>array('heading'=>'名称','cell'=>'{name}<button type="submit" id="{id}" name="submit[remove_relative]" class="hover">删除</button>'), 
+			'phone'=>array('heading'=>'电话'), 
+			'email'=>array('heading'=>'电邮'), 
+			'relation'=>array('heading'=>'关系')
+		);
+		
+		$this->profile_list_args=array(
+			'name'=>array('heading'=>'名称','cell'=>'{name}<button type="submit" id="{id}" name="submit[remove_profile]" class="hover">删除</button>'), 
+			'content'=>array('heading'=>'内容', 'eval'=>true, 'cell'=>"
+				if('{name}'=='电子邮件'){
+					return '<a href=\"mailto:{content}\" target=\"_blank\">{content}</a>';
+				}else{
+					return '{content}';
+				}
+			", 'orderby'=>false), 
+			'comment'=>array('heading'=>'备注')
+		);
+		
 	}
 	
 	/**
@@ -48,16 +96,6 @@ class People extends SS_Controller{
 	 * 列表页
 	 */
 	function index(){
-		
-		$this->list_args=array(
-			'abbreviation'=>array(
-				'heading'=>'名称',
-				'cell'=>array('data'=>'{abbreviation}','class'=>"ellipsis",'title'=>'{name}')
-			),
-			'phone'=>array('heading'=>'电话'),
-			'email'=>array('heading'=>'电邮'),
-			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->people,'getCompiledLabels'),'args'=>array('{id}')))
-		);
 		
 		if($this->input->post('team')){
 			option('search/team',$this->input->post('team'));
@@ -145,9 +183,9 @@ class People extends SS_Controller{
 			$available_options=$this->people->getAllLabels();
 			$profile_name_options=$this->people->getProfileNames();
 
-			$this->subList('relative');
-			$this->subList('profile');
-			$this->subList('case');
+			$this->load->addViewData('relative', $this->relativeList());
+			$this->load->addViewData('profile',$this->profileList());
+			$this->load->addViewData('project', $this->projectList());
 
 			if($people['staff']){
 				$people['staff_name']=$this->staff->fetch($people['staff'],'name');
@@ -168,6 +206,43 @@ class People extends SS_Controller{
 				$this->output->message($e->getMessage(), 'warning');
 			}
 		}
+	}
+	
+	/**
+	 * 返回相关人列表
+	 */
+	function relativeList(){
+		
+		$list=$this->table->setFields($this->relative_list_args)
+			->setRowAttributes(array('hash'=>CONTROLLER.'/edit/{relative}'))
+			->setData($this->people->getRelatives($this->people->id))
+			->generate();
+		
+		return $list;
+	}
+	
+	/**
+	 * 返回资料项列表
+	 */
+	function profileList(){
+
+		$list=$this->table->setFields($this->profile_list_args)
+			->setData($this->people->getProfiles($this->people->id))
+			->generate();
+		
+		return $list;
+	}
+	
+	/**
+	 * 返回相关项目列表
+	 */
+	function projectList(){
+		$list=$this->table->setFields($this->project_list_args)
+			->setRowAttributes(array('hash'=>'cases/edit/{id}'))
+			->setData($this->cases->getListByPeople($this->people->id))
+			->generate();
+		
+		return $list;
 	}
 
 	/**
@@ -212,11 +287,6 @@ class People extends SS_Controller{
 					throw new Exception;
 				}
 				
-				if(!isset($labels['类型'])){
-					$this->output->message('请选择客户类型','warning');
-					throw new Exception;
-				}
-				
 				$this->people->update($this->people->id,post('people'));
 				$this->people->updateLabels($this->people->id,$labels);
 				$this->people->updateProfiles($this->people->id,$profiles);
@@ -257,7 +327,7 @@ class People extends SS_Controller{
 
 				$this->people->addRelationship($this->people->id,$relative['id'],$relative['relation']);
 
-				$this->output->setData($this->subList('relative',$this->people->id));
+				$this->output->setData($this->relativeList(),'content-table','html','.item[name="relative"]>.contentTable','replace');
 				
 				unset($_SESSION[CONTROLLER]['post'][$this->people->id]['relative']);
 
@@ -265,7 +335,7 @@ class People extends SS_Controller{
 
 			elseif($submit=='remove_relative'){
 				$this->people->removeRelationship($this->people->id,$button_id);
-				$this->output->setData($this->subList('relative',$this->people->id));
+				$this->output->setData($this->relativeList(),'content-table','html','.item[name="relative"]>.contentTable','replace');
 			}
 
 			elseif($submit=='profile'){
@@ -278,14 +348,14 @@ class People extends SS_Controller{
 				
 				$this->people->addProfile($this->people->id,$profile['name'],$profile['content'],$profile['comment']);
 				
-				$this->output->setData($this->subList('profile',$this->people->id));
+				$this->output->setData($this->profileList(),'content-table','html','.item[name="profile"]>.contentTable','replace');
 				
 				unset($_SESSION[CONTROLLER]['post'][$this->people->id]['profile']);
 			}
 
 			elseif($submit=='remove_profile'){
 				$this->people->removeProfile($this->people->id,$button_id);
-				$this->output->setData($this->subList('profile',$this->people->id));
+				$this->output->setData($this->profileList(),'content-table','html','.item[name="profile"]>.contentTable','replace');
 			}
 			
 			elseif($submit=='changetype'){
@@ -300,76 +370,5 @@ class People extends SS_Controller{
 			$this->output->status='fail';
 		}
 	}
-
-	/**
-	 * 查看/编辑页中的子列表
-	 */
-	function subList($item,$people_id=false){
-
-		if($people_id){
-			$people=$this->people->fetch($people_id);
-		}
-
-		//相关人
-		if($item=='relative'){
-			$field=array(
-				'name'=>array('heading'=>'名称','cell'=>'{name}<button type="submit" id="{id}" name="submit[remove_relative]" class="hover">删除</button>'), 
-				'phone'=>array('heading'=>'电话'), 
-				'email'=>array('heading'=>'电邮'), 
-				'relation'=>array('heading'=>'关系')
-			);
-			
-			$list=$this->table->setFields($field)
-				->setRowAttributes(array('hash'=>CONTROLLER.'/edit/{reltive}'))
-				->setData($this->people->getRelatives($this->people->id))
-				->generate();
-
-		}
-		//资料项
-		elseif($item=='profile'){
-			$field=array(
-				'name'=>array('heading'=>'名称','cell'=>'{name}<button type="submit" id="{id}" name="submit[remove_profile]" class="hover">删除</button>'), 
-				'content'=>array('heading'=>'内容', 'eval'=>true, 'cell'=>"
-					if('{name}'=='电子邮件'){
-						return '<a href=\"mailto:{content}\" target=\"_blank\">{content}</a>';
-					}else{
-						return '{content}';
-					}
-				", 'orderby'=>false), 
-				'comment'=>array('heading'=>'备注', 'orderby'=>false)
-			);
-			
-			$list=$this->table->setFields($field)
-				->setData($this->people->getProfiles($this->people->id))
-				->generate();
-
-		}
-		//相关案件
-		elseif($item=='case'){
-			$field=array(
-				'num'=>array(
-					'heading'=>'案号'
-				),
-				'case_name'=>array(
-					'heading'=>'案名'
-				), 
-				'lawyers'=>array(
-					'heading'=>'主办律师' 
-				)
-			);
-			$list=$this->table->setFields($field)
-				->setRowAttributes(array('hash'=>'cases/edit/{id}'))
-				->setData($this->cases->getListByPeople($this->people->id))
-				->generate();
-		}
-		
-		if(!$people_id){//没有指定$people_id，是在edit方法内调用
-			$this->load->addViewData($item.'_list', $list);
-		}else{
-			return array('selector'=>'.item[name="'.$item.'"]>.contentTable','content'=>$list,'type'=>'html','method'=>'replace','content_name'=>'content-table');
-		}
-
-	}
-	
 }
 ?>

@@ -60,6 +60,8 @@ class SS_Output extends CI_Output{
 	 * @param $content 对应$type，为html内容或uri地址
 	 * @param $content_name 内容的名称，如'content'(页面内容),'name'(标签选项名称)
 	 * @param $type 可选uri,html
+	 * @param $selector 输出内容填入前端DOM文档的jQuery选择器
+	 * @param $method 输出内容填入前端DOM文档的方式 可选replace,innerhtml
 	 */
 	function setData($content,$content_name='content',$type='html',$selector=NULL,$method=NULL){
 		

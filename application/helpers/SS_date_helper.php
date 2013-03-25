@@ -3,7 +3,6 @@ function uidTime($company=true,$time_insert=false){
 	$CI=&get_instance();
 	$array=array(
 		'uid'=>$CI->user->id,
-		'username'=>$CI->user->name,
 		'time'=>$CI->date->now,
 	);
 	

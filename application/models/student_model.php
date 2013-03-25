@@ -1,5 +1,4 @@
 <?php
-require_once APPPATH.'/models/people_model.php';
 class Student_model extends People_model{
 	
 	var $profile=array(
@@ -19,6 +18,22 @@ class Student_model extends People_model{
 	
 	function __construct(){
 		parent::__construct();
+	}
+	
+	function getList($args=array()){
+		
+		$this->db->select('
+			people.*,
+			RIGHT((1000000 + CONCAT(team.num,RIGHT((100 + team_people.id_in_team),2))),6) AS num,
+			team.id AS class,team.name AS class_name
+		',false)
+			->join('team_people',"team_people.people = people.id AND team_people.till>=CURDATE()",'LEFT')
+			->join('team',"team.id = team_people.team",'LEFT')
+			->where('team.type','班级');
+		
+		$args['orderby']='num';
+		
+		return parent::getList($args);
 	}
 	
 	function updateClass($people,$team,$id_in_team,$term){
@@ -76,13 +91,13 @@ class Student_model extends People_model{
 		$query="
 			SELECT student_comment.title,student_comment.content,
 				FROM_UNIXTIME(student_comment.time,'%Y-%m-%d') AS date,student_comment.username,student_comment.student,
-				view_student.name AS student_name
-			FROM student_comment INNER JOIN view_student ON student_comment.student=view_student.id
+				school_view_student.name AS student_name
+			FROM student_comment INNER JOIN school_view_student ON student_comment.student=school_view_student.id
 			WHERE student_comment.reply_to='{$this->user->id}' 
 				OR student_comment.uid='{$this->user->id}' 
 				OR (
 					'".isset($_SESSION['manage_class'])."' 
-					AND view_student.class='{$_SESSION['manage_class']['id']}'
+					AND school_view_student.class='{$_SESSION['manage_class']['id']}'
 				)
 			ORDER BY time DESC
 		";
@@ -93,9 +108,9 @@ class Student_model extends People_model{
 	}
 	
 	function updateView($student_id=NULL){
-		$this->db->query("DROP TABLE IF EXISTS view_student");
+		$this->db->query("DROP TABLE IF EXISTS school_view_student");
 		$this->db->query("
-			CREATE TABLE view_student
+			CREATE TABLE school_view_student
 			SELECT 
 				student.id AS id,student.gender,student.name AS name,student.type AS type,student.id_card AS id_card,student.extra_course,
 				right((1000000 + concat(student_class.class,right((100 + student_class.num_in_class),2))),6) AS num,
@@ -110,14 +125,14 @@ class Student_model extends People_model{
 				student_class.term = '".$this->school->current_term."'
 			ORDER BY num
 		");
-		$this->db->query("ALTER TABLE  `view_student` ADD PRIMARY KEY (  `id` )");
-		$this->db->query("ALTER TABLE  `view_student` ADD INDEX (type)");
-		$this->db->query("ALTER TABLE  `view_student` ADD INDEX (num)");
-		$this->db->query("ALTER TABLE  `view_student` ADD INDEX (class)");
-		$this->db->query("ALTER TABLE  `view_student` ADD INDEX (grade)");
-		$this->db->query("ALTER TABLE  `view_student` ADD INDEX (depart)");
-		$this->db->query("ALTER TABLE  `view_student` ADD INDEX (extra_course)");
-		$this->db->query("ALTER TABLE  `view_student` ADD FOREIGN KEY (  `id` ) REFERENCES  `starsys`.`student` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE");
+		$this->db->query("ALTER TABLE  `school_view_student` ADD PRIMARY KEY (  `id` )");
+		$this->db->query("ALTER TABLE  `school_view_student` ADD INDEX (type)");
+		$this->db->query("ALTER TABLE  `school_view_student` ADD INDEX (num)");
+		$this->db->query("ALTER TABLE  `school_view_student` ADD INDEX (class)");
+		$this->db->query("ALTER TABLE  `school_view_student` ADD INDEX (grade)");
+		$this->db->query("ALTER TABLE  `school_view_student` ADD INDEX (depart)");
+		$this->db->query("ALTER TABLE  `school_view_student` ADD INDEX (extra_course)");
+		$this->db->query("ALTER TABLE  `school_view_student` ADD FOREIGN KEY (  `id` ) REFERENCES  `starsys`.`student` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE");
 	}
 	
 	function changeClass($student_id,$old_class_id,$new_class_id){
@@ -136,60 +151,14 @@ class Student_model extends People_model{
 		}
 	}
 	
-	function addBehaviour($student,$data){
-		$fields=array('name','date','type','level','content');
-		
-		$behaviour=array('student'=>$student);
-		
-		foreach($fields as $field){
-			if(isset($data[$field])){
-				$behaviour[$field]=$data[$field];
-			}
-		}
-
-		$behaviour+=uidTime();
-		
-		if($this->db->insert('student_behaviour',$behaviour)){
-			unset($_SESSION[CONTROLLER]['post'][$this->id]['student_behaviour']);
-			return $this->db->insert_id();
-		}else{
-			return false;
-		}
-	}
-	
-	function addComment($student,$data){
-		$fields=array('title','content','reply_to');
-		
-		$comment=array('student',$student);
-		
-		foreach($fields as $field){
-			if(isset($data[$field])){
-				$comment[$field]=$data[$field];
-			}
-		}
-
-		$comment+=uidTime();
-		
-		if($this->db->insert('student_comment',$comment)){
-			unset($_SESSION[CONTROLLER]['post'][$this->id]['student_comment']);
-			return $this->db->insert_id();
-		}else{
-			return false;
-		}
-	}
-	
-	function deleteRelatives($student_relatives){
-		//@TODO
-	}
-	
 	function getScores($student){
 		$student=intval($student);
+		
+		$this->db->from('school_view_score')
+			->where('student',$student)
+			->order_by('exam','DESC');
 
-		$query="SELECT exam_name,course_1,course_2,course_3,course_4,course_5,course_6,course_7,course_8,course_9,course_10,course_sum_3,course_sum_5,course_sum_8,rank_1,rank_2,rank_3,rank_4,rank_5,rank_6,rank_7,rank_8,rank_9,rank_10,rank_sum_3,rank_sum_5,rank_sum_8
-			FROM view_score WHERE student = '".$student."'
-		ORDER BY exam DESC";
-	
-		return $this->db->query($query)->result_array();
+		return $this->db->get()->result_array();
 	}
 	
 	function testClassDiv($div,$data,$classes,$gender,$showResult=false){
