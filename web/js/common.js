@@ -181,14 +181,11 @@ $(document)
 
 				}
 
-				form.ajaxForm({url:postURI,dataType:'json',success:function(response){
+				$.post(postURI,$('article>section[hash="'+hash+'"]>form').serialize(),function(response){
 					section.setBlock(response);
-				}});
+				},'json');
 
-				/*$.post(postURI,$('article>section[hash="'+hash+'"]>form').serialize(),function(response){
-				},'json');*/
-
-				//return false;
+				return false;
 
 			});
 

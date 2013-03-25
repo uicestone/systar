@@ -20,17 +20,20 @@
 	</table>
 </form>
 <input id="fileupload" type="file" name="document" data-url="/document/submit" multiple="multiple" />
-<?=javascript('jQuery/jquery.iframe-transport')?>
-<?=javascript('jQuery/jquery.fileupload')?>
 <script>
 $(function () {
     $('#fileupload').fileupload({
         dataType: 'json',
-		dropZone:aside,
         done: function (event, data) {
-			$(data.result.data).appendTo(aside.children('section[for="document"]'))
-			.trigger('blockload')
-			.children('select').chosen({search_contains:true});
+			var uploadItem=$(data.result.data).appendTo(aside.children('section[for="document"]'))
+			.trigger('blockload');
+			
+			uploadItem.children('select').chosen({search_contains:true});
+	
+			uploadItem.children(':input').on('change',function(){
+				var data = $(this).serialize();
+				$.post('/document/update/'+uploadItem.attr('id'),data);
+			});
         }
     });
 });

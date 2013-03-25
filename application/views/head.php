@@ -27,7 +27,8 @@
 	
 	<?=javascript('schedule')?>
 
-	<?=javascript('jQuery/jquery.form')?>
+	<?=javascript('jQuery/jquery.iframe-transport')?>
+	<?=javascript('jQuery/jquery.fileupload')?>
 
 	<link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
 	<title><?=$this->company->sysname?></title>

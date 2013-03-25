@@ -110,7 +110,7 @@ $(function(){
 	});
 
 	//审核按钮的触发
-	$('button[name="submit[review]"]').click(function(){
+	section.find('button[name="submit[review]"]').click(function(){
 		$(this)
 		.after('<button type="submit" name="submit[send_message]">退回</button>')
 		.after('<button type="submit" name="'+$(this).attr('name')+'">通过</button>')
@@ -119,7 +119,7 @@ $(function(){
 	});
 
 	//“忽略”按钮的显示和隐藏
-	$('[name^="case_fee_check"]').change(function(){
+	section.find('[name^="case_fee_check"]').change(function(){
 		if($('[name^="case_fee_check"]:checked').size()){
 			$('[name="submit[case_fee_review]"]').removeAttr('disabled').fadeIn(200);
 		}else{
@@ -128,7 +128,7 @@ $(function(){
 	});
 
 	//案下收费条件页内增加
-	$('.contentTable[name="case_fee"]').children('tbody').children('tr').children('td[field="condition"]').editable(function(value,settings){
+	section.find('.contentTable[name="case_fee"]').children('tbody').children('tr').children('td[field="condition"]').editable(function(value,settings){
 		var id=$(this).siblings('td:first').attr('id');
 
 		var result;
@@ -153,20 +153,38 @@ $(function(){
 	});
 
 	//案下律师类别为实际贡献时，增加实际贡献输入格
-	$('[name="staff[role]"]').change(function(){
+	section.find('[name="staff[role]"]').change(function(){
 		if($(this).val()=='实际贡献'){
 			$(this).siblings('[name="staff_extra[actual_contribute]"]').removeAttr('disabled').show();
 		}else{
 			$('[name="staff_extra[actual_contribute]"]').attr('disabled','disabled').hide();
 		}
 	});
+	
+    $('#fileupload').fileupload({
+        dataType: 'json',
+        done: function (event, data) {
+			var uploadItem=$(data.result.data).appendTo(aside.children('section[for="document"]'))
+			.trigger('blockload');
+			
+			uploadItem.children('select').chosen({search_contains:true});
+	
+			uploadItem.children(':input').on('change',function(){
+				var data = $(this).serialize();
+				$.post('/document/update/'+uploadItem.attr('id'),data);
+			});
+        }
+    });
+	
+	section.find(':input:file[name="document"]').fileupload();
 
 	//案下文件类别选择'其他'时,显示输入框
-	$('[name="case_document[doctype]"]').change(function(){
+	section.find('[name="case_document[doctype]"]').change(function(){
 		if($(this).val()=='其他'){
 			$(this).css('width','7%').after('<input type="text" name="case_document[doctype_other]" style="width:8%" />')
 		}else{
 			$(this).css('width','15%').siblings('input[name="case_document[doctype_other]"]').remove();
 		}
 	});
+	
 });

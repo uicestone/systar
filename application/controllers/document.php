@@ -30,7 +30,7 @@ class Document extends SS_controller{
 				option('search/labels',array());
 			}
 			
-			option('search/labels',array_trim($this->input->post('labels'))+option('search/labels'));
+			option('search/labels',$this->input->post('labels'));
 		}
 		
 		//点击了取消搜索按钮，则清空session中的搜索项
@@ -93,9 +93,12 @@ class Document extends SS_controller{
 			
 			$document_id=$this->document->add(array(
 				'name'=>$file_info['client_name'],
+				'filename'=>$file_info['client_name'],
 				'extname'=>$file_info['file_ext'],
 				'size'=>$file_info['file_size']
 			));
+			
+			$this->document->updateLabels($document_id,$_SESSION['document']['index']['search']['labels']);
 			
 			rename('../uploads/'.$file_info['file_name'],'../uploads/'.$document_id);
 			
@@ -120,6 +123,16 @@ class Document extends SS_controller{
 			$this->output->status='fail';
 		}
 
+	}
+	
+	function update($id){
+		if($this->input->post('document')){
+			$this->document->update($id,$this->input->post('document'));
+		}
+		
+		if($this->input->post('labels')){
+			$this->document->updateLabels($id, $this->input->post('labels'));
+		}
 	}
 }
 ?>

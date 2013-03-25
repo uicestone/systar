@@ -241,3 +241,8 @@ ALTER TABLE `account_team`
 
 ALTER TABLE  `label` ADD  `color` VARCHAR( 255 ) NOT NULL DEFAULT  'not specified';
 -- uice 3/20
+
+ALTER TABLE  `document` ADD  `filename` VARCHAR( 255 ) NOT NULL AFTER  `name`;
+update document set filename = name;
+ALTER TABLE  `document_label` CHANGE  `type`  `type` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+-- uice 3/22

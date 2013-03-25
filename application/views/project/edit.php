@@ -209,7 +209,7 @@
 		<?=$document_list?>
 
 		<div class="add-form">
-			<input type="file" name="document" id="file" width="30%" />
+			<input type="file" name="document" id="file" data-url="/document/submit" width="30%" />
 			<select name="document_labels[类型]">
 			<?=options($this->config->item('案件文档类型'),$this->value('document_labels/类型'),'类型');?>
 			</select>

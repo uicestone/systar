@@ -2,7 +2,8 @@
 class Document_model extends BaseItem_model{
 	
 	static $fields=array(
-		'name'=>'文件名',
+		'name'=>'名称',
+		'filename'=>'文件名',
 		'extname'=>'扩展名',
 		'size'=>'大小',
 		'comment'=>'备注'
@@ -12,17 +13,6 @@ class Document_model extends BaseItem_model{
 		parent::__construct();
 		$this->table='document';
 		$this->load->library('filetype');
-	}
-	
-	function fetch($id){
-		$id=intval($id);
-		
-		$query="
-			SELECT * 
-			FROM `document` 
-			WHERE id=$id AND company={$this->company->id}
-		";
-		return $this->db->query($query)->row_array();
 	}
 	
 	function getList($args=array()){
@@ -41,6 +31,17 @@ class Document_model extends BaseItem_model{
 		
 		return $this->db->insert_id();
 				
+	}
+	
+	function update($id,$data=array()){
+		
+		$id=intval($id);
+		
+		$document=array_intersect_key($data, self::$fields);
+		
+		$document+=uidTime(false);
+		
+		return $this->db->update('document',$document,array('id'=>$id));
 	}
 	
 	function getMime($file_extension){
