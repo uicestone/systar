@@ -178,6 +178,7 @@ class Project extends SS_controller{
 	function edit($id){
 		$this->project->id=$id;
 		
+		$this->load->model('schedule_model','schedule');
 
 		try{
 			$project=array_merge($this->project->fetch($id),$this->input->sessionPost('project'));
@@ -212,10 +213,6 @@ class Project extends SS_controller{
 				$this->load->view_data['staff_role_array']=array('督办人','接洽律师','律师助理');
 			}else{
 				$this->load->view_data['staff_role_array']=array('案源人','督办人','接洽律师','主办律师','协办律师','律师助理');
-			}
-
-			if($project['timing_fee']){
-				$this->load->view_data['case_fee_timing_string']=$this->project->getTimingFeeString($this->project->id);
 			}
 
 			$this->load->addViewData('staff_list', $this->staffList());
@@ -255,11 +252,11 @@ class Project extends SS_controller{
 	
 	function staffList(){
 		
-		$this->load->model('staff_model','staff');
+		$this->load->model('people_model','people');
 		
 		$list=$this->table->setFields($this->staff_list_args)
 			->setAttribute('name','staff')
-			->generate($this->project->getStaffList($this->project->id));
+			->generate($this->people->getList(array('project'=>$this->project->id,'type'=>'职员')));
 		
 		return $list;
 	}
@@ -769,7 +766,7 @@ class Project extends SS_controller{
 				$this->output->message('案卷归档归档完成');
 			}
 
-			elseif($submit=='apply_case_num'){
+			elseif($submit=='apply_project_num'){
 				
 				$labels=$this->input->sessionPost('labels');
 				

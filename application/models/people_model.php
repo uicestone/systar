@@ -143,7 +143,7 @@ class People_model extends BaseItem_model{
 	
 	/**
 	 * 继承自SS_Model::getList()，具有基本的type,label,orderby和limit配置功能
-	 * 'in_my_case'=>FALSE //与当前用户有相同的相关案件
+	 * 'in_my_project'=>FALSE //与当前用户有相同的相关案件
 	 * name=>'匹配部分people.name, people.abbreviation, people.name_en',
 	 */
 	function getList($args=array()){
@@ -161,12 +161,12 @@ class People_model extends BaseItem_model{
 
 		}
 		
-		if(isset($args['in_my_case']) && $args['in_my_case'] && !$this->user->isLogged('developer')){
+		if(isset($args['in_my_project']) && $args['in_my_project'] && !$this->user->isLogged('developer')){
 			
 			$this->db->where("
 				people.id IN (
-					SELECT people FROM case_people WHERE `case` IN (
-						SELECT `case` FROM case_people WHERE people = {$this->user->id}
+					SELECT people FROM project_people WHERE `project` IN (
+						SELECT `project` FROM project_people WHERE people = {$this->user->id}
 					)
 				)
 			",NULL,false);

@@ -18,7 +18,7 @@ class Test extends SS_controller{
 		$this->db->select('id,name');
 		$this->db->from('people');
 		$this->db->where('company',1);
-		$this->db->where("id IN (SELECT people FROM case_people)",NULL,false);
+		$this->db->where("id IN (SELECT people FROM project_people)",NULL,false);
 		$this->db->get();
 		echo $this->db->last_query();
 	}

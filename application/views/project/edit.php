@@ -24,7 +24,7 @@
 		</select>
 		<input type="text" name="project[name]" value="<?=$this->value('project/name')?>" placeholder="案件名称" style="width:300px;">
 <?	if(!$project['num']){?>
-		<button type="submit" name="submit[apply_case_num]" class="major">获得案号</button>
+		<button type="submit" name="submit[apply_project_num]" class="major">获得案号</button>
 <?	}?>
 <?}?>
 <?if(in_array('咨询',$labels)){ ?>

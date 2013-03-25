@@ -11,7 +11,7 @@ class Schedule_model extends BaseItem_model{
 		'hours_bill'=>'账单时长',
 		'all_day'=>'全天',
 		'completed'=>'已完成',
-		'case'=>'关联案件'
+		'project'=>'关联案件'
 	);
 	
 	function __construct(){
@@ -32,11 +32,11 @@ class Schedule_model extends BaseItem_model{
 	
 	function getList($args=array()){
 		
-		$this->db->select('schedule.*,case.name AS project_name')
-			->join('case',"case.id = schedule.case",'INNER');
+		$this->db->select('schedule.*,project.name AS project_name')
+			->join('project',"project.id = schedule.project",'INNER');
 		
 		if(isset($args['project'])){
-			$this->db->where('schedule.case',$args['project']);
+			$this->db->where('schedule.project',$args['project']);
 		}
 		
 		if(isset($args['name'])){
@@ -105,10 +105,10 @@ class Schedule_model extends BaseItem_model{
 	 * @param $start 开始时间戳
 	 * @param $end 结束时间戳
 	 * @param $staff
-	 * @param $case
+	 * @param $project
 	 * @return array
 	 */
-	function fetch_range($start,$end,&$staff,&$case){
+	function fetch_range($start,$end,&$staff,&$project){
 		$start=intval($start);
 		$end=intval($end);
 	
@@ -126,9 +126,9 @@ class Schedule_model extends BaseItem_model{
 				AND (uid = $people OR id IN (SELECT schedule FROM schedule_people WHERE people = $people))
 		";
 		
-		if($case){
-			$case=intval($case);
-			$q_calendar.=" AND `case` = $case";
+		if($project){
+			$project=intval($project);
+			$q_calendar.=" AND `project` = $project";
 		}
 	
 		$calendar=$this->db->query($q_calendar)->result_array();
@@ -212,8 +212,8 @@ class Schedule_model extends BaseItem_model{
 		return $this->db->query($query);
 	}
 	
-	function calculateTime($case,$client=NULL,$staff=NULL){
-		$q="SELECT SUM(IF(hours_checked IS NULL,hours_own,hours_checked)) AS time FROM schedule WHERE display=1 AND completed=1 AND `case`='{$case}'";
+	function calculateTime($project,$client=NULL,$staff=NULL){
+		$q="SELECT SUM(IF(hours_checked IS NULL,hours_own,hours_checked)) AS time FROM schedule WHERE display=1 AND completed=1 AND `project`='{$project}'";
 		
 		if(!is_null($client)){
 			$q.=" `client`='".$client."'";
@@ -244,10 +244,10 @@ class Schedule_model extends BaseItem_model{
 		if(isset($project_id)){
 			if(is_array($project_id)){
 				$project_ids=implode(',',$project_id);
-				$q.=" AND schedule.case IN ($project_ids)";
+				$q.=" AND schedule.project IN ($project_ids)";
 			}else{
 				$project_id=intval($project_id);
-				$q.=" AND schedule.case = $project_id";
+				$q.=" AND schedule.project = $project_id";
 			}
 		}
 		
