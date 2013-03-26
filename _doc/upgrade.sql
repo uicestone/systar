@@ -306,5 +306,7 @@ ALTER TABLE `project` DROP timing_fee;
 ALTER TABLE  `project_people` DROP FOREIGN KEY  `project_people_ibfk_3` ;
 ALTER TABLE `project_people` DROP `username`;
 ALTER TABLE `project_people` DROP `company`;
-
 -- uice 3/25
+
+ALTER TABLE  `project_people` CHANGE  `type`  `type` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+-- uice 3/26

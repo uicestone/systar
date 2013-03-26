@@ -75,6 +75,21 @@ class Project_model extends BaseItem_model{
 		}
 	}
 	
+	/**
+	 * 获得一个所有可选的事务人员角色
+	 */
+	function getAllRoles(){
+		$this->db->select('project_people.role,COUNT(*) AS hits',false)
+			->from('project_people')
+			->join('project',"project_people.project = project.id AND project.company = {$this->company->id}")
+			->group_by('project_people.role')
+			->order_by('hits', 'desc');
+		
+		$result=$this->db->get()->result_array();
+		
+		return array_sub($result,'role');
+	}
+	
 	function getPeoplesByType($project_id,$type=NULL){
 		$project_id=intval($project_id);
 		$query="
@@ -98,7 +113,7 @@ class Project_model extends BaseItem_model{
 		}
 	}
 	
-	function addPeople($project_id,$people_id,$type,$role=NULL){
+	function addPeople($project_id,$people_id,$type=NULL,$role=NULL){
 		
 		$this->db->insert('project_people',array(
 			'project'=>$project_id,
@@ -124,7 +139,7 @@ class Project_model extends BaseItem_model{
 				if(SUM(account.amount) IS NULL,'',SUM(account.amount)) AS fee_received,
 				MAX(account.date) AS fee_received_time
 			FROM 
-				project_account LEFT JOIN account ON project_account.id=account.project_account
+				project_account LEFT JOIN account ON project_account.id=account.case_fee
 			WHERE project_account.project=$project_id AND project_account.type<>'办案费'
 			GROUP BY project_account.id";
 		
@@ -138,7 +153,7 @@ class Project_model extends BaseItem_model{
 			SELECT project_account.id,project_account.type,project_account.receiver,project_account.comment,project_account.pay_date,project_account.fee,
 				if(SUM(account.amount) IS NULL,'',SUM(account.amount)) AS fee_received
 			FROM 
-				project_account LEFT JOIN account ON project_account.id=account.project_account
+				project_account LEFT JOIN account ON project_account.id=account.case_fee
 			WHERE project_account.project = $project_id AND project_account.type='办案费'
 			GROUP BY project_account.id";
 		

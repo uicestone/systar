@@ -25,37 +25,21 @@ $(window).on('hashchange',function(){
 		aside.children('section[for="'+hash+'"]').show().trigger('sidebarshow');
 		
 	}else{
-		$.ajax({
-			url:hash,
-			beforeSend:function(){
-				throbber.fadeIn(500).rotate({animateTo:18000,duration:100000});
-			},
-			complete:function(){
-				throbber.stop().fadeOut(200).stopRotate();
-			},
-			success:function(response){
-				
-				//只对成功的响应生成标签选项卡、边栏和主页面元素
-				if(response.status==='success'){
-					page.children('section[hash!="'+hash+'"]').hide();
-					aside.children('section[for!="'+hash+'"]').hide();
+		$.get(hash,function(response){
+			//只对成功的响应生成标签选项卡、边栏和主页面元素
+			if(response.status==='success'){
+				page.children('section[hash!="'+hash+'"]').hide();
+				aside.children('section[for!="'+hash+'"]').hide();
 
-					$('<section hash="'+hash+'" time-access="'+$.now()+'"></section>').appendTo(page).trigger('sectioncreate');
-					$('<section for="'+hash+'"></section>').appendTo(aside).trigger('sidebarcreate');
-					/*如果请求的hash在导航菜单中不存在，则生成标签选项卡*/
-					if(nav.find('a[href="#'+hash+'"]').length===0 && response.section_title){
-						tabs.append('<li for="'+hash+'" class="activated"><a href="#'+hash+'">'+response.section_title+'</a></li>');
-					}
+				$('<section hash="'+hash+'" time-access="'+$.now()+'"></section>').appendTo(page).trigger('sectioncreate');
+				$('<section for="'+hash+'"></section>').appendTo(aside).trigger('sidebarcreate');
+				/*如果请求的hash在导航菜单中不存在，则生成标签选项卡*/
+				if(nav.find('a[href="#'+hash+'"]').length===0 && response.section_title){
+					tabs.append('<li for="'+hash+'" class="activated"><a href="#'+hash+'">'+response.section_title+'</a></li>');
 				}
+			}
 
-				$(document).setBlock(response);
-	
-			},
-			error:function(){
-				$.showMessage('服务器返回了错误的数据','warning');
-			},
-			dataType:'json'
-		});
+		})
 	}
 	
 });
@@ -127,11 +111,7 @@ $(document)
 	/*标签手动刷新*/
 	tabs.on('click','a[href^="#"]',function(){
 		if($(this).attr('href').substr(1)===hash){
-			throbber.fadeIn(500).rotate({animateTo:18000,duration:100000});
-			$.get(hash,function(response){
-				throbber.stop().fadeOut(200).stopRotate();
-				$(document).setBlock(response);
-			},'json');
+			$.get(hash);
 		}
 	});
 	
@@ -181,9 +161,7 @@ $(document)
 
 				}
 
-				$.post(postURI,$('article>section[hash="'+hash+'"]>form').serialize(),function(response){
-					section.setBlock(response);
-				},'json');
+				$.post(postURI,$('article>section[hash="'+hash+'"]>form').serialize());
 
 				return false;
 
@@ -239,7 +217,6 @@ $(document)
 			}
 
 			$.post(postURI,$('article>section[hash="'+hash+'"]>form').serialize(),function(response){
-				section.setBlock(response);
 				/*添加表单的提交按钮 清空表单*/
 				
 				/*如果被点击的按钮在一个sublist的add-form里面，那么重置这个add-form*/
@@ -247,7 +224,7 @@ $(document)
 					button.closest('.add-form').reset();
 				}
 		
-			},'json');
+			});
 
 			return false;
 		});
@@ -268,7 +245,8 @@ $(document)
 					uri+='/'+id;
 				}
 
-				$.post(uri,data);
+				/*这里不期望返回json数据，由于$.post被重写，默认dataType为json，因此需要手动指定dataType*/
+				$.post(uri,data,'post');
 			}
 		});
 		
@@ -313,9 +291,7 @@ $(document)
 				//$(this).hide();
 			}
 
-			$.post($(this).closest('section').attr('for'),$(this).closest('form').serialize()+'&submit='+$(this).attr('name'),function(response){
-				$(document).setBlock(response);
-			},'json');
+			$.post($(this).closest('section').attr('for'),$(this).closest('form').serialize()+'&submit='+$(this).attr('name'));
 
 		});
 		
@@ -345,12 +321,10 @@ $(document)
 			}
 
 			$.post(postURI,form.serialize(),function(response){
-				section.setBlock(response);
-
 				if(response.status==='close'){
 					$.closeTab(hash);
 				}
-			},'json');
+			});
 			
 			event.preventDefault();
 		});		
@@ -383,6 +357,7 @@ $(document)
 		changeMonth: true,
 		changeYear: true
 	});
+	$(this).find('select[multiple]').chosen({search_contains:true});
 })
 /*自动完成*/
 .on('focus','[autocomplete-model]',function(){
@@ -391,7 +366,7 @@ $(document)
 		source: function(request, response){
 			$.post('/'+autocompleteModel+'/match',{term:request.term},function(responseJSON){
 				response(responseJSON.data);
-			},'json');
+			});
 		},
 		select: function(event,ui){
 			$(this).val(ui.item.label).trigger('autocompleteselect',{value:ui.item.value}).trigger('change');
@@ -418,12 +393,7 @@ $(document)
 /*分页按钮响应*/
 .on('click','.pagination button',function(){
 
-	throbber.fadeIn(500).rotate({animateTo:18000,duration:100000});
-
-	$.post('/'+hash,{start:$(this).attr('target-page-start'),submit:'pagination'},function(response){
-		throbber.stop().fadeOut(200).stopRotate();
-		$(document).setBlock(response);
-	},'json');
+	$.post('/'+hash,{start:$(this).attr('target-page-start'),submit:'pagination'});
 
 	return false;
 })
@@ -532,7 +502,7 @@ jQuery.fn.getOptionsByLabelRelative=function(labelName,callback){
 		if (typeof callback !== 'undefined'){
 			callback(passive_select.val());
 		}
-	},'json');
+	});
 };
 
 /**
@@ -609,15 +579,17 @@ jQuery.fn.setBlock=function(response){
 		}
 				
 		/*如果数据是主页面内容，则标记载入时间，触发特定事件*/
-		if(dataName==='content'){
-			block.trigger('sectionload').attr('time-load',$.now());
-		}
+		if(block !== undefined){
+			if(dataName==='content'){
+				block.trigger('sectionload').attr('time-load',$.now());
+			}
 
-		if(dataName==='sidebar'){
-			block.trigger('sidebarload');
-		}
-		if(dataName==='content-table'){
-			block.trigger('contenttableload');
+			if(dataName==='sidebar'){
+				block.trigger('sidebarload');
+			}
+			if(dataName==='content-table'){
+				block.trigger('contenttableload');
+			}
 		}
 	});
 	
@@ -639,21 +611,7 @@ jQuery.closeTab=function(hash){
 	var uriSegments=hash.split('/');
 	
 	if(typeof uriSegments[2] !=='undefined'){
-	
-		$.ajax({
-			url:'/'+uriSegments[0]+'/submit/cancel/'+uriSegments[2],
-			beforeSend:function(){
-				throbber.fadeIn(500).rotate({animateTo:18000,duration:100000});
-			},
-			complete:function(){
-				throbber.stop().fadeOut(200).stopRotate();
-			},
-			error:function(){
-				$.showMessage('关闭标签后，服务器返回了错误的数据','warning');
-			},
-			dataType:'json'
-		});
-	
+		$.get('/'+uriSegments[0]+'/submit/cancel/'+uriSegments[2]);
 	}
 	
 	tabs.children('li[for="'+hash+'"]').remove();
@@ -689,20 +647,39 @@ jQuery.redirect=function(newhash){
 }
 
 jQuery.refresh=function(hash){
-	$.ajax({
-		url:hash,
-		beforeSend:function(){
-			throbber.fadeIn(500).rotate({animateTo:18000,duration:100000});
-		},
-		complete:function(){
-			throbber.stop().fadeOut(200).stopRotate();
-		},
-		success:function(response){
-			$(document).setBlock(response);
-		},
-		error:function(){
-			$.showMessage('服务器返回了错误的数据','warning');
-		},
-		dataType:'json'
-	});
+	$.get(hash);
 }
+
+jQuery.each( [ "get", "post" ], function( i, method ) {
+	jQuery[ method ] = function( url, data, callback, type ) {
+		// shift arguments if data argument was omitted
+		if ( jQuery.isFunction( data ) ) {
+			type = type || callback;
+			callback = data;
+			data = undefined;
+		}
+		if(type === undefined){
+			type='json';
+		}
+
+		return jQuery.ajax({
+			type: method,
+			url: url,
+			data: data,
+			success: function(data,textStatus,jqXHR){
+				$.isFunction(callback) && callback(data,textStatus,jqXHR);
+				$(document).setBlock(data);
+			},
+			dataType: type,
+			beforeSend:function(){
+				throbber.fadeIn(500).rotate({animateTo:18000,duration:100000});
+			},
+			complete:function(){
+				throbber.stop().fadeOut(200).stopRotate();
+			},
+			error:function(){
+				$.showMessage('服务器返回了错误的数据','warning');
+			},
+		});
+	};
+});

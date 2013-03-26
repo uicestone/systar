@@ -3,10 +3,13 @@ class BaseItem_model extends SS_Model{
 	
 	var $id;
 	
-	/**
-	 * 具体对象存放于数据库的表名
-	 */
-	var $table;
+	var $data;//具体对象数据
+	
+	var $labels;//具体对象的标签数组
+	
+	var $profiles;//具体对象的资料项数组
+	
+	var $table;//具体对象存放于数据库的表名
 	
 	function __construct() {
 		parent::__construct();

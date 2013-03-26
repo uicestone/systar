@@ -43,7 +43,31 @@ class People_model extends BaseItem_model{
 		
 		return $this->db->query($query)->result_array();
 	}
+	
+	/**
+	 * 根据部分名称，返回唯一的人员id
+	 * @param type $part_or_name
+	 */
+	function check($part_or_name){
+		$result=$this->db->from($this->table)
+			->where("company = {$this->company->id} AND people.display = 1 AND (
+				name LIKE '%$part_or_name%'
+				OR name_en LIKE '%$part_or_name%'
+				OR abbreviation LIKE '%$part_or_name%'
+			)",NULL,false)
+			->get();
 
+		if($result->num_rows()>1){
+			throw new Exception('无法确定人员，多个名称匹配 '.$part_or_name);
+		}
+		elseif($result->num_rows===0){
+			throw new Exception('找不到名称匹配 '.$part_or_name.' 的人员');
+		}
+		else{
+			return $result->row()->id;
+		}
+	}
+	
 	function add(array $data=array()){
 		$people=array_intersect_key($data,self::$fields);
 		$people+=uidTime(true,true);
@@ -150,13 +174,20 @@ class People_model extends BaseItem_model{
 		$this->db->select('
 			people.id,people.name,IF(people.abbreviation IS NULL,people.name,people.abbreviation) AS abbreviation,people.phone,people.email
 		',false);
-
+		
+		if(isset($args['project'])){
+			$this->db->select('project_people.role,project_people.id AS relationship_id')
+				->join('project_people',"project_people.people = people.id AND project_people.project = {$args['project']}",'INNER');
+		}
+		
 		if(isset($args['name']) && $args['name']!==''){
 			
 			$this->db->where("
-				people.name LIKE '%{$args['name']}%' 
+				(
+					people.name LIKE '%{$args['name']}%' 
 					OR people.abbreviation LIKE '%{$args['name']}%' 
-					OR people.name_en LIKE '%{$args['name']}%
+					OR people.name_en LIKE '%{$args['name']}%'
+				)
 			",NULL,false);
 
 		}

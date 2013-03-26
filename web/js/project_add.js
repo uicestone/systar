@@ -95,7 +95,14 @@ $(function(){
 	}).on('autocompleteresponse',function(){
 		$(this).find('[name="staff[id]"]').val('').trigger('change');
 	});
-
+	
+	section.find('.item[name="people"]').on('autocompleteselect',function(event,data){
+		/*有自动完成结果且已选择*/
+		$(this).find('[name="people[id]"]').val(data.value).trigger('change');
+	}).on('autocompleteresponse',function(){
+		$(this).find('[name="people[id]"]').val('').trigger('change');
+	});
+	
 	//勾选"计时收费"时，显示计时收费列表和表单
 	section.find('input[name="project[timing_fee]"]').change(function(){
 		var caseTimingFeeSave=$('label#caseTimingFeeSave');
