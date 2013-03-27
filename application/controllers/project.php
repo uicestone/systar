@@ -311,8 +311,9 @@ class Project extends SS_controller{
 			}
 		
 			elseif($submit=='project'){
+				$labels=$this->input->sessionPost('labels');
 				$this->project->update($this->project->id,post('project'));
-				$this->project->updateLabels($this->project->id,post('labels'));
+				$this->project->updateLabels($this->project->id,$labels);
 				
 				unset($_SESSION[CONTROLLER]['post'][$this->project->id]);
 				$this->output->status='close';

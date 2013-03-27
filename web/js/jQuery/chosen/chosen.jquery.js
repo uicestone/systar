@@ -552,7 +552,7 @@ Copyright (c) 2011 by Harvest
         }
       }
       content = '';
-      _ref = this.results_data;
+	  _ref = this.results_data;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         data = _ref[_i];
         if (data.group) {
@@ -936,6 +936,15 @@ Copyright (c) 2011 by Harvest
       var no_results_html;
       no_results_html = $('<li class="no-results">' + this.results_none_found + ' "<span></span>"</li>');
       no_results_html.find("span").first().html(terms);
+
+	  /*uicestone 2013/3/26 引入添加新标签特性*/
+	  var that = this;
+	  no_results_html.click(function(term){
+		if ($.isFunction(that.options.no_results_callback)) {
+			that.options.no_results_callback(terms);
+		}
+	  });
+	  
       return this.search_results.append(no_results_html);
     };
 
