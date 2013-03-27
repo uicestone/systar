@@ -32,11 +32,17 @@ class Schedule_model extends BaseItem_model{
 	
 	function getList($args=array()){
 		
-		$this->db->select('schedule.*,project.name AS project_name')
-			->join('project',"project.id = schedule.project",'INNER');
-		
 		if(isset($args['project'])){
 			$this->db->where('schedule.project',$args['project']);
+		}
+		
+		if(isset($args['id_in_set'])){
+			if(!$args['id_in_set']){
+				return array();
+			}
+			$this->db->where_in('schedule.id', $args['id_in_set'])
+				->order_by("FIELD(schedule.id, ".implode(', ',$args['id_in_set']).")",'',false);
+			$args['orderby']=false;
 		}
 		
 		if(isset($args['name'])){
@@ -332,9 +338,11 @@ class Schedule_model extends BaseItem_model{
 		
 		$query = $this -> db -> query("SELECT sort_data FROM schedule_taskboard WHERE uid=$uid");
 		
-		if($query -> num_rows() == 0)	//若查询结果为空
+		if($query -> num_rows() == 0)	//若查询结果为空则先插入
 		{
-			return array();
+			$sort_data=array_fill(0,6,array());
+			$this->createTaskBoard($sort_data, $uid);
+			return $sort_data;
 		}
 		else
 		{
@@ -346,17 +354,21 @@ class Schedule_model extends BaseItem_model{
 	function setTaskBoardSort($sort_data , $uid)
 	{
 		$uid=intval($uid);
-		$data['sort_data'] = $sort_data;
-		$this -> db -> update('schedule_taskboard' , $data , array('uid'=>$uid,'time'=>$this->date->now));
+		$data=array(
+			'sort_data' => json_encode($sort_data),
+			'time' => $this->date->now
+		);
+		$this -> db -> update('schedule_taskboard' , $data , array('uid'=>$uid));
 	}
 	
-	function createTaskBoard($sort_data ,$uid)
-	{
-		//$data['id'] = "NULL";这是？
-		$data['sort_data'] = $sort_data;
-		$data['uid'] = $uid;
-		$data['time'] = $this->date->now;
+	function createTaskBoard($sort_data ,$uid){
 		
+		$data=array(
+			'sort_data'=>json_encode($sort_data),
+			'uid'=>$uid,
+			'time'=>$this->date->now
+		);
+
 		$this -> db -> insert('schedule_taskboard' , $data);
 	}
 	

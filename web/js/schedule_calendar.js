@@ -31,6 +31,7 @@ $(function(){
 		firstDay:1,
 		firstHour:9,
 		slotMinutes:15,
+		snapMinutes:5,
 		header: {
 			left: 'prev,next,today',
 			center: 'title',
@@ -52,7 +53,7 @@ $(function(){
 		},
 
 		eventClick: function(event,jsEvent) {
-			$('<div>').appendTo('body').schedule({selection:$(jsEvent.target),event:event,method:'view'});
+			$('<div/>').appendTo(document).schedule({selection:$(jsEvent.target),event:event,method:'view'});
 		},
 		eventDrop: function(event,dayDelta,minuteDelta,allDay) {
 			$.post('/schedule/writecalendar/drag/'+event.id,{dayDelta:dayDelta,minuteDelta:minuteDelta,allDay:Number(allDay)},function(){
@@ -69,11 +70,24 @@ $(function(){
 			});
 		},
 		eventResize:function(event,dayDelta,minuteDelta){
-			$.post('/schedule/writecalendar/resize/'+event.id,{dayDelta:dayDelta,minuteDelta:minuteDelta,allDay:event.allDay},function(response){
-				if(response.status!='success'){
-					showMessage('日程时间数据保存失败','warning');
-				}
-			},'json');
+			$.post('/schedule/writecalendar/resize/'+event.id,{dayDelta:dayDelta,minuteDelta:minuteDelta,allDay:event.allDay});
+		},
+		droppable:true,
+		drop:function(date,allDay,jsEvent){
+			var data={
+				time_start:date.getTime()/1000,
+				time_end:date.getTime()/1000+3600,
+				all_day:Number(allDay)
+			};
+			$.post('/schedule/writecalendar/update/'+jsEvent.target.id,data,function(response){
+				event={
+					start:date,
+					end:new Date(date.getTime()+3600000),
+					title:response.data.name,
+					id:response.data.id
+				};
+				calendar.fullCalendar('renderEvent',event);
+			});
 		}
 	});
 

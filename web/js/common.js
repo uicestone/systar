@@ -267,6 +267,17 @@ $(document)
 		
 		});
 				
+		/*任务列表拖放*/
+		section.find( ".sortable.column" ).sortable({
+			connectWith: ".sortable.column",
+			stop:function(event,ui){
+				var taskSort=[];
+				$(".sortable.column").each(function(){
+					taskSort.push($(this).sortable( "toArray"));
+				});
+				$.post('/schedule/settaskboardsort',{sortData:taskSort});
+			}
+		}).disableSelection();
 	});
 	
 	aside.on('sidebarload','section',function(){
@@ -276,16 +287,6 @@ $(document)
 			
 			event.preventDefault();
 			
-/*			if($(this).attr('name')==='search'){
-				var searchButton=$(this);
-				searchButton.closest('form').find(':input:not(.default,:submit)').each(function(){
-					if($(this).val()!=='' && $(this).val()!==null){
-						searchButton.next('[name="search_cancel"]').show();
-						return;
-					}
-				});
-			}
-*/			
 			if($(this).attr('name')==='search_cancel'){
 				$(this).closest('form').reset();
 				//$(this).hide();
@@ -327,8 +328,23 @@ $(document)
 			});
 			
 			event.preventDefault();
-		});		
+		});	
 		
+		/*任务列表拖放*/
+		section.find( ".sortable.column" ).sortable({
+			connectWith: ".sortable.column",
+			stop:function(event,ui){
+				var taskSort=[];
+				$(".sortable.column").each(function(){
+					taskSort.push($(this).sortable( "toArray"));
+				});
+				$.post('/schedule/settaskboardsort',{sortData:taskSort});
+			}
+		}).disableSelection();
+		
+		section.find('.draggable.portlet').draggable({
+			helper: 'clone'
+		});
 	});
 
 	tabs
@@ -396,6 +412,15 @@ $(document)
 	$.post('/'+hash,{start:$(this).attr('target-page-start'),submit:'pagination'});
 
 	return false;
+})
+.on('click','.portlet',function(){
+	var event={id:$(this).attr('id')}
+	$.viewSchedule({id:event.id});
+})
+.on('click','.portlet-header .ui-icon',function(event){
+	event.stopPropagation();
+	$( this ).toggleClass( "ui-icon-minusthick" ).toggleClass( "ui-icon-plusthick" );
+	$( this ).parents( ".portlet:first" ).find( ".portlet-content" ).toggle();
 })
 
 
@@ -543,6 +568,10 @@ jQuery.fn.setBlock=function(response){
 	$.each(response.data,function(dataName,data){
 		
 		var block;
+		
+		if(!data){
+			return;
+		}
 		
 		if(data.type==='script'){
 			eval(data.content);

@@ -309,4 +309,7 @@ ALTER TABLE `project_people` DROP `company`;
 -- uice 3/25
 
 ALTER TABLE  `project_people` CHANGE  `type`  `type` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+ALTER TABLE  `schedule` CHANGE  `time_start`  `time_start` INT( 11 ) NULL DEFAULT NULL ,
+CHANGE  `time_end`  `time_end` INT( 11 ) NULL DEFAULT NULL,
+CHANGE  `all_day`  `all_day` TINYINT( 1 ) NULL DEFAULT NULL;
 -- uice 3/26

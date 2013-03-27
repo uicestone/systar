@@ -116,11 +116,11 @@ html .fc,
 
 .fc-widget-header,    /* <th>, usually */
 .fc-widget-content {  /* <td>, usually */
-	border: 1px solid #ddd;
+	border: 1px solid #dde;/*uice 2013/3/27*/
 	}
 	
 .fc-state-highlight { /* <td> today cell */ /* TODO: add .fc-today to <th> */
-	background: #fcf8e3;
+	background: rgba(188,216,235,0.5);/*uice 2013/3/27*/
 	}
 	
 .fc-cell-overlay { /* semi-transparent rectangle while dragging */

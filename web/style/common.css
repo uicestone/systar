@@ -148,7 +148,7 @@ nav{
 
 /*menu*/
 header{
-	position:absolute;left:0;right:0;z-index:1;
+	position:relative;z-index:5;
 	height:25px;
 	background:#113C68;
 	box-shadow: 0 2px 5px #000;
@@ -444,6 +444,15 @@ aside button.major{
 .contentTableBox .submit{
 	text-align:center;
 }
+
+/*任务块*/
+.column { width: 170px; float: left; padding-bottom: 100px; }
+.portlet { margin: 0 1em 1em 0; }
+.portlet-header { padding-bottom: 4px; padding-left: 0.2em; }
+.portlet-header .ui-icon { float: right; }
+.portlet-content { padding: 0.4em; }
+.ui-sortable-placeholder { border: 1px dotted black; visibility: visible !important; height: 50px !important; }
+.ui-sortable-placeholder * { visibility: hidden; }
 
 /*webkit滚动条*/
 ::-webkit-scrollbar{

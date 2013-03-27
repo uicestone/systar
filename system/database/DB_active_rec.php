@@ -820,7 +820,7 @@ class CI_DB_active_record extends CI_DB_driver {
 	 * @param	string	direction: asc or desc
 	 * @return	object
 	 */
-	public function order_by($orderby, $direction = '')
+	public function order_by($orderby, $direction = '', $escape=TRUE)//uice 2013/3/26增加$escape选项
 	{
 		if (strtolower($direction) == 'random')
 		{
@@ -833,7 +833,7 @@ class CI_DB_active_record extends CI_DB_driver {
 		}
 
 
-		if (strpos($orderby, ',') !== FALSE)
+		if (strpos($orderby, ',') !== FALSE && $escape)//uice 2013/3/26增加$escape选项
 		{
 			$temp = array();
 			foreach (explode(',', $orderby) as $part)

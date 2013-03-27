@@ -30,17 +30,9 @@ class Schedule extends SS_controller{
 	}
 	
 	function calendar(){
-		$this->load->model('achievement_model','achievement');
-		
-		$sidebar_function=$this->company->syscode.'_'.'schedule_side_table';
-		
-		if(method_exists($this->company, $sidebar_function)){
-			$sidebar_tables=$this->company->$sidebar_function();
-			$this->load->addViewData('sidebar_tables',$sidebar_tables);
-		}
-		
+		$task_board=$this->schedule->getTaskBoardSort($this->user->id);
+		$this->load->addViewData('side_task_board', $this->schedule->getList(array('limit'=>false,'id_in_set'=>$task_board[0])));
 		$this->load->view('schedule/calendar');
-		
 		$this->load->view('schedule/calendar_sidebar',true,'sidebar');
 	}
 	
@@ -177,6 +169,9 @@ class Schedule extends SS_controller{
 			$data = $this->input->post();
 			
 			$new_schedule_id = $this->schedule->add($data);
+			if(!isset($data['time_start']) && !isset($data['time_end']) && !isset($data['all_day'])){
+				$this->addToTaskBoard($new_schedule_id);
+			}
 			$this->schedule->updateProfiles($new_schedule_id, $this->input->post('profiles'));
 			
 			if($new_schedule_id){
@@ -192,8 +187,12 @@ class Schedule extends SS_controller{
 		}elseif($action=='update'){//更新任务内容
 			$this->schedule->update($schedule_id,$this->input->post());
 			$this->schedule->updateProfiles($schedule_id, $this->input->post('profiles'));
+
+			$schedule=$this->schedule->fetch($schedule_id);
+			
+			$this->output->data=array('id'=>$schedule_id,'name'=>$schedule['name'],'completed'=>(bool)$schedule['completed'],'start'=>$schedule['time_start'],'end'=>$schedule['time_end']);
+			
 			$this->output->status='success';
-			$this->output->data=array('id'=>$schedule_id,'name'=>$this->input->post('name'),'completed'=>$this->input->post('completed'));
 		
 		}elseif($action=='resize'){//更新任务时间
 			$time_delta=intval($this->input->post('dayDelta'))*86400+intval($this->input->post('minuteDelta'))*60;
@@ -214,62 +213,31 @@ class Schedule extends SS_controller{
 	
 	function taskBoard()
 	{
-		$id = $this->user->id;
-		$sort_data = $this -> schedule -> getTaskBoardSort($id);
+		$sort_data = $this -> schedule -> getTaskBoardSort($this->user->id);
+		
+		//任务强数据的第一列作为边栏列
+		$side_task_board=$this->schedule->getList(array('limit'=>false,'id_in_set'=>$sort_data[0]));
+		unset($sort_data[0]);
+		
 		$task_board = array();
 		
-		if(count($sort_data) != 0)	//若查询结果不为空，即在数据库表中获得当前用户的排列方式
-		{	//墙的每一列
-			foreach ($sort_data as $series)
-			{
-				$series_array = array();
-				
-				if(is_array($series))
-				{	//每一列的每个任务
-					foreach ($series as $task)
-					{
-						$task_array = array();
-						
-						$task_id = str_replace('task_' , '' , $task);
-						$fetch_result = $this -> schedule -> fetch($task_id);
-						if($fetch_result){
-							$task_array['id']=$task_id;
-							$task_array['title'] = $fetch_result['name'];
-							$task_array['content'] = $fetch_result['name'];
-
-							array_push($series_array , $task_array);
-						}
-					}
-				}
-				array_push($task_board , $series_array);
-			}
+		foreach($sort_data as $column){
+			$task_board[]=$this->schedule->getList(array('limit'=>false,'id_in_set'=>$column));
 		}
 		
 		$this->load->addViewData('task_board' , $task_board);
+		$this->load->addViewData('side_task_board', $side_task_board);
 		$this->load->view('schedule/taskboard');
+		$this->load->view('schedule/taskboard_sidebar',true,'sidebar');
 	}
 	
-	function setTaskBoardSort()
-	{	//初始化sort_data
-		$sort_data = array();
-		for($i=0 ; $i<5 ; $i++)
-		{
-			array_push($sort_data , array());
-		}
-		//复制对应列至sort_data
-		$sort_data_pushed = $this -> input -> post('sortData');
-		//echo print_r($sort_data_pushed)."<br/>";
-		$key_array = array_keys($sort_data_pushed);
-		//echo print_r($key_array)."<br/>";
-		foreach ($key_array as $series)
-		{
-			$sort_data[$series] = $sort_data_pushed[$series];
-		}
-		//echo print_r($sort_data)."<br/>";
-		
-		$this -> schedule -> setTaskBoardSort(json_encode($sort_data) , $this->user->id);
-		//echo json_encode($sort_data)."<br/>";
-		$this -> load -> require_head = false;
+	function setTaskBoardSort(){
+		$sort_data = $this->input->post('sortData')+array_fill(0, 6, array());
+		ksort($sort_data);
+		//输入的最后一列是真正的0列，其他列号依次向后推
+		$sidebar_column=array_pop($sort_data);
+		array_unshift($sort_data,$sidebar_column);
+		$this -> schedule -> setTaskBoardSort($sort_data , $this->user->id);
 		$this->output->status='success';
 	}
 	
@@ -278,42 +246,25 @@ class Schedule extends SS_controller{
 		if(is_null($uid)){
 			$uid=$this->user->id;
 		}
-		//单个任务
-		$task = "task_".$task_id;
 		//取一列任务墙
 		$sort_data = $this -> schedule -> getTaskBoardSort($uid);
 		
-		if(count($sort_data) != 0)
-		{	//将任务加入墙的第一列末尾
-			if(is_null($series))
-			{
-				$series = 0;
-			}
-			if($series > 4)
-			{
-				$series = 4;
-			}
-			$each_series = $sort_data[$series];
-			array_push($each_series , $task);
-			$sort_data[$series] = $each_series;
-			
-			$this -> schedule -> setTaskBoardSort(json_encode($sort_data), $uid);
-		}
-		else	//查询结果为空，即数据库表中没有该用户的任务墙记录，则新增一条记录
+		//将任务加入墙的第一列末尾
+		if(is_null($series))
 		{
-			$first_series = array();
-			array_push($first_series , $task);
-			array_push($sort_data , $first_series);
-			for($i=0 ; $i<4 ; $i++)
-			{
-				array_push($sort_data , array());
-			}
-			
-			$this -> schedule -> createTaskBoard(json_encode($sort_data), $uid);
+			$series = 0;
 		}
+		if($series > 5)
+		{
+			$series = 5;
+		}
+		$each_series = $sort_data[$series];
+		array_push($each_series , $task_id);
+		$sort_data[$series] = $each_series;
+
+		$this -> schedule -> setTaskBoardSort($sort_data, $uid);
 		
 		$this->output->status='success';
-		$this->output->message('已添加至“任务”');
 	}
 	
 	function deleteFromTaskBoard($task_id , $uid=NULL)
@@ -322,19 +273,16 @@ class Schedule extends SS_controller{
 		{
 			$uid=$this->user->id;
 		}
-		//要删除的任务
-		$task = "task_".$task_id;
 		//遍历sort_data
 		$sort_data = $this -> schedule -> getTaskBoardSort($uid);
 		//echo "sort_data = "; echo print_r($sort_data)."<br/>";
-		for ($i=0 ; $i<5 ; $i++)
+		for ($i=0 ; $i<6 ; $i++)
 		{
 			$series = $sort_data[$i];
-			$key = array_search($task , $series);
+			$key = array_search($task_id , $series);
 			//echo "key = "; echo print_r($key)."<br/>";
 			if($key!==false && $key!=="")
 			{
-				echo "after delete"."<br/>";
 				$sort_data[$i] = array();
 				$series[$key] = NULL;
 				//echo "series = "; echo print_r($series)."<br/>";
