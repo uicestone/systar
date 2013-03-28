@@ -10,7 +10,7 @@ class Schedule extends SS_controller{
 		
 		parent::__construct();
 		
-		$this->load->model('cases_model','cases');
+		$this->load->model('project_model','project');
 		$this->load->model('client_model','client');
 		
 		$this->list_args=array(
@@ -47,8 +47,8 @@ class Schedule extends SS_controller{
 	
 	function lists(){
 		
-		if($this->input->get('case')){
-			$this->section_title='日程 - '.$this->cases->fetch($this->input->get('case'),'name');
+		if($this->input->get('project')){
+			$this->section_title='日程 - '.$this->project->fetch($this->input->get('project'),'name');
 		}
 		
 		//监测有效的名称选项
@@ -121,7 +121,7 @@ class Schedule extends SS_controller{
 		
 		}else{
 			//获得当前视图的全部日历，根据$this->input->get('start'),$this->input->get('end')(timestamp)
-			$this->output->data=$this->schedule->fetch_range($start,$end,$this->input->get('staff'),$this->input->get('case'));
+			$this->output->data=$this->schedule->fetch_range($start,$end,$this->input->get('staff'),$this->input->get('project'));
 		}
 	}
 	
@@ -316,6 +316,8 @@ class Schedule extends SS_controller{
 	 */
 	function edit($schedule_id=NULL,$mode='edit'){
 		
+		$this->load->model('project_model','project');
+		
 		if(isset($schedule_id)){
 			$this->schedule->id=$schedule_id;
 
@@ -323,10 +325,9 @@ class Schedule extends SS_controller{
 			
 			$profiles=$this->schedule->getProfiles($schedule_id);
 
-			if(isset($schedule['case'])){
-				$case=$this->cases->fetch($schedule['case']);
-				$case_name=strip_tags($case['name']);
-				$this->load->addViewData('case_name', $case_name);
+			if(isset($schedule['project'])){
+				$project=$this->project->fetch($schedule['project']);
+				$this->load->addViewData('project', $project);
 			}
 
 			$this->load->addViewData('schedule', $schedule);

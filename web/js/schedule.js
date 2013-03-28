@@ -27,10 +27,6 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			this.options.position.of=this.options.selection;
 		}
 		
-		if(this.options.selection){
-			this.options.calendar=this.options.selection.closest('fc');
-		}
-		
 		this.options.close=function(){
 			if(that.options.calendar){
 				that.options.calendar.fullCalendar('unselect');
@@ -145,15 +141,29 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			that.widget().on('change',':input',function(){
 				$(this).attr('changed','changed');
 			});
-
-			/*案件名称自动完成*/
-			that.element.on('autocompleteselect','[name="case_name"]',function(event,data){
-				$(this).siblings('[name="case"]').val(data.value).trigger('change');
-			})
-			.on('autocompleteresponse','[name="case_name"]',function(event,data){
-				$(this).siblings('[name="case"]').val('');
+			
+			that.element.find('[name="project"]').chosen({allow_single_deselect:true});
+			
+			that.element.find('.chzn-drop').hide();
+			
+			that.element.find('.chzn-done').on('liszt:showing_dropdown',function(){
+				var chznContainer=$(this).siblings('#'+$(this).attr('id')+'_chzn');
+				var dialogHeight=that.widget().height();
+				var chznDropdownHeight=chznContainer.children('.chzn-drop').height();
+				that.element.schedule({height:dialogHeight+chznDropdownHeight});
+				chznContainer.children('.chzn-drop').show();
 			});
 			
+			that.element.find('.chzn-done').on('liszt:hiding_dropdown',function(){
+				var chznContainer=$(this).siblings('#'+$(this).attr('id')+'_chzn');
+				var dialogHeight=that.widget().height();
+				var chznDropdownHeight=chznContainer.children('.chzn-drop').height();
+				if(chznContainer.children('.chzn-drop').is(':visible') && dialogHeight && chznDropdownHeight){
+					that.element.schedule({height:dialogHeight-chznDropdownHeight+4});
+				}
+				chznContainer.children('.chzn-drop').hide();
+			});
+
 			that.element.on('focus','[name^="profiles"]',function(){
 				$(this).attr('name','profiles['+$(this).prev('.profile-name').val()+']');
 			});

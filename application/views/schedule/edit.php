@@ -1,6 +1,7 @@
 <textarea type="text" name="content" placeholder="日程概要" class="text"><?=$this->value('schedule/content')?></textarea>
-<input name="case_name" value="<?=$this->value('case_name')?>" placeholder="相关项目" class="text" autocomplete-model="cases" />
-<input name="case" class="hidden" />
+<select name="project" class="text">
+	<?=options($this->project->getArray(array(),'name','id'),$this->value('project/id'),'相关事项',true)?>
+</select>
 <input name="people" value="<?=$this->value('schedule/people')?>" placeholder="相关人员" class="text" autocomplete-model="people" />
 <div class="profile hidden">
 	<select class="profile-name" style="width:23%">

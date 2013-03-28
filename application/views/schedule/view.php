@@ -1,5 +1,5 @@
 <div class="field"><?=str_replace("\n", '<br>', $this->value('schedule/content'))?></div>
-<div class="field" style="border:0;"><?=$this->value('case_name')?></div>
+<div class="field" style="border:0;"><?=$this->value('project/name')?></div>
 <?foreach($profiles as $profile){?>
 <div class="field"><?=$profile['name']?>: <?=$profile['content']?></div>
 <?}?>

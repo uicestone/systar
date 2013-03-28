@@ -39,8 +39,8 @@ $(function(){
 		},
 		selectable: true,
 		selectHelper: true,
-		select: function(startDate, endDate, allDay, event, view) {
-			$('<div>').appendTo('body').schedule({startDate:startDate,endDate:endDate,allDay:allDay,selection:$(event.target)});
+		select: function(start, end, allDay, event, view) {
+			$('<div>').appendTo(document).schedule({start:start,end:end,allDay:allDay,selection:$(event.target),calendar:calendar});
 		},
 		
 		unselectAuto:false,
@@ -53,7 +53,7 @@ $(function(){
 		},
 
 		eventClick: function(event,jsEvent) {
-			$('<div/>').appendTo(document).schedule({selection:$(jsEvent.target),event:event,method:'view'});
+			$('<div/>').appendTo(document).schedule({selection:$(jsEvent.target),event:event,method:'view',calendar:calendar});
 		},
 		eventDrop: function(event,dayDelta,minuteDelta,allDay) {
 			$.post('/schedule/writecalendar/drag/'+event.id,{dayDelta:dayDelta,minuteDelta:minuteDelta,allDay:Number(allDay)},function(){
@@ -88,7 +88,8 @@ $(function(){
 				};
 				calendar.fullCalendar('renderEvent',event);
 			});
-		}
+		},
+		dropAccept:'.portlet'
 	});
 
 	$(window).on('resize hashchange',function(){
