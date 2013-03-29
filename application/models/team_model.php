@@ -17,7 +17,20 @@ class Team_model extends BaseItem_model{
 				->join('people',"people.id = team_people.people AND people.type = '{$args['people_type']}'",'INNER');
 		}
 		
-		$args['orderby']=false;
+		if(isset($args['has_relative']) && $args['has_relative']){
+			$this->db->join('team_relationship has_relative',"has_relative.team = team.id",'INNER');
+		}
+		
+		if(isset($args['is_relative_of'])){
+			if(is_array($args['is_relative_of']) && count($args['is_relative_of'])>0){
+				$this->db->join('team_relationship is_relative_of',"is_relative_of.relative = team.id",'INNER')
+					->where_in('is_relative_of.team',$args['is_relative_of']);
+			}
+			elseif(!is_array($args['is_relative_of'])){
+				$this->db->join('team_relationship is_relative_of',"is_relative_of.relative = team.id",'INNER')
+					->where('is_relative_of.team',intval($args['is_relative_of']));
+			}
+		}
 		
 		return parent::getList($args);
 	}
