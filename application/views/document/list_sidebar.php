@@ -20,21 +20,47 @@
 	</table>
 </form>
 <input id="fileupload" type="file" name="document" data-url="/document/submit" multiple="multiple" />
+<p class="upload-list-item hidden"><span class="filename"></span>
+	<input type="text" name="document[name]" placeholder="名称" />
+	<select name="labels[]" data-placeholder="标签" multiple="multiple" class="view">
+		<?=options($this->document->getAllLabels(), array_dir('_SESSION/document/index/search/labels'))?>
+	</select>
+	<hr/>
+</p>
 <script>
 $(function () {
-    $('#fileupload').fileupload({
+	
+	var section = aside.children('section[for="document"]');
+	
+	$(document).on('drop dragover', function(e){
+		e.preventDefault();
+	});
+	
+	$('#fileupload').fileupload({
         dataType: 'json',
         done: function (event, data) {
-			var uploadItem=$(data.result.data).appendTo(aside.children('section[for="document"]'))
-			.trigger('blockload');
+			var uploadItem=section.children('.upload-list-item:first').clone();
 			
-			uploadItem.children('select').chosen({search_contains:true});
-	
+			uploadItem.appendTo(section).removeClass('hidden')
+				.attr('id',data.result.data.id).children('.filename').text(data.result.data.name);
+
+			uploadItem.find('select').each(function(index,element){
+				$(element).chosen({search_contains:true,allow_single_deselect:true,no_results_text:'添加新标签',no_results_callback:function(term){
+					$(element).append('<option value="'+term+'" selected="selected">'+term+'</option>').trigger('liszt:updated').trigger('change');
+				}});
+			});
+			
+			uploadItem.on('liszt:showing_dropdown',function(){
+				console.log('123');
+			});
+
 			uploadItem.children(':input').on('change',function(){
 				var data = $(this).serialize();
 				$.post('/document/update/'+uploadItem.attr('id'),data);
 			});
-        }
+	
+        },
+		dropZone:aside.children('section[for="document"]')
     });
 });
 </script>

@@ -30,6 +30,8 @@ class Project extends SS_controller{
 		
 		$controller=CONTROLLER;
 		
+		$this->form_validation_rules['people'][]=array('rules'=>'required','label'=>'相关人员姓名','field'=>'people[name]');
+		
 		$this->list_args=array(
 			'name'=>array('heading'=>'案名','cell'=>'{name}'),
 			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->$controller,'getCompiledLabels'),'args'=>array('{id}')))
@@ -51,30 +53,6 @@ class Project extends SS_controller{
 		$this->people_list_args=array(
 			'name'=>array('heading'=>'名称','cell'=>'{abbreviation}<button type="submit" name="submit[remove_people]" id="{relationship_id}" class="hover">删除</button>'),
 			'role'=>array('heading'=>'角色')
-		);
-		
-		$this->document_list_args=array(
-			'extname'=>array(
-				'heading'=>array('data'=>'','width'=>'40px'),
-				'eval'=>true,
-				'cell'=>"
-					if('{extname}'==''){
-						\$image='folder';
-					}elseif(is_file('web/images/file_type/{extname}.png')){
-						\$image='{extname}.png';
-					}else{
-						\$image='unknown';
-					}
-					return '<img src=\"/images/file_type/'.\$image.'.png\" alt=\"{extname}\" /><button type=\"submit\" name=\"submit[remove_document]\" id=\"{id}\" class=\"hover\">删除</button>';
-				"
-			),
-			'name'=>array('heading'=>array('data'=>'文件名','width'=>'150px'),'cell'=>'<a href="/document/download/{document}">{name}</a>'),
-			'type'=>array('heading'=>array('data'=>'类型','width'=>'80px')),
-			'comment'=>array('heading'=>'备注'),
-			'time'=>array('heading'=>array('data'=>'时间','width'=>'60px'),'eval'=>true,'cell'=>"
-				return date('m-d H:i',{time});
-			"),
-			'username'=>array('heading'=>array('data'=>'上传人','width'=>'90px'))
 		);
 		
 		$this->miscfee_list_args=array(
@@ -157,7 +135,7 @@ class Project extends SS_controller{
 			->setRowAttributes(array('hash'=>CONTROLLER.'/edit/{id}'))
 			->setData($this->project->getList(option('search')))
 			->generate();
-
+		
 		$this->load->addViewData('list',$table);
 		$this->load->view('list');
 		$this->load->view('project/list_sidebar',true,'sidebar');
@@ -165,6 +143,7 @@ class Project extends SS_controller{
 	
 	function add(){
 		$this->project->id=$this->project->add();
+		$this->project->addPeople($this->project->id, $this->user->id, NULL, '创建人');
 		$this->edit($this->project->id);
 		redirect('#'.CONTROLLER.'/edit/'.$this->project->id);
 	}
@@ -175,7 +154,7 @@ class Project extends SS_controller{
 		try{
 			$this->project->data=array_merge($this->project->fetch($id),$this->input->sessionPost('project'));
 
-			$labels=array_merge($this->project->getLabels($this->project->id),$this->input->sessionPost('labels'));
+			$this->project->labels=array_merge($this->project->getLabels($this->project->id),$this->input->sessionPost('labels'));
 
 			if(!$this->project->data['name']){
 				$this->section_title='未命名'.$this->section_title;
@@ -258,9 +237,15 @@ class Project extends SS_controller{
 	function documentList(){
 		$this->load->model('document_model','document');
 
+		$this->document_list_args=array(
+			'name'=>array('heading'=>'文件名','cell'=>'<a href="/document/download/{id}">{name}</a>'),
+			'time_insert'=>array('heading'=>'上传时间','parser'=>array('function'=>function($time_insert){return date('Y-m-d H:i:s',$time_insert);},'args'=>array('{time_insert}'))),
+			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->document,'getCompiledLabels'),'args'=>array('{id}')))
+		);
+		
 		return $this->table->setFields($this->document_list_args)
 			->setAttribute('name','focument')
-			->generate($this->project->getDocumentList($this->project->id));
+			->generate($this->document->getList(array('project'=>$this->project->id)));
 	}
 	
 	function scheduleList(){
@@ -291,7 +276,7 @@ class Project extends SS_controller{
 		
 		//$this->project->data是用来汇总，读的，因此尽可能获取最新的，最多的信息。post('project')是要写入数据库的，只是要更改的部分。
 		$this->project->data=array_merge($this->project->fetch($id),$this->input->sessionPost('project'));
-		$labels=array_merge($this->project->getLabels($this->project->id),$this->input->sessionPost('labels'));
+		$this->project->labels=array_merge($this->project->getLabels($this->project->id),$this->input->sessionPost('labels'));
 		
 		$this->load->library('form_validation');
 		
@@ -311,9 +296,9 @@ class Project extends SS_controller{
 			}
 		
 			elseif($submit=='project'){
-				$labels=$this->input->sessionPost('labels');
+				$this->project->labels=$this->input->sessionPost('labels');
 				$this->project->update($this->project->id,post('project'));
-				$this->project->updateLabels($this->project->id,$labels);
+				$this->project->updateLabels($this->project->id,$this->project->labels);
 				
 				unset($_SESSION[CONTROLLER]['post'][$this->project->id]);
 				$this->output->status='close';
@@ -322,17 +307,17 @@ class Project extends SS_controller{
 			elseif($submit=='case_client'){
 				
 				//这样对数组做加法，后者同名键不会替换前者，即后者是前者的补充，而非更新
-				$this->project->data_client=$this->input->sessionPost('case_client');
+				$project_client=$this->input->sessionPost('case_client');
 				$client=$this->input->sessionPost('client');
 				$client_profiles=$this->input->sessionPost('client_profiles');
 				$client_labels=$this->input->sessionPost('client_labels');
 				
-				if(!$this->project->data_client['role']){
+				if(!$project_client['role']){
 					$this->output->message('请选择本案地位','warning');
 					throw new Exception;
 				}
 		
-				if($this->project->data_client['client']){//autocomplete搜索到已有客户
+				if($project_client['client']){//autocomplete搜索到已有客户
 					$this->output->message("系统中已经存在{$client['name']}，已自动识别");
 				}
 				else{//添加新客户
@@ -389,18 +374,18 @@ class Project extends SS_controller{
 						$new_client['work_for']=$client['work_for'];
 					}
 					
-					$this->project->data_client['client']=$this->client->add($new_client);
+					$project_client['client']=$this->client->add($new_client);
 
 					$this->output->message(
 						'<a href="#'.
 						($client['type']=='客户'?'client':'contact').
-						'/edit/'.$this->project->data_client['client'].'">新'.
+						'/edit/'.$project_client['client'].'">新'.
 						$client['type'].' '.$client['name'].
 						' 已经添加，点击编辑详细信息</a>'
 					);
 				}
 
-				if($this->project->addPeople($this->project->id,$this->project->data_client['client'],'客户',$this->project->data_client['role'])){
+				if($this->project->addPeople($this->project->id,$project_client['client'],'客户',$project_client['role'])){
 					$this->output->setData($this->clientList(),'content-table','html','.item[name="client"]>.contentTable','replace');
 				}else{
 					$this->output->message('客户添加错误', 'warning');
@@ -433,11 +418,11 @@ class Project extends SS_controller{
 					}
 				}
 				
-				$this->project->data_role=$this->project->getRoles($this->project->id);
+				$project_role=$this->project->getRoles($this->project->id);
 		
-				$responsible_partner=$this->project->getPartner($this->project->data_role);
+				$responsible_partner=$this->project->getPartner($project_role);
 				//获得本案督办人的id
-				$my_roles=$this->project->getMyRoles($this->project->data_role);
+				$my_roles=$this->project->getMyRoles($project_role);
 				//本人的本案职位
 
 				if(!$responsible_partner && $staff['role']!='督办人'){
@@ -482,7 +467,7 @@ class Project extends SS_controller{
 					}
 				}
 				
-				if($this->project->addPeople($this->project->id,post('people/id'),post('people/role'),post('people/hourly_fee'))){
+				if($this->project->addPeople($this->project->id,$people['id'],NULL,$people['role'])){
 					$this->output->setData($this->peopleList(),'content-table','html','.item[name="people"]>.contentTable','replace');
 					unset($_SESSION[CONTROLLER]['post'][$this->project->id]['people']['id']);
 				}else{
@@ -500,17 +485,17 @@ class Project extends SS_controller{
 			
 			elseif($submit=='case_fee'){
 				
-				$this->project->data_fee=$this->input->sessionPost('case_fee');
+				$project_fee=$this->input->sessionPost('case_fee');
 
-				if(!$this->project->data_fee['type']){
+				if(!$project_fee['type']){
 					$this->output->message('请选择收费类型','warning');
 				}
 				
-				if(!is_numeric($this->project->data_fee['fee'])){
+				if(!is_numeric($project_fee['fee'])){
 					$this->output->message('请预估收费金额（数值）','warning');
 				}
 				
-				if(!$this->project->data_fee['pay_date']){
+				if(!$project_fee['pay_date']){
 					$this->output->message('请预估收费时间','warning');
 				}
 				
@@ -518,7 +503,7 @@ class Project extends SS_controller{
 					throw new Exception;
 				}
 				
-				if($this->project->addFee($this->project->id,$this->project->data_fee['fee'],$this->project->data_fee['pay_date'],$this->project->data_fee['type'],$this->project->data_fee['condition'])){
+				if($this->project->addFee($this->project->id,$project_fee['fee'],$project_fee['pay_date'],$project_fee['type'],$project_fee['condition'])){
 					//unset($_SESSION['cases']['post']['case_fee']);
 					$this->output->setData($this->feeList(),'content-table','html','.item[name="client"]>.contentTable','replace');
 				}else{
@@ -594,57 +579,32 @@ class Project extends SS_controller{
 				unset($_SESSION[CONTROLLER]['post'][$this->project->id]['case_fee_misc']);
 			}
 			
-			elseif($submit=='case_document'){
+			elseif($submit=='document'){
 				$this->load->model('document_model','document');
 				
 				$document=$this->input->sessionPost('document');
 				
 				$document_labels=$this->input->sessionPost('document_labels');
 				
-				if(!$document_labels['类型']){
-					$this->output->message('请选择文件类型','warning');
+				if(!$document['id']){
+					$this->output->message('请选择要上传的文件', 'warning');
 					throw new Exception;
 				}
 				
-				$config['upload_path'] = $this->config->item('document_path');
-				$config['encrypt_name'] = true;
-				$config['allowed_types'] = $this->config->item('允许上传的文件类型');
-
-				$this->load->library('upload', $config);
-
-				if (!$this->upload->do_upload('document')){
-					$this->output->message($this->upload->display_errors(),'warning');
-					throw new Exception;
-				}
-				
-				$upload_info=$this->upload->data();
-				
-				if(!$document_labels['类型']){
-					$this->output->message('请选择文件类型','warning');
-					throw new Exception;
-				}
-				
-				$document['name']=$upload_info['client_name'];
-				$document['size']=$upload_info['file_size'];
-				$document['extname']=$upload_info['file_ext'];
-				$document['type']=$upload_info['file_type'];
-				
-				$document['id']=$this->document->add($document);
+				$this->document->update($id, $document);
 				
 				$this->document->updateLabels($document['id'],$document_labels);
 				
 				$this->project->addDocument($this->project->id, $document['id']);
 				
-				rename($this->config->item('document_path').$upload_info['file_name'], $this->config->item('document_path').$document['id']);
-				
-				$this->output->setData($this->documentList(),'content-table','html','.item[name="client"]>.contentTable','replace');
+				$this->output->setData($this->documentList(),'content-table','html','.item[name="document"]>.contentTable','replace');
 				
 				unset($_SESSION[CONTROLLER]['post'][$this->project->id]['document']);
 			}
 			
 			elseif($submit=='remove_document'){
 				if($this->project->removeDocument($this->project->id,$button_id)){
-					$this->output->setData($this->documentList(),'content-table','html','.item[name="client"]>.contentTable','replace');
+					$this->output->setData($this->documentList(),'content-table','html','.item[name="document"]>.contentTable','replace');
 				}
 			}
 			
@@ -673,7 +633,7 @@ class Project extends SS_controller{
 				$this->output->status='refresh';
 			}
 			
-			elseif($submit=='file' && in_array('咨询',$labels)){
+			elseif($submit=='file' && in_array('咨询',$this->project->labels)){
 				$this->project->addLabel($this->project->id, '已归档');
 				$this->output->status='refresh';
 				$this->output->message('咨询案件已归档');
@@ -755,7 +715,7 @@ class Project extends SS_controller{
 				$this->output->message('案件已经审核，已正式归档');
 			}
 			
-			elseif(!in_array('咨询',$labels) && $submit=='file'){
+			elseif(!in_array('咨询',$this->project->labels) && $submit=='file'){
 				$this->project->removeLabel($this->project->id, '已申请归档');
 				$this->project->addLabel($this->project->id, '案卷已归档');
 				$this->output->status='refresh';
@@ -764,27 +724,27 @@ class Project extends SS_controller{
 
 			elseif($submit=='apply_project_num'){
 				
-				$labels=$this->input->sessionPost('labels');
+				$this->project->labels=$this->input->sessionPost('labels');
 				
-				if(!$labels['领域']){
+				if(!$this->project->labels['领域']){
 					$this->output->message('获得案号前要先选择案件领域','warning');
 					throw new Exception();
 				}
 
-				if(!$labels['分类']){
+				if(!$this->project->labels['分类']){
 					$this->output->message('获得案号前要先选择案件分类','warning');
 					throw new Exception();
 				}
 
 				$data=array(
-					'num'=>$this->project->getNum($this->project->id, $labels['分类'], $labels['领域'], in_array('咨询', $labels), $this->project->data['first_contact'], $this->project->data['time_contract']),
+					'num'=>$this->project->getNum($this->project->id, $this->project->labels['分类'], $this->project->labels['领域'], in_array('咨询', $this->project->labels), $this->project->data['first_contact'], $this->project->data['time_contract']),
 				);
 				
-				$labels[]='类型已锁定';
+				$this->project->labels[]='类型已锁定';
 				
 				$this->project->update($this->project->id,$data);
 				
-				$this->project->updateLabels($this->project->id, $labels);
+				$this->project->updateLabels($this->project->id, $this->project->labels);
 				
 				$this->output->status='refresh';
 			}

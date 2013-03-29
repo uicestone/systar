@@ -107,18 +107,8 @@ class Document extends SS_controller{
 				'name'=>$file_info['client_name']
 			);
 			
-			$this->load->addViewData('file', $data);
-
-			//$info->name = $file_info['file_name'];
-			//$info->size = $file_info['file_size'];
-			//$info->type = $file_info['file_type'];
-			//$info->url = $upload_path_url . $data['file_name'];
-			//$info->thumbnail_url = $upload_path_url . $data['file_name']; //I set this to original file since I did not create thumbs.  change to thumbnail directory if you do = $upload_path_url .'/thumbs' .$data['file_name']
-			//$info->delete_url = base_url() . 'upload/deleteImage/' . $data['file_name'];
-			//$info->delete_type = 'DELETE';
-
-			$this->output->data=$this->load->view('document/upload_list_item',true);
-
+			$this->output->data=$data;
+			
 		}catch(Exception $e){
 			$this->output->status='fail';
 		}

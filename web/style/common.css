@@ -110,7 +110,7 @@ body{
 	background:#CEDDEC;
 }
 
-article section{
+article>section{
 	position:absolute;left:120px;top:25px;right:245px;;bottom:0;
 	box-shadow: -2px 0 5px #000;
 	overflow-x:auto;
@@ -349,8 +349,8 @@ article .contentTable td input[type="text"]{
 }
 
 /*右侧工具栏*/
-aside{
-	position:fixed;right:0;top:25px;
+aside>section{
+	position:fixed;right:0;top:25px;bottom:0;
 	width:240px;
 }
 aside.minimized{

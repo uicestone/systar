@@ -4,6 +4,11 @@
 		<input type="text" name="project[name]" value="<?=$this->value('project/name')?>" placeholder="事项名称" style="width:99.4%;font-size:20px;">
 	 </div>
 
+	<div class="item">
+		<div class="title"><label>事项概述：</label></div>
+		<textarea class="item" name="project[summary]" type="text" rows="4"><?=$this->value('project/summary')?></textarea>
+	</div>
+
 	<div class="item" name="people">
 		<div class="title"><label>人员：</label></div>
 
@@ -12,8 +17,8 @@
 		<button type="button" class="toggle-add-form">＋</button>
 		<span class="add-form hidden">
 			<input type="text" name="people[name]" value="<?=$this->value('people/name');?>" placeholder="姓名" autocomplete-model="people" />
-			<select name="people[role]" data-placeholder="角色">
-				<?=options($this->project->getAllRoles(),$this->value('staff/role'),'角色');?>
+			<select name="people[role]" data-placeholder="角色" style="width:150px;">
+				<?=options($this->project->getAllRoles(),$this->value('people/role'),'角色');?>
 			</select>
 			<input name="people[id]" class="hidden" />
 			<button type="submit" name="submit[people]">添加</button>
@@ -27,10 +32,11 @@
 
 		<div class="add-form">
 			<input type="file" name="document" id="file" data-url="/document/submit" />
-			<select name="document_labels[]" data-placeholder="标签" multiple="multiple">
+			<input name="document[id]" class="hidden" />
+			<input type="text" name="document[name]" placeholder="文件名称" style="padding:4px" />
+			<select name="document_labels[]" data-placeholder="标签" multiple="multiple" style="width:200px;height:15px;">
 				<?=options($this->document->getAllLabels(),$this->value('document_labels'));?>
 			</select>
-			<input type="text" name="document[name]" placeholder="文件名称" />
 			<button type="submit" name="submit[document]">保存</button>
 		</div>
 	</div>
@@ -41,14 +47,14 @@
 	</div>
 
 	<div class="item">
-		<div class="title"><label>事项概述：</label></div>
-		<textarea class="item" name="project[summary]" type="text" rows="4"><?=$this->value('project/summary')?></textarea>
-	</div>
-
-	<div class="item">
 		<div class="title"><label>备注：</label></div>
 		<textarea class="item" name="project[comment]" type="text" rows="3"><?=$this->value('project/comment')?></textarea>
 	</div>
 </div>
 </form>
+<style type="text/css">
+.item[name="document"] .chzn-container{
+	height:15px;
+}
+</style>
 <?=javascript('project_add')?>

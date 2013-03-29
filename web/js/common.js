@@ -38,8 +38,7 @@ $(window).on('hashchange',function(){
 					tabs.append('<li for="'+hash+'" class="activated"><a href="#'+hash+'">'+response.section_title+'</a></li>');
 				}
 			}
-
-		})
+		});
 	}
 	
 });
@@ -93,7 +92,7 @@ $(document)
 		if($(this).children('a').attr('href').substr(1)===hash){
 			$.refresh(hash);
 		}
-	})
+	});
 	
 	/*二级菜单展开*/
 	nav.children('ul').children('li').children('.arrow').click(function(event){
@@ -230,13 +229,13 @@ $(document)
 		});
 		
 		/*edit表单元素更改时实时提交到后台 */
-		section.children('form').on('change',':input',function(){
+		section.children('form').on('change',':input:not(:file)',function(){
 			var value=$(this).val();
 			if($(this).is(':checkbox') && !$(this).is(':checked')){
 				value=0;
 			}
 			var id = section.children('form').attr('id');
-			var name = $(this).attr('name').replace('[','/').replace(']','');
+			var name = $(this).attr('name');
 			var data={};data[name]=value;
 			
 			if(controller){
@@ -280,9 +279,9 @@ $(document)
 		}).disableSelection();
 
 		section.find('select').each(function(index,object){
-			$(object).chosen({search_contains:true,no_results_text:'添加新标签',no_results_callback:function(term){
-				$(object).append('<option value="'+term+'" selected="selected">'+term+'</option>').trigger('liszt:updated');
-			}})
+			$(object).chosen({search_contains:true,allow_single_deselect:true,no_results_text:'添加新标签',no_results_callback:function(term){
+				$(object).append('<option value="'+term+'" selected="selected">'+term+'</option>').trigger('liszt:updated').trigger('change');
+			}});
 		});
 		
 	});
@@ -303,10 +302,10 @@ $(document)
 
 		});
 		
-		section.find('select').each(function(index,object){
-			$(object).chosen({search_contains:true,no_results_text:'添加新标签',no_results_callback:function(term){
-				$(object).append('<option value="'+term+'" selected="selected">'+term+'</option>').trigger('liszt:updated');
-			}})
+		section.find('select:not(.view)').each(function(index,object){
+			$(object).chosen({search_contains:true,allow_single_deselect:true,no_results_text:'添加新标签',no_results_callback:function(term){
+				$(object).append('<option value="'+term+'" selected="selected">'+term+'</option>').trigger('liszt:updated').trigger('change');
+			}});
 		});
 		
 		/*边栏选框自动提交*/
@@ -325,7 +324,7 @@ $(document)
 			var formData=form.serialize();
 			
 			var asideSection = aside.children('section[for="'+hash+'"]');
-			var asideData=asideSection.find(':input').serialize()
+			var asideData=asideSection.find(':input').serialize();
 
 			var id = form.attr('id');
 			var submit = $(this).attr('name').replace('submit[','').replace(']','');
@@ -360,6 +359,7 @@ $(document)
 		section.find('.draggable.portlet').draggable({
 			helper: 'clone'
 		});
+		
 	});
 
 	tabs
@@ -428,7 +428,7 @@ $(document)
 	return false;
 })
 .on('click','.portlet',function(){
-	var event={id:$(this).attr('id')}
+	var event={id:$(this).attr('id')};
 	$.viewSchedule({id:event.id});
 })
 .on('click','.portlet-header .ui-icon',function(event){
@@ -560,7 +560,7 @@ jQuery.fn.setBlock=function(response){
 	}
 
 	else if(response.status==='redirect'){
-		$.redirect(response.data)
+		$.redirect(response.data);
 		return this;
 	}
 	
@@ -570,7 +570,7 @@ jQuery.fn.setBlock=function(response){
 	
 	else if(response.status==='redirect_href'){
 		window.location.href='/'+response.data;
-		return this
+		return this;
 	}
 	
 	$.parseMessage(response.message);
@@ -677,7 +677,7 @@ jQuery.closeTab=function(hash){
 		$.locationHash(page.attr('default-uri'));
 	}
 	
-}
+};
 
 /**
  * 关闭当前标签选项卡并打开一个新的标签选项卡
@@ -687,11 +687,11 @@ jQuery.redirect=function(newhash){
 	page.children('section[hash="'+hash+'"]').remove();
 	aside.children('section[for="'+hash+'"]').remove();
 	$.locationHash(newhash);
-}
+};
 
 jQuery.refresh=function(hash){
 	$.get(hash);
-}
+};
 
 jQuery.each( [ "get", "post" ], function( i, method ) {
 	jQuery[ method ] = function( url, data, callback, type ) {
@@ -722,7 +722,7 @@ jQuery.each( [ "get", "post" ], function( i, method ) {
 			},
 			error:function(){
 				$.showMessage('服务器返回了错误的数据','warning');
-			},
+			}
 		});
 	};
 });

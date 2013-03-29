@@ -40,7 +40,7 @@ $(function(){
 	})
 	.on('autocompleteresponse',function(){
 		/*自动完成响应*/
-		$(this).find('[display-for~="new"]:hidden').trigger('enable')
+		$(this).find('[display-for~="new"]:hidden').trigger('enable');
 		$(this).find('[name="case_client[client]"]').val('').trigger('change');
 	});
 	
@@ -53,14 +53,14 @@ $(function(){
 		
 		var addForm=$(this).parents('.add-form:first');
 
-		if($(this).val()=='相对方'){
+		if($(this).val()==='相对方'){
 			addForm.find('[name="client_labels[类型]"]').hide().attr('disabled','disabled');
 		}else{
 			addForm.find('[name="client_labels[类型]"]').removeAttr('disabled').show();
 			$(this).siblings('[name="client_labels[类型]"]').getOptionsByLabelRelative($(this).val());
 		}
 
-		if($(this).val()=='客户'){
+		if($(this).val()==='客户'){
 			addForm.find('[display-for~="client"]').trigger('enable');
 			addForm.find('[display-for~="non-client"]').trigger('disable');
 		}else{
@@ -72,7 +72,7 @@ $(function(){
 
 	//响应案下客户的本案地位的"其他"选项
 	section.find('select[name="case_client[role]"]').on('change',function(){
-		if($(this).val()==''){
+		if($(this).val()===''){
 			$(this).after('<input type="text" name="case_client[role]" placeholder="本案地位" />');
 		}else{
 			$('input[name="case_client[role]"]').remove();
@@ -81,7 +81,7 @@ $(function(){
 
 	//响应客户来源选项
 	section.find('[name="client_profiles[来源类型]"]').on('change',function(){
-		if($.inArray($(this).val(),['其他网络','媒体','老客户介绍','合作单位介绍','其他'])==-1){
+		if($.inArray($(this).val(),['其他网络','媒体','老客户介绍','合作单位介绍','其他'])===-1){
 			$('[name="client_profiles[来源]"]').hide().attr('disabled','disabled').val('');
 		}else{
 			$('[name="client_profiles[来源]"]').removeAttr('disabled').show();
@@ -161,7 +161,7 @@ $(function(){
 
 	//案下律师类别为实际贡献时，增加实际贡献输入格
 	section.find('[name="staff[role]"]').change(function(){
-		if($(this).val()=='实际贡献'){
+		if($(this).val()==='实际贡献'){
 			$(this).siblings('[name="staff_extra[actual_contribute]"]').removeAttr('disabled').show();
 		}else{
 			$('[name="staff_extra[actual_contribute]"]').attr('disabled','disabled').hide();
@@ -171,22 +171,15 @@ $(function(){
 	section.find(':input:file[name="document"]').fileupload({
         dataType: 'json',
         done: function (event, data) {
-			var uploadItem=$(data.result.data).appendTo(aside.children('section[for="document"]'))
-			.trigger('blockload');
-			
-			uploadItem.children('select').chosen({search_contains:true});
-	
-			uploadItem.children(':input').on('change',function(){
-				var data = $(this).serialize();
-				$.post('/document/update/'+uploadItem.attr('id'),data);
-			});
-        }
+			$(this).siblings('[name="document[id]"]').val(data.result.data.id);
+        },
+		dropZone:section.find('.item[name="document"]').children('.add-form')
     });
 
 	//案下文件类别选择'其他'时,显示输入框
 	section.find('[name="case_document[doctype]"]').change(function(){
-		if($(this).val()=='其他'){
-			$(this).css('width','7%').after('<input type="text" name="case_document[doctype_other]" style="width:8%" />')
+		if($(this).val()==='其他'){
+			$(this).css('width','7%').after('<input type="text" name="case_document[doctype_other]" style="width:8%" />');
 		}else{
 			$(this).css('width','15%').siblings('input[name="case_document[doctype_other]"]').remove();
 		}
