@@ -387,6 +387,12 @@ aside input[type=text]{
 	padding: 5px;
 	margin: 1px 0;
 }
+aside textarea{
+	width:227px;
+	padding:5px;
+	margin: 1px 0;
+	border:#AAA solid 1px;
+}
 aside select{
 	width:239px;
 }
@@ -453,6 +459,19 @@ aside button.major{
 .portlet-content { padding: 0.4em; }
 .ui-sortable-placeholder { border: 1px dotted black; visibility: visible !important; height: 50px !important; }
 .ui-sortable-placeholder * { visibility: hidden; }
+
+/*消息模块*/
+.message-dialog-list-item{
+	background-color:rgba(255,255,255,0.4);
+	padding:15px;
+	cursor:pointer;
+}
+.message-dialog-list-item>.title{
+	float:left;
+	width:80px;height:60px;
+	font-size:1.2em;
+	color:#007;
+}
 
 /*webkit滚动条*/
 ::-webkit-scrollbar{

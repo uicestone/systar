@@ -11,14 +11,14 @@ class Test extends SS_controller{
 		//session_destroy();
 		print_r($this->session->all_userdata());
 		print_r($_SESSION);
+		print_r($this->user);
 	}
 	
 	function ar(){
-		$this->db->select('id,name');
-		$this->db->from('people');
-		$this->db->where('company',1);
-		$this->db->where("id IN (SELECT people FROM project_people)",NULL,false);
-		$this->db->get();
+		$this->db->from('test')
+			->where(array('a'=>1,'b'=>2))
+			->or_where('a',1)
+			->get();
 		echo $this->db->last_query();
 	}
 	

@@ -38,6 +38,7 @@ class Team_model extends BaseItem_model{
 	/**
 	 * 返回人的所在组，并追溯及其父组
 	 * @param int $people
+	 * @return array(team_id=>team_name,...)
 	 */
 	function traceByPeople($people){
 		
@@ -45,10 +46,14 @@ class Team_model extends BaseItem_model{
 		
 		$teams=array();
 		
-		$result=$this->db->get_where('team_people',array('people'=>$people));
+		$result=$this->db->select('team.id,team.name')
+			->from('team_people')
+			->join('team',"team.id = team_people.team",'INNER')
+			->where('people',$people)
+			->get();
 		
 		foreach($result->result() as $row){
-			$teams[]=$row->team;
+			$teams[$row->id]=$row->name;
 			$teams+=$this->trace($row->id);
 		}
 		
@@ -63,13 +68,15 @@ class Team_model extends BaseItem_model{
 		
 		$id=intval($id);
 		
-		$result=$this->db->get_where('team_relationship',
-			is_null($relation)?array('relative'=>$id):array('relative'=>$id,'relation'=>$relation)
-		);
-		
+		$result=$this->db->select('team.id,team.name')
+			->from('team_relationship')
+			->join('team','team.id = team_relationship.team','INNER')
+			->where(is_null($relation)?array('relative'=>$id):array('relative'=>$id,'relation'=>$relation))
+			->get();
+			
 		foreach($result->result() as $row){
-			$teams[]=$row->id;
-			$teams+=$this->trace($row->id);
+			$teams[$row->id]=$row->name;
+			$teams+=$this->trace($row->id,$relation,$teams);
 		}
 		
 		return $teams;

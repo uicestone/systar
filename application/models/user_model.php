@@ -2,6 +2,11 @@
 class User_model extends People_model{
 	
 	var $name;
+	
+	/**
+	 * 当前用户直接或间接所在的所有组
+	 * @var array(team_id=>team_name,...) 
+	 */
 	var $teams;
 	var $group;
 	
@@ -41,6 +46,28 @@ class User_model extends People_model{
 			}
 		}
 
+	}
+	
+	/**
+	 * 获得所有用户列表
+	 * 这里列出的用户要求和当前用户有某种关系
+	 * @param type $args
+	 * @return type
+	 */
+	function getList($args=array()){
+		
+		$this->db->select('people.*')
+			->from('people')
+			->join('user','user.id = people.id','INNER')
+			->where('people.company',$this->company->id)
+			//与我同组，或与我有直接关系
+			->where("(
+				people.id IN (SELECT people FROM team_people WHERE team IN (".implode(',',array_keys($this->teams))."))
+				OR people.id IN (SELECT relative FROM people_relationship WHERE people = {$this->user->id})
+				OR people.id IN (SELECT people FROM people_relationship WHERE relative = {$this->user->id})
+			)",NULL,false);
+		
+		return $this->db->get()->result_array();
 	}
 	
 	function add($data=array()){
@@ -196,12 +223,16 @@ class User_model extends People_model{
 
 	function generateNav(){
 		
+		foreach($this->teams as $team_id=>$team_name){
+			$teams[]=$team_id;
+		}
+		
 		$query="
 			SELECT * FROM (
 				SELECT * FROM nav
 				WHERE (company_type is null or company_type = '{$this->company->type}')
 					AND (company ={$this->company->id} OR company IS NULL)
-					AND (team IS NULL ".($this->teams?"OR team IN (".implode(',',$this->teams).")":'').")
+					AND (team IS NULL ".($this->teams?"OR team IN (".implode(',',$teams).")":'').")
 				ORDER BY company_type DESC,company DESC,team DESC
 			)nav_ordered
 			GROUP BY href
