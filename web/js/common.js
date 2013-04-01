@@ -554,7 +554,7 @@ jQuery.fn.setBlock=function(response){
 	
 	var parent=this;
 	
-	if(response.status==='login_required'){
+	if(response.status==='login'){
 		window.location.href='login';
 		return this;
 	}

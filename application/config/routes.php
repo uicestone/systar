@@ -38,14 +38,15 @@
 |
 */
 
-$route['default_controller'] = "frame";
+$route['default_controller'] = "gate";
 $route['404_override'] = '';
 
-$route['login']='user/login';
+$route['login']='gate/login';
 $route['logout']='user/logout';
 $route['profile']='user/profile';
-$route['browser']='user/browser';
-$route['signup']='user/signup';
+$route['browser']='gate/browser';
+$route['signup']='gate/signup';
+$route['reception']='gate/reception';
 
 
 /* End of file routes.php */

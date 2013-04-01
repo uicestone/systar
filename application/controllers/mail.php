@@ -123,7 +123,6 @@ class Mail extends SS_Controller{
 			}
 			
 			if($submit=='download'){
-				$this->output->as_ajax=false;
 				$this->load->model('document_model','document');
 				$this->document->exportHead('express.html');
 				echo $this->session->userdata('mail/express/mail_html');

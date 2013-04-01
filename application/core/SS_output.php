@@ -19,7 +19,7 @@ class SS_Output extends CI_Output{
 	 * 作为ajax输出，为true时，即使输出内容不为空，也将封装入Output::data属性中
 	 * 为false时则直接将待输出内容输出，不论Output::data,message等属性
 	 */
-	var $as_ajax=true;
+	var $as_ajax;
 	
 	function __construct(){
 		parent::__construct();

@@ -11,7 +11,6 @@ class Schedule extends SS_controller{
 		parent::__construct();
 		
 		$this->load->model('project_model','project');
-		$this->load->model('client_model','client');
 		
 		$this->list_args=array(
 			'name'=>array('heading'=>'标题'),
@@ -66,7 +65,6 @@ class Schedule extends SS_controller{
 		}
 		
 		if($this->input->get('export')=='excel'){
-			$this->output->as_ajax=false;
 			
 			$field=array(
 				'name'=>array('heading'=>'标题'),

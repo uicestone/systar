@@ -4,6 +4,8 @@ class SS_Controller extends CI_Controller{
 	var $default_method='index';
 	
 	var $section_title='';
+	
+	var $require_login=true;
 
 	var $company_type_model_loaded=false;
 	var $company_model_loaded=false;
@@ -47,7 +49,15 @@ class SS_Controller extends CI_Controller{
 			$this->load->model($this->company->syscode.'_model',$this->company->syscode);
 			$this->company_model_loaded=true;
 		}
+		
+		$this->output->as_ajax=$this->input->is_ajax_request();
 	
+		if($this->require_login && !$this->user->isLogged()){
+			$this->output->status='login';
+			$this->_output();
+			exit;
+		}
+		
 	}
 	
 	/**

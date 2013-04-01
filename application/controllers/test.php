@@ -2,7 +2,6 @@
 class Test extends SS_controller{
 	function __construct() {
 		parent::__construct();
-		$this->output->as_ajax=false;
 	}
 	
 	function index(){

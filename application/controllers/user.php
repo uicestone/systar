@@ -4,6 +4,12 @@ class user extends SS_controller{
 	function __construct(){
 		parent::__construct();
 		
+		if($this->require_login && !$this->user->isLogged()){
+			$this->output->status='login';
+			$this->_output();
+			exit;
+		}
+		
 		$this->load->model('people_model','people');
 
 		if($this->company->ucenter){
@@ -21,68 +27,6 @@ class user extends SS_controller{
 		}
 	}
 	
-	function login(){
-		
-		if($this->user->isLogged()){
-			//用户已登陆，则不显示登录界面
-			redirect();
-		}
-		
-		if($this->input->post('username')){
-			
-			$user=array();
-			
-			if($this->company->ucenter){
-				
-				$ucenter_user=uc_user_login($this->input->post('username'),$this->input->post('password'));//ucenter验证密码
-
-				if(!$ucenter_user){
-					$this->load->addViewData('warning','用户名或密码错');
-
-				}elseif($ucenter_user[0]>0){
-					$user=$this->user->fetch($ucenter_user[0]);
-				}
-				
-			}else{
-				$user=$this->user->verify($this->input->post('username'),$this->input->post('password'));
-			}
-
-			if($user){
-
-				$this->session->set_userdata('user/id', $user['id']);
-
-				$this->user->__construct($user['id']);
-
-				foreach($this->user->group as $group){
-					$company_type=$this->company->type;
-					if($this->company_type_model_loaded && method_exists($this->$company_type,$group.'_setSession')){
-						call_user_func(array($this->$company_type,$group.'_setSession'),$this->user->id);
-					}
-				}
-
-				$this->user->updateLoginTime();
-
-				if(!$this->company->ucenter && !isset($user['password'])){
-					redirect('#user/profile');
-				}elseif(!$this->company->ucenter){
-					redirect();
-				}else{
-					redirect('','js');
-				}
-
-			}else{
-				$this->load->addViewData('warning','用户名或密码错');
-			}
-		}
-		
-		$this->output->as_ajax=false;
-
-		$this->load->view('head_simple');
-		$this->load->view('user/login');
-		$this->load->view('foot');
-
-	}
-	
 	function profile(){
 		
 		$people=array_merge_recursive($this->people->fetch($this->user->id),$this->input->sessionPost('people'));
@@ -92,11 +36,6 @@ class user extends SS_controller{
 		$this->section_title='用户资料';
 		$this->load->view('user/profile');
 		$this->load->view('user/profile_sidebar',true,'sidebar');
-	}
-	
-	function signUp(){
-		$this->load->view('user/signup');
-		$this->load->view('user/signup_sidebar',true,'sidebar');
 	}
 	
 	function submit($submit){
@@ -157,17 +96,6 @@ class user extends SS_controller{
 		if(is_null($this->output->status)){
 			$this->output->status='success';
 		}
-	}
-	
-	/**
-	 * ie6跳转提示页面
-	 */
-	function browser(){
-		$this->output->as_ajax=false;
-		$this->section_title='请更新您的浏览器';
-		$this->load->view('head');
-		$this->load->view('browser');
-		$this->load->view('foot');
 	}
 }
 ?>

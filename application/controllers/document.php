@@ -61,8 +61,6 @@ class Document extends SS_controller{
 	}
 
 	function download($id){
-		$this->output->as_ajax=false;
-
 		$document=$this->document->fetch($id);
 		
 		$this->document->exportHead($document['name']);
