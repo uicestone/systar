@@ -16,6 +16,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 		title:'新日程',
 		content:'',
 		id:null,
+		project:null,
 		buttons:null,
 		method:null,
 		event:{},
@@ -204,6 +205,10 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 				$(this).next('[name^="profiles"]').attr('name','profiles['+$(this).val()+']');
 			});
 			
+			if(that.options.project){
+				that.element.find('[name="project"]').val(that.options.project).trigger('liszt:updated').attr('changed','changed');
+			}
+			
 		},'json');
 	},
 	
@@ -306,7 +311,10 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 
 
 jQuery.each(['createSchedule','viewSchedule'],function(i,method){
-	jQuery[method]=function(args){
+	jQuery[method]=function(args){console.log(args);
+		if(method==='viewSchedule'){
+			$.extend(args,{method:'view'});
+		}
 		$('<div/>').appendTo(document).schedule(args);
 	}
 });

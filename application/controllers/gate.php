@@ -15,6 +15,11 @@ class Gate extends SS_Controller{
 	
 	function login(){
 		
+		if($this->company->ucenter){
+			require APPPATH.'third_party/ucenter_client/config.php';
+			require APPPATH.'third_party/ucenter_client/client.php';
+		}
+		
 		if($this->user->isLogged()){
 			//用户已登陆，则不显示登录界面
 			redirect();

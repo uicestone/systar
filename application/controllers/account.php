@@ -71,8 +71,8 @@ class Account extends SS_controller{
 	function add(){
 		$data=array('name'=>'律师费');
 		
-		if($this->input->get('case')){
-			$data['case']=intval($this->input->get('case'));
+		if($this->input->get('project')){
+			$data['project']=intval($this->input->get('project'));
 		}
 		if($this->input->get('client')){
 			$data['people']=intval($this->input->get('client'));
@@ -90,14 +90,14 @@ class Account extends SS_controller{
 		$this->load->model('cases_model','cases');
 		
 		try{
-			$account=$this->account->fetch($this->account->id);
+			$this->account->data=$this->account->fetch($this->account->id);
 
-			if($account['name']){
-				$tab_title=$account['name'];
+			if($this->account->data['name']){
+				$tab_title=$this->account->data['name'];
 			}
 
-			if($account['people']){
-				$client=$this->client->fetch($account['people']);
+			if($this->account->data['people']){
+				$client=$this->client->fetch($this->account->data['people']);
 
 				if(isset($client['abbreviation'])){
 					$tab_title=$client['abbreviation'].' '.$tab_title;
@@ -106,17 +106,20 @@ class Account extends SS_controller{
 				}
 
 				//根据客户ID获得收费array
-				$case_fee_array=$this->cases->getFeeListByClient($account['people']);
+				$case_fee_array=$this->cases->getFeeListByClient($this->account->data['people']);
 			}else{
 				$tab_title='未命名流水';
 			}
 
 			$this->section_title=$tab_title;
 
-			if($account['case']){
+			if($this->account->data['project']){
 				//根据案件ID获得收费array
-				$case_fee_array=$this->cases->getFeeOptions($account['case']);
-				$case_client_array=array_sub($this->cases->getClientList($account['case']),'name','people');
+				$case_fee_array=$this->cases->getFeeOptions($this->account->data['project']);
+				
+				$this->load->model('people_model','people');
+				
+				$case_client_array=$this->people->getArray(array('limit'=>false,'project'=>$this->account->data['project'],'is_staff'=>false));
 			}
 
 			$this->load->addViewArrayData(compact('account','client','case_fee_array','case_client_array'));
@@ -135,7 +138,7 @@ class Account extends SS_controller{
 	function submit($submit,$id){
 		$this->account->id=$id;
 
-		$account=array_merge($this->account->fetch($id),(array)post('account'))+(array)$this->input->post('account');
+		$this->account->data=array_merge($this->account->fetch($id),$this->input->sessionPost('account'));
 		
 		try{
 			
@@ -147,27 +150,27 @@ class Account extends SS_controller{
 			if($submit=='account'){
 				$this->load->model('cases_model','cases');
 				
-				if(!$account['name']){
+				if(!$this->account->data['name']){
 					$this->output->message('请填写摘要','warning');
 					throw new Exception;
 				}
 
-				if(!$account['date']){
+				if(!$this->account->data['date']){
 					$this->output->message('请填写日期','warning');
 					throw new Exception;
 				}
 				
-				if(!$account['people']){
+				if(!$this->account->data['people']){
 					$this->output->message('请输入关联客户','warning');
 					throw new Exception;
 				}
 
-				if($account['way']=='out'){
-					post('account/amount',-abs($account['amount']));
+				if($this->account->data['way']=='out'){
+					post('account/amount',-abs($this->account->data['amount']));
 				}
 				//根据way设置amount的正负号
 
-				post('account/case',$this->cases->getIdByCaseFee($account['case_fee']));
+				post('account/project',$this->cases->getIdByCaseFee($this->account->data['project_account']));
 				//根据提交的case_fee先找出case.id
 
 				post('account',array_trim(post('account')));//imperfect 2012/5/25 uicestone 为了让没有case_fee 和case的account能够保存

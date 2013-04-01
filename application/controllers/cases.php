@@ -6,6 +6,8 @@ class Cases extends Project{
 	
 	var $section_title='案件';
 
+	var $client_list_args;
+	
 	function __construct() {
 		parent::__construct();
 		
@@ -21,8 +23,15 @@ class Cases extends Project{
 			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->cases,'getCompiledLabels'),'args'=>array('{id}')))
 		);
 		
+		$this->client_list_args=array(
+			'name'=>array('heading'=>'名称','cell'=>array('data'=>'{name}<button type="submit" name="submit[remove_client]" id="{id}" class="hover">删除</button>')),
+			'phone'=>array('heading'=>'电话','cell'=>array('class'=>'ellipsis','title'=>'{phone}')),
+			'email'=>array('heading'=>'电邮','cell'=>array('data'=>'<a href = "mailto:{email}">{email}</a>','class'=>'ellipsis')),
+			'role'=>array('heading'=>'本案地位')
+		);
+		
 		$this->staff_list_args=array(
-			'staff_name'=>array('heading'=>'名称','cell'=>'{staff_name}<button type="submit" name="submit[remove_staff]" id="{id}" class="hover">删除</button>'),
+			'staff_name'=>array('heading'=>'名称','cell'=>'{name}<button type="submit" name="submit[remove_staff]" id="{id}" class="hover">删除</button>'),
 			'role'=>array('heading'=>'本案职位'),
 			'contribute'=>array('heading'=>'贡献','eval'=>true,'cell'=>"
 				\$hours_sum_string='';
@@ -34,11 +43,20 @@ class Cases extends Project{
 			")
 		);
 	
+		$this->miscfee_list_args=array(
+			'receiver'=>array('heading'=>'收款方','cell'=>'{receiver}<button type="submit" name="submit[remove_miscfee]" id="{id}" class="hover">删除</button>'),
+			'fee'=>array('heading'=>'数额','eval'=>true,'cell'=>"
+				return '{fee}'.('{fee_received}'==''?'':' （到账：{fee_received}）');
+			"),
+			'comment'=>array('heading'=>'备注'),
+			'pay_date'=>array('heading'=>'预计时间')
+		);
+		
 	}
 	
 	function add(){
 		$this->cases->id=$this->cases->add(array('time_contract'=>$this->date->today,'time_end'=>date('Y-m-d',$this->date->now+100*86400)));
-		$this->edit($this->project->id);
+		$this->edit($this->cases->id);
 		redirect('#'.CONTROLLER.'/edit/'.$this->cases->id);
 	}
 	
@@ -46,14 +64,14 @@ class Cases extends Project{
 		$this->cases->id=$id;
 		
 		try{
-			$this->cases=array_merge($this->cases->fetch($id),$this->input->sessionPost('project'));
+			$this->cases->data=array_merge($this->cases->fetch($id),$this->input->sessionPost('project'));
 
 			$this->cases->labels=array_merge($this->cases->getLabels($this->cases->id),$this->input->sessionPost('labels'));
 
-			if(!$this->cases['name']){
+			if(!$this->cases->data['name']){
 				$this->section_title='未命名'.$this->section_title;
 			}else{
-				$this->section_title=$this->cases['name'];
+				$this->section_title=$this->cases->data['name'];
 			}
 
 			$project_role=$this->cases->getRoles($this->cases->id);
@@ -67,9 +85,13 @@ class Cases extends Project{
 			$my_roles=$this->cases->getMyRoles($project_role);
 			//本人的本案职位
 
-			$this->load->addViewArrayData(compact('project','labels','case_role','responsible_partner','lawyers','my_roles'));
+			$this->load->addViewArrayData(compact('case_role','responsible_partner','lawyers','my_roles'));
+			
+			$this->load->addViewData('project', $this->cases->data);
+			$this->load->addViewData('labels', $this->cases->labels);
 
 			//计算本案有效日志总时间
+			$this->load->model('schedule_model','schedule');
 			$this->load->view_data['schedule_time']=$this->schedule->calculateTime($this->cases->id);
 
 			$this->load->view_data['case_type_array']=array('诉前','一审','二审','再审','执行','劳动仲裁','商事仲裁');
@@ -79,10 +101,14 @@ class Cases extends Project{
 			}else{
 				$this->load->view_data['staff_role_array']=array('案源人','督办人','接洽律师','主办律师','协办律师','律师助理');
 			}
+			
+			$this->load->addViewData('client_list', $this->clientList());
 
 			$this->load->addViewData('staff_list', $this->staffList());
 			
 			$this->load->addViewData('fee_list', $this->feeList());
+			
+			$this->load->addViewData('miscfee_list', $this->miscfeeList());
 			
 			$this->load->addViewData('schedule_list', $this->scheduleList());
 			
@@ -90,7 +116,7 @@ class Cases extends Project{
 			
 			$this->load->addViewData('document_list', $this->documentList());
 
-			$this->load->view('case/edit');
+			$this->load->view('cases/edit');
 			
 			$this->load->view('project/edit_sidebar',true,'sidebar');
 		}
@@ -102,19 +128,52 @@ class Cases extends Project{
 		}
 	}
 	
+	function clientList(){
+		
+		$this->load->model('client_model','client');
+		
+		$list=$this->table->setFields($this->client_list_args)
+			->setRowAttributes(array('hash'=>'client/edit/{id}'))
+			->setAttribute('name','client')
+			->generate($this->client->getList(array('project'=>$this->project->id,'is_staff'=>false)));
+		
+		return $list;
+	}
+	
+	function miscfeeList(){
+		$list=$this->table->setFields($this->miscfee_list_args)
+				->setAttribute('name','miscfee')
+				->generate($this->cases->getFeeMiscList($this->cases->id));
+		
+		return $list;
+	}
+	
 	function submit($submit,$id,$button_id=NULL){
 		
 		parent::submit($submit, $id, $button_id);
 		
-		if($submit=='project'){
-			if(!$this->project->data['num']){
-				$this->output->message('尚未获取案号，请选择案件分类和阶段后获取案号','warning');
-				throw new Exception();
+		try{
+		
+			if($submit=='project'){
+				if(!$this->cases->data['num']){
+					$this->output->message('尚未获取案号，请选择案件分类和阶段后获取案号','warning');
+					throw new Exception();
+				}
+				if(isset($this->cases->labels['分类']) && in_array($this->cases->labels['分类'],array('诉讼','非诉讼')) && !in_array('咨询', $this->cases->labels) && !$this->cases->data['focus']){
+					$this->output->message('请填写案件争议焦点','warning');
+					throw new Exception;
+				}
 			}
-			if(isset($this->cases->labels['分类']) && in_array($this->cases->labels['分类'],array('诉讼','非诉讼')) && !in_array('咨询', $this->cases->labels) && !$this->project->data['focus']){
-				$this->output->message('请填写案件争议焦点','warning');
-				throw new Exception;
+
+			elseif($submit=='remove_client'){
+				if($this->cases->removePeople($this->cases->id,$button_id)){
+					$this->output->setData($this->clientList(),'content-table','html','.item[name="client"]>.contentTable','replace');
+				}
 			}
+
+		}catch(Exception $e){
+			$e->getMessage() && $this->output->message($e->getMessage(), 'warning');
+			$this->output->status='fail';
 		}
 	}
 

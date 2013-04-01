@@ -19,8 +19,8 @@
 		<input name="account[people]" class="hidden" />
 		<?}?>
 		<? if(!empty($case_fee_array)){?>
-		<select name="account[case_fee]" class="chzn-select">
-			<?=options($case_fee_array,$this->value('account/case_fee'),'应收帐款',true)?>
+		<select name="account[project_account]" class="chzn-select">
+			<?=options($case_fee_array,$this->value('account/project_account'),'应收帐款',true)?>
 		</select>
 		<? }?>
 	</div>

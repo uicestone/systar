@@ -14,17 +14,7 @@ class People extends SS_Controller{
 
 	var $profile_list_args;
 
-	var $project_list_args=array(
-		'num'=>array(
-			'heading'=>'案号'
-		),
-		'case_name'=>array(
-			'heading'=>'案名'
-		), 
-		'lawyers'=>array(
-			'heading'=>'主办律师' 
-		)
-	);
+	var $project_list_args;
 
 	var $section_title='人员';
 		
@@ -183,9 +173,9 @@ class People extends SS_Controller{
 			$available_options=$this->people->getAllLabels();
 			$profile_name_options=$this->people->getProfileNames();
 
-			$this->load->addViewData('relative', $this->relativeList());
-			$this->load->addViewData('profile',$this->profileList());
-			$this->load->addViewData('project', $this->projectList());
+			$this->load->addViewData('relative_list', $this->relativeList());
+			$this->load->addViewData('profile_list',$this->profileList());
+			$this->load->addViewData('project_list', $this->projectList());
 
 			if($people['staff']){
 				$people['staff_name']=$this->staff->fetch($people['staff'],'name');
@@ -237,9 +227,25 @@ class People extends SS_Controller{
 	 * 返回相关项目列表
 	 */
 	function projectList(){
+		
+		$this->load->model('project_model','project');
+		
+		$this->project_list_args=array(
+			'num'=>array(
+				'heading'=>'案号'
+			),
+			'name'=>array(
+				'heading'=>'案名'
+			), 
+			'staff'=>array(
+				'heading'=>'职员'
+				//@TODO
+			)
+		);
+		
 		$list=$this->table->setFields($this->project_list_args)
 			->setRowAttributes(array('hash'=>'cases/edit/{id}'))
-			->setData($this->cases->getListByPeople($this->people->id))
+			->setData($this->project->getList(array('people'=>$this->people->id)))
 			->generate();
 		
 		return $list;
@@ -312,6 +318,30 @@ class People extends SS_Controller{
 						throw new Exception;
 					}
 					
+					if(!$profiles['电话'] && !$profiles['电子邮件']){
+						$this->output->message('至少输入一种联系方式', 'warning');
+						throw new Exception;
+					}
+
+					foreach($profiles as $name => $content){
+						if($name=='电话'){
+							if($this->client->isMobileNumber($content)){
+								$relative['profiles']['手机']=$content;
+							}else{
+								$relative['profiles']['电话']=$content;
+							}
+							$relative['phone']=$content;
+						}elseif($name=='电子邮件' && $content){
+							if(!$this->form_validation->valid_email($content)){
+								$this->output->message('请填写正确的Email地址', 'warning');
+								throw new Exception;
+							}
+							$relative['email']=$content;
+						}else{
+							$relative['profiles'][$name]=$content;
+						}
+					}
+
 					$relative+=array(
 						'type'=>'客户',
 						'abbreviation'=>$relative['name'],

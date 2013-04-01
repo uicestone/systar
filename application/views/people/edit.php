@@ -76,7 +76,7 @@
 
 		<div class="item">
 			<div class="title"><label>相关案件</label></div>
-			<?=$case_list?>
+			<?=$project_list?>
 		 </div>
 
 		<div class="item">

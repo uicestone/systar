@@ -9,6 +9,8 @@ class People_model extends BaseItem_model{
 		'name'=>'名称',
 		'name_en'=>'英文名',
 		'abbreviation'=>'简称',
+		'phone'=>'电话',
+		'email'=>'电子邮件',
 		'type'=>'分类',
 		'gender'=>'性别',
 		'id_card'=>'身份证号',
@@ -176,8 +178,19 @@ class People_model extends BaseItem_model{
 		',false);
 		
 		if(isset($args['project'])){
-			$this->db->select('project_people.role,project_people.id AS relationship_id')
-				->join('project_people',"project_people.people = people.id AND project_people.project = {$args['project']}",'INNER');
+			$this->db->select('GROUP_CONCAT(project_people.role) AS role,project_people.id AS relationship_id')
+				->join('project_people',"project_people.people = people.id AND project_people.project = {$args['project']}",'INNER')
+				->group_by('project_people.people');
+			
+			if(isset($args['project_people_type'])){
+				$this->db->where('project_people.type',$args['project_people_type']);
+			}
+		}
+		
+		if(isset($args['is_staff'])){
+			if(!$args['is_staff']){
+				$this->db->where('project_people.people NOT IN (SELECT id FROM staff)');
+			}
 		}
 		
 		if(isset($args['name']) && $args['name']!==''){

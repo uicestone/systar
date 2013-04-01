@@ -5,8 +5,8 @@ class Account_model extends BaseItem_model{
 		'name'=>'摘要',
 		'amount'=>'数额',
 		'date'=>'日期',
-		'case'=>'案件',
-		'case_fee'=>'对应应收帐款',
+		'project'=>'案件',
+		'project_account'=>'对应应收帐款',
 		'people'=>'人员',
 		'comment'=>'备注',
 		'display'=>'显示在列表'

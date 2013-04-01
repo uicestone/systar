@@ -124,7 +124,7 @@ $(document)
 		var section = $(this);
 		/*为表格代理绑定事件*/
 		section.on('contenttableload','.contentTable',function(event){
-			//console.log('contenttableload');
+			//console.log('contenttableload: '+$(this).attr('name'));
 			$(this).children('tbody').children('tr[hash]')
 				.on('click',function(){
 					$.locationHash($(this).attr('hash'));
@@ -142,7 +142,7 @@ $(document)
 					$(this).children('td:first').children('.hover').hide();
 				});
 			
-			$(this).find('button:submit').on('click',function(){
+			$(this).find('button:submit').off('.submit').on('click.submit',function(){
 				var form = section.children('form');
 
 				var id = section.find('form[name="'+controller+'"]').attr('id');
@@ -193,10 +193,8 @@ $(document)
 			}
 		});
 		
-		section.find('.contentTable').trigger('contenttableload');
-		
 		/*编辑页的提交按钮点击事件，提交数据到后台，在页面上反馈数据和提示*/
-		section.find('button:submit').on('click',function(){
+		section.find('button:submit').on('click.submit',function(){
 			var form = section.children('form');
 			var button = $(this);
 
@@ -261,6 +259,8 @@ $(document)
 
 		});
 				
+		section.find('.contentTable').trigger('contenttableload');
+		
 		section.find('.contentTable>tbody>tr').on('mouseenter mouseleave',function(){
 			$(this).toggleClass('highlighted');
 		

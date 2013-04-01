@@ -11,35 +11,6 @@ class Cases_model extends Project_model{
 		return $this->id;
 	}
 	
-	function getClientList($project_id,$relation='客户'){
-		$project_id=intval($project_id);
-		
-		$query="
-			SELECT project_people.id,project_people.people,project_people.type,project_people.role,IF(people.abbreviation IS NULL,people.name,people.abbreviation) AS name,phone.content AS phone,email.content AS email
-			FROM project_people
-				INNER JOIN people ON people.id=project_people.people
-				LEFT JOIN (
-					SELECT people, GROUP_CONCAT(content) AS content
-					FROM people_profile 
-					WHERE name IN ('固定电话','电话','手机')
-					GROUP BY people
-				)phone ON phone.people=project_people.people
-				LEFT JOIN(
-					SELECT people, GROUP_CONCAT(content) AS content
-					FROM people_profile
-					WHERE name IN ('电子邮件')
-					GROUP BY people
-				)email ON email.people=project_people.people
-			WHERE project_people.case=$project_id
-		";
-		
-		if(isset($relation)){
-			$query.=" AND project_people.type='$relation'";
-		}
-		
-		return $this->db->query($query)->result_array();
-	}
-	
 	function getStaffList($project_id){
 		$project_id=intval($project_id);
 
@@ -52,15 +23,15 @@ class Cases_model extends Project_model{
 			FROM 
 				project_people INNER JOIN people staff ON staff.id=project_people.people AND project_people.type='律师'
 				CROSS JOIN (
-					SELECT SUM(amount) AS amount_sum FROM account WHERE `case` = $project_id AND name <> '办案费'
+					SELECT SUM(amount) AS amount_sum FROM account WHERE `project` = $project_id AND name <> '办案费'
 				)account
 				LEFT JOIN (
 					SELECT uid,SUM(IF(hours_checked IS NULL,hours_own,hours_checked)) AS hours_sum 
 					FROM schedule 
-					WHERE schedule.`case` = $project_id AND display=1 AND completed=1 GROUP BY uid
+					WHERE schedule.`project` = $project_id AND display=1 AND completed=1 GROUP BY uid
 				)lawyer_hour
 				ON lawyer_hour.uid=project_people.people
-			WHERE project_people.case=$project_id
+			WHERE project_people.project=$project_id
 			GROUP BY project_people.people
 		";
 		
@@ -76,14 +47,14 @@ class Cases_model extends Project_model{
 		}
 		
 		$data=array(
-			'case'=>$project,
+			'project'=>$project,
 			'people'=>$people,
 			'role'=>$role,
 			'hourly_fee'=>$hourly_fee,
 			'type'=>'律师'
 		);
 		
-		$data+=uidTime();
+		$data+=uidTime(false);
 		
 		$this->db->insert('project_people',$data);
 		
@@ -100,7 +71,7 @@ class Cases_model extends Project_model{
 		$this->db->select("GROUP_CONCAT(people.name) names",false)
 			->from('project_people')
 			->join('people',"project_people.people = people.id AND project_people.role = '主办律师'",'INNER')
-			->where('project_people.case',$case_id);
+			->where('project_people.project',$case_id);
 		
 		return $this->db->get()->row()->names;
 	}
@@ -113,9 +84,9 @@ class Cases_model extends Project_model{
 		$case_id=intval($case_id);
 		
 		$this->db->select('label.id,label.name,label.order,label.color')
-			->from('case_label')
-			->join('label',"case_label.label = label.id",'INNER')
-			->where('case_label.case',$case_id)
+			->from('project_label')
+			->join('label',"project_label.label = label.id",'INNER')
+			->where('project_label.project',$case_id)
 			->order_by('label.order','DESC');
 		
 		$result=$this->db->get()->result_array();

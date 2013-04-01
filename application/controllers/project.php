@@ -9,8 +9,6 @@ class Project extends SS_controller{
 	
 	var $people_list_args;
 	
-	var $client_list_args;
-	
 	var $staff_list_args;
 	
 	var $fee_list_args;
@@ -42,32 +40,15 @@ class Project extends SS_controller{
 			 */
 		);
 		
-		$this->client_list_args=array(
-			'name'=>array('heading'=>'名称','cell'=>array('data'=>'{name}<button type="submit" name="submit[remove_people]" id="{id}" class="hover">删除</button>')),
-			'phone'=>array('heading'=>'电话','cell'=>array('class'=>'ellipsis','title'=>'{phone}')),
-			'email'=>array('heading'=>'电邮','cell'=>array('data'=>'<a href = "mailto:{email}">{email}</a>','class'=>'ellipsis')),
-			'role'=>array('heading'=>'本案地位'),
-			'type'=>array('heading'=>array('data'=>'类型','width'=>'60px'))
-		);
-		
 		$this->people_list_args=array(
 			'name'=>array('heading'=>'名称','cell'=>'{abbreviation}<button type="submit" name="submit[remove_people]" id="{relationship_id}" class="hover">删除</button>'),
 			'role'=>array('heading'=>'角色')
 		);
 		
-		$this->miscfee_list_args=array(
-			'receiver'=>array('heading'=>'收款方','cell'=>'{receiver}<button type="submit" name="submit[remove_miscfee]" id="{id}" class="hover">删除</button>'),
-			'fee'=>array('heading'=>'数额','eval'=>true,'cell'=>"
-				return '{fee}'.('{fee_received}'==''?'':' （到账：{fee_received}）');
-			"),
-			'comment'=>array('heading'=>'备注'),
-			'pay_date'=>array('heading'=>'预计时间')
-		);
-		
 		$this->schedule_list_args=array(
 			'name'=>array('heading'=>array('data'=>'标题','width'=>'150px'),'wrap'=>array('mark'=>'span','class'=>'show-schedule','id'=>'{id}')),
 			'time_start'=>array('heading'=>array('data'=>'时间','width'=>'60px'),'eval'=>true,'cell'=>"
-				return date('m-d H:i',{time_start});
+				if('{time_start}') return date('m-d H:i','{time_start}');
 			"),
 			'username'=>array('heading'=>array('data'=>'填写人','width'=>'90px'))
 		);
@@ -75,7 +56,7 @@ class Project extends SS_controller{
 		$this->plan_list_args=array(
 			'name'=>array('heading'=>array('data'=>'标题','width'=>'150px'),'wrap'=>array('mark'=>'span','class'=>'show-schedule','id'=>'{id}')),
 			'time_start'=>array('heading'=>array('data'=>'时间','width'=>'60px'),'eval'=>true,'cell'=>"
-				return date('m-d H:i',{time_start});
+				if('{time_start}') return date('m-d H:i','{time_start}');
 			"),
 			'username'=>array('heading'=>array('data'=>'填写人','width'=>'90px'))
 		);
@@ -194,24 +175,13 @@ class Project extends SS_controller{
 			->generate($this->people->getList(array('limit'=>false,'project'=>$this->project->id)));
 	}
 
-	function clientList(){
-		
-		$this->load->model('client_model','client');
-		
-		$list=$this->table->setFields($this->client_list_args)
-			->setRowAttributes(array('hash'=>'client/edit/{people}'))
-			->setAttribute('name','client')
-			->generate($this->project->getClientList($this->project->id));
-		
-		return $list;
-	}
-	
 	function staffList(){
 		
 		$this->load->model('people_model','people');
 		
 		$list=$this->table->setFields($this->staff_list_args)
 			->setAttribute('name','staff')
+			->setRowAttributes(array('hash'=>'staff/edit/{id}'))
 			->generate($this->people->getList(array('project'=>$this->project->id,'type'=>'职员')));
 		
 		return $list;
@@ -221,15 +191,6 @@ class Project extends SS_controller{
 		$list=$this->table->setFields($this->fee_list_args)
 				->setAttribute('name','fee')
 				->generate($this->project->getFeeList($this->project->id));
-		
-		return $list;
-
-	}
-	
-	function miscfeeList(){
-		$list=$this->table->setFields($this->miscfee_list_args)
-				->setAttribute('name',$item)
-				->generate($this->cases->getFeeMiscList($this->cases->id));
 		
 		return $list;
 	}
@@ -244,7 +205,7 @@ class Project extends SS_controller{
 		);
 		
 		return $this->table->setFields($this->document_list_args)
-			->setAttribute('name','focument')
+			->setAttribute('name','document')
 			->generate($this->document->getList(array('project'=>$this->project->id)));
 	}
 	
@@ -254,6 +215,8 @@ class Project extends SS_controller{
 		
 		return $this->table->setFields($this->schedule_list_args)
 			->setAttribute('name','schedule')
+			//@TODO 点击列表打开日程尚有问题
+			->setRowAttributes(array('onclick'=>"$.viewSchedule(\{id:{id}\})"))
 			->generate($this->schedule->getList(array('limit'=>10,'project'=>$this->project->id,'completed'=>true)));
 	}
 	
@@ -331,7 +294,7 @@ class Project extends SS_controller{
 						'type'=>$client['type'],
 						'labels'=>$client_labels
 					);
-
+					
 					if(!$client_profiles['电话'] && !$client_profiles['电子邮件']){
 						$this->output->message('至少输入一种联系方式', 'warning');
 						throw new Exception;
@@ -344,11 +307,13 @@ class Project extends SS_controller{
 							}else{
 								$new_client['profiles']['电话']=$content;
 							}
+							$new_client['phone']=$content;
 						}elseif($name=='电子邮件' && $content){
 							if(!$this->form_validation->valid_email($content)){
 								$this->output->message('请填写正确的Email地址', 'warning');
 								throw new Exception;
 							}
+							$new_client['email']=$content;
 						}else{
 							$new_client['profiles'][$name]=$content;
 						}
@@ -398,12 +363,6 @@ class Project extends SS_controller{
 				unset($_SESSION[CONTROLLER]['post'][$this->project->id]['client_labels']);
 			}
 
-			elseif($submit=='remove_client'){
-				if($this->project->removePeople($this->project->id,$button_id)){
-					$this->output->setData($this->clientList(),'content-table','html','.item[name="client"]>.contentTable','replace');
-				}
-			}
-			
 			elseif($submit=='staff'){
 				
 				$staff=$this->input->sessionPost('staff');
@@ -436,7 +395,7 @@ class Project extends SS_controller{
 				}
 
 				if($this->project->addStaff($this->project->id,post('staff/id'),post('staff/role'),post('staff/hourly_fee'))){
-					$this->output->setData($this->staffList(),'content-table','html','.item[name="client"]>.contentTable','replace');
+					$this->output->setData($this->staffList(),'content-table','html','.item[name="staff"]>.contentTable','replace');
 					unset($_SESSION[CONTROLLER]['post'][$this->project->id]['staff']['id']);
 				}else{
 					$this->output->message('人员添加错误', 'warning');
@@ -447,7 +406,7 @@ class Project extends SS_controller{
 			
 			elseif($submit=='remove_staff'){
 				if($this->project->removePeople($this->project->id,$button_id)){
-					$this->output->setData($this->staffList(),'content-table','html','.item[name="client"]>.contentTable','replace');
+					$this->output->setData($this->staffList(),'content-table','html','.item[name="staff"]>.contentTable','replace');
 				}
 			}
 			
@@ -483,19 +442,19 @@ class Project extends SS_controller{
 				}
 			}
 			
-			elseif($submit=='case_fee'){
+			elseif($submit=='project_account'){
 				
-				$project_fee=$this->input->sessionPost('case_fee');
+				$project_account=$this->input->sessionPost('project_account');
 
-				if(!$project_fee['type']){
+				if(!$project_account['type']){
 					$this->output->message('请选择收费类型','warning');
 				}
 				
-				if(!is_numeric($project_fee['fee'])){
+				if(!is_numeric($project_account['fee'])){
 					$this->output->message('请预估收费金额（数值）','warning');
 				}
 				
-				if(!$project_fee['pay_date']){
+				if(!$project_account['pay_date']){
 					$this->output->message('请预估收费时间','warning');
 				}
 				
@@ -503,22 +462,22 @@ class Project extends SS_controller{
 					throw new Exception;
 				}
 				
-				if($this->project->addFee($this->project->id,$project_fee['fee'],$project_fee['pay_date'],$project_fee['type'],$project_fee['condition'])){
-					//unset($_SESSION['cases']['post']['case_fee']);
-					$this->output->setData($this->feeList(),'content-table','html','.item[name="client"]>.contentTable','replace');
+				if($this->project->addFee($this->project->id,$project_account['fee'],$project_account['pay_date'],$project_account['type'],$project_account['condition'])){
+					//unset($_SESSION['cases']['post']['project_account']);
+					$this->output->setData($this->feeList(),'content-table','html','.item[name="fee"]>.contentTable','replace');
 				}else{
 					$this->output->message('收费添加错误', 'warning');
 				}
-				unset($_SESSION[CONTROLLER]['post'][$this->project->id]['case_fee']);
+				unset($_SESSION[CONTROLLER]['post'][$this->project->id]['project_account']);
 			}
 			
 			elseif($submit=='remove_fee' || $submit=='remove_miscfee'){
 				$this->project->removeFee($this->project->id,$button_id);
 				
 				if($submit=='remove_fee'){
-					$this->output->setData($this->feeList(),'content-table','html','.item[name="client"]>.contentTable','replace');
+					$this->output->setData($this->feeList(),'content-table','html','.item[name="fee"]>.contentTable','replace');
 				}else{
-					$this->output->setData($this->miscfeeList(),'content-table','html','.item[name="client"]>.contentTable','replace');
+					$this->output->setData($this->miscfeeList(),'content-table','html','.item[name="miscfee"]>.contentTable','replace');
 				}
 			}
 			
@@ -572,7 +531,7 @@ class Project extends SS_controller{
 				}
 				
 				if($this->project->addFee($this->project->id,$misc_fee['fee'],$misc_fee['pay_date'],'办案费',NULL,$misc_fee['receiver'],$misc_fee['comment'])){
-					$this->output->setData($this->miscfeeList(),'content-table','html','.item[name="client"]>.contentTable','replace');
+					$this->output->setData($this->miscfeeList(),'content-table','html','.item[name="miscfee"]>.contentTable','replace');
 				}else{
 					$this->output->message('收费添加错误', 'warning');
 				}

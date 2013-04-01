@@ -3,7 +3,7 @@
 	<div class="item">
 		<div class="title">
 			<span class="right">
-				<?//TODO case_label?>
+				<?//TODO project_label?>
 			</span>
 			<label title="内部ID：<?=$this->value('project/id')?>"><?=$this->value('project/num');?></label>
 		</div>
@@ -144,7 +144,7 @@
 <? } ?>
 
 <? if($this->user->isLogged('finance')){?>
-			<button type="button" onclick="$.locationHash('account/add?case=<?=$this->value('project/id')?>')">到账</button>
+			<button type="button" onclick="window.location.href='account/add?project=<?=$this->value('project/id')?>'">到账</button>
 <? }?>
 <? if($this->user->isLogged('finance')){?>
 			<button type="submit" name="submit[case_fee_review]" disabled="disabled" class="hidden">忽略</button>
@@ -167,18 +167,16 @@
 		</div>
 
 		<?=$fee_list?>	
-<? if(!in_array('费用已锁定',$labels)){?>
 		<button type="button" class="toggle-add-form">＋</button>
 		<span class="add-form hidden">
-			<select name="case_fee[type]">
-				<?=options(in_array('咨询',$labels)?array('咨询费'):array('固定','风险','计时预付'),$this->value('case_fee/type'),'类型');?>
+			<select name="project_account[type]">
+				<?=options(in_array('咨询',$labels)?array('咨询费'):array('固定','风险','计时预付'),$this->value('project_account/type'),'类型');?>
 			</select>
-			<input type="text" name="case_fee[fee]" value="<?=$this->value('case_fee/fee');?>" placeholder="数额" />
-			<input type="text" name="case_fee[condition]" value="<?=$this->value('case_fee/condition');?>" placeholder="付款条件" />
-			<input type="text" name="case_fee[pay_date]" value="<?=$this->value('case_fee/pay_date')?>" placeholder="预估日期" class="date" />
-			<button type="submit" name="submit[case_fee]">添加</button>
+			<input type="text" name="project_account[fee]" value="<?=$this->value('project_account/fee');?>" placeholder="数额" />
+			<input type="text" name="project_account[condition]" value="<?=$this->value('project_account/condition');?>" placeholder="付款条件" />
+			<input type="text" name="project_account[pay_date]" value="<?=$this->value('project_account/pay_date')?>" placeholder="预估日期" class="date" />
+			<button type="submit" name="submit[project_account]">添加</button>
 		</span>
-<? }?>
 	</div>
 
 <?if(!in_array('咨询',$labels)){?>
@@ -192,7 +190,7 @@
 				<?=options(array('承办律师','律所'),$this->value('case_fee_misc[receiver]'),'收款方');?>
 			</select>
 			<input type="text" name="case_fee_misc[fee]" value="<?=$this->value('case_fee_misc/fee');?>" placeholder="数额" />
-			<input type="text" name="case_fee_misc[comment]" value="<?=$this->value('case_fee_misc/comment');?>" placeholder="付款条件" />
+			<input type="text" name="case_fee_misc[comment]" value="<?=$this->value('case_fee_misc/comment');?>" placeholder="备注" />
 			<input type="text" name="case_fee_misc[pay_date]" value="<?=$this->value('case_fee_misc/pay_date')?>" placeholder="预估日期" class="date" />
 			<button type="submit" name="submit[case_fee_misc]">添加</button>
 		</span>
@@ -225,7 +223,7 @@
 				<a href="#schedule/lists?case=<?=$this->value('project/id')?>">所有日志>></a>
 			</span>
 			<label>最新日志：
-				<a href="javascript:createSchedule(null,null,null,<?=$this->value('project/id'),true?>)">添加>></a>
+				<a href="javascript:$.createSchedule({project:<?=$this->value('project/id')?>})">添加>></a>
 			</label>
 		</div>
 		<?=$schedule_list?>

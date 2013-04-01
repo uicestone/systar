@@ -135,7 +135,7 @@ $(function(){
 	});
 
 	//案下收费条件页内增加
-	section.find('.contentTable[name="case_fee"]').children('tbody').children('tr').children('td[field="condition"]').editable(function(value,settings){
+	section.find('.contentTable[name="project_account"]').children('tbody').children('tr').children('td[field="condition"]').editable(function(value,settings){
 		var id=$(this).siblings('td:first').attr('id');
 
 		var result;

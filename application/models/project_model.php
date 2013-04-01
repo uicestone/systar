@@ -125,9 +125,9 @@ class Project_model extends BaseItem_model{
 		return $this->db->insert_id();
 	}
 	
-	function removePeople($project_id,$project_people_id){
-		$project_people_id=intval($project_people_id);
-		return $this->db->delete('project_people',array('id'=>$project_people_id));
+	function removePeople($project_id,$people_id){
+		$people_id=intval($people_id);
+		return $this->db->delete('project_people',array('project'=>$project_id,'people'=>$people_id));
 	}
 	
 	function getFeeList($project_id){
@@ -139,7 +139,7 @@ class Project_model extends BaseItem_model{
 				if(SUM(account.amount) IS NULL,'',SUM(account.amount)) AS fee_received,
 				MAX(account.date) AS fee_received_time
 			FROM 
-				project_account LEFT JOIN account ON project_account.id=account.case_fee
+				project_account LEFT JOIN account ON project_account.id=account.project_account
 			WHERE project_account.project=$project_id AND project_account.type<>'办案费'
 			GROUP BY project_account.id";
 		
@@ -153,7 +153,7 @@ class Project_model extends BaseItem_model{
 			SELECT project_account.id,project_account.type,project_account.receiver,project_account.comment,project_account.pay_date,project_account.fee,
 				if(SUM(account.amount) IS NULL,'',SUM(account.amount)) AS fee_received
 			FROM 
-				project_account LEFT JOIN account ON project_account.id=account.case_fee
+				project_account LEFT JOIN account ON project_account.id=account.project_account
 			WHERE project_account.project = $project_id AND project_account.type='办案费'
 			GROUP BY project_account.id";
 		
@@ -191,10 +191,10 @@ class Project_model extends BaseItem_model{
 		return $this->db->insert_id();
 	}
 	
-	function removeFee($project_id,$project_fee_id){
+	function removeFee($project_id,$case_fee_id){
 		$project_id=intval($project_id);
-		$project_fee_id=intval($project_fee_id);
-		return $this->db->delete('project_account',array('id'=>$project_fee_id,'project'=>$project_id));
+		$case_fee_id=intval($case_fee_id);
+		return $this->db->delete('project_account',array('id'=>$case_fee_id,'project'=>$project_id));
 	}
 	
 	function addDocument($project_id,$document_id){
@@ -249,7 +249,14 @@ class Project_model extends BaseItem_model{
 				project.id IN (SELECT `project` FROM project_people WHERE people = {$args['people']})
 			",NULL,false);
 		}
+		else{
+			$this->db->where("
+				project.id IN (SELECT `project` FROM project_people WHERE people = {$this->user->id})
+			",NULL,false);
+		}
+		
 
+		//当前用户作为某种角色的项目
 		if(isset($args['role'])){
 			$this->db->where("
 				project.id IN (SELECT `project` FROM project_people WHERE people = {$this->user->id} AND role = '{$args['role']}')
@@ -268,12 +275,12 @@ class Project_model extends BaseItem_model{
 		
 	}
 	
-	function getIdByCaseFee($project_fee_id){
-		$project_fee_id=intval($project_fee_id);
+	function getIdByCaseFee($case_fee_id){
+		$case_fee_id=intval($case_fee_id);
 		
-		$query="SELECT `project` FROM project_account WHERE id = $project_fee_id";
+		$query="SELECT `project` FROM project_account WHERE id = $case_fee_id";
 		
-		$result = $this->db->get_where('project_account',array('id'=>$project_fee_id))->row();
+		$result = $this->db->get_where('project_account',array('id'=>$case_fee_id))->row();
 		
 		if(!$result){
 			return false;

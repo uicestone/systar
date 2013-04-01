@@ -10,7 +10,12 @@ class SS_Table extends CI_Table{
 	function __construct(){
 		parent::__construct();
 		$this->fields=NULL;
-		$this->attributes=array();
+		$this->attributes=array(
+			'class'=>'contentTable',
+			'cellspacing'=>0,
+			'cellspadding'=>0
+		);
+		$this->template=NULL;
 		$this->row_attr=array();
 		$this->show_line_id=false;
 		$this->trim_columns=false;
@@ -51,6 +56,10 @@ class SS_Table extends CI_Table{
 			}
 			$content=str_replace($match[0],$row[$match[1]]['data'],$content);
 		}
+		
+		$content=str_replace('\{','{',$content);
+		$content=str_replace('\}','}',$content);
+		
 		return $content;
 	}
 
@@ -385,7 +394,13 @@ class SS_Table extends CI_Table{
 	
 	function _default_template() {
 		$default_template=parent::_default_template();
-		$default_template['table_open']='<table class="contentTable" cellpadding="0" cellspacing="0"'.(isset($this->attributes['name'])?' name="'.$this->attributes['name'].'"':'').'>';
+		
+		$default_template['table_open']='<table';
+		foreach($this->attributes as $attr=>$value){
+			$default_template['table_open'].=" $attr=\"$value\"";
+		}
+		$default_template['table_open'].='>';
+		
 		$default_template['row_alt_start']='<tr class="oddLine">';
 		return $default_template;
 	}

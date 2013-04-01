@@ -30,11 +30,11 @@ class Achievement_model extends SS_Model{
 		if($type=='contracted'){
 			//时间范围内，签约之案的预估收费和
 			$q="
-				SELECT SUM(fee) AS sum FROM case_fee 
+				SELECT SUM(fee) AS sum FROM project_account 
 				WHERE type<>'办案费' 
-					AND `case` IN (
-						SELECT case.id FROM `case`
-							INNER JOIN case_label reviewed ON reviewed.label_name='在办' AND reviewed.case=case.id
+					AND `project` IN (
+						SELECT project.id FROM `project`
+							INNER JOIN project_label reviewed ON reviewed.label_name='在办' AND reviewed.project=project.id
 						WHERE
 							time_contract>='$date_start' 
 							AND time_contract<'$date_end'
@@ -44,8 +44,8 @@ class Achievement_model extends SS_Model{
 			if($range=='my'){
 				//我主办的签约
 				$q.=" 
-					AND `case` IN (
-						SELECT `case` FROM project_people WHERE type='律师' AND people={$this->user->id} AND role='主办律师'
+					AND `project` IN (
+						SELECT `project` FROM project_people WHERE type='律师' AND people={$this->user->id} AND role='主办律师'
 					)
 				";
 			}
@@ -56,32 +56,32 @@ class Achievement_model extends SS_Model{
 					SELECT SUM(contribute_fee) AS sum
 					FROM
 					(
-						SELECT case_fee.fee*SUM(project_people.contribute) AS contribute_fee
-						FROM case_fee 
-							INNER JOIN project_people ON case_fee.case=project_people.case AND project_people.type='律师'
-						WHERE case_fee.type<>'办案费' 
-							AND case_fee.`case` IN (
-								SELECT case.id 
-								FROM `case`
-									INNER JOIN case_label reviewed ON reviewed.label_name='在办' AND reviewed.case=case.id
+						SELECT project_account.fee*SUM(project_people.contribute) AS contribute_fee
+						FROM project_account 
+							INNER JOIN project_people ON project_account.project=project_people.project AND project_people.type='律师'
+						WHERE project_account.type<>'办案费' 
+							AND project_account.`project` IN (
+								SELECT project.id 
+								FROM `project`
+									INNER JOIN project_label reviewed ON reviewed.label_name='在办' AND reviewed.project=project.id
 								WHERE
 									time_contract>='$date_start' 
 									AND time_contract<'$date_end'
 							)
 							AND project_people.people={$this->user->id}
-						GROUP BY case_fee.id
+						GROUP BY project_account.id
 					)case_fee_contribute";
 				}
 		}elseif($type=='estimated_inprocess'){
 			//在办案件的预估收费
 			$q="
 				SELECT SUM(fee) AS sum 
-				FROM case_fee 
-				WHERE type<>'办案费' AND `case` IN (
-						SELECT unfiled.case 
-						FROM case_label unfiled
-							INNER JOIN case_label fee_lock
-							ON fee_lock.case=
+				FROM project_account 
+				WHERE type<>'办案费' AND `project` IN (
+						SELECT unfiled.project 
+						FROM project_label unfiled
+							INNER JOIN project_label fee_lock
+							ON fee_lock.project=
 								AND unfiled.label_name<>'案卷已归档'
 								AND fee_lock.label_name='费用已锁定'
 					)
@@ -91,8 +91,8 @@ class Achievement_model extends SS_Model{
 			";
 			
 			if($range=='my'){
-				$q.=" AND `case` IN (
-					SELECT `case` 
+				$q.=" AND `project` IN (
+					SELECT `project` 
 					FROM project_people
 					WHERE type='律师' AND people={$this->user->id} AND role='主办律师'
 				)";
@@ -103,21 +103,21 @@ class Achievement_model extends SS_Model{
 					SELECT SUM(contribute_fee) AS sum
 					FROM
 					(
-						SELECT case_fee.fee*SUM(project_people.contribute) AS contribute_fee
-						FROM case_fee 
-							INNER JOIN project_people ON case_fee.case=project_people.case AND project_people.type='律师'
-						WHERE case_fee.type<>'办案费' 
-							AND case_fee.pay_date>='$date_start' AND case_fee.pay_date<'$date_end'
+						SELECT project_account.fee*SUM(project_people.contribute) AS contribute_fee
+						FROM project_account 
+							INNER JOIN project_people ON project_account.project=project_people.project AND project_people.type='律师'
+						WHERE project_account.type<>'办案费' 
+							AND project_account.pay_date>='$date_start' AND project_account.pay_date<'$date_end'
 							AND project_people.people={$this->user->id}
-							AND `case` IN (
-								SELECT unfiled.case 
-								FROM case_label unfiled
-									INNER JOIN case_label fee_lock
-									ON fee_lock.case=
+							AND `project` IN (
+								SELECT unfiled.project 
+								FROM project_label unfiled
+									INNER JOIN project_label fee_lock
+									ON fee_lock.project=
 										AND unfiled.label_name<>'案卷已归档'
 										AND fee_lock.label_name='费用已锁定'
 							) 
-						GROUP BY case_fee.id
+						GROUP BY project_account.id
 					)case_fee_contribute
 				";
 			}
@@ -132,7 +132,7 @@ class Achievement_model extends SS_Model{
 			";
 			
 			if($range=='my'){
-				$q.=" AND `case` IN (SELECT `case` FROM project_people WHERE type='律师' AND people={$this->user->id} AND role='主办律师')";
+				$q.=" AND `project` IN (SELECT `project` FROM project_people WHERE type='律师' AND people={$this->user->id} AND role='主办律师')";
 			}
 			
 			if($range=='contribute'){
@@ -142,7 +142,7 @@ class Achievement_model extends SS_Model{
 					(
 						SELECT account.amount*SUM(project_people.contribute) AS contribute_amount
 						FROM account 
-							INNER JOIN project_people ON account.case=project_people.case AND project_people.type='律师'
+							INNER JOIN project_people ON account.project=project_people.project AND project_people.type='律师'
 						WHERE account.name <> '办案费'
 							AND date>='$date_start'
 							AND date<'$date_end'
@@ -159,11 +159,11 @@ class Achievement_model extends SS_Model{
 				WHERE name <> '办案费'
 					AND date>='$date_start'
 					AND date<'$date_end'
-					AND `case` IN (SELECT id FROM `case` WHERE filed=1)
+					AND `project` IN (SELECT id FROM `project` WHERE filed=1)
 			";
 			
 			if($range=='my'){
-				$q.=" AND `case` IN (SELECT `case` FROM project_people WHERE type='律师' AND people={$this->user->id} AND role='主办律师')";
+				$q.=" AND `project` IN (SELECT `project` FROM project_people WHERE type='律师' AND people={$this->user->id} AND role='主办律师')";
 			}
 			
 			if($range=='contribute'){
@@ -173,9 +173,9 @@ class Achievement_model extends SS_Model{
 					(
 						SELECT account.amount*SUM(project_people.contribute) AS contribute_amount
 						FROM account 
-							INNER JOIN project_people ON project_people.case=account.case AND project_people.type='律师'
-							INNER JOIN `case` ON case.id=account.case
-							INNER JOIN case_label ON case_label.case=case.id AND case_label.label_name='案卷已归档'
+							INNER JOIN project_people ON project_people.project=account.project AND project_people.type='律师'
+							INNER JOIN `project` ON project.id=account.project
+							INNER JOIN project_label ON project_label.project=project.id AND project_label.label_name='案卷已归档'
 						WHERE account.name <> '办案费'
 							AND date>='$date_start'
 							AND date<'$date_end''
@@ -188,13 +188,13 @@ class Achievement_model extends SS_Model{
 			 $q="
 				SELECT SUM(
 					IF(account.amount IS NULL,
-						IF(case_fee.reviewed=1,0,case_fee.fee),
+						IF(project_account.reviewed=1,0,project_account.fee),
 						account.amount
 					)
 				) AS sum
-				FROM case_fee LEFT JOIN account ON case_fee.id=account.case_fee
-					LEFT JOIN `case` ON case_fee.case=case.id
-				WHERE case_fee.pay_date>='$date_start' AND case_fee.pay_date<'$date_end'
+				FROM project_account LEFT JOIN account ON project_account.id=account.project_account
+					LEFT JOIN `project` ON project_account.project=project.id
+				WHERE project_account.pay_date>='$date_start' AND project_account.pay_date<'$date_end'
 					AND (
 							(account.date>='$date_start' AND account.date<'$date_end')
 							OR account.id IS NULL
@@ -203,7 +203,7 @@ class Achievement_model extends SS_Model{
 			
 			//预计-我主办的
 			if($range=='my'){
-				$q.=" AND case_fee.case IN (SELECT `case` FROM project_people WHERE type='律师' AND people={$this->user->id} AND role='主办律师')";
+				$q.=" AND project_account.project IN (SELECT `project` FROM project_people WHERE type='律师' AND people={$this->user->id} AND role='主办律师')";
 			}
 			
 			//预计-我的贡献
@@ -213,12 +213,12 @@ class Achievement_model extends SS_Model{
 					FROM
 					(
 						SELECT IF(account.amount IS NULL,
-								IF(case_fee.reviewed=1,0,case_fee.fee),
+								IF(project_account.reviewed=1,0,project_account.fee),
 								account.amount
-						) AS fee,case_fee.case
-						FROM case_fee LEFT JOIN account ON case_fee.id=account.case_fee
-							LEFT JOIN `case` ON case_fee.case=case.id
-						WHERE case_fee.pay_date>='$date_start' AND case_fee.pay_date<'$date_end'
+						) AS fee,project_account.project
+						FROM project_account LEFT JOIN account ON project_account.id=account.project_account
+							LEFT JOIN `project` ON project_account.project=project.id
+						WHERE project_account.pay_date>='$date_start' AND project_account.pay_date<'$date_end'
 							AND (
 									(account.date>='$date_start' AND account.date<'$date_end')
 									OR account.id IS NULL
@@ -226,12 +226,12 @@ class Achievement_model extends SS_Model{
 					)estimated
 					INNER JOIN 
 					(
-						SELECT `case`,SUM(contribute) AS sum 
+						SELECT `project`,SUM(contribute) AS sum 
 						FROM project_people
 						WHERE type='律师'
 							AND people={$this->user->id}
-						GROUP BY `case` HAVING sum>0
-					)contribute USING (`case`)
+						GROUP BY `project` HAVING sum>0
+					)contribute USING (`project`)
 				";
 			}
 		}
@@ -253,19 +253,19 @@ class Achievement_model extends SS_Model{
 	function receivableSum($type=NULL,$date_from=NULL,$date_to=NULL){
 
 		$q="
-			SELECT COUNT(case_fee.id) AS num,SUM(case_fee.fee) AS sum
-			FROM case_fee
+			SELECT COUNT(project_account.id) AS num,SUM(project_account.fee) AS sum
+			FROM project_account
 				LEFT JOIN (
-					SELECT `case_fee`,SUM(amount) AS amount_sum
+					SELECT `project_account`,SUM(amount) AS amount_sum
 					FROM account
-					GROUP BY `case_fee`
+					GROUP BY `project_account`
 				)account_grouped -- 根据case_fee分组求和的account
-				ON case_fee.id=account_grouped.case_fee
-			WHERE case_fee.type<>'办案费'
-				AND case_fee.reviewed=0
-				AND (account_grouped.amount_sum IS NULL OR case_fee.fee-account_grouped.amount_sum>0) -- 款未到/未到齐
-				AND case_fee.case NOT IN (
-					SELECT `case` FROM case_label WHERE label_name='案卷已归档'
+				ON project_account.id=account_grouped.project_account
+			WHERE project_account.type<>'办案费'
+				AND project_account.reviewed=0
+				AND (account_grouped.amount_sum IS NULL OR project_account.fee-account_grouped.amount_sum>0) -- 款未到/未到齐
+				AND project_account.project NOT IN (
+					SELECT `project` FROM project_label WHERE label_name='案卷已归档'
 				)
 		";
 		
@@ -285,13 +285,13 @@ class Achievement_model extends SS_Model{
 		}
 
 		if(!$this->user->isLogged('finance')){
-			$q.=" AND case_fee.case IN (
-					SELECT `case` FROM project_people WHERE type='律师' AND people={$this->user->id}
+			$q.=" AND project_account.project IN (
+					SELECT `project` FROM project_people WHERE type='律师' AND people={$this->user->id}
 				)
 			";
 		}
 		
-		//$q=$this->search($q,array('case.name'=>'案件','lawyers.names'=>'主办律师'),false);
+		//$q=$this->search($q,array('project.name'=>'案件','lawyers.names'=>'主办律师'),false);
 		
 		//$q=$this->dateRange($q,'pay_date',true,false);
 
@@ -331,19 +331,19 @@ class Achievement_model extends SS_Model{
 			SELECT account.amount, project_people.role, IF(client.abbreviation IS NULL,client.name,client.abbreviation) AS client_name, 
 				account.date AS account_time,
 				ROUND(account.amount*project_people.contribute) AS contribution, ROUND(account.amount*project_people.contribute*0.15) AS bonus,
-				case.name AS case_name,case.id AS `case`
+				project.name AS case_name,project.id AS `project`
 			FROM account
-				INNER JOIN `case` ON account.case=case.id
+				INNER JOIN `project` ON account.project=project.id
 				INNER JOIN people client ON client.type='客户' AND client.id=account.people
-				INNER JOIN project_people USING(`case`)
+				INNER JOIN project_people USING(`project`)
 		";
 		
 		$q_rows="
 			SELECT COUNT(*)
 			FROM account
-				INNER JOIN `case` ON account.case=case.id
+				INNER JOIN `project` ON account.project=project.id
 				INNER JOIN people client ON client.type='客户' AND client.id=account.people
-				INNER JOIN project_people USING(`case`)
+				INNER JOIN project_people USING(`project`)
 		";
 
 		$where="	
@@ -355,9 +355,9 @@ class Achievement_model extends SS_Model{
 			$where.=" AND TO_DAYS(account.date)>=TO_DAYS('{$config['date_from']}') AND TO_DAYS(account.date)<=TO_DAYS('{$config['date_to']}')";
 			$where.=" AND project_people.role<>'实际贡献'";
 		}else{
-			$where.=" AND TO_DAYS(case.time_end)>=TO_DAYS('{$config['date_from']}') AND TO_DAYS(case.time_end)<=TO_DAYS('{$config['date_to']}')";
-			$where.=" AND project_people.role='实际贡献' AND case.id IN (
-				SELECT `case` FROM case_label WHERE label_name='案卷已归档'
+			$where.=" AND TO_DAYS(project.time_end)>=TO_DAYS('{$config['date_from']}') AND TO_DAYS(project.time_end)<=TO_DAYS('{$config['date_to']}')";
+			$where.=" AND project_people.role='实际贡献' AND project.id IN (
+				SELECT `project` FROM project_label WHERE label_name='案卷已归档'
 			)";
 		}
 		
@@ -402,43 +402,43 @@ class Achievement_model extends SS_Model{
 	 */
 	function getReceivableList($type=NULL){
 		$q="
-		SELECT case_fee.id,case_fee.type,case_fee.fee,pay_date,
-			case.name AS case_name,case.id AS `case`,
-			IF(account_grouped.amount_sum IS NULL,case_fee.fee,case_fee.fee-account_grouped.amount_sum) AS uncollected,
+		SELECT project_account.id,project_account.type,project_account.fee,pay_date,
+			project.name AS case_name,project.id AS `project`,
+			IF(account_grouped.amount_sum IS NULL,project_account.fee,project_account.fee-account_grouped.amount_sum) AS uncollected,
 			clients.clients,
 			lawyers.lawyers
-		FROM case_fee
+		FROM project_account
 			LEFT JOIN (
-				SELECT `case_fee`,SUM(amount) AS amount_sum
+				SELECT `project_account`,SUM(amount) AS amount_sum
 				FROM account
-				GROUP BY `case_fee`
+				GROUP BY `project_account`
 				)account_grouped -- 根据case_fee分组求和的account
-			ON case_fee.id=account_grouped.case_fee
+			ON project_account.id=account_grouped.project_account
 				
-			INNER JOIN `case` ON case.id=case_fee.case
+			INNER JOIN `project` ON project.id=project_account.project
 			
 			LEFT JOIN
 			(
-				SELECT `case`,GROUP_CONCAT(people.name) AS lawyers
+				SELECT `project`,GROUP_CONCAT(people.name) AS lawyers
 				FROM project_people,people
 				WHERE project_people.people=people.id AND project_people.role='主办律师'
-				GROUP BY project_people.`case`
+				GROUP BY project_people.`project`
 			)lawyers
-			ON `case_fee`.case=lawyers.`case`
+			ON `project_account`.project=lawyers.`project`
 		
 			LEFT JOIN (
-				SELECT project_people.case,GROUP_CONCAT(DISTINCT people.abbreviation) AS clients
+				SELECT project_people.project,GROUP_CONCAT(DISTINCT people.abbreviation) AS clients
 				FROM project_people INNER JOIN people ON project_people.people=people.id
 				WHERE people.type='客户'
-				GROUP BY project_people.case
+				GROUP BY project_people.project
 			)clients
-			ON clients.case=case_fee.case
+			ON clients.project=project_account.project
 			
-		WHERE case_fee.type<>'办案费'
-			AND case_fee.reviewed=0
-			AND (account_grouped.amount_sum IS NULL OR case_fee.fee-account_grouped.amount_sum>0) -- 款未到/未到齐
-			AND case.id NOT IN (
-				SELECT `case` FROM case_label WHERE label_name='案卷已归档'
+		WHERE project_account.type<>'办案费'
+			AND project_account.reviewed=0
+			AND (account_grouped.amount_sum IS NULL OR project_account.fee-account_grouped.amount_sum>0) -- 款未到/未到齐
+			AND project.id NOT IN (
+				SELECT `project` FROM project_label WHERE label_name='案卷已归档'
 			)
 		";
 		
@@ -451,17 +451,17 @@ class Achievement_model extends SS_Model{
 		
 		if(!$this->user->isLogged('finance')){
 			$q.="
-				AND case_fee.case IN (
-					SELECT `case` FROM project_people WHERE people={$this->user->id}
+				AND project_account.project IN (
+					SELECT `project` FROM project_people WHERE people={$this->user->id}
 				)
 			";
 		}
 		
-		$q=$this->search($q,array('case.name'=>'案件','lawyers.lawyers'=>'主办律师'));
+		$q=$this->search($q,array('project.name'=>'案件','lawyers.lawyers'=>'主办律师'));
 		
 		//$q=$this->dateRange($q,'pay_date',false);
 		
-		$q=$this->orderBy($q,'case_fee.pay_date'); //添加排序条件
+		$q=$this->orderBy($q,'project_account.pay_date'); //添加排序条件
 		
 		$q=$this->pagination($q); //添加分页设置
 
@@ -469,37 +469,37 @@ class Achievement_model extends SS_Model{
 	}
 
 	function getCaseBonusList(){
-		$q_cases_to_distribute="SELECT id FROM `case` INNER JOIN case_label ON case.id=case_label.case AND case_label.label_name='职员已锁定'  WHERE TRUE";
+		$q_cases_to_distribute="SELECT id FROM `project` INNER JOIN project_label ON project.id=project_label.project AND project_label.label_name='职员已锁定'  WHERE TRUE";
 		
 		if($this->input->get('contribute_type')=='actual'){
 			$contribute_type='actual';
-			$q_cases_to_distribute.=" AND case.id IN (
-				SELECT `case` FROM case_label WHERE label_name='案卷已归档'
+			$q_cases_to_distribute.=" AND project.id IN (
+				SELECT `project` FROM project_label WHERE label_name='案卷已归档'
 			)";
-			//$q_cases_to_distribute=$this->dateRange($q_cases_to_distribute,'case.time_end',false);
+			//$q_cases_to_distribute=$this->dateRange($q_cases_to_distribute,'project.time_end',false);
 		}else{
 		  $contribute_type='fixed';
 		  //$q_cases_to_distribute=$this->dateRange($q_cases_to_distribute,'account.date');
 		}
 		
 		if($this->user->isLogged('finance') && $this->input->post('distribute')){
-		  $this->db->update('account',array('distributed_'.$contribute_type=>1),"`case` IN (".$q_cases_to_distribute.")");
+		  $this->db->update('account',array('distributed_'.$contribute_type=>1),"`project` IN (".$q_cases_to_distribute.")");
 		}
 
 		$q="
 			SELECT staff.name AS staff_name, ROUND(SUM(case_collect.amount*case_contribute.contribute),2) AS contribute_sum,ROUND(SUM(case_collect.amount*case_contribute.contribute*0.15),2) AS bonus_sum
 			FROM (
-				SELECT  `case` , SUM( amount ) amount
+				SELECT  `project` , SUM( amount ) amount
 				FROM account
 				WHERE name <> '办案费'
-					AND `case` IN (".$q_cases_to_distribute.")";//律师锁定的案子才能计算奖金
+					AND `project` IN (".$q_cases_to_distribute.")";//律师锁定的案子才能计算奖金
 		$q.="  AND distributed_{$contribute_type}=0";
 		
 		$q.="
-			GROUP BY  `case`
+			GROUP BY  `project`
 		)case_collect
 		INNER JOIN (
-			SELECT  `case` , lawyer, SUM( contribute ) AS contribute
+			SELECT  `project` , lawyer, SUM( contribute ) AS contribute
 			FROM case_lawyer
 			WHERE 1=1
 		";
@@ -510,8 +510,8 @@ class Achievement_model extends SS_Model{
 			$q.=" AND role<>'实际贡献'";
 		}
 		
-		$q.="	GROUP BY  `case` , lawyer
-			)case_contribute ON case_collect.case = case_contribute.case
+		$q.="	GROUP BY  `project` , lawyer
+			)case_contribute ON case_collect.project = case_contribute.project
 			INNER JOIN staff ON staff.id = case_contribute.lawyer
 			WHERE case_contribute.contribute>0
 		";
@@ -534,16 +534,16 @@ class Achievement_model extends SS_Model{
 			SELECT month,queries,filed_queries,live_queries,cases
 			FROM (
 				SELECT LEFT(first_contact,7) AS month, COUNT(id) AS queries, SUM(IF(filed=1,1,0)) AS filed_queries, SUM(IF(filed=0,1,0)) AS live_queries
-				FROM `case` 
+				FROM `project` 
 				WHERE company={$this->company->id} AND display=1 AND is_query=1 AND LEFT(first_contact,4)='".date('Y',$this->date->now)."'
 				GROUP BY LEFT(first_contact,7)
 			)query INNER JOIN (
 				SELECT LEFT(time_contract,7) AS month, COUNT(id) AS cases
-				FROM `case`
+				FROM `project`
 				WHERE company={$this->company->id} AND display=1 AND is_query=0 AND LEFT(time_contract,4)='".date('Y',$this->date->now)."'
-					AND id NOT IN (SELECT `case` FROM case_label WHERE label_name='内部行政')
+					AND id NOT IN (SELECT `project` FROM project_label WHERE label_name='内部行政')
 				GROUP BY LEFT(time_contract,7)
-			)`case` USING(month)
+			)`project` USING(month)
 		";
 		
 		return $this->db->query($query)->result_array();
@@ -552,11 +552,11 @@ class Achievement_model extends SS_Model{
 	//每人咨询数，统计图用
 	function getPersonallyQueries(){
 		$query="
-			SELECT people.name AS staff_name, COUNT(case.id) AS queries, SUM(filed AND is_query) AS filed_queries, SUM(NOT filed AND is_query) AS live_queries, SUM(NOT is_query) AS success_case
-			FROM `case` 
-				INNER JOIN project_people ON case.id=project_people.case 
+			SELECT people.name AS staff_name, COUNT(project.id) AS queries, SUM(filed AND is_query) AS filed_queries, SUM(NOT filed AND is_query) AS live_queries, SUM(NOT is_query) AS success_case
+			FROM `project` 
+				INNER JOIN project_people ON project.id=project_people.project 
 				INNER JOIN people ON people.id=project_people.people AND project_people.role = '接洽律师'
-			WHERE case.display=1 AND LEFT(first_contact,4)='".date('Y',$this->date->now)."'
+			WHERE project.display=1 AND LEFT(first_contact,4)='".date('Y',$this->date->now)."'
 			GROUP BY people.id
 			ORDER BY live_queries DESC, queries DESC
 		";
@@ -567,13 +567,13 @@ class Achievement_model extends SS_Model{
 	//每人咨询分类数，统计图用
 	function getPersonallyTypeQueries(){
 		$query="
-			SELECT people.name AS staff_name, COUNT(case.id) AS queries, SUM(IF(query_type.label_name='面谈',1,0)) AS face_queries, SUM(IF(query_type.label_name='电话',1,0)) AS call_queries, SUM(IF(query_type.label_name='网络',1,0)) AS online_queries
-			FROM `case` 
-				INNER JOIN project_people ON case.id=project_people.case 
+			SELECT people.name AS staff_name, COUNT(project.id) AS queries, SUM(IF(query_type.label_name='面谈',1,0)) AS face_queries, SUM(IF(query_type.label_name='电话',1,0)) AS call_queries, SUM(IF(query_type.label_name='网络',1,0)) AS online_queries
+			FROM `project` 
+				INNER JOIN project_people ON project.id=project_people.project 
 				INNER JOIN people ON people.id=project_people.people AND project_people.role = '接洽律师'
 				INNER JOIN (
-					SELECT `case`,label_name FROM case_label WHERE type='咨询方式'
-				)query_type ON query_type.case=case.id
+					SELECT `project`,label_name FROM project_label WHERE type='咨询方式'
+				)query_type ON query_type.project=project.id
 			WHERE is_query=1 AND LEFT(first_contact,4)='".date('Y',$this->date->now)."'
 			GROUP BY people.id
 			ORDER BY face_queries DESC, call_queries DESC, online_queries DESC
@@ -592,9 +592,9 @@ class Achievement_model extends SS_Model{
 				GROUP BY LEFT(date,7)
 			)collect LEFT JOIN
 			(
-				SELECT LEFT(case.time_contract,7) AS month,SUM(case_fee.fee) AS sum
-				FROM case_fee INNER JOIN `case` ON case.id=case_fee.case
-				GROUP BY LEFT(case.time_contract,7)
+				SELECT LEFT(project.time_contract,7) AS month,SUM(project_account.fee) AS sum
+				FROM project_account INNER JOIN `project` ON project.id=project_account.project
+				GROUP BY LEFT(project.time_contract,7)
 			)contract USING (month)
 			-- WHERE LEFT(month,4)='".date('Y',$this->date->now)."'
 		";
@@ -619,10 +619,10 @@ class Achievement_model extends SS_Model{
 		$query="
 			SELECT case_type.label_name AS name, SUM( amount ) AS y, TRUE AS sliced
 			FROM account
-				INNER JOIN  `case` ON case.id = account.case
+				INNER JOIN  `project` ON project.id = account.project
 				INNER JOIN (
-					SELECT `case`,label,label_name FROM case_label WHERE type='领域'
-				)case_type ON case_type.case=account.case
+					SELECT `project`,label,label_name FROM project_label WHERE type='领域'
+				)case_type ON case_type.project=account.project
 			WHERE account.name <>  '办案费'
 			AND date >= '$this_year_beginning'
 			AND date < '$this_month_beginning'
@@ -640,12 +640,12 @@ class Achievement_model extends SS_Model{
 		$from_date=date('Y-m-d',$from);
 		$to_date=date('Y-m-d',$to);
 		
-		if($type[0]=='case'){
+		if($type[0]=='project'){
 			$q="
 				SELECT ROUND(SUM(account.amount*project_people.contribute)*0.15) AS bonus
 				FROM account
-					INNER JOIN `case` ON account.case=case.id
-					INNER JOIN project_people USING(`case`)
+					INNER JOIN `project` ON account.project=project.id
+					INNER JOIN project_people USING(`project`)
 			";
 
 			$q.="	
@@ -659,9 +659,9 @@ class Achievement_model extends SS_Model{
 				option('in_date_range') && $q.=" AND account.date>='$from_date' AND account.date<'$to_date'";
 				$q.=" AND project_people.role<>'实际贡献'";
 			}else{
-				option('in_date_range') && $q.=" AND case.time_end>='$from_date' AND case.time_end<'$to_date'";
-				$q.=" AND project_people.role='实际贡献' AND case.id IN (
-					SELECT `case` FROM case_label WHERE label_name='案卷已归档'
+				option('in_date_range') && $q.=" AND project.time_end>='$from_date' AND project.time_end<'$to_date'";
+				$q.=" AND project_people.role='实际贡献' AND project.id IN (
+					SELECT `project` FROM project_label WHERE label_name='案卷已归档'
 				)";
 			}
 		}

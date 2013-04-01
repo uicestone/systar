@@ -62,7 +62,7 @@ class User_model extends People_model{
 			->where('people.company',$this->company->id)
 			//与我同组，或与我有直接关系
 			->where("(
-				people.id IN (SELECT people FROM team_people WHERE team IN (".implode(',',array_keys($this->teams))."))
+				people.id IN (SELECT people FROM team_people WHERE FALSE ".($this->teams?"OR team IN (".implode(',',array_keys($this->teams)).")":'').")
 				OR people.id IN (SELECT relative FROM people_relationship WHERE people = {$this->user->id})
 				OR people.id IN (SELECT people FROM people_relationship WHERE relative = {$this->user->id})
 			)",NULL,false);
@@ -223,23 +223,19 @@ class User_model extends People_model{
 
 	function generateNav(){
 		
-		foreach($this->teams as $team_id=>$team_name){
-			$teams[]=$team_id;
-		}
-		
 		$query="
 			SELECT * FROM (
 				SELECT * FROM nav
 				WHERE (company_type is null or company_type = '{$this->company->type}')
 					AND (company ={$this->company->id} OR company IS NULL)
-					AND (team IS NULL ".($this->teams?"OR team IN (".implode(',',$teams).")":'').")
+					AND (team IS NULL ".($this->teams?"OR team IN (".implode(',',array_keys($this->teams)).")":'').")
 				ORDER BY company_type DESC,company DESC,team DESC
 			)nav_ordered
 			GROUP BY href
 			ORDER BY parent,`order`
 		";
-					
-		$result=$this->db->query($query);
+				
+	$result=$this->db->query($query);
 		
 		$nav=array();
 		

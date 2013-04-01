@@ -12,7 +12,7 @@ class Query_model extends Project_model{
 	
 	function getList($args=array()){
 		if(isset($args['name'])){
-			$this->db->like('case.name',$args['name']);
+			$this->db->like('project.name',$args['name']);
 		}
 		return parent::getList($args);
 	}
