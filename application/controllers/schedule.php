@@ -167,6 +167,7 @@ class Schedule extends SS_controller{
 			$data = $this->input->post();
 			
 			$new_schedule_id = $this->schedule->add($data);
+			$this->schedule->addPeople($new_schedule_id,$this->input->post('people'));
 			if(!isset($data['time_start']) && !isset($data['time_end']) && !isset($data['all_day'])){
 				$this->addToTaskBoard($new_schedule_id);
 			}
@@ -185,7 +186,10 @@ class Schedule extends SS_controller{
 		}elseif($action=='update'){//更新任务内容
 			$this->schedule->update($schedule_id,$this->input->post());
 			$this->schedule->updateProfiles($schedule_id, $this->input->post('profiles'));
-
+			//@TODO 这里为了起到更新的作用，先删除所有相关人，再添加新的，这种做法是不科学的
+			$this->schedule->removePeople($schedule_id);
+			$this->schedule->addPeople($schedule_id,$this->input->post('people'));
+			
 			$schedule=$this->schedule->fetch($schedule_id);
 			
 			$this->output->data=array('id'=>$schedule_id,'name'=>$schedule['name'],'completed'=>(bool)$schedule['completed'],'start'=>$schedule['time_start'],'end'=>$schedule['time_end']);
@@ -265,7 +269,7 @@ class Schedule extends SS_controller{
 		$this->output->status='success';
 	}
 	
-	function deleteFromTaskBoard($task_id , $uid=NULL)
+	function removefromtaskboard($task_id , $uid=NULL)
 	{
 		if(is_null($uid))
 		{
@@ -291,7 +295,7 @@ class Schedule extends SS_controller{
 					array_push($sort_data[$i] , $value);
 				}
 				//echo "sort_data = "; echo print_r($sort_data)."<br/>";
-				$this -> schedule -> setTaskBoardSort(json_encode($sort_data), $uid);
+				$this -> schedule -> setTaskBoardSort($sort_data, $uid);
 				break;
 			}
 		}
@@ -322,6 +326,8 @@ class Schedule extends SS_controller{
 			$schedule=$this->schedule->fetch($schedule_id);
 			
 			$profiles=$this->schedule->getProfiles($schedule_id);
+			
+			$people=$this->schedule->getPeople($schedule_id);
 
 			if(isset($schedule['project'])){
 				$project=$this->project->fetch($schedule['project']);
@@ -330,8 +336,9 @@ class Schedule extends SS_controller{
 
 			$this->load->addViewData('schedule', $schedule);
 			$this->load->addViewData('profiles', $profiles);
+			$this->load->addViewData('people', $people);
 
-			isset($schedule['name']) && $this->section_title=$schedule['name'];
+			isset($schedule['name']) && $this->output->setData($schedule['name'],'name');
 
 			isset($schedule['completed']) && $this->output->setData($schedule['completed'],'completed');
 		}

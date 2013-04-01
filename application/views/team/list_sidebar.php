@@ -7,12 +7,12 @@
 			</tr>
 			<tr>
 				<td>
-					<select name="labels[]" data-placeholder="标签" multiple="multiple"><?=options($this->team->getAllLabels(),option('search/labels'))?></select>
+					<select name="labels[]" class="chosen" data-placeholder="标签" multiple="multiple"><?=options($this->team->getAllLabels(),option('search/labels'))?></select>
 				</td>
 			</tr>
 			<tr>
 				<td>
-					<select name="is_relative_of[]" multiple="multiple" data-placeholder="组">
+					<select name="is_relative_of[]" class="chosen" multiple="multiple" data-placeholder="组">
 						<?=options($this->team->getArray(array('limit'=>false,'orderby'=>false,'has_relative'=>true),'name','id'),option('search/is_relative_of'),NULL,true)?>
 					</select>
 				</td>

@@ -7,13 +7,13 @@
 			</tr>
 			<tr>
 				<td>
-					<select name="labels[]" data-placeholder="标签" multiple="multiple"><?=options($this->people->getAllLabels(),option('search/labels'))?></select>
+					<select name="labels[]" class="chosen" data-placeholder="标签" multiple="multiple"><?=options($this->people->getAllLabels(),option('search/labels'))?></select>
 				</td>
 			</tr>
 			<tr>
 				<td>
-					<select name="team[]" multiple="multiple" data-placeholder="组">
-						<?=options($this->team->getArray(array('limit'=>false,'people_type'=>option('search/type')),'name','id'),option('search/team'),NULL,true)?>
+					<select name="team[]" class="chosen" multiple="multiple" data-placeholder="组">
+						<?=options($this->team->getArray(array('limit'=>false,'orderby'=>false,'people_type'=>option('search/type')),'name','id'),option('search/team'),NULL,true)?>
 					</select>
 				</td>
 			</tr>

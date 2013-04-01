@@ -133,7 +133,7 @@ class BaseItem_model extends SS_Model{
 	}
 	
 	
-	function getArray($args=array(),$keyname=NULL,$keyname_forkey=NULL){
+	function getArray($args=array(),$keyname='name',$keyname_forkey='id'){
 		return array_sub($this->getList($args),$keyname,$keyname_forkey);
 	}
 	

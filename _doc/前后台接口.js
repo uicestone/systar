@@ -131,8 +131,8 @@ var schedule={
 			
 		}
 	},
-	deleteFromTaskBoard:{
-		url:'/schedule/deletefromtaskboard/{{schedule_id}}[/{uid}]',
+	removefromtaskboard:{
+		url:'/schedule/removefromtaskboard/{{schedule_id}}[/{uid}]',
 		get:{
 			
 		},

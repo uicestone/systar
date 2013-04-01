@@ -278,7 +278,7 @@ $(document)
 			}
 		}).disableSelection();
 
-		section.find('select').each(function(index,object){
+		section.find('select.chosen.allow-new').each(function(index,object){
 			$(object).chosen({search_contains:true,allow_single_deselect:true,no_results_text:'添加新标签',no_results_callback:function(term){
 				$(object).append('<option value="'+term+'" selected="selected">'+term+'</option>').trigger('liszt:updated').trigger('change');
 			}});
@@ -302,11 +302,13 @@ $(document)
 
 		});
 		
-		section.find('select:not(.view)').each(function(index,object){
+		section.find('select.chosen.allow-new').each(function(index,object){
 			$(object).chosen({search_contains:true,allow_single_deselect:true,no_results_text:'添加新标签',no_results_callback:function(term){
 				$(object).append('<option value="'+term+'" selected="selected">'+term+'</option>').trigger('liszt:updated').trigger('change');
 			}});
 		});
+		
+		section.find('select.chosen').chosen({search_contains:true,allow_single_deselect:true});
 		
 		/*边栏选框自动提交*/
 		section.find('select.filter[method!="get"]').on('change',function(){

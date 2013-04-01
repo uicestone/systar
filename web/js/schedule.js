@@ -14,6 +14,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 		modal:true,
 		close:null,
 		title:'新日程',
+		content:'',
 		id:null,
 		buttons:null,
 		method:null,
@@ -37,6 +38,8 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 		this.options.buttons=[
 			{
 				text: "+",
+				tabIndex:-1,
+				title:'添加其他选项',
 				click: function(){
 					var lastProfile=that.element.find('.profile:last');
 					lastProfile.after(lastProfile.clone()).show();
@@ -45,6 +48,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 
 			{
 				text: "保存",
+				tabIndex:0,
 				click: function(){
 					that._save();
 				}
@@ -54,8 +58,29 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 		if(this.options.calendar){
 			this.options.buttons.unshift({
 				text:'>',
+				tabIndex:-1,
+				title:'添加到任务列表',
 				click:function(){
-					$.get('/schedule/addtotaskboard/'+that.options.id);
+					$.get('/schedule/addtotaskboard/'+that.options.id,function(){
+						var clone=aside.children('[for="schedule"]').children('.column').children('.portlet:first').clone();
+						clone.attr('id',that.options.id)
+						clone.children('.portlet-header').text(that.options.title);
+						clone.children('.portlet-content').html(that.options.content);
+						clone.appendTo(aside.children('[for="schedule"]').children('.column')).show();
+						that.element.schedule('close');
+					});
+				}
+			});
+		}else{
+			this.options.buttons.unshift({
+				text:'x',
+				tabIndex:-1,
+				title:'从任务墙移除',
+				click:function(){
+					$.get('/schedule/removefromtaskboard/'+that.options.id,function(){
+						aside.children('[for="schedule"]').children('.column').children('.portlet#'+that.options.id).remove();
+						that.element.schedule('close');
+					});
 				}
 			});
 		}
@@ -80,6 +105,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			
 			this.options.buttons.splice(this.options.buttons.length-1,0,{
 				text:'编辑',
+				tabIndex:-1,
 				click:function(){
 					that.element.schedule('edit');
 				}
@@ -118,6 +144,10 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 				that.option('title',response.data.name.content);
 			}
 			
+			if(response.data.content){
+				that.option('content',response.data.content.content);
+			}
+			
 			/*根据响应，设置completed选项*/
 			response.data.completed && that.option('completed',Boolean(Number(response.data.completed.content)));
 			
@@ -143,6 +173,8 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			});
 			
 			that.element.find('[name="project"]').chosen({allow_single_deselect:true});
+			
+			that.element.find('[name="people"]').chosen({search_contains:true});
 			
 			that.element.find('.chzn-drop').hide();
 			
@@ -256,6 +288,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 		/*对于编辑页面，删除编辑按钮，并换成一个删除按钮*/
 		this.options.buttons.splice(1,1,{
 			text:'删除',
+			tabIndex:-1,
 			click:function(){
 				$.get('/schedule/writecalendar/delete/'+that.options.id,function(response){
 					if(response.status==='success'){

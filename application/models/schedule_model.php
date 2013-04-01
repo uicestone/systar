@@ -101,9 +101,25 @@ class Schedule_model extends BaseItem_model{
 	function addPeople($schedule_id,$people){
 		$schedule_id=intval($schedule_id);
 		
-		if(is_numeric($people)){
-			$this->db->insert('schedule_people',array('schedule'=>$schedule_id,'people'=>$people));
+		if(is_array($people)){
+			$set=array();
+			foreach($people as $person){
+				$set[]=array('people'=>$person,'schedule'=>$schedule_id);
+			}
+			return $this->db->insert_batch('schedule_people',$set);
+		}elseif($people){
+			return $this->db->insert('schedule_people',array('people'=>intval($people),'schedule'=>$schedule_id));
 		}
+	}
+	
+	function getPeople($schedule_id){
+		$schedule_id=intval($schedule_id);
+		return array_sub($this->db->get_where('schedule_people',array('schedule'=>$schedule_id))->result_array(),'people');
+	}
+	
+	function removePeople($schedule_id){
+		$schedule_id=intval($schedule_id);
+		return $this->db->delete('schedule_people',array('schedule'=>$schedule_id));
 	}
 	
 	/**
