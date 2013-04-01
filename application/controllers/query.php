@@ -16,30 +16,16 @@ class Query extends Project{
 	}
 	
 	function index(){
-
-		$field=array(
-			'first_contact'=>array('heading'=>array('data'=>'日期','width'=>'95px')),
-			'num'=>array('heading'=>array('data'=>'编号','width'=>'143px')),
-			'client_name'=>array('heading'=>'咨询人','cell'=>'<a href="#client/edit/{client}">{client_name}</a>'),
-			'type'=>array('heading'=>array('data'=>'方式','width'=>'80px')),
-			'source'=>array('heading'=>'来源'),
-			'staff_names'=>array('heading'=>'接洽人'),
-			'summary'=>array('heading'=>'概况','cell'=>array('class'=>'ellipsis','title'=>'{summary}')),
-			'comment'=>array('heading'=>'备注','cell'=>array('class'=>'ellipsis','title'=>'{summary}'))
-		);
-		
-		if(!is_array(option('search/labels'))){
-			option('search/labels',array());
+		if(is_null(option('search/labels'))){
+			option('search/labels',array('咨询'));
 		}
-		
-		option('search/labels',array('咨询')+option('search/labels'));
 		
 		parent::index();
 		
 	}
 
 	function add(){
-		$this->query->id=$this->query->add(array('first_contact'=>$this->date->today));
+		$this->query->id=$this->query->add(array('type'=>'业务','first_contact'=>$this->date->today));
 		$this->edit($this->query->id);
 		redirect('#'.CONTROLLER.'/edit/'.$this->query->id);
 	}
@@ -54,12 +40,12 @@ class Query extends Project{
 		try{
 			$query=$this->query->fetch($id);
 
-			$labels=$this->query->getLabels($this->query->id);
+			$this->query->labels=$this->query->getLabels($this->query->id);
 
 			if(!$query['name']){
-				$this->section_title='未命名咨询';
+				$this->section_title='未命名'.$this->section_title;
 			}else{
-				$this->output->setData(strip_tags($query['name']), 'name');
+				$this->section_title=$query['name'];
 			}
 
 			$this->load->addViewData('cases', $query);
@@ -95,7 +81,9 @@ class Query extends Project{
 			elseif($submit=='query'){
 				
 				$client=$this->input->sessionPost('client');
-				$labels=$this->input->sessionPost('labels');
+				$this->query->labels=$this->input->sessionPost('labels');
+				
+				$this->query->labels[]='咨询';
 				
 				$this->load->library('form_validation');
 				
@@ -148,12 +136,12 @@ class Query extends Project{
 					post('client/id',$client['id']);
 				}
 
-				if(!$labels['咨询方式']){
+				if(!$this->query->labels['咨询方式']){
 					$this->output->message('请选择咨询方式','warning');
 					throw new Exception;
 				}
 				
-				if(!$labels['领域']){
+				if(!$this->query->labels['领域']){
 					$this->output->message('请选择业务领域','warning');
 					throw new Exception;
 				}
@@ -180,7 +168,7 @@ class Query extends Project{
 				
 				$query['is_query']=true;
 
-				post('cases/num',$this->query->getNum($this->query->id,NULL,$labels['领域'],true,$query['first_contact']));
+				post('cases/num',$this->query->getNum($this->query->id,NULL,$this->query->labels['领域'],true,$query['first_contact']));
 
 				post('cases/display',true);
 				
@@ -188,7 +176,7 @@ class Query extends Project{
 				
 				$this->query->update($this->query->id,post('cases'));
 				
-				$this->query->updateLabels($this->query->id, post('labels'));
+				$this->query->updateLabels($this->query->id, $this->query->labels);
 
 				post('staffs',array());
 				foreach($related_staff as $role=>$staff){

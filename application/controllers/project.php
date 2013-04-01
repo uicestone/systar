@@ -113,7 +113,7 @@ class Project extends SS_controller{
 		}
 		
 		$table=$this->table->setFields($this->list_args)
-			->setRowAttributes(array('hash'=>CONTROLLER.'/edit/{id}'))
+			->setRowAttributes(array('hash'=>(CONTROLLER==='query'?'cases':CONTROLLER).'/edit/{id}'))
 			->setData($this->project->getList(option('search')))
 			->generate();
 		
