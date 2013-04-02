@@ -28,7 +28,7 @@ class SS_Controller extends CI_Controller{
 		define('CONTROLLER',$class);
 		define('METHOD',$method);
 		
-		//CONTROLLER !=='frame' && $this->output->enable_profiler(TRUE);
+		//CONTROLLER !=='gate' && $this->output->enable_profiler(TRUE);
 
 		/*
 		 * 自动载入的资源，没有使用autoload.php是因为后者载入以后不能起简称...

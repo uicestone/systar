@@ -173,7 +173,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 				$(this).attr('changed','changed');
 			});
 			
-			that.element.find('[name="project"]').chosen({allow_single_deselect:true});
+			that.element.find('[name="project"]').chosen({search_contains:true, allow_single_deselect:true});
 			
 			that.element.find('[name="people"]').chosen({search_contains:true});
 			

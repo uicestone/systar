@@ -1,6 +1,7 @@
 var page,nav,header,tabs,aside,hash,controller,action,username,sysname,uriSegments;
 
 $(window).on('hashchange',function(){
+	//console.log('hashchange');
 	hash=$.locationHash();
 
 	uriSegments=hash.split('/');
@@ -130,7 +131,7 @@ $(document)
 					$.locationHash($(this).attr('hash'));
 				})
 				.find('a, :input')
-					.on('click',function(){
+					.on('click',function(event){
 						event.stopPropagation();
 					});
 			

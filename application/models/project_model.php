@@ -52,6 +52,17 @@ class Project_model extends BaseItem_model{
 		return $this->db->update('project',$data,array('id'=>$id));
 	}
 	
+	function getCompiledPeople($project_id){
+		$this->load->model('people_model','people');
+		$people=$this->people->getList(array('project'=>$project_id,'limit'=>false));
+		$compiled='';
+		foreach($people as $person){
+			$compiled.='<span title="'.$person['role'].'"><a href="#people/edit/'.$person['id'].'">'.$person['abbreviation'].'</a></span> ';
+		}
+		
+		return $compiled;
+	}
+	
 	function getPeoplesByRole($project_id,$role=NULL){
 		$project_id=intval($project_id);
 		$query="
@@ -249,12 +260,6 @@ class Project_model extends BaseItem_model{
 				project.id IN (SELECT `project` FROM project_people WHERE people = {$args['people']})
 			",NULL,false);
 		}
-		else{
-			$this->db->where("
-				project.id IN (SELECT `project` FROM project_people WHERE people = {$this->user->id})
-			",NULL,false);
-		}
-		
 
 		//当前用户作为某种角色的项目
 		if(isset($args['role'])){

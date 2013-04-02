@@ -17,6 +17,7 @@ class Starsys_model extends SS_Model{
 		$this->config->set_item('案件文档类型', array('接洽资料','身份资料','聘请委托文书','签约合同（扫描）','办案文书','裁判文书','行政文书','证据材料','其他'));
 		$this->config->set_item('单位相关人关系', array('负责人','法务','财务','人事','行政','其他','其他代理人'));
 		$this->config->set_item('个人相关人关系', array('父','母','配偶','亲属','朋友','代理人'));
+		$this->config->set_item('project/index/search/type','行政事务');
 	}
 }
 ?>

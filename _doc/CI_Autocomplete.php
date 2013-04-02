@@ -73,6 +73,7 @@ class CI_Controller {};
 * @property SS_Date $date
 * @property Company_model $company
 * @property Label_model $label
+* @property People_model $people
 * @property User_model $user
 */
 
