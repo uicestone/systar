@@ -80,7 +80,8 @@ class Project extends SS_controller{
 	
 	function index(){
 		
-		//监测有效的名称选项
+		//根据来自边栏的提交选项，筛选列表
+		
 		if($this->input->post('name')!==false){
 			option('search/name',$this->input->post('name'));
 		}
@@ -89,13 +90,24 @@ class Project extends SS_controller{
 			option('search/name',NULL);
 		}
 		
-		if(is_array($this->input->post('labels'))){
+		if($this->input->post('labels')){
 			
 			if(is_null(option('search/labels'))){
 				option('search/labels',array());
 			}
 			
-			option('search/labels',$this->input->post('labels')+option('search/labels'));
+			option('search/labels',$this->input->post('labels'))+option('search/labels');
+		}
+		
+		//提交了搜索项，但搜索项中没有labels项，我们将session中搜索项的labels项清空
+		if($this->input->post('submit')==='search' && $this->input->post('labels')===false){
+			option('search/labels',array());
+		}
+		
+		//点击了取消搜索按钮，则清空session中的搜索项
+		if($this->input->post('submit')==='search_cancel'){
+			option('search/name',NULL);
+			option('search/labels',array());
 		}
 		
 		if(is_null(option('search/people'))){
@@ -104,17 +116,6 @@ class Project extends SS_controller{
 		
 		if($this->config->item(CONTROLLER.'/index/search/type')!==false){
 			option('search/type',$this->config->item('project/index/search/type'));
-		}
-		
-		//点击了取消搜索按钮，则清空session中的搜索项
-		if($this->input->post('submit')=='search_cancel'){
-			option('search/labels',array());
-			option('search/name',NULL);
-		}
-		
-		//提交了搜索项，但搜索项中没有labels项，我们将session中搜索项的labels项清空
-		if($this->input->post('submit')==='search' && $this->input->post('labels')===false){
-			option('search/labels',array());
 		}
 		
 		$table=$this->table->setFields($this->list_args)
@@ -246,7 +247,6 @@ class Project extends SS_controller{
 		$this->load->model('client_model','client');
 		$this->load->model('staff_model','staff');
 		
-		//$this->project->data是用来汇总，读的，因此尽可能获取最新的，最多的信息。post('project')是要写入数据库的，只是要更改的部分。
 		$this->project->data=array_merge($this->project->fetch($id),$this->input->sessionPost('project'));
 		$this->project->labels=array_merge($this->project->getLabels($this->project->id),$this->input->sessionPost('labels'));
 		
@@ -269,7 +269,7 @@ class Project extends SS_controller{
 		
 			elseif($submit=='project'){
 				$this->project->labels=$this->input->sessionPost('labels');
-				$this->project->update($this->project->id,post('project'));
+				$this->project->update($this->project->id,$this->project->data);
 				$this->project->updateLabels($this->project->id,$this->project->labels);
 				
 				unset($_SESSION[CONTROLLER]['post'][$this->project->id]);

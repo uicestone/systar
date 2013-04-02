@@ -169,31 +169,22 @@ class People_model extends BaseItem_model{
 	
 	/**
 	 * 继承自SS_Model::getList()，具有基本的type,label,orderby和limit配置功能
-	 * 'in_my_project'=>FALSE //与当前用户有相同的相关案件
-	 * name=>'匹配部分people.name, people.abbreviation, people.name_en',
+	 * @param array $args:
+	 * 	'in_my_project' bool (false) 与当前用户有相同的相关案件
+	 *	name string 匹配部分people.name, people.abbreviation, people.name_en
+	 *	project int 只获得指定事务中的人员列表
+	 *		project_people_type 指定事务，特定关联类型
+	 *		project_people_role 指定事务，特定角色
+	 *	is_staff bool 是职员，以是否在staff表来判断
+	 *	team array or int 只获得指定团组中的人员列表
 	 */
 	function getList($args=array()){
 		$this->db->select('
-			people.id,people.name,IF(people.abbreviation IS NULL,people.name,people.abbreviation) AS abbreviation,people.phone,people.email
+			people.id,people.name,people.phone,people.email,
+			IF(people.abbreviation IS NULL,people.name,people.abbreviation) AS abbreviation
 		',false);
 		
-		if(isset($args['project'])){
-			$this->db->select('GROUP_CONCAT(project_people.role) AS role,project_people.id AS relationship_id')
-				->join('project_people',"project_people.people = people.id AND project_people.project = {$args['project']}",'INNER')
-				->group_by('project_people.people');
-			
-			if(isset($args['project_people_type'])){
-				$this->db->where('project_people.type',$args['project_people_type']);
-			}
-		}
-		
-		if(isset($args['is_staff'])){
-			if(!$args['is_staff']){
-				$this->db->where('project_people.people NOT IN (SELECT id FROM staff)');
-			}
-		}
-		
-		if(isset($args['name']) && $args['name']!==''){
+		if(isset($args['name'])){
 			
 			$this->db->where("
 				(
@@ -203,6 +194,27 @@ class People_model extends BaseItem_model{
 				)
 			",NULL,false);
 
+		}
+		
+		if(isset($args['project'])){
+			$this->db->select('project_people.id AS relationship_id,GROUP_CONCAT(project_people.role) AS role',false)
+				->join('project_people',"project_people.people = people.id AND project_people.project = {$args['project']}",'INNER')
+				->group_by('project_people.people');
+			
+			if(isset($args['project_people_type'])){
+				$this->db->where('project_people.type',$args['project_people_type']);
+			}
+			if(isset($args['project_people_role'])){
+				$this->db->where('project_people.role',$args['project_people_role']);
+			}
+		}
+		
+		if(isset($args['is_staff'])){
+			if($args['is_staff']){
+				$this->db->where('project_people.people IN (SELECT id FROM staff)');
+			}else{
+				$this->db->where('project_people.people NOT IN (SELECT id FROM staff)');
+			}
 		}
 		
 		if(isset($args['in_my_project']) && $args['in_my_project'] && !$this->user->isLogged('developer')){
@@ -216,11 +228,10 @@ class People_model extends BaseItem_model{
 			",NULL,false);
 		}
 		
-		//根据people_team关系来查找
 		if(isset($args['team']) && $args['team']){
 			if(is_array($args['team'])){
 				$teams=implode(',',$args['team']);
-				$this->db->where("people.id IN (SELECT people FROM team_people WHERE team IN ($teams))",NULL,false);
+				$this->db->where("people.id IN (SELECT people FROM team_people WHERE team IN ($teams) AND till>=CURDATE())",NULL,false);
 			}else{
 				$team=intval($args['team']);
 				

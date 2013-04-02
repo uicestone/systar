@@ -1,9 +1,4 @@
 <?php
-/**
- * 这是一个半抽象的控制器类
- * 它既可以被直接使用，如搜索不特定人People::match()
- * 也可以被其他控制器比如Client继承
- */
 class People extends SS_Controller{
 	
 	var $form_validation_rules=array();
@@ -87,34 +82,48 @@ class People extends SS_Controller{
 	 */
 	function index(){
 		
-		if($this->input->post('team')){
-			option('search/team',$this->input->post('team'));
-		}
+		//根据来自边栏的提交选项，筛选列表
 		
-		//监测有效的名称选项
-		if($this->input->post('name')!==false && $this->input->post('name')!==''){
+		if($this->input->post('name')!==false){
 			option('search/name',$this->input->post('name'));
 		}
 		
-		if(is_array($this->input->post('labels'))){
+		if($this->input->post('name')===''){
+			option('search/name',NULL);
+		}
+		
+		if($this->input->post('labels')){
 			
 			if(is_null(option('search/labels'))){
 				option('search/labels',array());
 			}
 			
-			option('search/labels',array_trim($this->input->post('labels'))+option('search/labels'));
-		}
-		
-		//点击了取消搜索按钮，则清空session中的搜索项
-		if($this->input->post('submit')==='search_cancel'){
-			option('search/labels',array());
-			option('search/name',NULL);
-			option('search/team',array());
+			option('search/labels',$this->input->post('labels'))+option('search/labels');
 		}
 		
 		//提交了搜索项，但搜索项中没有labels项，我们将session中搜索项的labels项清空
 		if($this->input->post('submit')==='search' && $this->input->post('labels')===false){
 			option('search/labels',array());
+		}
+		
+		if($this->input->post('team')){
+			
+			if(is_null(option('search/labels'))){
+				option('search/labels',array());
+			}
+			
+			option('search/team',$this->input->post('team'));
+		}
+		
+		if($this->input->post('submit')==='search' && $this->input->post('team')===false){
+			option('search/team',array());
+		}
+		
+		//点击了取消搜索按钮，则清空session中的搜索项
+		if($this->input->post('submit')==='search_cancel'){
+			option('search/name',NULL);
+			option('search/labels',array());
+			option('search/team',array());
 		}
 		
 		$table=$this->table->setFields($this->list_args)
@@ -159,15 +168,15 @@ class People extends SS_Controller{
 		$this->load->model('cases_model','cases');
 
 		try{
-			$people=array_merge($this->people->fetch($id),$this->input->sessionPost('people'));
-			$labels=$this->people->getLabels($this->people->id);
-			$profiles=array_sub($this->people->getProfiles($this->people->id),'content','name');
+			$this->people->data=array_merge($this->people->fetch($id),$this->input->sessionPost('people'));
+			$this->people->labels=$this->people->getLabels($this->people->id);
+			$this->people->profiles=array_sub($this->people->getProfiles($this->people->id),'content','name');
 
-			if(!$people['name'] && !$people['abbreviation']){
+			if(!$this->people->data['name'] && !$this->people->data['abbreviation']){
 				
-				$this->section_title='未命名';
+				$this->section_title='未命名'.$this->section_title;
 			}else{
-				$this->section_title=$people['abbreviation']?$people['abbreviation']:$people['name'];
+				$this->section_title=$this->people->data['abbreviation']?$this->people->data['abbreviation']:$this->people->data['name'];
 			}
 
 			$available_options=$this->people->getAllLabels();
@@ -177,8 +186,8 @@ class People extends SS_Controller{
 			$this->load->addViewData('profile_list',$this->profileList());
 			$this->load->addViewData('project_list', $this->projectList());
 
-			if($people['staff']){
-				$people['staff_name']=$this->staff->fetch($people['staff'],'name');
+			if($this->people->data['staff']){
+				$this->people->data['staff_name']=$this->staff->fetch($this->people->data['staff'],'name');
 			}
 
 			$this->load->addViewArrayData(compact('controller','people','labels','profiles','available_options','profile_name_options'));
@@ -258,7 +267,7 @@ class People extends SS_Controller{
 
 		$this->people->id=$id;
 		
-		$people=array_merge($this->people->fetch($id),$this->input->sessionPost('people'));
+		$this->people->data=array_merge($this->people->fetch($id),$this->input->sessionPost('people'));
 		
 		$this->load->library('form_validation');
 		
@@ -278,24 +287,24 @@ class People extends SS_Controller{
 			}
 
 			elseif($submit=='people'){
-				$labels=$this->input->sessionPost('labels');
-				$profiles=$this->input->sessionPost('profiles');
+				$this->people->labels=$this->input->sessionPost('labels');
+				$this->people->profiles=$this->input->sessionPost('profiles');
 
-				if($people['character'] == '单位' && $people['abbreviation'] == ''){
+				if($this->people->data['character'] == '单位' && $this->people->data['abbreviation'] == ''){
 					//单位简称必填
 					$this->output->message('请填写单位简称','warning');
 					throw new Exception;
 				}
 				
-				if($people['character']!='单位' && !$people['gender']){
+				if($this->people->data['character']!='单位' && !$this->people->data['gender']){
 					//个人，则性别必填
 					$this->output->message('选择性别','warning');
 					throw new Exception;
 				}
 				
-				$this->people->update($this->people->id,post('people'));
-				$this->people->updateLabels($this->people->id,$labels);
-				$this->people->updateProfiles($this->people->id,$profiles);
+				$this->people->update($this->people->id,$this->people->data);
+				$this->people->updateLabels($this->people->id,$this->people->labels);
+				$this->people->updateProfiles($this->people->id,$this->people->profiles);
 
 				unset($_SESSION[CONTROLLER]['post'][$this->people->id]);
 				$this->output->status='close';
@@ -311,19 +320,19 @@ class People extends SS_Controller{
 				}
 				
 				if(!$relative['id']){
-					$profiles=$this->input->sessionPost('relative_profiles');
+					$this->people->profiles=$this->input->sessionPost('relative_profiles');
 					
-					if(count($profiles)==0){
+					if(count($this->people->profiles)==0){
 						$this->output->message('请至少输入一种联系方式','warning');
 						throw new Exception;
 					}
 					
-					if(!$profiles['电话'] && !$profiles['电子邮件']){
+					if(!$this->people->profiles['电话'] && !$this->people->profiles['电子邮件']){
 						$this->output->message('至少输入一种联系方式', 'warning');
 						throw new Exception;
 					}
 
-					foreach($profiles as $name => $content){
+					foreach($this->people->profiles as $name => $content){
 						if($name=='电话'){
 							if($this->client->isMobileNumber($content)){
 								$relative['profiles']['手机']=$content;
@@ -346,7 +355,7 @@ class People extends SS_Controller{
 						'type'=>'客户',
 						'abbreviation'=>$relative['name'],
 						'character'=>isset($relative['character']) && $relative['character'] == '单位' ? '单位' : '个人',
-						'profiles'=>$profiles,
+						'profiles'=>$this->people->profiles,
 						'labels'=>array('类型'=>'潜在客户')
 					);
 					$relative['id']=$this->people->add($relative);

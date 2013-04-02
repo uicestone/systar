@@ -7,12 +7,12 @@
 			</tr>
 			<tr>
 				<td>
-					<select name="labels[]" class="chosen" data-placeholder="标签" multiple="multiple"><?=options($this->people->getAllLabels(),option('search/labels'))?></select>
+					<select name="labels[]" class="chosen" data-placeholder="标签" title="输入多个标签，将采取“且”方式查找" multiple="multiple"><?=options($this->people->getAllLabels(),option('search/labels'))?></select>
 				</td>
 			</tr>
 			<tr>
 				<td>
-					<select name="team[]" class="chosen" multiple="multiple" data-placeholder="组">
+					<select name="team[]" class="chosen" title="输入多个团组，将采取“或”方式查找" multiple="multiple" data-placeholder="团组">
 						<?=options($this->team->getArray(array('limit'=>false,'orderby'=>false,'people_type'=>option('search/type')),'name','id'),option('search/team'),NULL,true)?>
 					</select>
 				</td>

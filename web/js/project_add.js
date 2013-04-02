@@ -1,25 +1,6 @@
 $(function(){
 	var section = page.children('section[hash="'+hash+'"]');
 	
-	/*为子表添加悬停按钮*/
-/*	
-	section.find('.contentTable>tbody>tr[id]')
-	.tooltip({
-		position:{
-			my:'left bottom',
-			at:'left top'
-		},
-		items:'*',
-		content:function(){
-			return '<button type="submit" name="submit[remove_people]" id="'+$(this).attr('id	')+'">删除</button>';
-		},
-		disabled:true
-	})
-	.on('mouseenter',function(){
-		$(this).tooltip('open');
-	});
-*/
-	
 	/*根据案件分类显示/隐藏案件阶段选项*/
 	section.find('[name="labels[分类]"]')
 	.on('change',function(){

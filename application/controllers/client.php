@@ -31,12 +31,12 @@ class Client extends People{
 	}
 
 	function index(){
+		option('search/type','客户');
+		option('search/in_my_case',true);
+		
 		if(is_null(option('search/labels'))){
 			option('search/labels',array('成交客户'));
 		}
-		
-		option('search/type','客户');
-		option('search/in_my_case',true);
 		
 		parent::index();
 	}

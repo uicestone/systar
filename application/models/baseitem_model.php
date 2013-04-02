@@ -95,19 +95,10 @@ class BaseItem_model extends SS_Model{
 		
 		//使用INNER JOIN的方式来筛选标签，聪明又机灵
 		if(isset($args['labels']) && is_array($args['labels'])){
-			
 			foreach($args['labels'] as $id => $label_name){
-				
-				//过滤空键
-				if($label_name===''){
-					continue;
-				}
-				
 				//每次连接people_label表需要定一个唯一的名字
 				$this->db->join("{$this->table}_label t_$id","{$this->table}.id = t_$id.{$this->table} AND t_$id.label_name = '$label_name'",'INNER');
-				
 			}
-			
 		}
 		
 		$this->db->where(array($this->table.'.company'=>$this->company->id,$this->table.'.display'=>true));
