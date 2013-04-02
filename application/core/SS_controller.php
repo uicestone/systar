@@ -5,7 +5,8 @@ class SS_Controller extends CI_Controller{
 	
 	var $section_title='';
 	
-	var $require_login=true;
+	var $require_login;
+	var $gate_pages=array();//当前控制器下不需要登陆也能访问的页面方法名称
 
 	var $company_type_model_loaded=false;
 	var $company_model_loaded=false;
@@ -51,6 +52,10 @@ class SS_Controller extends CI_Controller{
 		}
 		
 		$this->output->as_ajax=$this->input->is_ajax_request();
+		
+		if(is_null($this->require_login) && in_array(METHOD,$this->gate_pages)){
+			$this->require_login=false;
+		}
 	
 		if($this->require_login && !$this->user->isLogged()){
 			$this->output->status='login';

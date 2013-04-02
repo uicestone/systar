@@ -2,13 +2,10 @@
 class user extends SS_controller{
 	
 	function __construct(){
-		parent::__construct();
 		
-		if($this->require_login && !$this->user->isLogged()){
-			$this->output->status='login';
-			$this->_output();
-			exit;
-		}
+		$this->gate_pages=array('signup','login');
+		
+		parent::__construct();
 		
 		$this->load->model('people_model','people');
 
@@ -25,6 +22,72 @@ class user extends SS_controller{
 		}else{
 			redirect('login');
 		}
+	}
+	
+	function login(){
+		
+		if($this->user->isLogged()){
+			//用户已登陆，则不显示登录界面
+			redirect();
+		}
+		
+		if($this->input->post('username')){
+			
+			$user=array();
+			
+			if($this->company->ucenter){
+				
+				$ucenter_user=uc_user_login($this->input->post('username'),$this->input->post('password'));//ucenter验证密码
+
+				if(!$ucenter_user){
+					$this->load->addViewData('warning','用户名或密码错');
+
+				}elseif($ucenter_user[0]>0){
+					$user=$this->user->fetch($ucenter_user[0]);
+				}
+				
+			}else{
+				$user=$this->user->verify($this->input->post('username'),$this->input->post('password'));
+			}
+
+			if($user){
+
+				$this->session->set_userdata('user/id', $user['id']);
+
+				$this->user->__construct($user['id']);
+
+				foreach($this->user->group as $group){
+					$company_type=$this->company->type;
+					if($this->company_type_model_loaded && method_exists($this->$company_type,$group.'_setSession')){
+						call_user_func(array($this->$company_type,$group.'_setSession'),$this->user->id);
+					}
+				}
+
+				$this->user->updateLoginTime();
+
+				if(!$this->company->ucenter && !isset($user['password'])){
+					redirect('#user/profile');
+				}elseif(!$this->company->ucenter){
+					redirect();
+				}else{
+					redirect('','js');
+				}
+
+			}else{
+				$this->load->addViewData('warning','用户名或密码错');
+			}
+		}
+		
+		$this->load->view('head_simple');
+		$this->load->view('user/login');
+		$this->load->view('foot');
+
+	}
+	
+	function signUp(){
+		$this->section_title='新用户注册';
+		$this->load->view('user/signup');
+		$this->load->view('user/signup_sidebar',true,'sidebar');
 	}
 	
 	function profile(){
@@ -55,7 +118,7 @@ class user extends SS_controller{
 				$profiles=$this->input->sessionPost('people_profiles');
 				
 				$this->user->update($this->user->id,$people);
-				$this->user->updateProfiles($this->user->id, $profiles);
+				$this->people->updateProfiles($this->user->id, $profiles);
 				
 				$this->output->message('你的报名信息已经保存，我们将在合适的时候联系你。你也可以随时回来补充资料，或是用“日程”功能为自己安排计划');
 				
@@ -83,6 +146,7 @@ class user extends SS_controller{
 				
 				$user_id=$this->user->add($data);
 				
+				$this->session->set_userdata('user/id',$user_id);
 				$this->user->__construct($user_id);
 				
 				$this->output->status='redirect_href';

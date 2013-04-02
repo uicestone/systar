@@ -32,8 +32,6 @@ class User_model extends People_model{
 			$this->id=$user['id'];
 			$this->name=$user['name'];
 			$this->group=explode(',',$user['group']);
-		}else{
-			$this->id=0;
 		}
 		
 		$session=$this->session->all_userdata();
@@ -75,6 +73,7 @@ class User_model extends People_model{
 		$user_id=parent::add($data);
 
 		$data['group']='candidate';
+		$this->addToTeamByName($user_id, '报名考生');
 		$data=array_intersect_key($data, self::$fields);
 		
 		$data['id']=$user_id;
@@ -83,6 +82,16 @@ class User_model extends People_model{
 		$this->db->insert('user',$data);
 		
 		return $user_id;
+	}
+	
+	function addToTeam($user_id,$team_id){
+		return $this->db->insert('team_people',array('team'=>$team_id,'people'=>$user_id));
+	}
+	
+	function addToTeamByName($user_id,$team_name){
+		$team=$this->team->match($team_name);
+		isset($team[0]) && $team_id=$team[0]['id'];
+		return $this->addToTeam($user_id, $team_id);
 	}
 	
 	function verify($username,$password){

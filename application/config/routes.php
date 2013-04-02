@@ -41,11 +41,11 @@
 $route['default_controller'] = "gate";
 $route['404_override'] = '';
 
-$route['login']='gate/login';
+$route['login']='user/login';
 $route['logout']='user/logout';
 $route['profile']='user/profile';
+$route['signup']='user/signup';
 $route['browser']='gate/browser';
-$route['signup']='gate/signup';
 $route['reception']='gate/reception';
 
 

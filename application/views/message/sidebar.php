@@ -4,7 +4,7 @@
 		<tbody>
 			<tr>
 				<td>
-					<select name="receivers[]" data-placeholder="收件人" multiple="multiple">
+					<select name="receivers[]" class="chosen allow-new" data-placeholder="收件人" multiple="multiple">
 						<?=options($this->user->getArray(array(),'name','id'), NULL, NULL, true)?>
 					</select>
 				</td>

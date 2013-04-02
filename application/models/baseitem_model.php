@@ -44,6 +44,21 @@ class BaseItem_model extends SS_Model{
 	}
 	
 	/**
+	 * 根据部分名称返回匹配的id、名称和类别列表
+	 * @param $part_of_name
+	 * @return array
+	 */
+	function match($part_of_name){
+		
+		$this->db->select($this->table.'.*')
+			->from($this->table)
+			->where('company',$this->company->id)
+			->like('name', $part_of_name);
+		
+		return $this->db->get()->result_array();
+	}
+	
+	/**
 	 * 
 	 * @param $config
 	 * array(
