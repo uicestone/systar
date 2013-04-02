@@ -210,7 +210,7 @@
 			<input type="file" name="document" id="file" data-url="/document/submit" />
 			<input name="document[id]" class="hidden" />
 			<input type="text" name="document[name]" placeholder="文件名称" style="padding:4px" />
-			<select name="document_labels[]" data-placeholder="标签" multiple="multiple" style="width:200px;height:15px;">
+			<select name="document_labels[]" class="chosen allow-new" data-placeholder="标签" multiple="multiple" style="width:200px;height:15px;">
 				<?=options($this->document->getAllLabels(),$this->value('document_labels'));?>
 			</select>
 			<button type="submit" name="submit[document]">保存</button>
