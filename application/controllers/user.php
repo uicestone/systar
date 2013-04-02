@@ -3,7 +3,7 @@ class user extends SS_controller{
 	
 	function __construct(){
 		
-		$this->gate_pages=array('signup','login','setfields');
+		$this->gate_pages=array('signup','login','setfields','submit');
 		
 		parent::__construct();
 		
