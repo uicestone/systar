@@ -32,7 +32,7 @@ class Project extends SS_controller{
 		
 		$this->list_args=array(
 			'name'=>array('heading'=>'案名','cell'=>'{name}'),
-			'people'=>array('heading'=>'人员','parser'=>array('function'=>array($this->$controller,'getCompiledPeople'),'args'=>array('{id}'))),
+			'people'=>array('heading'=>'人员','cell'=>array('class'=>'ellipsis'),'parser'=>array('function'=>array($this->$controller,'getCompiledPeople'),'args'=>array('{id}'))),
 			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->$controller,'getCompiledLabels'),'args'=>array('{id}')))
 			/*
 			 * 此处被迫使用了$this->$controller来调用被继承后的model。
