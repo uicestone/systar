@@ -17,7 +17,7 @@
 		<button type="button" class="toggle-add-form">＋</button>
 		<span class="add-form hidden">
 			<input type="text" name="people[name]" value="<?=$this->value('people/name');?>" placeholder="姓名" autocomplete-model="people" />
-			<select name="people[role]" data-placeholder="角色" style="width:150px;">
+			<select name="people[role]" class="chosen allow-new" data-placeholder="角色" style="width:150px;">
 				<?=options($this->project->getAllRoles(),$this->value('people/role'),'角色');?>
 			</select>
 			<input name="people[id]" class="hidden" />
@@ -34,7 +34,7 @@
 			<input type="file" name="document" id="file" data-url="/document/submit" />
 			<input name="document[id]" class="hidden" />
 			<input type="text" name="document[name]" placeholder="文件名称" style="padding:4px" />
-			<select name="document_labels[]" data-placeholder="标签" multiple="multiple" style="width:200px;height:15px;">
+			<select name="document_labels[]" class="chosen allow-new" data-placeholder="标签" multiple="multiple" style="width:200px;height:15px;">
 				<?=options($this->document->getAllLabels(),$this->value('document_labels'));?>
 			</select>
 			<button type="submit" name="submit[document]">保存</button>
