@@ -42,7 +42,7 @@ class Project extends SS_controller{
 		);
 		
 		$this->people_list_args=array(
-			'name'=>array('heading'=>'名称','cell'=>'{abbreviation}<button type="submit" name="submit[remove_people]" id="{relationship_id}" class="hover">删除</button>'),
+			'name'=>array('heading'=>'名称','cell'=>'{abbreviation}<button type="submit" name="submit[remove_people]" id="{id}" class="hover">删除</button>'),
 			'role'=>array('heading'=>'角色')
 		);
 		
@@ -128,7 +128,11 @@ class Project extends SS_controller{
 	}
 	
 	function add(){
-		$this->project->id=$this->project->add();
+		$data=array();
+		if($this->config->item('project/index/search/type')!==false){
+			$data['type']=$this->config->item('project/index/search/type');
+		}
+		$this->project->id=$this->project->add($data);
 		$this->project->addPeople($this->project->id, $this->user->id, NULL, '创建人');
 		$this->edit($this->project->id);
 		redirect('#'.CONTROLLER.'/edit/'.$this->project->id);
@@ -175,7 +179,7 @@ class Project extends SS_controller{
 		$this->load->model('people_model','people');
 		
 		return $this->table->setFields($this->people_list_args)
-			->setRowAttributes(array('hash'=>'people/edit/{people}'))
+			->setRowAttributes(array('hash'=>'people/edit/{id}'))
 			->setAttribute('name', 'people')
 			->generate($this->people->getList(array('limit'=>false,'project'=>$this->project->id)));
 	}

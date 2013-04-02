@@ -164,17 +164,8 @@ $(document)
 				$.post(postURI,$('article>section[hash="'+hash+'"]>form').serialize());
 
 				return false;
-
 			});
-
-			if(!$.browser.msie){
-				$(this).find('tbody>tr').each(function(index){
-					$(this).delay(15*index).css('opacity',0).css('visibility','visible').animate({opacity:'1'},500);
-				});
-			}
-		
 		});
-		
 	});
 	
 	page.on('sectionload','section',function(){
@@ -234,7 +225,7 @@ $(document)
 				value=0;
 			}
 			var id = section.children('form').attr('id');
-			var name = $(this).attr('name');
+			var name = $(this).attr('name').replace(/\[(.+?)\]/,'/$1');
 			var data={};data[name]=value;
 			
 			if(controller){

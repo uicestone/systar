@@ -132,6 +132,7 @@ class SS_Controller extends CI_Controller{
 			$this->output->message('invalid post data', 'warning');
 			return;
 		}
+		
 		foreach($this->input->post() as $field_name=>$value){
 			post($field_name,$value);
 		}
