@@ -53,8 +53,12 @@ class SS_Controller extends CI_Controller{
 		
 		$this->output->as_ajax=$this->input->is_ajax_request();
 		
-		if(is_null($this->require_login) && in_array(METHOD,$this->gate_pages)){
-			$this->require_login=false;
+		if(is_null($this->require_login)){
+			if(in_array(METHOD,$this->gate_pages)){
+				$this->require_login=false; 
+			}else{
+				$this->require_login=true;
+			}
 		}
 	
 		if($this->require_login && !$this->user->isLogged()){
