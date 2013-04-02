@@ -207,12 +207,13 @@
 		<?=$document_list?>
 
 		<div class="add-form">
-			<input type="file" name="document" id="file" data-url="/document/submit" width="30%" />
-			<select name="document_labels[类型]">
-			<?=options($this->config->item('案件文档类型'),$this->value('document_labels/类型'),'类型');?>
+			<input type="file" name="document" id="file" data-url="/document/submit" />
+			<input name="document[id]" class="hidden" />
+			<input type="text" name="document[name]" placeholder="文件名称" style="padding:4px" />
+			<select name="document_labels[]" data-placeholder="标签" multiple="multiple" style="width:200px;height:15px;">
+				<?=options($this->document->getAllLabels(),$this->value('document_labels'));?>
 			</select>
-			<input type="text" name="document[comment]" placeholder="具体文件名称" />
-			<button type="submit" name="submit[case_document]">上传</button>
+			<button type="submit" name="submit[document]">保存</button>
 		</div>
 	</div>
 

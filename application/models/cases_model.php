@@ -97,8 +97,8 @@ class Cases_model extends Project_model{
 			$labels[$row['name']]=$row;
 		}
 		
-		if(isset($labels['类型已锁定']) && isset($labels['客户已锁定']) && isset($labels['职员已锁定']) && isset($labels['费用已锁定'])){
-			unset($labels['类型已锁定']);unset($labels['客户已锁定']);unset($labels['职员已锁定']);unset($labels['费用已锁定']);
+		if(isset($labels['客户已锁定']) && isset($labels['职员已锁定']) && isset($labels['费用已锁定'])){
+			unset($labels['客户已锁定']);unset($labels['职员已锁定']);unset($labels['费用已锁定']);
 			$labels['已锁定']=array('name'=>'已锁定','color'=>'#080');
 		}
 		
