@@ -80,6 +80,16 @@ class Project extends SS_controller{
 	
 	function index(){
 		
+		//初始化列表参数
+		if(is_null(option('search'))){
+			option('search',array());
+		}
+
+		/*读取当前企业的配置文件，确定默认参数*/
+		if($this->config->item(CONTROLLER.'/index/search')!==false){
+			option('search',$this->config->item(CONTROLLER.'/index/search')+option('search'));
+		}
+		
 		//根据来自边栏的提交选项，筛选列表
 		
 		if($this->input->post('name')!==false){
@@ -112,10 +122,6 @@ class Project extends SS_controller{
 		
 		if(is_null(option('search/people'))){
 			option('search/people',$this->user->id);
-		}
-		
-		if($this->config->item(CONTROLLER.'/index/search/type')!==false){
-			option('search/type',$this->config->item('project/index/search/type'));
 		}
 		
 		$table=$this->table->setFields($this->list_args)
