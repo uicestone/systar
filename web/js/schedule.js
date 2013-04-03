@@ -7,7 +7,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 		position:{
 			my:'left bottom',
 			at:'right top',
-			of:event
+			of:null
 		},
 		dialogClass:'shadow schedule-form',
 		autoOpen:true,

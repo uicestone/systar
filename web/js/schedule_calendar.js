@@ -40,7 +40,7 @@ $(function(){
 		selectable: true,
 		selectHelper: true,
 		select: function(start, end, allDay, event, view) {
-			$('<div>').appendTo(document).schedule({start:start,end:end,allDay:allDay,selection:$(event.target),calendar:calendar});
+			$('<div/>').appendTo(document).schedule({start:start,end:end,allDay:allDay,selection:$(event.target),calendar:calendar});
 		},
 		
 		unselectAuto:false,

@@ -423,7 +423,7 @@ $(document)
 })
 .on('click','.portlet',function(){
 	var event={id:$(this).attr('id')};
-	$.viewSchedule({id:event.id});
+	$.viewSchedule({id:event.id,selection:this});
 })
 .on('click','.portlet-header .ui-icon',function(event){
 	event.stopPropagation();

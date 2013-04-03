@@ -224,7 +224,7 @@
 				<a href="#schedule/lists?case=<?=$this->value('project/id')?>">所有日志>></a>
 			</span>
 			<label>最新日志：
-				<a href="javascript:$.createSchedule({project:<?=$this->value('project/id')?>})">添加>></a>
+				<a href="javascript:$.createSchedule({project:<?=$this->value('project/id')?>,completed:true})">添加>></a>
 			</label>
 		</div>
 		<?=$schedule_list?>
@@ -233,10 +233,10 @@
 	<div class="item" name="plan">
 		<div class="title">
 			<span class="right">
-				<a href="#schedule/plan?case=<? echo $this->value('project/id')?>">所有计划>></a>
+				<a href="#schedule/plan?project=<? echo $this->value('project/id')?>">所有计划>></a>
 			</span>
 			<label>日程计划：
-				<a href="javascript:createSchedule(null,null,null,<?=$this->value('project/id'),false?>)">添加>></a>
+				<a href="javascript:$.createSchedule({project:<?=$this->value('project/id')?>,completed:false})">添加>></a>
 			</label>
 		</div>
 		<?$plan_list?>
