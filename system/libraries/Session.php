@@ -24,6 +24,12 @@
  * @author		ExpressionEngine Dev Team
  * @link		http://codeigniter.com/user_guide/libraries/sessions.html
  */
+/**
+ * uicestone 2013/4/4注：此类中采用引用$CI->dbde方式来操作数据库，这会打断控制器中操作到一半的数据库。
+ * 我将此处全部换成独立的数据库对象。
+ * 调用从$this->CI->db改为了$this->db
+ * $db定义写在了SS_Session::construct()内
+ */
 class CI_Session {
 
 	var $sess_encrypt_cookie		= FALSE;
@@ -84,7 +90,7 @@ class CI_Session {
 		// Are we using a database?  If so, load it
 		if ($this->sess_use_database === TRUE AND $this->sess_table_name != '')
 		{
-			$this->CI->load->database();
+			$this->db=$this->CI->load->database('',true);
 		}
 
 		// Set the "now" time.  Can either be GMT or server time, based on the
@@ -198,19 +204,19 @@ class CI_Session {
 		// Is there a corresponding session in the DB?
 		if ($this->sess_use_database === TRUE)
 		{
-			$this->CI->db->where('session_id', $session['session_id']);
+			$this->db->where('session_id', $session['session_id']);
 
 			if ($this->sess_match_ip == TRUE)
 			{
-				$this->CI->db->where('ip_address', $session['ip_address']);
+				$this->db->where('ip_address', $session['ip_address']);
 			}
 
 			if ($this->sess_match_useragent == TRUE)
 			{
-				$this->CI->db->where('user_agent', $session['user_agent']);
+				$this->db->where('user_agent', $session['user_agent']);
 			}
 
-			$query = $this->CI->db->get($this->sess_table_name);
+			$query = $this->db->get($this->sess_table_name);
 
 			// No result?  Kill it!
 			if ($query->num_rows() == 0)
@@ -285,8 +291,8 @@ class CI_Session {
 		}
 
 		// Run the update query
-		$this->CI->db->where('session_id', $this->userdata['session_id']);
-		$this->CI->db->update($this->sess_table_name, array('last_activity' => $this->userdata['last_activity'], 'user_data' => $custom_userdata));
+		$this->db->where('session_id', $this->userdata['session_id']);
+		$this->db->update($this->sess_table_name, array('last_activity' => $this->userdata['last_activity'], 'user_data' => $custom_userdata));
 
 		// Write the cookie.  Notice that we manually pass the cookie data array to the
 		// _set_cookie() function. Normally that function will store $this->userdata, but
@@ -325,7 +331,7 @@ class CI_Session {
 		// Save the data to the DB if needed
 		if ($this->sess_use_database === TRUE)
 		{
-			$this->CI->db->query($this->CI->db->insert_string($this->sess_table_name, $this->userdata));
+			$this->db->query($this->db->insert_string($this->sess_table_name, $this->userdata));
 		}
 
 		// Write the cookie
@@ -381,7 +387,7 @@ class CI_Session {
 				$cookie_data[$val] = $this->userdata[$val];
 			}
 
-			$this->CI->db->query($this->CI->db->update_string($this->sess_table_name, array('last_activity' => $this->now, 'session_id' => $new_sessid), array('session_id' => $old_sessid)));
+			$this->db->query($this->db->update_string($this->sess_table_name, array('last_activity' => $this->now, 'session_id' => $new_sessid), array('session_id' => $old_sessid)));
 		}
 
 		// Write the cookie
@@ -401,8 +407,8 @@ class CI_Session {
 		// Kill the session DB row
 		if ($this->sess_use_database === TRUE && isset($this->userdata['session_id']))
 		{
-			$this->CI->db->where('session_id', $this->userdata['session_id']);
-			$this->CI->db->delete($this->sess_table_name);
+			$this->db->where('session_id', $this->userdata['session_id']);
+			$this->db->delete($this->sess_table_name);
 		}
 
 		// Kill the cookie
@@ -765,8 +771,8 @@ class CI_Session {
 		{
 			$expire = $this->now - $this->sess_expiration;
 
-			$this->CI->db->where("last_activity < {$expire}");
-			$this->CI->db->delete($this->sess_table_name);
+			$this->db->where("last_activity < {$expire}");
+			$this->db->delete($this->sess_table_name);
 
 			log_message('debug', 'Session garbage collection performed.');
 		}

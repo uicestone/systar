@@ -1,5 +1,6 @@
 <?php
 class SS_input extends CI_Input{
+	
 	function __construct(){
 		parent::__construct();
 	}

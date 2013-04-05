@@ -159,7 +159,7 @@ class People extends SS_Controller{
 	/**
 	 * 添加入口
 	 * 将立即跳转
-	 * @TODO存在无法后退，容易造成数据库垃圾的问题
+	 * @todo 存在刷新整个页面的问题
 	 */
 	function add(){
 		$this->people->id=$this->people->add();

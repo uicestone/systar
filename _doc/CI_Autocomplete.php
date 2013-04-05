@@ -7,7 +7,7 @@
 * @property CI_Benchmark $benchmark
 * @property CI_Calendar $calendar
 * @property CI_Cart $cart
-* @property CI_Config $config
+* @property SS_Config $config
 * @property SS_Controller $controller
 * @property SS_Date $date
 * @property CI_Email $email
@@ -71,6 +71,7 @@ class CI_Controller {};
 * @property CI_DB_mysql_driver $db
 * @property CI_DB_active_record $db
 * @property SS_Date $date
+* @property SS_Config $config
 * @property Company_model $company
 * @property Label_model $label
 * @property People_model $people

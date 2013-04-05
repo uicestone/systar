@@ -67,6 +67,9 @@ class SS_Controller extends CI_Controller{
 			exit;
 		}
 		
+		$this->config->post=$this->input->post();
+		$this->config->session=$this->session->all_userdata('config/');
+		
 	}
 	
 	/**

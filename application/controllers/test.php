@@ -5,12 +5,11 @@ class Test extends SS_controller{
 	}
 	
 	function index(){
-		//$this->load->view('test');
-		//$this->session->sess_destroy();
-		//session_destroy();
-		print_r($this->session->all_userdata());
-		print_r($_SESSION);
-		print_r($this->user);
+		$this->config->set_user_item('pagination/rows', 1);
+		echo $this->config->user_item('pagination/rows');
+		//print_r($this->session->all_userdata());
+		//print_r($_SESSION);
+		//print_r($this->user);
 	}
 	
 	function ar(){

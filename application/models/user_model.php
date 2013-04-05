@@ -43,6 +43,11 @@ class User_model extends People_model{
 				$this->$matches[1]=$value;
 			}
 		}
+		
+		//获取存在数据库中的用户配置项
+		$this->db->from('user_config')
+			->where('user',$this->id);
+		$this->config->user=array_sub($this->db->get()->result_array(),'value','name');
 
 	}
 	

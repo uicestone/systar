@@ -13,6 +13,12 @@ class Company_model extends BaseItem_model{
 		parent::__construct();
 		$this->table='company';
 		$this->recognize($this->input->server('SERVER_NAME'));
+
+		//获取存在数据库中的公司配置项
+		$this->db->from('company_config')
+			->where('company',$this->id);
+		$this->config->company=array_sub($this->db->get()->result_array(),'value','name');
+		
 	}
 
 	function recognize($host_name){

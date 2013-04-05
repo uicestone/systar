@@ -102,12 +102,12 @@ class BaseItem_model extends SS_Model{
 		}
 		
 		$this->db->where(array($this->table.'.company'=>$this->company->id,$this->table.'.display'=>true));
-		
+
 		if(isset($args['type']) && $args['type']){
 			$this->db->where($this->table.'.type',$args['type']);
 		}
 		
-		//复制一个DB对象用来计算行数，因为计算行数需要运行sql，将清空DB类中属性
+		//复制一个DB对象用来计算行数，因为计算行数需要运行sql，将清空DB对象中属性
 		$num_rows=clone $this->db;
 		
 		if(!isset($args['orderby'])){
@@ -134,7 +134,7 @@ class BaseItem_model extends SS_Model{
 			}
 			
 		}
-		
+
 		return $this->db->get()->result_array();
 	}
 	
