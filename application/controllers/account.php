@@ -27,34 +27,30 @@ class Account extends SS_controller{
 	
 	function index(){
 		
-		//监测有效的名称选项
-		if($this->input->post('name')!==false && $this->input->post('name')!==''){
-			option('search/name',$this->input->post('name'));
+		if($this->input->post('name')){
+			$this->config->set_user_item('search/name', $this->input->post('name'));
 		}
 		
-		if(is_array($this->input->post('labels'))){
-			
-			if(is_null(option('search/labels'))){
-				option('search/labels',array());
-			}
-			
-			option('search/labels',array_trim($this->input->post('labels'))+option('search/labels'));
+		if($this->input->post('labels')){
+			$this->config->set_user_item('search/labels', $this->input->post('labels'));
 		}
 		
-		//点击了取消搜索按钮，则清空session中的搜索项
-		if($this->input->post('submit')==='search_cancel'){
-			option('search/labels',array());
-			option('search/name',NULL);
+		if($this->input->post('name')===''){
+			$this->config->unset_user_item('search/name');
 		}
 		
-		//提交了搜索项，但搜索项中没有labels项，我们将session中搜索项的labels项清空
 		if($this->input->post('submit')==='search' && $this->input->post('labels')===false){
-			option('search/labels',array());
+			$this->config->unset_user_item('search/labels');
+		}
+		
+		if($this->input->post('submit')==='search_cancel'){
+			$this->config->unset_user_item('search/name');
+			$this->config->unset_user_item('search/labels');
 		}
 		
 		$list=$this->table->setFields($this->list_args)
 				->setRowAttributes(array('hash'=>'account/edit/{id}'))
-				->setData($this->account->getList(option('search')))
+				->setData($this->account->getList($this->config->user_item('search')))
 				->generate();
 		
 		$this->load->addViewData('list', $list);

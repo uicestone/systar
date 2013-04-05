@@ -82,63 +82,39 @@ class People extends SS_Controller{
 	 */
 	function index(){
 		
-		//初始化列表参数
-		if(is_null(option('search'))){
-			option('search',array());
-		}
-
-		/*读取当前企业的配置文件，确定默认参数*/
-		if($this->config->item(CONTROLLER.'/index/search')!==false){
-			option('search',$this->config->item(CONTROLLER.'/index/search')+option('search'));
-		}
-		
-		//根据来自边栏的提交选项，筛选列表
-		
-		if($this->input->post('name')!==false){
-			option('search/name',$this->input->post('name'));
-		}
-		
-		if($this->input->post('name')===''){
-			option('search/name',NULL);
+		if($this->input->post('name')){
+			$this->config->set_user_item('search/name', $this->input->post('name'));
 		}
 		
 		if($this->input->post('labels')){
-			
-			if(is_null(option('search/labels'))){
-				option('search/labels',array());
-			}
-			
-			option('search/labels',$this->input->post('labels'))+option('search/labels');
-		}
-		
-		//提交了搜索项，但搜索项中没有labels项，我们将session中搜索项的labels项清空
-		if($this->input->post('submit')==='search' && $this->input->post('labels')===false){
-			option('search/labels',array());
+			$this->config->set_user_item('search/labels', $this->input->post('labels'));
 		}
 		
 		if($this->input->post('team')){
-			
-			if(is_null(option('search/labels'))){
-				option('search/labels',array());
-			}
-			
-			option('search/team',$this->input->post('team'));
+			$this->config->set_user_item('search/team',$this->input->post('team'));
+		}
+		
+		if($this->input->post('name')===''){
+			$this->config->unset_user_item('search/name');
+		}
+		
+		if($this->input->post('submit')==='search' && $this->input->post('labels')===false){
+			$this->config->unset_user_item('search/labels');
 		}
 		
 		if($this->input->post('submit')==='search' && $this->input->post('team')===false){
-			option('search/team',array());
+			$this->config->unset_user_item('search/team');
 		}
 		
-		//点击了取消搜索按钮，则清空session中的搜索项
 		if($this->input->post('submit')==='search_cancel'){
-			option('search/name',NULL);
-			option('search/labels',array());
-			option('search/team',array());
+			$this->config->unset_user_item('search/name');
+			$this->config->unset_user_item('search/labels');
+			$this->config->unset_user_item('search/team');
 		}
 		
 		$table=$this->table->setFields($this->list_args)
 			->setRowAttributes(array('hash'=>CONTROLLER.'/edit/{id}'))
-			->setData($this->people->getList(option('search')))
+			->setData($this->people->getList($this->config->user_item('search')))
 			->generate();
 		$this->load->addViewData('list', $table);
 		

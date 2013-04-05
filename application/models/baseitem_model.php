@@ -291,7 +291,7 @@ class BaseItem_model extends SS_Model{
 		
 		$labels_string='<div class="chzn-container-multi"><ul class="chzn-choices">';
 		foreach($labels as $key=>$label){
-			if(!is_array(option('search/labels')) || !in_array($key,option('search/labels'))){
+			if(!$this->config->user_item('search/labels') || !in_array($key,$this->config->user_item('search/labels'))){
 				$labels_string.='<li class="search-choice" style="color:'.$label['color'].'">'.$label['name'].'</li>';
 			}
 		}

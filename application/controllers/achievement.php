@@ -33,7 +33,7 @@ class Achievement extends SS_controller{
 		}
 		
 		$table=$this->table->setFields($this->list_args)
-			->setData($this->achievement->getList(option('search')))
+			->setData($this->achievement->getList($this->config->user_item('search')))
 			->generate();
 		
 		$this->load->addViewData('list',$table);

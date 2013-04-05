@@ -179,32 +179,27 @@ class Cases extends Project{
 
 	function host(){
 		$this->section_title='主办案件';
-		option('search/role','主办律师');
+		$this->config->user_item('search/role','主办律师');
 		$this->index();
 	}
 	
 	function consultant(){
 		
-		if(is_null(option('search/labels'))){
-			option('search/labels',array('分类'=>'法律顾问'));
-		}
+		$this->config->set_user_item('search/labels', array('分类'=>'法律顾问'), false);
 		
 		$this->index();
 	}
 	
 	function file(){
-		if(is_null(option('search/labels'))){
-			option('search/labels',array('已申请归档','案卷已归档'));
-		}
+		
+		$this->config->set_user_item('search/labels', array('已申请归档','案卷已归档'), false);
 		
 		$this->index();
 	}
 	
 	function index(){
-		if(is_null(option('search/labels'))){
-			option('search/labels',array('案件'));
-		}
-
+		$this->config->set_user_item('search/labels', array('案件'), false);
+		
 		parent::index();
 	}
 }

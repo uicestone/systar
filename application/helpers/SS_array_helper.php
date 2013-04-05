@@ -86,18 +86,6 @@ function array_sub($array,$keyname,$keyname_forkey=NULL){
 }
 
 /**
- * 根据一个包含所有合法键作为内容的$legalkeys数组，对一个数组$array进行过滤
- */
-function array_filter_key($array,$legalkeys){
-    foreach($array as $key => $value){
-        if(!in_array($key,$legalkeys)){
-            unset($array[$key]);
-        }
-    }
-	return $array;
-}
-
-/**
  * 判断某个值是否存在与某一数组的子数组下
  * 若指定$key_specified，则要判断子数组们的$key_specified键下是否有指定$needle值
  * 
@@ -116,5 +104,41 @@ function in_subarray($needle,array $array,$key_specified=NULL){
 		}
 	}
 	return false;
+}
+
+/**
+ * 将数组的键作为路径，返回指定路径的子数组
+ * 例如输入$array=array('a/b'=>1,'a/c'=>2,'b/a'=>3), $index='a'
+ * 将返回array('b'=>1,'c'=>2);
+ * @param $array
+ * @param $prefix 路径
+ * @param $prefix_end_with_slash 是否为prefix末尾加上'/'(default:true)
+ * @return $subarray
+ */
+function array_prefix(array $array,$prefix,$prefix_end_with_slash=true){
+	
+	//数组中恰好存在与prefix一致的键名，则返回该键值
+	if(array_key_exists($prefix, $array)){
+		return $array[$prefix];
+	}
+	
+	if($prefix===''){
+		return $array;
+	}
+	
+	if($prefix_end_with_slash){
+		$prefix.='/';
+	}
+
+	$prefixed_array=array();
+
+	foreach($array as $key => $value){
+		if(strpos($key,$prefix)===0){
+			$prefix_preg=preg_quote($prefix,'/');
+			$prefixed_array[preg_replace("/^$prefix_preg/", '', $key)]=$value;
+		}
+	}
+
+	return $prefixed_array;
 }
 ?>

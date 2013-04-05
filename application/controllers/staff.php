@@ -9,9 +9,7 @@ class Staff extends People{
 	}
 	
 	function index(){
-		if(!option('search/type')){
-			option('search/type','职员');
-		}
+		$this->config->set_user_item('search/is_staff', true, false);
 		
 		parent::index();
 	}

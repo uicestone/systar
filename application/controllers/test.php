@@ -5,9 +5,8 @@ class Test extends SS_controller{
 	}
 	
 	function index(){
-		$this->config->set_user_item('pagination/rows', 1);
-		echo $this->config->user_item('pagination/rows');
-		//print_r($this->session->all_userdata());
+		print_r($this->config->user_item('123'));
+		print_r($this->session->all_userdata());
 		//print_r($_SESSION);
 		//print_r($this->user);
 	}

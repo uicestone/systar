@@ -3,24 +3,24 @@
 		<thead><tr><th width="80px">搜索</td></tr></thead>
 		<tbody>
 			<tr>
-				<td><input type="text" name="name" value="<?=option('search/name')?>" placeholder="名称" title="名称" /></td>
+				<td><input type="text" name="name" value="<?=$this->config->user_item('search/name')?>" placeholder="名称" title="名称" /></td>
 			</tr>
 			<tr>
 				<td>
-					<select name="labels[]" class="chosen" data-placeholder="标签" title="输入多个标签，将采取“且”方式查找" multiple="multiple"><?=options($this->people->getAllLabels(),option('search/labels'))?></select>
+					<select name="labels[]" class="chosen" data-placeholder="标签" title="输入多个标签，将采取“且”方式查找" multiple="multiple"><?=options($this->people->getAllLabels(),!$this->config->user_item('search/labels'))?></select>
 				</td>
 			</tr>
 			<tr>
 				<td>
 					<select name="team[]" class="chosen" title="输入多个团组，将采取“或”方式查找" multiple="multiple" data-placeholder="团组">
-						<?=options($this->team->getArray(array('limit'=>false,'orderby'=>false,'people_type'=>option('search/type')),'name','id'),option('search/team'),NULL,true)?>
+						<?=options($this->team->getArray(array('limit'=>false,'orderby'=>false,'people_type'=>$this->config->user_item('search/type')),'name','id'),$this->config->user_item('search/team'),NULL,true)?>
 					</select>
 				</td>
 			</tr>
 			<tr>
 				<td class="submit">
 					<button type="submit" name="search" tabindex="0">搜索</button>
-					<button type="submit" name="search_cancel" tabindex="1"<?if(is_null(option('search/name')) && !option('search/labels') && !option('search/team')){?> class="hidden"<?}?>>取消</button>
+					<button type="submit" name="search_cancel" tabindex="1"<?if(!$this->config->user_item('search/name') && !$this->config->user_item('search/labels') && !$this->config->user_item('search/team')){?> class="hidden"<?}?>>取消</button>
 				</td>
 			</tr>
 		</tbody>

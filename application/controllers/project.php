@@ -80,53 +80,32 @@ class Project extends SS_controller{
 	
 	function index(){
 		
-		//初始化列表参数
-		if(is_null(option('search'))){
-			option('search',array());
-		}
+		$this->config->set_user_item('search/people', $this->user->id, false);
 
-		/*读取当前企业的配置文件，确定默认参数*/
-		if($this->config->item(CONTROLLER.'/index/search')!==false){
-			option('search',$this->config->item(CONTROLLER.'/index/search')+option('search'));
-		}
-		
-		//根据来自边栏的提交选项，筛选列表
-		
-		if($this->input->post('name')!==false){
-			option('search/name',$this->input->post('name'));
-		}
-		
-		if($this->input->post('name')===''){
-			option('search/name',NULL);
+		if($this->input->post('name')){
+			$this->config->set_user_item('search/name', $this->input->post('name'));
 		}
 		
 		if($this->input->post('labels')){
-			
-			if(is_null(option('search/labels'))){
-				option('search/labels',array());
-			}
-			
-			option('search/labels',$this->input->post('labels'))+option('search/labels');
+			$this->config->set_user_item('search/labels', $this->input->post('labels'));
 		}
 		
-		//提交了搜索项，但搜索项中没有labels项，我们将session中搜索项的labels项清空
+		if($this->input->post('name')===''){
+			$this->config->unset_user_item('search/name');
+		}
+		
 		if($this->input->post('submit')==='search' && $this->input->post('labels')===false){
-			option('search/labels',array());
+			$this->config->unset_user_item('search/labels');
 		}
 		
-		//点击了取消搜索按钮，则清空session中的搜索项
 		if($this->input->post('submit')==='search_cancel'){
-			option('search/name',NULL);
-			option('search/labels',array());
-		}
-		
-		if(is_null(option('search/people'))){
-			option('search/people',$this->user->id);
+			$this->config->unset_user_item('search/name');
+			$this->config->unset_user_item('search/labels');
 		}
 		
 		$table=$this->table->setFields($this->list_args)
 			->setRowAttributes(array('hash'=>(CONTROLLER==='query'?'cases':CONTROLLER).'/edit/{id}'))
-			->setData($this->project->getList(option('search')))
+			->setData($this->project->getList($this->config->user_item('search')))
 			->generate();
 		
 		$this->load->addViewData('list',$table);

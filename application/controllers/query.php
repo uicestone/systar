@@ -10,15 +10,13 @@ class Query extends Project{
 	
 	function filed(){
 		
-		option('search/labels',array(''));
+		$this->config->set_user_item('search/labels', array('已归档','咨询'), false);
 		
 		$this->index();
 	}
 	
 	function index(){
-		if(is_null(option('search/labels'))){
-			option('search/labels',array('咨询'));
-		}
+		$this->config->set_user_item('search/labels', array('咨询'), false);
 		
 		parent::index();
 		

@@ -357,18 +357,6 @@ $config['rewrite_short_tags'] = FALSE;
 */
 $config['proxy_ips'] = '';
 
-/*自定义配置*/
-
-$config['允许上传的文件类型']='*';
-
-//“文件”模块根目录物理位置
-$config['document_root']="D:/files/";
-
-//案下文件物理位置
-$config['document_path']='D:/case_document/';
-
-$config['debug_mode']=true;
-
 //定义时区，windows系统中php不能识别到系统时区
 date_default_timezone_set('Asia/Shanghai');
 

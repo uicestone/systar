@@ -12,12 +12,12 @@ class SS_Model extends CI_Model{
 			//已越界或空列表时，列表起点归零
 			$this->config->set_user_item('pagination/start',0);
 
-		}elseif($this->config->user_item('pagination/start')+$this->config->user_item('pagination/item')>=$rows && $rows>$this->config->user_item('pagination/items')){
+		}elseif($this->config->user_item('pagination/start')+$this->config->user_item('pagination/items')>=$rows && $rows>$this->config->user_item('pagination/items')){
 			//末页且非唯一页时，列表起点定位末页起点
 			$this->config->set_user_item('pagination/start',$rows - ($rows % $this->config->user_item('pagination/items')));
 		}
 
-		if(!is_null($this->config->user_item('pagination/start')) && $this->config->user_item('pagination/items')){
+		if($this->config->user_item('pagination/start')!==false && $this->config->user_item('pagination/items')!==false){
 			if($this->input->post('start')!==false){
 				$this->config->set_user_item('pagination/start',$this->input->post('start'));
 			}

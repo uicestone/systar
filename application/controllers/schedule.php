@@ -40,7 +40,7 @@ class Schedule extends SS_controller{
 	}
 	
 	function plan(){
-		option('completed',false);
+		$this->config->set_user_item('search/completed', false, false);
 		$this->lists();
 	}
 	
@@ -50,18 +50,25 @@ class Schedule extends SS_controller{
 			$this->section_title='日程 - '.$this->project->fetch($this->input->get('project'),'name');
 		}
 		
-		//监测有效的名称选项
-		if($this->input->post('name')!==false){
-			option('search/name',$this->input->post('name'));
+		if($this->input->post('name')){
+			$this->config->set_user_item('search/name', $this->input->post('name'));
+		}
+		
+		if($this->input->post('labels')){
+			$this->config->set_user_item('search/labels', $this->input->post('labels'));
 		}
 		
 		if($this->input->post('name')===''){
-			option('search/name',NULL);
+			$this->config->unset_user_item('search/name');
 		}
 		
-		//点击了取消搜索按钮，则清空session中的搜索项
-		if($this->input->post('submit')=='search_cancel'){
-			option('search/name',NULL);
+		if($this->input->post('submit')==='search' && $this->input->post('labels')===false){
+			$this->config->unset_user_item('search/labels');
+		}
+		
+		if($this->input->post('submit')==='search_cancel'){
+			$this->config->unset_user_item('search/name');
+			$this->config->unset_user_item('search/labels');
 		}
 		
 		if($this->input->get('export')=='excel'){
@@ -75,13 +82,13 @@ class Schedule extends SS_controller{
 			);
 			
 			$this->table->setFields($field)
-				->setData($this->schedule->getList(option('search')))
+				->setData($this->schedule->getList($this->config->user_item('search')))
 				->generateExcel();
 		}else{
 			$table=
 				$this->table
 					->setFields($this->list_args)
-					->setData($this->schedule->getList(option('search')))
+					->setData($this->schedule->getList($this->config->user_item('search')))
 					->generate();
 			$this->load->addViewData('list',$table);
 			$this->load->view('schedule/list');
@@ -91,7 +98,7 @@ class Schedule extends SS_controller{
 
 	function outPlan(){
 		
-		option('search/profiles',array('外出地点'));
+		$this->config->set_user_item('search/profiles', array('外出地点'), false);
 		
 		$field=array(
 			'staff_name'=>array('heading'=>array('data'=>'人员','width'=>'60px'),'cell'=>'<a href="#schedule/lists?staff={staff}"> {staff_name}</a>'),
@@ -124,6 +131,7 @@ class Schedule extends SS_controller{
 	}
 	
 	function workHours(){
+		//@todo
 
 		if(date('w')==1){//今天是星期一
 			$start_of_this_week=strtotime($this->date->today);

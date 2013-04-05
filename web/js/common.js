@@ -286,7 +286,7 @@ $(document)
 			event.preventDefault();
 			
 			if($(this).attr('name')==='search_cancel'){
-				$(this).closest('form').reset();
+				//$(this).closest('form').reset();
 				//$(this).hide();
 			}
 

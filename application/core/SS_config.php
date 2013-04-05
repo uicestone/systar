@@ -8,36 +8,31 @@ class SS_Config extends CI_Config{
 	var $company;
 	var $user;
 	var $session;
-	var $post;
 	
 	function __construct() {
 		parent::__construct();
 	}
 	
+	/**
+	 * 这里要兼容两种数据保存方式：多维数组和键名是路径的一维数组
+	 * 如array('a/b'=>1)或array('a'=>array('b'=>1))
+	 * @param type $item
+	 * @return boolean
+	 */
 	function user_item($item){
-
-		if(isset($this->post[$item])){
-			return $this->post[$item];
+		
+		$plain_config = array_merge($this->company,$this->user,$this->session);
+		
+		$method = array_prefix($plain_config, CONTROLLER.'/'.METHOD.'/'.$item);
+		
+		if($method!==array()){
+			return $method;
 		}
 		
-		if(isset($this->session[CONTROLLER.'/'.METHOD.'/'.$item])){
-			return $this->session[CONTROLLER.'/'.METHOD.'/'.$item];
-		}
+		$global = array_prefix($plain_config, CONTROLLER.'/'.METHOD.'/'.$item);
 		
-		if(isset($this->user[CONTROLLER.'/'.METHOD.'/'.$item])){
-			return $this->user[CONTROLLER.'/'.METHOD.'/'.$item];
-		}
-		
-		if(isset($this->company[CONTROLLER.'/'.METHOD.'/'.$item])){
-			return $this->company[CONTROLLER.'/'.METHOD.'/'.$item];
-		}
-		
-		if(isset($this->user[$item])){
-			return $this->user[$item];
-		}
-		
-		if(isset($this->company[$item])){
-			return $this->company[$item];
+		if($global!==array()){
+			return $global;
 		}
 		
 		return false;
@@ -46,17 +41,17 @@ class SS_Config extends CI_Config{
 	/**
 	 * 释放session中的一项配置
 	 * @param $item 配置名或路径
-	 * @param $level 配置作用范围method, controller, global
+	 * @param $level 配置作用范围method, global
 	 */
 	function unset_user_item($item,$level='method'){
-		$CI=&get_instance();
 		$prefix='';
 		if($level==='method'){
 			$prefix.=CONTROLLER.'/'.METHOD.'/';
-		}elseif($level==='controller'){
-			$prefix.=CONTROLLER.'/';
 		}
+		
 		unset($this->session[$prefix.$item]);
+		
+		$CI=&get_instance();
 		$CI->session->unset_userdata('config/'.$prefix.$item);
 	}
 	
@@ -64,23 +59,25 @@ class SS_Config extends CI_Config{
 	 * @param $item
 	 * @param $value
 	 * @param $session 是否在session中改变设置
-	 * @param $level 配置项的作用范围method, controller, global
+	 * @param $level 配置项的作用范围method,  global
 	 */
 	function set_user_item($item,$value,$session=true,$level='method'){
 		
-		if($session){
-			$CI=&get_instance();
-			$prefix='';
-			if($level==='method'){
-				$prefix.=CONTROLLER.'/'.METHOD.'/';
-			}elseif($level==='controller'){
-				$prefix.=CONTROLLER.'/';
-			}
+		$prefix='';
+		if($level==='method'){
+			$prefix.=CONTROLLER.'/'.METHOD.'/';
+		}
 			
-			//及时更新一次session的本地映射，否则更新的session要在下次请求才能被读取
+		if($session){
 			$this->session[$prefix.$item]=$value;
 			
+			$CI=&get_instance();
+			//及时更新一次session的本地映射，否则更新的session要在下次请求才能被读取
+			
 			$CI->session->set_userdata('config/'.$prefix.$item,$value);
+		}
+		else{
+			$this->user[$prefix.$item]=$value;
 		}
 	}
 }
