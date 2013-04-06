@@ -38,19 +38,15 @@ class Cases_model extends Project_model{
 		return $this->db->query($query)->result_array();
 	}
 	
-	function addStaff($project,$people,$role,$hourly_fee=NULL){
+	function addStaff($project,$people,$role,$weight=NULL){
 		$project=intval($project);
 		$people=intval($people);
-		
-		if(isset($hourly_fee)){
-			$hourly_fee=intval($hourly_fee);
-		}
 		
 		$data=array(
 			'project'=>$project,
 			'people'=>$people,
 			'role'=>$role,
-			'hourly_fee'=>$hourly_fee,
+			'weight'=>$weight,
 			'type'=>'律师'
 		);
 		

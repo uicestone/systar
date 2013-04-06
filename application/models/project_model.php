@@ -64,26 +64,125 @@ class Project_model extends BaseItem_model{
 		return $compiled;
 	}
 	
-	function getPeoplesByRole($project_id,$role=NULL){
-		$project_id=intval($project_id);
-		$query="
-			SELECT
-				people.id,people.name,people.abbreviation,people.type
-				project_people.role
-			FROM
-				people INNER JOIN project_people ON project_people.people=people.id
-			WHERE people.display=1
-		";
-		$result_array=$this->db->query($query)->result_array();
-		$peoples=array();
-		foreach($result_array as $row){
-			$peoples[$row['role']][$row['id']]=$row;
+	function getCompiledPeopleRoles($project_id,$people_id){
+		
+		$roles=$this->getPeopleRoles($project_id, $people_id);
+		
+		$compiled='';
+		foreach($roles as $role){
+			$compiled.='<span role="'.$role['role'].'">'.$role['role'];
+			if($role['weight'] && $role['weight']<1){
+				$compiled.='('.($role['weight']*100).'%)';
+			}
+			$compiled.='</span> ';
 		}
 		
-		if(is_null($role)){
-			return $peoples;
-		}elseif(isset($peoples[$role])){
-			return $peoples[$role];
+		return $compiled;
+	}
+	
+	/**
+	 * 获得一个项目下某个相关人员或所有人员的所有角色和其他属性
+	 * @param int $project_id
+	 * @param int $people_id, optional
+	 * @return 
+	 * array(
+	 *	array(
+	 *		role=>role_name
+	 *		weight=>weight_in_role
+	 *	),
+	 *	...
+	 * )
+	 * or if people_id unspecified:
+	 * array(
+	 *	people_id=>array(
+	 *		array(
+	 *			role=>role_name
+	 *			weight=>weight_in_role
+	 *		)
+	 *		...
+	 *	)
+	 *	...
+	 * )
+	 */
+	function getPeopleRoles($project_id,$people_id=NULL){
+		$this->db->from('project_people')
+			->where(array('project'=>intval($project_id)))
+			->select('role,weight');
+		
+		if($people_id){
+			$this->db->where(array('people'=>intval($people_id)));
+		}else{
+			$this->db->select('people');
+		}
+		
+		$result_array=$this->db->get()->result_array();
+		
+		if($people_id){
+			return $result_array;
+		}else{
+			$people_roles=array();
+			foreach($result_array as $row){
+				$people_roles[$row['people']][]=$row;
+			}
+			return $people_roles;
+
+		}
+	}
+	
+	function removePeopleRole($project_id,$people_id,$role){
+		return $this->db->delete('project_people',array(
+			'project'=>$project_id,
+			'people'=>$people_id,
+			'role'=>$role
+		));
+	}
+	
+	/**
+	 * 获得一个项目下某个角色或所有角色的所有相关人员的id和其他属性
+	 * @param int $project_id
+	 * @param string $role, optional
+	 * @return 
+	 * array(
+	 *	array(
+	 *		people=>people_id
+	 *		weight=>weight_in_role
+	 *	),
+	 *	...
+	 * )
+	 * or if role unspecified:
+	 * array(
+	 *	role=>array(
+	 *		array(
+	 *			people=>people_id
+	 *			weight=>weight_in_role
+	 *		)
+	 *		...
+	 *	)
+	 *	...
+	 * )
+	 */
+	function getRolesPeople($project_id,$role=NULL){
+		$this->db->from('project_people')
+			->where(array('project'=>intval($project_id)))
+			->select('people,weight');
+		
+		if($role){
+			$this->db->where(array('role'=>$role));
+		}else{
+			$this->db->select('role');
+		}
+		
+		$result_array=$this->db->get()->result_array();
+		
+		if($role){
+			return $result_array;
+		}else{
+			$roles_people=array();
+			foreach($result_array as $row){
+				$roles_people[$row['role']][]=$row;
+			}
+			return $roles_people;
+
 		}
 	}
 	
@@ -100,29 +199,6 @@ class Project_model extends BaseItem_model{
 		$result=$this->db->get()->result_array();
 		
 		return array_sub($result,'role');
-	}
-	
-	function getPeoplesByType($project_id,$type=NULL){
-		$project_id=intval($project_id);
-		$query="
-			SELECT
-				people.id,people.name,people.abbreviation,people.type
-				project_people.role
-			FROM
-				people INNER JOIN project_people ON project_people.people=people.id
-			WHERE people.display=1
-		";
-		$result_array=$this->db->query($query)->result_array();
-		$peoples=array();
-		foreach($result_array as $row){
-			$peoples[$row['type']][$row['id']]=$row;
-		}
-		
-		if(is_null($type)){
-			return $peoples;
-		}elseif(isset($peoples[$type])){
-			return $peoples[$type];
-		}
 	}
 	
 	function addPeople($project_id,$people_id,$type=NULL,$role=NULL){
@@ -210,8 +286,34 @@ class Project_model extends BaseItem_model{
 			$this->db->like('project.name',$args['name']);
 		}
 		
+		if(isset($args['is_relative_of'])){
+			$this->db->select('relationship.relation')
+				->join('project_relationship relationship',"relationship.relative = project.id",'INNER')
+				->where('relationship.project',intval($args['is_relative_of']));
+		}
+		
+		if(isset($args['before'])){
+			$this->db->where('project.id <',$args['before']);
+		}
+		
 		return parent::getList($args);
 		
+	}
+	
+	function addRelative($project,$relative,$relation=NULL){
+		$data=array(
+			'project'=>intval($project),
+			'relative'=>intval($relative),
+			'relation'=>$relation
+		);
+		
+		$this->db->insert('project_relationship',$data);
+		
+		return $this->db->insert_id();
+	}
+	
+	function removeRelative($project_id,$relative_id){
+		return $this->db->delete('project_relationship',array('project'=>intval($project_id),'relative'=>intval($relative_id)));
 	}
 	
 	function getIdByCaseFee($case_fee_id){
@@ -290,100 +392,6 @@ class Project_model extends BaseItem_model{
 		}
 	
 		return $option_array;	
-	}
-	
-	//增减案下律师的时候自动计算贡献
-	function calcContribute($project_id){
-		$project_id=intval($project_id);
-		
-		$query="SELECT id,people lawyer,role FROM project_people WHERE type='律师' AND `project` = $project_id";
-		
-		$project_lawyer_array=$this->db->query($query)->result_array();
-		
-		$project_lawyer_array=array_sub($project_lawyer_array,'role','id');
-	
-		//各角色计数器
-		$role_count=array('接洽律师'=>0,'接洽律师（次要）'=>0,'主办律师'=>0,'协办律师'=>0,'律师助理'=>0);
-	
-		foreach($project_lawyer_array as $id => $role){
-			if(!isset($role_count[$role])){
-				$role_count[$role]=0;
-			}
-			$role_count[$role]++;
-		}
-		
-		$contribute=array('接洽'=>0.15,'办案'=>0.35);
-		if(isset($role_count['信息提供（10%）']) && $role_count['信息提供（10%）']==1 && !isset($role_count['信息提供（20%）'])){
-			$contribute['接洽']=0.25;
-		}
-		
-		foreach($project_lawyer_array as $id=>$role){
-			if($role=='接洽律师（次要）' && isset($role_count['接洽律师']) && $role_count['接洽律师']==1){
-				$this->db->update('project_people',array('contribute'=>$contribute['接洽']*0.3),array('id'=>$id));
-	
-			}elseif($role=='接洽律师'){
-				if(isset($role_count['接洽律师（次要）']) && $role_count['接洽律师（次要）']==1){
-					$this->db->update('project_people',array('contribute'=>$contribute['接洽']*0.7),array('id'=>$id));
-				}else{
-					$this->db->update('project_people',array('contribute'=>$contribute['接洽']/$role_count[$role]),array('id'=>$id));
-				}
-	
-			}elseif($role=='主办律师'){
-				if(isset($role_count['协办律师']) && $role_count['协办律师']){
-					$this->db->update('project_people',array('contribute'=>($contribute['办案']-0.05)/$role_count[$role]),array('id'=>$id));
-				}else{
-					$this->db->update('project_people',array('contribute'=>$contribute['办案']/$role_count[$role]),array('id'=>$id));
-				}
-	
-			}elseif($role=='协办律师'){
-				$this->db->update('project_people',array('contribute'=>0.05/$role_count[$role]),array('id'=>$id));
-			}
-		}
-	}
-	
-	function lawyerRoleCheck($project_id,$new_role,$actual_contribute=NULL){
-		$project_id=intval($project_id);
-		
-		if(strpos($new_role,'信息提供')!==false && $this->db->query("SELECT SUM(contribute) sum FROM project_people WHERE type='律师' AND role LIKE '信息提供%' AND `project`=$project_id")->row()->sum+substr($new_role,15,2)/100>0.2){
-			//信息贡献已达到20%
-			showMessage('信息提供贡献已满额','warning');
-			return false;
-			
-		}elseif(strpos($new_role,'接洽律师')!==false && $this->db->query("SELECT COUNT(id) num FROM project_people WHERE type='律师' AND role LIKE '接洽律师%' AND `project`=$project_id")->row()->num>=2){
-			//接洽律师已达到2名
-			showMessage('接洽律师不能超过2位','warning');
-			return false;
-		}
-		
-		if($new_role=='信息提供（20%）'){
-			return 0.2;
-	
-		}elseif($new_role=='信息提供（10%）'){
-			return 0.1;
-	
-		}elseif($new_role=='实际贡献'){
-			$actual_contribute=$actual_contribute/100;
-			
-			if(!$actual_contribute){
-				$actual_contribute_left=
-					0.3-$this->db->query("SELECT SUM(contribute) sum FROM project_people WHERE type='律师' AND `project`=$project_id AND role='实际贡献'")->row()->sum;
-				if($actual_contribute_left>0){
-					return $actual_contribute_left;
-				}else{
-					showMessage('实际贡献额已分配完','warning');
-					return false;
-				}
-				
-			}elseif($this->db->query("SELECT SUM(contribute) sum FROM project_people WHERE type='律师' AND `project`=$project_id AND role='实际贡献'")->row()->sum+($actual_contribute/100)>0.3){
-				showMessage('实际贡献总数不能超过30%','warning');
-				return false;
-	
-			}else{
-				return $actual_contribute;
-			}
-		}else{
-			return 0;
-		}
 	}
 	
 	function getRoles($project_id){
@@ -476,13 +484,5 @@ class Project_model extends BaseItem_model{
 		$num=$project_num['classification_code'].$project_num['type_code'].$project_num['year_code'].'第'.$project_num['number'].'号';
 		return $num;
 	}
-
-	/**
-	 * 更新归档状态
-	 */
-	function updateFileStatus($id,$status){
-		
-	}
-	
 }
 ?>

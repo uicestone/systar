@@ -86,3 +86,12 @@ ALTER TABLE  `account` DROP FOREIGN KEY  `account_ibfk_11` ,
 ADD FOREIGN KEY (  `account` ) REFERENCES  `syssh`.`account` (
 `id`
 ) ON DELETE CASCADE ON UPDATE CASCADE ;
+
+ALTER TABLE  `project_relationship` CHANGE  `relation`  `relation` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+
+ALTER TABLE  `project_people` CHANGE  `weight`  `weight` DECIMAL( 6, 5 ) NULL DEFAULT NULL;
+update project_people set weight=1 where role = '案源人';
+update project_people set weight = contribute where role ='主办律师';
+
+ALTER TABLE  `syssh`.`project_relationship` DROP INDEX  `project` ,
+ADD UNIQUE  `project-relative-relation` (  `project` );

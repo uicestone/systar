@@ -176,7 +176,9 @@ class People extends SS_Controller{
 				$this->people->data['staff_name']=$this->staff->fetch($this->people->data['staff'],'name');
 			}
 
-			$this->load->addViewArrayData(compact('controller','people','labels','profiles','available_options','profile_name_options'));
+			$this->load->addViewArrayData(compact('controller','profiles','available_options','profile_name_options'));
+			$this->load->addViewData('people', $this->people->data);
+			$this->load->addViewData('labels', $this->people->labels);
 
 			if($this->input->post('character') && in_array($this->input->post('character'),array('个人','单位'))){
 				post('people/character', $this->input->post('character'));

@@ -560,6 +560,7 @@ jQuery.fn.setBlock=function(response){
 	
 	else if(response.status==='refresh'){
 		$.refresh(hash);
+		return this;
 	}
 	
 	else if(response.status==='redirect_href'){

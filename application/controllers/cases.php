@@ -30,19 +30,6 @@ class Cases extends Project{
 			'role'=>array('heading'=>'本案地位')
 		);
 		
-		$this->staff_list_args=array(
-			'staff_name'=>array('heading'=>'名称','cell'=>'{name}<button type="submit" name="submit[remove_staff]" id="{id}" class="hover">删除</button>'),
-			'role'=>array('heading'=>'本案职位'),
-			'contribute'=>array('heading'=>'贡献','eval'=>true,'cell'=>"
-				\$hours_sum_string='';
-				if('{hours_sum}'){
-					\$hours_sum_string='<span class=\"right\">{hours_sum}小时</span>';
-				}
-
-				return \$hours_sum_string.'<span>{contribute}'.('{contribute_amount}'?' ({contribute_amount})':'').'</span>';
-			")
-		);
-	
 		$this->miscfee_list_args=array(
 			'receiver'=>array('heading'=>'收款方','cell'=>'{receiver}<button type="submit" name="submit[remove_miscfee]" id="{id}" class="hover">删除</button>'),
 			'fee'=>array('heading'=>'数额','eval'=>true,'cell'=>"
@@ -116,6 +103,8 @@ class Cases extends Project{
 			
 			$this->load->addViewData('document_list', $this->documentList());
 
+			$this->load->addViewData('relative_list', $this->relativeList());
+
 			$this->load->view('cases/edit');
 			
 			$this->load->view('project/edit_sidebar',true,'sidebar');
@@ -140,7 +129,7 @@ class Cases extends Project{
 		return $list;
 	}
 	
-	function miscfeeList(){
+	 function miscfeeList(){
 		
 		$this->load->model('account_model','account');
 		
@@ -166,6 +155,128 @@ class Cases extends Project{
 					$this->output->message('请填写案件争议焦点','warning');
 					throw new Exception;
 				}
+			}
+			
+			elseif($submit=='client'){
+				
+				$this->load->model('client_model','client');
+				
+				//这样对数组做加法，后者同名键不会替换前者，即后者是前者的补充，而非更新
+				$project_client=$this->input->sessionPost('case_client');
+				$client=$this->input->sessionPost('client');
+				$client_profiles=$this->input->sessionPost('client_profiles');
+				$client_labels=$this->input->sessionPost('client_labels');
+				
+				if(!$project_client['role']){
+					$this->output->message('请选择本案地位','warning');
+					throw new Exception;
+				}
+		
+				if($project_client['client']){//autocomplete搜索到已有客户
+					$new_client_type=$this->client->fetch($project_client['client'],'type');
+					
+					if($new_client_type==='客户'){
+						$recent_case=$this->cases->getList(array('people'=>$project_client['client'],'labels'=>array('案件'),'limit'=>1,'before'=>$this->cases->id));
+						
+						if(isset($recent_case[0])){
+							
+							$this->cases->addLabel($this->cases->id, '再成案');
+							
+							$this->cases->addRelative($this->cases->id, $recent_case[0]['id'],'上次签约案件');
+							$previous_roles=$this->cases->getRolesPeople($recent_case[0]['id']);
+							
+							foreach(array('案源人','接洽律师') as $role){
+								if(isset($previous_roles[$role])){
+									foreach($previous_roles[$role] as $people){
+										$this->cases->addStaff($this->cases->id, $people['people'], $role, $people['weight']/2);
+									}
+								}
+							}
+							
+							$this->output->status='refresh';
+						}
+					}
+					
+					$this->output->message("系统中已经存在{$client['name']}，已自动识别");
+				}
+				else{//添加新客户
+					if(!$client['name']){
+						$this->output->message('请输入客户或相关人名称', 'warning');
+						throw new Exception;
+					}
+					$new_client=array(
+						'name'=>$client['name'],
+						'character'=>isset($client['character']) && $client['character']=='单位'?'单位':'个人',
+						'type'=>$client['type'],
+						'labels'=>$client_labels
+					);
+					
+					if(!$client_profiles['电话'] && !$client_profiles['电子邮件']){
+						$this->output->message('至少输入一种联系方式', 'warning');
+						throw new Exception;
+					}
+					
+					foreach($client_profiles as $name => $content){
+						if($name=='电话'){
+							if($this->client->isMobileNumber($content)){
+								$new_client['profiles']['手机']=$content;
+							}else{
+								$new_client['profiles']['电话']=$content;
+							}
+							$new_client['phone']=$content;
+						}elseif($name=='电子邮件' && $content){
+							if(!$this->form_validation->valid_email($content)){
+								$this->output->message('请填写正确的Email地址', 'warning');
+								throw new Exception;
+							}
+							$new_client['email']=$content;
+						}else{
+							$new_client['profiles'][$name]=$content;
+						}
+					}
+
+					if($client['type']=='客户'){//客户必须输入来源
+						if(!$client_profiles['来源类型']){
+							$this->output->message('请选择客户来源类型','warning');
+							throw new Exception;
+						}
+						$client['staff']=$this->staff->check($client['staff_name']);
+
+						$new_client['staff']=$client['staff'];
+
+					}else{//非客户必须输入工作单位
+						if(!$client['work_for']){
+							$this->output->message('请输入工作单位','warning');
+							throw new Exception;
+						}
+					}
+					
+					if($client['work_for']){
+						$new_client['work_for']=$client['work_for'];
+					}
+					
+					$project_client['client']=$this->client->add($new_client);
+
+					$this->output->message(
+						'<a href="#'.
+						($client['type']=='客户'?'client':'contact').
+						'/edit/'.$project_client['client'].'">新'.
+						$client['type'].' '.$client['name'].
+						' 已经添加，点击编辑详细信息</a>'
+					);
+				}
+
+				if($this->project->addPeople($this->project->id,$project_client['client'],'客户',$project_client['role'])){
+					$this->output->setData($this->clientList(),'content-table','html','.item[name="client"]>.contentTable','replace');
+				}else{
+					$this->output->message('客户添加错误', 'warning');
+					throw new Exception;
+				}
+				
+				unset($_SESSION[CONTROLLER]['post'][$this->project->id]['case_client']);
+				unset($_SESSION[CONTROLLER]['post'][$this->project->id]['client']);
+				unset($_SESSION[CONTROLLER]['post'][$this->project->id]['client_profiles']);
+				unset($_SESSION[CONTROLLER]['post'][$this->project->id]['client_labels']);
 			}
 
 			elseif($submit=='remove_client'){
@@ -202,6 +313,10 @@ class Cases extends Project{
 	
 	function index(){
 		$this->config->set_user_item('search/labels', array('案件'), false);
+		
+		if($this->user->isLogged('service')){
+			$this->config->set_user_item('search/people', NULL);
+		}
 		
 		parent::index();
 	}

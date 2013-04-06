@@ -1,4 +1,4 @@
-f<form method="post" name="<?=CONTROLLER?>" id="<?=$this->people->id?>" enctype="multipart/form-data">
+<form method="post" name="<?=CONTROLLER?>" id="<?=$this->people->id?>" enctype="multipart/form-data">
 	<div class="contentTableBox">
 		<div class="item">
 			<div class="title"><label>基本信息：</label></div>

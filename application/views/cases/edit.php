@@ -86,7 +86,7 @@
 				<input type="text" name="client_profiles[来源]" value="<?=$this->value('client_profiles/来源')?>" class="hidden" disabled="disabled" locked-by="client_profiles[来源类型]" />
 				<input type="text" name="client[staff_name]" placeholder="来源律师" value="<?=$this->value('client/staff_name')?$this->value('client/staff_name'):$this->user->name?>" disabled="disabled" />
 			</span>
-			<button type="submit" name="submit[case_client]">添加</button>
+			<button type="submit" name="submit[client]">添加</button>
 		</span>
 	 </div>
 
@@ -225,6 +225,11 @@
 	<div class="item">
 		<div class="title"><label>案情简介：</label></div>
 		<textarea class="item" name="project[summary]" type="text" rows="4"><?=$this->value('project/summary')?></textarea>
+	</div>
+
+	<div class="item">
+		<div class="title"><label>相关案件</label></div>
+		<?=$relative_list?>
 	</div>
 
 	<div class="item">

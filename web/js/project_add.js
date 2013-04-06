@@ -68,6 +68,46 @@ $(function(){
 			$('[name="client_profiles[来源]"]').removeAttr('disabled').show();
 		}
 	});
+	
+	/*职员角色删除*/
+	section.find('.item[name="staff"]')
+		.on('mouseenter','span[role]',function(){
+	
+			$(this).closest('tbody').find('span[role]').each(function(){
+				if($(this).data('delete-button')){
+					$(this).data('delete-button').remove();
+				}
+			});
+	
+			var that=$(this).data('delete-button',
+				$('<button/>',{text:'x'}).appendTo('body')
+					.position({
+						my:'right bottom',
+						at:'right top',
+						of:$(this)
+					})
+					.hide()
+					.on('mouseenter',function(){
+						$(this).clearQueue();
+					})
+					.on('mouseleave',function(){
+						$(this).stop().remove();
+					})
+					.on('click',function(){
+						var project=that.closest('form[id]').attr('id');
+						var people=that.closest('tr').attr('id');
+						var role=that.attr('role');
+						$.post('/project/removepeoplerole/'+project+'/'+people,{role:role},function(){
+							that.data('delete-button').remove();
+						});
+					}).delay(1000).fadeIn()
+				);
+		})
+		.on('mouseleave','span[role]',function(){
+			$(this).data('delete-button').clearQueue().delay(200).hide(0,function(){
+				$(this).remove();
+			});
+		});
 
 	/*职员添加表单－职员名称自动完成事件的响应*/
 	section.find('.item[name="staff"]').on('autocompleteselect',function(event,data){
