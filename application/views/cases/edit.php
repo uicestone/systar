@@ -127,55 +127,35 @@
 		<input type="text" name="project[quote]" value="<?=$this->value('project/quote') ?>" style="width:99%" />
 	</div>
 <? }?>
-	<div class="item" name="fee">
+	<div class="item" name="account">
 		<div class="title">
 			<label>签约律师费：</label>
-			<label><input type="checkbox" name="project[timing_fee]" value="1"<?if($this->value('project/timing_fee')){?> checked="checked"<?}?><?if(in_array('费用已锁定',$labels)){?> disabled="disabled"<?}?>/>计时收费</label> 
-			<label id="caseTimingFeeSave">
-
-<? if($this->value('project/timing_fee') && !isset($case_fee_timing_string)){?>
-				<button type="submit" name="submit[case_fee_timing]">保存</button>
-<? }?></label>
+			
 <? if(($responsible_partner==$this->user->id || $this->user->isLogged('finance')) && !in_array('费用已锁定',$labels)){?>
 			<button type="submit" name="submit[lock_fee]">锁定</button>
 <? }?>
 <? if(($responsible_partner==$this->user->id || $this->user->isLogged('finance')) && in_array('费用已锁定',$labels)){ ?>
 			<button type="submit" name="submit[unlock_fee]">解锁</button>
 <? } ?>
-
-<? if($this->user->isLogged('finance')){?>
-			<button type="button" onclick="window.location.href='account/add?project=<?=$this->value('project/id')?>'">到账</button>
-<? }?>
-<? if($this->user->isLogged('finance')){?>
-			<button type="submit" name="submit[case_fee_review]" disabled="disabled" class="hidden">忽略</button>
-<? }?>
-		</div>
-
-		<div>
-			<div class="timing-fee-detail<?if(!$this->value('project/timing_fee')){?> hidden<?}?>">
-<?if(isset($case_fee_timing_string) && $case_fee_timing_string!=''){?>
-				<?=$case_fee_timing_string?>
-<?}else{?>
-				包含：<input type="text" name="case_fee_timing[included_hours]" value="<?=$this->value('case_fee_timing/included_hours');?>" style="width:30px" />小时&nbsp;
-				账单起始日：<input type="text" name="case_fee_timing[date_start]" value="<?=$this->value('case_fee_timing/date_start')?>" class="date" />&nbsp;
-				账单日：<input type="text" name="case_fee_timing[bill_day]" value="<?=$this->value('case_fee_timing/bill_day')?>" style="width:30px;" />日&nbsp;
-				付款日：<input type="text" name="case_fee_timing[payment_day]" value="<?=$this->value('case_fee_timing/payment_day');?>" style="width:30px;" />日&nbsp;
-				付款周期：<input type="text" name="case_fee_timing[payment_cycle]" value="<?=$this->value('case_fee_timing/payment_cycle');?>" style="width:30px;" />个月&nbsp;
-				合同周期：<input type="text" name="case_fee_timing[contract_cycle]" value="<?=$this->value('case_fee_timing/contract_cycle');?>" style="width:30px;" />个月&nbsp;
-<? }?>
-			</div>
 		</div>
 
 		<?=$fee_list?>	
 		<button type="button" class="toggle-add-form">＋</button>
 		<span class="add-form hidden">
-			<select name="project_account[type]">
-				<?=options(in_array('咨询',$labels)?array('咨询费'):array('固定','风险','计时预付'),$this->value('project_account/type'),'类型');?>
+			<select name="account[type]">
+				<?=options(in_array('咨询',$labels)?array('咨询费'):array('固定','风险','计时预付'),$this->value('account/type'),'类型');?>
 			</select>
-			<input type="text" name="project_account[fee]" value="<?=$this->value('project_account/fee');?>" placeholder="数额" />
-			<input type="text" name="project_account[condition]" value="<?=$this->value('project_account/condition');?>" placeholder="付款条件" />
-			<input type="text" name="project_account[pay_date]" value="<?=$this->value('project_account/pay_date')?>" placeholder="预估日期" class="date" />
-			<button type="submit" name="submit[project_account]">添加</button>
+			<input type="text" name="account[account]" value="<?=$this->value('account/account')?>" placeholder="帐目编号" />
+			<input type="text" name="account[amount]" value="<?=$this->value('account/amount');?>" placeholder="数额" />
+<?if($this->user->isLogged('finance')){?>
+			<select name="account[received]">
+				<option value="0">应收帐款</option>
+				<option value="1">已到帐</option>
+			</select>
+<?}?>
+			<input type="text" name="account[date]" value="<?=$this->value('account/date')?>" placeholder="预估日期" class="date" />
+			<input type="text" name="account[comment]" value="<?=$this->value('account/comment');?>" placeholder="备注" />
+			<button type="submit" name="submit[account]">添加</button>
 		</span>
 	</div>
 

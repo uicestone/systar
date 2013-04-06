@@ -11,7 +11,7 @@ class Project extends SS_controller{
 	
 	var $staff_list_args;
 	
-	var $fee_list_args;
+	var $account_list_args;
 	
 	var $miscfee_list_args;
 	
@@ -29,6 +29,11 @@ class Project extends SS_controller{
 		$controller=CONTROLLER;
 		
 		$this->form_validation_rules['people'][]=array('rules'=>'required','label'=>'相关人员姓名','field'=>'people[name]');
+		$this->form_validation_rules['account']=array(
+			array('field'=>'account[type]','label'=>'收费类型','rules'=>'required'),
+			array('field'=>'account[amount]','label'=>'金额','rules'=>'required|numeric'),
+			array('field'=>'account[date]','label'=>'收费日起','rules'=>'required')
+		);
 		
 		$this->list_args=array(
 			'name'=>array('heading'=>'案名','cell'=>'{name}'),
@@ -64,17 +69,15 @@ class Project extends SS_controller{
 		
 		$this->status_list_args=array();
 		
-		$this->fee_list_args=array(
-			'type'=>array('heading'=>'类型','cell'=>'{type}<button type="submit" name="submit[remove_fee]" id="{id}" class="hover">删除</button>'),
-			'fee'=>array('heading'=>'数额','eval'=>true,'cell'=>"
-				\$return='{fee}'.('{fee_received}'==''?'':' <span title=\"{fee_received_time}\">（到账：{fee_received}）</span>');
-				if('{reviewed}'){
-					\$return=wrap(\$return,array('mark'=>'span','style'=>'color:#AAA'));
-				}
+		$this->account_list_args=array(
+			'account'=>array('heading'=>'帐目编号'),
+			'type'=>array('heading'=>'类型','cell'=>'{type}'),
+			'amount'=>array('heading'=>array('data'=>'数额','width'=>'30%'),'eval'=>true,'cell'=>"
+				\$return='{total}'.('{received}'==''?'':' <span title=\"{received_date}\">（到账：{received}）</span>');
 				return \$return;
 			"),
-			'condition'=>array('heading'=>'条件','cell'=>array('class'=>'ellipsis','title'=>'{condition}')),
-			'pay_date'=>array('heading'=>'预计时间')
+			'receivable_date'=>array('heading'=>'预计时间'),
+			'comment'=>array('heading'=>'备注','cell'=>array('class'=>'ellipsis','title'=>'{comment}'))
 		);
 	}
 	
@@ -182,10 +185,13 @@ class Project extends SS_controller{
 		return $list;
 	}
 	
-	function feeList(){
-		$list=$this->table->setFields($this->fee_list_args)
-				->setAttribute('name','fee')
-				->generate($this->project->getFeeList($this->project->id));
+	function accountList(){
+		
+		$this->load->model('account_model','account');
+		
+		$list=$this->table->setFields($this->account_list_args)
+				->setAttribute('name','account')
+				->generate($this->account->getList(array('project'=>$this->project->id,'limit'=>false,'orderby'=>false,'group'=>'account')));
 		
 		return $list;
 	}
@@ -436,19 +442,17 @@ class Project extends SS_controller{
 				}
 			}
 			
-			elseif($submit=='project_account'){
+			elseif($submit=='account'){
 				
-				$project_account=$this->input->sessionPost('project_account');
+				$this->load->model('account_model','account');
+				
+				$account=$this->input->sessionPost('account');
 
-				if(!$project_account['type']){
-					$this->output->message('请选择收费类型','warning');
-				}
-				
-				if(!is_numeric($project_account['fee'])){
+				if(!is_numeric($account['amount'])){
 					$this->output->message('请预估收费金额（数值）','warning');
 				}
 				
-				if(!$project_account['pay_date']){
+				if(!$account['date']){
 					$this->output->message('请预估收费时间','warning');
 				}
 				
@@ -456,20 +460,25 @@ class Project extends SS_controller{
 					throw new Exception;
 				}
 				
-				if($this->project->addFee($this->project->id,$project_account['fee'],$project_account['pay_date'],$project_account['type'],$project_account['condition'])){
-					//unset($_SESSION['cases']['post']['project_account']);
-					$this->output->setData($this->feeList(),'content-table','html','.item[name="fee"]>.contentTable','replace');
+				if(in_array('咨询',$this->project->labels)){
+					$subject='咨询费';
+				}elseif(in_array('法律顾问',$this->project->labels)){
+					$subject='顾问费';
 				}else{
-					$this->output->message('收费添加错误', 'warning');
+					$subject='律师费';
 				}
-				unset($_SESSION[CONTROLLER]['post'][$this->project->id]['project_account']);
+				
+				$this->account->add($account+array('project'=>$this->project->id,'subject'=>$subject));
+				$this->output->setData($this->accountList(),'content-table','html','.item[name="account"]>.contentTable','replace');
+				
+				unset($_SESSION[CONTROLLER]['post'][$this->project->id]['account']);
 			}
 			
 			elseif($submit=='remove_fee' || $submit=='remove_miscfee'){
 				$this->project->removeFee($this->project->id,$button_id);
 				
 				if($submit=='remove_fee'){
-					$this->output->setData($this->feeList(),'content-table','html','.item[name="fee"]>.contentTable','replace');
+					$this->output->setData($this->accountList(),'content-table','html','.item[name="account"]>.contentTable','replace');
 				}else{
 					$this->output->setData($this->miscfeeList(),'content-table','html','.item[name="miscfee"]>.contentTable','replace');
 				}

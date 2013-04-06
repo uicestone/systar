@@ -106,7 +106,7 @@ class Cases extends Project{
 
 			$this->load->addViewData('staff_list', $this->staffList());
 			
-			$this->load->addViewData('fee_list', $this->feeList());
+			$this->load->addViewData('fee_list', $this->accountList());
 			
 			$this->load->addViewData('miscfee_list', $this->miscfeeList());
 			
@@ -141,9 +141,12 @@ class Cases extends Project{
 	}
 	
 	function miscfeeList(){
+		
+		$this->load->model('account_model','account');
+		
 		$list=$this->table->setFields($this->miscfee_list_args)
 				->setAttribute('name','miscfee')
-				->generate($this->cases->getFeeMiscList($this->cases->id));
+				->generate($this->account->getList(array('project'=>$this->cases->id,'type'=>'办案费','limit'=>false,'orderby'=>false,'group'=>'account')));
 		
 		return $list;
 	}

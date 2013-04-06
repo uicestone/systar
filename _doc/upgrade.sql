@@ -1,4 +1,3 @@
--- server updated
 CREATE TABLE IF NOT EXISTS `company_config` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `company` int(11) NOT NULL,
@@ -24,3 +23,66 @@ ALTER TABLE `company_config`
 ALTER TABLE `user_config`
   ADD CONSTRAINT `user_config_ibfk_1` FOREIGN KEY (`user`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 -- structure exported
+-- server updated
+
+alter table account drop summary;
+drop table account_team;
+
+ALTER TABLE  `project_profile` CHANGE  `uid`  `uid` INT( 11 ) NULL;
+
+insert into project_profile (project,name,content)
+select `case`,'包含小时',included_hours from case_fee_timing;
+insert into project_profile (project,name,content)
+select `case`,'合同周期',contract_cycle from case_fee_timing;
+insert into project_profile (project,name,content)
+select `case`,'账单周期',payment_cycle from case_fee_timing;
+insert into project_profile (project,name,content)
+select `case`,'账单日',bill_day from case_fee_timing;
+insert into project_profile (project,name,content)
+select `case`,'付款日',payment_day from case_fee_timing;
+insert into project_profile (project,name,content)
+select `case`,'起算日期',date_start from case_fee_timing;
+
+drop table `case_fee_timing`;
+
+alter table account modify name varchar(255) after id;
+alter table account modify type varchar(255) after name;
+
+ALTER TABLE  `account` ADD  `received` BOOLEAN NOT NULL AFTER  `amount`;
+
+update project_account set receiver = null where type != '办案费';
+
+ALTER TABLE  `project_account` CHANGE  `receiver`  `receiver` ENUM(  '承办律师',  '律所',  '' ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
+ALTER TABLE  `project_account` CHANGE  `condition`  `condition` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT  '';
+
+update project_account set receiver = '' where receiver is null;
+update project_account set `condition` = '' where `condition` is null;
+update project_account set comment = '' where comment is null;
+
+update project_account set comment = concat(receiver,`condition`,comment);
+
+update account set received = 1;
+
+insert into account (amount,date,received,project,project_account,comment,type,company)
+select fee,pay_date,0,project,id,comment,type,1 from project_account;
+
+ALTER TABLE  `account` DROP FOREIGN KEY  `account_ibfk_11` ;
+alter table account drop username;
+ALTER TABLE  `account` CHANGE  `project_account`  `account` INT( 11 ) NULL DEFAULT NULL;
+
+create temporary table t
+select * from account where received = 0;# 影响了 698 行。
+
+update account inner join t on account.account=t.account set account.account = t.id where account.received =1 ;# 影响了 359 行。
+update account set account = id where received = 0;
+ALTER TABLE  `account` ADD FOREIGN KEY (  `account` ) REFERENCES  `syssh`.`account` (
+`id`
+) ON DELETE NO ACTION ON UPDATE CASCADE ;
+
+drop table project_account;
+update account set display = 1 , company =1;
+
+ALTER TABLE  `account` DROP FOREIGN KEY  `account_ibfk_11` ,
+ADD FOREIGN KEY (  `account` ) REFERENCES  `syssh`.`account` (
+`id`
+) ON DELETE CASCADE ON UPDATE CASCADE ;

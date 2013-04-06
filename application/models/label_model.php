@@ -129,16 +129,14 @@ class Label_model extends BaseItem_model{
 	 * @param type $relation
 	 */
 	function getRelatives($label,$relation=NULL){
-
-		$query="
-			SELECT relative.id,relative.name
-			FROM label_relationship
-				INNER JOIN label ON label.id=label_relationship.label
-				INNER JOIN label relative ON relative.id=label_relationship.relative
-			WHERE label.name='$label' OR label.id='$label'
-		";
 		
-		return array_sub($this->db->query($query)->result_array(),'name','id');
+		$this->db->select('relative.id,relative.name')
+			->from('label_relationship')
+			->join('label','label.id=label_relationship.label','inner')
+			->join('label relative','relative.id=label_relationship.relative','inner')
+			->or_where(array('label.name'=>$label,'label.id'=>$label));
+
+		return array_sub($this->db->get()->result_array(),'name','id');
 	}
 }
 
