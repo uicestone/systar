@@ -456,10 +456,9 @@ class Project_model extends BaseItem_model{
 			$project_num['type_code']='';
 		}else{
 			switch($classification){
-				case '诉讼':$project_num['classification_code']='诉';break;
-				case '非诉讼':$project_num['classification_code']='非';break;
+				case '争议':$project_num['classification_code']='诉';break;
+				case '非争议':$project_num['classification_code']='非';break;
 				case '法律顾问':$project_num['classification_code']='顾';break;
-				case '内部行政':$project_num['classification_code']='内';break;
 				default:'';
 			}
 			switch($type){

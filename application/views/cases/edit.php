@@ -17,9 +17,9 @@
 		</select>
 <?}else{?>
 		<select id="classification" name="labels[分类]"<?if(in_array('类型已锁定',$labels)){?> disabled="disabled"<?}?>>
-		<?=options(array('诉讼','非诉讼','法律顾问'),$this->value('labels/分类'),'分类');?>
+		<?=options(array('争议','非争议','法律顾问'),$this->value('labels/分类'),'分类');?>
 		</select>
-		<select name="labels[阶段]"<?if(!isset($labels['分类']) || $labels['分类']!='诉讼'){?> class="hidden" disabled="disabled"<?}?>>
+		<select name="labels[阶段]"<?if(!isset($labels['分类']) || $labels['分类']!='争议'){?> class="hidden" disabled="disabled"<?}?>>
 		<?=options($case_type_array,$this->value('labels/阶段'),'阶段');?>
 		</select>
 		<input type="text" name="project[name]" value="<?=$this->value('project/name')?>" placeholder="案件名称" style="width:300px;">

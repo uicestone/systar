@@ -669,5 +669,30 @@ class Achievement_model extends SS_Model{
 		return $this->db->query($q)->row()->bonus;
 	}
 	
+	/**
+	 * 签约列表
+	 * @param array $args:
+	 * people
+	 *	role
+	 * date array(from=>'2011-11-11',to=>'2011-11-11')
+	 * team
+	 */
+	function getContractList(array $args=array()){
+		
+		$this->db->from('account')
+			->join('project','project.id = account.project','inner')
+			->where('received',false);
+		
+	}
+	
+	/**
+	 * 创收列表
+	 * @param array $args:
+	 * 
+	 */
+	function getReceivedList(array $args=array()){
+		
+	}
+	
 }
 ?>

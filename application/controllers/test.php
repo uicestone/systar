@@ -5,8 +5,14 @@ class Test extends SS_controller{
 	}
 	
 	function index(){
-		print_r($this->config->user_item('123'));
-		print_r($this->session->all_userdata());
+		$this->load->model('account_model','account');
+		$account=$this->account->getList(array(
+			'sum'=>true,
+			'group'=>'team',
+			'received'=>true,
+			'date'=>array('from'=>'2013-01-01','to'=>'2013-03-31'),
+			'limit'=>false,'orderby'=>false));
+		print_r($account);
 		//print_r($_SESSION);
 		//print_r($this->user);
 	}

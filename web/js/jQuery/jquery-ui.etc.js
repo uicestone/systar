@@ -184,3 +184,38 @@ $.datepicker.regional['zh-CN']={closeText:'关闭',prevText:'&#x3c;上月',nextT
     };
  
 })();
+
+/*自定义的默认选项*/
+var highchartsOptions={
+	chart: {
+		backgroundColor:null
+	},
+	title: {
+		style:{
+			'font-family':'Microsoft Yahei,SimHei'
+		}
+	},
+	xAxis: {
+		labels: {
+			style: {
+				'font-size':'14px',
+				'font-family':'Microsoft Yahei,SimHei'
+			}
+		}
+	},
+	yAxis: {
+		title: {
+			text: null
+		},
+		min:0
+	},
+	legend: {
+		layout: 'vertical',
+		align: 'right',
+		verticalAlign: 'middle',
+		borderWidth: 0
+	},
+	credits: {
+		enabled: false
+	}
+}

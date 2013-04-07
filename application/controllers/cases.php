@@ -151,7 +151,7 @@ class Cases extends Project{
 					$this->output->message('尚未获取案号，请选择案件分类和阶段后获取案号','warning');
 					throw new Exception();
 				}
-				if(isset($this->cases->labels['分类']) && in_array($this->cases->labels['分类'],array('诉讼','非诉讼')) && !in_array('咨询', $this->cases->labels) && !$this->cases->data['focus']){
+				if(isset($this->cases->labels['分类']) && in_array($this->cases->labels['分类'],array('争议','非争议')) && !in_array('咨询', $this->cases->labels) && !$this->cases->data['focus']){
 					$this->output->message('请填写案件争议焦点','warning');
 					throw new Exception;
 				}

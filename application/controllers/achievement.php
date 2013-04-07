@@ -15,142 +15,71 @@ class Achievement extends SS_controller{
 	
 	function __construct(){
 		parent::__construct();
+		$this->load->model('account_model','account');
 	}
 	
-	function index(){
+	/**
+	 * 各团队业绩列表
+	 */
+	function teams(){
 		
-		if($this->input->post('date_from')){
-			option('search/date_from',$this->input->post('date_from'));
-		}
-
-		if($this->input->post('date_to')){
-			option('search/date_to',$this->input->post('date_to'));
-		}
+		$this->section_title='小组业绩统计';
 		
-		if($this->input->post('submit')=='date_range_cancel'){
-			option('search/date_from',NULL);
-			option('search/date_ro',NULL);
-		}
+		$this->config->set_user_item('date/from', $this->date->year_begin,false);
 		
-		$table=$this->table->setFields($this->list_args)
-			->setData($this->achievement->getList($this->config->user_item('search')))
-			->generate();
+		$存量创收=$this->account->getList(array(
+			'sum'=>true,
+			'group'=>'team',
+			'received'=>true,
+			'contract_date'=>array('to'=>$this->date->last_year_end),
+			'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
+			'limit'=>false,
+			'orderby'=>false
+		));
 		
-		$this->load->addViewData('list',$table);
+		$新增创收=$this->account->getList(array(
+			'sum'=>true,
+			'group'=>'team',
+			'received'=>true,
+			'contract_date'=>array('from'=>$this->date->year_begin),
+			'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
+			'limit'=>false,
+			'orderby'=>false
+		));
 		
-		$month_start_timestamp=strtotime(date('Y-m',$this->date->now).'-1');
-		$month_end_timestamp=mktime(0,0,0,date('m',$this->date->now)+1,1,date('Y',$this->date->now));
+		$签约=$this->account->getList(array(
+			'sum'=>true,
+			'group'=>'team',
+			'received'=>false,
+			'contract_date'=>array('from'=>$this->date->year_begin),
+			'limit'=>false,
+			'orderby'=>false
+		));
 		
-		$achievement_sum=array(
-			'_field'=>array(
-				'field'=>'本月',
-				'total'=>'全所',
-				'my'=>'主办',
-				'contribute'=>'贡献'
-			),
-			
-			'contracted'=>array(
-				'field'=>'签约',
-				'total'=>$this->achievement->sum('contracted','total',$month_start_timestamp),
-				'my'=>$this->achievement->sum('contracted','my',$month_start_timestamp),
-				'contribute'=>$this->achievement->sum('contracted','contribute',$month_start_timestamp)
-			),
-			
-			'estimated'=>array(
-				'field'=>'预计',
-				'total'=>$this->achievement->sum('estimated','total',$month_start_timestamp,$month_end_timestamp),
-				'my'=>$this->achievement->sum('estimated','my',$month_start_timestamp,$month_end_timestamp),
-				'contribute'=>$this->achievement->sum('estimated','contribute',$month_start_timestamp,$month_end_timestamp)
-			),
-			
-			'collected'=>array(
-				'field'=>'到账',
-				'total'=>$this->achievement->sum('collected','total',$month_start_timestamp),
-				'my'=>$this->achievement->sum('collected','my',$month_start_timestamp),
-				'contribute'=>$this->achievement->sum('collected','contribute',$month_start_timestamp)
-			)
+		$category=array_sub($签约,'team_name');
+		$series=array(
+			array('name'=>'存量创收','data'=>array_sub($存量创收,'sum')),
+			array('name'=>'新增创收','data'=>array_sub($新增创收,'sum')),
+			array('name'=>'签约','data'=>array_sub($签约,'sum')),
 		);
 		
-		option('search/contribute_type',$this->input->get('contribute_type')=='actual'?'actual':'fixed');
+		$this->load->addViewData('category', json_encode($category));
+		$this->load->addViewData('series', json_encode($series,JSON_NUMERIC_CHECK));
 		
-		$achievement=$this->achievement->myBonus(array('case',option('search/contribute_type')),option('date_range/from_timestamp'),option('date_range/to_timestamp'));
-
-		$achievement_dashboard=array(
-			'_field'=>array(
-				'奖金'
-			),
-			array(
-				$achievement
-			)
-		);
-
-		$achievement_view_data=compact('achievement_dashboard','achievement_sum');
-		$this->load->addViewArrayData($achievement_view_data);
-		$this->load->view('list');
-		$this->load->view('achievement/lists_sidebar',true,'sidebar');
+		$this->load->view('achievement/teams');
+		$this->load->view('achievement/teams_sidebar',true,'sidebar');
 	}
 
 	function receivable($method=NULL){
 		
-		$field=array(
-			'type'=>array('heading'=>array('data'=>'类别','width'=>'85px')),
-			'case_name'=>array('heading'=>array('data'=>'案件','width'=>'25%'),'cell'=>'<a href="/cases/edit/{case}" class="right" style="margin-left:10px;">查看</a>{case_name}'),
-			'lawyers'=>array('heading'=>'主办律师'),
-			'fee'=>array('heading'=>array('data'=>'预估','width'=>'100px')),
-			'pay_time'=>array('heading'=>array('data'=>'时间','width'=>'100px')),
-			'uncollected'=>array('heading'=>array('data'=>'未收','width'=>'100px')),
-			'clients'=>array('heading'=>'客户')
-		);
-		
-		$table=$this->table->setFields($field)
-					->setData($this->achievement->getReceivableList($method))
-					->generate();
-				
-		
-		$this->load->addViewData('list',$table);
-
-		$receivable_sum=$this->achievement->receivableSum($method,option('date_range/from'),option('date_range/to'));
-		$this->load->addViewData('receivable_sum', $receivable_sum['sum']);
-
-		$this->load->view('list');	
-		$this->load->view('achievement/receivable_sidebar',true,'sidebar');
 	}
 	
 	function caseBonus(){
 		
-		$field=array(
-			'staff_name'=>array('heading'=>'人员'),
-			'contribute_sum'=>array('heading'=>'合计贡献'),
-			'bonus_sum'=>array('heading'=>'合计奖金')
-		);
-		
-		$table=$this->table->setFields($field)
-					->setData($this->achievement->getCaseBonusList())
-					->generate();
-		
-		$this->load->addViewData('list',$table);
-		
-		$this->load->view('list');
-		$this->load->view('achievement/casebonus_sidebar',true,'sidebar');
 	}
 
 	function teambonus(){
 		
-		
-		
-		$field=array(
-			'staff_name'=>array('heading'=>'人员'),
-			'bonus_sum'=>array('heading'=>'团奖')
-		);
-		
-		
-		$table=$this->table->setFields($field)
-					->setData($this->achievement->getTeambonusList())
-					->generate();
-		
-		$this->load->addViewData('list',$table);
-		
-		$this->load->view('list');
 	}
 	
 	function summary(){

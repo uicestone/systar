@@ -95,3 +95,14 @@ update project_people set weight = contribute where role ='主办律师';
 
 ALTER TABLE  `syssh`.`project_relationship` DROP INDEX  `project` ,
 ADD UNIQUE  `project-relative-relation` (  `project` );
+
+ALTER TABLE  `account` ADD  `team` INT NULL AFTER  `project` ,
+ADD INDEX (  `team` );
+
+ALTER TABLE  `account` ADD FOREIGN KEY (  `team` ) REFERENCES  `syssh`.`team` (
+`id`
+) ON DELETE NO ACTION ON UPDATE CASCADE ;
+
+update account inner join project on project.id = account.project set account.team = project.team;
+
+update project_people set weight = 1 where weight > 0.99 and weight<1;
