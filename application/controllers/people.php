@@ -51,7 +51,7 @@ class People extends SS_Controller{
 				}else{
 					return '{content}';
 				}
-			", 'orderby'=>false), 
+			"), 
 			'comment'=>array('heading'=>'备注')
 		);
 		
@@ -81,6 +81,9 @@ class People extends SS_Controller{
 	 * 列表页
 	 */
 	function index(){
+		
+		$this->config->set_user_item('search/orderby', 'people.id desc', false);
+		$this->config->set_user_item('search/limit', 'pagination', false);
 		
 		if($this->input->post('name')){
 			$this->config->set_user_item('search/name', $this->input->post('name'));

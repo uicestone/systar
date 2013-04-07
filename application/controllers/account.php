@@ -32,10 +32,9 @@ class Account extends SS_controller{
 	function index(){
 		
 		$this->config->set_user_item('search/show_payer', true , false);
-		
-		$this->config->set_user_item('search/orderby', 'account.time desc', false);
-		
 		$this->config->set_user_item('search/received', true, false);
+		$this->config->set_user_item('search/orderby', 'account.time desc', false);
+		$this->config->set_user_item('search/limit', 'pagination', false);
 		
 		if($this->input->post('name')){
 			$this->config->set_user_item('search/name', $this->input->post('name'));

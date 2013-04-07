@@ -17,10 +17,6 @@ class Document_model extends BaseItem_model{
 	
 	function getList($args=array()){
 		
-		if(isset($args['name'])){
-			$this->db->like('document.name',$args['name']);
-		}
-		
 		if(isset($args['project'])){
 			$this->db->join('project_document',"project_document.document = document.id AND project_document.project = {$args['project']}",'INNER');
 		}

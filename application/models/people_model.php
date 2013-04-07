@@ -185,14 +185,13 @@ class People_model extends BaseItem_model{
 		',false);
 		
 		if(isset($args['name'])){
+			$this->db->where("(
+				people.name LIKE '%{$args['name']}%' 
+				OR people.abbreviation LIKE '%{$args['name']}%' 
+				OR people.name_en LIKE '%{$args['name']}%'
+			)",NULL,false);
 			
-			$this->db->where("
-				(
-					people.name LIKE '%{$args['name']}%' 
-					OR people.abbreviation LIKE '%{$args['name']}%' 
-					OR people.name_en LIKE '%{$args['name']}%'
-				)
-			",NULL,false);
+			unset($args['name']);
 
 		}
 		

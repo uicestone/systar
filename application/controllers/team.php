@@ -11,6 +11,8 @@ class Team extends SS_Controller{
 	
 	function index(){
 		
+		$this->config->set_user_item('search/limit', 'pagination', false);
+		
 		$this->list_args=array(
 			'name'=>array('heading'=>'名称'),
 			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->team,'getCompiledLabels'),'args'=>array('{id}')))

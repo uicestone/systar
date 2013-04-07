@@ -11,8 +11,8 @@ class Test extends SS_controller{
 			'sum'=>true,
 			'group'=>'team',
 			'received'=>true,
-			'date'=>array('from'=>'2013-01-01','to'=>'2013-03-31'),
-			'limit'=>false,'orderby'=>false));
+			'date'=>array('from'=>'2013-01-01','to'=>'2013-03-31')
+			));
 		print_r($account);
 		//print_r($_SESSION);
 		//print_r($this->user);

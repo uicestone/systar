@@ -55,7 +55,7 @@ class Project_model extends BaseItem_model{
 	
 	function getCompiledPeople($project_id){
 		$this->load->model('people_model','people');
-		$people=$this->people->getList(array('project'=>$project_id,'limit'=>false));
+		$people=$this->people->getList(array('project'=>$project_id));
 		$compiled='';
 		foreach($people as $person){
 			$compiled.='<span title="'.$person['role'].'"><a href="#people/edit/'.$person['id'].'">'.$person['abbreviation'].'</a></span> ';
@@ -280,10 +280,6 @@ class Project_model extends BaseItem_model{
 		
 		if(isset($args['num'])){
 			$this->db->where('project.num',$args['num']);
-		}
-		
-		if(isset($args['name'])){
-			$this->db->like('project.name',$args['name']);
 		}
 		
 		if(isset($args['is_relative_of'])){

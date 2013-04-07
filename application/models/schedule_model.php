@@ -45,10 +45,6 @@ class Schedule_model extends BaseItem_model{
 			$args['orderby']=false;
 		}
 		
-		if(isset($args['name'])){
-			$this->db->like('schedule.name',$args['name']);
-		}
-		
 		if(isset($args['completed'])){
 			$this->db->where('schedule.completed',$args['completed']);
 		}

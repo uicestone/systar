@@ -4,7 +4,7 @@ class SS_Model extends CI_Model{
 		parent::__construct();
 	}
 	
-	function limit($db_active_record){
+	function pagination($db_active_record){
 		
 		$rows=$db_active_record->count_all_results();
 		

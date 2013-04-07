@@ -30,7 +30,7 @@ class Schedule extends SS_controller{
 	
 	function calendar(){
 		$task_board=$this->schedule->getTaskBoardSort($this->user->id);
-		$this->load->addViewData('side_task_board', $this->schedule->getList(array('limit'=>false,'id_in_set'=>$task_board[0])));
+		$this->load->addViewData('side_task_board', $this->schedule->getList(array('id_in_set'=>$task_board[0])));
 		$this->load->view('schedule/calendar');
 		$this->load->view('schedule/calendar_sidebar',true,'sidebar');
 	}
@@ -45,6 +45,9 @@ class Schedule extends SS_controller{
 	}
 	
 	function lists(){
+		
+		$this->config->set_user_item('search/orderby', 'schedule.id desc', false);
+		$this->config->set_user_item('search/limit', 'pagination', false);
 		
 		if($this->input->get('project')){
 			$this->section_title='日程 - '.$this->project->fetch($this->input->get('project'),'name');
@@ -226,13 +229,13 @@ class Schedule extends SS_controller{
 		$sort_data = $this -> schedule -> getTaskBoardSort($this->user->id);
 		
 		//任务强数据的第一列作为边栏列
-		$side_task_board=$this->schedule->getList(array('limit'=>false,'id_in_set'=>$sort_data[0]));
+		$side_task_board=$this->schedule->getList(array('id_in_set'=>$sort_data[0]));
 		unset($sort_data[0]);
 		
 		$task_board = array();
 		
 		foreach($sort_data as $column){
-			$task_board[]=$this->schedule->getList(array('limit'=>false,'id_in_set'=>$column));
+			$task_board[]=$this->schedule->getList(array('id_in_set'=>$column));
 		}
 		
 		$this->load->addViewData('task_board' , $task_board);

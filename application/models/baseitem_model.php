@@ -29,7 +29,7 @@ class BaseItem_model extends SS_Model{
 		}
 		
 		if(!$row){
-			throw new Exception('item_not_found');
+			throw new Exception('item not found');
 		}
 		
 		if(is_null($field)){
@@ -60,26 +60,14 @@ class BaseItem_model extends SS_Model{
 	
 	/**
 	 * 
-	 * @param $config
-	 * array(
-	 *	limit=>array(
-	 *		显示行数[, 起始行]
-	 *	),
-	 *	limit=>SQL LIMIT STRING,
-	 * 
-	 *	orderby=>array(
-	 *		'people.time DESC',
-	 *		...
-	 *	)
-	 *	type=>'匹配类别',
-	 *	labels=>array(
-	 *		'匹配标签名',
-	 *		'匹配标签名,
-	 *		...
-	 *	),
-	 *	team=>int OR array
-	 *	
-	 * )
+	 * @param array $args
+	 * name
+	 * type
+	 * orderby string or array
+	 * limit string, array OR 'pagination'
+	 * team array or int
+	 * labels array
+	 * profiles array() @todo
 	 * @return array
 	 */
 	function getList($args=array()){
@@ -93,7 +81,7 @@ class BaseItem_model extends SS_Model{
 		
 		$this->db->from($this->table);
 		
-		//使用INNER JOIN的方式来筛选标签，聪明又机灵
+		//使用INNER JOIN的方式来筛选标签，聪明又机灵。但是尼玛只能肯定筛选，谁告诉我怎么否定筛选@todo
 		if(isset($args['labels']) && is_array($args['labels'])){
 			foreach($args['labels'] as $id => $label_name){
 				//每次连接people_label表需要定一个唯一的名字
@@ -103,38 +91,38 @@ class BaseItem_model extends SS_Model{
 		
 		$this->db->where(array($this->table.'.company'=>$this->company->id,$this->table.'.display'=>true));
 
+		if(isset($args['name'])){
+			$this->db->like($this->table.'.name',$args['name']);
+		}
+		
 		if(isset($args['type']) && $args['type']){
 			$this->db->where($this->table.'.type',$args['type']);
 		}
 		
-		//复制一个DB对象用来计算行数，因为计算行数需要运行sql，将清空DB对象中属性
-		$num_rows=clone $this->db;
-		
-		if(!isset($args['orderby'])){
-			$args['orderby']=$this->table.'.id DESC';
-		}
-		
-		if(is_array($args['orderby'])){
-			foreach($args['orderby'] as $orderby){
-				$this->db->order_by($orderby[0],$orderby[1]);
+		if(isset($args['orderby'])){
+			if(is_array($args['orderby'])){
+				foreach($args['orderby'] as $orderby){
+					$this->db->order_by($orderby[0],$orderby[1]);
+				}
+			}elseif($args['orderby']){
+				$this->db->order_by($args['orderby']);
 			}
-		}elseif($args['orderby']){
-			$this->db->order_by($args['orderby']);
 		}
 		
-		if(!isset($args['limit'])){
-			$args['limit']=$this->limit($num_rows);
-		}
-		
-		if($args['limit']!==false){
-			if(is_array($args['limit'])){
+		if(isset($args['limit'])){
+			if($args['limit']==='pagination'){
+				//复制一个DB对象用来计算行数，因为计算行数需要运行sql，将清空DB对象中属性
+				$args['limit']=$this->pagination(clone $this->db);
 				call_user_func_array(array($this->db,'limit'), $args['limit']);
-			}else{
+			}
+			elseif(is_array($args['limit'])){
+				call_user_func_array(array($this->db,'limit'), $args['limit']);
+			}
+			else{
 				call_user_func(array($this->db,'limit'), $args['limit']);
 			}
-			
 		}
-
+		
 		return $this->db->get()->result_array();
 	}
 	

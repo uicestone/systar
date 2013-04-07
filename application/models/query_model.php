@@ -11,12 +11,5 @@ class Query_model extends Project_model{
 		$this->addLabel($this->id, '所内案源');
 		return $this->id;
 	}
-	
-	function getList($args=array()){
-		if(isset($args['name'])){
-			$this->db->like('project.name',$args['name']);
-		}
-		return parent::getList($args);
-	}
 }
 ?>

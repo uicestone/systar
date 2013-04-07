@@ -32,9 +32,7 @@ class Achievement extends SS_controller{
 			'group'=>'team',
 			'received'=>true,
 			'contract_date'=>array('to'=>$this->date->last_year_end),
-			'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
-			'limit'=>false,
-			'orderby'=>false
+			'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
 		));
 		
 		$新增创收=$this->account->getList(array(
@@ -42,18 +40,14 @@ class Achievement extends SS_controller{
 			'group'=>'team',
 			'received'=>true,
 			'contract_date'=>array('from'=>$this->date->year_begin),
-			'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
-			'limit'=>false,
-			'orderby'=>false
+			'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
 		));
 		
 		$签约=$this->account->getList(array(
 			'sum'=>true,
 			'group'=>'team',
 			'received'=>false,
-			'contract_date'=>array('from'=>$this->date->year_begin),
-			'limit'=>false,
-			'orderby'=>false
+			'contract_date'=>array('from'=>$this->date->year_begin)
 		));
 		
 		$category=array_sub($签约,'team_name');
@@ -82,7 +76,7 @@ class Achievement extends SS_controller{
 		
 	}
 	
-	function summary(){
+	function index(){
 		$monthly_collect=$this->achievement->getMonthlyAchievement();
 		
 		$months=array_sub($monthly_collect,'month');

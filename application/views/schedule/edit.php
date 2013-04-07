@@ -1,6 +1,6 @@
 <textarea type="text" name="content" placeholder="日程概要" class="text"><?=$this->value('schedule/content')?></textarea>
 <select name="project" class="text">
-	<?=options($this->project->getArray(array('limit'=>false),'name','id'),$this->value('project/id'),'相关事项',true)?>
+	<?=options($this->project->getArray(array(),'name','id'),$this->value('project/id'),'相关事项',true)?>
 </select>
 <select name="people" class="text" data-placeholder="邀请其他人" multiple="multiple"><?=options($this->user->getArray(array(),'name','id'),$people,NULL,true)?></select>
 <div class="profile hidden">

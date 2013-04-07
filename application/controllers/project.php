@@ -89,7 +89,9 @@ class Project extends SS_controller{
 	function index(){
 		
 		$this->config->set_user_item('search/people', $this->user->id, false);
-
+		$this->config->set_user_item('search/orderby', 'project.id desc', false);
+		$this->config->set_user_item('search/limit', 'pagination', false);
+		
 		if($this->input->post('name')){
 			$this->config->set_user_item('search/name', $this->input->post('name'));
 		}
@@ -177,7 +179,7 @@ class Project extends SS_controller{
 		return $this->table->setFields($this->people_list_args)
 			->setRowAttributes(array('hash'=>'people/edit/{id}'))
 			->setAttribute('name', 'people')
-			->generate($this->people->getList(array('limit'=>false,'project'=>$this->project->id)));
+			->generate($this->people->getList(array('project'=>$this->project->id)));
 	}
 
 	function accountList(){
@@ -186,7 +188,7 @@ class Project extends SS_controller{
 		
 		$list=$this->table->setFields($this->account_list_args)
 				->setAttribute('name','account')
-				->generate($this->account->getList(array('project'=>$this->project->id,'limit'=>false,'orderby'=>false,'group'=>'account')));
+				->generate($this->account->getList(array('project'=>$this->project->id,'group'=>'account')));
 		
 		return $list;
 	}

@@ -13,7 +13,7 @@
 			<tr>
 				<td>
 					<select name="is_relative_of[]" class="chosen" multiple="multiple" data-placeholder="组">
-						<?=options($this->team->getArray(array('limit'=>false,'orderby'=>false,'has_relative'=>true),'name','id'),$this->config->user_item('search/is_relative_of'),NULL,true)?>
+						<?=options($this->team->getArray(array('has_relative'=>true),'name','id'),$this->config->user_item('search/is_relative_of'),NULL,true)?>
 					</select>
 				</td>
 			</tr>

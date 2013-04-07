@@ -19,6 +19,9 @@ class Document extends SS_controller{
 	
 	function index(){
 		
+		$this->config->set_user_item('search/orderby', 'document.id desc', false);
+		$this->config->set_user_item('search/limit', 'pagination', false);
+		
 		if($this->input->post('name')){
 			$this->config->set_user_item('search/name', $this->input->post('name'));
 		}
