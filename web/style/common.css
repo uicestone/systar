@@ -138,6 +138,7 @@ nav{
 	text-align:center;
 	box-shadow:0 2px 5px #000;
 	padding:10px;
+	cursor: default;
 }
 .warning, warning a{
 	background:#F88;color:#800;

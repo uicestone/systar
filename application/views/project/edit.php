@@ -52,9 +52,4 @@
 	</div>
 </div>
 </form>
-<style type="text/css">
-.item[name="document"] .chzn-container{
-	height:15px;
-}
-</style>
 <?=javascript('project_add')?>
