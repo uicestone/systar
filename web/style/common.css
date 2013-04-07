@@ -396,6 +396,7 @@ aside textarea{
 }
 aside select{
 	width:239px;
+	padding:3px;
 }
 aside .contentTable.search-bar tbody td.submit{
 	text-align:right;

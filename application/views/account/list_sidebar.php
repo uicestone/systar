@@ -11,6 +11,13 @@
 				</td>
 			</tr>
 			<tr>
+				<td>
+					<select name="received">
+						<?=options(array(0=>'预计',1=>'实际'),$this->config->user_item('search/received'),null,true)?>
+					</select>
+				</td>
+			</tr>
+			<tr>
 				<td class="submit">
 					<button type="submit" name="search" tabindex="0">搜索</button>
 					<button type="submit" name="search_cancel" tabindex="1"<?if(!$this->config->user_item('search/name') && !$this->config->user_item('search/labels')){?> class="hidden"<?}?>>取消</button>

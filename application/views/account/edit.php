@@ -3,26 +3,15 @@
 	<div class="item">
 		<div class="title"><label>基本信息：</label></div>
 		<input type="text" name="account[name]" value="<?=$this->value('account/name'); ?>" placeholder="摘要" title="摘要" />
+		<input type="text" name="account[subject]" value="<?=$this->value('account/subject')?>" placeholder="科目" title="科目" />
+		<input type="text" name="account[type]" value="<?=$this->value('account/type')?>" placeholder="类型" title="类型" />
+		<select name="account[received]">
+			<?=options(array(0=>'预计',1=>'实际'),$account['received'],null,true)?>
+		</select>
 		<label>￥<input type="text" name="account[amount]" value="<?=abs($this->value('account/amount')); ?>" placeholder="数额" title="数额" /></label>
 		<?=radio(array('in'=>'入','out'=>'出'), 'account[way]', $this->value('account/amount')>=0?'in':'out', true)?>
 		<input type="text" name="account[date]" value="<?=$this->value('account/date')?>" class="date" placeholder="日期" title="日期" />
-	</div>
-
-	<div class="item" name="related">
-		<div class="title"><label>关联：</label></div>
-		<?if(isset($case_client_array)){?>
-		<select name="account[people]">
-			<?=options($case_client_array, $this->value('account/people'), '客户', true)?>
-		</select>
-		<?}else{?>
-		<input type="text" name="client[name]" value="<?=$this->value('client/name');?>" autocomplete-model="client" placeholder="客户" title="客户" />
-		<input name="account[people]" class="hidden" />
-		<?}?>
-		<? if(!empty($case_fee_array)){?>
-		<select name="account[project_account]" class="chzn-select">
-			<?=options($case_fee_array,$this->value('account/project_account'),'应收帐款',true)?>
-		</select>
-		<? }?>
+		<input type="text" name="account[account]" value="<?=$this->value('account/account')?>" placeholder="账目编号" title="账目编号" />
 	</div>
 
 	<div class="item">

@@ -107,3 +107,17 @@ update account inner join project on project.id = account.project set account.te
 
 update project_people set weight = 1 where weight > 0.99 and weight<1;
 -- server updated
+
+delete from account where amount = 0;
+
+update account inner join account a
+on account.account=a.account set account.name = a.name where account.name is null;
+update account set name = '律师费' where received = 0 and name is null;
+
+update account inner join project on project.id=account.project set account.name = concat(account.name,' ',project.name);
+
+update account set name = '律师费' where received = 0 and name is null;
+
+ALTER TABLE  `account` CHANGE  `received`  `received` TINYINT( 1 ) NOT NULL DEFAULT  '0';
+
+ALTER TABLE  `account` CHANGE  `date`  `date` DATE NULL COMMENT  '到账日期';

@@ -2,30 +2,40 @@
 class Account extends SS_controller{
 	
 	var $section_title='资金';
-	
-	var $list_args=array(
-		'date'=>array('heading'=>'日期'),
-		'name'=>array('heading'=>'名目'),
-		'type'=>array('heading'=>array('data'=>'方向','width'=>'45px'),'eval'=>true,'cell'=>array(
-			'data'=>"
-				if({amount}>0){
-					return '<span style=\"color:#0F0\"><<</span>';
-				}else{
-					return '<span style=\"color:#F00\">>></span>';
-				}
-			",
-			'style'=>'text-align:center'
-		)),
-		'amount'=>array('heading'=>'金额'),
-		'client_name'=>array('heading'=>'付款/收款人')
-	);
+	var $list_args;
 	
 	function __construct(){
+		
 		parent::__construct();
 		$this->load->model('achievement_model','achievement');
+		
+		$this->list_args=array(
+			'id'=>array('heading'=>'账目编号'),
+			'date'=>array('heading'=>'日期'),
+			'name'=>array('heading'=>'名目','cell'=>array('class'=>'ellipsis','title'=>'{name}')),
+			'type'=>array('heading'=>array('data'=>'方向','width'=>'45px'),'parser'=>array('function'=>function($amount){
+				if($amount>0){
+					return '<span style="color:#0F0"><<</span>';
+				}else{
+					return '<span style="color:#F00">>></span>';
+				}
+			},'args'=>array('{amount}'))),
+
+			'received'=>array('heading'=>array('data'=>'状态','width'=>'50px'),'parser'=>array('function'=>function($received){
+				return intval($received)?'实际':'预计';
+			},'args'=>array('{received}'))),
+			'amount'=>array('heading'=>'金额'),
+			'payer_name'=>array('heading'=>'付款/收款人')
+		);
 	}
 	
 	function index(){
+		
+		$this->config->set_user_item('search/show_payer', true , false);
+		
+		$this->config->set_user_item('search/orderby', 'account.time desc', false);
+		
+		$this->config->set_user_item('search/received', true, false);
 		
 		if($this->input->post('name')){
 			$this->config->set_user_item('search/name', $this->input->post('name'));
@@ -37,6 +47,10 @@ class Account extends SS_controller{
 		
 		if($this->input->post('name')===''){
 			$this->config->unset_user_item('search/name');
+		}
+		
+		if($this->input->post('received')!==false){
+			$this->config->set_user_item('search/received', (bool)$this->input->post('received'));
 		}
 		
 		if($this->input->post('submit')==='search' && $this->input->post('labels')===false){
@@ -82,43 +96,20 @@ class Account extends SS_controller{
 	function edit($id){
 		$this->account->id=$id;
 		
-		$this->load->model('client_model','client');
-		$this->load->model('cases_model','cases');
+		$this->load->model('people_model','people');
+		$this->load->model('project_model','project');
 		
 		try{
 			$this->account->data=$this->account->fetch($this->account->id);
 
 			if($this->account->data['name']){
-				$tab_title=$this->account->data['name'];
-			}
-
-			if($this->account->data['people']){
-				$client=$this->client->fetch($this->account->data['people']);
-
-				if(isset($client['abbreviation'])){
-					$tab_title=$client['abbreviation'].' '.$tab_title;
-				}else{
-					$tab_title=$client['name'].' '.$tab_title;
-				}
-
-				//根据客户ID获得收费array
-				$case_fee_array=$this->cases->getFeeListByClient($this->account->data['people']);
+				$this->section_title=$this->account->data['name'];
 			}else{
-				$tab_title='未命名流水';
+				$this->section_title='未命名'.$this->section_title;
 			}
+			
+			$this->load->addViewData('account',$this->account->data);
 
-			$this->section_title=$tab_title;
-
-			if($this->account->data['project']){
-				//根据案件ID获得收费array
-				$case_fee_array=$this->cases->getFeeOptions($this->account->data['project']);
-				
-				$this->load->model('people_model','people');
-				
-				$case_client_array=$this->people->getArray(array('limit'=>false,'project'=>$this->account->data['project'],'is_staff'=>false));
-			}
-
-			$this->load->addViewArrayData(compact('account','client','case_fee_array','case_client_array'));
 			$this->load->view('account/edit');
 			$this->load->view('account/edit_sidebar',true,'sidebar');
 		}
@@ -144,7 +135,6 @@ class Account extends SS_controller{
 			}
 			
 			if($submit=='account'){
-				$this->load->model('cases_model','cases');
 				
 				if(!$this->account->data['name']){
 					$this->output->message('请填写摘要','warning');
@@ -156,25 +146,16 @@ class Account extends SS_controller{
 					throw new Exception;
 				}
 				
-				if(!$this->account->data['people']){
-					$this->output->message('请输入关联客户','warning');
-					throw new Exception;
-				}
-
 				if($this->account->data['way']=='out'){
-					post('account/amount',-abs($this->account->data['amount']));
+					$this->account->data['amount']=-abs($this->account->data['amount']);
 				}
 				//根据way设置amount的正负号
 
-				post('account/project',$this->cases->getIdByCaseFee($this->account->data['project_account']));
-				//根据提交的case_fee先找出case.id
-
-				post('account',array_trim(post('account')));//imperfect 2012/5/25 uicestone 为了让没有case_fee 和case的account能够保存
-
-				$this->account->update($this->account->id,post('account'));
+				$this->account->update($this->account->id,$this->account->data);
 				
 				unset($_SESSION[CONTROLLER]['post'][$this->account->id]);
-				$this->output->status='close';
+				
+				$this->output->message($this->section_title.' 已保存');
 			}
 			
 			if(is_null($this->output->status)){

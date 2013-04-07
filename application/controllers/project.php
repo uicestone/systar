@@ -266,7 +266,7 @@ class Project extends SS_controller{
 				$this->project->updateLabels($this->project->id,$this->project->labels);
 				
 				unset($_SESSION[CONTROLLER]['post'][$this->project->id]);
-				$this->output->status='close';
+				$this->output->message($this->section_title.' 已保存');
 			}
 			
 			elseif($submit=='people'){

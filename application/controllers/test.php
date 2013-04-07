@@ -5,6 +5,7 @@ class Test extends SS_controller{
 	}
 	
 	function index(){
+	
 		$this->load->model('account_model','account');
 		$account=$this->account->getList(array(
 			'sum'=>true,

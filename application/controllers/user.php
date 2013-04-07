@@ -124,7 +124,7 @@ class user extends SS_controller{
 				
 				unset($_SESSION['user']['post']);
 				
-				$this->output->status='close';
+				$this->output->message($this->section_title.' 已保存');
 			}
 
 			elseif($submit=='signup'){

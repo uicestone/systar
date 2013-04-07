@@ -295,7 +295,7 @@ class People extends SS_Controller{
 				$this->people->updateProfiles($this->people->id,$this->people->profiles);
 
 				unset($_SESSION[CONTROLLER]['post'][$this->people->id]);
-				$this->output->status='close';
+				$this->output->message($this->section_title.' 已保存');
 			}
 
 			elseif($submit=='relative'){

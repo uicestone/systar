@@ -49,7 +49,7 @@ class Cases extends Project{
 	}
 	
 	function add(){
-		$this->cases->id=$this->cases->add(array('time_contract'=>$this->date->today,'time_end'=>date('Y-m-d',$this->date->now+100*86400)));
+		$this->cases->id=$this->cases->add(array('type'=>'业务','time_contract'=>$this->date->today,'time_end'=>date('Y-m-d',$this->date->now+100*86400)));
 		$this->edit($this->cases->id);
 		redirect('#'.CONTROLLER.'/edit/'.$this->cases->id);
 	}
@@ -340,6 +340,11 @@ class Cases extends Project{
 					$staff['weight']=100;
 				}
 				
+				if($staff['role']==='案源人'){
+					$this->cases->removeLabel($this->cases->id, '所内案源');
+					$this->cases->addLabel($this->cases->id, '个人案源');
+				}
+				
 				if($staff['weight']===''){
 					$staff['weight']=NULL;
 				}else{
@@ -377,11 +382,6 @@ class Cases extends Project{
 			
 			elseif($submit=='apply_lock'){
 				//@TODO申请锁定，通过标签和消息系统来解决
-			}
-			
-			elseif($submit=='lock_type'){
-				$this->project->addLabel($this->project->id, '类型已锁定');
-				$this->output->status='refresh';
 			}
 			
 			elseif($submit=='lock_client'){
@@ -453,8 +453,6 @@ class Cases extends Project{
 
 			elseif($submit=='apply_project_num'){
 				
-				$this->project->labels=$this->input->sessionPost('labels');
-				
 				if(!$this->project->labels['领域']){
 					$this->output->message('获得案号前要先选择案件领域','warning');
 					throw new Exception();
@@ -468,8 +466,6 @@ class Cases extends Project{
 				$data=array(
 					'num'=>$this->project->getNum($this->project->id, $this->project->labels['分类'], $this->project->labels['领域'], in_array('咨询', $this->project->labels), $this->project->data['first_contact'], $this->project->data['time_contract']),
 				);
-				
-				$this->project->labels[]='类型已锁定';
 				
 				$this->project->update($this->project->id,$data);
 				

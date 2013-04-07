@@ -23,7 +23,7 @@ class Query extends Project{
 	}
 
 	function add(){
-		$this->query->id=$this->query->add(array('type'=>'业务','first_contact'=>$this->date->today));
+		$this->query->id=$this->query->add(array('first_contact'=>$this->date->today));
 		$this->edit($this->query->id);
 		redirect('#'.CONTROLLER.'/edit/'.$this->query->id);
 	}
