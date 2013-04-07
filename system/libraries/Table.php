@@ -288,8 +288,7 @@ class CI_Table {
 				{
 					if ($key != 'data')
 					{
-						//$temp = str_replace('<th', "<th $key='$val'", $temp);	uicestone 2012/11/7
-						$temp = str_replace('<th', "<th $key=\"$val\"", $temp);
+						$temp = str_replace('<th', "<th $key='$val'", $temp);
 					}
 				}
 
@@ -332,8 +331,7 @@ class CI_Table {
 					{
 						if ($key != 'data')
 						{
-							//$temp = str_replace('<td', "<td $key='$val'", $temp);	uicestone 2012/11/7
-							$temp = str_replace('<td', "<td $key=\"$val\"", $temp);
+							$temp = str_replace('<td', "<td $key='$val'", $temp);
 						}
 					}
 

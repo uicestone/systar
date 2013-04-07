@@ -1046,7 +1046,7 @@ class CI_DB_active_record extends CI_DB_driver {
 	 * @param	array	an associative array of insert values
 	 * @return	object
 	 */
-	public function insert_batch($table = '', $set = NULL, $ignore=false)//uicestone 2013/3/22 增加INSERT INGORE选项
+	public function insert_batch($table = '', $set = NULL)
 	{
 		if ( ! is_null($set))
 		{
@@ -1081,7 +1081,7 @@ class CI_DB_active_record extends CI_DB_driver {
 		for ($i = 0, $total = count($this->ar_set); $i < $total; $i = $i + 100)
 		{
 
-			$sql = $this->_insert_batch($this->_protect_identifiers($table, TRUE, NULL, FALSE), $this->ar_keys, array_slice($this->ar_set, $i, 100), $ignore);//uicestone 2013/3/22 增加INSERT INGORE选项
+			$sql = $this->_insert_batch($this->_protect_identifiers($table, TRUE, NULL, FALSE), $this->ar_keys, array_slice($this->ar_set, $i, 100));
 
 			//echo $sql;
 
