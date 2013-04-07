@@ -61,7 +61,7 @@ class Document extends SS_controller{
 		
 		$this->document->exportHead($document['name']);
 		
-		$filename=$this->config->item('document_path').$document['id'];
+		$filename='../uploads/'.$document['id'];
 		
 		$filename=iconv("utf-8","gbk",$filename);//Windows服务器的文件名采用gbk编码保存
 		readfile($filename);
