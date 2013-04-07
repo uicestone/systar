@@ -300,7 +300,15 @@ $(document)
 			}});
 		});
 		
-		section.find('select.chosen').chosen({search_contains:true,allow_single_deselect:true});
+		section.find('select.chosen').chosen({search_contains:true,allow_single_deselect:true})
+			.on('change',function(event,data){
+				var id=page.children('[hash="'+hash+'"]').children('form').attr('id')
+				if(data.selected && id){
+					$.post('/'+controller+'/addlabel/'+id,{label:data.selected});
+				}else if(data.deselected && id){
+					$.post('/'+controller+'/removelabel/'+id,{label:data.deselected});
+				}
+			});
 		
 		/*边栏选框自动提交*/
 		section.find('select.filter[method!="get"]').on('change',function(){

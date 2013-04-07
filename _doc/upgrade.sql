@@ -106,3 +106,4 @@ ALTER TABLE  `account` ADD FOREIGN KEY (  `team` ) REFERENCES  `syssh`.`team` (
 update account inner join project on project.id = account.project set account.team = project.team;
 
 update project_people set weight = 1 where weight > 0.99 and weight<1;
+-- server updated

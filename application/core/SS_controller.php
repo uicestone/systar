@@ -141,5 +141,22 @@ class SS_Controller extends CI_Controller{
 		$this->output->status='success';
 	}
 	
+	function removeLabel($item_id){
+		
+		$controller=CONTROLLER;
+		
+		$label_name=$this->input->post('label');
+		
+		$this->$controller->removeLabel($item_id, $label_name);
+	}
+	
+	function addLabel($item_id){
+		$controller=CONTROLLER;
+		
+		$label_name=$this->input->post('label');
+		
+		$this->$controller->addLabel($item_id, $label_name);
+	}
+	
 }
 ?>
