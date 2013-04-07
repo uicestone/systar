@@ -9,8 +9,6 @@ class Project extends SS_controller{
 	
 	var $people_list_args;
 	
-	var $staff_list_args;
-	
 	var $account_list_args;
 	
 	var $miscfee_list_args;
@@ -53,11 +51,6 @@ class Project extends SS_controller{
 			'role'=>array('heading'=>'角色')
 		);
 		
-		$this->staff_list_args=array(
-			'staff_name'=>array('heading'=>array('data'=>'名称','width'=>'38%'),'cell'=>'{name}<button type="submit" name="submit[remove_staff]" id="{id}" class="hover">删除</button>'),
-			'role'=>array()
-		);
-	
 		$this->schedule_list_args=array(
 			'name'=>array('heading'=>array('data'=>'标题','width'=>'150px'),'wrap'=>array('mark'=>'span','class'=>'show-schedule','id'=>'{id}')),
 			'time_start'=>array('heading'=>array('data'=>'时间','width'=>'60px'),'eval'=>true,'cell'=>"
@@ -187,18 +180,6 @@ class Project extends SS_controller{
 			->generate($this->people->getList(array('limit'=>false,'project'=>$this->project->id)));
 	}
 
-	function staffList(){
-		
-		$this->staff_list_args['role']=array('heading'=>'本案职位','parser'=>array('function'=>array($this->project,'getCompiledPeopleRoles'),'args'=>array($this->project->id,'{id}')))	;		$this->load->model('people_model','people');
-		
-		$list=$this->table->setFields($this->staff_list_args)
-			->setAttribute('name','staff')
-			->setRowAttributes(array('hash'=>'staff/edit/{id}'))
-			->generate($this->people->getList(array('project'=>$this->project->id,'type'=>'职员')));
-		
-		return $list;
-	}
-	
 	function accountList(){
 		
 		$this->load->model('account_model','account');
@@ -259,8 +240,6 @@ class Project extends SS_controller{
 		
 		$this->project->id=$id;
 		
-		$this->load->model('staff_model','staff');
-		
 		$this->project->data=array_merge($this->project->fetch($id),$this->input->sessionPost('project'));
 		$this->project->labels=array_merge($this->project->getLabels($this->project->id),$this->input->sessionPost('labels'));
 		
@@ -288,53 +267,6 @@ class Project extends SS_controller{
 				
 				unset($_SESSION[CONTROLLER]['post'][$this->project->id]);
 				$this->output->status='close';
-			}
-			
-			elseif($submit=='staff'){
-				
-				$staff=$this->input->sessionPost('staff');
-				if(!$staff['id']){
-					$staff['id']=$this->staff->check($staff['name']);
-					
-					if($staff['id']){
-						post('staff/id',$staff['id']);
-					}else{
-						$this->output->message('请输入职员名称','warning');
-						throw new Exception;
-					}
-				}
-				
-				$project_role=$this->project->getRoles($this->project->id);
-		
-				$responsible_partner=$this->project->getPartner($project_role);
-				//获得本案督办人的id
-				$my_roles=$this->project->getMyRoles($project_role);
-				//本人的本案职位
-
-				if(!$responsible_partner && $staff['role']!='督办人'){
-					//第一次插入督办人后不显示警告，否则如果不存在督办人则显示警告
-					$this->output->message('未设置督办人','notice');
-				}
-
-				if(!$staff['role']){
-					$this->output->message('未选择本案职务','warning');
-					throw new Exception();
-				}
-
-				if($this->project->addStaff($this->project->id,post('staff/id'),post('staff/role'),post('staff/hourly_fee'))){
-					$this->output->setData($this->staffList(),'content-table','html','.item[name="staff"]>.contentTable','replace');
-					unset($_SESSION[CONTROLLER]['post'][$this->project->id]['staff']['id']);
-				}else{
-					$this->output->message('人员添加错误', 'warning');
-				}
-
-				unset($_SESSION[CONTROLLER]['post'][$this->project->id]['staff']);
-			}
-			
-			elseif($submit=='remove_staff'){
-				if($this->project->removePeople($this->project->id,$button_id)){
-					$this->output->setData($this->staffList(),'content-table','html','.item[name="staff"]>.contentTable','replace');
-				}
 			}
 			
 			elseif($submit=='people'){
@@ -497,15 +429,6 @@ class Project extends SS_controller{
 				}
 			}
 			
-			elseif($submit=='file_document_list'){
-				
-				$this->load->model('document_model','document');
-
-				$document_catalog=$this->project->getDocumentCatalog($this->project->id,post('case_document_check'));
-
-				$this->load->view('case/document_catalog');
-			}
-			
 			elseif($submit=='new_case'){
 				$this->project->removeLabel($this->project->id, '已归档');
 				$this->project->removeLabel($this->project->id, '咨询');
@@ -522,122 +445,6 @@ class Project extends SS_controller{
 				$this->output->status='refresh';
 			}
 			
-			elseif($submit=='file' && in_array('咨询',$this->project->labels)){
-				$this->project->addLabel($this->project->id, '已归档');
-				$this->output->status='refresh';
-				$this->output->message('咨询案件已归档');
-			}
-			
-			elseif($submit=='review'){
-				$this->project->removeLabel($this->project->id, '等待立案审核');
-				$this->project->addLabel($this->project->id, '在办');
-				$this->output->status='refresh';
-				$this->output->message('通过立案审核');
-			}
-			
-			elseif($submit=='apply_lock'){
-				//@TODO申请锁定，通过标签和消息系统来解决
-			}
-			
-			elseif($submit=='lock_type'){
-				$this->project->addLabel($this->project->id, '类型已锁定');
-				$this->output->status='refresh';
-			}
-			
-			elseif($submit=='lock_client'){
-				$this->project->addLabel($this->project->id, '客户已锁定');
-				$this->output->status='refresh';
-			}
-			
-			elseif($submit=='lock_staff'){
-				$this->project->addLabel($this->project->id, '职员已锁定');
-				$this->output->status='refresh';
-			}
-			
-			elseif($submit=='lock_fee'){
-				$this->project->addLabel($this->project->id, '费用已锁定');
-				$this->output->status='refresh';
-			}
-			
-			elseif($submit=='unlock_client'){
-				$this->project->removeLabel($this->project->id, '客户已锁定');
-				$this->output->status='refresh';
-			}
-			
-			elseif($submit=='unlock_staff'){
-				$this->project->removeLabel($this->project->id, '职员已锁定');
-				$this->output->status='refresh';
-			}
-			
-			elseif($submit=='unlock_fee'){
-				$this->project->removeLabel($this->project->id, '费用已锁定');
-				$this->output->status='refresh';
-			}
-			
-			elseif($submit=='apply_file'){
-				$this->project->addLabel($this->project->id, '已申请归档');
-				$this->project->update($this->project->id,array(
-					'time_end'=>$this->date->today
-				));
-				$this->output->status='refresh';
-				$this->output->message('归档申请已接受');
-			}
-			
-			elseif($submit=='review_finance'){
-				$this->project->addLabel($this->project->id, '通过财务审核');
-				$this->output->status='refresh';
-				$this->output->message('结案财务状况已经审核');
-			}
-			
-			elseif($submit=='review_info'){
-				$this->project->addLabel($this->project->id, '通过信息审核');
-				$this->output->status='refresh';
-				$this->output->message('案件信息已经审核');
-			}
-			
-			elseif($submit=='review_manager'){
-				$this->project->addLabel($this->project->id, '通过主管审核');
-				$this->project->update($this->project->id,array(
-					'time_end'=>$this->date->today,
-				));
-				$this->output->status='refresh';
-				$this->output->message('案件已经审核，已正式归档');
-			}
-			
-			elseif(!in_array('咨询',$this->project->labels) && $submit=='file'){
-				$this->project->removeLabel($this->project->id, '已申请归档');
-				$this->project->addLabel($this->project->id, '案卷已归档');
-				$this->output->status='refresh';
-				$this->output->message('案卷归档归档完成');
-			}
-
-			elseif($submit=='apply_project_num'){
-				
-				$this->project->labels=$this->input->sessionPost('labels');
-				
-				if(!$this->project->labels['领域']){
-					$this->output->message('获得案号前要先选择案件领域','warning');
-					throw new Exception();
-				}
-
-				if(!$this->project->labels['分类']){
-					$this->output->message('获得案号前要先选择案件分类','warning');
-					throw new Exception();
-				}
-
-				$data=array(
-					'num'=>$this->project->getNum($this->project->id, $this->project->labels['分类'], $this->project->labels['领域'], in_array('咨询', $this->project->labels), $this->project->data['first_contact'], $this->project->data['time_contract']),
-				);
-				
-				$this->project->labels[]='类型已锁定';
-				
-				$this->project->update($this->project->id,$data);
-				
-				$this->project->updateLabels($this->project->id, $this->project->labels);
-				
-				$this->output->status='refresh';
-			}
-
 			if(is_null($this->output->status)){
 				$this->output->status='success';
 			}

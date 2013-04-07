@@ -116,7 +116,7 @@
 			<select name="staff[role]">
 				<?=options($staff_role_array,$this->value('staff/role'),'本案职务');?>
 			</select>
-			<input type="text" name="staff[actual_contribute]" value="<?=$this->value('staff/actual_contribute')?>" placeholder="%" class="hidden" />
+			<input type="text" name="staff[weight]" value="<?=$this->value('staff/weight')?>" placeholder="占比%" />
 			<button type="submit" name="submit[staff]">添加</button>
 		</span>
 	</div>

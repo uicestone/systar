@@ -97,7 +97,7 @@ $(function(){
 						var project=that.closest('form[id]').attr('id');
 						var people=that.closest('tr').attr('id');
 						var role=that.attr('role');
-						$.post('/project/removepeoplerole/'+project+'/'+people,{role:role},function(){
+						$.post('/'+controller+'/removepeoplerole/'+project+'/'+people,{role:role},function(){
 							that.data('delete-button').remove();
 						});
 					}).delay(1000).fadeIn()

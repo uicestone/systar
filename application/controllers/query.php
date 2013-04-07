@@ -186,6 +186,7 @@ class Query extends Project{
 				
 				$this->output->status='close';
 			}
+			
 			if(is_null($this->output->status)){
 				$this->output->status='success';
 			}

@@ -8,6 +8,8 @@ class Cases extends Project{
 
 	var $client_list_args;
 	
+	var $staff_list_args;
+	
 	function __construct() {
 		parent::__construct();
 		
@@ -30,6 +32,11 @@ class Cases extends Project{
 			'role'=>array('heading'=>'本案地位')
 		);
 		
+		$this->staff_list_args=array(
+			'staff_name'=>array('heading'=>array('data'=>'名称','width'=>'38%'),'cell'=>'{name}<button type="submit" name="submit[remove_staff]" id="{id}" class="hover">删除</button>'),
+			'role'=>array()
+		);
+	
 		$this->miscfee_list_args=array(
 			'receiver'=>array('heading'=>'收款方','cell'=>'{receiver}<button type="submit" name="submit[remove_miscfee]" id="{id}" class="hover">删除</button>'),
 			'fee'=>array('heading'=>'数额','eval'=>true,'cell'=>"
@@ -125,6 +132,18 @@ class Cases extends Project{
 			->setRowAttributes(array('hash'=>'client/edit/{id}'))
 			->setAttribute('name','client')
 			->generate($this->client->getList(array('project'=>$this->project->id,'is_staff'=>false)));
+		
+		return $list;
+	}
+	
+	function staffList(){
+		
+		$this->staff_list_args['role']=array('heading'=>'本案职位','parser'=>array('function'=>array($this->project,'getCompiledPeopleRoles'),'args'=>array($this->project->id,'{id}')))	;		$this->load->model('people_model','people');
+		
+		$list=$this->table->setFields($this->staff_list_args)
+			->setAttribute('name','staff')
+			->setRowAttributes(array('hash'=>'staff/edit/{id}'))
+			->generate($this->people->getList(array('project'=>$this->project->id,'type'=>'职员')));
 		
 		return $list;
 	}
@@ -284,7 +303,181 @@ class Cases extends Project{
 					$this->output->setData($this->clientList(),'content-table','html','.item[name="client"]>.contentTable','replace');
 				}
 			}
+			
+			elseif($submit=='staff'){
+				
+				$this->load->model('staff_model','staff');
+				
+				$staff=$this->input->sessionPost('staff');
+				
+				if(!$staff['id']){
+					$staff['id']=$this->staff->check($staff['name']);
+					
+					if(!$staff['id']){
+						$this->output->message('请输入职员名称','warning');
+						throw new Exception;
+					}
+				}
+				
+				$project_role=$this->project->getRoles($this->project->id);
+		
+				$responsible_partner=$this->project->getPartner($project_role);
+				//获得本案督办人的id
+				$my_roles=$this->project->getMyRoles($project_role);
+				//本人的本案职位
 
+				if(!$responsible_partner && $staff['role']!='督办人'){
+					//第一次插入督办人后不显示警告，否则如果不存在督办人则显示警告
+					$this->output->message('未设置督办人','notice');
+				}
+
+				if(!$staff['role']){
+					$this->output->message('未选择本案职务','warning');
+					throw new Exception;
+				}
+				
+				if(in_array($staff['role'],array('案源人','接洽律师','主办律师')) && !$staff['weight']){
+					$staff['weight']=100;
+				}
+				
+				if($staff['weight']===''){
+					$staff['weight']=NULL;
+				}else{
+					$staff['weight']/=100;
+				}
+				
+				if($this->project->addStaff($this->project->id,$staff['id'],$staff['role'],$staff['weight'])){
+					$this->output->setData($this->staffList(),'content-table','html','.item[name="staff"]>.contentTable','replace');
+					unset($_SESSION[CONTROLLER]['post'][$this->project->id]['staff']['id']);
+				}else{
+					$this->output->message('人员添加错误', 'warning');
+				}
+
+				unset($_SESSION[CONTROLLER]['post'][$this->project->id]['staff']);
+			}
+			
+			elseif($submit=='remove_staff'){
+				if($this->project->removePeople($this->project->id,$button_id)){
+					$this->output->setData($this->staffList(),'content-table','html','.item[name="staff"]>.contentTable','replace');
+				}
+			}
+			
+			elseif($submit=='file' && in_array('咨询',$this->project->labels)){
+				$this->project->addLabel($this->project->id, '已归档');
+				$this->output->status='refresh';
+				$this->output->message('咨询案件已归档');
+			}
+			
+			elseif($submit=='review'){
+				$this->project->removeLabel($this->project->id, '等待立案审核');
+				$this->project->addLabel($this->project->id, '在办');
+				$this->output->status='refresh';
+				$this->output->message('通过立案审核');
+			}
+			
+			elseif($submit=='apply_lock'){
+				//@TODO申请锁定，通过标签和消息系统来解决
+			}
+			
+			elseif($submit=='lock_type'){
+				$this->project->addLabel($this->project->id, '类型已锁定');
+				$this->output->status='refresh';
+			}
+			
+			elseif($submit=='lock_client'){
+				$this->project->addLabel($this->project->id, '客户已锁定');
+				$this->output->status='refresh';
+			}
+			
+			elseif($submit=='lock_staff'){
+				$this->project->addLabel($this->project->id, '职员已锁定');
+				$this->output->status='refresh';
+			}
+			
+			elseif($submit=='lock_fee'){
+				$this->project->addLabel($this->project->id, '费用已锁定');
+				$this->output->status='refresh';
+			}
+			
+			elseif($submit=='unlock_client'){
+				$this->project->removeLabel($this->project->id, '客户已锁定');
+				$this->output->status='refresh';
+			}
+			
+			elseif($submit=='unlock_staff'){
+				$this->project->removeLabel($this->project->id, '职员已锁定');
+				$this->output->status='refresh';
+			}
+			
+			elseif($submit=='unlock_fee'){
+				$this->project->removeLabel($this->project->id, '费用已锁定');
+				$this->output->status='refresh';
+			}
+			
+			elseif($submit=='apply_file'){
+				$this->project->addLabel($this->project->id, '已申请归档');
+				$this->project->update($this->project->id,array(
+					'time_end'=>$this->date->today
+				));
+				$this->output->status='refresh';
+				$this->output->message('归档申请已接受');
+			}
+			
+			elseif($submit=='review_finance'){
+				$this->project->addLabel($this->project->id, '通过财务审核');
+				$this->output->status='refresh';
+				$this->output->message('结案财务状况已经审核');
+			}
+			
+			elseif($submit=='review_info'){
+				$this->project->addLabel($this->project->id, '通过信息审核');
+				$this->output->status='refresh';
+				$this->output->message('案件信息已经审核');
+			}
+			
+			elseif($submit=='review_manager'){
+				$this->project->addLabel($this->project->id, '通过主管审核');
+				$this->project->update($this->project->id,array(
+					'time_end'=>$this->date->today,
+				));
+				$this->output->status='refresh';
+				$this->output->message('案件已经审核，已正式归档');
+			}
+			
+			elseif(!in_array('咨询',$this->project->labels) && $submit=='file'){
+				$this->project->removeLabel($this->project->id, '已申请归档');
+				$this->project->addLabel($this->project->id, '案卷已归档');
+				$this->output->status='refresh';
+				$this->output->message('案卷归档归档完成');
+			}
+
+			elseif($submit=='apply_project_num'){
+				
+				$this->project->labels=$this->input->sessionPost('labels');
+				
+				if(!$this->project->labels['领域']){
+					$this->output->message('获得案号前要先选择案件领域','warning');
+					throw new Exception();
+				}
+
+				if(!$this->project->labels['分类']){
+					$this->output->message('获得案号前要先选择案件分类','warning');
+					throw new Exception();
+				}
+
+				$data=array(
+					'num'=>$this->project->getNum($this->project->id, $this->project->labels['分类'], $this->project->labels['领域'], in_array('咨询', $this->project->labels), $this->project->data['first_contact'], $this->project->data['time_contract']),
+				);
+				
+				$this->project->labels[]='类型已锁定';
+				
+				$this->project->update($this->project->id,$data);
+				
+				$this->project->updateLabels($this->project->id, $this->project->labels);
+				
+				$this->output->status='refresh';
+			}
+			
 		}catch(Exception $e){
 			$e->getMessage() && $this->output->message($e->getMessage(), 'warning');
 			$this->output->status='fail';
@@ -320,5 +513,6 @@ class Cases extends Project{
 		
 		parent::index();
 	}
+	
 }
 ?>
