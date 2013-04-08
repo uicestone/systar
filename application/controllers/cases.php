@@ -114,7 +114,7 @@ class Cases extends Project{
 
 			$this->load->view('cases/edit');
 			
-			$this->load->view('project/edit_sidebar',true,'sidebar');
+			$this->load->view('cases/edit_sidebar',true,'sidebar');
 		}
 		catch(Exception $e){
 			$this->output->status='fail';
