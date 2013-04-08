@@ -16,10 +16,10 @@ class SS_Date{
 		$this->microtime=microtime(true);
 		$this->today=date('Y-m-d',time());
 		$this->quarter=date('y',$this->now.ceil(date('m',$this->now/3)));
-		$this->year_begin=date('Y',$this->now).'-1-1';
+		$this->year_begin=date('Y',$this->now).'-01-01';
 		$this->year_end=date('Y',$this->now).'-12-31';
 		$this->last_year_end=(date('Y',$this->now)-1).'-12-31';
-		$this->month_begin=date('Y-m',$this->now).'-1';
+		$this->month_begin=date('Y-m',$this->now).'-01';
 		
 		if(date('w')==1){//今天是星期一
 			$this->week_begin=$this->today;

@@ -5,6 +5,11 @@ class Staff_model extends People_model{
 		parent::__construct();
 	}
 	
+	function getList(array $args=array()){
+		$args['type']='职员';
+		return parent::getList($args);
+	}
+	
 	/**
 	 * 根据部分名称返回一个职员id或其他信息
 	 * @param $part_of_staff_name
@@ -47,7 +52,7 @@ class Staff_model extends People_model{
 			}
 		}
 	}
-
+	
 	function fetch($staff_id,$field=NULL){
 		$staff_id=intval($staff_id);
 		

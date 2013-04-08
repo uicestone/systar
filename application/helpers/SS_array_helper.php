@@ -66,7 +66,7 @@ if(!function_exists('array_replace_recursive')){
  * @param $keyname_forkey 母数组中用来作为子数组键名的键值的键名
  * @return array
  */
-function array_sub($array,$keyname,$keyname_forkey=NULL){
+function array_sub($array,$keyname,$keyname_forkey=NULL,$fill_null=false){
 	$array_new=array();
 	foreach($array as $key => $sub_array){
 		if(isset($sub_array[$keyname])){
@@ -80,9 +80,73 @@ function array_sub($array,$keyname,$keyname_forkey=NULL){
 					$array_new[$key]=$sub_array[$keyname];
 				}
 			}
+		}elseif($fill_null){
+			if(is_null($keyname_forkey)){
+				$array_new[$key]=NULL;
+			}else{
+				if(isset($sub_array[$keyname_forkey])){
+					$array_new[$sub_array[$keyname_forkey]]=NULL;
+				}
+				else{
+					$array_new[$key]=NULL;
+				}
+			}
 		}
 	}
 	return $array_new;
+}
+
+function array_picksub($array,$keys){
+	$array_new=array();
+	foreach($array as $sub_array){
+		if(array_intersect($keys,array_keys($sub_array))===$keys){
+			$picked=array();
+			foreach($keys as $key_to_pick){
+				$picked[]=$sub_array[$key_to_pick];
+			}
+			$array_new[]=$picked;
+		}
+	}
+	return $array_new;
+}
+
+/**
+ * 
+ * @param array $arrays
+ * array(
+ *	'签约'=>array(
+ *		array(
+ *			people=>1
+ *			sum=>3
+ *		),
+ *		array(
+ *			people=>2
+ *			sum=>3
+ *		)
+ *	)
+ *	'创收'=>array(
+ *		array(
+ *			people=>1
+ *			sum=>3
+ *		)
+ *	)
+ * )
+ * @param type $key 'sum'
+ * @param type $using 'people'
+ * @return array(
+ *	1=>array(
+ *		签约=>3
+ *		创收=>3
+ *	)
+ * )
+ */
+function array_join(array $arrays,$key,$using){
+	$joined=array();
+	foreach($arrays as $key => $array){
+		foreach($array as $row){
+			
+		}
+	}
 }
 
 /**

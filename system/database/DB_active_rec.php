@@ -706,7 +706,7 @@ class CI_DB_active_record extends CI_DB_driver {
 	 * @param	string
 	 * @return	object
 	 */
-	public function group_by($by)
+	public function group_by($by, $escape=true)//增加不转义选项 uicestone 2013/4/8
 	{
 		if (is_string($by))
 		{
@@ -719,11 +719,11 @@ class CI_DB_active_record extends CI_DB_driver {
 
 			if ($val != '')
 			{
-				$this->ar_groupby[] = $this->_protect_identifiers($val);
+				$this->ar_groupby[] = $escape ? $this->_protect_identifiers($val) : $val;//增加不转义选项 uicestone 2013/4/8
 
 				if ($this->ar_caching === TRUE)
 				{
-					$this->ar_cache_groupby[] = $this->_protect_identifiers($val);
+					$this->ar_cache_groupby[] = $escape ? $this->_protect_identifiers($val) : $val;//增加不转义选项 uicestone 2013/4/8
 					$this->ar_cache_exists[] = 'groupby';
 				}
 			}

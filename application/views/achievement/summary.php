@@ -3,15 +3,21 @@ var chart;
 $(function(){
 	chart = new Highcharts.Chart($.extend(true,{},highchartsOptions,{
 		chart: {
-			renderTo: 'chart'
+			renderTo: 'chart',
+			type:'line'
 		},
 		title: {
 			text: '全所总创收和签约'
 		},
 		xAxis: {
-			categories: $.parseJSON('<? echo $months?>')
+			categories: <?=$category?>
 		},
-		series: $.parseJSON('<? echo $series ?>')
+		plotOptions: {
+			line:{
+				lineWidth:3
+			}
+		},
+		series: <?=$series?>
 	}));
 });
 </script>

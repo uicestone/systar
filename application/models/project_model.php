@@ -261,23 +261,18 @@ class Project_model extends BaseItem_model{
 	}
 	
 	function getList($args=array()){
-		$this->db->select("
-			project.id,project.name,project.num,project.time_contract
-		",false);
-		
+
 		if(isset($args['people'])){
 			$this->db->where("
 				project.id IN (SELECT `project` FROM project_people WHERE people = {$args['people']})
 			",NULL,false);
+			
+			if(isset($args['role'])){
+				$this->db->where('project_people.role',$args['role']);
+			}
+		
 		}
 
-		//当前用户作为某种角色的项目
-		if(isset($args['role'])){
-			$this->db->where("
-				project.id IN (SELECT `project` FROM project_people WHERE people = {$this->user->id} AND role = '{$args['role']}')
-			",NULL,false);
-		}
-		
 		if(isset($args['num'])){
 			$this->db->where('project.num',$args['num']);
 		}
@@ -290,6 +285,53 @@ class Project_model extends BaseItem_model{
 		
 		if(isset($args['before'])){
 			$this->db->where('project.id <',$args['before']);
+		}
+		
+		if(isset($args['time_contract'])){
+			
+			if(isset($args['time_contract']['from']) && $args['time_contract']['from']){
+				$this->db->where("TO_DAYS(project.time_contract) >= TO_DAYS('{$args['time_contract']['from']}')",NULL,FALSE);
+			}
+			
+			if(isset($args['time_contract']['to']) && $args['time_contract']['to']){
+				$this->db->where("TO_DAYS(project.time_contract) <= TO_DAYS('{$args['time_contract']['to']}')",NULL,FALSE);
+			}
+			
+		}
+		
+		if(isset($args['first_contact'])){
+			
+			if(isset($args['first_contact']['from']) && $args['first_contact']['from']){
+				$this->db->where("TO_DAYS(project.first_contact) >= TO_DAYS('{$args['first_contact']['from']}')",NULL,FALSE);
+			}
+			
+			if(isset($args['first_contact']['to']) && $args['first_contact']['to']){
+				$this->db->where("TO_DAYS(project.first_contact) <= TO_DAYS('{$args['first_contact']['to']}')",NULL,FALSE);
+			}
+			
+		}
+		
+		if(isset($args['count'])){
+			$this->db->select('COUNT(*) as `count`',false);
+		}
+		
+		if(isset($args['group'])){
+			if($args['group']==='team'){
+				$this->db->join('team','team.id = project.team','inner')
+					->group_by('project.team')
+					->select('team.id AS team, team.name AS team_name');
+			}
+			
+			if($args['group']==='people'){
+				$this->db->join('project_people','project_people.project = project.id','inner')
+					->join('people','people.id = project_people.people','inner')
+					->group_by('project_people.people')
+					->select('people.name AS people_name, people.id AS people');
+				
+				if(isset($args['role'])){
+					$this->db->where('project_people.role',$args['role']);
+				}
+			}
 		}
 		
 		return parent::getList($args);

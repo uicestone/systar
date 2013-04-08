@@ -16,6 +16,7 @@ class Achievement extends SS_controller{
 	function __construct(){
 		parent::__construct();
 		$this->load->model('account_model','account');
+		$this->output->message('数据调试中，仅供参考');
 	}
 	
 	/**
@@ -23,45 +24,299 @@ class Achievement extends SS_controller{
 	 */
 	function teams(){
 		
-		$this->section_title='小组业绩统计';
+		$this->section_title='小组业绩';
 		
 		$this->config->set_user_item('date/from', $this->date->year_begin,false);
 		
-		$存量创收=$this->account->getList(array(
-			'sum'=>true,
-			'group'=>'team',
-			'received'=>true,
-			'contract_date'=>array('to'=>$this->date->last_year_end),
-			'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
-		));
+		if($this->input->post('date_from')){
+			$this->config->set_user_item('date/from', $this->input->post('date_from'));
+		}
 		
-		$新增创收=$this->account->getList(array(
-			'sum'=>true,
-			'group'=>'team',
-			'received'=>true,
-			'contract_date'=>array('from'=>$this->date->year_begin),
-			'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
-		));
+		if($this->input->post('date_to')){
+			$this->config->set_user_item('date/to', $this->input->post('date_to'));
+		}
 		
-		$签约=$this->account->getList(array(
-			'sum'=>true,
-			'group'=>'team',
-			'received'=>false,
-			'contract_date'=>array('from'=>$this->date->year_begin)
-		));
+		//获得小组业绩金额
+		$data=array(
 		
-		$category=array_sub($签约,'team_name');
+			'新增创收'=>$this->account->getList(array(
+				'sum'=>true,
+				'group'=>'team',
+				'received'=>true,
+				'contract_date'=>array('from'=>$this->date->year_begin),
+				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
+				'orderby'=>'sum desc'
+			)),
+
+			'存量创收'=>$this->account->getList(array(
+				'sum'=>true,
+				'group'=>'team',
+				'received'=>true,
+				'contract_date'=>array('to'=>$this->date->last_year_end),
+				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
+			)),
+
+			'签约'=>$this->account->getList(array(
+				'sum'=>true,
+				'group'=>'team',
+				'received'=>false,
+				'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
+			))
+		);
+		
+		$joined=array();
+		
+		foreach($data as $key => $array){
+			foreach($array as $row){
+				if(!isset($joined[$row['team']])){
+					$joined[$row['team']]=array(
+						'team_name'=>$row['team_name'],
+					);
+				}
+				$joined[$row['team']][$key]=$row['sum'];
+			}
+		}
+		
+		$joined=array_merge($joined,array());
+		
+		$category=array_sub($joined,'team_name');
+		
 		$series=array(
-			array('name'=>'存量创收','data'=>array_sub($存量创收,'sum')),
-			array('name'=>'新增创收','data'=>array_sub($新增创收,'sum')),
-			array('name'=>'签约','data'=>array_sub($签约,'sum')),
+			array('name'=>'新增创收','data'=>array_sub($joined,'新增创收',NULL,true),'stack'=>2),
+			array('name'=>'存量创收','data'=>array_sub($joined,'存量创收',NULL,true),'stack'=>2),
+			array('name'=>'签约','data'=>array_sub($joined,'签约',NULL,true),'stack'=>0)
 		);
 		
 		$this->load->addViewData('category', json_encode($category));
 		$this->load->addViewData('series', json_encode($series,JSON_NUMERIC_CHECK));
 		
-		$this->load->view('achievement/teams');
-		$this->load->view('achievement/teams_sidebar',true,'sidebar');
+		//获得小组业绩数量
+		$this->load->model('project_model','project');
+		
+		$data=array(
+			
+			'签约案件'=>$this->project->getList(array(
+				'count'=>true,
+				'group'=>'team',
+				'labels'=>array('案件'),
+				'time_contract'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
+				'orderby'=>'count desc'
+			)),
+			
+			'面谈咨询'=>$this->project->getList(array(
+				'count'=>true,
+				'labels'=>array('咨询','面谈'),
+				'group'=>'team',
+				'first_contact'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
+			)),
+
+			'电话咨询'=>$this->project->getList(array(
+				'count'=>true,
+				'labels'=>array('咨询','电话'),
+				'group'=>'team',
+				'first_contact'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
+			)),
+
+			'网络咨询'=>$this->project->getList(array(
+				'count'=>true,
+				'labels'=>array('咨询','网络'),
+				'group'=>'team',
+				'first_contact'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
+			))
+			
+		);
+		
+		$joined=array();
+		
+		foreach($data as $key => $array){
+			foreach($array as $row){
+				if(!isset($joined[$row['team']])){
+					$joined[$row['team']]=array(
+						'team_name'=>$row['team_name'],
+					);
+				}
+				$joined[$row['team']][$key]=$row['count'];
+			}
+		}
+		
+		$joined=array_merge($joined,array());
+		
+		$category=array_sub($joined,'team_name');
+		
+		$series=array(
+			array('name'=>'签约案件','data'=>array_sub($joined,'签约案件',NULL,true),'stack'=>0),
+			array('name'=>'面谈咨询','data'=>array_sub($joined,'面谈咨询',NULL,true),'stack'=>1),
+			array('name'=>'电话咨询','data'=>array_sub($joined,'电话咨询',NULL,true),'stack'=>2),
+			array('name'=>'网络咨询','data'=>array_sub($joined,'网络咨询',NULL,true),'stack'=>3)
+		);
+		
+		$this->load->addViewData('category_count', json_encode($category));
+		$this->load->addViewData('series_count', json_encode($series,JSON_NUMERIC_CHECK));
+		
+		$this->load->view('achievement/team');
+		$this->load->view('achievement/sidebar',true,'sidebar');
+	}
+
+	function staff(){
+		
+		$this->section_title='个人业绩';
+		
+		$this->config->set_user_item('date/from', $this->date->year_begin,false);
+		
+		if($this->input->post('date_from')){
+			$this->config->set_user_item('date/from', $this->input->post('date_from'));
+		}
+		
+		if($this->input->post('date_to')){
+			$this->config->set_user_item('date/to', $this->input->post('date_to'));
+		}
+		
+		//获得个人业绩金额
+		$data=array(
+			'办案新增创收'=>$this->account->getList(array(
+				'sum'=>true,
+				'group'=>'people',
+				'role'=>array('主办律师','协办律师'),
+				'received'=>true,
+				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
+				'contract_date'=>array('from'=>$this->date->year_begin),
+				'orderby'=>'sum desc'
+			)),
+			
+			'办案存量创收'=>$this->account->getList(array(
+				'sum'=>true,
+				'group'=>'people',
+				'role'=>array('主办律师','协办律师'),
+				'received'=>true,
+				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
+				'contract_date'=>array('to'=>$this->date->last_year_end),
+			)),
+			
+			'案源签约'=>$this->account->getList(array(
+				'sum'=>true,
+				'group'=>'people',
+				'role'=>array('案源人','接洽律师'),
+				'received'=>false,
+				'contract_date'=>array('to'=>$this->date->last_year_end),
+			)),
+
+			'案源创收'=>$this->account->getList(array(
+				'sum'=>true,
+				'group'=>'people',
+				'role'=>array('案源人','接洽律师'),
+				'received'=>true,
+				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
+			)),
+
+
+		);
+		
+		$joined=array();
+		
+		foreach($data as $key => $array){
+			foreach($array as $row){
+				if(!isset($joined[$row['people']])){
+					$joined[$row['people']]=array(
+						'people_name'=>$row['people_name'],
+					);
+				}
+				$joined[$row['people']][$key]=$row['sum'];
+			}
+		}
+		
+		$joined=array_merge($joined,array());
+		
+		$category=array_sub($joined,'people_name');
+		
+		$series=array(
+			array('name'=>'办案新增创收','data'=>array_sub($joined,'办案新增创收',NULL,true),'stack'=>2),
+			array('name'=>'办案存量创收','data'=>array_sub($joined,'办案存量创收',NULL,true),'stack'=>2),
+			array('name'=>'案源签约','data'=>array_sub($joined,'案源签约',NULL,true),'stack'=>0),
+			array('name'=>'案源创收','data'=>array_sub($joined,'案源创收',NULL,true),'stack'=>1),
+		);
+		
+		$this->load->addViewData('category', json_encode($category));
+		$this->load->addViewData('series', json_encode($series,JSON_NUMERIC_CHECK));
+		
+		//获得个人业绩数量
+		$this->load->model('project_model','project');
+		
+		$data=array(
+			
+			'接洽签约'=>$this->project->getList(array(
+				'count'=>true,
+				'group'=>'people',
+				'role'=>'接洽律师',
+				'labels'=>array('案件','所内案源'),
+				'time_contract'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
+				'orderby'=>'count desc'
+			)),
+			
+			'案源签约'=>$this->project->getList(array(
+				'count'=>true,
+				'group'=>'people',
+				'role'=>'案源人',
+				'labels'=>array('案件','个人案源'),
+				'time_contract'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
+				'orderby'=>'count desc'
+			)),
+			
+			'面谈接洽'=>$this->project->getList(array(
+				'count'=>true,
+				'labels'=>array('咨询','面谈'),
+				'group'=>'people',
+				'role'=>'接洽律师',
+				'first_contact'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
+			)),
+
+			'电话接洽'=>$this->project->getList(array(
+				'count'=>true,
+				'labels'=>array('咨询','电话'),
+				'group'=>'people',
+				'role'=>'接洽律师',
+				'first_contact'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
+			)),
+
+			'网络接洽'=>$this->project->getList(array(
+				'count'=>true,
+				'labels'=>array('咨询','网络'),
+				'group'=>'people',
+				'role'=>'接洽律师',
+				'first_contact'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
+			))
+			
+		);
+		
+		$joined=array();
+		
+		foreach($data as $key => $array){
+			foreach($array as $row){
+				if(!isset($joined[$row['people']])){
+					$joined[$row['people']]=array(
+						'people_name'=>$row['people_name'],
+					);
+				}
+				$joined[$row['people']][$key]=$row['count'];
+			}
+		}
+		
+		$joined=array_merge($joined,array());
+		
+		$category=array_sub($joined,'people_name');
+		
+		$series=array(
+			array('name'=>'接洽签约','data'=>array_sub($joined,'接洽签约',NULL,true),'stack'=>0),
+			array('name'=>'案源签约','data'=>array_sub($joined,'案源签约',NULL,true),'stack'=>1),
+			array('name'=>'面谈接洽','data'=>array_sub($joined,'面谈接洽',NULL,true),'stack'=>2),
+			array('name'=>'电话接洽','data'=>array_sub($joined,'电话接洽',NULL,true),'stack'=>3),
+			array('name'=>'网络接洽','data'=>array_sub($joined,'网络接洽',NULL,true),'stack'=>4)
+		);
+		
+		$this->load->addViewData('category_count', json_encode($category));
+		$this->load->addViewData('series_count', json_encode($series,JSON_NUMERIC_CHECK));
+		
+		$this->load->view('achievement/staff');
+		$this->load->view('achievement/sidebar',true,'sidebar');
 	}
 
 	function receivable($method=NULL){
@@ -77,61 +332,74 @@ class Achievement extends SS_controller{
 	}
 	
 	function index(){
-		$monthly_collect=$this->achievement->getMonthlyAchievement();
 		
-		$months=array_sub($monthly_collect,'month');
-		$collect=array_sub($monthly_collect,'collect');
-		$contract=array_sub($monthly_collect,'contract');
+		$this->load->model('account_model','account');
+		
+		$this->config->set_user_item('date/from', $this->date->year_begin,false);
+		
+		if($this->input->post('date_from')){
+			$this->config->set_user_item('date/from', $this->input->post('date_from'));
+		}
+		
+		if($this->input->post('date_to')){
+			$this->config->set_user_item('date/to', $this->input->post('date_to'));
+		}
+		
+		$data=array(
+			
+			'新增创收'=>$this->account->getList(array(
+				'sum'=>true,
+				'group'=>'month',
+				'received'=>true,
+				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
+				'contract_date'=>array('from'=>$this->date->year_begin),
+				'orderby'=>'sum desc'
+			)),
+			
+			'存量创收'=>$this->account->getList(array(
+				'sum'=>true,
+				'group'=>'month',
+				'received'=>true,
+				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
+				'contract_date'=>array('to'=>$this->date->last_year_end),
+			)),
+			
+			'签约'=>$this->account->getList(array(
+				'sum'=>true,
+				'group'=>'month_contract',
+				'received'=>false,
+				'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
+			))
+
+		);
+		
+		$joined=array();
+		
+		foreach($data as $key => $array){
+			foreach($array as $row){
+				if(!isset($joined[$row['month']])){
+					$joined[$row['month']]=array(
+						'month'=>$row['month'],
+					);
+				}
+				$joined[$row['month']][$key]=$row['sum'];
+			}
+		}
+		
+		$joined=array_values($joined);
+		
+		$category=array_sub($joined,'month');
 		
 		$series=array(
-			array(
-				'name'=>'创收',
-				'data'=>$collect
-			),
-			array(
-				'name'=>'签约',
-				'data'=>$contract
-			),
+			array('name'=>'新增创收','data'=>array_sub($joined,'新增创收',NULL,true)),
+			array('name'=>'存量创收','data'=>array_sub($joined,'存量创收',NULL,true)),
+			array('name'=>'签约','data'=>array_sub($joined,'签约',NULL,true)),
 		);
-
-		$months=json_encode($months);
-		$series=json_encode($series,JSON_NUMERIC_CHECK);
-		$this->load->addViewArrayData(compact('months','series'));
+		$this->load->addViewData('category', json_encode($category));
+		$this->load->addViewData('series', json_encode($series,JSON_NUMERIC_CHECK));
+		
 		$this->load->view('achievement/summary');
-	}
-	
-	function query(){
-		$monthly_queries=$this->achievement->getMonthlyQueries();
-		$this->load->view_data['chart_monthly_queries_catogary']=json_encode(array_sub($monthly_queries,'month'));
-		$chart_monthly_queries_series=array(
-			array('name'=>'总量','data'=>array_sub($monthly_queries,'queries')),
-			array('name'=>'归档','color'=>'#AAA','data'=>array_sub($monthly_queries,'filed_queries')),
-			array('name'=>'在谈','data'=>array_sub($monthly_queries,'live_queries')),
-			array('name'=>'新增案件','data'=>array_sub($monthly_queries,'cases'))
-
-		);
-		$this->load->view_data['chart_monthly_queries_series']=json_encode($chart_monthly_queries_series,JSON_NUMERIC_CHECK);
-
-		$personally_queries=$this->achievement->getPersonallyQueries();
-		$this->load->view_data['chart_personally_queries_catogary']=json_encode(array_sub($personally_queries,'staff_name'));
-		$chart_personally_queries_series=array(
-			array('name'=>'归档','color'=>'#AAA','data'=>array_sub($personally_queries,'filed_queries')),
-			array('name'=>'成案','data'=>array_sub($personally_queries,'success_case')),
-			array('name'=>'在谈','data'=>array_sub($personally_queries,'live_queries'))
-
-		);
-		$this->load->view_data['chart_personally_queries_series']=json_encode($chart_personally_queries_series,JSON_NUMERIC_CHECK);
-
-		$personally_type_queries=$this->achievement->getPersonallyTypeQueries();
-		$this->load->view_data['chart_personally_type_queries_catogary']=json_encode(array_sub($personally_type_queries,'staff_name'));
-		$chart_personally_type_queries_series=array(
-			array('name'=>'网上咨询','data'=>array_sub($personally_type_queries,'online_queries')),
-			array('name'=>'电话咨询','data'=>array_sub($personally_type_queries,'call_queries')),
-			array('name'=>'面谈咨询','data'=>array_sub($personally_type_queries,'face_queries'))
-
-		);
-		$this->load->view_data['chart_personally_type_queries_series']=json_encode($chart_personally_type_queries_series,JSON_NUMERIC_CHECK);
-		$this->load->view('achievement/query');
+		$this->load->view('achievement/sidebar',true,'sidebar');
 	}
 	
 	function client(){

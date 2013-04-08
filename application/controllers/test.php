@@ -5,15 +5,14 @@ class Test extends SS_controller{
 	}
 	
 	function index(){
-	
 		$this->load->model('account_model','account');
-		$account=$this->account->getList(array(
+		$projects=$this->account->getList(array(
 			'sum'=>true,
-			'group'=>'team',
+			'group'=>'month',
 			'received'=>true,
-			'date'=>array('from'=>'2013-01-01','to'=>'2013-03-31')
-			));
-		print_r($account);
+			'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
+		));
+		print_r($projects);
 		//print_r($_SESSION);
 		//print_r($this->user);
 	}
