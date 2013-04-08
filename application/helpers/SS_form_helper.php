@@ -55,5 +55,5 @@ function checkbox($html,$name,$check_value,$value=NULL,$attribute=''){
 	if(is_null($value)){
 		$value=$html;
 	}
-	return "<label $attribute><input name=\"$name\" type=\"checkbox\" value=\"$value\" ".($check_value==$value?'checked="checked"':'')." />$html</label>";
+	return "<label><input name=\"$name\" type=\"checkbox\" value=\"$value\" ".($check_value==$value?'checked="checked"':'').' '.$attribute." />$html</label>";
 }?>

@@ -90,13 +90,20 @@
 		</span>
 	 </div>
 
-<? if(isset($labels['分类']) && in_array($labels['分类'],array('诉讼','非诉讼'))){?>
+<? if(in_array('争议',$labels)){?>
 	<div class="item">
-		<div class="title"><label>争议焦点：（案件标的）</label></div>
+		<div class="title"><label>争议焦点：</label></div>
 		<input name="project[focus]" type="text" value="<?=$this->value('project/focus')?>" style="width:99%;font-size:1.2em;" />
 	</div>
 <? }?>
 
+<? if(in_array('非争议',$labels)){?>
+	<div class="item">
+		<div class="title"><label>案件标的：</label></div>
+		<input name="project[focus]" type="text" value="<?=$this->value('project/focus')?>" style="width:99%;font-size:1.2em;" />
+	</div>
+<? }?>
+	
 	<div class="item" name="staff">
 		<div class="title"><label>律师：</label>
 <?if($responsible_partner==$this->user->id && !in_array('职员已锁定',$labels) && in_array('在办', $labels)){?>
