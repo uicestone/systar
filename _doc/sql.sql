@@ -1,110 +1,84 @@
-UPDATE  `syssh`.`controller` SET  `add_action` =  'account/add' WHERE  `controller`.`id` =115;
+-- 根据案下案源人是否存在确定案件案源标签
+delete from project_label where label_name = '所内案源' and project in (select project from project_people where role='案源人');
+insert ignore into project_label (project,label,label_name)
+select id,138,'个人案源' from project where id in (select project from project_people where role = '案源人');
 
--- 计算当年每律师贡献
-SELECT staff.name,SUM(contribute.sum*received.sum) FROM
-(
-SELECT `case`,lawyer,SUM(contribute) AS sum FROM case_lawyer GROUP BY `case`,lawyer
-)contribute
-INNER JOIN 
-(
-SELECT `case`,SUM(amount) AS sum FROM account WHERE time_occur BETWEEN UNIX_TIMESTAMP('2012-01-01') AND UNIX_TIMESTAMP('2013-1-1') GROUP BY `case`
-)received
-USING (`case`)
-INNER JOIN staff ON staff.id=lawyer
-GROUP BY lawyer
--- 删除案号
-DELETE FROM case_num WHERE `case`={$case_num};
-UPDATE `case` SET num='',type_lock=0 WHERE id = {$case_num};
+-- 个人案源接洽律师无配比
+update project_people set weight = null where role = '接洽律师' and project in (select project from project_label where label_name = '个人案源');
 
---删除垃圾
-DELETE FROM account WHERE amount=0;
-DELETE FROM `case` WHERE display=0 AND id>0;
-DELETE FROM `client` WHERE display=0 AND id>0;
-DELETE FROM `schedule` WHERE display=0 AND id>0;
+-- 监测是否有未设定type的领域
+select * from project_label where label_name in ('公司','房产建筑','劳动人事','涉外','韩日','知识产权','婚姻家庭','诉讼','刑事行政') and type is null;
 
---查重复输入同笔收费的到账
-SELECT * 
-FROM account a
-WHERE (
-	SELECT COUNT( 1 ) 
-	FROM account
-	WHERE case_fee = a.case_fee
-) >1
-ORDER BY  `a`.`case_fee` ASC;
+-- 监测是否有未设定领域的案件
+select * from project where id not in (select project from project_label where type = '领域')
+and type = '业务' and
+id in (select project from project_label where label_name = '案件');
 
---今年咨询费总额
-SELECT SUM(amount) FROM `account` WHERE FROM_UNIXTIME(time_occur,'%Y')='2012' AND name='咨询费'
+-- 根据业务领域确定案件小组
+update 
+project 
+inner join project_label on project_label.project=project.id and project_label.type = '领域' 
+inner join team on team.name = project_label.label_name
+set project.team=team.id;
 
---统计
---今年收录构成
-SELECT case.type,SUM(amount) AS sum
-FROM account INNER JOIN `case` ON case.id=account.case
-WHERE account.name IN('律师费','顾问费','咨询费') 
-            AND time_occur>=UNIX_TIMESTAMP('2012-1-1')
-            AND time_occur<UNIX_TIMESTAMP('2012-8-1')
-GROUP BY case.type
+-- 根据业务领域确定帐目小组
+update 
+account 
+inner join project on project.id=account.project
+set account.team=project.team;
 
---汇总律师贡献
-SELECT staff.name,account.sum*contribute.sum/0.7 FROM 
-(
-	SELECT `case`,SUM(amount) as sum FROM account WHERE name<>'办案费' AND time_occur >= UNIX_TIMESTAMP('2012-1-1') AND time_occur<UNIX_TIMESTAMP('2012-12-31') GROUP BY `case`
-)account
-INNER JOIN 
-(
-	SELECT `case`,SUM(contribute) AS sum,lawyer FROM case_lawyer WHERE role<>'实际贡献' GROUP BY `case`,lawyer HAVING sum >0
-)contribute ON account.case=contribute.case
-INNER JOIN staff ON contribute.lawyer = staff.id
+-- 确定个人案源的案源总和
+select sum(weight) sum from project_people where role = '案源人' group by project having sum!=1
 
---对账
-SELECT account.id,account.amount,client.name,FROM_UNIXTIME(time_occur,'%Y%m%d') AS time_occur,FROM_UNIXTIME(account.time,'%Y%m%d') AS time 
-FROM account LEFT JOIN client on client.id=account.client 
-WHERE FROM_UNIXTIME(time_occur,'%Y%m')<201205 and FROM_UNIXTIME(time_occur,'%Y%m')>=201201
+-- 个人案源接洽无比例
+update project_people set weight = null where 
+project in (select project from project_label where label_name='个人案源')
+and role = '接洽律师';
 
---将starsys的新用户插入star_bak
-INSERT IGNORE INTO star_bak.`pre_common_member` (username,email,groupid)
-SELECT content,content,33 FROM starsys.client_contact WHERE type='电子邮件'
+-- 所内案源都有接洽律师
+select * from project where type='业务'
+and id in (select project from project_label where label_name = '案件')
+and id in (select project from project_label where label_name = '所内案源')
+and id not in (select project from project_people where role = '接洽律师')
 
---案号自增触发器
-CREATE TRIGGER `trig_case_num_multiautoincrease` BEFORE INSERT ON `case_num`
- FOR EACH ROW SET `new`.`number` = IF(
-	(SELECT COUNT(*) FROM case_num WHERE classification_code = new.classification_code AND type_code = new.type_code AND year_code = new.year_code) = 0, 
-	1,
-	(SELECT MAX(number)+1 FROM case_num WHERE classification_code = new.classification_code AND type_code = new.type_code AND year_code = new.year_code)
-)
+delete from project_label where label_name = '个人案源' and project not in (select project from project_people where role = '案源人');
+insert ignore into project_label (project,label,label_name)
+select id,139,'所内案源' from project where id not in (select project from project_people where role = '案源人');
 
---更新分班列表的分数
-UPDATE student_classdiv INNER JOIN
-(
-	SELECT view_student.id,view_student.name,view_student.gender,SUM(unioned.score) as score
-	FROM (
-		select student,".$course_field."*0.3 as score from view_score where exam = 2 and ".$course_field." IS NOT NULL
-		union
-		select student,".$course_field."*0.3 as score from view_score where exam = 11 and ".$course_field." IS NOT NULL
-		union
-		select student,".$course_field."*0.4 as score from view_score where exam = 14 and ".$course_field." IS NOT NULL
-	)unioned INNER JOIN view_student ON unioned.student=view_student.id
-	INNER JOIN student_classdiv USING(id)
-	--WHERE student_classdiv.extra_course=".$extra_course."
-	--加一科目
-	GROUP BY student
-	HAVING count(*)=3
-)a USING (id)
-SET student_classdiv.".$course_field."=a.score
+-- 校验并纠正item-label.label_name冗余
+update account_label inner join label on account_label.label = label.id set account_label.label_name = label.name;
+update people_label inner join label on people_label.label = label.id set people_label.label_name = label.name;
+update project_label inner join label on project_label.label = label.id set project_label.label_name = label.name;
+update team_label inner join label on team_label.label = label.id set team_label.label_name = label.name;
+update document_label inner join label on document_label.label = label.id set document_label.label_name = label.name;
+update schedule_label inner join label on schedule_label.label = label.id set schedule_label.label_name = label.name;
 
---更新分班列表的分数-补全未参加每次考试的学生分数
-UPDATE student_classdiv INNER JOIN
-(
-    SELECT view_student.id,view_student.name,view_student.gender,SUM(score) AS score
-    FROM (
-            SELECT student,".$course_field." AS score FROM view_score where exam = ".$prior_exam." and ".$course_field." IS NOT NULL
-    )unioned INNER JOIN view_student ON unioned.student=view_student.id
-    --INNER JOIN student_classdiv USING(id)
-    --WHERE student_classdiv.extra_course=".$extra_course."
-	--加一科目
-    GROUP BY student 
-)b USING(id)
-SET student_classdiv.extra_course_score=b.score
-WHERE student_classdiv.extra_course_score IS NULL
+-- 确定个人案源的案源总和
+select project,sum(weight) sum from project_people where role = '接洽律师'
+and project in (select project from project_label where label_name='所内案源')
+group by project having sum != 1
 
---拉出提高班
-UPDATE student_classdiv SET new_class=1201 WHERE extra_course=4 ORDER BY course_1+course_2+course_3+extra_course DESC LIMIT 44;
+-- 所内案源多人接洽平摊
+update project_people inner join(
+	select project,count(*) count,sum(weight) sum from project_people where role = '接洽律师'
+	and project in (select project from project_label where label_name='所内案源')
+	group by project having sum != 1
+)project_peoplecount
+using (project)
+set project_people.weight = 1/project_peoplecount.count where project_people.role = '接洽律师'
+
+-- 确定所内接洽的案源总和
+select sum(weight) sum from project_people where role = '案源人' group by project having sum<1
+
+-- 清除添加失败的project
+delete from project_people where project in (select id from project where display = 0 and name is null);
+delete from project where display = 0 and name is null;
+
+delete from people_label where label_name ='';
+delete from project_label where label_name ='';
+delete from label where name = '';
+
+-- 对于没有督办人的案件设置默认督办人
+insert ignore into project_people (project,people,role)
+select id,6356,'督办人' from project where id in (select project from project_label where label_name = '案件');
+

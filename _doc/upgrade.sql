@@ -120,7 +120,7 @@ update account set name = '律师费' where received = 0 and name is null;
 ALTER TABLE  `account` CHANGE  `received`  `received` TINYINT( 1 ) NOT NULL DEFAULT  '0';
 
 ALTER TABLE  `account` CHANGE  `date`  `date` DATE NULL COMMENT  '到账日期';
--- server updated
 
 INSERT INTO `syssh`.`nav` (`id`, `name`, `href`, `add_href`, `parent`, `order`, `team`, `company`, `company_type`) VALUES (NULL, '小组', '#achievement/teams', NULL, '5', '', NULL, '1', NULL), (NULL, '个人', '#achievement/staff', NULL, '5', '', NULL, '1', NULL), (NULL, '我的', '#achievement/mine', NULL, '5', '', NULL, '1', NULL);
+-- server updated
 
