@@ -193,6 +193,7 @@ $(function(){
         dataType: 'json',
         done: function (event, data) {
 			$(this).siblings('[name="document[id]"]').val(data.result.data.id);
+			$(this).siblings('[name="document[name]"]').val(data.result.data.name);
         },
 		dropZone:section.find('.item[name="document"]').children('.add-form')
     });
