@@ -195,17 +195,17 @@ class Achievement extends SS_controller{
 			'案源签约'=>$this->account->getList(array(
 				'sum'=>true,
 				'group'=>'people',
-				'role'=>array('案源人','接洽律师'),
+				'role'=>array('案源人'),
 				'received'=>false,
-				'contract_date'=>array('to'=>$this->date->last_year_end),
+				'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
 			)),
 
 			'案源创收'=>$this->account->getList(array(
 				'sum'=>true,
 				'group'=>'people',
-				'role'=>array('案源人','接洽律师'),
+				'role'=>array('案源人'),
 				'received'=>true,
-				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
+				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
 			)),
 
 
