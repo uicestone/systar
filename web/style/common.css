@@ -353,6 +353,7 @@ article .contentTable td input[type="text"]{
 aside>section{
 	position:fixed;right:0;top:25px;bottom:0;
 	width:240px;
+	overflow-x: scroll;
 }
 aside.minimized{
 	max-width:100px;

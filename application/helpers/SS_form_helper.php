@@ -1,16 +1,20 @@
 <?php
-/*	生成一组<option>
- *	$options为给出的选项数组
- *  $options[0]=='_ENUM'时，根据$options[1]表，$options[2]字段的enum选项来定制选项
- *	$options是一个值时,尝试从type(可以指定)表中获得classification(可以指定)为$options的type(可以指定)
- *	指定$affair值时，优先根据$affair获得第一个classfication
+/**
+ * 生成一组<option>
+ * @param array $options 选项数组
+ * @param string $checked 选中值
+ * @param string $label select字段名提示文字，用于生成一个disabled的option
+ * @param type $array_key_as_option_value
+ * @param type $etc_option 显示一个“其他”选项，value为''
+ * @param type $disable_empty_option 生成的字段名提示文字的option是否加disabled属性 用于chosen
+ * @return string
  */
-function options($options,$checked=NULL,$label=NULL,$array_key_as_option_value=false,$etc_option=false){
+function options($options,$checked=NULL,$label=NULL,$array_key_as_option_value=false,$etc_option=false,$disable_empty_option=true){
 	
 	$options_html='';
 	
 	if(isset($label)){
-		$options_html.="<option value=\"\" disabled=\"disabled\"".(is_null($checked)?'selected="selected"':'').">$label</option>";
+		$options_html.='<option value=""'.($disable_empty_option?'disabled="disabled"':'').(is_null($checked)?' selected="selected"':'').">$label</option>";
 	}
 	
 	foreach($options as $option_key=>$option){
@@ -19,12 +23,12 @@ function options($options,$checked=NULL,$label=NULL,$array_key_as_option_value=f
 			$options_html.='<optgroup label="'.$option_key.'">';
 			foreach($option as $option_key => $option){
 				$value=$array_key_as_option_value?$option_key:$option;
-				$options_html.='<option value="'.$value.'"'.((is_array($checked)?in_array($value,$checked):$value==$checked)?' selected="selected"':'').'>'.$option.'</option>';
+				$options_html.='<option value="'.$value.'"'.($checked!==false && (is_array($checked)?in_array($value,$checked):$value==$checked)?' selected="selected"':'').'>'.$option.'</option>';
 			}
 			$options_html.='</optgroup>';
 		}else{
 			$value=$array_key_as_option_value?$option_key:$option;
-			$options_html.='<option value="'.$value.'"'.((is_array($checked)?in_array($value,$checked):$value==$checked)?' selected="selected"':'').'>'.$option.'</option>';
+			$options_html.='<option value="'.$value.'"'.($checked!==false && (is_array($checked)?in_array($value,$checked):$value==$checked)?' selected="selected"':'').'>'.$option.'</option>';
 		}
 	}
 	

@@ -6,7 +6,7 @@ class Staff_model extends People_model{
 	}
 	
 	function getList(array $args=array()){
-		$args['type']='职员';
+		$args['is_staff']=true;
 		return parent::getList($args);
 	}
 	

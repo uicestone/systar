@@ -29,12 +29,11 @@ class Account extends SS_controller{
 		$this->config->set_user_item('search/show_project', true, false);
 		$this->config->set_user_item('search/show_payer', true , false);
 		$this->config->set_user_item('search/show_account', true, false);
-		$this->config->set_user_item('search/received', true, false);
 		$this->config->set_user_item('search/orderby', 'account.time desc', false);
 		$this->config->set_user_item('search/limit', 'pagination', false);
 		$this->config->set_user_item('search/date/from', $this->date->year_begin, false);
 		
-		$search_items=array('account','date/from','date/to','project_name','amount','payer_name','labels','received');
+		$search_items=array('account','date/from','date/to','project_name','amount','payer_name','labels','received','people','team','role');
 		
 		foreach($search_items as $item){
 			if($this->input->post($item)!==false){
@@ -93,6 +92,9 @@ class Account extends SS_controller{
 		
 		$this->load->addViewData('summary', $summary);
 		
+		$this->load->model('staff_model','staff');
+		$this->load->model('team_model','team');
+
 		$this->load->view('list');
 		$this->load->view('account/list_sidebar',true,'sidebar');
 	}

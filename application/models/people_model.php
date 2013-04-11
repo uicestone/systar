@@ -210,9 +210,9 @@ class People_model extends BaseItem_model{
 		
 		if(isset($args['is_staff'])){
 			if($args['is_staff']){
-				$this->db->where('project_people.people IN (SELECT id FROM staff)');
+				$this->db->where('people.id IN (SELECT id FROM staff)');
 			}else{
-				$this->db->where('project_people.people NOT IN (SELECT id FROM staff)');
+				$this->db->where('people.id NOT IN (SELECT id FROM staff)');
 			}
 		}
 		
