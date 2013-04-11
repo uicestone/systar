@@ -20,12 +20,6 @@ class People extends SS_Controller{
 		
 		$this->load->model('team_model', 'team');
 		
-		$this->form_validation_rules['relative'][]=array(
-			'field'=>'relative_profiles[电子邮件]',
-			'label'=>'电子邮件',
-			'rules'=>'valid_email'
-		);
-		
 		$this->list_args=array(
 			'abbreviation'=>array(
 				'heading'=>'名称',
@@ -85,20 +79,16 @@ class People extends SS_Controller{
 		$this->config->set_user_item('search/orderby', 'people.id desc', false);
 		$this->config->set_user_item('search/limit', 'pagination', false);
 		
-		if($this->input->post('name')){
-			$this->config->set_user_item('search/name', $this->input->post('name'));
-		}
+		$search_items=array('name','labels','team');
 		
-		if($this->input->post('labels')){
-			$this->config->set_user_item('search/labels', $this->input->post('labels'));
-		}
-		
-		if($this->input->post('team')){
-			$this->config->set_user_item('search/team',$this->input->post('team'));
-		}
-		
-		if($this->input->post('name')===''){
-			$this->config->unset_user_item('search/name');
+		foreach($search_items as $item){
+			if($this->input->post($item)!==false){
+				if($this->input->post($item)!==''){
+					$this->config->set_user_item('search/'.$item, $this->input->post($item));
+				}else{
+					$this->config->unset_user_item('search/'.$item);
+				}
+			}
 		}
 		
 		if($this->input->post('submit')==='search' && $this->input->post('labels')===false){
@@ -110,9 +100,9 @@ class People extends SS_Controller{
 		}
 		
 		if($this->input->post('submit')==='search_cancel'){
-			$this->config->unset_user_item('search/name');
-			$this->config->unset_user_item('search/labels');
-			$this->config->unset_user_item('search/team');
+			foreach($search_items as $item){
+				$this->config->unset_user_item('search/'.$item);
+			}
 		}
 		
 		$table=$this->table->setFields($this->list_args)

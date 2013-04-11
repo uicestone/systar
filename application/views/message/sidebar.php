@@ -1,5 +1,5 @@
 <form>
-	<table class="contentTable search-bar" cellpadding="0" cellspacing="0" align="center">
+	<table class="contentTable search-bar">
 		<thead><tr><th width="80px">发送消息</td></tr></thead>
 		<tbody>
 			<tr>

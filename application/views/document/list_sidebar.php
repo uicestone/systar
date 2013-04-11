@@ -1,6 +1,6 @@
 <form>
-	<table class="contentTable search-bar" cellpadding="0" cellspacing="0" align="center">
-		<thead><tr><th width="80px">搜索</td></tr></thead>
+	<table class="contentTable search-bar">
+		<thead><tr><th>搜索</th></tr></thead>
 		<tbody>
 			<tr>
 				<td><input type="text" name="name" value="<?=$this->config->user_item('search/name')?>" placeholder="名称" title="名称" /></td>

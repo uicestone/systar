@@ -6,20 +6,17 @@ class Query extends Project{
 	function __construct(){
 		parent::__construct();
 		$this->project=$this->query;
+		$this->cases=$this->query;
 	}
 	
 	function filed(){
-		
 		$this->config->set_user_item('search/labels', array('已归档','咨询'), false);
-		
 		$this->index();
 	}
 	
 	function index(){
 		$this->config->set_user_item('search/labels', array('咨询'), false);
-		
 		parent::index();
-		
 	}
 
 	function add(){
@@ -29,35 +26,7 @@ class Query extends Project{
 	}
 
 	function edit($id){
-		
-		$this->query->id=$id;
-		
-		$this->load->model('client_model','client');
-		$this->load->model('staff_model','staff');
-		
-		try{
-			$query=$this->query->fetch($id);
-
-			$this->query->labels=$this->query->getLabels($this->query->id);
-
-			if(!$query['name']){
-				$this->section_title='未命名'.$this->section_title;
-			}else{
-				$this->section_title=$query['name'];
-			}
-
-			$this->load->addViewData('cases', $query);
-
-			$this->load->view('query/edit');
-			$this->load->view('query/edit_sidebar',true,'sidebar');
-		}
-		catch(Exception $e){
-			$this->output->status='fail';
-			if($e->getMessage()){
-				$this->output->message($e->getMessage(), 'warning');
-			}
-		}
-
+		parent::edit($id);
 	}
 	
 	function submit($submit,$id){

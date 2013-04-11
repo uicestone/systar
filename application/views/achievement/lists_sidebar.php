@@ -1,5 +1,5 @@
 <form method="post" name="date_range">
-	<table class="contentTable search-bar" cellpadding="0" cellspacing="0" align="center">
+	<table class="contentTable search-bar">
 		<thead><tr><th width="60px">日期</th></tr></thead>
 		<tbody>
 			<tr><td><input type="text" name="date_from" value="<?=$this->config->user_item('search/date_from')?>" class="date" placeholder="开始" /></td></tr>

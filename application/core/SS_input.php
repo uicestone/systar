@@ -15,6 +15,11 @@ class SS_input extends CI_Input{
 			return parent::post($index, $xss_clean);
 		
 		}else{
+			
+			if(parent::post($index, $xss_clean)!==false){
+				return parent::post($index, $xss_clean);
+			}
+			
 			$index_array=explode('/',$index);
 			
 			$post=parent::post($index_array[0], $xss_clean);

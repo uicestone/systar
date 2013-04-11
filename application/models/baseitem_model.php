@@ -99,6 +99,8 @@ class BaseItem_model extends SS_Model{
 			$this->db->where($this->table.'.type',$args['type']);
 		}
 		
+		$db_num_rows=clone $this->db;
+		
 		if(isset($args['orderby'])){
 			if(is_array($args['orderby'])){
 				foreach($args['orderby'] as $orderby){
@@ -112,7 +114,7 @@ class BaseItem_model extends SS_Model{
 		if(isset($args['limit'])){
 			if($args['limit']==='pagination'){
 				//复制一个DB对象用来计算行数，因为计算行数需要运行sql，将清空DB对象中属性
-				$args['limit']=$this->pagination(clone $this->db);
+				$args['limit']=$this->pagination($db_num_rows);
 				call_user_func_array(array($this->db,'limit'), $args['limit']);
 			}
 			elseif(is_array($args['limit'])){
@@ -279,7 +281,7 @@ class BaseItem_model extends SS_Model{
 		
 		$labels_string='<div class="chzn-container-multi"><ul class="chzn-choices">';
 		foreach($labels as $key=>$label){
-			if(!$this->config->user_item('search/labels') || !in_array($key,$this->config->user_item('search/labels'))){
+			if(!$this->config->user_item('search/labels') || !in_array($label['name'],$this->config->user_item('search/labels'))){
 				$labels_string.='<li class="search-choice" style="color:'.$label['color'].'">'.$label['name'].'</li>';
 			}
 		}

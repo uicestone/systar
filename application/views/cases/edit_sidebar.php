@@ -1,3 +1,5 @@
+<button type="submit" name="submit[project]" class="major">保存</button>
+
 <? if(($this->user->isLogged('manager') || $responsible_partner==$this->user->id) && in_array('等待立案审核',$labels) && !in_array('咨询',$labels)){?>
 		<button type="submit" name="submit[review]" class="major">立案审核</button>
 <? }//TODO: 批量替换多余的空格?>
@@ -29,8 +31,6 @@
 ){?>
 		<button type="submit" name="submit[apply_file]" class="major">申请归档</button>
 <? }?>
-		<button type="submit" name="submit[project]" class="major">保存</button>
-
 <select name="labels[]" class="chosen allow-new" data-placeholder="标签" multiple="multiple">
 	<?=options($this->project->getAllLabels(),$labels)?>
 </select>

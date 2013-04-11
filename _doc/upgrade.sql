@@ -122,5 +122,8 @@ ALTER TABLE  `account` CHANGE  `received`  `received` TINYINT( 1 ) NOT NULL DEFA
 ALTER TABLE  `account` CHANGE  `date`  `date` DATE NULL COMMENT  '到账日期';
 
 INSERT INTO `syssh`.`nav` (`id`, `name`, `href`, `add_href`, `parent`, `order`, `team`, `company`, `company_type`) VALUES (NULL, '小组', '#achievement/teams', NULL, '5', '', NULL, '1', NULL), (NULL, '个人', '#achievement/staff', NULL, '5', '', NULL, '1', NULL), (NULL, '我的', '#achievement/mine', NULL, '5', '', NULL, '1', NULL);
+
+ALTER TABLE  `account` ADD  `reviewed` BOOLEAN NOT NULL DEFAULT FALSE AFTER  `received`;
 -- server updated
 
+DROP TRIGGER IF EXISTS  `trig_project_num_multiautoincrease`;

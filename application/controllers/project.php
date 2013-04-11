@@ -92,16 +92,16 @@ class Project extends SS_controller{
 		$this->config->set_user_item('search/orderby', 'project.id desc', false);
 		$this->config->set_user_item('search/limit', 'pagination', false);
 		
-		if($this->input->post('name')){
-			$this->config->set_user_item('search/name', $this->input->post('name'));
-		}
+		$search_items=array('name','labels');
 		
-		if($this->input->post('labels')){
-			$this->config->set_user_item('search/labels', $this->input->post('labels'));
-		}
-		
-		if($this->input->post('name')===''){
-			$this->config->unset_user_item('search/name');
+		foreach($search_items as $item){
+			if($this->input->post($item)!==false){
+				if($this->input->post($item)!==''){
+					$this->config->set_user_item('search/'.$item, $this->input->post($item));
+				}else{
+					$this->config->unset_user_item('search/'.$item);
+				}
+			}
 		}
 		
 		if($this->input->post('submit')==='search' && $this->input->post('labels')===false){
@@ -109,12 +109,13 @@ class Project extends SS_controller{
 		}
 		
 		if($this->input->post('submit')==='search_cancel'){
-			$this->config->unset_user_item('search/name');
-			$this->config->unset_user_item('search/labels');
+			foreach($search_items as $item){
+				$this->config->unset_user_item('search/'.$item);
+			}
 		}
 		
 		$table=$this->table->setFields($this->list_args)
-			->setRowAttributes(array('hash'=>(CONTROLLER==='query'?'cases':CONTROLLER).'/edit/{id}'))
+			->setRowAttributes(array('hash'=>CONTROLLER.'/edit/{id}'))
 			->setData($this->project->getList($this->config->user_item('search')))
 			->generate();
 		
@@ -343,35 +344,6 @@ class Project extends SS_controller{
 				}else{
 					$this->output->setData($this->miscfeeList(),'content-table','html','.item[name="miscfee"]>.contentTable','replace');
 				}
-			}
-			
-			elseif($submit=='case_fee_review' && $this->user->isLogged('finance')){
-				//财务审核
-				$this->project->ignoreFee($fee_ids);
-			}
-			
-			elseif($submit=='case_fee_timing'){
-				
-				$timing_fee=$this->input->sessionPost('case_fee_timing');
-
-				if(!$timing_fee){
-					$this->project->removeTimingFee($this->project->id);
-				}
-
-				if(
-					post(CONTROLLER.'/timing_fee') && 
-					(!$timing_fee['date_start'] || $timing_fee['included_hours']==='')
-				){
-					$this->output->message('账单起始日或包含小时数未填','warning');
-					throw new Exception();
-
-				}else{
-					if($this->project->setTimingFee($this->project->id,$timing_fee['date_start'],$timing_fee['bill_day'],$timing_fee['payment_day'],$timing_fee['included_hours'],$timing_fee['payment_cycle'],$timing_fee['contract_cycle'])){
-						unset($_SESSION[CONTROLLER]['post'][$this->project->id]['case_fee_timing']);
-					}
-				}
-				
-				$this->output->status='refresh';
 			}
 			
 			elseif($submit=='case_fee_misc'){

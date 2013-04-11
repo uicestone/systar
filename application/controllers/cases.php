@@ -259,6 +259,9 @@ class Cases extends Project{
 							$this->output->message('请选择客户来源类型','warning');
 							throw new Exception;
 						}
+						
+						$this->load->model('staff_model','staff');
+						
 						$client['staff']=$this->staff->check($client['staff_name']);
 
 						$new_client['staff']=$client['staff'];

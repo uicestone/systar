@@ -346,14 +346,19 @@ class Achievement extends SS_controller{
 		}
 		
 		$data=array(
+			'签约'=>$this->account->getList(array(
+				'sum'=>true,
+				'group'=>'month_contract',
+				'received'=>false,
+				'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
+			)),
 			
 			'新增创收'=>$this->account->getList(array(
 				'sum'=>true,
 				'group'=>'month',
 				'received'=>true,
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
-				'contract_date'=>array('from'=>$this->date->year_begin),
-				'orderby'=>'sum desc'
+				'contract_date'=>array('from'=>$this->date->year_begin)
 			)),
 			
 			'存量创收'=>$this->account->getList(array(
@@ -362,15 +367,7 @@ class Achievement extends SS_controller{
 				'received'=>true,
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 				'contract_date'=>array('to'=>$this->date->last_year_end),
-			)),
-			
-			'签约'=>$this->account->getList(array(
-				'sum'=>true,
-				'group'=>'month_contract',
-				'received'=>false,
-				'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
 			))
-
 		);
 		
 		$joined=array();
@@ -398,18 +395,95 @@ class Achievement extends SS_controller{
 		$this->load->addViewData('category', json_encode($category));
 		$this->load->addViewData('series', json_encode($series,JSON_NUMERIC_CHECK));
 		
+		//总业绩表
+		$summary=array(
+			'_heading'=>array(
+				'',
+				'全所',
+				'办案',
+				'案源'
+			),
+			
+			array(
+				'签约',
+				$this->account->getSum(array(
+					'received'=>false,
+					'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
+					'ten_thousand_unit'=>true
+				)),
+				$this->account->getSum(array(
+					'received'=>false,
+					'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
+					'people'=>$this->user->id,
+					'role'=>array('主办律师','协办律师'),
+					'ten_thousand_unit'=>true
+				)),
+				$this->account->getSum(array(
+					'received'=>false,
+					'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
+					'people'=>$this->user->id,
+					'role'=>array('案源律师'),
+					'ten_thousand_unit'=>true
+				))
+			),
+			
+			array(
+				'预计',
+				$this->account->getSum(array(
+					'received'=>false,
+					'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
+					'ten_thousand_unit'=>true
+				)),
+				$this->account->getSum(array(
+					'received'=>false,
+					'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
+					'people'=>$this->user->id,
+					'role'=>array('主办律师','协办律师'),
+					'ten_thousand_unit'=>true
+				)),
+				$this->account->getSum(array(
+					'received'=>false,
+					'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
+					'people'=>$this->user->id,
+					'role'=>array('案源律师'),
+					'ten_thousand_unit'=>true
+				))
+			),
+			
+			array(
+				'创收',
+				$this->account->getSum(array(
+					'received'=>true,
+					'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
+					'ten_thousand_unit'=>true
+				)),
+				$this->account->getSum(array(
+					'received'=>true,
+					'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
+					'people'=>$this->user->id,
+					'role'=>array('主办律师','协办律师'),
+					'ten_thousand_unit'=>true
+				)),
+				$this->account->getSum(array(
+					'received'=>true,
+					'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
+					'people'=>$this->user->id,
+					'role'=>array('案源律师'),
+					'ten_thousand_unit'=>true
+				))
+			)
+			
+		);
+		
+		$this->load->addViewData('summary', $summary);
+		
 		$this->load->view('achievement/summary');
 		$this->load->view('achievement/sidebar',true,'sidebar');
+		$this->load->view('achievement/summary_sidebar',true,'sidebar');
 	}
 	
 	function client(){
 		//TODO 新增客户统计
-	}
-	
-	function caseType(){
-		$chart_casetype_income_data=$this->achievement->getCaseTypeIncome();
-		$this->load->addViewData('chart_casetype_income_data', json_encode($chart_casetype_income_data,JSON_NUMERIC_CHECK));
-		$this->load->view('achievement/casetype');
 	}
 }
 ?>

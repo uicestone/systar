@@ -23,19 +23,6 @@ class Evaluation_model extends SS_Model{
 		return $this->db->query($q)->result_array();
 	}
 	
-	function getStaffList(){
-		$query="
-			SELECT staff.id,staff.name,position.ui_name AS position_name
-			FROM staff
-				INNER JOIN position ON position.id=staff.position
-		";
-		
-		$query=$this->orderby($query,'id');
-		$query=$this->pagination($query);
-		
-		return $this->db->query($query)->result_array();
-	}
-	
 	function getIndicatorList($staff){
 		$staff=intval($staff);
 		

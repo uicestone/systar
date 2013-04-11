@@ -54,8 +54,20 @@ update document_label inner join label on document_label.label = label.id set do
 update schedule_label inner join label on schedule_label.label = label.id set schedule_label.label_name = label.name;
 
 -- 确定个人案源的案源总和
+select project,sum(weight) sum from project_people where role = '案源人'
+and project in (select project from project_label where label_name='个人案源')
+group by project having sum != 1
+
+-- 确定个人案源的案源总和
 select project,sum(weight) sum from project_people where role = '接洽律师'
 and project in (select project from project_label where label_name='所内案源')
+group by project having sum != 1
+
+-- 监测同案同人同时为主办和协办的错误
+select count(*) count from project_people where role in ('主办律师','协办律师') group by project,people having count!=1;
+
+-- 确定办案总和
+select project,sum(weight) sum from project_people where role in ('主办律师','协办律师')
 group by project having sum != 1
 
 -- 所内案源多人接洽平摊
@@ -66,9 +78,6 @@ update project_people inner join(
 )project_peoplecount
 using (project)
 set project_people.weight = 1/project_peoplecount.count where project_people.role = '接洽律师'
-
--- 确定所内接洽的案源总和
-select sum(weight) sum from project_people where role = '案源人' group by project having sum<1
 
 -- 清除添加失败的project
 delete from project_people where project in (select id from project where display = 0 and name is null);
@@ -82,3 +91,8 @@ delete from label where name = '';
 insert ignore into project_people (project,people,role)
 select id,6356,'督办人' from project where id in (select project from project_label where label_name = '案件');
 
+-- 将人员资料项中的电话更新到人员基本字段
+update people inner join people_profile on people_profile.people=people.id and people_profile.name in ('电话','手机','固定电话')
+set people.phone = people_profile.content;
+update people inner join people_profile on people_profile.people=people.id and people_profile.name in ('电子邮件')
+set people.email = people_profile.content;

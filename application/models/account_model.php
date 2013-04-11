@@ -51,39 +51,65 @@ class Account_model extends BaseItem_model{
 	 */
 	function getList(array $args=array()){
 		$this->db->select('account.*')
-			->join('project','project.id = account.project','inner');
+			->join('project','project.id = account.project','LEFT');
 		
 		if(isset($args['received'])){
-			if($args['received']===false){
-				$this->db->where('received',false);
-			}elseif($args['received']===true){
-				$this->db->where('received',true);
-			}
+			$this->db->where('account.received',(bool)intval($args['received']));
 		}
 		
 		if(isset($args['project'])){
 			$this->db->where('project',$args['project']);
 		}
 		
+		if(isset($args['show_project'])){
+			$this->db->select('project.id AS project, project.name AS project_name');
+			
+			if(isset($args['project_name'])){
+				$this->db->like('project.name',$args['project_name']);
+			}
+		}
+		
 		if(isset($args['show_payer'])){
 			$this->db->join('people payer',"payer.id = account.people", 'LEFT')
 				->select('IF(payer.abbreviation IS NULL, payer.name, payer.abbreviation) AS payer_name,payer.id AS payer',false);
+			
+			if(isset($args['payer_name'])){
+				$this->db->like('payer.name',$args['payer_name']);
+			}
+		}
+		
+		if(isset($args['show_account'])){
+			$this->db->join('account a','a.id = account.account','inner')
+				->select('a.name AS name, a.type AS type');
 		}
 		
 		if(isset($args['date']['from']) && $args['date']['from']){
 			$this->db->where("TO_DAYS(account.date) >= TO_DAYS('{$args['date']['from']}')",NULL,FALSE);
 		}
+		elseif(isset($args['date/from']) && isset($args['date/from'])){
+			$this->db->where("TO_DAYS(account.date) >= TO_DAYS('{$args['date/from']}')",NULL,FALSE);
+		}
 		
 		if(isset($args['date']['to']) && $args['date']['to']){
 			$this->db->where("TO_DAYS(account.date) <= TO_DAYS('{$args['date']['to']}')",NULL,FALSE);
 		}
+		elseif(isset($args['date/to']) && isset($args['date/to'])){
+			$this->db->where("TO_DAYS(account.date) <= TO_DAYS('{$args['date/to']}')",NULL,FALSE);
+		}
 		
+		//同时支持数组型和目录型的日期参数
 		if(isset($args['contract_date']['from']) && $args['contract_date']['from']){
 			$this->db->where("TO_DAYS(project.time_contract) >= TO_DAYS('{$args['contract_date']['from']}')",NULL,FALSE);
+		}
+		elseif(isset($args['contract_date/from']) && $args['contract_date/from']){
+			$this->db->where("TO_DAYS(project.time_contract) >= TO_DAYS('{$args['contract_date/from']}')",NULL,FALSE);
 		}
 		
 		if(isset($args['contract_date']['to']) && $args['contract_date']['to']){
 			$this->db->where("TO_DAYS(project.time_contract) <= TO_DAYS('{$args['contract_date']['to']}')",NULL,FALSE);
+		}
+		elseif(isset($args['contract_date/to']) && $args['contract_date/to']){
+			$this->db->where("TO_DAYS(project.time_contract) <= TO_DAYS('{$args['contract_date/to']}')",NULL,FALSE);
 		}
 		
 		if(isset($args['team'])){
@@ -93,7 +119,7 @@ class Account_model extends BaseItem_model{
 		
 		if(isset($args['people'])){
 			$people=intval($args['people']);
-			$this->db->join("project_people','project_people.project = project.id AND project_people.people = $people",'inner');
+			$this->db->join('project_people',"project_people.project = project.id AND project_people.people = $people",'inner');
 			
 			if(isset($args['role'])){
 				
@@ -110,6 +136,14 @@ class Account_model extends BaseItem_model{
 		if(isset($args['account'])){
 			$account=intval($args['account']);
 			$this->db->where('account.account',$account);
+		}
+		
+		if(isset($args['amount'])){
+			$this->db->where('account.amount',$args['amount']);
+		}
+		
+		if(isset($args['reviewed'])){
+			$this->db->where('account.received',(bool)intval($args['reviewed']));
 		}
 		
 		if(isset($args['group'])){
@@ -176,16 +210,30 @@ class Account_model extends BaseItem_model{
 			}
 			
 			if(isset($args['role'])){
-				$this->db->select('SUM(amount) * weight AS sum');
+				$this->db->select('ROUND(SUM(amount)) * weight AS sum',false);
 			}
 			else{
-				$this->db->select('SUM(amount) AS sum');
+				$this->db->select('ROUND(SUM(amount)) AS sum',false);
+			}
+			
+			if(isset($args['ten_thousand_unit']) && $args['ten_thousand_unit']){
+				$this->db->select('ROUND(SUM(amount)/1E4,1) AS sum',false);
 			}
 			
 			$this->db->having('sum >',0);
+		}else{
+			if(isset($args['ten_thousand_unit']) && $args['ten_thousand_unit']){
+				$this->db->select('ROUND(amount/1E4,1) AS amount',false);
+			}
 		}
 		
 		return parent::getList($args);
+	}
+	
+	function getSum(array $args=array()){
+		$args=array_merge($args,array('sum'=>true));
+		$result_array=$this->getList($args);
+		return isset($result_array[0]['sum'])?$result_array[0]['sum']:NULL;
 	}
 
 	function add(array $data=array()){
@@ -209,6 +257,9 @@ class Account_model extends BaseItem_model{
 		
 		if(!isset($data['account'])){
 			$this->db->update('account',array('account'=>$insert_id),array('id'=>$insert_id));
+		}else{
+			$account=$this->db->select('project, team')->from('account')->where('id',intval($data['account']))->limit(1)->row();
+			$this->db->update('account',$account,array('id'=>$insert_id));
 		}
 		
 		return $insert_id;

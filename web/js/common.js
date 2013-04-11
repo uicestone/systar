@@ -290,7 +290,7 @@ $(document)
 				//$(this).hide();
 			}
 
-			$.post($(this).closest('section').attr('for'),$(this).closest('form').serialize()+'&submit='+$(this).attr('name'));
+			$.post($(this).closest('section').attr('for'),$(this).closest('section').find(':input').serialize()+'&submit='+$(this).attr('name'));
 
 		});
 		

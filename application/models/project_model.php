@@ -260,6 +260,11 @@ class Project_model extends BaseItem_model{
 		return $this->db->query($query)->result_array();
 	}
 	
+	function count(array $args=array()){
+		$args['count']=true;
+		$result=$this->getList($args);
+	}
+	
 	function getList($args=array()){
 
 		if(isset($args['people'])){
@@ -354,84 +359,6 @@ class Project_model extends BaseItem_model{
 		return $this->db->delete('project_relationship',array('project'=>intval($project_id),'relative'=>intval($relative_id)));
 	}
 	
-	function getIdByCaseFee($case_fee_id){
-		$case_fee_id=intval($case_fee_id);
-		
-		$query="SELECT `project` FROM project_account WHERE id = $case_fee_id";
-		
-		$result = $this->db->get_where('project_account',array('id'=>$case_fee_id))->row();
-		
-		if(!$result){
-			return false;
-		}
-		
-		return $result->project;
-	}
-	
-	/**
-	 * 获得与一个客户相关的所有案件
-	 * @param type $client_id
-	 * @return 一个案件列表，包含案件名称，案号和主办律师
-	 */
-	function getListByPeople($people_id){
-		$people_id=intval($people_id);
-		
-		$query="
-			SELECT project.id,project.name AS project_name,project.num,	
-				GROUP_CONCAT(DISTINCT staff.name) AS lawyers
-			FROM `project`
-				LEFT JOIN project_people ON project.id=project_people.project AND project_people.type='律师' AND project_people.role='主办律师'
-				LEFT JOIN people staff ON staff.id=project_people.people
-			WHERE project.id IN (
-				SELECT `project` FROM project_people WHERE people = $people_id
-			)
-			GROUP BY project.id
-		";
-		
-		return $this->db->query($query)->result_array();
-
-	}
-
-	//根据客户id获得其参与案件的收费
-	function getFeeListByClient($client_id){
-		$client_id=intval($client_id);
-		
-		$option_array=array();
-		
-		$q_option_array="
-			SELECT project_account.id,project_account.type,project_account.fee,project_account.pay_date,project_account.receiver,project.name
-			FROM project_account INNER JOIN `project` ON project_account.project=project.id
-			WHERE project.id IN (SELECT `project` FROM project_people WHERE people=$client_id)";
-		
-		$r_option_array=$this->db->query($q_option_array);
-		
-		foreach($r_option_array->result_array() as $a_option_array){
-			$option_array[$a_option_array['id']]=strip_tags($a_option_array['name']).'案 '.$a_option_array['type'].' ￥'.$a_option_array['fee'].' '.$a_option_array['pay_date'].($a_option_array['type']=='办案费'?' '.$a_option_array['receiver'].'收':'');
-		}
-	
-		return $option_array;	
-	}
-	
-	//根据案件ID获得收费array
-	function getFeeOptions($project_id){
-		$project_id=intval($project_id);
-		
-		$option_array=array();
-		
-		$q_option_array="
-			SELECT project_account.id,project_account.type,project_account.fee,project_account.pay_date,project_account.receiver,project.name
-			FROM project_account INNER JOIN `project` ON project_account.project=project.id
-			WHERE project.id=$project_id";
-		
-		$result=$this->db->query($q_option_array)->result_array();
-		
-		foreach($result as $a_option_array){
-			$option_array[$a_option_array['id']]=strip_tags($a_option_array['name']).'案 '.$a_option_array['type'].' ￥'.$a_option_array['fee'].' '.$a_option_array['pay_date'].($a_option_array['type']=='办案费'?' '.$a_option_array['receiver'].'收':'');
-		}
-	
-		return $option_array;	
-	}
-	
 	function getRoles($project_id){
 		$project_id=intval($project_id);
 		
@@ -480,46 +407,6 @@ class Project_model extends BaseItem_model{
 			}
 		}
 		return $my_role;
-	}
-	
-	/*
-	 * 根据案件信息，获得案号
-	 * $project参数为array，需要包含is_query,filed,classification,type,type_lock,first_contact/time_contract键
-	 */
-	function getNum($project_id,$classification,$type,$is_query=false,$first_contact=NULL,$time_contract=NULL){
-		$project_num=array();
-		
-		if($is_query){
-			$project_num['classification_code']='询';
-			$project_num['type_code']='';
-		}else{
-			switch($classification){
-				case '争议':$project_num['classification_code']='诉';break;
-				case '非争议':$project_num['classification_code']='非';break;
-				case '法律顾问':$project_num['classification_code']='顾';break;
-				default:'';
-			}
-			switch($type){
-				case '公司':$project_num['type_code']='（公）';break;
-				case '房产建筑':$project_num['type_code']='（房）';break;
-				case '婚姻家庭':$project_num['type_code']='（家）';break;
-				case '劳动人事':$project_num['type_code']='（劳）';break;
-				case '知识产权':$project_num['type_code']='（知）';break;
-				case '诉讼':$project_num['type_code']='（诉）';break;
-				case '刑事行政':$project_num['type_code']='（刑）';break;
-				case '涉外':$project_num['type_code']='（外）';break;
-				case '韩日':$project_num['type_code']='（韩）';break;
-				default:$project_num['type_code']='';
-			}
-		}
-		$project_num['project']=$project_id;
-		$project_num+=uidTime();
-		$project_num['year_code']=substr($is_query?$first_contact:$time_contract,0,4);
-		$this->db->insert('project_num',$project_num);
-		$project_num['number']=$this->db->query("SELECT number FROM project_num WHERE `project` = $project_id")->row()->number;
-
-		$num=$project_num['classification_code'].$project_num['type_code'].$project_num['year_code'].'第'.$project_num['number'].'号';
-		return $num;
 	}
 }
 ?>

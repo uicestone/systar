@@ -13,6 +13,16 @@
 		<input type="text" name="account[date]" value="<?=$this->value('account/date')?>" class="date" placeholder="日期" title="日期" />
 		<input type="text" name="account[account]" value="<?=$this->value('account/account')?>" placeholder="账目编号" title="账目编号" />
 	</div>
+	
+	<div class="item">
+		<div class="title"><label>项目 付款/收款人：</label></div>
+		<select name="account[project]" class="chosen allow-new">
+			<?=options($this->project->getArray(), $this->value('account/project'), NULL, true)?>
+		</select>
+		<select name="account[people]" class="chosen allow-new">
+			<?=options($this->people->getArray(), $this->value('account/people'), NULL, true)?>
+		</select>
+	</div>
 
 	<div class="item">
 		<div class="title"><label>备注：</label></div>
