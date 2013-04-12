@@ -258,7 +258,11 @@ class Account_model extends BaseItem_model{
 		if(!isset($data['account'])){
 			$this->db->update('account',array('account'=>$insert_id),array('id'=>$insert_id));
 		}else{
-			$account=$this->db->select('project, team')->from('account')->where('id',intval($data['account']))->limit(1)->row();
+			$account=$this->db->select('project, team')
+				->from('account')
+				->where('id',intval($data['account']))
+				->limit(1)
+				->get()->row();
 			$this->db->update('account',$account,array('id'=>$insert_id));
 		}
 		

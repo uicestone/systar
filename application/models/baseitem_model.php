@@ -133,6 +133,21 @@ class BaseItem_model extends SS_Model{
 		return array_sub($this->getList($args),$keyname,$keyname_forkey);
 	}
 	
+	function getAddingItem(){
+		$row=$this->db->select('id')
+			->from($this->table)
+			->where(array('display'=>false,'uid'=>$this->user->id))
+			->order_by('id', 'desc')
+			->limit(1)
+			->get()->row();
+		
+		if($row){
+			return $row->id;
+		}else{
+			return false;
+		}
+	}
+	
 	/**
 	 * 添加标签，而不论标签是否存在
 	 * @param type {item} id

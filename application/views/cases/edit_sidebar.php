@@ -1,11 +1,8 @@
 <button type="submit" name="submit[project]" class="major">保存</button>
 
-<? if(($this->user->isLogged('manager') || $responsible_partner==$this->user->id) && in_array('等待立案审核',$labels) && !in_array('咨询',$labels)){?>
+<? if(($this->user->isLogged('manager') || in_subarray('督办人', $people_roles[$this->user->id], 'role')) && in_array('等待立案审核',$labels) && !in_array('咨询',$labels)){?>
 		<button type="submit" name="submit[review]" class="major">立案审核</button>
 <? }//TODO: 批量替换多余的空格?>
-<? if($responsible_partner!=$this->user->id && !in_array('客户已锁定',$labels) && in_array('在办',$labels)){?>
-		<button type="submit" name="submit[apply_lock]" class="major">申请锁定</button>
-<? }?>
 <? if($this->user->isLogged('finance') && in_array('已申请归档',$labels) && !in_array('通过财务审核',$labels)){?>
 		<button type="submit" name="submit[review_finance]" class="major">财务审核</button>
 <? }?>

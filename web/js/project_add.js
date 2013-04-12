@@ -70,7 +70,7 @@ $(function(){
 	});
 	
 	/*职员角色删除*/
-	section.find('.item[name="staff"]')
+	section.find('.item[name="staff"]:not([locked])')
 		.on('mouseenter','span[role]',function(){
 	
 			$(this).closest('tbody').find('span[role]').each(function(){
@@ -124,19 +124,6 @@ $(function(){
 		$(this).find('[name="people[id]"]').val('').trigger('change');
 	});
 	
-	//勾选"计时收费"时，显示计时收费列表和表单
-	section.find('input[name="project[timing_fee]"]').change(function(){
-		var caseTimingFeeSave=$('label#caseTimingFeeSave');
-		caseTimingFeeSave.html('<button type="submit" name="submit[case_fee_timing]">保存</button>');
-
-		var caseFeeTimingAddForm=$(this).closest('.item').find('.timing-fee-detail');
-		if($(this).is(':checked')){
-			caseFeeTimingAddForm.show(200);
-		}else{
-			caseFeeTimingAddForm.hide(200);
-		}
-	});
-
 	//审核按钮的触发
 	section.find('button[name="submit[review]"]').click(function(){
 		$(this)
@@ -155,40 +142,6 @@ $(function(){
 		}
 	});
 
-	//案下收费条件页内增加
-	section.find('.contentTable[name="project_account"]').children('tbody').children('tr').children('td[field="condition"]').editable(function(value,settings){
-		var id=$(this).siblings('td:first').attr('id');
-
-		var result;
-
-		$.ajax({
-			url:'/cases/write/case_fee_condition',
-			type:'POST',
-			data:{
-				id:id,
-				value:value
-			},
-			async:false,
-			success:function(response){
-				result=$.parseResponse(response);
-			}
-		});
-
-		return result;
-	},{
-		onblur:'submit',
-		data:' '
-	});
-
-	//案下律师类别为实际贡献时，增加实际贡献输入格
-	section.find('[name="staff[role]"]').change(function(){
-		if($(this).val()==='实际贡献'){
-			$(this).siblings('[name="staff_extra[actual_contribute]"]').removeAttr('disabled').show();
-		}else{
-			$('[name="staff_extra[actual_contribute]"]').attr('disabled','disabled').hide();
-		}
-	});
-	
 	section.find(':input:file[name="document"]').fileupload({
         dataType: 'json',
         done: function (event, data) {

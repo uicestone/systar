@@ -205,4 +205,14 @@ function array_prefix(array $array,$prefix,$prefix_end_with_slash=true){
 
 	return $prefixed_array;
 }
+
+/**
+ * 判断一个字符串是否为有效的json序列
+ * @param type $string
+ * @return type
+ */
+function is_json($string) {
+	json_decode($string);
+	return (json_last_error() == JSON_ERROR_NONE);
+}
 ?>

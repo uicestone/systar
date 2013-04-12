@@ -46,8 +46,6 @@ class Project_model extends BaseItem_model{
 		$id=intval($id);
 	    $data=array_intersect_key((array)$data,self::$fields);
 		
-		$data['display']=true;
-
 		$data+=uidTime();
 	    
 		return $this->db->update('project',$data,array('id'=>$id));
@@ -71,7 +69,7 @@ class Project_model extends BaseItem_model{
 		$compiled='';
 		foreach($roles as $role){
 			$compiled.='<span role="'.$role['role'].'">'.$role['role'];
-			if($role['weight'] && $role['weight']<1){
+			if($role['weight']){
 				$compiled.='('.($role['weight']*100).'%)';
 			}
 			$compiled.='</span> ';

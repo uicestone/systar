@@ -5,6 +5,7 @@ class SS_Date{
 	var $microtime;
 	var $today;
 	var $quarter;
+	var $year;
 	var $year_begin;
 	var $year_end;
 	var $last_year_end;
@@ -16,6 +17,7 @@ class SS_Date{
 		$this->microtime=microtime(true);
 		$this->today=date('Y-m-d',time());
 		$this->quarter=date('y',$this->now.ceil(date('m',$this->now/3)));
+		$this->year=date('Y',$this->now);
 		$this->year_begin=date('Y',$this->now).'-01-01';
 		$this->year_end=date('Y',$this->now).'-12-31';
 		$this->last_year_end=(date('Y',$this->now)-1).'-12-31';

@@ -125,14 +125,18 @@ class Project extends SS_controller{
 	}
 	
 	function add(){
-		$data=array();
-		if($this->config->item('project/index/search/type')!==false){
-			$data['type']=$this->config->item('project/index/search/type');
+		$this->project->id=$this->project->getAddingItem();
+		
+		if($this->project->id===false){
+			$data=array();
+			if($this->config->item('project/index/search/type')!==false){
+				$data['type']=$this->config->item('project/index/search/type');
+			}
+			$this->project->id=$this->project->add($data);
+			$this->project->addPeople($this->project->id, $this->user->id, NULL, '创建人');
 		}
-		$this->project->id=$this->project->add($data);
-		$this->project->addPeople($this->project->id, $this->user->id, NULL, '创建人');
+		
 		$this->edit($this->project->id);
-		redirect('#'.CONTROLLER.'/edit/'.$this->project->id);
 	}
 	
 	function edit($id){
@@ -161,9 +165,17 @@ class Project extends SS_controller{
 			
 			$this->load->addViewData('relative_list', $this->relativeList());
 
-			$this->load->view('project/edit');
+			if(is_file(APPPATH.'views/'.CONTROLLER.'/edit'.EXT)){
+				$this->load->view(CONTROLLER.'/edit');
+			}else{
+				$this->load->view('project/edit');
+			}
 			
-			$this->load->view('project/edit_sidebar',true,'sidebar');
+			if(is_file(APPPATH.'views/'.CONTROLLER.'/edit_sidebar'.EXT)){
+				$this->load->view(CONTROLLER.'/edit_sidebar',true,'sidebar');
+			}else{
+				$this->load->view('project/edit_sidebar',true,'sidebar');
+			}
 		}
 		catch(Exception $e){
 			$this->output->status='fail';
@@ -264,6 +276,13 @@ class Project extends SS_controller{
 			}
 		
 			elseif($submit=='project'){
+				
+				if(!$this->project->data['display']){
+					$this->project->data['display']=true;
+					$this->output->data=CONTROLLER.'/edit/'.$this->project->id;
+					$this->output->status='redirect';
+				}
+				
 				$this->project->labels=$this->input->sessionPost('labels');
 				$this->project->update($this->project->id,$this->project->data);
 				$this->project->updateLabels($this->project->id,$this->project->labels);

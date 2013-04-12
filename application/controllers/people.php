@@ -131,9 +131,13 @@ class People extends SS_Controller{
 	 * @todo 存在刷新整个页面的问题
 	 */
 	function add(){
-		$this->people->id=$this->people->add();
+		$this->people->id=$this->people->getAddingItem();
+		
+		if($this->people->id===false){
+			$this->people->id=$this->people->add();
+		}
+		
 		$this->edit($this->people->id);
-		redirect('#'.CONTROLLER.'/edit/'.$this->people->id);
 	}
 	
 	/**

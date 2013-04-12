@@ -100,18 +100,22 @@ class Account extends SS_controller{
 	}
 
 	function add(){
-		$data=array('name'=>'律师费');
+		$this->account->id=$this->account->getAddingItem();
 		
-		if($this->input->get('project')){
-			$data['project']=intval($this->input->get('project'));
-		}
-		if($this->input->get('client')){
-			$data['people']=intval($this->input->get('client'));
-		}
+		if($this->account->id===false){
+			$data=array('name'=>'律师费');
 
-		$this->account->id=$this->account->add($data);
-		$this->edit($this->account->id);
-		redirect('#'.CONTROLLER.'/edit/'.$this->account->id);
+			if($this->input->get('project')){
+				$data['project']=intval($this->input->get('project'));
+			}
+			if($this->input->get('client')){
+				$data['people']=intval($this->input->get('client'));
+			}
+			
+			$this->account->id=$this->account->add($data);
+		}
+		
+		$this->edit($this->cases->id);
 	}
 
 	function edit($id){

@@ -33,7 +33,7 @@ class Cases extends Project{
 		);
 		
 		$this->staff_list_args=array(
-			'staff_name'=>array('heading'=>array('data'=>'名称','width'=>'38%'),'cell'=>'{name}<button type="submit" name="submit[remove_staff]" id="{id}" class="hover">删除</button>'),
+			'staff_name'=>array('heading'=>array('data'=>'名称','width'=>'38%'),'cell'=>'{name}'),
 			'role'=>array()
 		);
 	
@@ -49,9 +49,14 @@ class Cases extends Project{
 	}
 	
 	function add(){
-		$this->cases->id=$this->cases->add(array('type'=>'业务','time_contract'=>$this->date->today,'time_end'=>date('Y-m-d',$this->date->now+100*86400)));
+		$this->cases->id=$this->cases->getAddingItem();
+		
+		if($this->cases->id===false){
+			$this->cases->id=$this->cases->add(array('type'=>'业务','time_contract'=>$this->date->today,'time_end'=>date('Y-m-d',$this->date->now+100*86400)));
+			$this->cases->addLabel($this->cases->id, '案件');
+		}
+		
 		$this->edit($this->cases->id);
-		redirect('#'.CONTROLLER.'/edit/'.$this->cases->id);
 	}
 	
 	function edit($id){
@@ -67,19 +72,10 @@ class Cases extends Project{
 			}else{
 				$this->section_title=$this->cases->data['name'];
 			}
-
-			$project_role=$this->cases->getRoles($this->cases->id);
-
-			$responsible_partner=$this->cases->getPartner($project_role);
-			//获得本案督办人的id
-
-			$lawyers=$this->cases->getLawyers($project_role);
-			//获得本案办案人员的id
-
-			$my_roles=$this->cases->getMyRoles($project_role);
-			//本人的本案职位
-
-			$this->load->addViewArrayData(compact('case_role','responsible_partner','lawyers','my_roles'));
+			
+			$people_roles=$this->cases->getPeopleRoles($this->cases->id);
+			
+			$this->load->addViewData('people_roles', $people_roles);
 			
 			$this->load->addViewData('project', $this->cases->data);
 			$this->load->addViewData('labels', $this->cases->labels);
@@ -138,7 +134,8 @@ class Cases extends Project{
 	
 	function staffList(){
 		
-		$this->staff_list_args['role']=array('heading'=>'本案职位','parser'=>array('function'=>array($this->project,'getCompiledPeopleRoles'),'args'=>array($this->project->id,'{id}')))	;		$this->load->model('people_model','people');
+		$this->staff_list_args['role']=array('heading'=>'本案职位','parser'=>array('function'=>array($this->project,'getCompiledPeopleRoles'),'args'=>array($this->project->id,'{id}')));
+		$this->load->model('people_model','people');
 		
 		$list=$this->table->setFields($this->staff_list_args)
 			->setAttribute('name','staff')
@@ -166,13 +163,21 @@ class Cases extends Project{
 		try{
 		
 			if($submit=='project'){
+				
 				if(!$this->cases->data['num']){
-					$this->output->message('尚未获取案号，请选择案件分类和阶段后获取案号','warning');
+					$this->output->message('尚未获取案号，请选择案件领域和分类后获取案号','warning');
 					throw new Exception();
 				}
-				if(isset($this->cases->labels['分类']) && in_array($this->cases->labels['分类'],array('争议','非争议')) && !in_array('咨询', $this->cases->labels) && !$this->cases->data['focus']){
-					$this->output->message('请填写案件争议焦点','warning');
-					throw new Exception;
+				
+				if(isset($this->cases->labels['分类']) && !in_array('咨询', $this->cases->labels) && !$this->cases->data['focus']){
+					if($this->cases->labels['分类']==='争议'){
+						$this->output->message('请填写案件争议焦点','warning');
+						throw new Exception;
+					}
+					elseif($this->cases->labels['分类']==='非争议'){
+						$this->output->message('请填写案件标的','warning');
+						throw new Exception;
+					}
 				}
 			}
 			
@@ -212,7 +217,8 @@ class Cases extends Project{
 								}
 							}
 							
-							$this->output->status='refresh';
+							$this->output->setData($this->relativeList(),'content-table','html','.item[name="relative"]>.contentTable','replace');
+							$this->output->setData($this->staffList(),'content-table','html','.item[name="staff"]>.contentTable','replace');
 						}
 					}
 					
@@ -322,18 +328,6 @@ class Cases extends Project{
 					}
 				}
 				
-				$project_role=$this->project->getRoles($this->project->id);
-		
-				$responsible_partner=$this->project->getPartner($project_role);
-				//获得本案督办人的id
-				$my_roles=$this->project->getMyRoles($project_role);
-				//本人的本案职位
-
-				if(!$responsible_partner && $staff['role']!='督办人'){
-					//第一次插入督办人后不显示警告，否则如果不存在督办人则显示警告
-					$this->output->message('未设置督办人','notice');
-				}
-
 				if(!$staff['role']){
 					$this->output->message('未选择本案职务','warning');
 					throw new Exception;
@@ -454,7 +448,7 @@ class Cases extends Project{
 				$this->output->message('案卷归档归档完成');
 			}
 
-			elseif($submit=='apply_project_num'){
+			elseif($submit=='apply_num'){
 				
 				if(!$this->project->labels['领域']){
 					$this->output->message('获得案号前要先选择案件领域','warning');
@@ -466,15 +460,22 @@ class Cases extends Project{
 					throw new Exception();
 				}
 
-				$data=array(
-					'num'=>$this->project->getNum($this->project->id, $this->project->labels['分类'], $this->project->labels['领域'], in_array('咨询', $this->project->labels), $this->project->data['first_contact'], $this->project->data['time_contract']),
-				);
+				if(!$this->project->data['name']){
+					$this->output->message('获得案号前要先填写案件名称','warning');
+					throw new Exception();
+				}
+
+				$this->project->data['num']=$this->cases->getNum($this->cases->labels);
 				
-				$this->project->update($this->project->id,$data);
+				$this->project->data['display']=true;
+				
+				$this->project->update($this->project->id,$this->project->data);
 				
 				$this->project->updateLabels($this->project->id, $this->project->labels);
 				
-				$this->output->status='refresh';
+				$this->output->status='redirect';
+				$this->output->data='cases/edit/'.$this->project->id;
+				
 			}
 			
 		}catch(Exception $e){

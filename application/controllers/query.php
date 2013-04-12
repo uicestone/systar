@@ -20,12 +20,18 @@ class Query extends Project{
 	}
 
 	function add(){
-		$this->query->id=$this->query->add(array('first_contact'=>$this->date->today));
+		$this->query->id=$this->query->getAddingItem();
+		
+		if($this->query->id===false){
+			$this->query->id=$this->query->add(array('type'=>'业务','first_contact'=>$this->date->today));
+			$this->query->addLabel($this->query->id, '咨询');
+		}
+		
 		$this->edit($this->query->id);
-		redirect('#'.CONTROLLER.'/edit/'.$this->query->id);
 	}
 
 	function edit($id){
+		$this->load->model('staff_model','staff');
 		parent::edit($id);
 	}
 	
@@ -36,16 +42,11 @@ class Query extends Project{
 		$this->load->model('client_model','client');
 		$this->load->model('staff_model','staff');
 		
-		$query=array_merge($this->query->fetch($id),$this->input->sessionPost('cases'));
+		$this->query->data=array_merge($this->query->fetch($id),$this->input->sessionPost('cases'));
 		
 		try{
 			
-			if($submit=='cancel'){
-				unset($_SESSION[CONTROLLER]['post'][$this->query->id]);
-				$this->output->status='close';
-			}
-		
-			elseif($submit=='query'){
+			if($submit=='query'){
 				
 				$client=$this->input->sessionPost('client');
 				$this->query->labels=$this->input->sessionPost('labels');
@@ -54,7 +55,7 @@ class Query extends Project{
 				
 				$this->load->library('form_validation');
 				
-				if(!$client['id']){
+				if(!post('client/id')){
 					if(!$client['name']){
 						$this->output->message('请填写咨询人', 'warning');
 						throw new Exception;
@@ -133,10 +134,6 @@ class Query extends Project{
 					throw new Exception;
 				}
 				
-				$query['is_query']=true;
-
-				post('cases/num',$this->query->getNum($this->query->id,NULL,$this->query->labels['领域'],true,$query['first_contact']));
-
 				post('cases/display',true);
 				
 				post('cases/name',$client['name'].' 咨询');

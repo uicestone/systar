@@ -13,31 +13,47 @@ class Cases_model extends Project_model{
 		return $this->id;
 	}
 	
-	function getStaffList($project_id){
-		$project_id=intval($project_id);
+	/*
+	 * 根据案件信息，获得案号
+	 */
+	function getNum($labels){
+		$num=$this->company->config('cases/num/'.$this->date->year);
 
-		$query="
-			SELECT
-				project_people.id,GROUP_CONCAT(project_people.role) AS role,project_people.hourly_fee,CONCAT(TRUNCATE(SUM(project_people.contribute)*100,1),'%') AS contribute,
-				staff.name AS staff_name,
-				TRUNCATE(account.amount_sum*SUM(project_people.contribute),2) AS contribute_amount,
-				lawyer_hour.hours_sum
-			FROM 
-				project_people INNER JOIN people staff ON staff.id=project_people.people AND project_people.type='律师'
-				CROSS JOIN (
-					SELECT SUM(amount) AS amount_sum FROM account WHERE `project` = $project_id AND name <> '办案费'
-				)account
-				LEFT JOIN (
-					SELECT uid,SUM(IF(hours_checked IS NULL,hours_own,hours_checked)) AS hours_sum 
-					FROM schedule 
-					WHERE schedule.`project` = $project_id AND display=1 AND completed=1 GROUP BY uid
-				)lawyer_hour
-				ON lawyer_hour.uid=project_people.people
-			WHERE project_people.project=$project_id
-			GROUP BY project_people.people
-		";
+		if($num===false){
+			$num=1;
+		}else{
+			$num++;
+		}
 		
-		return $this->db->query($query)->result_array();
+		$num=substr($num+1000, 1, 3);
+
+		$this->company->config('cases/num/'.$this->date->year, $num);
+
+		if(in_array('争议', $labels)){
+			$symbol='诉';
+		}
+		elseif(in_array('法律顾问',$labels)){
+			$symbol='顾';
+		}else{
+			$symbol='非';
+		}
+		
+		if(isset($labels['领域'])){
+			switch($labels['领域']){
+				case '公司':$symbol.='（公）'.$this->date->year.'-1-';break;
+				case '房产建筑':$symbol.='（房）'.$this->date->year.'-2-';;break;
+				case '婚姻家庭':$symbol.='（家）'.$this->date->year.'-3-';;break;
+				case '劳动人事':$symbol.='（劳）'.$this->date->year.'-4-';;break;
+				case '知识产权':$symbol.='（知）'.$this->date->year.'-5-';;break;
+				case '诉讼':$symbol.='（诉）'.$this->date->year.'-6-';;break;
+				case '刑事行政':$symbol.='（刑）'.$this->date->year.'-7-';;break;
+				case '涉外':$symbol.='（外）'.$this->date->year.'-8-';;break;
+				case '韩日':$symbol.='（韩）'.$this->date->year.'-9-';;break;
+				default:$symbol.='';
+			}
+		}
+		
+		return $symbol.$num;
 	}
 	
 	function addStaff($project,$people,$role,$weight=NULL){
