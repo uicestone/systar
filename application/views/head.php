@@ -8,17 +8,17 @@
 	<?=stylesheet('style/common')?>
 	<?=stylesheet('style/icomoon/style')?>
 	
-	<?=javascript('jQuery/jquery-1.7.2')?>
+	<?=javascript('jQuery/jquery-1.7.2.min')?>
 	<?=javascript('jQuery/jQueryRotate.2.2')?>
 	<?=javascript('jQuery/jquery.hashchange-us')?>
 	<?=javascript('jQuery/jquery.placeholder')?>
-	<?=javascript('jQuery/jquery-ui-1.9.2.custom')?>
+	<?=javascript('jQuery/jquery-ui-1.10.2.custom.min')?>
 	<?=javascript('jQuery/Jeditable/jquery.jeditable.mini')?>
 	<?=javascript('jQuery/jquery-ui.etc')?>
 	<?=javascript('common')?>
 
 	<?=stylesheet('js/jQuery/fullcalendar/fullcalendar')?>
-	<?=javascript('jQuery/fullcalendar/fullcalendar')?>
+	<?=javascript('jQuery/fullcalendar/fullcalendar.min')?>
 	
 	<?=javascript('jQuery/highcharts/highcharts')?>
 	
