@@ -236,6 +236,11 @@ class People_model extends BaseItem_model{
 			",NULL,false);
 		}
 		
+		if(isset($args['team'])){
+			$this->db->join('team_people','people.id = team_people.people','inner')
+				->where_in('team_people.team',$args['team']);
+		}
+		
 		if(isset($args['everyone']) && $args['everyone']===false){
 		
 			$where='(FALSE';
@@ -249,27 +254,27 @@ class People_model extends BaseItem_model{
 			}
 
 			if(isset($args['in_team'])){
-				$where.=" OR people.id IN (SELECT people FROM team_people WHERE FALSE ".($args['in_team']?"OR team IN (".implode(',',array_keys($args['in_team'])).")":'').")";
+				$where.=" OR people.id IN (SELECT people FROM team_people WHERE FALSE ".($args['in_team']?"OR team IN (".implode(',',$args['in_team']).")":'').")";
 			}
 
 			if(isset($args['team_leader_of'])){
-				$where.=" OR people.id IN (SELECT leader FROM team WHERE FALSE ".($args['team_leader_of']?"OR id IN (".implode(',',array_keys($args['team_leader_of'])).")":'').")";
+				$where.=" OR people.id IN (SELECT leader FROM team WHERE FALSE ".($args['team_leader_of']?"OR id IN (".implode(',',$args['team_leader_of']).")":'').")";
 			}
 
 			if(isset($args['lead_related_team_of'])){
-				$where.=" OR people.id IN (SELECT leader FROM team WHERE id IN (SELECT relative FROM team_relationship WHERE FALSE ".($args['lead_related_team_of']?"OR team IN (".implode(',',array_keys($args['lead_related_team_of'])).")":'')."))";
+				$where.=" OR people.id IN (SELECT leader FROM team WHERE id IN (SELECT relative FROM team_relationship WHERE FALSE ".($args['lead_related_team_of']?"OR team IN (".implode(',',$args['lead_related_team_of']).")":'')."))";
 			}
 
 			if(isset($args['lead_team_which_has_relative_like'])){
-				$where.=" OR people.id IN (SELECT leader FROM team WHERE id IN (SELECT team FROM team_relationship WHERE FALSE ".($args['lead_team_which_has_relative_like']?"OR relative IN (".implode(',',array_keys($args['lead_team_which_has_relative_like'])).")":'')."))";
+				$where.=" OR people.id IN (SELECT leader FROM team WHERE id IN (SELECT team FROM team_relationship WHERE FALSE ".($args['lead_team_which_has_relative_like']?"OR relative IN (".implode(',',$args['lead_team_which_has_relative_like']).")":'')."))";
 			}
 
 			if(isset($args['in_related_team_of'])){
-				$where.=" OR people.id IN (SELECT people FROM team_people WHERE team IN (SELECT relative FROM team_relationship WHERE FALSE ".($args['in_related_team_of']?"OR team IN (".implode(',',array_keys($args['in_related_team_of'])).")":'')."))";
+				$where.=" OR people.id IN (SELECT people FROM team_people WHERE team IN (SELECT relative FROM team_relationship WHERE FALSE ".($args['in_related_team_of']?"OR team IN (".implode(',',$args['in_related_team_of']).")":'')."))";
 			}
 
 			if(isset($args['in_team_which_has_relative_like'])){
-				$where.=" OR people.id IN (SELECT people FROM team_people WHERE team IN (SELECT team FROM team_relationship WHERE FALSE ".($args['in_team_which_has_relative_like']?"OR relative IN (".implode(',',array_keys($args['in_team_which_has_relative_like'])).")":'')."))";
+				$where.=" OR people.id IN (SELECT people FROM team_people WHERE team IN (SELECT team FROM team_relationship WHERE FALSE ".($args['in_team_which_has_relative_like']?"OR relative IN (".implode(',',$args['in_team_which_has_relative_like']).")":'')."))";
 			}
 
 			$where.=")";

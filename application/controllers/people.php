@@ -1,4 +1,4 @@
- <?php
+<?php
 class People extends SS_Controller{
 	
 	var $form_validation_rules=array();

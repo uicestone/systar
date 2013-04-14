@@ -7,7 +7,7 @@
 			</tr>
 			<tr>
 				<td>
-					<select name="labels[]" class="chosen" data-placeholder="标签" title="输入多个标签，将采取“且”方式查找" multiple="multiple"><?=options($this->people->getAllLabels(),!$this->config->user_item('search/labels'))?></select>
+					<select name="labels[]" class="chosen" data-placeholder="标签" title="输入多个标签，将采取“且”方式查找" multiple="multiple"><?=options($this->people->getAllLabels(),$this->config->user_item('search/labels'))?></select>
 				</td>
 			</tr>
 			<tr>

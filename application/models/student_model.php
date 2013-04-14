@@ -24,12 +24,11 @@ class Student_model extends People_model{
 		
 		$this->db->select('
 			people.*,
-			RIGHT((1000000 + CONCAT(team.num,RIGHT((100 + team_people.id_in_team),2))),6) AS num,
+			RIGHT((1000000 + CONCAT(team.num,RIGHT((100 + class_student.id_in_team),2))),6) AS num,
 			team.id AS class,team.name AS class_name
 		',false)
-			->join('team_people',"team_people.people = people.id AND team_people.till>=CURDATE()",'LEFT')
-			->join('team',"team.id = team_people.team",'LEFT')
-			->where('team.type','班级');
+			->join('team_people class_student',"class_student.people = people.id AND class_student.till>=CURDATE()",'LEFT')
+			->join('team',"team.id = class_student.team",'LEFT');
 		
 		$args['orderby']='num';
 		

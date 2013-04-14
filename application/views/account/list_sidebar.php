@@ -34,7 +34,7 @@
 		</tr>
 		<tr>
 			<td>
-				<select name="labels[]" class="chosen" data-placeholder="标签" multiple="multiple"><?=options($this->account->getAllLabels(),!$this->config->user_item('search/labels'))?></select>
+				<select name="labels[]" class="chosen" data-placeholder="标签" multiple="multiple"><?=options($this->account->getAllLabels(),$this->config->user_item('search/labels'))?></select>
 			</td>
 		</tr>
 		<tr>

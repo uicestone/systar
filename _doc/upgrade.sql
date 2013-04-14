@@ -164,3 +164,7 @@ NULL ,  '2',  'default_page',  'schedule'
 );
 
 ALTER TABLE `company` DROP `default_controller`;
+
+insert ignore into people_label (people,label,label_name)
+select people,134,'报名考生'
+from team_people where team = (select id from team where name = '报名考生');

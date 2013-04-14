@@ -6,9 +6,7 @@ class Test extends SS_controller{
 	
 	function index(){
 		
-		print_r($this->config->user_item('default_page'));
-		
-		//print_r($this->session->all_userdata());
+		print_r($this->session->all_userdata());
 		//print_r($this->user);
 	}
 	

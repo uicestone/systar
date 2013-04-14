@@ -7,7 +7,7 @@
 			</tr>
 			<tr>
 				<td>
-					<select name="labels[]" class="chosen allow-new" data-placeholder="标签" multiple="multiple"><?=options($this->document->getAllLabels(),!$this->config->user_item('search/labels'))?></select>
+					<select name="labels[]" class="chosen allow-new" data-placeholder="标签" multiple="multiple"><?=options($this->document->getAllLabels(),$this->config->user_item('search/labels'))?></select>
 				</td>
 			</tr>
 			<tr>
