@@ -453,6 +453,9 @@ aside button.major{
 .contentTableBox .submit{
 	text-align:center;
 }
+.add-form>*{
+	vertical-align: top;
+}
 
 /*任务块*/
 .column { width: 170px; float: left; padding-bottom: 100px; }

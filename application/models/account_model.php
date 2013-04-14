@@ -210,7 +210,7 @@ class Account_model extends BaseItem_model{
 			}
 			
 			if(isset($args['role'])){
-				$this->db->select('ROUND(SUM(amount)) * weight AS sum',false);
+				$this->db->select('ROUND(SUM(amount * weight)) AS sum',false);
 			}
 			else{
 				$this->db->select('ROUND(SUM(amount)) AS sum',false);
@@ -247,8 +247,6 @@ class Account_model extends BaseItem_model{
 		if(isset($data['comment']) && $data['comment']===''){
 			unset($data['comment']);
 		}
-		
-		$data['display']=true;
 		
 		$data+=uidTime(true,true);
 		

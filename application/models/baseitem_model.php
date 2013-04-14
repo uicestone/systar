@@ -89,7 +89,13 @@ class BaseItem_model extends SS_Model{
 			}
 		}
 		
-		$this->db->where(array($this->table.'.company'=>$this->company->id,$this->table.'.display'=>true));
+		if(!isset($args['company']) || $args['company']===true){
+			$this->db->where($this->table.'.company',$this->company->id);
+		}
+		
+		if(!isset($args['display']) || $args['display']===true){
+			$this->db->where($this->table.'.display',true);
+		}
 
 		if(isset($args['name'])){
 			$this->db->like($this->table.'.name',$args['name']);

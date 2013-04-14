@@ -93,7 +93,6 @@ class Account extends SS_controller{
 		$this->load->addViewData('summary', $summary);
 		
 		$this->load->model('staff_model','staff');
-		$this->load->model('team_model','team');
 
 		$this->load->view('list');
 		$this->load->view('account/list_sidebar',true,'sidebar');
@@ -115,7 +114,7 @@ class Account extends SS_controller{
 			$this->account->id=$this->account->add($data);
 		}
 		
-		$this->edit($this->cases->id);
+		$this->edit($this->account->id);
 	}
 
 	function edit($id){
@@ -170,13 +169,18 @@ class Account extends SS_controller{
 					$this->load->model('project_model','project');
 					$this->account->data['name']=$this->project->fetch($this->account->data['project'],'name').' '.$this->account->data['subject'];
 				}
+				
+				if(!$this->account->data['display']){
+					$this->account->data['display']=true;
+					$this->output->status='redirect';
+					$this->output->data='account/edit/'.$this->account->id;
+				}
 
 				$this->account->update($this->account->id,$this->account->data);
 				
 				unset($_SESSION[CONTROLLER]['post'][$this->account->id]);
 				
 				$this->output->message($this->section_title.' 已保存');
-				$this->output->status='refresh';
 			}
 			
 			if(is_null($this->output->status)){

@@ -153,6 +153,10 @@ class Project extends SS_controller{
 				$this->section_title=$this->project->data['name'];
 			}
 			
+			$this->load->addViewData('roles_people', $this->project->getPeopleRoles($this->project->id));
+			
+			$this->load->addViewData('people_roles', $this->project->getRolesPeople($this->project->id));
+			
 			$this->load->addViewData('project', $this->project->data);
 			
 			$this->load->addViewData('labels', $this->project->labels);
@@ -349,7 +353,7 @@ class Project extends SS_controller{
 					$subject='律师费';
 				}
 				
-				$this->account->add($account+array('project'=>$this->project->id,'subject'=>$subject));
+				$this->account->add($account+array('project'=>$this->project->id,'subject'=>$subject,'display'=>true));
 				$this->output->setData($this->accountList(),'content-table','html','.item[name="account"]>.contentTable','replace');
 				
 				unset($_SESSION[CONTROLLER]['post'][$this->project->id]['account']);

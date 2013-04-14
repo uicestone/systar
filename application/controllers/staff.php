@@ -8,12 +8,6 @@ class Staff extends People{
 		$this->people=$this->staff;
 	}
 	
-	function index(){
-		$this->config->set_user_item('search/is_staff', true, false);
-		
-		parent::index();
-	}
-	
 	function match(){
 
 		$term=$this->input->post('term');

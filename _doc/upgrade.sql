@@ -127,3 +127,9 @@ ALTER TABLE  `account` ADD  `reviewed` BOOLEAN NOT NULL DEFAULT FALSE AFTER  `re
 -- server updated
 
 DROP TRIGGER IF EXISTS  `trig_project_num_multiautoincrease`;
+
+insert ignore into team_people (team,people)
+select id,leader from team
+where leader is not null;
+
+drop table project_num;

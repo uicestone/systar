@@ -12,6 +12,13 @@ class Client_model extends People_model{
 		return parent::add($data);
 	}
 	
+	function getList($args = array()) {
+		
+		$this->db->where('people.id NOT IN (SELECT id FROM staff)');
+		
+		return parent::getList($args);
+	}
+	
 	/**
 	 * 检查客户名，返回错误信息或获取唯一客户的信息
 	 * @param $client_name 要检查的完整或部分客户姓名

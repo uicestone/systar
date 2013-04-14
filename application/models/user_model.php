@@ -19,6 +19,7 @@ class User_model extends People_model{
 	
 	function __construct($uid=NULL){
 		parent::__construct();
+		
 		$this->table='user';
 		
 		$this->load->model('team_model','team');
@@ -34,16 +35,8 @@ class User_model extends People_model{
 			$this->group=explode(',',$user['group']);
 		}
 		
-		$session=$this->session->all_userdata();
-		
 		$this->teams=$this->team->traceByPeople($this->id);
 
-		foreach($session as $key => $value){
-			if(preg_match('/^user\/(.*?)$/', $key,$matches)){
-				$this->$matches[1]=$value;
-			}
-		}
-		
 		//获取存在数据库中的用户配置项
 		$this->db->from('user_config')
 			->where('user',$this->id);
@@ -51,26 +44,16 @@ class User_model extends People_model{
 
 	}
 	
-	/**
-	 * 获得所有用户列表
-	 * 这里列出的用户要求和当前用户有某种关系
-	 * @param type $args
-	 * @return type
-	 */
-	function getList($args=array()){
+	function getList(array $args=array()){
 		
 		$this->db->select('people.*')
-			->from('people')
-			->join('user','user.id = people.id','INNER')
+			->join('people','user.id = people.id','inner')
 			->where('people.company',$this->company->id)
-			//与我同组，或与我有直接关系
-			->where("(
-				people.id IN (SELECT people FROM team_people WHERE FALSE ".($this->teams?"OR team IN (".implode(',',array_keys($this->teams)).")":'').")
-				OR people.id IN (SELECT relative FROM people_relationship WHERE people = {$this->user->id})
-				OR people.id IN (SELECT people FROM people_relationship WHERE relative = {$this->user->id})
-			)",NULL,false);
+			->where('people.display',true);
 		
-		return $this->db->get()->result_array();
+		$args+=array('display'=>false,'company'=>false,'everyone'=>false);
+		
+		return parent::getList($args);
 	}
 	
 	function add($data=array()){

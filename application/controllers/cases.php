@@ -127,7 +127,7 @@ class Cases extends Project{
 		$list=$this->table->setFields($this->client_list_args)
 			->setRowAttributes(array('hash'=>'client/edit/{id}'))
 			->setAttribute('name','client')
-			->generate($this->client->getList(array('project'=>$this->project->id,'is_staff'=>false)));
+			->generate($this->client->getList(array('project'=>$this->project->id)));
 		
 		return $list;
 	}
@@ -140,7 +140,7 @@ class Cases extends Project{
 		$list=$this->table->setFields($this->staff_list_args)
 			->setAttribute('name','staff')
 			->setRowAttributes(array('hash'=>'staff/edit/{id}'))
-			->generate($this->people->getList(array('project'=>$this->project->id,'type'=>'职员')));
+			->generate($this->people->getList(array('project'=>$this->project->id)));
 		
 		return $list;
 	}

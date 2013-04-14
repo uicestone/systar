@@ -1,4 +1,4 @@
-<?php
+ <?php
 class People extends SS_Controller{
 	
 	var $form_validation_rules=array();
@@ -17,8 +17,6 @@ class People extends SS_Controller{
 		parent::__construct();
 		
 		$controller=CONTROLLER;
-		
-		$this->load->model('team_model', 'team');
 		
 		$this->list_args=array(
 			'abbreviation'=>array(

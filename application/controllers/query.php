@@ -32,6 +32,11 @@ class Query extends Project{
 
 	function edit($id){
 		$this->load->model('staff_model','staff');
+		$this->load->model('client_model','client');
+		$client_list=$this->client->getList(array('project'=>$this->project->id));
+		if($client_list){
+			$this->load->addViewData('client', $client_list[0]);
+		}
 		parent::edit($id);
 	}
 	

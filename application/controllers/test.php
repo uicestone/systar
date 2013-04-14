@@ -5,6 +5,21 @@ class Test extends SS_controller{
 	}
 	
 	function index(){
+		
+		$users=$this->user->getList(array(
+			'team_leader_of'=>$this->user->teams,
+			'has_relative_like'=>$this->user->id,
+			'is_relative_of'=>$this->user->id,
+			'in_team'=>$this->user->teams,
+			'team_leader_of'=>$this->user->teams,
+			'in_related_team_of'=>$this->user->teams,
+			'in_team_which_has_relative_like'=>$this->user->teams
+		));
+		
+		print_r($users);
+		
+		echo $this->db->last_query();
+		
 		//print_r($this->session->all_userdata());
 		//print_r($this->user);
 	}
@@ -18,7 +33,6 @@ class Test extends SS_controller{
 	}
 	
 	function team(){
-		$this->load->model('team_model','team');
 		print_r($this->team->traceByPeople(8001));
 	}
 	

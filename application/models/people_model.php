@@ -73,7 +73,6 @@ class People_model extends BaseItem_model{
 	function add(array $data=array()){
 		$people=array_intersect_key($data,self::$fields);
 		$people+=uidTime(true,true);
-		$people['display']=1;
 		
 		$this->db->insert('people',$people);
 		
@@ -170,15 +169,33 @@ class People_model extends BaseItem_model{
 	/**
 	 * 继承自SS_Model::getList()，具有基本的type,label,orderby和limit配置功能
 	 * @param array $args:
-	 * 	'in_my_project' bool (false) 与当前用户有相同的相关案件
-	 *	name string 匹配部分people.name, people.abbreviation, people.name_en
-	 *	project int 只获得指定事务中的人员列表
-	 *		project_people_type 指定事务，特定关联类型
-	 *		project_people_role 指定事务，特定角色
-	 *	is_staff bool 是职员，以是否在staff表来判断
+	 * name string 匹配部分people.name, people.abbreviation, people.name_en
+	 * project int 只获得指定事务中的人员列表
+	 * 	project_people_type 指定事务，特定关联类型
+	 * 	project_people_role 指定事务，特定角色
+	 * 
+	 * 'in_same_project_with' int user_id 有相同的相关案件的人员
+	 * 
+	 * 人员 - 人员关系查找
+	 * is_relative_of =>user_id people_relationship 人员关联，根据本人获得相关人
+	 * has_relative_like => user_id people_relationship 人员关联，根据相关人获得本人
+	 * 
+	 * 团队 - 人员关系查找
+	 * in_team => array teams
+	 * team_leader_of => array teams
+	 * 
+	 * 团队 -  团队关系查找
+	 * lead_related_team_of => array teams 
+	 * lead_team_which_has_relative_like => array teams
+	 * 
+	 * in_related_team_of => array teams
+	 * in_team_which_has_relative_like => array teams
+	 * 
+	 * everyone => bool
 	 *	team array or int 只获得指定团组中的人员列表
 	 */
 	function getList($args=array()){
+		
 		$this->db->select('
 			people.id,people.name,people.phone,people.email,
 			IF(people.abbreviation IS NULL,people.name,people.abbreviation) AS abbreviation
@@ -208,42 +225,58 @@ class People_model extends BaseItem_model{
 			}
 		}
 		
-		if(isset($args['is_staff'])){
-			if($args['is_staff']){
-				$this->db->where('people.id IN (SELECT id FROM staff)');
-			}else{
-				$this->db->where('people.id NOT IN (SELECT id FROM staff)');
-			}
-		}
-		
-		if(isset($args['in_my_project']) && $args['in_my_project'] && !$this->user->isLogged('developer')){
+		if(isset($args['in_same_project_with'])){
 			
 			$this->db->where("
 				people.id IN (
 					SELECT people FROM project_people WHERE `project` IN (
-						SELECT `project` FROM project_people WHERE people = {$this->user->id}
+						SELECT `project` FROM project_people WHERE people = {$args['in_same_project_with']}
 					)
 				)
 			",NULL,false);
 		}
 		
-		if(isset($args['team']) && $args['team']){
-			if(is_array($args['team'])){
-				$teams=implode(',',$args['team']);
-				$this->db->where("people.id IN (SELECT people FROM team_people WHERE team IN ($teams) AND till>=CURDATE())",NULL,false);
-			}else{
-				$team=intval($args['team']);
-				
-				$this->db->where("
-					people.id IN (
-						SELECT people FROM team_people WHERE 
-							team = $team OR team IN (
-								SELECT team FROM team_relationship WHERE relative = $team
-							)
-					)
-				",NULL,false);//@TODO 需要写成递归
+		if(isset($args['everyone']) && $args['everyone']===false){
+		
+			$where='(FALSE';
+
+			if(isset($args['is_relative_of'])){
+				$where.=" OR people.id IN (SELECT relative FROM people_relationship WHERE people = {$args['is_relative_of']})";
 			}
+
+			if(isset($args['has_relative_like'])){
+				$where.=" OR people.id IN (SELECT people FROM people_relationship WHERE relative = {$args['has_relative_like']})";
+			}
+
+			if(isset($args['in_team'])){
+				$where.=" OR people.id IN (SELECT people FROM team_people WHERE FALSE ".($args['in_team']?"OR team IN (".implode(',',array_keys($args['in_team'])).")":'').")";
+			}
+
+			if(isset($args['team_leader_of'])){
+				$where.=" OR people.id IN (SELECT leader FROM team WHERE FALSE ".($args['team_leader_of']?"OR id IN (".implode(',',array_keys($args['team_leader_of'])).")":'').")";
+			}
+
+			if(isset($args['lead_related_team_of'])){
+				$where.=" OR people.id IN (SELECT leader FROM team WHERE id IN (SELECT relative FROM team_relationship WHERE FALSE ".($args['lead_related_team_of']?"OR team IN (".implode(',',array_keys($args['lead_related_team_of'])).")":'')."))";
+			}
+
+			if(isset($args['lead_team_which_has_relative_like'])){
+				$where.=" OR people.id IN (SELECT leader FROM team WHERE id IN (SELECT team FROM team_relationship WHERE FALSE ".($args['lead_team_which_has_relative_like']?"OR relative IN (".implode(',',array_keys($args['lead_team_which_has_relative_like'])).")":'')."))";
+			}
+
+			if(isset($args['in_related_team_of'])){
+				$where.=" OR people.id IN (SELECT people FROM team_people WHERE team IN (SELECT relative FROM team_relationship WHERE FALSE ".($args['in_related_team_of']?"OR team IN (".implode(',',array_keys($args['in_related_team_of'])).")":'')."))";
+			}
+
+			if(isset($args['in_team_which_has_relative_like'])){
+				$where.=" OR people.id IN (SELECT people FROM team_people WHERE team IN (SELECT team FROM team_relationship WHERE FALSE ".($args['in_team_which_has_relative_like']?"OR relative IN (".implode(',',array_keys($args['in_team_which_has_relative_like'])).")":'')."))";
+			}
+
+			$where.=")";
+
+			$this->db->where($where,NULL,false);
 		}
+		
 		
 		return parent::getList($args);
 		

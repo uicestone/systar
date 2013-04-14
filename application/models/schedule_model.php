@@ -30,7 +30,22 @@ class Schedule_model extends BaseItem_model{
 		return $schedule;
 	}
 	
-	function getList($args=array()){
+	/**
+	 * 
+	 * @param array $args
+	 * project
+	 * id_in_set
+	 * completed
+	 * time array or boolean
+	 *	false
+	 *	array(
+	 *		from=>timestamp
+	 *		to=>timestamp
+	 *		format=>mysql date form string, or false (default: '%Y-%m-%d')
+	 *	)
+	 * @return type
+	 */
+	function getList(array $args=array()){
 		
 		if(isset($args['project'])){
 			$this->db->where('schedule.project',$args['project']);
@@ -47,6 +62,29 @@ class Schedule_model extends BaseItem_model{
 		
 		if(isset($args['completed'])){
 			$this->db->where('schedule.completed',$args['completed']);
+		}
+		
+		if(isset($args['time'])){
+			if($args['time']===false){
+				$this->db->where(array('time_start'=>NULL,'time_end'=>NULL));
+			}
+			if($args['time']['from']){
+				$this->db->where('time_start >=',$args['time']['from']);
+			}
+			if($args['time']['to']){
+				$this->db->where('time_end <',$args['time']['end']);
+			}
+			
+			if(!isset($args['date']['form'])){
+				$args['date']['form']='%Y-%m-%d';
+			}
+			if($args['date']['form']!==false){
+				$this->db->select("
+					FROM_UNIXTIME(schedule.time_start, '{$args['date']['form']}') AS time_start,
+					FROM_UNIXTIME(schedule.time_end, '{$args['date']['form']}') AS time_end
+				",false);
+			}
+			
 		}
 		
 		return parent::getList($args);

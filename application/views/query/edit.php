@@ -5,11 +5,11 @@
 			<div class="title"><label>咨询人：</label></div>
 
 			<input type="text" name="client[name]" value="<?=$this->value('client/name')?>" placeholder="姓名" autocomplete-model="client" />
-			<input name="client[id]" class="hidden" />
+			<input name="client[id]" class="hidden" value="<?=$this->value('client/id')?>" />
 			<span class="hidden" display-for="new">
 				<select name="client[gender]" disabled="disabled"><?=options(array('男','女'), $this->value('client/gender'), '性别')?></select>
 			</span>
-			<input type="text" name="cases[first_contact]" value="<?=$this->value('cases/first_contact')?>" title="首次接待时间" placeholder="首次接待时间" class="date" />
+			<input type="text" name="cases[first_contact]" value="<?=$this->value('project/first_contact')?>" title="首次接待时间" placeholder="首次接待时间" class="date" />
 			<select name="labels[咨询方式]">
 				<?=options(array('面谈','电话','网络'),$this->value('labels/咨询方式'),'咨询方式')?>
 			</select>
@@ -46,17 +46,17 @@
 
 		<div class="item">
 			<div class="title"><label>概况：</label></div>
-			<textarea name="cases[summary]" rows="7"><?=$this->value('cases/summary'); ?></textarea>
+			<textarea name="cases[summary]" rows="7"><?=$this->value('project/summary'); ?></textarea>
 		</div>
 
 		<div class="item">
 			<div class="title"><label>报价：</label></div>
-			<input type="text" name="cases[quote]" value="<?=$this->value('cases/quote');?>" style="width:99%;" />
+			<input type="text" name="cases[quote]" value="<?=$this->value('project/quote');?>" style="width:99%;" />
 		</div>
 
 		<div class="item">
 			<div class="title"><label>备注：</label></div>
-			<textarea name="cases[comment]"><?=$this->value('cases/comment'); ?></textarea>
+			<textarea name="cases[comment]"><?=$this->value('project/comment'); ?></textarea>
 		</div>
 	</div>
 </form>
