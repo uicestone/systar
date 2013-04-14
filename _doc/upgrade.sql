@@ -133,3 +133,34 @@ select id,leader from team
 where leader is not null;
 
 drop table project_num;
+
+delete from project_label where label_name = '所内案源' and project in (select id from project where type = '行政事务');
+
+ALTER TABLE  `schedule` ADD  `deadline` INT( 10 ) NOT NULL AFTER  `time_end` ,
+ADD INDEX (  `deadline` );
+
+INSERT INTO  `syssh`.`company_config` (
+`id` ,
+`company` ,
+`name` ,
+`value`
+)
+VALUES (
+NULL ,  '1',  'default_page',  'achievement'
+);
+
+ALTER TABLE  `company_config` ADD INDEX (  `name` );
+ALTER TABLE  `syssh`.`user_config` DROP INDEX  `user` ,
+ADD INDEX  `user-name` (  `user` ,  `name` );
+
+INSERT INTO  `syssh`.`company_config` (
+`id` ,
+`company` ,
+`name` ,
+`value`
+)
+VALUES (
+NULL ,  '2',  'default_page',  'schedule'
+);
+
+ALTER TABLE `company` DROP `default_controller`;

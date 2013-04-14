@@ -29,7 +29,7 @@ class SS_Config extends CI_Config{
 			return $method;
 		}
 		
-		$global = array_prefix($plain_config, CONTROLLER.'/'.METHOD.'/'.$item);
+		$global = array_prefix($plain_config, $item);
 		
 		if($global!==array()){
 			return $global;

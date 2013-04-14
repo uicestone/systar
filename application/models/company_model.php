@@ -7,7 +7,6 @@ class Company_model extends BaseItem_model{
 	var $syscode;
 	var $sysname;
 	var $ucenter;
-	var $default_controller;
 	
 	function __construct(){
 		parent::__construct();
@@ -22,7 +21,7 @@ class Company_model extends BaseItem_model{
 	}
 
 	function recognize($host_name){
-		$this->db->select('id,name,type,syscode,sysname,ucenter,default_controller')
+		$this->db->select('id,name,type,syscode,sysname,ucenter')
 			->from('company')
 			->or_where(array('host'=>$host_name,'syscode'=>$host_name));
 

@@ -135,12 +135,12 @@ class Cases extends Project{
 	function staffList(){
 		
 		$this->staff_list_args['role']=array('heading'=>'本案职位','parser'=>array('function'=>array($this->project,'getCompiledPeopleRoles'),'args'=>array($this->project->id,'{id}')));
-		$this->load->model('people_model','people');
+		$this->load->model('staff_model','staff');
 		
 		$list=$this->table->setFields($this->staff_list_args)
 			->setAttribute('name','staff')
 			->setRowAttributes(array('hash'=>'staff/edit/{id}'))
-			->generate($this->people->getList(array('project'=>$this->project->id)));
+			->generate($this->staff->getList(array('project'=>$this->project->id)));
 		
 		return $list;
 	}
@@ -282,6 +282,8 @@ class Cases extends Project{
 					if($client['work_for']){
 						$new_client['work_for']=$client['work_for'];
 					}
+					
+					$new_client['display']=true;
 					
 					$project_client['client']=$this->client->add($new_client);
 

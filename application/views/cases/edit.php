@@ -205,7 +205,7 @@
 		<div class="title">
 			<span class="right">
 				<?=$schedule_time?>小时
-				<a href="#schedule/lists?case=<?=$this->value('project/id')?>">所有日志>></a>
+				<a href="#schedule/lists?project=<?=$this->value('project/id')?>">所有日志>></a>
 			</span>
 			<label>最新日志：
 				<a href="javascript:$.createSchedule({project:<?=$this->value('project/id')?>,completed:true})">添加>></a>

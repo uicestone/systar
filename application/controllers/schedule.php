@@ -15,7 +15,7 @@ class Schedule extends SS_controller{
 		$this->list_args=array(
 			'name'=>array('heading'=>'标题'),
 			'time'=>array('heading'=>'时间','parser'=>array('function'=>function($time_start){
-				return date('Y-m-d H:i',$time_start);
+				return date('Y-m-d H:i',intval($time_start));
 			},'args'=>array('{time_start}'))),
 			'hours'=>array('heading'=>'时长','parser'=>array('function'=>function($hours_own,$hours_checked){
 				if($hours_checked!==''){
@@ -48,9 +48,11 @@ class Schedule extends SS_controller{
 		
 		$this->config->set_user_item('search/orderby', 'schedule.id desc', false);
 		$this->config->set_user_item('search/limit', 'pagination', false);
+		$this->config->set_user_item('search/in_project_of_people', $this->user->id, false);
 		
 		if($this->input->get('project')){
 			$this->section_title='日程 - '.$this->project->fetch($this->input->get('project'),'name');
+			$this->config->set_user_item('search/project', $this->input->get('project'));
 		}
 		
 		if($this->input->post('name')){

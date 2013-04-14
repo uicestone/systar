@@ -20,8 +20,8 @@ class People_model extends BaseItem_model{
 		'city'=>'城市',
 		'race'=>'民族',
 		'staff'=>'首要关联职员',
-		'source'=>'来源',
-		'comment'=>'备注'
+		'comment'=>'备注',
+		'display'=>'是否显示'
 	);
 	
 	function __construct() {

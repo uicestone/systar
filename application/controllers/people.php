@@ -286,7 +286,6 @@ class People extends SS_Controller{
 				}
 				
 				$this->people->update($this->people->id,$this->people->data);
-				$this->people->updateLabels($this->people->id,$this->people->labels);
 				$this->people->updateProfiles($this->people->id,$this->people->profiles);
 
 				unset($_SESSION[CONTROLLER]['post'][$this->people->id]);
@@ -341,6 +340,9 @@ class People extends SS_Controller{
 						'profiles'=>$this->people->profiles,
 						'labels'=>array('类型'=>'潜在客户')
 					);
+					
+					$relative['display']=true;
+					
 					$relative['id']=$this->people->add($relative);
 					$this->output->message('新客户 <a href="#'.CONTROLLER.'/edit/' . $relative['id'] . '">' . $relative['name'] . ' </a>已经添加');
 				}else{

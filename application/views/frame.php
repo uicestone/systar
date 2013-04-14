@@ -1,2 +1,2 @@
-	<article default-uri="<?=$this->company->default_controller?>"></article>
+	<article default-uri="<?=$this->config->user_item('default_page')?>"></article>
 	<aside></aside>

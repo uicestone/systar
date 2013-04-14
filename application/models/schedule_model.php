@@ -43,9 +43,12 @@ class Schedule_model extends BaseItem_model{
 	 *		to=>timestamp
 	 *		format=>mysql date form string, or false (default: '%Y-%m-%d')
 	 *	)
+	 * in_project_of_people bool
 	 * @return type
 	 */
 	function getList(array $args=array()){
+		
+		$this->db->select('schedule.*');
 		
 		if(isset($args['project'])){
 			$this->db->where('schedule.project',$args['project']);
@@ -85,6 +88,12 @@ class Schedule_model extends BaseItem_model{
 				",false);
 			}
 			
+		}
+		
+		if(isset($args['in_project_of_people']) && $args['in_project_of_people']){
+			$this->db->join('project_people',"project_people.project  = schedule.project AND project_people.people = {$args['in_project_of_people']}",'inner')
+				->join('project','project.id = project_people.project','inner')
+				->select('project.name AS project_name, project.id AS project');
 		}
 		
 		return parent::getList($args);

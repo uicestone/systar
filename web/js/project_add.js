@@ -11,6 +11,46 @@ $(function(){
 		}
 	});
 
+	/*子表的删除行按钮*/
+	section.find('.item[name="staff"]:not([locked])')
+		.on('mouseenter','span[role]',function(){
+	
+			$(this).closest('tbody').find('span[role]').each(function(){
+				if($(this).data('delete-button')){
+					$(this).data('delete-button').remove();
+				}
+			});
+	
+			var that=$(this).data('delete-button',
+				$('<button/>',{text:'x'}).appendTo('body')
+					.position({
+						my:'right bottom',
+						at:'right top',
+						of:$(this)
+					})
+					.hide()
+					.on('mouseenter',function(){
+						$(this).clearQueue();
+					})
+					.on('mouseleave',function(){
+						$(this).stop().remove();
+					})
+					.on('click',function(){
+						var project=that.closest('form[id]').attr('id');
+						var people=that.closest('tr').attr('id');
+						var role=that.attr('role');
+						$.post('/'+controller+'/removepeoplerole/'+project+'/'+people,{role:role},function(){
+							that.data('delete-button').remove();
+						});
+					}).delay(100).fadeIn()
+				);
+		})
+		.on('mouseleave','span[role]',function(){
+			$(this).data('delete-button').clearQueue().delay(200).hide(0,function(){
+				$(this).remove();
+			});
+		});
+
 	/*客户添加表单－客户名称自动完成事件的响应*/
 	section.find('.item[name="client"]')
 	.on('autocompleteselect',function(event,data){
@@ -100,7 +140,7 @@ $(function(){
 						$.post('/'+controller+'/removepeoplerole/'+project+'/'+people,{role:role},function(){
 							that.data('delete-button').remove();
 						});
-					}).delay(1000).fadeIn()
+					}).delay(100).fadeIn()
 				);
 		})
 		.on('mouseleave','span[role]',function(){
