@@ -8,7 +8,7 @@ $(function(){
 	chart_<?=METHOD?> = new Highcharts.Chart($.extend(true,{},highchartsOptions,{
 		chart: {
 			renderTo: 'chart_<?=METHOD?>',type: 'bar',
-			height:categories.length * series.length*20
+			height:categories.length * 3*30
 		},
 		title: {
 			text: '<?=$this->section_title?>'+'金额'
@@ -33,7 +33,7 @@ $(function(){
 	chart_<?=METHOD?>_count = new Highcharts.Chart($.extend(true,{},highchartsOptions,{
 		chart: {
 			renderTo: 'chart_<?=METHOD?>_count',type: 'bar',
-			height:categories.length * series.length*20
+			height:categories.length * 3*30
 		},
 		title: {
 			text: '<?=$this->section_title?>'+'数量'
@@ -54,6 +54,6 @@ $(function(){
 });
 </script>
 <div class="contentTableBox">
-	<div id="chart_<?=METHOD?>" style="width:99%"></div>
-	<div id="chart_<?=METHOD?>_count" style="width:99%"></div>
+	<div id="chart_<?=METHOD?>" style="width:98%"></div>
+	<div id="chart_<?=METHOD?>_count" style="width:98%"></div>
 </div>

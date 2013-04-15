@@ -172,7 +172,7 @@ class Achievement extends SS_controller{
 		
 		//获得个人业绩金额
 		$data=array(
-			'办案新增创收'=>$this->account->getList(array(
+			'主办新增创收'=>$this->account->getList(array(
 				'sum'=>true,
 				'group'=>'people',
 				'role'=>array('主办律师'),
@@ -182,7 +182,7 @@ class Achievement extends SS_controller{
 				'orderby'=>'sum desc'
 			)),
 			
-			'办案存量创收'=>$this->account->getList(array(
+			'主办存量创收'=>$this->account->getList(array(
 				'sum'=>true,
 				'group'=>'people',
 				'role'=>array('主办律师'),
@@ -208,6 +208,13 @@ class Achievement extends SS_controller{
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
 			)),
 
+			'主办签约'=>$this->account->getList(array(
+				'sum'=>true,
+				'group'=>'people',
+				'role'=>array('主办律师'),
+				'received'=>false,
+				'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
+			))
 
 		);
 		
@@ -229,10 +236,11 @@ class Achievement extends SS_controller{
 		$category=array_sub($joined,'people_name');
 		
 		$series=array(
-			array('name'=>'办案新增创收','data'=>array_sub($joined,'办案新增创收',NULL,true),'stack'=>2),
-			array('name'=>'办案存量创收','data'=>array_sub($joined,'办案存量创收',NULL,true),'stack'=>2),
+			array('name'=>'主办新增创收','data'=>array_sub($joined,'主办新增创收',NULL,true),'stack'=>2),
+			array('name'=>'主办存量创收','data'=>array_sub($joined,'主办存量创收',NULL,true),'stack'=>2),
 			array('name'=>'所内接洽创收','data'=>array_sub($joined,'所内接洽创收',NULL,true),'stack'=>1),
 			array('name'=>'个人案源创收','data'=>array_sub($joined,'个人案源创收',NULL,true),'stack'=>1),
+			array('name'=>'主办签约','data'=>array_sub($joined,'主办签约',NULL,true),'stack'=>0)
 		);
 		
 		$this->load->addViewData('category', json_encode($category));
@@ -267,22 +275,6 @@ class Achievement extends SS_controller{
 				'group'=>'people',
 				'role'=>'接洽律师',
 				'first_contact'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
-			)),
-
-			'电话接洽'=>$this->project->getList(array(
-				'count'=>true,
-				'labels'=>array('咨询','电话'),
-				'group'=>'people',
-				'role'=>'接洽律师',
-				'first_contact'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
-			)),
-
-			'网络接洽'=>$this->project->getList(array(
-				'count'=>true,
-				'labels'=>array('咨询','网络'),
-				'group'=>'people',
-				'role'=>'接洽律师',
-				'first_contact'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
 			))
 			
 		);
@@ -307,9 +299,7 @@ class Achievement extends SS_controller{
 		$series=array(
 			array('name'=>'接洽签约','data'=>array_sub($joined,'接洽签约',NULL,true),'stack'=>0),
 			array('name'=>'案源签约','data'=>array_sub($joined,'案源签约',NULL,true),'stack'=>1),
-			array('name'=>'面谈接洽','data'=>array_sub($joined,'面谈接洽',NULL,true),'stack'=>2),
-			array('name'=>'电话接洽','data'=>array_sub($joined,'电话接洽',NULL,true),'stack'=>3),
-			array('name'=>'网络接洽','data'=>array_sub($joined,'网络接洽',NULL,true),'stack'=>4)
+			array('name'=>'面谈接洽','data'=>array_sub($joined,'面谈接洽',NULL,true),'stack'=>2)
 		);
 		
 		$this->load->addViewData('category_count', json_encode($category));
@@ -344,6 +334,78 @@ class Achievement extends SS_controller{
 		if($this->input->post('date_to')){
 			$this->config->set_user_item('date/to', $this->input->post('date_to'));
 		}
+		
+		//获得个人业绩金额
+		$data=array(
+			'主办新增创收'=>$this->account->getList(array(
+				'sum'=>true,
+				'group'=>'people',
+				'role'=>array('主办律师'),
+				'received'=>true,
+				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
+				'contract_date'=>array('from'=>$this->date->year_begin),
+				'orderby'=>'sum desc'
+			)),
+			
+			'主办存量创收'=>$this->account->getList(array(
+				'sum'=>true,
+				'group'=>'people',
+				'role'=>array('主办律师'),
+				'received'=>true,
+				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
+				'contract_date'=>array('to'=>$this->date->last_year_end),
+			)),
+			
+			'所内接洽创收'=>$this->account->getList(array(
+				'sum'=>true,
+				'group'=>'people',
+				'role'=>array('接洽律师'),
+				'project_labels'=>array('所内案源'),
+				'received'=>true,
+				'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
+			)),
+
+			'个人案源创收'=>$this->account->getList(array(
+				'sum'=>true,
+				'group'=>'people',
+				'role'=>array('案源人'),
+				'received'=>true,
+				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
+			)),
+
+			'主办签约'=>$this->account->getList(array(
+				'sum'=>true,
+				'group'=>'people',
+				'role'=>array('主办律师'),
+				'received'=>false,
+				'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
+			))
+
+		);
+		
+		$joined=array();
+		
+		foreach($data as $key => $array){
+			foreach($array as $row){
+				if(!isset($joined[$row['people']])){
+					$joined[$row['people']]=array(
+						'people_name'=>$row['people_name'],
+					);
+				}
+				$joined[$row['people']][$key]=$row['sum'];
+			}
+		}
+		
+		$joined=array_merge($joined,array());
+		
+		$this->load->addViewData('table', $this->table->setFields(array(
+			'people_name'=>array('heading'=>'人员'),
+			'主办新增创收'=>array('heading'=>'主办新增创收'),
+			'主办存量创收'=>array('heading'=>'主办存量创收'),
+			'所内接洽创收'=>array('heading'=>'所内接洽创收'),
+			'个人案源创收'=>array('heading'=>'个人案源创收'),
+			'主办签约'=>array('heading'=>'主办签约')
+		))->generate($joined));
 		
 		$data=array(
 			'签约'=>$this->account->getList(array(
@@ -400,7 +462,7 @@ class Achievement extends SS_controller{
 			'_heading'=>array(
 				'',
 				'全所',
-				'办案',
+				'主办',
 				'案源'
 			),
 			
@@ -415,14 +477,14 @@ class Achievement extends SS_controller{
 					'received'=>false,
 					'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 					'people'=>$this->user->id,
-					'role'=>array('主办律师','协办律师'),
+					'role'=>array('主办律师'),
 					'ten_thousand_unit'=>true
 				)),
 				$this->account->getSum(array(
 					'received'=>false,
 					'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 					'people'=>$this->user->id,
-					'role'=>array('案源律师'),
+					'role'=>array('案源人'),
 					'ten_thousand_unit'=>true
 				))
 			),
@@ -438,14 +500,14 @@ class Achievement extends SS_controller{
 					'received'=>false,
 					'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 					'people'=>$this->user->id,
-					'role'=>array('主办律师','协办律师'),
+					'role'=>array('主办律师'),
 					'ten_thousand_unit'=>true
 				)),
 				$this->account->getSum(array(
 					'received'=>false,
 					'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 					'people'=>$this->user->id,
-					'role'=>array('案源律师'),
+					'role'=>array('案源人'),
 					'ten_thousand_unit'=>true
 				))
 			),
@@ -461,14 +523,14 @@ class Achievement extends SS_controller{
 					'received'=>true,
 					'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 					'people'=>$this->user->id,
-					'role'=>array('主办律师','协办律师'),
+					'role'=>array('主办律师'),
 					'ten_thousand_unit'=>true
 				)),
 				$this->account->getSum(array(
 					'received'=>true,
 					'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 					'people'=>$this->user->id,
-					'role'=>array('案源律师'),
+					'role'=>array('案源人'),
 					'ten_thousand_unit'=>true
 				))
 			)

@@ -22,5 +22,6 @@ $(function(){
 });
 </script>
 <div class="contentTableBox" style="width:100%">
+	<?=$table?>
 	<div id="chart" style="height:600px;margin:auto"></div>
 </div>

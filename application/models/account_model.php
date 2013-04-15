@@ -129,7 +129,7 @@ class Account_model extends BaseItem_model{
 			
 			if(isset($args['role'])){
 				
-				$this->db->select('CONCAT(ROUND(project_people.weight * 100,1), "%") AS weight',false);
+				$this->db->select('weight',false);
 				
 				if(is_array($args['role'])){
 					$this->db->where_in('project_people.role',$args['role']);
@@ -218,14 +218,21 @@ class Account_model extends BaseItem_model{
 			}
 			
 			if(isset($args['role'])){
-				$this->db->select('ROUND(SUM(amount * weight)) AS sum',false);
+				
+				if(isset($args['ten_thousand_unit']) && $args['ten_thousand_unit']){
+					$this->db->select('ROUND(SUM(amount * weight)/1E4,1) AS sum',false);
+				}
+				else{
+					$this->db->select('ROUND(SUM(amount * weight)) AS sum',false);
+				}
 			}
 			else{
-				$this->db->select('ROUND(SUM(amount)) AS sum',false);
-			}
-			
-			if(isset($args['ten_thousand_unit']) && $args['ten_thousand_unit']){
-				$this->db->select('ROUND(SUM(amount)/1E4,1) AS sum',false);
+				if(isset($args['ten_thousand_unit']) && $args['ten_thousand_unit']){
+					$this->db->select('ROUND(SUM(amount)/1E4,1) AS sum',false);
+				}
+				else{
+					$this->db->select('ROUND(SUM(amount)) AS sum',false);
+				}
 			}
 			
 			$this->db->having('sum >',0);
