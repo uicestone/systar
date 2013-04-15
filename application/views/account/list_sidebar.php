@@ -23,7 +23,7 @@
 			<td><select name="people" class="chosen allow-new" data-placeholder="职员"><?=options($this->staff->getArray(),$this->config->user_item('search/people'),'',true,false,false)?></select></td>
 		</tr>
 		<tr>
-			<td><select name="role" class="chosen allow-new" data-placeholder="角色"><?=options(array('案源人','主办律师','协办律师','接洽律师'),$this->config->user_item('search/role'),'',false,false,false)?></select></td>
+			<td><select name="role" class="chosen allow-new" data-placeholder="角色"><?=options(array('案源人','主办律师','接洽律师'),$this->config->user_item('search/role'),'',false,false,false)?></select></td>
 		</tr>
 		<tr>
 			<td>

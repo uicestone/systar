@@ -6,6 +6,9 @@ html,body,div,span,h1,h2,h3,p,a,img,ul,li,form,label{
 article,aside,dialog,footer,header,section,footer,nav,figure,menu{
 	display:block;
 }
+input[type="text"],input[type="password"],select,textarea{
+	box-sizing: border-box;
+}
 ul,li{
 	list-style:none;
 }
@@ -80,15 +83,15 @@ button.hover{
 .ui-dialog{
 	padding:0;
 }
-.chzn-container{
+.select2-container{
 	margin-bottom: 5px;
 }
 /*主页面列表中的多选标签（用于标签）无右边距（用于显示“x”）*/
-article .contentTable .chzn-container-multi .chzn-choices .search-choice{
-	padding-right:5px;
+article .contentTable .select2-container-multi .select2-choices .select2-search-choice{
+	padding-left:5px;
 }
 
-article .contentTable .chzn-container-multi .chzn-choices{
+article .contentTable .select2-container-multi .select2-choices{
 	border:none;
 }
 
@@ -96,6 +99,7 @@ body{
 	font-family:'Microsoft Yahei';
 	font-size:13px;
 	line-height:1.5;
+	overflow:hidden;
 }
 input,select,textarea,button{
 	font-family:'Microsoft Yahei','arial';
@@ -257,12 +261,10 @@ nav .arrow{
 	padding:0;
 	min-height:0;
 	height:inherit;
+	overflow: hidden;
 }
 .schedule-form .ui-dialog-content,.schedule-form .ui-dialog-content input,.schedule-form .ui-dialog-content select,.schedule-form .ui-dialog-content textarea{
 	line-height:1.5;
-}
-.schedule-form .ui-dialog-content .text{
-	width:93%;
 }
 .schedule-form .ui-dialog-buttonpane{
 	padding:0;
@@ -289,7 +291,6 @@ nav .arrow{
 	width:100%;table-layout:fixed;
 	border-left:1px solid #69C;
 	word-wrap:break-word;
-	font-size:14px;
 }
 .contentTable thead{
 	background:#69C;
@@ -385,8 +386,8 @@ aside .contentTable.search-bar tbody td{
 	padding:0;
 }
 aside input[type=text]{
-	width:225px;
-	padding: 5px;
+	width:99%;
+	padding: 3px;
 	margin: 1px 0;
 }
 aside textarea{
@@ -396,8 +397,8 @@ aside textarea{
 	border:#AAA solid 1px;
 }
 aside select{
-	width:239px;
-	padding:3px;
+	width:99%;
+	padding:0;
 }
 aside .contentTable.search-bar tbody td.submit{
 	text-align:right;

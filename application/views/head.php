@@ -22,8 +22,9 @@
 	
 	<?=javascript('jQuery/highcharts/highcharts')?>
 	
-	<?=stylesheet('js/jQuery/chosen/chosen')?>
-	<?=javascript('jQuery/chosen/chosen.jquery')?>
+	<?=stylesheet('js/jQuery/select2/select2')?>
+	<?=javascript('jQuery/select2/select2')?>
+	<?=javascript('jQuery/select2/select2_locale_zh-CN')?>
 	
 	<?=javascript('schedule')?>
 

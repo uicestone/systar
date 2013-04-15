@@ -271,9 +271,7 @@ $(document)
 		}).disableSelection();
 
 		section.find('select.chosen.allow-new').each(function(index,object){
-			$(object).chosen({search_contains:true,allow_single_deselect:true,no_results_text:'添加新标签',no_results_callback:function(term){
-				$(object).append('<option value="'+term+'" selected="selected">'+term+'</option>').trigger('liszt:updated').trigger('change');
-			}});
+			$(object).select2({tokenSeparators: [",", " "]});
 		});
 		
 	});
@@ -295,18 +293,16 @@ $(document)
 		});
 		
 		section.find('select.chosen.allow-new').each(function(index,object){
-			$(object).chosen({search_contains:true,allow_single_deselect:true,no_results_text:'添加新标签',no_results_callback:function(term){
-				$(object).append('<option value="'+term+'" selected="selected">'+term+'</option>').trigger('liszt:updated').trigger('change');
-			}});
+			$(object).select2({tokenSeparators: [",", " "]});
 		});
 		
-		section.find('select.chosen').chosen({search_contains:true,allow_single_deselect:true})
-			.on('change',function(event,data){
+		section.find('select.chosen').select2({tokenSeparators: [",", " "]})
+			.on('change',function(event){
 				var id=page.children('[hash="'+hash+'"]').children('form').attr('id')
-				if(data.selected && id){
-					$.post('/'+controller+'/addlabel/'+id,{label:data.selected});
-				}else if(data.deselected && id){
-					$.post('/'+controller+'/removelabel/'+id,{label:data.deselected});
+				if(event.added && id){
+					$.post('/'+controller+'/addlabel/'+id,{label:event.added.id});
+				}else if(event.removed && id){
+					$.post('/'+controller+'/removelabel/'+id,{label:event.removed.id});
 				}
 			});
 		

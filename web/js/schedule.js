@@ -173,30 +173,10 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 				$(this).attr('changed','changed');
 			});
 			
-			that.element.find('[name="project"]').chosen({search_contains:true, allow_single_deselect:true});
+			that.element.find('[name="project"]').select2({search_contains:true, allow_single_deselect:true});
 			
-			that.element.find('[name="people"]').chosen({search_contains:true});
+			that.element.find('[name="people"]').select2({search_contains:true});
 			
-			that.element.find('.chzn-drop').hide();
-			
-			that.element.find('.chzn-done').on('liszt:showing_dropdown',function(){
-				var chznContainer=$(this).siblings('#'+$(this).attr('id')+'_chzn');
-				var dialogHeight=that.widget().height();
-				var chznDropdownHeight=chznContainer.children('.chzn-drop').height();
-				that.element.schedule({height:dialogHeight+chznDropdownHeight});
-				chznContainer.children('.chzn-drop').show();
-			});
-			
-			that.element.find('.chzn-done').on('liszt:hiding_dropdown',function(){
-				var chznContainer=$(this).siblings('#'+$(this).attr('id')+'_chzn');
-				var dialogHeight=that.widget().height();
-				var chznDropdownHeight=chznContainer.children('.chzn-drop').height();
-				if(chznContainer.children('.chzn-drop').is(':visible') && dialogHeight && chznDropdownHeight){
-					that.element.schedule({height:dialogHeight-chznDropdownHeight+4});
-				}
-				chznContainer.children('.chzn-drop').hide();
-			});
-
 			that.element.on('focus','[name^="profiles"]',function(){
 				$(this).attr('name','profiles['+$(this).prev('.profile-name').val()+']');
 			});

@@ -45,7 +45,7 @@ $(function () {
 				.attr('id',data.result.data.id).children('.filename').text(data.result.data.name);
 
 			uploadItem.find('select').each(function(index,element){
-				$(element).chosen({search_contains:true,allow_single_deselect:true,no_results_text:'添加新标签',no_results_callback:function(term){
+				$(element).select2({search_contains:true,allow_single_deselect:true,no_results_text:'添加新标签',no_results_callback:function(term){
 					$(element).append('<option value="'+term+'" selected="selected">'+term+'</option>').trigger('liszt:updated').trigger('change');
 				}});
 			});
