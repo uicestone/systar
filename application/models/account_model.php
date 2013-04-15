@@ -61,6 +61,12 @@ class Account_model extends BaseItem_model{
 			$this->db->where('project',$args['project']);
 		}
 		
+		if(isset($args['project_labels']) && is_array($args['project_labels'])){
+			foreach($args['project_labels'] as $id => $label_name){
+				$this->db->join("project_label t_$id","account.project = t_$id.project AND t_$id.label_name = '$label_name'",'INNER');
+			}
+		}
+		
 		if(isset($args['show_project'])){
 			$this->db->select('project.id AS project, project.name AS project_name');
 			
@@ -122,6 +128,8 @@ class Account_model extends BaseItem_model{
 			$this->db->join('project_people',"project_people.project = project.id AND project_people.people = $people",'inner');
 			
 			if(isset($args['role'])){
+				
+				$this->db->select('CONCAT(ROUND(project_people.weight * 100,1), "%") AS weight',false);
 				
 				if(is_array($args['role'])){
 					$this->db->where_in('project_people.role',$args['role']);

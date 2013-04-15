@@ -124,7 +124,6 @@ ALTER TABLE  `account` CHANGE  `date`  `date` DATE NULL COMMENT  '到账日期';
 INSERT INTO `syssh`.`nav` (`id`, `name`, `href`, `add_href`, `parent`, `order`, `team`, `company`, `company_type`) VALUES (NULL, '小组', '#achievement/teams', NULL, '5', '', NULL, '1', NULL), (NULL, '个人', '#achievement/staff', NULL, '5', '', NULL, '1', NULL), (NULL, '我的', '#achievement/mine', NULL, '5', '', NULL, '1', NULL);
 
 ALTER TABLE  `account` ADD  `reviewed` BOOLEAN NOT NULL DEFAULT FALSE AFTER  `received`;
--- server updated
 
 DROP TRIGGER IF EXISTS  `trig_project_num_multiautoincrease`;
 
@@ -168,3 +167,20 @@ ALTER TABLE `company` DROP `default_controller`;
 insert ignore into people_label (people,label,label_name)
 select people,134,'报名考生'
 from team_people where team = (select id from team where name = '报名考生');
+
+INSERT INTO  `syssh`.`nav` (
+
+`id` ,
+`name` ,
+`href` ,
+`add_href` ,
+`parent` ,
+`order` ,
+`team` ,
+`company` ,
+`company_type`
+)
+VALUES (
+NULL ,  '潜在客户',  '#client/potential', NULL ,  '4',  0, NULL ,  '1', NULL
+);
+-- server updated

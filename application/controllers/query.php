@@ -31,12 +31,24 @@ class Query extends Project{
 	}
 
 	function edit($id){
+		
+		$this->query->id=$id;
+		
 		$this->load->model('staff_model','staff');
 		$this->load->model('client_model','client');
-		$client_list=$this->client->getList(array('project'=>$this->project->id));
+		$client_list=$this->client->getList(array('project'=>$this->query->id));
 		if($client_list){
 			$this->load->addViewData('client', $client_list[0]);
 		}
+		
+		$roles_people=$this->query->getRolesPeople($this->query->id);
+		$related_staff_name=array();
+		foreach($roles_people as $role => $people_role){
+			$related_staff_name[$role]=$this->staff->fetch($people_role[0]['people'],'name');
+		}
+		
+		$this->load->addViewData('related_staff_name', $related_staff_name);
+		
 		parent::edit($id);
 	}
 	
@@ -53,14 +65,15 @@ class Query extends Project{
 			
 			if($submit=='query'){
 				
-				$client=$this->input->sessionPost('client');
 				$this->query->labels=$this->input->sessionPost('labels');
+				
+				$client=$this->input->sessionPost('client');
 				
 				$this->query->labels[]='咨询';
 				
 				$this->load->library('form_validation');
 				
-				if(!post('client/id')){
+				if(!$client['id']){
 					if(!$client['name']){
 						$this->output->message('请填写咨询人', 'warning');
 						throw new Exception;
@@ -100,13 +113,12 @@ class Query extends Project{
 						$client
 						+array(
 							'profiles'=>$client_profiles,
-							'labels'=>array('类型'=>'潜在客户')
+							'labels'=>array('类型'=>'潜在客户'),
+							'display'=>true
 						)
 					);
 					
 					$this->query->addPeople($this->query->id,$client['id'],'客户');
-					
-					post('client/id',$client['id']);
 				}
 
 				if(!$this->query->labels['咨询方式']){
@@ -134,20 +146,29 @@ class Query extends Project{
 					}
 				}
 				
-				if(!$query['summary']){
+				if(!$this->query->data['summary']){
 					$this->output->message('请填写咨询概况','warning');
 					throw new Exception;
 				}
 				
-				post('cases/display',true);
+				if(!$this->query->data['display']){
+					$this->query->data['display']=true;
+					$this->output->status='redirect';
+					$this->output->data='query/edit/'.$this->query->id;
+				}
 				
-				post('cases/name',$client['name'].' 咨询');
+				$this->query->data['name']=$client['name'].' 咨询';
 				
-				$this->query->update($this->query->id,post('cases'));
+				$this->query->update($this->query->id,$this->query->data);
 				
-				$this->query->updateLabels($this->query->id, $this->query->labels);
-
-				post('staffs',array());
+				$roles_people=$this->query->getRolesPeople($this->query->id);
+				$roles=array();
+				foreach($roles_people as $role => $people_role){
+					$roles[$role]=$people_role[0]['people'];
+				}
+				
+				post('staffs',$roles);
+				
 				foreach($related_staff as $role=>$staff){
 					if(!in_array($staff,post('staffs'))){
 						$this->query->addPeople($this->query->id,$staff,'律师',$role);
@@ -155,7 +176,7 @@ class Query extends Project{
 					}
 				}
 				
-				$this->output->status='close';
+				$this->output->message($this->section_title.'已保存');
 			}
 			
 			if(is_null($this->output->status)){

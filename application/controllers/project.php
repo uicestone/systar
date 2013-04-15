@@ -153,10 +153,6 @@ class Project extends SS_controller{
 				$this->section_title=$this->project->data['name'];
 			}
 			
-			$this->load->addViewData('roles_people', $this->project->getPeopleRoles($this->project->id));
-			
-			$this->load->addViewData('people_roles', $this->project->getRolesPeople($this->project->id));
-			
 			$this->load->addViewData('project', $this->project->data);
 			
 			$this->load->addViewData('labels', $this->project->labels);

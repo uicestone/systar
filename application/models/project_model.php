@@ -22,15 +22,16 @@ class Project_model extends BaseItem_model{
 	}
 	
 	function match($part_of_name){
-		$query="
-			SELECT project.id,project.num,project.name
-						FROM `project`
-			WHERE project.company={$this->company->id} AND project.display=1 
+		
+		$this->db->select('project.id,project.num,project.name')
+			->from('project')
+			->where("
+				project.company={$this->company->id} AND project.display=1 
 				AND (name LIKE '%$part_of_name%' OR num LIKE '%$part_of_name%' OR name_extra LIKE '%$part_of_name%')
-			ORDER BY project.id DESC
-		";
-
-		return $this->db->query($query)->result_array();
+			")
+			->order_by('project.id','desc');
+		
+		return $this->db->get()->result_array();
 	}
 
 	function add($data=array()){
@@ -357,54 +358,5 @@ class Project_model extends BaseItem_model{
 		return $this->db->delete('project_relationship',array('project'=>intval($project_id),'relative'=>intval($relative_id)));
 	}
 	
-	function getRoles($project_id){
-		$project_id=intval($project_id);
-		
-		$project_role=$this->db->query("SELECT people lawyer,role FROM project_people WHERE type='律师' AND `project`=$project_id")->result_array();
-		
-		if($project_role){
-			return $project_role;
-		}else{
-			return false;
-		}
-	}
-	
-	function getPartner($project_role){
-		if(empty($project_role)){
-			return false;
-		}
-		foreach($project_role as $lawyer_role){
-			if($lawyer_role['role']=='督办人'){
-				return $lawyer_role['lawyer'];
-			}
-		}
-		return false;
-	}
-	
-	function getlawyers($project_role){
-		if(empty($project_role)){
-			return false;
-		}
-		$lawyers=array();
-		foreach($project_role as $lawyer_role){
-			if(!in_array($lawyer_role['lawyer'],$lawyers) && $lawyer_role['role']!='督办人'){
-				$lawyers[]=$lawyer_role['lawyer'];
-			}
-		}
-		return $lawyers;
-	}
-	
-	function getMyRoles($project_role){
-		if(empty($project_role)){
-			return false;
-		}
-		$my_role=array();
-		foreach($project_role as $lawyer_role){
-			if($lawyer_role['lawyer']==$this->user->id){
-				$my_role[]=$lawyer_role['role'];
-			}
-		}
-		return $my_role;
-	}
 }
 ?>

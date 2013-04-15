@@ -16,7 +16,6 @@ class Achievement extends SS_controller{
 	function __construct(){
 		parent::__construct();
 		$this->load->model('account_model','account');
-		$this->output->message('数据调试中，仅供参考');
 	}
 	
 	/**
@@ -176,7 +175,7 @@ class Achievement extends SS_controller{
 			'办案新增创收'=>$this->account->getList(array(
 				'sum'=>true,
 				'group'=>'people',
-				'role'=>array('主办律师','协办律师'),
+				'role'=>array('主办律师'),
 				'received'=>true,
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 				'contract_date'=>array('from'=>$this->date->year_begin),
@@ -186,21 +185,22 @@ class Achievement extends SS_controller{
 			'办案存量创收'=>$this->account->getList(array(
 				'sum'=>true,
 				'group'=>'people',
-				'role'=>array('主办律师','协办律师'),
+				'role'=>array('主办律师'),
 				'received'=>true,
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 				'contract_date'=>array('to'=>$this->date->last_year_end),
 			)),
 			
-			'案源签约'=>$this->account->getList(array(
+			'所内接洽创收'=>$this->account->getList(array(
 				'sum'=>true,
 				'group'=>'people',
-				'role'=>array('案源人'),
-				'received'=>false,
+				'role'=>array('接洽律师'),
+				'project_labels'=>array('所内案源'),
+				'received'=>true,
 				'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
 			)),
 
-			'案源创收'=>$this->account->getList(array(
+			'个人案源创收'=>$this->account->getList(array(
 				'sum'=>true,
 				'group'=>'people',
 				'role'=>array('案源人'),
@@ -231,8 +231,8 @@ class Achievement extends SS_controller{
 		$series=array(
 			array('name'=>'办案新增创收','data'=>array_sub($joined,'办案新增创收',NULL,true),'stack'=>2),
 			array('name'=>'办案存量创收','data'=>array_sub($joined,'办案存量创收',NULL,true),'stack'=>2),
-			array('name'=>'案源签约','data'=>array_sub($joined,'案源签约',NULL,true),'stack'=>0),
-			array('name'=>'案源创收','data'=>array_sub($joined,'案源创收',NULL,true),'stack'=>1),
+			array('name'=>'所内接洽创收','data'=>array_sub($joined,'所内接洽创收',NULL,true),'stack'=>1),
+			array('name'=>'个人案源创收','data'=>array_sub($joined,'个人案源创收',NULL,true),'stack'=>1),
 		);
 		
 		$this->load->addViewData('category', json_encode($category));

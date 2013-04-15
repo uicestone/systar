@@ -121,11 +121,11 @@ class Cases_model extends Project_model{
 			$labels['已归档']=array('name'=>'已归档','color'=>'#888');
 		}
 		
-		$labels_string='<div class="chzn-container-multi"><ul class="chzn-choices">';
+		$labels_string='<div class="select2-container-multi"><ul class="select2-choices">';
 		
 		foreach($labels as $key=>$label){
 			if(!is_array($this->config->user_item('search/labels')) || !in_array($key,$this->config->user_item('search/labels'))){
-				$labels_string.='<li class="search-choice" style="color:'.$label['color'].'">'.$label['name'].'</li>';
+				$labels_string.='<li class="select2-search-choice" style="color:'.$label['color'].'">'.$label['name'].'</li>';
 			}
 		}
 		

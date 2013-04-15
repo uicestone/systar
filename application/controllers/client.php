@@ -23,16 +23,18 @@ class Client extends People{
 	}
 
 	function potential(){
-		$this->config->set_user_item('search/labels', array('潜在客户'), false);
+		$this->config->set_user_item('search/labels', array('潜在客户'));
 		
 		$this->index();
 	}
 
 	function index(){
-		$this->config->set_user_item('search/type', '客户', false);
-		$this->config->set_user_item('search/in_my_case',true);
+		$this->config->set_user_item('search/type', '客户');
+		$this->config->set_user_item('search/in_same_project_with',$this->user->id,false);
 		
-		$this->config->set_user_item('search/labels', array('成交客户'), false);
+		if(!$this->config->user_item('search/labels')){
+			$this->config->set_user_item('search/labels', array('成交客户'));
+		}
 		
 		parent::index();
 	}

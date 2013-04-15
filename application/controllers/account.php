@@ -45,6 +45,10 @@ class Account extends SS_controller{
 			}
 		}
 		
+		if($this->config->user_item('search/role')){
+			$this->list_args['weight']=array('heading'=>'占比');
+		}
+		
 		if($this->input->post('submit')==='search' && $this->input->post('labels')===false){
 			$this->config->unset_user_item('search/labels');
 		}
