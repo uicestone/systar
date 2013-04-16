@@ -210,12 +210,12 @@ class Project extends SS_controller{
 		$this->load->model('document_model','document');
 
 		$this->document_list_args=array(
-			'name'=>array('heading'=>'文件名','parser'=>array('function'=>function($name,$filename){
+			'name'=>array('heading'=>'文件名','parser'=>array('function'=>function($id,$name,$filename){
 				if($name==''){
 					$name=$filename;
 				}
-				return '<a href="/document/download/{id}">'.$name.'</a>';
-			},'args'=>array('{name}','{filename}'))),
+				return '<a href="/document/download/'.$id.'">'.$name.'</a>';
+			},'args'=>array('{id}','{name}','{filename}'))),
 			'time_insert'=>array('heading'=>'上传时间','parser'=>array('function'=>function($time_insert){return date('Y-m-d H:i:s',$time_insert);},'args'=>array('{time_insert}'))),
 			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->document,'getCompiledLabels'),'args'=>array('{id}')))
 		);

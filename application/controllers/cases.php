@@ -1,7 +1,4 @@
 <?php
-/**
- * 案件，继承于 项目
- */
 class Cases extends Project{
 	
 	var $section_title='案件';
