@@ -220,18 +220,18 @@ class People extends SS_Controller{
 	 */
 	function projectList(){
 		
-		$this->load->model('project_model','project');
+		$project_model=new Project_model();
 		
 		$this->project_list_args=array(
 			'name'=>array(
 				'heading'=>'名称'
 			),
-			'people'=>array('heading'=>'人员','cell'=>array('class'=>'ellipsis'),'parser'=>array('function'=>array($this->project,'getCompiledPeople'),'args'=>array('{id}')))
+			'people'=>array('heading'=>'人员','cell'=>array('class'=>'ellipsis'),'parser'=>array('function'=>array($project_model,'getCompiledPeople'),'args'=>array('{id}')))
 		);
 		
 		$list=$this->table->setFields($this->project_list_args)
 			->setRowAttributes(array('hash'=>'cases/edit/{id}'))
-			->setData($this->project->getList(array('people'=>$this->people->id)))
+			->setData($project_model->getList(array('people'=>$this->people->id,'limit'=>10,'orderby'=>'project.id DESC')))
 			->generate();
 		
 		return $list;

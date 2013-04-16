@@ -1,6 +1,6 @@
 <button type="submit" name="submit[project]" class="major">保存</button>
 
-<? if(($this->user->isLogged('manager') || in_subarray('督办人', $people_roles[$this->user->id], 'role')) && in_array('等待立案审核',$labels) && !in_array('咨询',$labels)){?>
+<? if(($this->user->isLogged('manager') || (isset($people_roles[$this->user->id]) && in_subarray('督办人', $people_roles[$this->user->id], 'role'))) && in_array('等待立案审核',$labels) && !in_array('咨询',$labels)){?>
 		<button type="submit" name="submit[review]" class="major">立案审核</button>
 <? }//TODO: 批量替换多余的空格?>
 <? if($this->user->isLogged('finance') && in_array('已申请归档',$labels) && !in_array('通过财务审核',$labels)){?>
