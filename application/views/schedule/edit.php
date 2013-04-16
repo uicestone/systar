@@ -4,7 +4,7 @@
 	<?=options($this->project->getArray(array('people'=>$this->user->id),'name','id'),$this->value('project/id'),'',true)?>
 </select>
 <br />
-<select name="people" data-placeholder="邀请其他人" multiple="multiple" style="width:97%"><?=options($this->user->getArray(array('everyone'=>true),'name','id'),$people,NULL,true)?></select>
+<select name="people" data-placeholder="邀请其他人" multiple="multiple" style="width:97%"><?=options($this->user->getArray(array(),'name','id'),$people,NULL,true)?></select>
 <br />
 <div class="profile hidden">
 	<select class="profile-name" style="width:23%">

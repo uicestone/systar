@@ -36,7 +36,7 @@ class Project extends SS_controller{
 		);
 		
 		$this->list_args=array(
-			'name'=>array('heading'=>'案名','cell'=>'{name}'),
+			'name'=>array('heading'=>'名称','cell'=>'{name}'),
 			'people'=>array('heading'=>'人员','cell'=>array('class'=>'ellipsis'),'parser'=>array('function'=>array($this->$controller,'getCompiledPeople'),'args'=>array('{id}'))),
 			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->$controller,'getCompiledLabels'),'args'=>array('{id}')))
 			/*
@@ -424,22 +424,6 @@ class Project extends SS_controller{
 				if($this->project->removeDocument($this->project->id,$button_id)){
 					$this->output->setData($this->documentList(),'content-table','html','.item[name="document"]>.contentTable','replace');
 				}
-			}
-			
-			elseif($submit=='new_case'){
-				$this->project->removeLabel($this->project->id, '已归档');
-				$this->project->removeLabel($this->project->id, '咨询');
-				$this->project->addLabel($this->project->id, '等待立案审核');
-				$this->project->addLabel($this->project->id, '案件');
-				$this->project->update($this->project->id,array(
-					'num'=>NULL,
-					'time_contract'=>$this->date->today,
-					'time_end'=>date('Y-m-d',$this->date->now+100*86400)
-				));
-				
-				$this->output->message('已立案，请立即获得案号');
-				
-				$this->output->status='refresh';
 			}
 			
 			if(is_null($this->output->status)){

@@ -8,10 +8,6 @@
 				<?=options($this->people->getTypes(),$this->value('people/type'),'人员类型')?>
 			</select>
 			
-			<select name="labels[类型]">
-				<?=options($available_options['类型'],$this->value('labels/类型'),'类型')?>
-			</select>
-			
 			<?=checkbox('单位', 'people[character]', $this->value('people/character'), '单位')?>
 <?if($this->value('people/character')=='单位'){?>
 				<input name="people[abbreviation]" value="<?=$this->value('people/abbreviation')?>" placeholder="简称" />
@@ -75,7 +71,7 @@
 		 </div>
 
 		<div class="item">
-			<div class="title"><label>参与事务</label></div>
+			<div class="title"><label>相关事务</label></div>
 			<?=$project_list?>
 		 </div>
 

@@ -9,7 +9,6 @@ class Contact extends People{
 	}
 
 	function index(){
-		$this->config->set_user_item('search/labels', array('联系人'), false);
 		parent::index();
 	}
 

@@ -179,6 +179,23 @@ class Query extends Project{
 				$this->output->message($this->section_title.'已保存');
 			}
 			
+			elseif($submit=='new_case'){
+				$this->query->removeLabel($this->query->id, '已归档');
+				$this->query->removeLabel($this->query->id, '咨询');
+				$this->query->addLabel($this->query->id, '等待立案审核');
+				$this->query->addLabel($this->query->id, '案件');
+				$this->query->update($this->query->id,array(
+					'num'=>NULL,
+					'time_contract'=>$this->date->today,
+					'time_end'=>date('Y-m-d',$this->date->now+100*86400)
+				));
+				
+				$this->output->message('已立案，请立即获得案号');
+				
+				$this->output->status='redirect';
+				$this->output->data='cases/edit/'.$this->query->id;
+			}
+			
 			if(is_null($this->output->status)){
 				$this->output->status='success';
 			}

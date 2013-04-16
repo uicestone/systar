@@ -11,7 +11,6 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 		},
 		dialogClass:'shadow schedule-form',
 		autoOpen:true,
-		modal:true,
 		close:null,
 		title:'新日程',
 		content:'',
@@ -173,9 +172,9 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 				$(this).attr('changed','changed');
 			});
 			
-			that.element.find('[name="project"]').select2({search_contains:true, allow_single_deselect:true});
+			that.element.find('[name="project"]').select2();
 			
-			that.element.find('[name="people"]').select2({search_contains:true});
+			that.element.find('[name="people"]').select2();
 			
 			that.element.on('focus','[name^="profiles"]',function(){
 				$(this).attr('name','profiles['+$(this).prev('.profile-name').val()+']');

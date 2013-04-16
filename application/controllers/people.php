@@ -223,16 +223,10 @@ class People extends SS_Controller{
 		$this->load->model('project_model','project');
 		
 		$this->project_list_args=array(
-			'num'=>array(
-				'heading'=>'案号'
-			),
 			'name'=>array(
-				'heading'=>'案名'
-			), 
-			'staff'=>array(
-				'heading'=>'职员'
-				//@TODO
-			)
+				'heading'=>'名称'
+			),
+			'people'=>array('heading'=>'人员','cell'=>array('class'=>'ellipsis'),'parser'=>array('function'=>array($this->project,'getCompiledPeople'),'args'=>array('{id}')))
 		);
 		
 		$list=$this->table->setFields($this->project_list_args)
@@ -283,6 +277,10 @@ class People extends SS_Controller{
 					//个人，则性别必填
 					$this->output->message('选择性别','warning');
 					throw new Exception;
+				}
+				
+				if($this->people->data['birthday']===''){
+					$this->people->data['birthday']=NULL;
 				}
 				
 				$this->people->update($this->people->id,$this->people->data);

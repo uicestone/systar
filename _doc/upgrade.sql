@@ -183,4 +183,6 @@ INSERT INTO  `syssh`.`nav` (
 VALUES (
 NULL ,  '潜在客户',  '#client/potential', NULL ,  '4',  0, NULL ,  '1', NULL
 );
+
+INSERT INTO `syssh`.`company_config` (`id`, `company`, `name`, `value`) VALUES (NULL, '1', 'contact/index/search/labels', '["联系人"]'), (NULL, '2', 'contact/index/search/type', '职员');
 -- server updated

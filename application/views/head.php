@@ -3,7 +3,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><![endif]-->
-	<?=javascript('html5')?>
+	<!--[if lt IE 9]><?=javascript('html5')?><![endif]-->
 	<?=stylesheet('style/redmond/jquery-ui-1.10.2.custom')?>
 	<?=stylesheet('style/common')?>
 	<?=stylesheet('style/icomoon/style')?>
@@ -23,7 +23,7 @@
 	<?=javascript('jQuery/highcharts/highcharts')?>
 	
 	<?=stylesheet('js/jQuery/select2/select2')?>
-	<?=javascript('jQuery/select2/select2')?>
+	<?=javascript('jQuery/select2/select2.min')?>
 	<?=javascript('jQuery/select2/select2_locale_zh-CN')?>
 	
 	<?=javascript('schedule')?>

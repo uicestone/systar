@@ -13,12 +13,7 @@ class Client extends People{
 				'field'=>'profiles[来源类型]',
 				'label'=>'客户来源类型',
 				'rules'=>'required'
-			),
-			array(
-				'field'=>'labels[类型]',
-				'label'=>'客户类型',
-				'rules'=>'required'
-			),
+			)
 		);
 	}
 
