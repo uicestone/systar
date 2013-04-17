@@ -67,7 +67,7 @@ class Document extends SS_controller{
 	function download($id){
 		$document=$this->document->fetch($id);
 		
-		$this->document->exportHead($document['name']);
+		$this->document->exportHead($document['filename']);
 		
 		$filename='../uploads/'.$document['id'];
 		
@@ -84,6 +84,8 @@ class Document extends SS_controller{
 		);
 		
 		$this->load->library('upload', $config);
+		$this->document->data=$this->input->sessionPost('');
+		$this->document->labels=$this->input->sessionPost('labels');
 		
 		try{
 			if (!$this->upload->do_upload('document')) {
@@ -100,20 +102,19 @@ class Document extends SS_controller{
 				'size'=>$file_info['file_size']
 			));
 			
-			$this->document->updateLabels($document_id,array_dir('_SESSION/document/index/search/labels'));
-			
 			rename('../uploads/'.$file_info['file_name'],'../uploads/'.$document_id);
 			
 			$data=array(
 				'id'=>$document_id,
 				'name'=>$file_info['client_name']
 			);
-			
 			$this->output->data=$data;
 			
 		}catch(Exception $e){
 			$this->output->status='fail';
 		}
+		
+		$this->output->as_ajax=true;
 
 	}
 	

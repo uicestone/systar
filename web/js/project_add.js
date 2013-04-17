@@ -185,6 +185,7 @@ $(function(){
 	section.find(':input:file[name="document"]').fileupload({
         dataType: 'json',
         done: function (event, data) {
+			$(document).setBlock(data.result);
 			$(this).siblings('[name="document[id]"]').val(data.result.data.id);
 			$(this).siblings('[name="document[name]"]').val(data.result.data.name);
         },

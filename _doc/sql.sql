@@ -96,3 +96,25 @@ update people inner join people_profile on people_profile.people=people.id and p
 set people.phone = people_profile.content;
 update people inner join people_profile on people_profile.people=people.id and people_profile.name in ('电子邮件')
 set people.email = people_profile.content;
+
+-- 人员信息导出
+select
+people.name `姓名`,
+school.content `初中`,
+phone `电话`,
+address.content `地址`,
+score1.content `语文`,
+score2.content `数学`,
+score3.content `英语`,
+score4.content `理化`,
+locale.content `户籍`
+from
+people 
+left join people_profile school on school.name = '就读初中' and school.people=people.id
+left join people_profile address on address.name = '联系地址' and address.people=people.id
+left join people_profile score1 on score1.name = '区质管考语文成绩' and score1.people=people.id
+left join people_profile score2 on score2.name = '区质管考数学成绩' and score2.people=people.id
+left join people_profile score3 on score3.name = '区质管考英语成绩' and score3.people=people.id
+left join people_profile score4 on score4.name = '区质管考理化成绩' and score4.people=people.id
+left join people_profile locale on locale.name = '户籍情况' and locale.people=people.id
+inner join people_label on people.id = people_label.people and people_label.label_name='报名考生'

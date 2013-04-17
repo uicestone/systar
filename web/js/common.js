@@ -281,11 +281,6 @@ $(document)
 			
 			event.preventDefault();
 			
-			if($(this).attr('name')==='search_cancel'){
-				//$(this).closest('form').reset();
-				//$(this).hide();
-			}
-
 			$.post($(this).closest('section').attr('for'),$(this).closest('section').find(':input').serialize()+'&submit='+$(this).attr('name'));
 
 		});
@@ -359,7 +354,7 @@ $(document)
 	tabs
 	/*标签选项卡上的关闭按钮*/
 	.on('mouseenter','li',function(){
-		$('<span class="icon-x">').appendTo(this)
+		$('<span/>',{'class':'icon-x'}).appendTo(this)
 		.click(function(){
 			$.closeTab($(this).parent('li').attr('for'));
 		});
