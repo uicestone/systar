@@ -40,7 +40,17 @@ class User_model extends People_model{
 		//获取存在数据库中的用户配置项
 		$this->db->from('user_config')
 			->where('user',$this->id);
-		$this->config->user=array_sub($this->db->get()->result_array(),'value','name');
+		
+		$config=array_sub($this->db->get()->result_array(),'value','name');
+		
+		array_walk($config, function(&$value){
+			$decoded=json_decode($value);
+			if(!is_null($decoded)){
+				$value=$decoded;
+			}
+		});
+		
+		$this->config->user=$config;
 
 	}
 	

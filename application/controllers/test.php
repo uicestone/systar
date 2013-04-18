@@ -5,9 +5,14 @@ class Test extends SS_controller{
 	}
 	
 	function index(){
-		
-		print_r($this->session->all_userdata());
+		//print_r($this->config->user_item('contact/index'));
 		//print_r($this->user);
+		print_r($_SESSION);
+	}
+	
+	function select2(){
+		$this->load->view('head');
+		$this->load->view('test/select2');
 	}
 	
 	function ar(){

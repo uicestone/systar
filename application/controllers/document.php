@@ -106,7 +106,7 @@ class Document extends SS_controller{
 			
 			$data=array(
 				'id'=>$document_id,
-				'name'=>$file_info['client_name']
+				'name'=>substr($file_info['client_name'], 0, -strlen($file_info['file_ext']))
 			);
 			
 			$this->output->data=$data;

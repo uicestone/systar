@@ -1,5 +1,4 @@
 <form method="post" name="<?=CONTROLLER?>" id="<?=$this->project->id?>" enctype="multipart/form-data" encoding="multipart/form-data">
-<div class="contentTableBox">
 	<div class="item">
 		<div class="title">
 			<label class="num" title="内部ID：<?=$this->value('project/id')?>"><?=$this->value('project/num');?></label>
@@ -240,6 +239,5 @@
 		<div class="title"><label>备注：</label></div>
 		<textarea class="item" name="project[comment]" type="text" rows="3"><?=$this->value('project/comment')?></textarea>
 	</div>
-</div>
 </form>
 <?=javascript('project_add')?>

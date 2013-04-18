@@ -4,6 +4,7 @@ class Project_model extends BaseItem_model{
 	static $fields=array(
 		'name'=>'名称',
 		'num'=>'编号',
+		'active'=>'是否有效',
 		'type'=>'类型',
 		'first_contact'=>'首次接洽时间',
 		'time_contract'=>'签约时间',

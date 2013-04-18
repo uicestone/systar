@@ -1,5 +1,4 @@
 <form name="account" id="<?=$this->account->id?>">
-<div class="contentTableBox">
 	<div class="item">
 		<div class="title"><label>基本信息：</label></div>
 		<input type="text" name="account[name]" value="<?=$this->value('account/name'); ?>" placeholder="摘要" title="摘要" />
@@ -28,6 +27,5 @@
 		<div class="title"><label>备注：</label></div>
 		<textarea name="account[comment]"><?=$this->value('account/comment')?></textarea>
 	</div>
-</div>
 </form>
 <?=javascript('account_edit')?>

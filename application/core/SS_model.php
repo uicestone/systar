@@ -4,9 +4,15 @@ class SS_Model extends CI_Model{
 		parent::__construct();
 	}
 	
-	function pagination($db_active_record){
+	function pagination($db_active_record, $is_group_query=false, $field_for_distinct_count=NULL){
 		
-		$rows=$db_active_record->count_all_results();
+		if($is_group_query){
+			$db_active_record->_ar_select=array();
+			$db_active_record->select("COUNT(DISTINCT $field_for_distinct_count) AS num_rows",FALSE);
+			$rows=$db_active_record->get()->row()->num_rows;
+		}else{
+			$rows=$db_active_record->count_all_results();
+		}
 		
 		if($this->config->user_item('pagination/start')>$rows || $rows==0){
 			//已越界或空列表时，列表起点归零

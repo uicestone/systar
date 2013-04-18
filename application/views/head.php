@@ -5,7 +5,6 @@
 	<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><![endif]-->
 	<!--[if lt IE 9]><?=javascript('html5')?><![endif]-->
 	<?=stylesheet('style/redmond/jquery-ui-1.10.2.custom')?>
-	<?=stylesheet('style/common')?>
 	<?=stylesheet('style/icomoon/style')?>
 	
 	<?=javascript('jQuery/jquery-1.7.2.min')?>
@@ -31,6 +30,7 @@
 	<?=javascript('jQuery/jquery.iframe-transport')?>
 	<?=javascript('jQuery/jquery.fileupload')?>
 
+	<?=stylesheet('style/common')?>
 	<link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
 	<title><?=$this->company->sysname?></title>
 </head>

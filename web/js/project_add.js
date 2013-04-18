@@ -1,6 +1,8 @@
 $(function(){
 	var section = page.children('section[hash="'+hash+'"]');
 	
+	section.find('#active').button().change();
+	
 	/*根据案件分类显示/隐藏案件阶段选项*/
 	section.find('[name="labels[分类]"]')
 	.on('change',function(){
@@ -109,8 +111,8 @@ $(function(){
 		}
 	});
 	
-	/*职员角色删除*/
-	section.find('.item[name="staff"]:not([locked])')
+	/*人员角色删除*/
+	section.find('.item[name="people"]:not([locked]), .item[name="staff"]:not([locked])')
 		.on('mouseenter','span[role]',function(){
 	
 			$(this).closest('tbody').find('span[role]').each(function(){
@@ -137,7 +139,8 @@ $(function(){
 						var project=that.closest('form[id]').attr('id');
 						var people=that.closest('tr').attr('id');
 						var role=that.attr('role');
-						$.post('/'+controller+'/removepeoplerole/'+project+'/'+people,{role:role},function(){
+						var uri='/'+controller+'/removepeoplerole/'+project+'/'+people;
+						$.post(uri,{role:role},function(){
 							that.data('delete-button').remove();
 						});
 					}).delay(100).fadeIn()

@@ -16,7 +16,17 @@ class Company_model extends BaseItem_model{
 		//获取存在数据库中的公司配置项
 		$this->db->from('company_config')
 			->where('company',$this->id);
-		$this->config->company=array_sub($this->db->get()->result_array(),'value','name');
+		
+		$config=array_sub($this->db->get()->result_array(),'value','name');
+		
+		array_walk($config, function(&$value){
+			$decoded=json_decode($value);
+			if(!is_null($decoded)){
+				$value=$decoded;
+			}
+		});
+		
+		$this->config->company=$config;
 		
 	}
 

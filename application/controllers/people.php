@@ -349,7 +349,7 @@ class People extends SS_Controller{
 
 				$this->people->addRelationship($this->people->id,$relative['id'],$relative['relation']);
 
-				$this->output->setData($this->relativeList(),'content-table','html','.item[name="relative"]>.contentTable','replace');
+				$this->output->setData($this->relativeList(),'relative-list','content-table','.item[name="relative"]>.contentTable','replace');
 				
 				unset($_SESSION[CONTROLLER]['post'][$this->people->id]['relative']);
 
@@ -357,7 +357,7 @@ class People extends SS_Controller{
 
 			elseif($submit=='remove_relative'){
 				$this->people->removeRelationship($this->people->id,$button_id);
-				$this->output->setData($this->relativeList(),'content-table','html','.item[name="relative"]>.contentTable','replace');
+				$this->output->setData($this->relativeList(),'relative-list','content-table','.item[name="relative"]>.contentTable','replace');
 			}
 
 			elseif($submit=='profile'){
@@ -370,14 +370,14 @@ class People extends SS_Controller{
 				
 				$this->people->addProfile($this->people->id,$profile['name'],$profile['content'],$profile['comment']);
 				
-				$this->output->setData($this->profileList(),'content-table','html','.item[name="profile"]>.contentTable','replace');
+				$this->output->setData($this->profileList(),'profile-list','content-table','.item[name="profile"]>.contentTable','replace');
 				
 				unset($_SESSION[CONTROLLER]['post'][$this->people->id]['profile']);
 			}
 
 			elseif($submit=='remove_profile'){
 				$this->people->removeProfile($this->people->id,$button_id);
-				$this->output->setData($this->profileList(),'content-table','html','.item[name="profile"]>.contentTable','replace');
+				$this->output->setData($this->profileList(),'profile-list','content-table','.item[name="profile"]>.contentTable','replace');
 			}
 			
 			elseif($submit=='changetype'){
