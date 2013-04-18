@@ -7,6 +7,13 @@ class Query extends Project{
 		parent::__construct();
 		$this->project=$this->query;
 		$this->cases=$this->query;
+		$this->list_args=array(
+			'first_contact'=>array('heading'=>'日期'),
+			'name'=>array('heading'=>'名称','cell'=>'{name}'),
+			'people'=>array('heading'=>'人员','cell'=>array('class'=>'ellipsis'),'parser'=>array('function'=>array($this->query,'getCompiledPeople'),'args'=>array('{id}'))),
+			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->query,'getCompiledLabels'),'args'=>array('{id}')))
+		);
+		
 	}
 	
 	function filed(){
@@ -15,6 +22,27 @@ class Query extends Project{
 	}
 	
 	function index(){
+		
+		$this->load->model('staff_model','staff');//用于边栏职员搜索
+		
+		$search_items=array('date/from','date/to','people');
+		
+		foreach($search_items as $item){
+			if($this->input->post($item)!==false){
+				if($this->input->post($item)!==''){
+					$this->config->set_user_item('search/'.$item, $this->input->post($item));
+				}else{
+					$this->config->unset_user_item('search/'.$item);
+				}
+			}
+		}
+		
+		if($this->input->post('submit')==='search_cancel'){
+			foreach($search_items as $item){
+				$this->config->unset_user_item('search/'.$item);
+			}
+		}
+		
 		$this->config->set_user_item('search/labels', array('咨询'), false);
 		parent::index();
 	}

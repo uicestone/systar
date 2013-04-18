@@ -120,8 +120,18 @@ class Project extends SS_controller{
 			->generate();
 		
 		$this->load->addViewData('list',$table);
-		$this->load->view('list');
-		$this->load->view('project/list_sidebar',true,'sidebar');
+		
+		if(file_exists(APPPATH.'/views/'.CONTROLLER.'/list'.EXT)){
+			$this->load->view(CONTROLLER.'/list');
+		}else{
+			$this->load->view('list');
+		}
+		
+		if(file_exists(APPPATH.'/views/'.CONTROLLER.'/list_sidebar'.EXT)){
+			$this->load->view(CONTROLLER.'/list_sidebar',true,'sidebar');
+		}else{
+			$this->load->view('project/list_sidebar',true,'sidebar');
+		}
 	}
 	
 	function add(){

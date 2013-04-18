@@ -29,7 +29,7 @@ $(function(){
 			<select name="people[gender]">
 				<?=options(array('男','女'),$this->value('people/gender'),'性别')?>
 			</select>
-			<input type="date" name="people[birthday]" value="<?=$this->value('people/birthday')?$this->value('people/birthday'):'1998-01-01'?>" class="birthday" placeholder="生日" title="生日" />
+			<input type="text" name="people[birthday]" value="<?=$this->value('people/birthday')?$this->value('people/birthday'):'1998-01-01'?>" class="birthday" placeholder="生日" title="生日" />
 		</div>
 		<div class="item">
 			<div class="title"><label>学生扩展资料</label></div>

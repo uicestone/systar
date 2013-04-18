@@ -8,11 +8,6 @@
 		<select id="type" name="labels[领域]"<?if(in_array('类型已锁定',$labels)){?> disabled="disabled"<?}?>>
 		<?=options($this->config->item('案件领域'),$this->value('labels/领域'),'领域');?>
 		</select>
-<?if(in_array('咨询',$labels)){ ?>
-		<select id="classification" name="labels[咨询方式]">
-		<?=options($this->config->item('咨询方式'),$this->value('labels/咨询方式'),'咨询方式');?>
-		</select>
-<?}else{?>
 		<select id="classification" name="labels[分类]"<?if(in_array('类型已锁定',$labels)){?> disabled="disabled"<?}?>>
 		<?=options(array('争议','非争议','法律顾问'),$this->value('labels/分类'),'分类');?>
 		</select>
@@ -23,14 +18,9 @@
 <?	if(!$project['num']){?>
 		<button type="submit" name="submit[apply_num]" class="major">获得案号</button>
 <?	}?>
-<?}?>
-<?if(in_array('咨询',$labels)){ ?>
-		<input type="text" name="project[first_contact]" value="<?=$this->value('project/first_contact')?>" placeholder="首次接待日期" title="首次接待日期" class="date" />
-<?}else{?>
 		<input type="text" name="project[time_contract]" value="<?=$this->value('project/time_contract')?>" placeholder="立案日期" title="立案日期" class="date" <? if(in_array('在办',$labels))echo 'disabled';?> />
 		-
 		<input type="text" name="project[time_end]" value="<?=$this->value('project/time_end')?>" placeholder="预估结案日期" title="预估结案日期" class="date" <? if(in_array('在办',$labels))echo 'disabled';?> />
-<?}?>
 	</div>
 
 	<div class="item" name="client">
@@ -125,12 +115,6 @@
 		</span>
 	</div>
 
-<? if(in_array('咨询',$labels)){//咨询阶段显示报价情况，不显示律师费和办案费?>
-	<div class="item">
-		<div class="title"><label>报价：</label></div>
-		<input type="text" name="project[quote]" value="<?=$this->value('project/quote') ?>" style="width:99%" />
-	</div>
-<? }?>
 	<div class="item" name="account">
 		<div class="title">
 			<label>签约律师费：</label>
@@ -147,7 +131,7 @@
 		<button type="button" class="toggle-add-form">＋</button>
 		<span class="add-form hidden">
 			<select name="account[type]">
-				<?=options(in_array('咨询',$labels)?array('咨询费'):array('固定','风险','计时预付'),$this->value('account/type'),'类型');?>
+				<?=options(array('固定','风险','计时预付'),$this->value('account/type'),'类型');?>
 			</select>
 			<input type="text" name="account[account]" value="<?=$this->value('account/account')?>" placeholder="帐目编号" />
 			<input type="text" name="account[amount]" value="<?=$this->value('account/amount');?>" placeholder="数额" />
@@ -163,7 +147,6 @@
 		</span>
 	</div>
 
-<?if(!in_array('咨询',$labels)){?>
 	<div class="item" name="miscfee">
 		<div class="title"><label>办案费约定情况：</label></div>
 
@@ -179,7 +162,6 @@
 			<button type="submit" name="submit[case_fee_misc]">添加</button>
 		</span>
 	</div>
-<?}?>
 
 	<div class="item" name="document">
 		<div class="title"><label>文件：</label>
