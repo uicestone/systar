@@ -92,6 +92,11 @@ class Project extends SS_controller{
 		$this->config->set_user_item('search/orderby', 'project.id desc', false);
 		$this->config->set_user_item('search/limit', 'pagination', false);
 		
+		if($this->input->get('labels')!==false){
+			$labels=explode(' ',urldecode($this->input->get('labels')));
+			$this->config->set_user_item('search/labels', $labels, false);
+		}
+		
 		$search_items=array('name','labels');
 		
 		foreach($search_items as $item){

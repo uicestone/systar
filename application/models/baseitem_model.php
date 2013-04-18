@@ -209,7 +209,7 @@ class BaseItem_model extends SS_Model{
 	 * @param $type
 	 * @return array([$type=>]$label_name,...) 一个由标签类别为键名（如果标签类别存在），标签名称为键值构成的数组
 	 */
-	function getAllLabels($type=NULL){
+	function getAllLabels($type=NULL,$including=NULL){
 		
 		$this->db->select("{$this->table}_label.type,{$this->table}_label.label_name AS name,COUNT(*) AS hits")
 			->from("{$this->table}_label")
@@ -234,6 +234,11 @@ class BaseItem_model extends SS_Model{
 				$all_labels[]=$row_array['name'];
 			}
 		}
+		
+		if(is_array($including)){
+			$all_labels+=$including;
+		}
+		
 		return $all_labels;
 	}
 	

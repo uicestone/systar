@@ -27,16 +27,21 @@ class Document extends SS_controller{
 		$this->config->set_user_item('search/orderby', 'document.id desc', false);
 		$this->config->set_user_item('search/limit', 'pagination', false);
 		
-		if($this->input->post('name')){
-			$this->config->set_user_item('search/name', $this->input->post('name'));
+		if($this->input->get('labels')!==false){
+			$labels=explode(' ',urldecode($this->input->get('labels')));
+			$this->config->set_user_item('search/labels', $labels, false);
 		}
 		
-		if($this->input->post('labels')){
-			$this->config->set_user_item('search/labels', $this->input->post('labels'));
-		}
+		$search_items=array('name','labels');
 		
-		if($this->input->post('name')===''){
-			$this->config->unset_user_item('search/name');
+		foreach($search_items as $item){
+			if($this->input->post($item)!==false){
+				if($this->input->post($item)!==''){
+					$this->config->set_user_item('search/'.$item, $this->input->post($item));
+				}else{
+					$this->config->unset_user_item('search/'.$item);
+				}
+			}
 		}
 		
 		if($this->input->post('submit')==='search' && $this->input->post('labels')===false){
@@ -44,8 +49,9 @@ class Document extends SS_controller{
 		}
 		
 		if($this->input->post('submit')==='search_cancel'){
-			$this->config->unset_user_item('search/name');
-			$this->config->unset_user_item('search/labels');
+			foreach($search_items as $item){
+				$this->config->unset_user_item('search/'.$item);
+			}
 		}
 		
 		$table=$this->table->setFields($this->list_args)

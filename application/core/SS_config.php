@@ -25,8 +25,14 @@ class SS_Config extends CI_Config{
 		
 		$method = array_prefix($plain_config, CONTROLLER.'/'.METHOD.'/'.$item);
 		
+		$controller = array_prefix($plain_config, CONTROLLER.'/'.$item);
+		
 		if($method!==array()){
 			return $method;
+		}
+		
+		if($controller!==array()){
+			return $controller;
 		}
 		
 		$global = array_prefix($plain_config, $item);

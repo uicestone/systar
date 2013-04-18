@@ -396,8 +396,9 @@ aside .contentTable.search-bar tbody td{
 	padding:0;
 }
 aside input[type=text]{
+	font-size:13px;
 	width:99%;
-	padding: 3px;
+	padding: 4px;
 	margin: 1px 0;
 }
 aside textarea{
