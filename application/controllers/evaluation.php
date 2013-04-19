@@ -1,23 +1,129 @@
 <?php
-class Evaluation extends SS_controller{
+class Evaluation extends Project{
 	
 	var $section_title='评价';
 	
 	function __construct(){
-		$this->default_method='comment';
 		parent::__construct();
+		$this->project=$this->evaluation;
 	}
 	
-	function staffList(){
-
-		$field=array(
-			'name'=>array('heading'=>'姓名','wrap'=>array('mark'=>'a','href'=>'javascript:showWindow(\'evaluation/score/{id}\')')),
-			'position.id'=>array('heading'=>'职位','cell'=>'{position_name}')
+	function index(){
+		$this->config->set_user_item('search/type', 'evaluation', false);
+		parent::index();
+	}
+	
+	function add(){
+		parent::add();
+	}
+	
+	function edit($id){
+		
+		$this->evaluation->id=$id;
+		
+		$this->load->addViewData('indicator_list', $this->indicatorList());
+		
+		parent::edit($id);
+	}
+	
+	function submit($submit, $id) {
+		parent::submit($submit, $id);
+		
+		try{
+			if($submit=='indicator'){
+				$indicator=$this->input->sessionPost('indicator');
+				$evaluation_indicator=$this->input->sessionPost('evaluation_indicator');
+				$this->evaluation->addIndicator($this->evaluation->id,$indicator,$evaluation_indicator);
+				
+				$this->output->setData($this->indicatorList(),'indicator-list','content-table','.item[name="indicator"]>.contentTable','replace');
+				
+				unset($_SESSION[CONTROLLER]['post'][$this->evaluation->id]['indicator']);
+				unset($_SESSION[CONTROLLER]['post'][$this->evaluation->id]['evaluation_indicator']);
+			}
+			
+			elseif($submit=='apply_model'){
+				if(!$this->input->post('indicator_model')){
+					$this->output->message('请选择模版', 'warning');
+					throw new Exception;
+				}
+				$this->evaluation->applyModel($this->evaluation->id, $this->input->post('indicator_model'));
+				$this->output->message('评价模版已应用');
+				$this->output->setData($this->indicatorList(),'indicator-list','content-table','.item[name="indicator"]>.contentTable','replace');
+				$this->output->setData($this->peopleList(),'people-list','content-table','.item[name="people"]>.contentTable','replace');
+			}
+			
+		}catch(Exception $e){
+			$e->getMessage() && $this->output->message($e->getMessage(), 'warning');
+			$this->output->status='fail';
+		}
+	}
+	
+	function indicatorList(){
+		$indicator_list_args=array(
+			'name'=>array('heading'=>'评分项'),
+			'type'=>array('heading'=>'类型','parser'=>array('function'=>function($type){
+				switch($type){
+					case 'text':return '文字';
+					case 'score':return '分数';
+				}
+			},'args'=>array('{type}'))),
+			'weight'=>array('heading'=>'分值'),
+			'candidates'=>array('heading'=>'被评价人角色'),
+			'judges'=>array('heading'=>'评价人角色')
 		);
 		
-		$table=$this->table->setFields($field)
-			->setData($this->evaluation->getStaffList())
+		$table=$this->table->setFields($indicator_list_args)
+			->setAttribute('name','indicator')
+			->setData($this->evaluation->getIndicatorList($this->evaluation->id))
 			->generate();
+		
+		return $table;
+	}
+	
+	function candidates($id){
+		$this->evaluation->id=$id;
+		$this->evaluation->data=$this->evaluation->fetch($this->evaluation->id);
+		
+		$this->section_title='被评价人 - '.$this->evaluation->data['name'];
+		
+		$list_args=array(
+			'name'=>array('heading'=>'姓名'),
+			'role'=>array('heading'=>'角色')
+		);
+		
+		$table=$this->table->setFields($list_args)
+			->setRowAttributes(array('hash'=>'evaluation/score/'.$this->evaluation->id.'/{id}'))
+			->generate($this->evaluation->getCandidatesList($this->evaluation->id,array('limit'=>'pagination')));
+		
+		$this->load->addViewData('list', $table);
+		
+		$this->load->view('list');
+	}
+	
+	function score($evaluation_id,$people_id){
+		$this->evaluation->id=$evaluation_id;
+		
+		$this->load->model('people_model','people');
+		
+		$people=$this->people->fetch($people_id);
+		$this->evaluation->data=$this->evaluation->fetch($this->evaluation->id);
+		
+		$this->section_title=$people['name'].' - '.$this->evaluation->data['name'];
+		
+		$list_args=array(
+			'name'=>array('heading'=>'评分指标'),
+			'score'=>array('heading'=>'评分/评价','parser'=>array('function'=>function($type,$weight){
+				if($type=='score'){
+					return '<input type="text" weight="'.$weight.'" placeholder="满分：'.$weight.'" />';
+				}else{
+					return '<textarea></textarea>';
+				}
+			},'args'=>array('{type}','{weight}')))
+		);
+		
+		$table=$this->table->setFields($list_args)
+			->generate($this->evaluation->getIndicatorList($this->evaluation->id, $people_id, $this->user->id, array('limit'=>'pagination')));
+		
 		$this->load->addViewData('list', $table);
 		$this->load->view('list');
 	}
@@ -90,34 +196,5 @@ class Evaluation extends SS_controller{
 		}
 	}
 	
-	function score($staff_id){
-		$staff_id=intval($staff_id);
-		
-		$field=array(
-			'name'=>array('heading'=>array('data'=>'考核指标','width'=>'20%'),'cell'=>array('data'=>'{name}({weight})')),
-			'score'=>array('heading'=>array('data'=>'分数','width'=>'70px'),'eval'=>true,'cell'=>"
-				if('{score}'==0){
-					return '<input type=\"text\" style=\"width:50px;\" />';
-				}else{
-					return '<span>{score}</span>';
-				}
-			"),
-			'comment'=>array('heading'=>'附言','eval'=>true,'cell'=>"
-				if(!'{comment}'){
-					return '<input type=\"text\" />';
-				}else{
-					return '<span>{comment}</span>';
-				}
-			")
-		);
-		
-		$table=$this->table->setFields($field);
-			
-		$table=$table->setData($this->evaluation->getIndicatorList($staff_id))
-			->generate();
-		
-		$this->load->addViewData('list', $table);
-		$this->load->view('evaluation/score');
-	}
 }
 ?>

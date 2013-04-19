@@ -137,6 +137,7 @@ $(document)
 			
 			$(this).children('tbody').children('tr')
 				.mouseenter(function(){
+					//console.log('mouseenter tr');
 					$(this).children('td:first').children('.hover').show();
 				})
 				.mouseleave(function(){
@@ -270,7 +271,21 @@ $(document)
 			}
 		}).disableSelection();
 
-		section.find('select.chosen.allow-new').select2();
+		section.find('select.chosen').each(function(index,object){
+			var options={};
+			if($(object).is('.allow-new')){
+				options.allowClear=true;
+				options.formatNoMatches=function(term){
+					var that=this;
+					this.element.data().select2.results.off('.addnewoption').on('click.addnewoption',function(){
+						that.element.append($('<option/>',{text:term,value:term,selected:'selected'})).trigger('change');
+					});
+					return '添加新标签：'+term;
+				};
+			}
+			
+			$(object).select2(options);
+		});
 		
 	});
 	
@@ -285,17 +300,41 @@ $(document)
 
 		});
 		
-		section.find('.chosen.allow-new').select2({});
-		
-		section.find('select.chosen').select2()
-			.on('change',function(event){
-				var id=page.children('[hash="'+hash+'"]').children('form').attr('id')
-				if(event.added && id){
-					$.post('/'+controller+'/addlabel/'+id,{label:event.added.id});
+		section.find('select.chosen').each(function(index,object){
+			var options={};
+			if($(object).is('.allow-new')){
+				options.allowClear=true;
+				options.formatNoMatches=function(term){
+					var that=this;
+					this.element.data().select2.results.off('.addnewoption').on('click.addnewoption',function(){
+						that.element.append($('<option/>',{text:term,value:term,selected:'selected'})).trigger('change',term);
+					});
+					return '添加新标签：'+term;
+				};
+			}
+			
+			$(object).select2(options)
+			.on('change',function(event,newLabel){
+				var id=page.children('[hash="'+hash+'"]').children('form').attr('id');
+				var label,method;
+				
+				if(newLabel){
+					label=newLabel;
+					method='add';
+				}else if(event.added && id){
+					label=event.added.id;
+					method='add';
 				}else if(event.removed && id){
-					$.post('/'+controller+'/removelabel/'+id,{label:event.removed.id});
+					label=event.removed.id
+					method='remove';
 				}
+				
+				if(method && id){
+					$.post('/'+controller+'/'+method+'label/'+id,{label:label});
+				}
+				
 			});
+		});
 		
 		/*边栏选框自动提交*/
 		section.find('select.filter[method!="get"]').on('change',function(){
@@ -379,7 +418,7 @@ $(document)
 	});
 })
 /*自动完成*/
-.on('focus','[autocomplete-model]',function(){
+.on('focus.autocomplete','[autocomplete-model]',function(){
 	var autocompleteModel=$(this).attr('autocomplete-model');
 	$(this).autocomplete({
 		source: function(request, response){
@@ -396,9 +435,7 @@ $(document)
 			return false;
 		},
 		response: function(event,ui){
-			if(ui.content.length===0){
-				$(this).trigger('autocompletenoresult');
-			}
+			
 			//$(this).trigger('change');
 		}
 	})
@@ -425,8 +462,6 @@ $(document)
 	$( this ).toggleClass( "ui-icon-minusthick" ).toggleClass( "ui-icon-plusthick" );
 	$( this ).parents( ".portlet:first" ).find( ".portlet-content" ).toggle();
 })
-
-
 /*toggle button文字根据change时间显示*/
 .on('change',':checkbox',function(){
 	var text=$(this).is(':checked')?$(this).attr('text-checked'):$(this).attr('text-unchecked');
@@ -620,7 +655,7 @@ jQuery.fn.setBlock=function(response){
 			if(dataName==='sidebar'){
 				block.trigger('sidebarload');
 			}
-			if(dataName==='content-table'){
+			if(data.type==='content-table'){
 				block.trigger('contenttableload');
 			}
 		}

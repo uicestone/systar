@@ -83,8 +83,19 @@ button.hover{
 .ui-dialog{
 	padding:0;
 }
-.select2-container{
+aside .select2-container{
 	margin-bottom: 5px;
+}
+.select2-container .select2-choice{
+	height:20px;
+	line-height:1.5;
+	font-size:0.8em;
+}
+.select2-container .select2-choice div b, .select2-dropdown-open .select2-choice div b{
+	background-position-y: -3px;
+}
+.select2-container .select2-choice abbr{
+	top:3px;
 }
 /*主页面列表中的多选标签（用于标签）无右边距（用于显示“x”）*/
 article .contentTable .select2-container-multi .select2-choices .select2-search-choice{
@@ -330,8 +341,8 @@ nav .arrow{
 .contentTable tbody td{
 	padding:6px 7px;
 }
-article .contentTable td input[type="text"]{
-	width:95%;
+article .contentTable td input[type="text"], article .contentTable td textarea{
+	width:99%;
 }
 .contentTable td .rank{
 	color:#888;
@@ -386,12 +397,13 @@ aside .contentTable.search-bar tbody td{
 	padding:0;
 }
 aside input[type=text]{
+	font-size:13px;
 	width:99%;
-	padding: 3px;
+	padding: 4px;
 	margin: 1px 0;
 }
 aside textarea{
-	width:227px;
+	width:99%;
 	padding:5px;
 	margin: 1px 0;
 	border:#AAA solid 1px;
@@ -410,31 +422,31 @@ aside button.major{
 }
 
 /*插入界面*/
-.contentTableBox .item{
+section>form>.item{
 	/*font-size:17px;*/
 	margin-bottom:10px;
 	text-align:left;
 }
-.contentTableBox .item input[type="text"],
-.contentTableBox .item input[type="password"],
-.contentTableBox .item textarea,
-.contentTableBox .item select{
+section>form>.item input[type="text"],
+section>form>.item input[type="password"],
+section>form>.item textarea,
+section>form>.item select{
 	/*font-size:15px;*/
 }
 
-.contentTableBox .item input{
+section>form>.item input{
 	margin:0 auto;
 }
-.contentTableBox .item textarea{
-	width:99%;
+section>form>.item textarea{
+	width:100%;
 }
-.contentTableBox .item .large-field{
+section>form>.item .large-field{
 	display:block;
-	width:99%;
+	width:100%;
 	font-size:18px;
 	margin:5px auto;
 }
-.contentTableBox .item .title{
+section>form>.item .title{
 	padding-left:1em;
 	background:url("../images/bg_main.png");
 	color:#173C66;
@@ -442,16 +454,19 @@ aside button.major{
 	line-height:2;
 	min-height:30px;
 }
-.contentTableBox .item .content{
+section>form>.item>.title .ui-dialog-buttonset .ui-button-text{
+	padding:0.2em 0.8em;
+}
+section>form>.item .content{
 	background:#FFF;
 	border:#999 solid 1px;
 	padding:5px;
 }
-.contentTableBox .item p{
+section>form>.item p{
 	margin-bottom:0.5em;
 	text-indent:2em;
 }
-.contentTableBox .submit{
+section>form>.submit{
 	text-align:center;
 }
 .add-form>*{

@@ -1,7 +1,6 @@
 <form method="post" name="<?=CONTROLLER?>" id="<?=$this->project->id?>" enctype="multipart/form-data" encoding="multipart/form-data">
-<div class="contentTableBox">
 	<div class="item">
-		<input type="text" name="project[name]" value="<?=$this->value('project/name')?>" placeholder="事项名称" style="width:99.4%;font-size:20px;">
+		<input type="text" name="project[name]" value="<?=$this->value('project/name')?>" placeholder="事项名称" class='large-field'>
 	 </div>
 
 	<div class="item">
@@ -50,6 +49,5 @@
 		<div class="title"><label>备注：</label></div>
 		<textarea class="item" name="project[comment]" type="text" rows="3"><?=$this->value('project/comment')?></textarea>
 	</div>
-</div>
 </form>
 <?=javascript('project_add')?>

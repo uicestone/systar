@@ -223,7 +223,7 @@ Version: 3.3.2 Timestamp: Mon Mar 25 12:14:18 PDT 2013
     margin: 0;
 
     outline: 0;
-    /*font-family: sans-serif; uicestone */
+/*    font-family: sans-serif;uicestone*/
     font-size: 1em;
 
     border: 1px solid #aaa;
@@ -476,7 +476,7 @@ disabled look for disabled choices in the results dropdown
     padding: 5px;
     margin: 1px 0;
 
-    /*font-family: sans-serif; uicestone*/
+/*    font-family: sans-serif;uicestone*/
     font-size: 100%;
     color: #666;
     outline: 0;

@@ -92,6 +92,11 @@ class Project extends SS_controller{
 		$this->config->set_user_item('search/orderby', 'project.id desc', false);
 		$this->config->set_user_item('search/limit', 'pagination', false);
 		
+		if($this->input->get('labels')!==false){
+			$labels=explode(' ',urldecode($this->input->get('labels')));
+			$this->config->set_user_item('search/labels', $labels, false);
+		}
+		
 		$search_items=array('name','labels');
 		
 		foreach($search_items as $item){
@@ -198,6 +203,8 @@ class Project extends SS_controller{
 	
 	function peopleList(){
 		$this->load->model('people_model','people');
+		
+		$this->people_list_args['role']=array('heading'=>'角色','parser'=>array('function'=>array($this->project,'getCompiledPeopleRoles'),'args'=>array($this->project->id,'{id}')));
 		
 		return $this->table->setFields($this->people_list_args)
 			->setRowAttributes(array('hash'=>'people/edit/{id}'))
@@ -322,7 +329,7 @@ class Project extends SS_controller{
 				}
 				
 				if($this->project->addPeople($this->project->id,$people['id'],NULL,$people['role'])){
-					$this->output->setData($this->peopleList(),'content-table','html','.item[name="people"]>.contentTable','replace');
+					$this->output->setData($this->peopleList(),'people-list','content-table','.item[name="people"]>.contentTable','replace');
 					unset($_SESSION[CONTROLLER]['post'][$this->project->id]['people']['id']);
 				}else{
 					$this->output->message('人员添加错误', 'warning');
@@ -333,7 +340,7 @@ class Project extends SS_controller{
 			
 			elseif($submit=='remove_people'){
 				if($this->project->removePeople($this->project->id,$button_id)){
-					$this->output->setData($this->peopleList(),'content-table','html','.item[name="people"]>.contentTable','replace');
+					$this->output->setData($this->peopleList(),'people-list','content-table','.item[name="people"]>.contentTable','replace');
 				}
 			}
 			
@@ -364,7 +371,7 @@ class Project extends SS_controller{
 				}
 				
 				$this->account->add($account+array('project'=>$this->project->id,'subject'=>$subject,'display'=>true));
-				$this->output->setData($this->accountList(),'content-table','html','.item[name="account"]>.contentTable','replace');
+				$this->output->setData($this->accountList(),'account-list','content-table','.item[name="account"]>.contentTable','replace');
 				
 				unset($_SESSION[CONTROLLER]['post'][$this->project->id]['account']);
 			}
@@ -373,9 +380,9 @@ class Project extends SS_controller{
 				$this->project->removeFee($this->project->id,$button_id);
 				
 				if($submit=='remove_fee'){
-					$this->output->setData($this->accountList(),'content-table','html','.item[name="account"]>.contentTable','replace');
+					$this->output->setData($this->accountList(),'account-list','content-table','.item[name="account"]>.contentTable','replace');
 				}else{
-					$this->output->setData($this->miscfeeList(),'content-table','html','.item[name="miscfee"]>.contentTable','replace');
+					$this->output->setData($this->miscfeeList(),'miscfee-list','content-table','.item[name="miscfee"]>.contentTable','replace');
 				}
 			}
 			
@@ -400,7 +407,7 @@ class Project extends SS_controller{
 				}
 				
 				if($this->project->addFee($this->project->id,$misc_fee['fee'],$misc_fee['pay_date'],'办案费',NULL,$misc_fee['receiver'],$misc_fee['comment'])){
-					$this->output->setData($this->miscfeeList(),'content-table','html','.item[name="miscfee"]>.contentTable','replace');
+					$this->output->setData($this->miscfeeList(),'miscfee-list','content-table','.item[name="miscfee"]>.contentTable','replace');
 				}else{
 					$this->output->message('收费添加错误', 'warning');
 				}
@@ -425,14 +432,14 @@ class Project extends SS_controller{
 				
 				$this->project->addDocument($this->project->id, $document['id']);
 				
-				$this->output->setData($this->documentList(),'content-table','html','.item[name="document"]>.contentTable','replace');
+				$this->output->setData($this->documentList(),'document-list','content-table','.item[name="document"]>.contentTable','replace');
 				
 				unset($_SESSION[CONTROLLER]['post'][$this->project->id]['document']);
 			}
 			
 			elseif($submit=='remove_document'){
 				if($this->project->removeDocument($this->project->id,$button_id)){
-					$this->output->setData($this->documentList(),'content-table','html','.item[name="document"]>.contentTable','replace');
+					$this->output->setData($this->documentList(),'document-list','content-table','.item[name="document"]>.contentTable','replace');
 				}
 			}
 			
@@ -453,7 +460,7 @@ class Project extends SS_controller{
 		$role=$this->input->post('role');
 		
 		$this->project->removePeopleRole($project_id,$people_id,$role);
-		$this->output->setData($this->staffList(),'content-table','html','.item[name="staff"]>.contentTable','replace');
+		$this->output->setData($this->peopleList(),'people-list','content-table','.item[name="people"]>.contentTable','replace');
 	}
 	
 	function match(){

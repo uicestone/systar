@@ -1,9 +1,140 @@
 <?php
-class Evaluation_model extends SS_Model{
+class Evaluation_model extends Project_model{
 	function __construct(){
 		parent::__construct();
 	}
-
+	
+	function applyModel($project,$model){
+		return $this->db->query("
+			INSERT IGNORE INTO evaluation_indicator (project,indicator,candidates,judges,weight)
+			SELECT ".intval($project).",indicator,candidates,judges,weight 
+			FROM `evaluation_model_indicator` 
+			WHERE company = {$this->company->id} AND model = ".intval($model)."
+		");
+	}
+	
+	function getModels(){
+		$this->db->from('evaluation_model')
+			->where('company',$this->company->id);
+		
+		return array_sub($this->db->get()->result_array(),'name','id');
+	}
+	
+	function getIndicatorList($project,$candidate=NULL,$judge=NULL, array $args=array()){
+		$this->db->from('evaluation_indicator')
+			->join('indicator','evaluation_indicator.indicator = indicator.id','inner')
+			->where('evaluation_indicator.project',$project)
+			->select('indicator.*, evaluation_indicator.candidates, evaluation_indicator.judges, evaluation_indicator.weight');
+		
+		if($candidate){
+			if(is_null($judge)){
+				$judge=$this->user->id;
+			}
+			
+			$this->db->join('project_people evaluation_candidates','evaluation_candidates.role = evaluation_indicator.candidates','inner')
+				->join('project_people evaluation_judges','evaluation_judges.role = evaluation_indicator.judges','inner')
+				->where('evaluation_candidates.people',$candidate)
+				->where('evaluation_judges.people',$judge);
+			
+		}
+		
+		$db_num_rows=clone $this->db;
+		
+		if(isset($args['orderby'])){
+			if(is_array($args['orderby'])){
+				foreach($args['orderby'] as $orderby){
+					$this->db->order_by($orderby[0],$orderby[1]);
+				}
+			}elseif($args['orderby']){
+				$this->db->order_by($args['orderby']);
+			}
+		}
+		
+		if(isset($args['limit'])){
+			if($args['limit']==='pagination'){
+				//复制一个DB对象用来计算行数，因为计算行数需要运行sql，将清空DB对象中属性
+				$args['limit']=$this->pagination($db_num_rows);
+				call_user_func_array(array($this->db,'limit'), $args['limit']);
+			}
+			elseif(is_array($args['limit'])){
+				call_user_func_array(array($this->db,'limit'), $args['limit']);
+			}
+			else{
+				call_user_func(array($this->db,'limit'), $args['limit']);
+			}
+		}
+		
+		return $this->db->get()->result_array();
+	}
+	
+	/**
+	 * 根据project_id和当前用户id
+	 * 返回当前用户可评的所有用户
+	 */
+	function getCandidatesList($project,array $args=array()){
+		$this->db->from('evaluation_indicator')
+			->join('project_people evaluation_candidates','evaluation_candidates.role = evaluation_indicator.candidates','inner')
+			->join('project_people evaluation_judges','evaluation_judges.role = evaluation_indicator.judges','inner')
+			->join('people','people.id = evaluation_candidates.people','inner')
+			->where('evaluation_indicator.project',$project)
+			->where('evaluation_judges.people',$this->user->id);
+		
+		$db_num_rows=clone $this->db;
+		
+		$this->db->group_by('evaluation_candidates.people')
+			->select('people.id, people.name, evaluation_candidates.role');
+		
+		if(isset($args['orderby'])){
+			if(is_array($args['orderby'])){
+				foreach($args['orderby'] as $orderby){
+					$this->db->order_by($orderby[0],$orderby[1]);
+				}
+			}elseif($args['orderby']){
+				$this->db->order_by($args['orderby']);
+			}
+		}
+		
+		if(isset($args['limit'])){
+			if($args['limit']==='pagination'){
+				//复制一个DB对象用来计算行数，因为计算行数需要运行sql，将清空DB对象中属性
+				$args['limit']=$this->pagination($db_num_rows,true,'evaluation_candidates.people');
+				call_user_func_array(array($this->db,'limit'), $args['limit']);
+			}
+			elseif(is_array($args['limit'])){
+				call_user_func_array(array($this->db,'limit'), $args['limit']);
+			}
+			else{
+				call_user_func(array($this->db,'limit'), $args['limit']);
+			}
+		}
+		
+		return $this->db->get()->result_array();
+	}
+	
+	function addIndicator($project,$indicator,$evaluation_indicator){
+		
+		if($indicator['type']==='text'){
+			$indicator['weight']=NULL;
+		}
+		
+		$this->db->from('indicator')
+			->where($indicator);
+		
+		$row=$this->db->get()->row();
+		
+		if(!$row){
+			$this->db->insert('indicator',$indicator);
+			$indicator_id=$this->db->insert_id();
+		}else{
+			$indicator_id=$row->id;
+		}
+		
+		$this->db->insert('evaluation_indicator',$evaluation_indicator+array('project'=>intval($project),'indicator'=>$indicator_id));
+		
+		return $this->db->insert_id();
+		
+	}
+	
 	function getCommentList(){
 		$q="
 		SELECT evaluation_indicator.name,evaluation_indicator.weight,
@@ -21,33 +152,6 @@ class Evaluation_model extends SS_Model{
 		$q=$this->pagination($q);
 		
 		return $this->db->query($q)->result_array();
-	}
-	
-	function getIndicatorList($staff){
-		$staff=intval($staff);
-		
-		$position=$this->db->query("SELECT position FROM staff WHERE id = $staff")->row()->position;
-
-		$q="	
-			SELECT evaluation_indicator.id,evaluation_indicator.name,evaluation_indicator.weight,
-				evaluation_score.id AS score_id,evaluation_score.score,evaluation_score.comment
-			FROM evaluation_indicator 
-				LEFT JOIN evaluation_score ON (
-					evaluation_indicator.id=evaluation_score.indicator
-					AND evaluation_score.quarter = {$this->date->quarter}
-					AND staff = $staff
-					AND uid = {$this->user->id}
-				)
-			WHERE critic = {$_SESSION['position']}
-				AND position = $position
-		";
-		
-		$q=$this->orderby($q,'id');
-		
-		$q=$this->pagination($q);
-		
-		return $this->db->query($q)->result_array();
-		
 	}
 	
 	function getResultList(){
