@@ -334,7 +334,10 @@ $(document)
 					method='remove';
 				}
 				
-				$.post('/'+controller+'/'+method+'label/'+id,{label:label});
+				if(method && id){
+					$.post('/'+controller+'/'+method+'label/'+id,{label:label});
+				}
+				
 			});
 		});
 		

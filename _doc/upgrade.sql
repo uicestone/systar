@@ -188,3 +188,7 @@ INSERT INTO `syssh`.`company_config` (`id`, `company`, `name`, `value`) VALUES (
 -- server updated
 
 ALTER TABLE  `project` ADD  `active` BOOLEAN NOT NULL DEFAULT FALSE AFTER  `num`;
+
+update project set active = 1;
+
+update project set active =0 where id in (select project from project_label where label_name = '案卷已归档');

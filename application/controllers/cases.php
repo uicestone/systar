@@ -443,6 +443,7 @@ class Cases extends Project{
 			elseif(!in_array('咨询',$this->cases->labels) && $submit=='file'){
 				$this->cases->removeLabel($this->cases->id, '已申请归档');
 				$this->cases->addLabel($this->cases->id, '案卷已归档');
+				$this->cases->update($this->cases->id,array('active',false));
 				$this->output->status='refresh';
 				$this->output->message('案卷归档归档完成');
 			}
@@ -514,6 +515,7 @@ class Cases extends Project{
 	}
 	
 	function index(){
+		$this->config->set_user_item('search/active', true, false);
 		$this->config->set_user_item('search/labels', array('案件'), false);
 		
 		if($this->user->isLogged('service')){

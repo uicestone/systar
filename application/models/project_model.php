@@ -40,6 +40,8 @@ class Project_model extends BaseItem_model{
 		
 	    $data+=uidTime(true,true);
 		
+		$data['active']=true;
+		
 	    $this->db->insert('project',$data);
 		return $this->db->insert_id();
 	}
@@ -266,6 +268,27 @@ class Project_model extends BaseItem_model{
 		$result=$this->getList($args);
 	}
 	
+	/**
+	 * @param array $args
+	 * people
+	 *	role
+	 * num
+	 * active
+	 * is_relative_of
+	 * before
+	 * time_contract
+	 *	from
+	 *	to
+	 * first_contact
+	 *	from
+	 *	to
+	 * count
+	 * group
+	 *	team
+	 *	people
+	 *		role
+	 * 
+	 */
 	function getList($args=array()){
 
 		if(isset($args['people'])){
@@ -281,6 +304,10 @@ class Project_model extends BaseItem_model{
 
 		if(isset($args['num'])){
 			$this->db->where('project.num',$args['num']);
+		}
+		
+		if(isset($args['active'])){
+			$this->db->where('project.active',(bool)$args['active']);
 		}
 		
 		if(isset($args['is_relative_of'])){

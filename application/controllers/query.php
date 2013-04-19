@@ -15,6 +15,7 @@ class Query extends Project{
 	}
 	
 	function index(){
+		$this->config->set_user_item('search/active', true, false);
 		$this->config->set_user_item('search/labels', array('咨询'), false);
 		parent::index();
 	}
@@ -194,6 +195,13 @@ class Query extends Project{
 				
 				$this->output->status='redirect';
 				$this->output->data='cases/edit/'.$this->query->id;
+			}
+			
+			elseif($submit=='file'){
+				$this->query->addLabel($this->query->id, '已归档');
+				$this->query->update($this->query->id,array('active'=>false));
+				$this->output->status='refresh';
+				$this->output->message('咨询案件已归档');
 			}
 			
 			if(is_null($this->output->status)){
