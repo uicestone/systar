@@ -292,9 +292,8 @@ class Project_model extends BaseItem_model{
 	function getList($args=array()){
 
 		if(isset($args['people'])){
-			$this->db->where("
-				project.id IN (SELECT `project` FROM project_people WHERE people = {$args['people']})
-			",NULL,false);
+			$this->db->join('project_people','project_people.project = project.id','inner');
+			$this->db->where('project_people.people',$args['people']);
 			
 			if(isset($args['role'])){
 				$this->db->where('project_people.role',$args['role']);

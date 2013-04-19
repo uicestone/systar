@@ -496,7 +496,7 @@ class Cases extends Project{
 	
 	function host(){
 		$this->section_title='主办案件';
-		$this->config->user_item('search/role','主办律师');
+		$this->config->set_user_item('search/role','主办律师',false);
 		$this->index();
 	}
 	
