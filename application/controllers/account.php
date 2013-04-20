@@ -10,7 +10,7 @@ class Account extends SS_controller{
 		
 		$this->list_args=array(
 			'account'=>array('heading'=>'账目编号'),
-			'project_name'=>array('heading'=>array('data'=>'项目','width'=>'30%'),'cell'=>array('class'=>'ellipsis','title'=>'{project_name}','data'=>'<a href="#cases/edit/{project}">{project_name}</a>')),
+			'project_name'=>array('heading'=>array('data'=>'项目','width'=>'30%'),'cell'=>array('class'=>'ellipsis','title'=>'{project_name}','data'=>'<a href="#cases/{project}">{project_name}</a>')),
 			'subject'=>array('heading'=>'科目'),
 			'amount'=>array('heading'=>'金额','parser'=>array('function'=>function($amount,$received){
 				if($amount>0){
@@ -60,7 +60,7 @@ class Account extends SS_controller{
 		}
 		
 		$list=$this->table->setFields($this->list_args)
-			->setRowAttributes(array('hash'=>'account/edit/{id}'))
+			->setRowAttributes(array('hash'=>'account/{id}'))
 			->setData($this->account->getList($this->config->user_item('search')))
 			->generate();
 		
@@ -177,7 +177,7 @@ class Account extends SS_controller{
 				if(!$this->account->data['display']){
 					$this->account->data['display']=true;
 					$this->output->status='redirect';
-					$this->output->data='account/edit/'.$this->account->id;
+					$this->output->data='account/'.$this->account->id;
 				}
 
 				$this->account->update($this->account->id,$this->account->data);

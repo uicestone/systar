@@ -120,7 +120,7 @@ class Project extends SS_controller{
 		}
 		
 		$table=$this->table->setFields($this->list_args)
-			->setRowAttributes(array('hash'=>CONTROLLER.'/edit/{id}'))
+			->setRowAttributes(array('hash'=>CONTROLLER.'/{id}'))
 			->setData($this->project->getList($this->config->user_item('search')))
 			->generate();
 		
@@ -207,7 +207,7 @@ class Project extends SS_controller{
 		$this->people_list_args['role']=array('heading'=>'角色','parser'=>array('function'=>array($this->project,'getCompiledPeopleRoles'),'args'=>array($this->project->id,'{id}')));
 		
 		return $this->table->setFields($this->people_list_args)
-			->setRowAttributes(array('hash'=>'people/edit/{id}'))
+			->setRowAttributes(array('hash'=>'people/{id}'))
 			->setAttribute('name', 'people')
 			->generate($this->people->getList(array('project'=>$this->project->id)));
 	}
@@ -269,7 +269,7 @@ class Project extends SS_controller{
 	function relativeList(){
 		return $this->table->setFields($this->relative_list_args)
 			->setAttribute('name','relatives')
-			->setRowAttributes(array('hash'=>CONTROLLER.'/edit/{id}'))
+			->setRowAttributes(array('hash'=>CONTROLLER.'/{id}'))
 			->generate($this->project->getList(array('limit'=>10,'is_relative_of'=>$this->project->id)));
 	}
 	
@@ -301,7 +301,7 @@ class Project extends SS_controller{
 				
 				if(!$this->project->data['display']){
 					$this->project->data['display']=true;
-					$this->output->data=CONTROLLER.'/edit/'.$this->project->id;
+					$this->output->data=CONTROLLER.'/'.$this->project->id;
 					$this->output->status='redirect';
 				}
 				

@@ -122,7 +122,7 @@ class Cases extends Project{
 		$this->load->model('client_model','client');
 		
 		$list=$this->table->setFields($this->client_list_args)
-			->setRowAttributes(array('hash'=>'client/edit/{id}'))
+			->setRowAttributes(array('hash'=>'client/{id}'))
 			->setAttribute('name','client')
 			->generate($this->client->getList(array('project'=>$this->cases->id)));
 		
@@ -136,7 +136,7 @@ class Cases extends Project{
 		
 		$list=$this->table->setFields($this->staff_list_args)
 			->setAttribute('name','staff')
-			->setRowAttributes(array('hash'=>'staff/edit/{id}'))
+			->setRowAttributes(array('hash'=>'staff/{id}'))
 			->generate($this->staff->getList(array('project'=>$this->cases->id)));
 		
 		return $list;
@@ -287,7 +287,7 @@ class Cases extends Project{
 					$this->output->message(
 						'<a href="#'.
 						($client['type']=='客户'?'client':'contact').
-						'/edit/'.$project_client['client'].'">新'.
+						'/'.$project_client['client'].'">新'.
 						$client['type'].' '.$client['name'].
 						' 已经添加，点击编辑详细信息</a>'
 					);
@@ -474,7 +474,7 @@ class Cases extends Project{
 				$this->cases->updateLabels($this->cases->id, $this->cases->labels);
 				
 				$this->output->status='redirect';
-				$this->output->data='cases/edit/'.$this->cases->id;
+				$this->output->data='cases/'.$this->cases->id;
 				
 			}
 			

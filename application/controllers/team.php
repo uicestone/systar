@@ -49,7 +49,7 @@ class Team extends SS_Controller{
 		}
 		
 		$table=$this->table->setFields($this->list_args)
-			->setRowAttributes(array('hash'=>CONTROLLER.'/edit/{id}'))
+			->setRowAttributes(array('hash'=>CONTROLLER.'/{id}'))
 			->setData($this->team->getList($this->config->user_item('search')))
 			->generate();
 		$this->load->addViewData('list', $table);

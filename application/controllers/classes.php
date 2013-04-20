@@ -15,7 +15,7 @@ class Classes extends Team{
 		}
 		
 		$field=array(
-			'class.id'=>array('heading'=>'名称','cell'=>'<a href = "#classes/edit/{id}">{name}</a>','title'=>'编号：{id}'),
+			'class.id'=>array('heading'=>'名称','cell'=>'<a href = "#classes/{id}">{name}</a>','title'=>'编号：{id}'),
 			'depart'=>array('heading'=>'部门'),
 			'extra_course_name'=>array('heading'=>'加一'),
 			'class_teacher_name'=>array('heading'=>'班主任')

@@ -6,6 +6,7 @@ class Evaluation extends Project{
 	function __construct(){
 		parent::__construct();
 		$this->project=$this->evaluation;
+		$this->default_view_method='candidates';
 	}
 	
 	function index(){
@@ -126,6 +127,7 @@ class Evaluation extends Project{
 		
 		$this->load->addViewData('list', $table);
 		$this->load->view('list');
+		$this->load->view('evaluation/score_sidebar',true,'sidebar');
 	}
 	
 	function comment(){

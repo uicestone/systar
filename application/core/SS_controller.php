@@ -2,6 +2,7 @@
 class SS_Controller extends CI_Controller{
 	
 	var $default_method='index';
+	var $default_view_method;
 	
 	var $section_title='';
 	

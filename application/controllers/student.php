@@ -263,46 +263,6 @@ class Student extends People{
 		}
 	}
 
-	/**
-	 * 家校互动
-	 */
-	function interactive(){
-		
-		if($this->input->post('submit')){
-			$submitable=true;
-			
-			$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$this->input->post());
-			
-			if(post('student_comment/reply_to',$this->user->check(post('student_comment_extra/reply_to_username')))<0){
-				$submitable=false;
-			}
-			
-			if($this->user->isLogged('parent')){
-				$student_id=$this->student->getIdByParentUid($this->user->id);
-			}else{
-				$student_id=$this->student->getIdByParentUid(post('student_comment/reply_to'));
-			}
-			
-			if($submitable){
-				$this->student->addComment($student_id,post('student_comment'));
-				unset($_SESSION[CONTROLLER]['post']['student_comment']);
-				unset($_SESSION[CONTROLLER]['post']['student_comment_extra']);
-			}
-		}
-		
-		$field=array(
-			'date'=>array('heading'=>array('data'=>'日期','width'=>'100px')),
-			'username'=>array('heading'=>array('data'=>'用户','width'=>'120px')),
-			'student_name'=>array('heading'=>array('data'=>'学生','width'=>'60px'),'wrap'=>array('mark'=>'a','href'=>'student?edit={student}')),
-			'title'=>array('heading'=>array('data'=>'标题','width'=>'120px'),'cell'=>array('class'=>'ellipsis','title'=>'{title}')),
-			'content'=>array('heading'=>'内容','cell'=>array('class'=>'ellipsis','title'=>'{content}'))
-		);
-		$list=$this->table->setFields($field)
-			->setData($this->student->getInteractiveList())
-			->generate();
-		$this->load->addViewData('list', $list);
-	}
-	
 	function view_score(){
 		//TODO 图与表的sql请求合一
 		if($this->user->isLogged('student')){

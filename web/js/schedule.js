@@ -134,7 +134,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 		switch(this.options.method){
 			case 'view':uri='/schedule/view/'+this.options.id;break;
 			case 'create':uri='/schedule/edit';break;
-			case 'edit':uri='/schedule/edit/'+this.options.id;break;
+			case 'edit':uri='/schedule/'+this.options.id;break;
 		}
 		
 		$.get(uri,function(response){

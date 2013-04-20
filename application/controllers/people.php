@@ -104,7 +104,7 @@ class People extends SS_Controller{
 		}
 		
 		$table=$this->table->setFields($this->list_args)
-			->setRowAttributes(array('hash'=>CONTROLLER.'/edit/{id}'))
+			->setRowAttributes(array('hash'=>CONTROLLER.'/{id}'))
 			->setData($this->people->getList($this->config->user_item('search')))
 			->generate();
 		$this->load->addViewData('list', $table);
@@ -196,7 +196,7 @@ class People extends SS_Controller{
 	function relativeList(){
 		
 		$list=$this->table->setFields($this->relative_list_args)
-			->setRowAttributes(array('hash'=>CONTROLLER.'/edit/{relative}'))
+			->setRowAttributes(array('hash'=>CONTROLLER.'/{relative}'))
 			->setData($this->people->getRelatives($this->people->id))
 			->generate();
 		
@@ -230,7 +230,7 @@ class People extends SS_Controller{
 		);
 		
 		$list=$this->table->setFields($this->project_list_args)
-			->setRowAttributes(array('hash'=>'cases/edit/{id}'))
+			->setRowAttributes(array('hash'=>'cases/{id}'))
 			->setData($project_model->getList(array('people'=>$this->people->id,'limit'=>10,'orderby'=>'project.id DESC')))
 			->generate();
 		
@@ -342,7 +342,7 @@ class People extends SS_Controller{
 					$relative['display']=true;
 					
 					$relative['id']=$this->people->add($relative);
-					$this->output->message('新客户 <a href="#'.CONTROLLER.'/edit/' . $relative['id'] . '">' . $relative['name'] . ' </a>已经添加');
+					$this->output->message('新客户 <a href="#'.CONTROLLER.'/' . $relative['id'] . '">' . $relative['name'] . ' </a>已经添加');
 				}else{
 					$this->output->message('系统中已经存在 ' . $relative['name'] . '，已自动识别并添加');
 				}

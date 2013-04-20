@@ -61,7 +61,7 @@ class Project_model extends BaseItem_model{
 		$people=$people_model->getList(array('project'=>$project_id));
 		$compiled='';
 		foreach($people as $person){
-			$compiled.='<span title="'.$person['role'].'"><a href="#people/edit/'.$person['id'].'">'.$person['abbreviation'].'</a></span> ';
+			$compiled.='<span title="'.$person['role'].'"><a href="#people/'.$person['id'].'">'.$person['abbreviation'].'</a></span> ';
 		}
 		
 		return $compiled;

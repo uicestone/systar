@@ -41,7 +41,11 @@
 	</div>
 
 	<div class="item" name="schedule">
-		<div class="title"><label>日程：</label></div>
+		<div class="title">
+			<label>日程：
+				<a href="javascript:$.createSchedule({project:<?=$this->value('project/id')?>})">添加>></a>
+			</label>
+		</div>
 		<?=$schedule_list?>
 	</div>
 

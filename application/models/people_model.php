@@ -237,8 +237,7 @@ class People_model extends BaseItem_model{
 		}
 		
 		if(isset($args['team'])){
-			$this->db->join('team_people','people.id = team_people.people','inner')
-				->where_in('team_people.team',$args['team']);
+			$this->db->where("people.id IN (SELECT people FROM team_people WHERE FALSE ".($args['team']?"OR team IN (".implode(',',$args['team']).")":'').")",NULL,FALSE);
 		}
 		
 		if(isset($args['everyone']) && $args['everyone']===false){

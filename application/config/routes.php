@@ -48,6 +48,8 @@ $route['signup']='user/signup';
 $route['browser']='gate/browser';
 $route['reception']='gate/reception';
 
+$route['(account|cases|client|contact|people|project|query|staff|student|team)/(:num)']='$1/edit/$2';
+$route['evaluation/(:num)']='evaluation/candidates/$1';
 
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

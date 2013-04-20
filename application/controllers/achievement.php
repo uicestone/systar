@@ -4,7 +4,7 @@ class Achievement extends SS_controller{
 	var $section_title='业绩';
 	
 	var $list_args=array(
-		'case_name'=>array('heading'=>array('data'=>'案件','width'=>'25%'),'cell'=>'<a href="#cases/edit/{case}" class="right" style="margin-left:10px;">查看</a>{case_name}'),
+		'case_name'=>array('heading'=>array('data'=>'案件','width'=>'25%'),'cell'=>'<a href="#cases/{case}" class="right" style="margin-left:10px;">查看</a>{case_name}'),
 		'client_name'=>array('heading'=>'客户'),
 		'account_time'=>array('heading'=>'到账时间'),
 		'amount'=>array('heading'=>'创收'),

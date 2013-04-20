@@ -184,7 +184,7 @@ class Query extends Project{
 				if(!$this->query->data['display']){
 					$this->query->data['display']=true;
 					$this->output->status='redirect';
-					$this->output->data='query/edit/'.$this->query->id;
+					$this->output->data='query/'.$this->query->id;
 				}
 				
 				$this->query->data['name']=$client['name'].' 咨询';
@@ -223,7 +223,7 @@ class Query extends Project{
 				$this->output->message('已立案，请立即获得案号');
 				
 				$this->output->status='redirect';
-				$this->output->data='cases/edit/'.$this->query->id;
+				$this->output->data='cases/'.$this->query->id;
 			}
 			
 			elseif($submit=='file'){

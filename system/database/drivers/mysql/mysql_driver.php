@@ -586,7 +586,7 @@ class CI_DB_mysql_driver extends CI_DB {
 	 */
 	function _insert_batch($table, $keys, $values)
 	{
-		$command=$ignore?'INSERT IGNORE INTO ':'INSERT INTO ';
+		$command='INSERT INTO ';
 		return $command.$table." (".implode(', ', $keys).") VALUES ".implode(', ', $values);
 	}
 

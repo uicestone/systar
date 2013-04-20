@@ -39,6 +39,5 @@ class Message extends SS_Controller{
 		$this->load->view('message/content_sidebar',true,'sidebar');
 	}
 	
-	function submit(){}
 }
 ?>
