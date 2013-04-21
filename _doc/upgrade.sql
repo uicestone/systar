@@ -193,3 +193,21 @@ update project set active = 1;
 update project set active =0 where id in (select project from project_label where label_name = '案卷已归档');
 -- server updated
 
+insert into schedule_profile (schedule,name,content,uid,time)
+select id,'心得',experience,uid,time from schedule where experience is not null and experience != '';
+insert into schedule_profile (schedule,name,content,uid,time)
+select id,'外出地点',place,uid,time from schedule where place is not null and place != '';
+insert into schedule_profile (schedule,name,content,uid,time)
+select id,'费用',fee,uid,time from schedule where fee is not null and fee != '';
+insert into schedule_profile (schedule,name,content,uid,time)
+select id,'费用用途',fee_name,uid,time from schedule where fee_name is not null and fee_name != '';
+
+ALTER TABLE `schedule`
+  DROP `experience`,
+  DROP `place`,
+  DROP `fee`,
+  DROP `fee_name`;
+
+ALTER TABLE  `schedule` CHANGE  `time_start`  `time_start` INT( 10 ) NULL DEFAULT NULL ,
+CHANGE  `time_end`  `time_end` INT( 10 ) NULL DEFAULT NULL ,
+CHANGE  `deadline`  `deadline` INT( 10 ) NULL DEFAULT NULL;

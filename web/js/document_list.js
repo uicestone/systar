@@ -2,16 +2,20 @@ $(function () {
 	
 	var section = aside.children('section[for="'+hash+'"]');
 	
-	$(document).on('drop dragover', function(e){
-		e.preventDefault();
+	section.find('#save').on('click',function(event){
+		event.stopImmediatePropagation();
+		$.refresh(hash);
 	});
-	
+
 	section.find('#fileupload').fileupload({
         dataType: 'json',
         done: function (event, data) {
+			
+			section.find('#save').show();
+			
 			var uploadItem=section.children('.upload-list-item:first').clone();
 			
-			uploadItem.appendTo(section).removeClass('hidden')
+			uploadItem.appendTo(section.find('#upload-info')).removeClass('hidden')
 				.attr('id',data.result.data.id).children('[name="document[name]"]').val(data.result.data.name);
 
 			uploadItem.find('select').each(function(index,object){

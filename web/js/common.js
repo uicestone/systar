@@ -292,11 +292,38 @@ $(document)
 	aside.on('sidebarload','section',function(){
 		var section=$(this);
 		/*边栏普通提交按钮（提交给当前page地址，以刷新page）*/
-		section.find('button:submit:not(.major)').on('click',function(event){
+		section.find('button:submit').on('click',function(event){
+			console.log('aside button clicked');
 			
 			event.preventDefault();
 			
-			$.post($(this).closest('section').attr('for'),$(this).closest('section').find(':input').serialize()+'&submit='+$(this).attr('name'));
+			if($(this).is('[name^="submit"]')){
+				/*边栏主要提交按钮（提交到controller/submit/{submit_name}/{item_id}）*/
+				var pageSection = page.children('section[hash="'+hash+'"]');
+				var form = pageSection.children('form');
+				var formData=form.serialize();
+
+				var asideSection = aside.children('section[for="'+hash+'"]');
+				var asideData=asideSection.find(':input').serialize();
+
+				var id = form.attr('id');
+				var submit = $(this).attr('name').replace('submit[','').replace(']','');
+
+				var postURI='/'+controller+'/submit/'+submit;
+
+				if(id){
+					postURI+='/'+id;
+				}
+
+				$.post(postURI,formData+'&'+asideData,function(response){
+					if(response.status==='close'){
+						$.closeTab(hash);
+					}
+				});
+			}
+			else{
+				$.post($(this).closest('section').attr('for'),$(this).closest('section').find(':input').serialize()+'&submit='+$(this).attr('name'));
+			}
 
 		});
 		
@@ -335,42 +362,6 @@ $(document)
 				
 			});
 		});
-		
-		/*边栏选框自动提交*/
-		section.find('select.filter[method!="get"]').on('change',function(){
-			post($(this).attr('name'),$(this).val());
-		});
-		/*边栏选框自动提交*/
-		section.find('select.filter[method="get"]').on('change',function(){
-			redirectPara($(this));
-		});
-		
-		/*边栏主要提交按钮（提交到controller/submit/{submit_name}/{item_id}）*/
-		section.find('button:submit.major').on('click',function(event){
-			var pageSection = page.children('section[hash="'+hash+'"]');
-			var form = pageSection.children('form');
-			var formData=form.serialize();
-			
-			var asideSection = aside.children('section[for="'+hash+'"]');
-			var asideData=asideSection.find(':input').serialize();
-
-			var id = form.attr('id');
-			var submit = $(this).attr('name').replace('submit[','').replace(']','');
-
-			var postURI='/'+controller+'/submit/'+submit;
-
-			if(id){
-				postURI+='/'+id;
-			}
-
-			$.post(postURI,formData+'&'+asideData,function(response){
-				if(response.status==='close'){
-					$.closeTab(hash);
-				}
-			});
-			
-			event.preventDefault();
-		});	
 		
 		/*任务列表拖放*/
 		section.find( ".sortable.column" ).sortable({
@@ -466,6 +457,9 @@ $(document)
 .on('change',':checkbox',function(){
 	var text=$(this).is(':checked')?$(this).attr('text-checked'):$(this).attr('text-unchecked');
 	$(this).next('.ui-button').children('.ui-button-text').html(text);
+})
+.on('drop dragover', function(event){
+	event.preventDefault();
 });
 
 function changeURLPar(url,par,par_value){

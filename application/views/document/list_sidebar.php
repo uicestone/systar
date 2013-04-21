@@ -26,3 +26,5 @@
 	</select>
 	<hr />
 </p>
+<div id="upload-info"></div>
+<button type="submit" id="save" class="major hidden">保存</button>
