@@ -1,4 +1,4 @@
-<?=doctype()?>
+<?=doctype('html5')?>
 
 <html xmlns="http://www.w3.org/1999/xhtml" id="content">
 <head>

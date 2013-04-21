@@ -1,1 +1,1 @@
-<button type="submit" name="profile" class="major">保存</button>
+<button type="submit" name="submit[profile]" class="major">保存</button>

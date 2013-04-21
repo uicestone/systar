@@ -11,6 +11,7 @@ class SS_input extends CI_Input{
 	 * $this->input->post('submit/newcase')
 	 */
 	function post($index = NULL, $xss_clean = FALSE){
+
 		if(is_null($index)){
 			return parent::post($index, $xss_clean);
 		

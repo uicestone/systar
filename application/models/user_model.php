@@ -93,15 +93,15 @@ class User_model extends People_model{
 	}
 	
 	function verify($username,$password){
-		$q_user="
-			SELECT id,name,password,`group`,lastip,lastlogin,company
-			FROM user 
-			WHERE (name = '$username' OR alias='$username')
+		$this->db->select('id,name,password,`group`,lastip,lastlogin,company')
+			->from('user')
+			->where("
+				(name = '$username' OR alias='$username')
 				AND (password = '$password' OR password IS NULL)
 				AND company={$this->company->id}
-			";
+			",NULL,FALSE);
 		
-		$user=$this->db->query($q_user)->row_array();
+		$user=$this->db->get()->row_array();
 		
 		if(empty($user)){
 			return false;
@@ -151,22 +151,14 @@ class User_model extends People_model{
 		);
 	}
 	
-	function updatePassword($user_id,$new_password=NULL,$new_username=NULL){
-		$user_id=intval($user_id);
+	function updatePassword($user_id,$new_password){
 		
-		if(isset($new_password)){
-			return $this->db->update('user',array('password'=>$new_password),array('id'=>$user_id));
-		}
+		return $this->db->update('user',array('password'=>$new_password),array('id'=>$user_id));
 		
-		if(isset($new_username)){
-			if($this->db->update('user',array('username'=>$new_username),array('id'=>$user_id)) && $this->db->affected_rows()){
-				$this->output->message('成功修改用户名');
-			}else{
-				return false;
-			}
-		}
-		
-		return true;
+	}
+	
+	function updateUsername($user_id,$new_username){
+		return $this->db->update('user',array('name'=>$new_username),array('id'=>$user_id));
 	}
 	
 	/**

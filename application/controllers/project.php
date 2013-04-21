@@ -147,8 +147,13 @@ class Project extends SS_controller{
 			if($this->config->item('project/index/search/type')!==false){
 				$data['type']=$this->config->item('project/index/search/type');
 			}
+			if($this->input->get('labels')!==false){
+				$labels=explode(' ',urldecode($this->input->get('labels')));
+				$this->config->set_user_item('search/labels', $labels, false);
+			}
 			$this->project->id=$this->project->add($data);
 			$this->project->addPeople($this->project->id, $this->user->id, NULL, '创建人');
+			$this->project->updateLabels($this->project->id, $this->config->user_item('search/labels'));
 		}
 		
 		$this->edit($this->project->id);

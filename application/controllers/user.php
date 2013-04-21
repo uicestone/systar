@@ -8,7 +8,7 @@ class user extends SS_controller{
 		parent::__construct();
 		
 		$this->load->model('people_model','people');
-
+		
 		if($this->company->ucenter){
 			require APPPATH.'third_party/ucenter_client/config.php';
 			require APPPATH.'third_party/ucenter_client/client.php';
@@ -108,21 +108,31 @@ class user extends SS_controller{
 		try{
 			
 			if($submit=='profile'){
-				
-				if($this->input->post('user/password')){
-					$this->user->updatePassword($this->user->id, $this->input->post('user/password_new'), $this->input->post('user/username')?$this->input->post('user/username'):NULL);
+				if($this->input->post('password_new')){
+					if($this->user->verify($this->user->name, $this->input->post('password'))===false){
+						throw new Exception('当前密码错误');
+					}
+					if($this->input->post('password_new')!==$this->input->post('password_new_confirm')){
+						throw new Exception('两次密码输入不一致');
+					}
+					$this->user->updatePassword($this->user->id, $this->input->post('password_new'));
 					$this->output->message('用户名/密码修改成功');
+				}
+				
+				if($this->input->post('username') && $this->input->post('username')!==$this->user->name){
+					$this->form_validation->set_rules('username','用户名','is_unique[user.name]');
+					if($this->form_validation->run()!==false){
+						$this->user->updateUsername($this->user->id, $this->input->post('username'));
+					}else{
+						throw new Exception(validation_errors());
+					}
 				}
 				
 				$people=$this->input->sessionPost('people');
 				$profiles=$this->input->sessionPost('people_profiles');
 				
-				$this->user->update($this->user->id,$people);
+				$this->people->update($this->user->id,$people);
 				$this->people->updateProfiles($this->user->id, $profiles);
-				
-				$this->output->message('你的报名信息已经保存，我们将在合适的时候联系你。你也可以随时回来补充资料，或是用“日程”功能为自己安排计划');
-				
-				unset($_SESSION['user']['post']);
 				
 				$this->output->message($this->section_title.' 已保存');
 			}
@@ -154,6 +164,9 @@ class user extends SS_controller{
 			}
 		}
 		catch (Exception $e){
+			if($e->getMessage()){
+				$this->output->message($e->getMessage(), 'warning');
+			}
 			$this->output->status='failed';
 		}
 		

@@ -23,7 +23,6 @@ ALTER TABLE `company_config`
 ALTER TABLE `user_config`
   ADD CONSTRAINT `user_config_ibfk_1` FOREIGN KEY (`user`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 -- structure exported
--- server updated
 
 alter table account drop summary;
 drop table account_team;
@@ -191,7 +190,6 @@ ALTER TABLE  `project` ADD  `active` BOOLEAN NOT NULL DEFAULT FALSE AFTER  `num`
 update project set active = 1;
 
 update project set active =0 where id in (select project from project_label where label_name = '案卷已归档');
--- server updated
 
 insert into schedule_profile (schedule,name,content,uid,time)
 select id,'心得',experience,uid,time from schedule where experience is not null and experience != '';
@@ -211,3 +209,8 @@ ALTER TABLE `schedule`
 ALTER TABLE  `schedule` CHANGE  `time_start`  `time_start` INT( 10 ) NULL DEFAULT NULL ,
 CHANGE  `time_end`  `time_end` INT( 10 ) NULL DEFAULT NULL ,
 CHANGE  `deadline`  `deadline` INT( 10 ) NULL DEFAULT NULL;
+
+ALTER TABLE  `user` ADD UNIQUE (
+`name`
+);
+-- server updated

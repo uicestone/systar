@@ -293,7 +293,6 @@ $(document)
 		var section=$(this);
 		/*边栏普通提交按钮（提交给当前page地址，以刷新page）*/
 		section.find('button:submit').on('click',function(event){
-			console.log('aside button clicked');
 			
 			event.preventDefault();
 			
