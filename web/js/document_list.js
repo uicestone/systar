@@ -11,6 +11,8 @@ $(function () {
         dataType: 'json',
         done: function (event, data) {
 			
+			$(document).setBlock(data.result);
+			
 			section.find('#save').show();
 			
 			var uploadItem=section.children('.upload-list-item:first').clone();
@@ -29,10 +31,29 @@ $(function () {
 					return '添加新标签：'+term;
 				};
 
-				$(object).select2(options);
+				$(object).select2(options)
+				.on('change',function(event,newLabel){
+					var id=$(this).parent('.upload-list-item').attr('id');
+					var label,method;
+
+					if(newLabel){
+						label=newLabel;
+						method='add';
+					}else if(event.added && id){
+						label=event.added.id;
+						method='add';
+					}else if(event.removed && id){
+						label=event.removed.id
+						method='remove';
+					}
+
+					if(method && id){
+						$.post('/'+controller+'/'+method+'label/'+id,{label:label});
+					}
+				});
 			});
 			
-			uploadItem.children(':input').on('change',function(){
+			uploadItem.children('[name="document[name]"]').on('change',function(){
 				var data = $(this).serialize();
 				$.post('/document/update/'+uploadItem.attr('id'),data);
 			});

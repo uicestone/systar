@@ -62,7 +62,7 @@ class People extends SS_Controller{
 
 		foreach ($result as $row){
 			$array[]=array(
-				'label'=>$row['name'].'    '.$row['type'],
+				'label'=>lang($row['type']).'　'.$row['name'],
 				'value'=>$row['id']
 			);
 		}
@@ -171,9 +171,10 @@ class People extends SS_Controller{
 				$this->people->data['staff_name']=$this->staff->fetch($this->people->data['staff'],'name');
 			}
 
-			$this->load->addViewArrayData(compact('controller','profiles','available_options','profile_name_options'));
+			$this->load->addViewArrayData(compact('controller','available_options','profile_name_options'));
 			$this->load->addViewData('people', $this->people->data);
 			$this->load->addViewData('labels', $this->people->labels);
+			$this->load->addViewData('profiles', $this->people->profiles);
 
 			if($this->input->post('character') && in_array($this->input->post('character'),array('个人','单位'))){
 				post('people/character', $this->input->post('character'));
@@ -332,7 +333,7 @@ class People extends SS_Controller{
 					}
 
 					$relative+=array(
-						'type'=>'客户',
+						'type'=>'client',
 						'abbreviation'=>$relative['name'],
 						'character'=>isset($relative['character']) && $relative['character'] == '单位' ? '单位' : '个人',
 						'profiles'=>$this->people->profiles,

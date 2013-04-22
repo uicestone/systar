@@ -153,7 +153,7 @@ class Project extends SS_controller{
 			}
 			$this->project->id=$this->project->add($data);
 			$this->project->addPeople($this->project->id, $this->user->id, NULL, '创建人');
-			$this->project->updateLabels($this->project->id, $this->config->user_item('search/labels'));
+			$this->project->addLabels($this->project->id, $this->config->user_item('search/labels'));
 		}
 		
 		$this->edit($this->project->id);
@@ -312,6 +312,8 @@ class Project extends SS_controller{
 				
 				$this->project->labels=$this->input->sessionPost('labels');
 				$this->project->update($this->project->id,$this->project->data);
+				$this->project->addLabels($this->project->id,$this->project->labels);
+				$this->project->updateLabels($this->project->id,$this->project->labels);
 				
 				unset($_SESSION[CONTROLLER]['post'][$this->project->id]);
 				$this->output->message($this->section_title.' 已保存');
@@ -433,7 +435,7 @@ class Project extends SS_controller{
 				
 				$this->document->update($document['id'], $document);
 				
-				$this->document->updateLabels($document['id'],$document_labels);
+				$this->document->addLabels($document['id'],$document_labels);
 				
 				$this->project->addDocument($this->project->id, $document['id']);
 				

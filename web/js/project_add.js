@@ -6,7 +6,7 @@ $(function(){
 	/*根据案件分类显示/隐藏案件阶段选项*/
 	section.find('[name="labels[分类]"]')
 	.on('change',function(){
-		if($(this).val()==='诉讼'){
+		if($(this).val()==='争议'){
 			$(this).siblings('[name="labels[阶段]"]').removeAttr('disabled').show();
 		}else{
 			$(this).siblings('[name="labels[阶段]"]').hide().attr('disabled','disabled');
@@ -76,14 +76,14 @@ $(function(){
 		
 		var addForm=$(this).parents('.add-form:first');
 
-		if($(this).val()==='相对方'){
+		if($(this).val()==='contact'){
 			addForm.find('[name="client_labels[类型]"]').hide().attr('disabled','disabled');
 		}else{
 			addForm.find('[name="client_labels[类型]"]').removeAttr('disabled').show();
 			$(this).siblings('[name="client_labels[类型]"]').getOptionsByLabelRelative($(this).val());
 		}
 
-		if($(this).val()==='客户'){
+		if($(this).val()==='client'){
 			addForm.find('[display-for~="client"]').trigger('enable');
 			addForm.find('[display-for~="non-client"]').trigger('disable');
 		}else{

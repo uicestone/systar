@@ -148,7 +148,7 @@ class Query extends Project{
 						)
 					);
 					
-					$this->query->addPeople($this->query->id,$client['id'],'客户');
+					$this->query->addPeople($this->query->id,$client['id'],'client');
 				}
 
 				if(!$this->query->labels['咨询方式']){

@@ -243,14 +243,17 @@ class BaseItem_model extends SS_Model{
 	}
 	
 	/**
-	 * 对于指定{item}，在{item}_label中写入一组label
-	 * 对于不存在的label，当场在label表中添加
-	 * @param int {item}_id
-	 * @param array $labels: array([$type=>]$name,...)
-	 * 如果给定的$labels参数中有一个或更多的整数键名
-	 * 那么本方法将首先删去该对象所有无type label，将$labels中的无type label添加到该对象下
+	 * 为一个对象添加一组标签
+	 * 已存在的标签不会被改变
+	 * 新标签会先在label表中注册
+	 * @param int $item_id
+	 * @param array $labels
+	 * array(
+	 *	[type=>]name,
+	 *	...
+	 * )
 	 */
-	function updateLabels($item_id,$labels){
+	function addLabels($item_id,array $labels){
 		$item_id=intval($item_id);
 		
 		//没有在参数列表中直接做出限制，用来兼容一些特殊情况
@@ -258,33 +261,37 @@ class BaseItem_model extends SS_Model{
 			return;
 		}
 		
-		//分离$labels中的整数键
-		$labels_without_type=array();
-		foreach($labels as $key => $name){
-			if(is_integer($key)){
-				$labels_without_type[]=$name;
-				unset($labels[$key]);
-			}
-		}
-		
-		//首先删除本对象的所有不带类别的标签
-		$this->db->delete($this->table.'_label',$this->table." = $item_id AND type IS NULL");
-
-		//然后依次插入新的标签
-		foreach($labels_without_type as $label_without_type){
-			$this->addLabel($item_id, $label_without_type);
-		}
-		
-		//剩下的$labels都是带类别的标签，根据类别来查找有无，然后插入或更新
 		foreach($labels as $type => $name){
-			
 			$label_id=$this->label->match($name);
 			$set=array('label'=>$label_id,'label_name'=>$name);
-			$where=array($this->table=>$item_id,'type'=>$type);
+			$where=array($this->table=>$item_id);
+			if(!is_integer($type)){
+				$where['type']=$type;
+			}
 			$result=$this->db->get_where($this->table.'_label',$where);
 			if($result->num_rows()===0){
 				$this->db->insert($this->table.'_label',$set+$where);
-			}else{
+			}
+		}
+	}
+	
+	/**
+	 * 为一个对象更新一组带类型的标签
+	 * @param int $item_id
+	 * @param array $labels
+	 * array(
+	 *	[type=>]name,
+	 *	...
+	 * )
+	 */
+	function updateLabels($item_id,array $labels){
+		$item_id=intval($item_id);
+		
+		foreach($labels as $type => $name){
+			if(!is_integer($type)){
+				$label_id=$this->label->match($name);
+				$set=array('label'=>$label_id,'label_name'=>$name);
+				$where=array($this->table=>$item_id,'type'=>$type);
 				$this->db->update($this->table.'_label',$set,$where);
 			}
 		}

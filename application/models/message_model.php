@@ -64,7 +64,9 @@ class Message_model extends BaseItem_model{
 			'message'=>$message
 		));
 		
-		return $this->db->insert_id();
+		$this->db->update('dialog',array('last_message'=>$message),array('id'=>$dialog));
+		
+		return $message;
 	}
 	
 	/**

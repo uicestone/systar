@@ -47,7 +47,7 @@
 				<?=checkbox('单位','client[character]',$this->value('client/character'),'单位','disabled="disabled"')?>
 
 				<select name="client[type]" disabled="disabled">
-					<?=options(in_array('客户已锁定',$labels)?array('联系人'):array('客户','联系人'),$this->value('client/type'),'人员类型');?>
+					<?=options(in_array('客户已锁定',$labels)?array('client'=>lang('client')):array('client'=>lang('client'),'contact'=>lang('contact')),$this->value('client/type'),'人员类型',true);?>
 				</select>
 
 				<select name="client_labels[类型]" disabled="disabled">

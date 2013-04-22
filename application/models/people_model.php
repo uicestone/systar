@@ -116,15 +116,13 @@ class People_model extends BaseItem_model{
 	}
 	
 	function getTypes(){
-		$query="
-			SELECT people.type,COUNT(*) AS hits
-			FROM people
-			WHERE people.company={$this->company->id}
-			GROUP BY people.type
-			ORDER BY hits DESC
-		";
+		$this->db->select('people.type,COUNT(*) AS hits')
+			->from('people')
+			->where('people.company',$this->company->id)
+			->group_by('people.type')
+			->order_by('hits','desc');
 		
-		return array_sub($this->db->query($query)->result_array(),'type');
+		return array_sub($this->db->get()->result_array(),'type');
 	}
 	
 	function addRelationship($people,$relative,$relation=NULL){

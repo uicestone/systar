@@ -659,7 +659,7 @@ jQuery.fn.setBlock=function(response){
 
 jQuery.fn.reset=function(){
 	$(this).find(':input').val('');
-	$(this).find('select').trigger('liszt:updated').find('option').removeAttr('checked');
+	$(this).find('select').find('option').removeAttr('checked');
 	$(this).find(':checkbox, :radio').removeAttr('checked');
 };
 

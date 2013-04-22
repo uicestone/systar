@@ -128,10 +128,6 @@ class Document extends SS_controller{
 		if($this->input->post('document')){
 			$this->document->update($id,$this->input->post('document'));
 		}
-		
-		if($this->input->post('labels')){
-			$this->document->updateLabels($id, $this->input->post('labels'));
-		}
 	}
 }
 ?>

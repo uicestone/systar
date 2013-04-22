@@ -214,3 +214,13 @@ ALTER TABLE  `user` ADD UNIQUE (
 `name`
 );
 -- server updated
+
+update people set type = 'student' where type = '学生';# 影响了 2606 行。
+
+update people set type = 'contact' where type = '联系人';# 影响了 189 行。
+
+update people set type = 'staff' where type = '职员';# 影响了 198 行。
+
+update people set type = 'client' where type = '客户';# 影响了 2841 行。
+
+update people set type = 'contact' where type = '相对方';# 影响了 158 行。

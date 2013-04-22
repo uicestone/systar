@@ -52,6 +52,10 @@ class SS_Controller extends CI_Controller{
 			$this->company_model_loaded=true;
 		}
 		
+		if(is_file(APPPATH.'language/chinese/'.$this->company->syscode.'_lang.php')){
+			$this->load->language($this->company->syscode);
+		}
+		
 		$this->output->as_ajax=$this->input->is_ajax_request();
 		
 		if(is_null($this->require_login)){
@@ -158,6 +162,8 @@ class SS_Controller extends CI_Controller{
 		
 		$this->$controller->addLabel($item_id, $label_name);
 	}
+	
+	function submit(){}
 	
 }
 ?>

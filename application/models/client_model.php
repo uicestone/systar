@@ -4,9 +4,9 @@ class Client_model extends People_model{
 		parent::__construct();
 	}
 	
-	function add($data=array('type'=>'客户')){
+	function add($data=array('type'=>'client')){
 		if(!isset($data['type'])){
-			$data['type']='客户';
+			$data['type']='client';
 		}
 		
 		return parent::add($data);
@@ -95,7 +95,7 @@ class Client_model extends People_model{
 			FROM people_profile 
 				INNER JOIN people ON people.id=people_profile.people
 			WHERE
-				people.type='客户' 
+				people.type='client' 
 				AND people_profile.name='电子邮件'
 		";
 		

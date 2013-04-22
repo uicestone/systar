@@ -24,7 +24,7 @@ class Client extends People{
 	}
 
 	function index(){
-		$this->config->set_user_item('search/type', '客户');
+		$this->config->set_user_item('search/type', 'client');
 		$this->config->set_user_item('search/in_same_project_with',$this->user->id,false);
 		
 		if(!$this->config->user_item('search/labels')){

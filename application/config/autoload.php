@@ -64,7 +64,7 @@ $autoload['libraries'] = array('database','date','session','table','user_agent')
 |	$autoload['helper'] = array('url', 'file');
 */
 
-$autoload['helper'] = array('array','date','form','html','string','db','session');
+$autoload['helper'] = array('array','date','form','html','language','string','db','session');
 
 if(ENVIRONMENT==='development'){
 	$autoload['helper'][]='develop';
@@ -99,7 +99,7 @@ $autoload['config'] = array();
 |
 */
 
-$autoload['language'] = array();
+$autoload['language'] = array('common');
 
 
 /*

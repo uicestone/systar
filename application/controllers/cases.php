@@ -176,6 +176,7 @@ class Cases extends Project{
 						throw new Exception;
 					}
 				}
+				
 			}
 			
 			elseif($submit=='client'){
@@ -196,7 +197,7 @@ class Cases extends Project{
 				if($project_client['client']){//autocomplete搜索到已有客户
 					$new_client_type=$this->client->fetch($project_client['client'],'type');
 					
-					if($new_client_type==='客户'){
+					if($new_client_type==='client'){
 						$recent_case=$this->cases->getList(array('people'=>$project_client['client'],'labels'=>array('案件'),'limit'=>1,'before'=>$this->cases->id));
 						
 						if(isset($recent_case[0])){
@@ -257,7 +258,7 @@ class Cases extends Project{
 						}
 					}
 
-					if($client['type']=='客户'){//客户必须输入来源
+					if($client['type']=='client'){//客户必须输入来源
 						if(!$client_profiles['来源类型']){
 							$this->output->message('请选择客户来源类型','warning');
 							throw new Exception;
@@ -286,14 +287,14 @@ class Cases extends Project{
 
 					$this->output->message(
 						'<a href="#'.
-						($client['type']=='客户'?'client':'contact').
+						$client['type'].
 						'/'.$project_client['client'].'">新'.
-						$client['type'].' '.$client['name'].
+						lang($client['type']).' '.$client['name'].
 						' 已经添加，点击编辑详细信息</a>'
 					);
 				}
 
-				if($this->cases->addPeople($this->cases->id,$project_client['client'],'客户',$project_client['role'])){
+				if($this->cases->addPeople($this->cases->id,$project_client['client'],'client',$project_client['role'])){
 					$this->output->setData($this->clientList(),'client-list','content-table','.item[name="client"]>.contentTable','replace');
 				}else{
 					$this->output->message('客户添加错误', 'warning');
@@ -502,7 +503,9 @@ class Cases extends Project{
 	
 	function consultant(){
 		
-		$this->config->set_user_item('search/labels', array('分类'=>'法律顾问'), false);
+		$this->section_title='法律顾问案件';
+		
+		$this->config->set_user_item('search/labels', array('分类'=>'法律顾问'));
 		
 		$this->index();
 	}

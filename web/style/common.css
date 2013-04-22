@@ -87,14 +87,17 @@ aside .select2-container{
 	margin-bottom: 5px;
 }
 .select2-container .select2-choice{
-	height:20px;
-	line-height:1.5;
+	height:2em;
+	line-height:2;
 	font-size:0.8em;
 }
 .select2-container .select2-choice div b, .select2-dropdown-open .select2-choice div b{
 	background-position-y: -3px;
 }
 .select2-container .select2-choice abbr{
+	top:0.4em;
+}
+.select2-search-choice-close{
 	top:3px;
 }
 /*主页面列表中的多选标签（用于标签）无右边距（用于显示“x”）*/

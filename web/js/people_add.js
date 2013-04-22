@@ -1,18 +1,6 @@
 $(function(){
 	var section = page.children('section[hash="'+hash+'"]');
 
-	section.find('[name="people[type]"]').on('change',function(){
-		if($(this).val()==='客户'){
-			$.post('/'+controller+'/submit/changetype/'+uriSegments[2],{type:$(this).val()},function(){
-				$.redirect(hash.replace(/^[^\/]*/,'client'));
-			});
-		}else if($(this).val()==='联系人'){
-			$.post('/'+controller+'/submit/changetype/'+uriSegments[2],{type:$(this).val()},function(){
-				$.redirect(hash.replace(/^[^\/]*/,'contact'));
-			});
-		}
-	});
-	
 	/*判别个人或单位，激活不同的表单*/
 	section.find('[name="people[character]"]').on('change',function(){
 		var character=$(this).is(':checked')?'单位':'个人';
