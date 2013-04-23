@@ -20,8 +20,6 @@
 		<button type="submit" name="submit[file]" class="major">归档</button>
 <? } ?>
 <?if(!in_array('已申请归档',$labels) && !in_array('案卷已归档',$labels) &&
-	in_array('在办',$labels) && 
-	in_array('类型已锁定',$labels) && 
 	in_array('客户已锁定',$labels) &&
 	in_array('职员已锁定',$labels) &&
 	in_array('费用已锁定',$labels)

@@ -416,7 +416,6 @@ class Cases extends Project{
 				$this->cases->update($this->cases->id,array(
 					'time_end'=>$this->date->today
 				));
-				$this->output->status='refresh';
 				$this->output->message('归档申请已接受');
 			}
 			
