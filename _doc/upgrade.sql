@@ -224,3 +224,7 @@ update people set type = 'staff' where type = '职员';# 影响了 198 行。
 update people set type = 'client' where type = '客户';# 影响了 2841 行。
 
 update people set type = 'contact' where type = '相对方';# 影响了 158 行。
+
+ALTER TABLE  `people` ADD  `name_pinyin` VARCHAR( 255 ) NOT NULL AFTER  `name_en`;
+
+ALTER TABLE  `people` ADD INDEX (  `name_pinyin` );

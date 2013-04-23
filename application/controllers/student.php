@@ -18,7 +18,7 @@ class Student extends People{
 			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->people,'getCompiledLabels'),'args'=>array('{id}')))
 		);
 		
-		$this->config->set_user_item('search/type', '学生', false);
+		$this->config->set_user_item('search/type', ' student', false);
 		
 		if($this->input->get('update')){
 			$this->student->updateView();

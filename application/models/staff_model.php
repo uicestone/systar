@@ -85,7 +85,7 @@ class Staff_model extends People_model{
 			SELECT people.id,people.name 
 			FROM people
 			WHERE people.company={$this->company->id} AND people.display=1 
-				AND type='职员'
+				AND type='staff'
 				AND (name LIKE '%$part_of_name%' OR abbreviation LIKE '$part_of_name' OR name_en LIKE '%$part_of_name%')
 			ORDER BY people.id DESC
 		";

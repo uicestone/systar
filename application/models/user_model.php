@@ -67,7 +67,7 @@ class User_model extends People_model{
 	}
 	
 	function add($data=array()){
-		$data['type']='学生';
+		$data['type']='student';
 		$user_id=parent::add($data);
 
 		$data['group']='candidate';
