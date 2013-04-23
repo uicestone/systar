@@ -461,7 +461,7 @@ $(document)
 	event.preventDefault();
 });
 
-function changeURLPar(url,par,par_value){
+jQuery.changeURLPar=function(url,par,par_value){
 	//为url添加/更改变量名和值，并返回
 
 	var pattern = '[^&^?]*'+par+'=[^&]*';
@@ -480,7 +480,7 @@ function changeURLPar(url,par,par_value){
 	return url+'\n'+par+'\n'+par_value;
 }
 
-function unsetURLPar(url,par){
+jQuery.unsetURLPar=function(url,par){
 	//删除url中的指定变量，并返回
 	var regUnsetPara=new RegExp('\\?'+par+'$|\\?'+par+'=[^&]*$|'+par+'=[^&]*\\&*|'+par+'&|'+par+'$');
 	return url.replace(regUnsetPara,'');

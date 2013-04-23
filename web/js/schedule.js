@@ -3,7 +3,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 		start:null,
 		end:null,
 		allDay:null,
-		selection:null,
+		target:null,/*dialog positioning target*/
 		position:{
 			my:'left bottom',
 			at:'right top',
@@ -11,27 +11,28 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 		},
 		dialogClass:'shadow schedule-form',
 		autoOpen:true,
-		close:null,
+		close:null,/*function on close*/
 		title:'新日程',
 		content:'',
 		id:null,
 		project:null,
-		buttons:null,
-		method:null,
-		event:{},
+		buttons:[],
+		method:null,/*schedule method: create, view or edit*/
+		event:{},/*event object for fullCalendar*/
 		calendar:null/*日历对象，可用来判断是否从日历调取*/
 	},
 	_create:function(){
 		var that=this;
 		
-		if(this.options.selection){
-			this.options.position.of=this.options.selection;
+		if(this.options.target){
+			this.options.position.of=this.options.target;
 		}
 		
 		this.options.close=function(){
 			if(that.options.calendar){
 				that.options.calendar.fullCalendar('unselect');
 			}
+			that._destroy();
 			that.element.remove();
 		};
 		
@@ -134,7 +135,15 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 		switch(this.options.method){
 			case 'view':uri='/schedule/view/'+this.options.id;break;
 			case 'create':uri='/schedule/edit';break;
-			case 'edit':uri='/schedule/'+this.options.id;break;
+			case 'edit':uri='/schedule/edit/'+this.options.id;break;
+		}
+		
+		if(this.options.project){
+			$.changeUrlPar(uri,'project','0');
+		}
+		
+		if(!this.options.start && !this.options.end){
+			$.changeUrlPar(uri,'period','1');
 		}
 		
 		$.get(uri,function(response){

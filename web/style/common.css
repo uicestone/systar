@@ -92,7 +92,7 @@ aside .select2-container{
 	font-size:0.8em;
 }
 .select2-container .select2-choice div b, .select2-dropdown-open .select2-choice div b{
-	background-position-y: -3px;
+	background-position-y: -.1em;
 }
 .select2-container .select2-choice abbr{
 	top:0.4em;
@@ -280,6 +280,9 @@ nav .arrow{
 }
 .schedule-form .ui-dialog-content,.schedule-form .ui-dialog-content input,.schedule-form .ui-dialog-content select,.schedule-form .ui-dialog-content textarea{
 	line-height:1.5;
+}
+.schedule-form>.ui-dialog-content>.select2-container{
+	margin-bottom:5px;
 }
 .schedule-form .ui-dialog-buttonpane{
 	padding:0;
