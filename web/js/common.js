@@ -272,16 +272,51 @@ $(document)
 		}).disableSelection();
 
 		section.find('select.chosen').each(function(index,object){
-			var options={};
+			var options={dropdownCss:{minWidth:100}};
 			if($(object).is('.allow-new')){
-				options.allowClear=true;
-				options.formatNoMatches=function(term){
-					var that=this;
-					this.element.data().select2.results.off('.addnewoption').on('click.addnewoption',function(){
-						that.element.append($('<option/>',{text:term,value:term,selected:'selected'})).trigger('change');
-					});
-					return '添加新标签：'+term;
-				};
+				options.extend({
+					createSearchChoice:function(term,results){
+						if(typeof results==='undefined'){
+							return {id:term,text:term,create:true};
+						}
+
+						var options=[];
+						$.each(results,function(){
+							options.push(this.text);
+						});
+
+						if($.inArray(term,options)===-1){
+							return {id:term,text:term,create:true};
+						}
+					},
+					formatSelection:function(object,container){
+						if(this.element.find('option[value="'+object.id+'"]').length===0){
+							this.element.append($('<option/>',{value:object.id,text:object.text}));
+
+							if(this.element.is('[multiple]')){
+								var val=this.element.val();
+								val.push(object.id);
+								this.element.val(val);
+							}
+							else{
+								this.element.val(object.id);
+							}
+
+						}
+						return object.text;
+					},
+					formatResult:function(object,container,query){
+						if(object.create){
+							return '添加：'+object.text;
+						}
+						else if(object.text){
+							return object.text;
+						}
+						else{
+							return object.id;
+						}
+					}
+				});
 			}
 			
 			$(object).select2(options);
@@ -327,16 +362,51 @@ $(document)
 		});
 		
 		section.find('select.chosen').each(function(index,object){
-			var options={};
+			var options={dropdownCss:{minWidth:100}};
 			if($(object).is('.allow-new')){
-				options.allowClear=true;
-				options.formatNoMatches=function(term){
-					var that=this;
-					this.element.data().select2.results.off('.addnewoption').on('click.addnewoption',function(){
-						that.element.append($('<option/>',{text:term,value:term,selected:'selected'})).trigger('change',term);
-					});
-					return '添加新标签：'+term;
-				};
+				options.extend({
+					createSearchChoice:function(term,results){
+						if(typeof results==='undefined'){
+							return {id:term,text:term,create:true};
+						}
+
+						var options=[];
+						$.each(results,function(){
+							options.push(this.text);
+						});
+
+						if($.inArray(term,options)===-1){
+							return {id:term,text:term,create:true};
+						}
+					},
+					formatSelection:function(object,container){
+						if(this.element.find('option[value="'+object.id+'"]').length===0){
+							this.element.append($('<option/>',{value:object.id,text:object.text}));
+
+							if(this.element.is('[multiple]')){
+								var val=this.element.val();
+								val.push(object.id);
+								this.element.val(val);
+							}
+							else{
+								this.element.val(object.id);
+							}
+
+						}
+						return object.text;
+					},
+					formatResult:function(object,container,query){
+						if(object.create){
+							return '添加：'+object.text;
+						}
+						else if(object.text){
+							return object.text;
+						}
+						else{
+							return object.id;
+						}
+					}
+				});
 			}
 			
 			$(object).select2(options)
@@ -443,15 +513,6 @@ $(document)
 
 	return false;
 })
-.on('click','.portlet',function(){
-	var event={id:$(this).attr('id')};
-	$.viewSchedule({id:event.id,selection:this});
-})
-.on('click','.portlet-header .ui-icon',function(event){
-	event.stopPropagation();
-	$( this ).toggleClass( "ui-icon-minusthick" ).toggleClass( "ui-icon-plusthick" );
-	$( this ).parents( ".portlet:first" ).find( ".portlet-content" ).toggle();
-})
 /*toggle button文字根据change时间显示*/
 .on('change',':checkbox',function(){
 	var text=$(this).is(':checked')?$(this).attr('text-checked'):$(this).attr('text-unchecked');
@@ -461,7 +522,7 @@ $(document)
 	event.preventDefault();
 });
 
-jQuery.changeURLPar=function(url,par,par_value){
+jQuery.changeUrlPar=function(url,par,par_value){
 	//为url添加/更改变量名和值，并返回
 
 	var pattern = '[^&^?]*'+par+'=[^&]*';

@@ -724,7 +724,7 @@ the specific language governing permissions and limitations under the Apache Lic
 
             if (select) {
                 // these options are not allowed when attached to a select because they are picked up off the element itself
-                $.each(["id", "multiple", "ajax", "query", "createSearchChoice", "initSelection", "data", "tags"], function () {
+                $.each(["id", "multiple", "ajax", "query", /*"createSearchChoice", uicestone 2013 4/24*/ "initSelection", "data", "tags"], function () {
                     if (this in opts) {
                         throw new Error("Option '" + this + "' is not allowed for Select2 when attached to a <select> element.");
                     }
@@ -1445,7 +1445,8 @@ the specific language governing permissions and limitations under the Apache Lic
                             function () {
                                 return equal(self.id(this), self.id(def));
                             }).length === 0) {
-                            data.results.unshift(def);
+                            /*data.results.unshift(def); uicestone 2013/4/24让新增选项位于其他选项之后*/
+							data.results.push(def);
                         }
                     }
                 }

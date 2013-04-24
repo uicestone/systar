@@ -213,6 +213,40 @@ CHANGE  `deadline`  `deadline` INT( 10 ) NULL DEFAULT NULL;
 ALTER TABLE  `user` ADD UNIQUE (
 `name`
 );
+
+update people set type = 'student' where type = '学生';
+
+update people set type = 'contact' where type = '联系人';
+
+update people set type = 'staff' where type = '职员';
+
+update people set type = 'client' where type = '客户';
+
+update people set type = 'contact' where type = '相对方';
+
+ALTER TABLE  `people` ADD  `name_pinyin` VARCHAR( 255 ) NOT NULL AFTER  `name_en`;
+
+ALTER TABLE  `people` ADD INDEX (  `name_pinyin` );
+
+ALTER TABLE  `schedule` ADD  `in_todo_list` BOOLEAN NOT NULL DEFAULT TRUE AFTER  `completed`;
+
+update people set type = 'student' where type = '学生';
+
+update people set type = 'contact' where type = '联系人';
+
+update people set type = 'staff' where type = '职员';
+
+update people set type = 'client' where type = '客户';
+
+update people set type = 'contact' where type = '相对方';
+
+ALTER TABLE  `people` ADD  `name_pinyin` VARCHAR( 255 ) NOT NULL AFTER  `name_en`;
+
+ALTER TABLE  `people` ADD INDEX (  `name_pinyin` );
+
+ALTER TABLE  `schedule` ADD  `in_todo_list` BOOLEAN NOT NULL DEFAULT TRUE AFTER  `completed`;
+
+ALTER TABLE  `project_document` CHANGE  `username`  `username` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
 -- server updated
 
 update people set type = 'student' where type = '学生';# 影响了 2606 行。

@@ -1,5 +1,5 @@
 <textarea name="content" placeholder="日程概要" style="width:97%"><?=$this->value('schedule/content')?></textarea>
-<?if(!(int)$this->input->get('project')){?>
+<?if($this->input->get('project')===false || $this->input->get('project')){?>
 <br />
 <select name="project" data-placeholder="相关事务" style="width:97%">
 	<?=options($this->project->getArray(array('people'=>$this->user->id),'name','id'),$this->value('project/id'),'',true)?>
