@@ -274,7 +274,7 @@ $(document)
 		section.find('select.chosen').each(function(index,object){
 			var options={dropdownCss:{minWidth:100}};
 			if($(object).is('.allow-new')){
-				options.extend({
+				$.extend(options,{
 					createSearchChoice:function(term,results){
 						if(typeof results==='undefined'){
 							return {id:term,text:term,create:true};
@@ -364,7 +364,7 @@ $(document)
 		section.find('select.chosen').each(function(index,object){
 			var options={dropdownCss:{minWidth:100}};
 			if($(object).is('.allow-new')){
-				options.extend({
+				$.extend(options,{
 					createSearchChoice:function(term,results){
 						if(typeof results==='undefined'){
 							return {id:term,text:term,create:true};
