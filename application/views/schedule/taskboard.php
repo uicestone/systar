@@ -13,3 +13,4 @@
 		</div>
 	<? } ?>
 </div>
+<?=javascript('schedule_list')?>

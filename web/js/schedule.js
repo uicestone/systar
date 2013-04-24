@@ -62,12 +62,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 				title:'添加到任务列表',
 				click:function(){
 					$.get('/schedule/addtotaskboard/'+that.options.id,function(){
-						var clone=aside.children('[for="schedule"]').children('.column').children('.portlet:first').clone();
-						clone.attr('id',that.options.id)
-						clone.children('.portlet-header').text(that.options.title);
-						clone.children('.portlet-content').html(that.options.content);
-						clone.appendTo(aside.children('[for="schedule"]').children('.column')).show();
-						that.element.schedule('close');
+						$.refresh(hash);
 					});
 				}
 			});
@@ -134,7 +129,15 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 		switch(this.options.method){
 			case 'view':uri='/schedule/view/'+this.options.id;break;
 			case 'create':uri='/schedule/edit';break;
-			case 'edit':uri='/schedule/'+this.options.id;break;
+			case 'edit':uri='/schedule/edit/'+this.options.id;break;
+		}
+		
+		if(this.options.project){
+			uri=$.changeUrlPar(uri,'project','0');
+		}
+		
+		if(!this.options.start && !this.options.end){
+			uri=$.changeUrlPar(uri,'period','1');
 		}
 		
 		$.get(uri,function(response){
@@ -290,10 +293,10 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 
 
 jQuery.each(['createSchedule','viewSchedule'],function(i,method){
-	jQuery[method]=function(args){console.log(args);
+	jQuery[method]=function(args){
 		if(method==='viewSchedule'){
 			$.extend(args,{method:'view'});
 		}
-		$('<div/>').appendTo(document).schedule(args);
+		$('<div/>').appendTo('body').schedule(args);
 	}
 });

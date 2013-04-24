@@ -93,15 +93,6 @@ $(function(){
 
 	});
 
-	//响应案下客户的本案地位的"其他"选项
-	section.find('select[name="case_client[role]"]').on('change',function(){
-		if($(this).val()===''){
-			$(this).after('<input type="text" name="case_client[role]" placeholder="本案地位" />');
-		}else{
-			$('input[name="case_client[role]"]').remove();
-		}
-	});
-
 	//响应客户来源选项
 	section.find('[name="client_profiles[来源类型]"]').on('change',function(){
 		if($.inArray($(this).val(),['其他网络','媒体','老客户介绍','合作单位介绍','其他'])===-1){

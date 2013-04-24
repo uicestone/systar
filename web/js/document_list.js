@@ -19,17 +19,52 @@ $(function () {
 				.attr('id',data.result.data.id).children('[name="document[name]"]').val(data.result.data.name);
 
 			uploadItem.find('select').each(function(index,object){
-				var options={};
-				options.allowClear=true;
-				options.formatNoMatches=function(term){
-					var that=this;
-					this.element.data().select2.results.off('.addnewoption').on('click.addnewoption',function(){
-						that.element.append($('<option/>',{text:term,value:term,selected:'selected'})).trigger('change');
-					});
-					return '添加新标签：'+term;
-				};
+			var options={
+				dropdownCss:{minWidth:100},
+				createSearchChoice:function(term,results){
+					if(typeof results==='undefined'){
+						return {id:term,text:term,create:true};
+					}
 
-				$(object).select2(options);
+					var options=[];
+					$.each(results,function(){
+						options.push(this.text);
+					});
+
+					if($.inArray(term,options)===-1){
+						return {id:term,text:term,create:true};
+					}
+				},
+				formatSelection:function(object,container){
+					if(this.element.find('option[value="'+object.id+'"]').length===0){
+						this.element.append($('<option/>',{value:object.id,text:object.text}));
+
+						if(this.element.is('[multiple]')){
+							var val=this.element.val();
+							val.push(object.id);
+							this.element.val(val);
+						}
+						else{
+							this.element.val(object.id);
+						}
+
+					}
+					return object.text;
+				},
+				formatResult:function(object,container,query){
+					if(object.create){
+						return '添加：'+object.text;
+					}
+					else if(object.text){
+						return object.text;
+					}
+					else{
+						return object.id;
+					}
+				}
+			};
+			
+			$(object).select2(options)
 			});
 			
 			uploadItem.children(':input').on('change',function(){

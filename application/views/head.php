@@ -23,7 +23,7 @@
 	<?=javascript('jQuery/highcharts/highcharts')?>
 	
 	<?=stylesheet('js/jQuery/select2/select2')?>
-	<?=javascript('jQuery/select2/select2.min')?>
+	<?=javascript('jQuery/select2/select2')?>
 	<?=javascript('jQuery/select2/select2_locale_zh-CN')?>
 	
 	<?=javascript('jQuery/jquery.iframe-transport')?>

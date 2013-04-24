@@ -470,7 +470,7 @@ section>form>.submit{
 	text-align:center;
 }
 .add-form>*{
-	vertical-align: top;
+	vertical-align: middle;
 }
 
 /*任务块*/
