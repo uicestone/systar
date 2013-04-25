@@ -127,9 +127,21 @@ class Schedule_model extends BaseItem_model{
 		
 		$data=array_intersect_key($data, self::$fields);
 		
+		//attemp to convert date string to timestamp
+		foreach(array('time_start','time_end','deadline') as $timepoint){
+			if(isset($data[$timepoint]) && !is_integer($data[$timepoint])){
+				$data[$timepoint]=strtotime($data[$timepoint]);
+				if($data[$timepoint]===false){
+					return false;
+				}
+			}
+		}
+		
+		//generate  hours automatically on time
 		if(isset($data['time_start']) && isset($data['time_end'])){
 			$data['hours_own'] = round(($data['time_end']-$data['time_start'])/3600,2);
-		}else{
+		}
+		else{
 			$data['in_todo_list']=true;
 		}
 
@@ -144,7 +156,21 @@ class Schedule_model extends BaseItem_model{
 	
 	function update($schedule_id,$data){
 		$schedule_id=intval($schedule_id);
-
+		
+		//attemp to convert date string to timestamp
+		foreach(array('time_start','time_end','deadline') as $timepoint){
+			if(isset($data[$timepoint]) && !is_integer($data[$timepoint])){
+				$data[$timepoint]=strtotime($data[$timepoint]);
+				if($data[$timepoint]===false){
+					return false;
+				}
+			}
+		}
+		
+		if(isset($data['time_start']) && isset($data['time_end'])){
+			$data['hours_own'] = round(($data['time_end']-$data['time_start'])/3600,2);
+		}
+		
 		$data=array_intersect_key($data, self::$fields);
 		
 		return $this->db->update('schedule',$data,array('id'=>$schedule_id));

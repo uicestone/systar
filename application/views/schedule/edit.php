@@ -15,10 +15,10 @@
 ),'name','id'),$people,NULL,true)?></select>
 <br />
 <?if($this->input->get('period')){?>
-<input type="text" name="from" class="datetime" placeholder="开始" style="width:48%" />
-<input type="text" name="to" class="datetime" placeholder="结束" style="width:48%" /><br />
+<input type="text" name="time_start" value="<?=$this->value('schedule/time_start')?>" class="datetime" placeholder="开始" style="width:48%" />
+<input type="text" name="time_end" value="<?=$this->value('schedule/time_end')?>" class="datetime" placeholder="结束" style="width:48%" /><br />
 <?}?>
-<input type="text" name="deadline" class="datetime" placeholder="截止" style="width:98%" /><br />
+<input type="text" name="deadline" value="<?=$this->value('schedule/deadline')?>" class="datetime" placeholder="截止" style="width:98%" /><br />
 <div class="profile hidden">
 	<select class="profile-name" style="width:23%">
 		<?=options(array('外出地点','费用金额','费用用途','备注'),NULL)?>

@@ -107,29 +107,19 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			}
 		];
 		
-		if(this.options.calendar){
+		if(this.options.calendar || this.options.taskboard){
 			this.options.buttons.unshift({
 				text:'>',
 				tabIndex:-1,
 				title:'添加到任务列表',
 				click:function(){
-					$.get('/schedule/addtotaskboard/'+that.options.id,function(){
+					$.post('/schedule/writecalendar/update/'+that.options.id,{in_todo_list:1},function(){
 						$.refresh(hash);
 					});
-				}
-			});
-		}
-		else if(this.options.taskboard){
-			this.options.buttons.unshift({
-				text:'x',
-				tabIndex:-1,
-				title:'从任务墙移除',
-				click:function(){
-					$.get('/schedule/removefromtaskboard/'+that.options.id,function(){
-						aside.children('[for="schedule"]').children('.column').children('.portlet#'+that.options.id).remove();
+					if(that.options.taskboard){
 						that.element.schedule('close');
-					});
-					$.refresh(hash);
+						$.get('/schedule/removefromtaskboard/'+that.options.id);
+					}
 				}
 			});
 		}

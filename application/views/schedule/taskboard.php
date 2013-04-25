@@ -25,6 +25,11 @@ $(function(){
 				taskSort.push($(this).sortable('toArray',{attribute:'event-id'}));
 			});
 			$.post('/schedule/settaskboardsort',{sortData:taskSort});
+		},
+		receive:function(event,ui){
+			$.post('/schedule/writecalendar/update/'+ui.sender.attr('event-id'),{in_todo_list:0},function(){
+				ui.sender.hide();
+			});
 		}
 	}).disableSelection();
 });
