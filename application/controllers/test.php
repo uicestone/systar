@@ -5,7 +5,9 @@ class Test extends SS_controller{
 	}
 	
 	function index(){
-		print_r($this->session->all_userdata());
+		$this->load->model('schedule_model','schedule');
+		$this->schedule->setTaskBoardSort(array(3=>array(1100),2=>array(1100)),$this->user->id);
+		//print_r($this->session->all_userdata());
 		//print_r($this->user);
 	}
 	
@@ -27,8 +29,8 @@ class Test extends SS_controller{
 	}
 	
 	/**
-		* CDS示例代码，id为4的用户在case栏目里搜索"一审"、"诉讼"、"法律"
-		*/
+	 * CDS示例代码，id为4的用户在case栏目里搜索"一审"、"诉讼"、"法律"
+	 */
 	function cds(){
 		$keywords=array('一审','诉讼','法律');
 		$hasError=false;

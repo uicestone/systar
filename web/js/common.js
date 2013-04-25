@@ -259,18 +259,6 @@ $(document)
 		
 		});
 				
-		/*任务列表拖放*/
-		section.find( ".sortable.column" ).sortable({
-			connectWith: ".sortable.column",
-			stop:function(event,ui){
-				var taskSort=[];
-				$(".sortable.column").each(function(){
-					taskSort.push($(this).sortable( "toArray"));
-				});
-				$.post('/schedule/settaskboardsort',{sortData:taskSort});
-			}
-		}).disableSelection();
-
 		section.find('select.chosen').each(function(index,object){
 			var options={dropdownCss:{minWidth:100}};
 			if($(object).is('.allow-new')){
@@ -295,6 +283,9 @@ $(document)
 
 							if(this.element.is('[multiple]')){
 								var val=this.element.val();
+								if(!val){
+									val=[];
+								}
 								val.push(object.id);
 								this.element.val(val);
 							}
@@ -432,22 +423,6 @@ $(document)
 			});
 		});
 		
-		/*任务列表拖放*/
-		section.find( ".sortable.column" ).sortable({
-			connectWith: ".sortable.column",
-			stop:function(event,ui){
-				var taskSort=[];
-				$(".sortable.column").each(function(){
-					taskSort.push($(this).sortable( "toArray"));
-				});
-				$.post('/schedule/settaskboardsort',{sortData:taskSort});
-			}
-		}).disableSelection();
-		
-		section.find('.draggable.portlet').draggable({
-			helper: 'clone'
-		});
-		
 	});
 
 	tabs
@@ -472,6 +447,7 @@ $(document)
 	event.stopPropagation();
 	$(this).find('[placeholder]').placeholder();
 	$(this).find('.date[type="text"]').datepicker();
+	$(this).find('.datetime[type="text"]').datepicker({constrainInput:false});
 	$(this).find('.birthday[type="text"]').datepicker({
 		changeMonth: true,
 		changeYear: true

@@ -79,13 +79,23 @@ $(function(){
 				time_end:date.getTime()/1000+3600,
 				all_day:Number(allDay)
 			};
-			$.post('/schedule/writecalendar/update/'+jsEvent.target.id,data,function(response){
+			$.post('/schedule/writecalendar/update/'+$(jsEvent.target).attr('event-id'),data,function(response){
 				event={
 					start:date,
 					end:new Date(date.getTime()+3600000),
+					allDay:allDay,
 					title:response.data.name,
 					id:response.data.id
 				};
+				if(event.completed){
+					event.color='#36C';
+				}else{
+					if(event.start.getTime()<new Date().getTime()){
+						event.color='#555';
+					}else{
+						event.color='#E35B00';
+					}
+				}
 				calendar.fullCalendar('renderEvent',event);
 			});
 		},

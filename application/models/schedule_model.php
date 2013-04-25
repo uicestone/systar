@@ -7,6 +7,7 @@ class Schedule_model extends BaseItem_model{
 		'time_start'=>'开始时间',
 		'time_end'=>'结束时间',
 		'deadline'=>'截止日期',
+		'in_todo_list'=>'在任务列表中',
 		'hours_own'=>'自报时长',
 		'hours_checked'=>'核准时长',
 		'hours_bill'=>'账单时长',
@@ -36,12 +37,13 @@ class Schedule_model extends BaseItem_model{
 	 * @param array $args
 	 * project
 	 * id_in_set
+	 * in_todo_list
 	 * completed
 	 * time array or boolean
 	 *	false
 	 *	array(
-	 *		from=>timestamp
-	 *		to=>timestamp
+	 *		from=>timestamp/date string/datetime string
+	 *		to=>timestamp/date string/datetime string
 	 *		format=>mysql date form string, or false (default: '%Y-%m-%d')
 	 *	)
 	 * in_project_of_people bool
@@ -64,6 +66,10 @@ class Schedule_model extends BaseItem_model{
 			$args['orderby']=false;
 		}
 		
+		if(isset($args['in_todo_list'])){
+			$this->db->where('schedule.in_todo_list',$args['in_todo_list']);
+		}
+		
 		if(isset($args['completed'])){
 			$this->db->where('schedule.completed',$args['completed']);
 		}
@@ -72,11 +78,25 @@ class Schedule_model extends BaseItem_model{
 			if($args['time']===false){
 				$this->db->where(array('time_start'=>NULL,'time_end'=>NULL));
 			}
-			if($args['time']['from']){
+			
+			if(isset($args['time']['from'])){
+				if(isset($args['time']['input_format']) && $args['time']['input_format']!=='timestamp'){
+					$args['time']['from']=strtotime($args['time']['from']);
+				}
 				$this->db->where('time_start >=',$args['time']['from']);
 			}
-			if($args['time']['to']){
-				$this->db->where('time_end <',$args['time']['end']);
+			
+			if(isset($args['time']['to'])){
+				if(isset($args['time']['input_format']) && $args['time']['input_format']!=='timestamp'){
+					$args['time']['to']=strtotime($args['time']['to']);
+				}
+				
+				if(isset($args['time']['input_format']) && $args['time']['input_format']==='date'){
+					$this->db->where('time_end <=',$args['time']['end']);
+				}else{
+					$this->db->where('time_end <',$args['time']['end']);
+				}
+				
 			}
 			
 			if(!isset($args['date']['form'])){
@@ -105,14 +125,12 @@ class Schedule_model extends BaseItem_model{
 	 */
 	function add(array $data=array()){
 		
-		if(isset($data['people'])){
-			$people=$data['people'];
-		}
-		
 		$data=array_intersect_key($data, self::$fields);
 		
 		if(isset($data['time_start']) && isset($data['time_end'])){
 			$data['hours_own'] = round(($data['time_end']-$data['time_start'])/3600,2);
+		}else{
+			$data['in_todo_list']=true;
 		}
 
 		$data['display']=1;
@@ -120,10 +138,6 @@ class Schedule_model extends BaseItem_model{
 		
 		$this->db->insert('schedule',$data);
 		$schedule_id=$this->db->insert_id();
-		
-		if(isset($people)){
-			$this->addPeople($schedule_id,$people);
-		}
 		
 		return $schedule_id;
 	}
@@ -159,6 +173,46 @@ class Schedule_model extends BaseItem_model{
 	function getPeople($schedule_id){
 		$schedule_id=intval($schedule_id);
 		return array_sub($this->db->get_where('schedule_people',array('schedule'=>$schedule_id))->result_array(),'people');
+	}
+	
+	/**
+	 * 
+	 * @param int $schedule_id
+	 * @param array $setto
+	 */
+	function updatePeople($schedule_id,$setto){
+		
+		$schedule_id=intval($schedule_id);
+		
+		if(!is_array($setto)){
+			$setto=array();
+		}
+		
+		$this->db->select('people')
+			->from('schedule_people')
+			->where('schedule_people.schedule',$schedule_id);
+		
+		$origin=array_sub($this->db->get()->result_array(),'people');
+
+		$insert=array_diff($setto,$origin);
+		$delete=array_diff($origin,$setto);
+		
+		if($delete){
+			$this->db->query("
+				DELETE FROM schedule_people
+				WHERE schedule = $schedule_id
+					AND people IN (".implode($delete).")
+			");
+		}
+
+		if($insert){
+			$this->db->query("
+				INSERT INTO schedule_people (schedule,people)
+				SELECT $schedule_id, id 
+				FROM people
+				WHERE id IN (".implode(',',$insert).")
+			");
+		}
 	}
 	
 	function removePeople($schedule_id){
@@ -392,15 +446,18 @@ class Schedule_model extends BaseItem_model{
 		return $this->db->query($query)->result_array();
 	}
 	
-	function getTaskBoardSort($uid)
-	{
+	/**
+	 * get a taskboardsort of a  user, whetherever the sort exists
+	 * @param int $uid
+	 * @return array
+	 */
+	function getTaskBoardSort($uid){
 		$uid=intval($uid);
 		
-		$query = $this -> db -> query("SELECT sort_data FROM schedule_taskboard WHERE uid=$uid");
+		$query=$this->db->select('sort_data')->from('schedule_taskboard')->where('uid',$uid)->get();
 		
-		if($query -> num_rows() == 0)	//若查询结果为空则先插入
-		{
-			$sort_data=array_fill(0,6,array());
+		if($query -> num_rows() == 0){
+			$sort_data=array(array());
 			$this->createTaskBoard($sort_data, $uid);
 			return $sort_data;
 		}
@@ -411,14 +468,21 @@ class Schedule_model extends BaseItem_model{
 		}
 	}
 	
-	function setTaskBoardSort($sort_data , $uid)
-	{
+	function setTaskBoardSort($sort_data , $uid){
 		$uid=intval($uid);
+		
+		//获得sort_data最大键名，补全空键
+		end($sort_data);
+		$last_key=key($sort_data);
+		$last_key && $sort_data += array_fill(0, $last_key, array());
+		
+		ksort($sort_data);
+		
 		$data=array(
 			'sort_data' => json_encode($sort_data),
 			'time' => $this->date->now
 		);
-		$this -> db -> update('schedule_taskboard' , $data , array('uid'=>$uid));
+		$this->db->update('schedule_taskboard' , $data , array('uid'=>$uid));
 	}
 	
 	function createTaskBoard($sort_data ,$uid){
@@ -429,7 +493,7 @@ class Schedule_model extends BaseItem_model{
 			'time'=>$this->date->now
 		);
 
-		$this -> db -> insert('schedule_taskboard' , $data);
+		$this->db->insert('schedule_taskboard' , $data);
 	}
 	
 }

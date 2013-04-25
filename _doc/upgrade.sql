@@ -247,18 +247,37 @@ ALTER TABLE  `people` ADD INDEX (  `name_pinyin` );
 ALTER TABLE  `schedule` ADD  `in_todo_list` BOOLEAN NOT NULL DEFAULT TRUE AFTER  `completed`;
 
 ALTER TABLE  `project_document` CHANGE  `username`  `username` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
--- server updated
 
-update people set type = 'student' where type = '学生';# 影响了 2606 行。
+update people set type = 'student' where type = '学生';
 
-update people set type = 'contact' where type = '联系人';# 影响了 189 行。
+update people set type = 'contact' where type = '联系人';
 
-update people set type = 'staff' where type = '职员';# 影响了 198 行。
+update people set type = 'staff' where type = '职员';
 
-update people set type = 'client' where type = '客户';# 影响了 2841 行。
+update people set type = 'client' where type = '客户';
 
-update people set type = 'contact' where type = '相对方';# 影响了 158 行。
+update people set type = 'contact' where type = '相对方';
 
 ALTER TABLE  `people` ADD  `name_pinyin` VARCHAR( 255 ) NOT NULL AFTER  `name_en`;
 
 ALTER TABLE  `people` ADD INDEX (  `name_pinyin` );
+-- server updated
+
+ALTER TABLE `document` DROP `username`;
+ALTER TABLE `people` DROP `username`;
+ALTER TABLE `schedule` DROP `username`;
+ALTER TABLE `project` DROP `username`;
+ALTER TABLE `team` DROP `username`;
+ALTER TABLE `people_profile` DROP `username`;
+ALTER TABLE `people_relationship` DROP `username`;
+ALTER TABLE `people_status` DROP `username`;
+ALTER TABLE `schedule_profile` DROP `username`;
+DROP TABLE log;
+
+ALTER TABLE  `schedule_people` ADD  `deleted` BOOLEAN NOT NULL DEFAULT FALSE;
+
+ALTER TABLE  `schedule_profile` DROP FOREIGN KEY  `schedule_profile_ibfk_1` ,
+ADD FOREIGN KEY (  `schedule` ) REFERENCES  `syssh`.`schedule` (
+`id`
+) ON DELETE CASCADE ON UPDATE CASCADE ;
+

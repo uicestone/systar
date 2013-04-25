@@ -19,7 +19,8 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 		buttons:[],
 		method:null,/*schedule method: create, view or edit*/
 		event:{},/*event object for fullCalendar*/
-		calendar:null/*日历对象，可用来判断是否从日历调取*/
+		calendar:null,/*日历对象，可用来判断是否从日历调取*/
+		taskboard:null/*任务墙对象，用来判断是否从任务墙调取*/
 	},
 	_create:function(){
 		var that=this;
@@ -43,7 +44,57 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 				title:'添加其他选项',
 				click: function(){
 					var lastProfile=that.element.find('.profile:last');
-					lastProfile.after(lastProfile.clone()).show();
+					lastProfile
+						.after(lastProfile.clone())
+						.show()
+						.children('.profile-name')
+						.select2({
+							dropdownCss:{minWidth:100},
+							createSearchChoice:function(term,results){
+								if(typeof results==='undefined'){
+									return {id:term,text:term,create:true};
+								}
+
+								var options=[];
+								$.each(results,function(){
+									options.push(this.text);
+								});
+
+								if($.inArray(term,options)===-1){
+									return {id:term,text:term,create:true};
+								}
+							},
+							formatSelection:function(object,container){
+								if(this.element.find('option[value="'+object.id+'"]').length===0){
+									this.element.append($('<option/>',{value:object.id,text:object.text}));
+
+									if(this.element.is('[multiple]')){
+										var val=this.element.val();
+										if(!val){
+											val=[];
+										}
+										val.push(object.id);
+										this.element.val(val);
+									}
+									else{
+										this.element.val(object.id);
+									}
+
+								}
+								return object.text;
+							},
+							formatResult:function(object,container,query){
+								if(object.create){
+									return '添加：'+object.text;
+								}
+								else if(object.text){
+									return object.text;
+								}
+								else{
+									return object.id;
+								}
+							}
+						});
 				}
 			},
 
@@ -67,7 +118,8 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 					});
 				}
 			});
-		}else{
+		}
+		else if(this.options.taskboard){
 			this.options.buttons.unshift({
 				text:'x',
 				tabIndex:-1,
@@ -77,6 +129,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 						aside.children('[for="schedule"]').children('.column').children('.portlet#'+that.options.id).remove();
 						that.element.schedule('close');
 					});
+					$.refresh(hash);
 				}
 			});
 		}
@@ -157,7 +210,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			
 			/*对于新建日程，由当前时间和日程时间给出预设的completed值*/
 			if(that.options.method==='create'){
-				that.option('completed',that.options.start<new Date());
+				that.options.completed=that.options.start<new Date() && that.options.calendar;
 			}
 			
 			/*根据completed选项，设置“已完成”按钮状态*/

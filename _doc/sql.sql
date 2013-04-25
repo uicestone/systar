@@ -1,10 +1,9 @@
 -- 根据案下案源人是否存在确定案件案源标签
 delete from project_label where label_name = '所内案源' and project in (select project from project_people where role='案源人');
 insert ignore into project_label (project,label,label_name)
-select id,138,'个人案源' from project where id in (select project from project_people where role = '案源人');
-
--- 个人案源接洽律师无配比
-update project_people set weight = null where role = '接洽律师' and project in (select project from project_label where label_name = '个人案源');
+select id,138,'个人案源' from project where 
+	id in (select project from project_people where role = '案源人')
+	and id not in (select project from project_label where label_name = '再成案');
 
 -- 监测是否有未设定type的领域
 select * from project_label where label_name in ('公司','房产建筑','劳动人事','涉外','韩日','知识产权','婚姻家庭','诉讼','刑事行政') and type is null;

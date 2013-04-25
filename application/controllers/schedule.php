@@ -29,8 +29,8 @@ class Schedule extends SS_controller{
 	}
 	
 	function calendar(){
-		$task_board=$this->schedule->getTaskBoardSort($this->user->id);
-		$this->load->addViewData('side_task_board', $this->schedule->getList(array('id_in_set'=>$task_board[0])));
+		$this->load->addViewData('side_task_board', $this->schedule->getList(array('in_todo_list'=>true)));
+		
 		$this->load->view('schedule/calendar');
 		$this->load->view('schedule/calendar_sidebar',true,'sidebar');
 	}
@@ -52,28 +52,24 @@ class Schedule extends SS_controller{
 		
 		if($this->input->get('project')){
 			$this->section_title='日程 - '.$this->project->fetch($this->input->get('project'),'name');
-			$this->config->set_user_item('search/project', $this->input->get('project'));
 		}
 		
-		if($this->input->post('name')){
-			$this->config->set_user_item('search/name', $this->input->post('name'));
-		}
+		$search_items=array('name','project');
 		
-		if($this->input->post('labels')){
-			$this->config->set_user_item('search/labels', $this->input->post('labels'));
-		}
-		
-		if($this->input->post('name')===''){
-			$this->config->unset_user_item('search/name');
-		}
-		
-		if($this->input->post('submit')==='search' && $this->input->post('labels')===false){
-			$this->config->unset_user_item('search/labels');
+		foreach($search_items as $item){
+			if($this->input->post($item)!==false){
+				if($this->input->post($item)!==''){
+					$this->config->set_user_item('search/'.$item, $this->input->post($item));
+				}else{
+					$this->config->unset_user_item('search/'.$item);
+				}
+			}
 		}
 		
 		if($this->input->post('submit')==='search_cancel'){
-			$this->config->unset_user_item('search/name');
-			$this->config->unset_user_item('search/labels');
+			foreach($search_items as $item){
+				$this->config->unset_user_item('search/'.$item);
+			}
 		}
 		
 		if($this->input->get('export')=='excel'){
@@ -180,7 +176,7 @@ class Schedule extends SS_controller{
 			$data = $this->input->post();
 			
 			$new_schedule_id = $this->schedule->add($data);
-			$this->schedule->addPeople($new_schedule_id,$this->input->post('people'));
+			$this->schedule->updatePeople($new_schedule_id,$this->input->post('people'));
 			if(!isset($data['time_start']) && !isset($data['time_end']) && !isset($data['all_day'])){
 				$this->addToTaskBoard($new_schedule_id);
 			}
@@ -199,9 +195,7 @@ class Schedule extends SS_controller{
 		}elseif($action=='update'){//更新任务内容
 			$this->schedule->update($schedule_id,$this->input->post());
 			$this->schedule->updateProfiles($schedule_id, $this->input->post('profiles'));
-			//@TODO 这里为了起到更新的作用，先删除所有相关人，再添加新的，这种做法是不科学的
-			$this->schedule->removePeople($schedule_id);
-			$this->schedule->addPeople($schedule_id,$this->input->post('people'));
+			$this->schedule->updatePeople($schedule_id,$this->input->post('people'));
 			
 			$schedule=$this->schedule->fetch($schedule_id);
 			
@@ -226,13 +220,8 @@ class Schedule extends SS_controller{
 			
 	}
 	
-	function taskBoard()
-	{
+	function taskBoard(){
 		$sort_data = $this -> schedule -> getTaskBoardSort($this->user->id);
-		
-		//任务强数据的第一列作为边栏列
-		$side_task_board=$this->schedule->getList(array('id_in_set'=>$sort_data[0]));
-		unset($sort_data[0]);
 		
 		$task_board = array();
 		
@@ -241,77 +230,56 @@ class Schedule extends SS_controller{
 		}
 		
 		$this->load->addViewData('task_board' , $task_board);
-		$this->load->addViewData('side_task_board', $side_task_board);
+		$this->load->addViewData('side_task_board', $this->schedule->getList(array('in_todo_list'=>true)));
 		$this->load->view('schedule/taskboard');
 		$this->load->view('schedule/taskboard_sidebar',true,'sidebar');
 	}
 	
 	function setTaskBoardSort(){
-		$sort_data = $this->input->post('sortData')+array_fill(0, 6, array());
-		ksort($sort_data);
-		//输入的最后一列是真正的0列，其他列号依次向后推
-		$sidebar_column=array_pop($sort_data);
-		array_unshift($sort_data,$sidebar_column);
-		$this -> schedule -> setTaskBoardSort($sort_data , $this->user->id);
+		$sort_data=$this->input->post('sortData');
+		$this->schedule->setTaskBoardSort($sort_data, $this->user->id);
 		$this->output->status='success';
 	}
 	
-	function addToTaskBoard($task_id , $uid=NULL , $series=NULL)
-	{	
+	function addToTaskBoard($task_id , $series=0 , $uid=NULL){
+		
+		$task_id=intval($task_id);$series=intval($series);
+		
 		if(is_null($uid)){
 			$uid=$this->user->id;
 		}
-		//取一列任务墙
+		
 		$sort_data = $this -> schedule -> getTaskBoardSort($uid);
 		
-		//将任务加入墙的第一列末尾
-		if(is_null($series))
-		{
-			$series = 0;
+		if(!isset($sort_data[$series])){
+			$sort_data[]=array($task_id);
 		}
-		if($series > 5)
-		{
-			$series = 5;
+		else{
+			array_push($sort_data[$series] , $task_id);
 		}
-		$each_series = $sort_data[$series];
-		array_push($each_series , $task_id);
-		$sort_data[$series] = $each_series;
 
-		$this -> schedule -> setTaskBoardSort($sort_data, $uid);
+		$this->schedule->setTaskBoardSort($sort_data, $uid);
 		
 		$this->output->status='success';
 	}
 	
-	function removefromtaskboard($task_id , $uid=NULL)
-	{
-		if(is_null($uid))
-		{
+	function removefromtaskboard($task_id , $uid=NULL){
+		if(is_null($uid)){
 			$uid=$this->user->id;
 		}
-		//遍历sort_data
+		
 		$sort_data = $this -> schedule -> getTaskBoardSort($uid);
-		//echo "sort_data = "; echo print_r($sort_data)."<br/>";
-		for ($i=0 ; $i<6 ; $i++)
-		{
-			$series = $sort_data[$i];
-			$key = array_search($task_id , $series);
-			//echo "key = "; echo print_r($key)."<br/>";
-			if($key!==false && $key!=="")
-			{
-				$sort_data[$i] = array();
-				$series[$key] = NULL;
-				//echo "series = "; echo print_r($series)."<br/>";
-				$series = array_filter($series);
-				//echo "series = "; echo print_r($series)."<br/>";
-				foreach ($series as $value)
-				{
-					array_push($sort_data[$i] , $value);
-				}
-				//echo "sort_data = "; echo print_r($sort_data)."<br/>";
-				$this -> schedule -> setTaskBoardSort($sort_data, $uid);
-				break;
+		
+		foreach($sort_data as $column_id=>$column){
+			$search=array_search($task_id,$column);
+			if($search!==false){
+				unset($sort_data[$column_id][$search]);
 			}
 		}
+		
+		$sort_data=array_trim_rear($sort_data);
+		
+		$this->schedule->setTaskBoardSort($sort_data, $uid);
 		
 		$this->output->status='success';
 	}

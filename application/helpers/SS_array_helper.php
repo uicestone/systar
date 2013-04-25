@@ -215,4 +215,26 @@ function is_json($string) {
 	json_decode($string);
 	return (json_last_error() == JSON_ERROR_NONE);
 }
+
+/**
+ * 清除数组尾部的二级空数组
+ * @param array $array
+ * @return array
+ */
+function array_trim_rear(array $array){
+	
+	$return=$array;
+	
+	while(true){
+		$tail=array_pop($array);
+		if($tail===array()){
+			$return=$array;
+			continue;
+		}else{
+			break;
+		}
+	}
+
+	return $return;
+}
 ?>

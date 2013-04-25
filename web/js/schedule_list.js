@@ -7,19 +7,27 @@ $(function(){
 	section.find('[name="export-excel"]').click(function(){
 		window.open(changeURLPar(hash,'export','excel'));
 	});
-	
+
 	$.each([section,side],function(){
+		
+		var that=this;
+		
 		this.find('.portlet')
 			.on('click',function(){
-				var event={id:$(this).attr('id')};
-				$.viewSchedule({id:event.id,selection:this});
+				var options={id:$(this).attr('event-id'),target:this};
+				
+				if(that.is('[hash="schedule/taskboard"]')){
+					options.taskboard=that;
+				}
+				
+				$.viewSchedule(options);
 			});
 		
 		this.find('.portlet-header .ui-icon')
 			.on('click',function(event){
 				event.stopPropagation();
-				$( this ).toggleClass( 'ui-icon-minusthick' ).toggleClass( 'ui-icon-plusthick' );
-				$( this ).parents( '.portlet:first' ).find( '.portlet-content' ).toggle();
+				$(this).toggleClass( 'ui-icon-minusthick' ).toggleClass( 'ui-icon-plusthick' );
+				$(this).parents( '.portlet:first' ).find( '.portlet-content' ).toggle();
 			});
 	});
 
