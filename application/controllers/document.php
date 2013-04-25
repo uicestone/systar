@@ -101,8 +101,10 @@ class Document extends SS_controller{
 			
 			$file_info = $this->upload->data();
 			
+			$file_info['mail_name']=substr($file_info['client_name'], 0, -strlen($file_info['file_ext']));
+			
 			$document_id=$this->document->add(array(
-				'name'=>$file_info['client_name'],
+				'name'=>$file_info['mail_name'],
 				'filename'=>$file_info['client_name'],
 				'extname'=>$file_info['file_ext'],
 				'size'=>$file_info['file_size']
@@ -112,7 +114,7 @@ class Document extends SS_controller{
 			
 			$data=array(
 				'id'=>$document_id,
-				'name'=>substr($file_info['client_name'], 0, -strlen($file_info['file_ext']))
+				'name'=>$file_info['mail_name']
 			);
 			$this->output->data=$data;
 			

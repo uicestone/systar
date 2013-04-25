@@ -20,8 +20,7 @@ $(function () {
 			uploadItem.appendTo(section.find('#upload-info')).removeClass('hidden')
 				.attr('id',data.result.data.id).children('[name="document[name]"]').val(data.result.data.name);
 
-			uploadItem.find('select').each(function(index,object){
-			var options={
+			uploadItem.find('select').select2({
 				dropdownCss:{minWidth:100},
 				createSearchChoice:function(term,results){
 					if(typeof results==='undefined'){
@@ -43,13 +42,16 @@ $(function () {
 
 						if(this.element.is('[multiple]')){
 							var val=this.element.val();
+							if(!val){
+								val=[];
+							}
 							val.push(object.id);
 							this.element.val(val);
 						}
 						else{
 							this.element.val(object.id);
 						}
-
+						
 					}
 					return object.text;
 				},
@@ -64,9 +66,25 @@ $(function () {
 						return object.id;
 					}
 				}
-			};
 			
-			$(object).select2(options)
+			})
+			.on('change',function(event){
+		
+				var id=uploadItem.attr('id');
+				var label,method;
+				
+				if(event.added && id){
+					label=event.added.id;
+					method='add';
+				}else if(event.removed && id){
+					label=event.removed.id
+					method='remove';
+				}
+				
+				if(method && id){
+					$.post('/document/'+method+'label/'+id,{label:label});
+				}
+				
 			});
 			
 			uploadItem.children('[name="document[name]"]').on('change',function(){
