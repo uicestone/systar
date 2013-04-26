@@ -36,6 +36,7 @@ class Schedule_model extends BaseItem_model{
 	 * 
 	 * @param array $args
 	 * project
+	 * people
 	 * id_in_set
 	 * in_todo_list
 	 * completed
@@ -56,6 +57,22 @@ class Schedule_model extends BaseItem_model{
 		if(isset($args['project'])){
 			$this->db->where('schedule.project',$args['project']);
 		}
+		
+		if(!isset($args['people'])){
+			$args['people']=$this->user->id;
+		}else{
+			$args['people']=intval($args['people']);
+		}
+		
+		$this->db->where("
+			(
+				uid = {$args['people']} 
+				OR 
+				id IN (
+					SELECT schedule FROM schedule_people WHERE people = {$args['people']}
+				)
+			)
+		",NULL,FALSE);
 		
 		if(isset($args['id_in_set'])){
 			if(!$args['id_in_set']){
