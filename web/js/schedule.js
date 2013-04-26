@@ -247,10 +247,13 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			=this.element.siblings('.ui-dialog-buttonpane').find(':checkbox[name="completed"]').is(':checked');
 
 		/*将content第一行作为name*/
-		if(that.element.find(':input[name="content"]').length){
+		if(that.element.find(':input[name="content"]').val()){
 			this.options.event.title
 				=this.options.title
 				=this.element.find(':input[name="content"]').val().split("\n").shift();
+		}else{
+			$.showMessage('请填写内容','warning');
+			return;
 		}
 
 		/*初始化准备提交的数据*/

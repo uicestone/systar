@@ -146,22 +146,17 @@ class Schedule_model extends BaseItem_model{
 		
 		//attemp to convert date string to timestamp
 		foreach(array('time_start','time_end','deadline') as $timepoint){
-			if(isset($data[$timepoint]) && !is_integer($data[$timepoint])){
+			if(isset($data[$timepoint]) && strtotime($data[$timepoint])){
 				$data[$timepoint]=strtotime($data[$timepoint]);
-				if($data[$timepoint]===false){
-					return false;
-				}
 			}
 		}
 		
 		//generate  hours automatically on time
 		if(isset($data['time_start']) && isset($data['time_end'])){
 			$data['hours_own'] = round(($data['time_end']-$data['time_start'])/3600,2);
+			$data['in_todo_list'] = false;
 		}
-		else{
-			$data['in_todo_list']=true;
-		}
-
+		
 		$data['display']=1;
 		$data+=uidTime(true,true);
 		
