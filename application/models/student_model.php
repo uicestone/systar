@@ -27,8 +27,14 @@ class Student_model extends People_model{
 			RIGHT((1000000 + CONCAT(team.num,RIGHT((100 + class_student.id_in_team),2))),6) AS num,
 			team.id AS class,team.name AS class_name
 		',false)
-			->join('team_people class_student',"class_student.people = people.id AND class_student.till>=CURDATE()",'LEFT')
-			->join('team',"team.id = class_student.team",'LEFT');
+			->join('team_people class_student',"class_student.people = people.id AND class_student.till>=CURDATE()",'inner')
+			->join('team',"team.id = class_student.team",'inner');
+		
+		if(isset($args['team'])){
+			$this->db->where_in('class_student.team',$args['team']);
+			unset($args['team']);
+		}
+			
 		
 		$args['orderby']='num';
 		

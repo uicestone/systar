@@ -18,12 +18,7 @@ class Student extends People{
 			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->people,'getCompiledLabels'),'args'=>array('{id}')))
 		);
 		
-		$this->config->set_user_item('search/type', ' student', false);
-		
-		if($this->input->get('update')){
-			$this->student->updateView();
-			$this->output->message('学生视图更新完成');
-		}
+		$this->config->set_user_item('search/type', 'student', false);
 		
 		parent::index();
 		
@@ -64,6 +59,12 @@ class Student extends People{
 				$this->output->message($e->getMessage(), 'warning');
 			}
 		}
+	}
+	
+	function mychild(){
+		$this->config->set_user_item('search/everyone',false,false);
+		$this->config->set_user_item('search/has_relative_like',$this->user->id,false);
+		$this->index();
 	}
 	
 	function relativeList($id=NULL,$list_args=NULL){
