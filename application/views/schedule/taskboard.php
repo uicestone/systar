@@ -1,7 +1,7 @@
 <? foreach ($task_board as $column) { ?>
 <div class="column sortable">	
 <? foreach ($column as $task) { ?>
-	<div class="portlet ui-widget ui-widget-content ui-helper-clearfix ui-corner-all" event-id="<?= $task['id'] ?>">
+	<div class="portlet ui-widget ui-widget-content ui-helper-clearfix ui-corner-all" event-id="<?=$task['id']?>">
 		<div class="portlet-header ui-widget-header ui-corner-all ellipsis">
 			<span class='ui-icon ui-icon-minusthick'></span>
 			<?= $task['name'] ?>
@@ -27,9 +27,13 @@ $(function(){
 			$.post('/schedule/settaskboardsort',{sortData:taskSort});
 		},
 		receive:function(event,ui){
-			$.post('/schedule/writecalendar/update/'+ui.sender.attr('event-id'),{in_todo_list:0},function(){
-				ui.sender.hide();
-			});
+			var senderId=ui.sender.attr('event-id');
+			if(senderId){
+				$.post('/schedule/writecalendar/update/'+senderId,{in_todo_list:0},function(){
+					ui.sender.hide();
+					/*此处用remove莫名报错*/
+				});
+			}
 		}
 	}).disableSelection();
 });
