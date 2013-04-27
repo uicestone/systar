@@ -454,6 +454,7 @@ section>form>.item .large-field{
 }
 section>form>.item .title{
 	padding-left:1em;
+	padding-right:1em;
 	background:url("../images/bg_main.png");
 	color:#173C66;
 	font-size:15px;

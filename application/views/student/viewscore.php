@@ -1,4 +1,3 @@
-<?=javascript('highcharts/highcharts')?>
 <script type="text/javascript">
 var chart;
 $(function(){
@@ -14,7 +13,7 @@ $(function(){
 			y:40
 		},
 		xAxis: {
-			categories: $.parseJSON('<? echo $category?>')
+			categories: <?=$category?>
 		},
 		yAxis: {
 			reversed:true,
@@ -26,11 +25,9 @@ $(function(){
 					this.x +': 第'+ this.y+'名';
 			}
 		},
-		series: $.parseJSON('<? echo $series ?>')
+		series: <?=$series?>
 	}));
 });
 </script>
-<div class="contentTableBox">
-	<div id="chart" style="width:900px;height:500px;margin:auto"></div>
-	<?=$scores?>
-</div>
+<div id="chart" style="width:98%"></div>
+<?=$scores?>

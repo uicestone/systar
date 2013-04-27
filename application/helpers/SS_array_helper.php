@@ -69,10 +69,15 @@ if(!function_exists('array_replace_recursive')){
 function array_sub($array,$keyname,$keyname_forkey=NULL,$fill_null=false){
 	$array_new=array();
 	foreach($array as $key => $sub_array){
+		
 		if(isset($sub_array[$keyname])){
-			if(is_null($keyname_forkey)){
+			if($keyname_forkey===false){
+				$array_new[]=$sub_array[$keyname];
+			}
+			elseif(is_null($keyname_forkey)){
 				$array_new[$key]=$sub_array[$keyname];
-			}else{
+			}
+			else{
 				if(isset($sub_array[$keyname_forkey])){
 					$array_new[$sub_array[$keyname_forkey]]=$sub_array[$keyname];
 				}
@@ -80,10 +85,15 @@ function array_sub($array,$keyname,$keyname_forkey=NULL,$fill_null=false){
 					$array_new[$key]=$sub_array[$keyname];
 				}
 			}
-		}elseif($fill_null){
-			if(is_null($keyname_forkey)){
+		}
+		elseif($fill_null){
+			if($keyname_forkey===false){
+				$array_new[]=NULL;
+			}
+			elseif(is_null($keyname_forkey)){
 				$array_new[$key]=NULL;
-			}else{
+			}
+			else{
 				if(isset($sub_array[$keyname_forkey])){
 					$array_new[$sub_array[$keyname_forkey]]=NULL;
 				}

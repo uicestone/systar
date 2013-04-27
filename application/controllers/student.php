@@ -3,10 +3,29 @@ class Student extends People{
 	
 	var $section_title='学生';
 	
+	var $score_list_args=array();
+	
 	function __construct(){
 		parent::__construct();
 		$this->people=$this->student;
 		$this->load->model('classes_model','classes');
+		$this->score_list_args=array(
+			'exam_name'=>array('heading'=>'考试'),
+			'语文'=>array('heading'=>'语文','cell'=>'{语文}<span class="rank">{rank_语文}</span>'),
+			'数学'=>array('heading'=>'数学','cell'=>'{数学}<span class="rank">{rank_数学}</span>'),
+			'英语'=>array('heading'=>'英语','cell'=>'{英语}<span class="rank">{rank_英语}</span>'),
+			'物理'=>array('heading'=>'物理','cell'=>'{物理}<span class="rank">{rank_物理}</span>'),
+			'化学'=>array('heading'=>'化学','cell'=>'{化学}<span class="rank">{rank_化学}</span>'),
+			'生物'=>array('heading'=>'生物','cell'=>'{生物}<span class="rank">{rank_生物}</span>'),
+			'地理'=>array('heading'=>'地理','cell'=>'{地理}<span class="rank">{rank_地理}</span>'),
+			'历史'=>array('heading'=>'历史','cell'=>'{历史}<span class="rank">{rank_历史}</span>'),
+			'政治'=>array('heading'=>'政治','cell'=>'{政治}<span class="rank">{rank_政治}</span>'),
+			'信息'=>array('heading'=>'信息','cell'=>'{信息}<span class="rank">{rank_信息}</span>'),
+			'3总'=>array('heading'=>'3总','cell'=>'{3总}<span class="rank">{rank_3总}</span>'),
+			'4总/5总'=>array('heading'=>'4总/5总','cell'=>'{4总/5总}<span class="rank">{rank_5总}</span>'),
+			'8总'=>array('heading'=>'8总','cell'=>'{8总}<span class="rank">{rank_8总}</span>')
+		);
+
 	}
 	
 	function index(){
@@ -81,25 +100,8 @@ class Student extends People{
 	
 	function scoreList(){
 		
-		$list_args=array(
-			'exam_name'=>array('heading'=>'考试'),
-			'course_1'=>array('heading'=>'语文','cell'=>'{course_1}<span class="rank">{rank_1}</span>'),
-			'course_2'=>array('heading'=>'数学','cell'=>'{course_2}<span class="rank">{rank_2}</span>'),
-			'course_3'=>array('heading'=>'英语','cell'=>'{course_3}<span class="rank">{rank_3}</span>'),
-			'course_4'=>array('heading'=>'物理','cell'=>'{course_4}<span class="rank">{rank_4}</span>'),
-			'course_5'=>array('heading'=>'化学','cell'=>'{course_5}<span class="rank">{rank_5}</span>'),
-			'course_6'=>array('heading'=>'生物','cell'=>'{course_6}<span class="rank">{rank_6}</span>'),
-			'course_7'=>array('heading'=>'地理','cell'=>'{course_7}<span class="rank">{rank_7}</span>'),
-			'course_8'=>array('heading'=>'历史','cell'=>'{course_8}<span class="rank">{rank_8}</span>'),
-			'course_9'=>array('heading'=>'政治','cell'=>'{course_9}<span class="rank">{rank_9}</span>'),
-			'course_10'=>array('heading'=>'信息','cell'=>'{course_10}<span class="rank">{rank_10}</span>'),
-			'course_sum_3'=>array('heading'=>'3总','cell'=>'{course_sum_3}<span class="rank">{rank_sum_3}</span>'),
-			'course_sum_5'=>array('heading'=>'4总/5总','cell'=>'{course_sum_5}<span class="rank">{rank_sum_5}</span>'),
-			'course_sum_8'=>array('heading'=>'8总','cell'=>'{course_sum_8}<span class="rank">{rank_sum_8}</span>')
-		);
-		
-		$score_list=$this->table->setFields($list_args)
-			->setData($this->student->getScores($this->student->id))
+		$score_list=$this->table->setFields($this->score_list_args)
+			->setData($this->student->getScores($this->student->id,array('limit'=>3)))
 			->trimColumns()
 			->generate();
 		
@@ -249,9 +251,9 @@ class Student extends People{
 			$field=array(
 				'name'=>array('heading'=>'姓名'),
 				'gender'=>array('heading'=>'性别'),
-				'course_1'=>array('heading'=>'语文'),
-				'course_2'=>array('heading'=>'数学'),
-				'course_3'=>array('heading'=>'英语')
+				'语文'=>array('heading'=>'语文'),
+				'数学'=>array('heading'=>'数学'),
+				'英语'=>array('heading'=>'英语')
 			);
 			
 			$menu=array('head'=>'<div class="right">'.$list_locator.'</div>');
@@ -264,69 +266,52 @@ class Student extends People{
 		}
 	}
 
-	function view_score(){
-		//TODO 图与表的sql请求合一
-		if($this->user->isLogged('student')){
-			$student=$this->user->id;
-		}elseif($this->user->isLogged('parent')){
-			$student=$_SESSION['child'];
-		}else{
-			$student=intval($this->input->get('student'));
-		}
+	function viewscore($student){
 		
-		$course_array=db_toArray("SELECT id,name,chart_color FROM course",true);
+		$this->section_title='成绩 - '.$this->student->fetch($student,'name');
 		
-		$view_score_array=db_toArray("SELECT * FROM school_view_view_score WHERE student = '".$student."' ORDER BY exam");
+		$exams_scores=$this->student->getscores($student,array('limit'=>'pagination','orderby'=>'exam asc'));
 		
-		$category=$series_raw=$series=array();
+		$category=array_sub($exams_scores,'exam_name');
 		
-		foreach($view_score_array as $view_score_line_id => $view_score){
-			$category[]=$view_score['exam_name'];
-			foreach($course_array as $course_id => $course){
-				if(!isset($series_raw[$course_id])){
-					$series_raw[$course_id]=array('name'=>$course['name'],'color'=>'#'.$course['chart_color']);
+		$courses=$this->label->getList(array('type'=>'course'));
+		
+		$series=array();
+		
+		foreach($courses as $course){
+			
+			$scores=array_sub($exams_scores,$course['name']);
+			
+			$has_score=false;
+			
+			foreach($scores as $score){
+				if(!is_null($score)){
+					$has_score=true;
+					break;
 				}
-				if(isset($view_score['rank_'.$course_id])){
-					$series_raw[$course_id]['data'][]=$view_score['rank_'.$course_id];
-				}else{
-					$series_raw[$course_id]['data'][]=NULL;
-				}
+			}
+			
+			if($has_score){
+				
+				$series[]=array(
+					'name'=>$course['name'],
+					'color'=>'#'.$course['color'],
+					'data'=>array_sub($exams_scores,'rank_'.$course['name'],false,true)
+				);
 			}
 		}
 		
-		foreach($series_raw as $series_id => $series_single){
-			//将$series_raw中有分数的系列取出
-			if(isset($series_single['data']) && array_sum($series_single['data'])>0){//data不都为NULL
-				$series[]=$series_single;
-			}
-		}
+		$this->load->addViewData('series', json_encode($series,JSON_NUMERIC_CHECK));
+		$this->load->addViewData('category', json_encode($category));
 		
-		$series=json_encode($series,JSON_NUMERIC_CHECK);
-		$category=json_encode($category);
-		$this->load->addViewArrayData(compact('series','category'));
-		
-		$fields_view_scores=array(
-			'exam_name'=>array('heading'=>'考试'),
-			'course_1'=>array('heading'=>'语文','cell'=>'{course_1}<span class="rank">{rank_1}</span>'),
-			'course_2'=>array('heading'=>'数学','cell'=>'{course_2}<span class="rank">{rank_2}</span>'),
-			'course_3'=>array('heading'=>'英语','cell'=>'{course_3}<span class="rank">{rank_3}</span>'),
-			'course_4'=>array('heading'=>'物理','cell'=>'{course_4}<span class="rank">{rank_4}</span>'),
-			'course_5'=>array('heading'=>'化学','cell'=>'{course_5}<span class="rank">{rank_5}</span>'),
-			'course_6'=>array('heading'=>'生物','cell'=>'{course_6}<span class="rank">{rank_6}</span>'),
-			'course_7'=>array('heading'=>'地理','cell'=>'{course_7}<span class="rank">{rank_7}</span>'),
-			'course_8'=>array('heading'=>'历史','cell'=>'{course_8}<span class="rank">{rank_8}</span>'),
-			'course_9'=>array('heading'=>'政治','cell'=>'{course_9}<span class="rank">{rank_9}</span>'),
-			'course_10'=>array('heading'=>'信息','cell'=>'{course_10}<span class="rank">{rank_10}</span>'),
-			'course_sum_3'=>array('heading'=>'3总','cell'=>'{course_sum_3}<span class="rank">{rank_sum_3}</span>'),
-			'course_sum_5'=>array('heading'=>'4总/5总','cell'=>'{course_sum_5}<span class="rank">{rank_sum_5}</span>'),
-			'course_sum_8'=>array('heading'=>'8总','cell'=>'{course_sum_8}<span class="rank">{rank_sum_8}</span>')
-		);
-
-		$view_scores=$this->table->setFields($fields_view_scores)
+		$scores=$this->table->setFields($this->score_list_args)
+			->setData($this->student->getscores($student,array('limit'=>'pagination','orderby'=>'exam desc')))
 			->trimColumns()
-			->generate($this->student->getview_scores($student));
+			->generate();
 		
-		$this->load->addViewData('view_scores', $view_scores);
+		$this->load->addViewData('scores', $scores);
+		
+		$this->load->view('student/viewscore');
 	}
 }
 ?>

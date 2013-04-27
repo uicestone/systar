@@ -156,13 +156,38 @@ class Student_model extends People_model{
 		}
 	}
 	
-	function getScores($student){
+	function getScores($student,array $args=array()){
 		$student=intval($student);
 		
 		$this->db->from('school_view_score')
-			->where('student',$student)
-			->order_by('exam','DESC');
+			->where('student',$student);
 
+		//复制一个DB对象用来计算行数，因为计算行数需要运行sql，将清空DB对象中属性
+		$db_num_rows=clone $this->db;
+		
+		if(isset($args['orderby'])){
+			if(is_array($args['orderby'])){
+				foreach($args['orderby'] as $orderby){
+					$this->db->order_by($orderby[0],$orderby[1]);
+				}
+			}elseif($args['orderby']){
+				$this->db->order_by($args['orderby']);
+			}
+		}
+		
+		if(isset($args['limit'])){
+			if($args['limit']==='pagination'){
+				$args['limit']=$this->pagination($db_num_rows);
+				call_user_func_array(array($this->db,'limit'), $args['limit']);
+			}
+			elseif(is_array($args['limit'])){
+				call_user_func_array(array($this->db,'limit'), $args['limit']);
+			}
+			else{
+				call_user_func(array($this->db,'limit'), $args['limit']);
+			}
+		}
+		
 		return $this->db->get()->result_array();
 	}
 	

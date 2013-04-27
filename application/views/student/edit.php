@@ -4,18 +4,19 @@
 		<input name="people[name]" value="<?=$this->value('people/name'); ?>" type="text" placeholder="姓名" />
 
 		<select name="people[type]">
-			<?=options($this->people->getTypes(),$this->value('people/type'),'人员类型')?>
+			<?=options($this->people->getTypes(),$this->value('people/type'),'人员类型',true)?>
 		</select>
 
 		<select name="people[gender]"><?=options(array('男','女'), $this->value('people/gender'), '性别')?></select>
 		<input type="text" name="people[id_card]" value="<?=$this->value('people/id_card'); ?>" placeholder="身份证" style="width:195px;" />
 		<input type="text" name="people[birthday]" value="<?=$this->value('people/birthday'); ?>" placeholder="生日" class="date" />
-		<br />
-		<input type="text" name="people[position]" value="<?=$this->value('people/position')?>" placeholder="职位" />
 	</div>
 
 	<div class="item" name="score">
-		<div class="title"><label>成绩</label></div>
+		<div class="title">
+			<label class="right"><a href="#student/viewscore/<?=$this->value('people/id')?>">查看全部</a></label>
+			<label>成绩</label>
+		</div>
 		<?=$score_list?>
 	 </div>
 

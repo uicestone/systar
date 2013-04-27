@@ -122,7 +122,15 @@ class People_model extends BaseItem_model{
 			->group_by('people.type')
 			->order_by('hits','desc');
 		
-		return array_sub($this->db->get()->result_array(),'type');
+		$types=array_sub($this->db->get()->result_array(),'type');
+		
+		$types_lang=array();
+		
+		foreach($types as $type){
+			$types_lang[$type]=lang($type);
+		}
+		
+		return $types_lang;
 	}
 	
 	function addRelationship($people,$relative,$relation=NULL){

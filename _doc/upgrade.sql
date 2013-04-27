@@ -261,7 +261,6 @@ update people set type = 'contact' where type = '相对方';
 ALTER TABLE  `people` ADD  `name_pinyin` VARCHAR( 255 ) NOT NULL AFTER  `name_en`;
 
 ALTER TABLE  `people` ADD INDEX (  `name_pinyin` );
--- server updated
 
 ALTER TABLE `document` DROP `username`;
 ALTER TABLE `people` DROP `username`;
@@ -281,3 +280,35 @@ ADD FOREIGN KEY (  `schedule` ) REFERENCES  `syssh`.`schedule` (
 `id`
 ) ON DELETE CASCADE ON UPDATE CASCADE ;
 
+ALTER TABLE  `label` ADD  `type` VARCHAR( 255 ) NULL AFTER  `name` ,
+ADD INDEX (  `type` );
+update label set type = 'course' where name in (select name from course);
+
+ALTER TABLE  `school_view_score` CHANGE  `course_1`  `语文` DECIMAL( 5, 1 ) NULL DEFAULT NULL ,
+CHANGE  `course_2`  `数学` DECIMAL( 5, 1 ) NULL DEFAULT NULL ,
+CHANGE  `course_3`  `英语` DECIMAL( 5, 1 ) NULL DEFAULT NULL ,
+CHANGE  `course_4`  `物理` DECIMAL( 5, 1 ) NULL DEFAULT NULL ,
+CHANGE  `course_5`  `化学` DECIMAL( 5, 1 ) NULL DEFAULT NULL ,
+CHANGE  `course_6`  `生物` DECIMAL( 5, 1 ) NULL DEFAULT NULL ,
+CHANGE  `course_7`  `地理` DECIMAL( 5, 1 ) NULL DEFAULT NULL ,
+CHANGE  `course_8`  `历史` DECIMAL( 5, 1 ) NULL DEFAULT NULL ,
+CHANGE  `course_9`  `政治` DECIMAL( 5, 1 ) NULL DEFAULT NULL ,
+CHANGE  `course_10`  `信息` DECIMAL( 5, 1 ) NULL DEFAULT NULL ,
+CHANGE  `course_sum_3`  `3总` DECIMAL( 5, 1 ) NULL DEFAULT NULL ,
+CHANGE  `course_sum_5`  `5总` DECIMAL( 5, 1 ) NULL DEFAULT NULL ,
+CHANGE  `course_sum_8`  `8总` DECIMAL( 5, 1 ) NULL DEFAULT NULL;
+
+ALTER TABLE  `school_view_score` CHANGE  `rank_1`  `rank_语文` INT( 11 ) NULL DEFAULT NULL ,
+CHANGE  `rank_2`  `rank_数学` INT( 11 ) NULL DEFAULT NULL ,
+CHANGE  `rank_3`  `rank_英语` INT( 11 ) NULL DEFAULT NULL ,
+CHANGE  `rank_4`  `rank_物理` INT( 11 ) NULL DEFAULT NULL ,
+CHANGE  `rank_5`  `rank_化学` INT( 11 ) NULL DEFAULT NULL ,
+CHANGE  `rank_6`  `rank_生物` INT( 11 ) NULL DEFAULT NULL ,
+CHANGE  `rank_7`  `rank_地理` INT( 11 ) NULL DEFAULT NULL ,
+CHANGE  `rank_8`  `rank_历史` INT( 11 ) NULL DEFAULT NULL ,
+CHANGE  `rank_9`  `rank_政治` INT( 11 ) NULL DEFAULT NULL ,
+CHANGE  `rank_10`  `rank_信息` INT( 11 ) NULL DEFAULT NULL ,
+CHANGE  `rank_sum_3`  `rank_3总` INT( 11 ) NULL DEFAULT NULL ,
+CHANGE  `rank_sum_5`  `rank_5总` INT( 11 ) NULL DEFAULT NULL ,
+CHANGE  `rank_sum_8`  `rank_8总` INT( 11 ) NULL DEFAULT NULL;
+-- server updated

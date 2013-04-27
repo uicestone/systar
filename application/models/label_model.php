@@ -5,15 +5,6 @@ class Label_model extends BaseItem_model{
 		$this->table='label';
 	}
 	
-	function getList($args=array()){
-		
-		if(isset($args['names_in'])){
-			$this->db->where_in('label.name',$args['names_in']);
-		}
-		
-		return parent::getList($args);
-	}
-	
 	/**
 	 * 测试一个标签名
 	 * 如果存在则返回id
@@ -30,6 +21,11 @@ class Label_model extends BaseItem_model{
 			$this->db->insert('label',array('name'=>$name));
 			return $this->db->insert_id();
 		}
+	}
+	
+	function getList(array $args=array()){
+		$args['company']=$args['display']=false;
+		return parent::getList($args);
 	}
 	
 	/**
