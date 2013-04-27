@@ -251,7 +251,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			this.options.event.title
 				=this.options.title
 				=this.element.find(':input[name="content"]').val().split("\n").shift();
-		}else{
+		}else if(that.options.method==='edit'){
 			$.showMessage('请填写内容','warning');
 			return;
 		}

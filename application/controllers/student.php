@@ -101,7 +101,7 @@ class Student extends People{
 	function scoreList(){
 		
 		$score_list=$this->table->setFields($this->score_list_args)
-			->setData($this->student->getScores($this->student->id,array('limit'=>3)))
+			->setData($this->student->getScores($this->student->id,array('limit'=>3,'orderby'=>'exam desc')))
 			->trimColumns()
 			->generate();
 		

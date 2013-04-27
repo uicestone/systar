@@ -200,20 +200,19 @@ class ViewScore extends SS_controller{
 				$p=$_SESSION['view_score']['update']['step']-4;
 			
 			mysql_query("
-			UPDATE (
-				SELECT id, (
-					SELECT COUNT( 1 ) 
-					FROM
-				view_score
-					WHERE course_".$p." > a.course_".$p."
-				AND exam=a.exam
-				) +1 AS rank
-				FROM view_score a
-				WHERE course_".$p." IS NOT NULL AND exam IN (SELECT id FROM exam WHERE is_on=1)
-			)t
-			LEFT JOIN view_score ON view_score.id=t.id
-			SET view_score.rank_".$p." = t.rank
-			
+				UPDATE (
+						SELECT id, (
+								SELECT COUNT( 1 ) 
+								FROM
+						school_view_score
+								WHERE `5总` > a.`5总`
+						AND exam=a.exam -- AND extra_course = a.extra_course
+						) +1 AS rank
+						FROM school_view_score a
+						WHERE `5总` IS NOT NULL AND exam>=1567
+				)t
+				LEFT JOIN school_view_score ON school_view_score.id=t.id
+				SET school_view_score.`rank_5总` = t.rank
 			");
 			echo ('学科'.$p.'的排名计算完成');
 			
