@@ -9,6 +9,8 @@ class People extends SS_Controller{
 
 	var $profile_list_args;
 
+	var $status_list_args;
+
 	var $project_list_args;
 
 	var $section_title='人员';
@@ -37,16 +39,22 @@ class People extends SS_Controller{
 		
 		$this->profile_list_args=array(
 			'name'=>array('heading'=>'名称','cell'=>'{name}<button type="submit" id="{id}" name="submit[remove_profile]" class="hover">删除</button>'), 
-			'content'=>array('heading'=>'内容', 'eval'=>true, 'cell'=>"
-				if('{name}'=='电子邮件'){
-					return '<a href=\"mailto:{content}\" target=\"_blank\">{content}</a>';
+			'content'=>array('heading'=>'内容','parser'=>array('function'=>function($name,$content){
+				if($name=='电子邮件'){
+					return '<a href="mailto:'.$content.'" target="_blank">'.$content.'</a>';
 				}else{
-					return '{content}';
+					return $content;
 				}
-			"), 
+			},'args'=>array('{name}','{content}'))), 
 			'comment'=>array('heading'=>'备注')
 		);
 		
+		$this->status_list_args=array(
+			'name'=>array('heading'=>'状态'), 
+			'content'=>array('heading'=>'内容','cell'=>array('class'=>'ellipsis','title'=>'{content}')),
+			'date'=>array('heading'=>'日期'),
+			'comment'=>array('heading'=>'备注')
+		);
 	}
 	
 	/**
@@ -217,6 +225,17 @@ class People extends SS_Controller{
 	}
 	
 	/**
+	 * 返回状态列表
+	 */
+	function statusList(){
+
+		$list=$this->table->setFields($this->status_list_args)
+			->setData($this->people->getStatus($this->people->id))
+			->generate();
+		
+		return $list;
+	}
+	/**
 	 * 返回相关项目列表
 	 */
 	function projectList(){
@@ -379,6 +398,26 @@ class People extends SS_Controller{
 			elseif($submit=='remove_profile'){
 				$this->people->removeProfile($this->people->id,$button_id);
 				$this->output->setData($this->profileList(),'profile-list','content-table','.item[name="profile"]>.contentTable','replace');
+			}
+			
+			elseif($submit=='status'){
+				$status=$this->input->sessionPost('status');
+				
+				if(!$status['name']){
+					$this->output->message('请填写状态标题','warning');
+					throw new Exception;
+				}
+				
+				$this->people->addStatus($this->people->id,$status['name'],$status['date'],$status['content'],$status['team'],$status['comment']);
+				
+				$this->output->setData($this->statusList(),'status-list','content-table','.item[name="status"]>.contentTable','replace');
+				
+				unset($_SESSION[CONTROLLER]['post'][$this->people->id]['status']);
+			}
+
+			elseif($submit=='remove_status'){
+				$this->people->removestatus($this->people->id,$button_id);
+				$this->output->setData($this->statusList(),'status-list','content-table','.item[name="status"]>.contentTable','replace');
 			}
 			
 			elseif($submit=='changetype'){

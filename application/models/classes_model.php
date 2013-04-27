@@ -25,103 +25,18 @@ class Classes_model extends Team_model{
 	function fetchByStudent($student_id){
 		$student_id=intval($student_id);
 		
-		$q_student_class="
-			SELECT team_people.id_in_team AS num_in_class,
-				CONCAT(RIGHT(10000+team.num,4),team_people.id_in_team) AS num,
-				team.id AS class,team.name AS class_name,
-				people.name AS class_teacher_name
-			FROM team_people
-				INNER JOIN team ON team_people.team=team.id
-				LEFT JOIN people ON team.leader=people.id
-			WHERE team.company={$this->company->id}
-				AND team_people.people=$student_id
-				AND team_people.term='{$this->school->current_term}'
-		";
+		$this->db->select('
+			team.id,team.name,team.leader,leader.name AS leader_name,
+			team_people.id_in_team,
+			CONCAT(RIGHT(10000+team.num,4),team_people.id_in_team) AS num
+		',false)
+			->from('team')
+			->join('team_people','team_people.team = team.id','inner')
+			->join('people leader','leader.id = team.leader','left')
+			->where('team_people.people',$student_id)
+			->where('team_people.till >= CURDATE()',NULL,FALSE);
 		
-		return $this->db->query($q_student_class)->row_array();
-	}
-	
-	function check($class_name,$data_type='id',$show_error=true,$save_to=NULL){
-		//$data_type:id,array
-		if(!$class_name){
-			if($show_error){
-				showMessage('请输入班级名称','warning');
-			}
-			return -3;
-		}
-	
-		$q_lawyer="SELECT * FROM `class` WHERE `name` LIKE '%".$class_name."%'";
-		//$r_lawyer=$this->db->query($q_lawyer);
-		//$num_classes=db_rows($r_lawyer);
-	
-		if($num_classes==0){
-			if($show_error){
-				showMessage('没有这个班级','warning');
-			}
-			return -1;
-			
-		}elseif($num_classes>1){
-			if($show_error){
-				showMessage('此关键词存在多个符合班级','warning');
-			}
-			return -2;
-	
-		}else{
-			$data=db_fetch_array($r_lawyer);
-			if($data_type=='array'){
-				$return=$data;
-			}else{
-				$return=$data[$data_type];
-			}
-			
-			if(!is_null($save_to)){
-				post($save_to,$return);
-			}
-			return $return;
-		}
-	}
-	
-	function fetchByStudentId($student_id){
-		return $this->db->query("
-			SELECT * FROM class 
-			WHERE id = (
-				SELECT class FROM student_class 
-				WHERE student = '{$student_id}'
-					AND term='{$this->school->current_term}'
-			)
-		")->row_array();
-	}
-
-	/**
-	 * 获得团队负责人信息
-	 */
-	function fetchLeader($team_id,$field=NULL){
-		$query="
-			SELECT name 
-			FROM staff 
-			WHERE id=(SELECT class_teacher FROM class WHERE id='{$team_id}')
-		";
-		
-		$row=$this->db->query($query)->row_array();
-		if(isset($field) && isset($row[$field])){
-			return $row[$field];
-		}else{
-			return $row;
-		}
-	}
-	
-	function getLeadersList($team_id){
-		$team_id=intval($team_id);
-		
-		$query="
-			SELECT student.name,student_class.position 
-			FROM student INNER JOIN student_class 
-				ON (student.id=student_class.student AND student_class.term='{$this->school->current_term}')
-			WHERE student_class.class=$team_id
-				AND student_class.position IS NOT NULL
-		";
-		
-		return $this->db->query($query)->result_array();
+		return $this->db->get()->row_array();
 	}
 	
 	/**

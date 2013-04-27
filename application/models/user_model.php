@@ -22,8 +22,6 @@ class User_model extends People_model{
 		
 		$this->table='user';
 		
-		$this->load->model('team_model','team');
-		
 		if(is_null($uid)){
 			$uid=$this->session->userdata('user/id');
 		}
@@ -218,6 +216,15 @@ class User_model extends People_model{
 		}
 
 		return true;
+	}
+	
+	function inTeam($team){
+		if(in_array($team,$this->teams) || array_key_exists($team, $this->teams)){
+			return true;
+		}
+		else{
+			return false;
+		}
 	}
 
 	function generateNav(){

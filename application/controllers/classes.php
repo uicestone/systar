@@ -7,8 +7,7 @@ class Classes extends Team{
 		parent::__construct();
 	}
 	
-	function lists(){
-		
+	function index(){
 		
 		if($this->input->post('grade')){
 			option('grade',$this->input->post('grade'));
@@ -33,36 +32,13 @@ class Classes extends Team{
 		$this->edit();
 	}
 
-	function edit($id=NULL){
+	function edit($id){
 		
 		$this->load->model('staff_model','staff');
 		
-		$this->getPostData($id);
+		$this->classes->data=$this->classes->fetch($id);
 		
-		$submitable=false;
-		
-		if($this->input->post('submit')){
-			$submitable=true;
-		
-			$_SESSION[CONTROLLER]['post']=array_replace_recursive($_SESSION[CONTROLLER]['post'],$this->input->post());
-			
-			if(post('classes/class_teacher',$this->staff->check(post('classes_extra/class_teacher_name')))<0){
-				$submitable=false;
-			}
-		
-			$this->processSubmit($submitable);
-		}
-		
-		post('classes/class_teacher')>0 && post('classes_extra/class_teacher_name',$this->classes->fetchLeader(post('classes/id'),'name'));
-		
-		$field_class_leadership=array(
-			'student.name'=>array('heading'=>'学生'),
-			'student_class.position'=>array('heading'=>'职务')
-		);
-		$leaders=$this->table->setFields($field_class_leadership)
-			->generate($this->classes->getLeadersList(post('classes/id')));
-
-		$this->load->addViewData('leaders',$leaders);
+		$this->load->view('classes/edit');
 	}
 }
 ?>

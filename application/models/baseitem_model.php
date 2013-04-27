@@ -349,13 +349,12 @@ class BaseItem_model extends SS_Model{
 	function getProfiles($item_id){
 		$item_id=intval($item_id);
 		
-		$query="
-			SELECT 
-				{$this->table}_profile.id,{$this->table}_profile.comment,{$this->table}_profile.content,{$this->table}_profile.name
-			FROM {$this->table}_profile INNER JOIN {$this->table} ON {$this->table}_profile.{$this->table}={$this->table}.id
-			WHERE {$this->table}_profile.{$this->table} = $item_id
-		";
-		return $this->db->query($query)->result_array();
+		$this->db->select("{$this->table}_profile.id,{$this->table}_profile.comment,{$this->table}_profile.content,{$this->table}_profile.name")
+			->from("{$this->table}_profile")
+			->join($this->table,"{$this->table}_profile.{$this->table}={$this->table}.id",'inner')
+			->where("{$this->table}_profile.{$this->table}",$item_id);
+		
+		return $this->db->get()->result_array();
 	}
 	
 	/**
@@ -408,5 +407,40 @@ class BaseItem_model extends SS_Model{
 		
 		return array_sub($result,'name');
 	}
+	
+	function addStatus($item_id,$name,$date,$content=NULL,$team=NULL,$comment=NULL){
+		$data=array(
+			$this->table=>$item_id,
+			'name'=>$name,
+			'date'=>$date,
+			'content'=>$content,
+			'team'=>$team,
+			'comment'=>$comment
+		);
+		
+		$data+=uidTime(false);
+		
+		$this->db->insert($this->table.'_status',$data);
+		
+		return $this->db->insert_id();
+	}
+	
+	function getStatus($item_id){
+		$item_id=intval($item_id);
+		
+		$this->db->select("{$this->table}_status.id,{$this->table}_status.name,{$this->table}_status.content,{$this->table}_status.date,{$this->table}_status.comment")
+			->from("{$this->table}_status")
+			->join($this->table,"{$this->table}_status.{$this->table}={$this->table}.id",'inner')
+			->where("{$this->table}_status.{$this->table}",$item_id);
+		
+		return $this->db->get()->result_array();
+	}
+
+	function removeStatus($item_id,$status_id){
+		$item_id=intval($item_id);
+		$status_id=intval($status_id);
+		return $this->db->delete($this->table.'_status',array('id'=>$status_id,$this->table=>$item_id));
+	}
+	
 }
 ?>

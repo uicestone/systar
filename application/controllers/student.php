@@ -63,11 +63,13 @@ class Student extends People{
 
 			$available_options=$this->people->getAllLabels();
 			$profile_name_options=$this->people->getProfileNames();
-
+			
+			$this->load->addViewData('class', $this->classes->fetchByStudent($this->student->id));
 			$this->load->addViewData('score_list', $this->scoreList());
+			$this->load->addViewData('status_list', $this->statusList());
 			$this->load->addViewData('profile_list', $this->profileList());
 			$this->load->addViewData('relative_list', $this->relativeList());
-			$this->load->addViewArrayData(compact('controller','people','labels','profiles','available_options','profile_name_options'));
+			$this->load->addViewArrayData(compact('people','labels','profiles','available_options','profile_name_options'));
 
 			$this->load->view('student/edit');
 			$this->load->view('people/edit_sidebar',true,'sidebar');

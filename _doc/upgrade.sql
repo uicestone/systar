@@ -311,9 +311,23 @@ CHANGE  `rank_10`  `rank_信息` INT( 11 ) NULL DEFAULT NULL ,
 CHANGE  `rank_sum_3`  `rank_3总` INT( 11 ) NULL DEFAULT NULL ,
 CHANGE  `rank_sum_5`  `rank_5总` INT( 11 ) NULL DEFAULT NULL ,
 CHANGE  `rank_sum_8`  `rank_8总` INT( 11 ) NULL DEFAULT NULL;
--- server updated
 
 ALTER TABLE  `schedule` CHANGE  `time_start`  `start` INT( 10 ) NULL DEFAULT NULL ,
 CHANGE  `time_end`  `end` INT( 10 ) NULL DEFAULT NULL;
 
 ALTER TABLE  `project` CHANGE  `time_end`  `end` DATE NULL DEFAULT NULL;
+-- server updated
+ALTER TABLE  `people_status` CHANGE  `type`  `type` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+ALTER TABLE `people_status` DROP `level`;
+ALTER TABLE `people_status` DROP `company`;
+ALTER TABLE `people_status` DROP `username`;
+ALTER TABLE  `people_status` CHANGE  `student`  `people` INT( 11 ) NOT NULL;
+ALTER TABLE  `people_status` ADD FOREIGN KEY (  `people` ) REFERENCES  `syssh`.`people` (
+`id`
+) ON DELETE NO ACTION ON UPDATE CASCADE;
+ALTER TABLE  `people_status` ADD  `comment` TEXT NULL AFTER  `content`;
+ALTER TABLE  `people_status` ADD  `team` INT NULL AFTER  `uid`;
+ALTER TABLE  `people_status` ADD INDEX (  `team` );
+ALTER TABLE  `people_status` ADD FOREIGN KEY (  `team` ) REFERENCES  `syssh`.`team` (
+`id`
+) ON DELETE NO ACTION ON UPDATE CASCADE ;

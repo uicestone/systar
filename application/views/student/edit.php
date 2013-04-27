@@ -20,6 +20,34 @@
 		<?=$score_list?>
 	 </div>
 
+	<div class="item" name="class">
+		<div class="title">
+			<label class="right">班主任：<?=$class['leader_name']?>
+				<a href="#message/to/<?=$class['leader']?>"><img src="images/message.png"></a>
+			</label>
+			<label><a href="#classes/<?=$class['id']?>"><?=$class['name']?></a></label>
+		</div>
+		
+	 </div>
+
+	<div class="item" name="status">
+		<div class="title"><label>动态</label></div>
+		<?=$status_list?>
+<?if($this->user->inTeam('教师')){?>
+		<button type="button" class="toggle-add-form">＋</button>
+		<span class="add-form hidden">
+			<input type="text" name="status[name]" value="<?=$this->value('status/name')?>" placeholder="状态" />
+			<input type="text" name="status[date]" value="<?=$this->value('status/date')?>" class="date" placeholder="日期" />
+			<input type="text" name="status[content]" value="<?=$this->value('status/content')?>" placeholder="内容" />
+			<input type="text" name="status[comment]" value="<?=$this->value('status/comment')?>" placeholder="备注" />
+			<select name="status[team]">
+				<?=options($this->user->teams,$this->value('status/team'),'评价团队',true)?>
+			</select>
+			<button type="submit" name="submit[status]">添加</button>
+		</span>
+<?}?>
+	 </div>
+
 	<div class="item" name="profile">
 		<div class="title"><label>资料项</label></div>
 		<?=$profile_list?>

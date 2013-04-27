@@ -39,5 +39,10 @@ class Message extends SS_Controller{
 		$this->load->view('message/content_sidebar',true,'sidebar');
 	}
 	
+	function to($receiver){
+		$dialog=$this->message->getDialog($this->user->id, $receiver);
+		$this->content($dialog);
+	}
+	
 }
 ?>

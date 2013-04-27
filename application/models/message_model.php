@@ -24,6 +24,41 @@ class Message_model extends BaseItem_model{
 		return $this->db->get()->row_array();
 	}
 	
+	function createDialog($sender,$receiver,$last_message=NULL){
+		$this->db->insert('dialog',array('company'=>$this->company->id,'users'=>2,'uid'=>$this->user->id,'time'=>$this->date->now,'last_message'=>$last_message));
+		
+		$dialog=$this->db->insert_id();
+		
+		$people_model=new People_model();
+		
+		$this->db->insert('dialog_user',array('dialog'=>$dialog,'user'=>$sender,'title'=>$people_model->fetch($receiver,'name')));
+		$this->db->insert('dialog_user',array('dialog'=>$dialog,'user'=>$receiver,'title'=>$people_model->fetch($sender,'name')));
+		
+		return $dialog;
+	}
+	
+	function getDialog($sender,$receiver){
+		
+		$sender=intval($sender);
+		$receiver=intval($receiver);
+		
+		$query="
+			SELECT d0.dialog
+			FROM dialog_user d0 INNER JOIN dialog_user d1 USING (dialog)
+				INNER JOIN dialog ON dialog.id = d0.dialog AND dialog.users = 2
+			WHERE d0.user = $sender AND d1.user = $receiver
+		";
+		
+		$row=$this->db->query($query)->row();
+		
+		if($row){
+			return $row->dialog;
+		}
+		else{
+			return $this->createDialog($sender, $receiver);
+		}
+	}
+	
 	function getDialogList(){
 		$this->db->select('
 				dialog.*,
@@ -108,13 +143,13 @@ class Message_model extends BaseItem_model{
 		
 		$users_without_dialog=array_diff($users,$users_with_dialog);
 		
-		$this->load->model('people_model','people');
+		$people_model=new People_model();
 		
 		foreach($users_without_dialog as $user){
 			$this->db->insert('dialog',array('company'=>$this->company->id,'users'=>2,'uid'=>$this->user->id,'time'=>$this->date->now,'last_message'=>$message));
 			$dialog=$this->db->insert_id();
 			$this->db->insert('dialog_user',array('dialog'=>$dialog,'user'=>$user,'title'=>$this->user->name));
-			$this->db->insert('dialog_user',array('dialog'=>$dialog,'user'=>$this->user->id,'title'=>$this->people->fetch($user,'name')));
+			$this->db->insert('dialog_user',array('dialog'=>$dialog,'user'=>$this->user->id,'title'=>$people_model->fetch($user,'name')));
 		}
 		
 		$set=array();
@@ -156,5 +191,6 @@ class Message_model extends BaseItem_model{
 		
 		return $this->db->query($query);
 	}
+	
 }
 ?>
