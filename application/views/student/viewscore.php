@@ -1,9 +1,9 @@
 <script type="text/javascript">
-var chart;
+var section = page.children('section[hash="'+hash+'"]');
 $(function(){
-	chart = new Highcharts.Chart($.extend(true,{},highchartsOptions,{
+	new Highcharts.Chart($.extend(true,{},highchartsOptions,{
 		chart: {
-			renderTo: 'chart'
+			renderTo: section.children('#chart').get(0)
 		},
 		title: {
 			text: '年级排名'
