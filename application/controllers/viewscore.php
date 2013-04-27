@@ -146,43 +146,47 @@ class ViewScore extends SS_controller{
 		if($_SESSION['view_score']['update']['step']==2){
 			#三门总分
 			mysql_query("
-			UPDATE view_score SET course_sum_3 = if((course_1*course_2*course_3) IS NOT NULL,course_1+course_2+course_3,NULL) WHERE exam IN (SELECT id FROM exam WHERE is_on=1)
+				UPDATE school_view_score SET 3总 = if((`语文`*`数学`*`英语`) IS NOT NULL,`语文`+`数学`+`英语`,NULL)
 			");
 			
 			#五门总分
 			mysql_query("
-			UPDATE view_score SET course_sum_5 = if((course_1*course_2*course_3*course_4*course_5) IS NOT NULL,
-			course_1+course_2+course_3+course_4+course_5,NULL) WHERE extra_course IS NULL AND exam IN (SELECT id FROM exam WHERE is_on=1)
+				UPDATE school_view_score SET 3总 = if((`语文`*`数学`*`英语`*`物理`*`化学`) IS NOT NULL,
+				`语文`+`数学`+`英语`+`物理`+`化学`,NULL) WHERE extra_course IS NULL
 			");
 			
 			mysql_query("
-			UPDATE view_score SET course_sum_5=
-			if(
-				(
-					course_1*course_2*course_3*
-					if(extra_course=4,course_4,
-						if(extra_course=5,course_5,
-							if(extra_course=6,course_6,
-								if(extra_course=7,course_7,
-									if(extra_course=8,course_8,NULL)
+				UPDATE school_view_score SET 5总=
+				if(
+					(
+						`语文`*`数学`*`英语`*
+						if(extra_course=4,`物理`,
+							if(extra_course=5,`化学`,
+								if(extra_course=6,`生物`,
+									if(extra_course=7,`地理`,
+										if(extra_course=8,`历史`,
+											if(extra_course=9,`政治`,NULL)
+										)
+									)
 								)
 							)
 						)
-					)
-				) IS NOT NULL,
-				course_1+course_2+course_3+
-				if(extra_course=4,course_4,
-					if(extra_course=5,course_5,
-						if(extra_course=6,course_6,
-							if(extra_course=7,course_7,
-								if(extra_course=8,course_8,NULL)
+					) IS NOT NULL,
+					`语文`+`数学`+`英语`+
+					if(extra_course=4,`物理`,
+						if(extra_course=5,`化学`,
+							if(extra_course=6,`生物`,
+								if(extra_course=7,`地理`,
+									if(extra_course=8,`历史`,
+										if(extra_course=9,`政治`,NULL)
+									)
+								)
 							)
 						)
-					)
-				),
-				NULL
-			)
-			WHERE extra_course<>0 AND exam IN (SELECT id FROM exam WHERE is_on=1)
+					),
+					NULL
+				)
+				WHERE extra_course IS NOT NULL
 			");
 			echo ('总分计算完成');
 		}

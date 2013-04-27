@@ -22,7 +22,7 @@ class Student extends People{
 			'政治'=>array('heading'=>'政治','cell'=>'{政治}<span class="rank">{rank_政治}</span>'),
 			'信息'=>array('heading'=>'信息','cell'=>'{信息}<span class="rank">{rank_信息}</span>'),
 			'3总'=>array('heading'=>'3总','cell'=>'{3总}<span class="rank">{rank_3总}</span>'),
-			'4总/5总'=>array('heading'=>'4总/5总','cell'=>'{4总/5总}<span class="rank">{rank_5总}</span>'),
+			'4总/5总'=>array('heading'=>'4总/5总','cell'=>'{5总}<span class="rank">{rank_5总}</span>'),
 			'8总'=>array('heading'=>'8总','cell'=>'{8总}<span class="rank">{rank_8总}</span>')
 		);
 
