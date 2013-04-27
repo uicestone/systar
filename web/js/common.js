@@ -447,7 +447,7 @@ $(document)
 	event.stopPropagation();
 	$(this).find('[placeholder]').placeholder();
 	$(this).find('.date[type="text"]').datepicker();
-	$(this).find('.datetime[type="text"]').datepicker({constrainInput:false});
+	$(this).find('.datetime[type="text"]').datetimepicker();
 	$(this).find('.birthday[type="text"]').datepicker({
 		changeMonth: true,
 		changeYear: true

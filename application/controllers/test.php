@@ -5,7 +5,8 @@ class Test extends SS_controller{
 	}
 	
 	function index(){
-		$this->load->model('schedule_model','schedule');
+		$result=$this->db->query("select * from schedule where id = 1")->row_array();
+		echo json_encode($result);
 		$this->schedule->setTaskBoardSort(array(3=>array(1100),2=>array(1100)),$this->user->id);
 		//print_r($this->session->all_userdata());
 		//print_r($this->user);

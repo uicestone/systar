@@ -48,8 +48,13 @@ $(function(){
 		editable: true,
 		events: function(start,end,callback){
 			$.get('/schedule/readcalendar/'+start.getTime()/1000+'/'+end.getTime()/1000+location.search,function(response){
+				$.map(response.data,function(element,index){
+					element.title=element.name;
+					element.allDay=element.all_day;
+					return element;
+				});
 				callback(response.data);
-			},'json');
+			});
 		},
 
 		eventClick: function(event,jsEvent) {
@@ -75,9 +80,10 @@ $(function(){
 		droppable:true,
 		drop:function(date,allDay,jsEvent){
 			var data={
-				time_start:date.getTime()/1000,
-				time_end:date.getTime()/1000+3600,
-				all_day:Number(allDay)
+				start:date.getTime()/1000,
+				end:date.getTime()/1000+3600,
+				all_day:Number(allDay),
+				completed:Boolean(Number(completed))
 			};
 			$.post('/schedule/writecalendar/update/'+$(jsEvent.target).attr('event-id'),data,function(response){
 				event={

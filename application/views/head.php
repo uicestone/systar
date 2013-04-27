@@ -18,7 +18,7 @@
 	<?=javascript('jQuery/jquery-ui.etc')?>
 
 	<?=stylesheet('js/jQuery/fullcalendar/fullcalendar')?>
-	<?=javascript('jQuery/fullcalendar/fullcalendar.min')?>
+	<?=javascript('jQuery/fullcalendar/fullcalendar')?>
 	
 	<?=javascript('jQuery/highcharts/highcharts')?>
 	
@@ -28,6 +28,9 @@
 	
 	<?=javascript('jQuery/jquery.iframe-transport')?>
 	<?=javascript('jQuery/jquery.fileupload')?>
+	
+	<?=javascript('jQuery/jQuery-Timepicker-Addon/jquery-ui-timepicker-addon')?>
+	<?=stylesheet('js/jQuery/jQuery-Timepicker-Addon/jquery-ui-timepicker-addon')?>
 
 	<?=javascript('schedule')?>
 

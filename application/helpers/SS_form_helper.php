@@ -55,9 +55,9 @@ function radio($options,$name,$checked,$array_key_as_option_value=false){
 /**
  * 生成一个多选框
  */
-function checkbox($html,$name,$check_value,$value=NULL,$attribute=''){
+function checkbox($label,$name,$check_value,$value=NULL,$attribute=''){
 	if(is_null($value)){
-		$value=$html;
+		$value=$label;
 	}
-	return "<label><input name=\"$name\" type=\"checkbox\" value=\"$value\" ".($check_value==$value?'checked="checked"':'').' '.$attribute." />$html</label>";
+	return "<label><input name=\"$name\" type=\"checkbox\" value=\"$value\" ".($check_value==$value?'checked="checked"':'').' '.$attribute." />$label</label>";
 }?>

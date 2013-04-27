@@ -217,7 +217,7 @@ class Query extends Project{
 				$this->query->update($this->query->id,array(
 					'num'=>NULL,
 					'time_contract'=>$this->date->today,
-					'time_end'=>date('Y-m-d',$this->date->now+100*86400)
+					'end'=>date('Y-m-d',$this->date->now+100*86400)
 				));
 				
 				$this->output->message('已立案，请立即获得案号');

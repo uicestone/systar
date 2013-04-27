@@ -8,7 +8,7 @@ class Project_model extends BaseItem_model{
 		'type'=>'类型',
 		'first_contact'=>'首次接洽时间',
 		'time_contract'=>'签约时间',
-		'time_end'=>'（预估）完结时间',
+		'end'=>'（预估）完结时间',
 		'quote'=>'报价',
 		'timing_fee'=>'是计时收费',
 		'focus'=>'焦点',

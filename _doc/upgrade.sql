@@ -312,3 +312,8 @@ CHANGE  `rank_sum_3`  `rank_3总` INT( 11 ) NULL DEFAULT NULL ,
 CHANGE  `rank_sum_5`  `rank_5总` INT( 11 ) NULL DEFAULT NULL ,
 CHANGE  `rank_sum_8`  `rank_8总` INT( 11 ) NULL DEFAULT NULL;
 -- server updated
+
+ALTER TABLE  `schedule` CHANGE  `time_start`  `start` INT( 10 ) NULL DEFAULT NULL ,
+CHANGE  `time_end`  `end` INT( 10 ) NULL DEFAULT NULL;
+
+ALTER TABLE  `project` CHANGE  `time_end`  `end` DATE NULL DEFAULT NULL;

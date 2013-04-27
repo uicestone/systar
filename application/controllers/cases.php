@@ -35,12 +35,14 @@ class Cases extends Project{
 		);
 	
 		$this->miscfee_list_args=array(
-			'receiver'=>array('heading'=>'收款方','cell'=>'{receiver}<button type="submit" name="submit[remove_miscfee]" id="{id}" class="hover">删除</button>'),
-			'fee'=>array('heading'=>'数额','eval'=>true,'cell'=>"
-				return '{fee}'.('{fee_received}'==''?'':' （到账：{fee_received}）');
+			'account'=>array('heading'=>'帐目编号'),
+			'type'=>array('heading'=>'类型','cell'=>'{type}'),
+			'amount'=>array('heading'=>array('data'=>'数额','width'=>'30%'),'eval'=>true,'cell'=>"
+				\$return='{total}'.('{received}'==''?'':' <span title=\"{received_date}\">（到账：{received}）</span>');
+				return \$return;
 			"),
-			'comment'=>array('heading'=>'备注'),
-			'pay_date'=>array('heading'=>'预计时间')
+			'receivable_date'=>array('heading'=>'预计时间'),
+			'comment'=>array('heading'=>'收款方/备注','cell'=>array('class'=>'ellipsis','title'=>'{comment}'))
 		);
 		
 	}
@@ -49,7 +51,7 @@ class Cases extends Project{
 		$this->cases->id=$this->cases->getAddingItem();
 		
 		if($this->cases->id===false){
-			$this->cases->id=$this->cases->add(array('type'=>'业务','time_contract'=>$this->date->today,'time_end'=>date('Y-m-d',$this->date->now+100*86400)));
+			$this->cases->id=$this->cases->add(array('type'=>'业务','time_contract'=>$this->date->today,'end'=>date('Y-m-d',$this->date->now+100*86400)));
 			$this->cases->addLabel($this->cases->id, '案件');
 		}
 		
@@ -98,7 +100,7 @@ class Cases extends Project{
 			$this->load->addViewData('miscfee_list', $this->miscfeeList());
 			
 			$this->load->addViewData('schedule_list', $this->scheduleList());
-			
+
 			$this->load->addViewData('plan_list', $this->planList());
 			
 			$this->load->addViewData('document_list', $this->documentList());
@@ -364,6 +366,38 @@ class Cases extends Project{
 				}
 			}
 			
+			elseif($submit=='miscfee'){
+				
+				$this->load->model('account_model','account');
+				
+				$misc_fee=$this->input->sessionPost('miscfee');
+				
+				if(!$misc_fee['receiver']){
+					$this->output->message('请选择办案费收款方','warning');
+					throw new Exception;
+				}
+				
+				if(!is_numeric($misc_fee['amount'])){
+					$this->output->message('请预估收费金额（数值）','warning');
+					throw new Exception;
+				}
+				
+				if(!$misc_fee['date']){
+					$this->output->message('请预估收费时间','warning');
+					throw new Exception;
+				}
+				
+				$misc_fee['type']=$misc_fee['subject']='办案费';
+				
+				$misc_fee['comment']=$misc_fee['receiver'].'收 '.$misc_fee['comment'];
+				
+				$this->account->add($misc_fee+array('project'=>$this->project->id,'display'=>true));
+				$this->output->setData($this->miscfeeList(),'miscfee-list','content-table','.item[name="miscfee"]>.contentTable','replace');
+				
+				unset($_SESSION[CONTROLLER]['post'][$this->project->id]['miscfee']);
+
+			}
+			
 			elseif($submit=='file' && in_array('咨询',$this->cases->labels)){
 				$this->cases->addLabel($this->cases->id, '已归档');
 				$this->output->status='refresh';
@@ -414,7 +448,7 @@ class Cases extends Project{
 			elseif($submit=='apply_file'){
 				$this->cases->addLabel($this->cases->id, '已申请归档');
 				$this->cases->update($this->cases->id,array(
-					'time_end'=>$this->date->today
+					'end'=>$this->date->today
 				));
 				$this->output->message('归档申请已接受');
 			}
@@ -434,7 +468,7 @@ class Cases extends Project{
 			elseif($submit=='review_manager'){
 				$this->cases->addLabel($this->cases->id, '通过主管审核');
 				$this->cases->update($this->cases->id,array(
-					'time_end'=>$this->date->today,
+					'end'=>$this->date->today,
 				));
 				$this->output->status='refresh';
 				$this->output->message('案件已经审核，已正式归档');

@@ -5,7 +5,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 		allDay:null,
 		target:null,/*dialog positioning target*/
 		position:{
-			my:'left bottom',
+		my:'left bottom',
 			at:'right top',
 			of:null
 		},
@@ -16,11 +16,13 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 		content:'',
 		id:null,
 		project:null,
+		completed:null,
 		buttons:[],
 		method:null,/*schedule method: create, view or edit*/
 		event:{},/*event object for fullCalendar*/
 		calendar:null,/*日历对象，可用来判断是否从日历调取*/
-		taskboard:null/*任务墙对象，用来判断是否从任务墙调取*/
+		taskboard:null,/*任务墙对象，用来判断是否从任务墙调取*/
+		refreshOnSave:false
 	},
 	_create:function(){
 		var that=this;
@@ -196,10 +198,12 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			}
 			
 			/*根据响应，设置completed选项*/
-			response.data.completed && that.option('completed',Boolean(Number(response.data.completed.content)));
+			if(response.data.completed){
+				that.options.completed=Boolean(Number(response.data.completed.content));
+			}
 			
 			/*对于新建日程，由当前时间和日程时间给出预设的completed值*/
-			if(that.options.method==='create'){
+			if(that.options.method==='create' && that.options.completed===null){
 				that.options.completed=that.options.start<new Date() && that.options.calendar;
 			}
 			
@@ -232,7 +236,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			});
 			
 			if(that.options.project){
-				that.element.find('[name="project"]').val(that.options.project).trigger('liszt:updated').attr('changed','changed');
+				that.element.find('[name="project"]').val(that.options.project).attr('changed','changed');
 			}
 			
 		},'json');
@@ -251,7 +255,8 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			this.options.event.title
 				=this.options.title
 				=this.element.find(':input[name="content"]').val().split("\n").shift();
-		}else if(that.options.method==='edit'){
+		}
+		else if(that.options.method!=='view'){
 			$.showMessage('请填写内容','warning');
 			return;
 		}
@@ -270,11 +275,19 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 				all_day:Number(this.options.allDay)
 			});
 		}
+		
+		if(this.options.project){
+			data.project=this.options.project;
+		}
 
 		that.element.find(':input[name][changed]').each(function(){
-			data[$(this).attr('name')]=$(this).val();
+			if($(this).is(':checkbox')){
+				data[$(this).attr('name')]=$(this).is(':checked');
+			}else{
+				data[$(this).attr('name')]=$(this).val();
+			}
 		});
-
+		
 		var uri=this.options.method==='create'?'/schedule/writecalendar/add':'/schedule/writecalendar/update/'+this.options.id;
 
 		$.post(uri,data,function(response){
@@ -295,6 +308,9 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 					}
 					$(calendar)
 					.fullCalendar(that.options.method==='create'?'renderEvent':'updateEvent',that.options.event);
+				}
+				if(that.options.refreshOnSave){
+					$.refresh(hash);
 				}
 				that.element.schedule('close');
 			}

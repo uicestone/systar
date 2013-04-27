@@ -10,7 +10,7 @@
 			</span>
 		</div>
 		<input type="text" name="project[time_contract]" value="<?=$this->value('project/time_contract')?>" class="date" placeholder="开始日期" />
-		<input type="text" name="project[time_end]" value="<?=$this->value('project/time_end')?>" class="date" placeholder="结束日期" />
+		<input type="text" name="project[end]" value="<?=$this->value('project/end')?>" class="date" placeholder="结束日期" />
 	</div>
 
 	<div class="item" name="indicator">

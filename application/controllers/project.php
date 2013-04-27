@@ -52,19 +52,19 @@ class Project extends SS_controller{
 		);
 		
 		$this->schedule_list_args=array(
-			'name'=>array('heading'=>array('data'=>'标题','width'=>'150px'),'wrap'=>array('mark'=>'span','class'=>'show-schedule','id'=>'{id}')),
-			'time_start'=>array('heading'=>array('data'=>'时间','width'=>'60px'),'eval'=>true,'cell'=>"
-				if('{time_start}') return date('m-d H:i','{time_start}');
-			"),
-			'username'=>array('heading'=>array('data'=>'填写人','width'=>'90px'))
+			'name'=>array('heading'=>array('data'=>'标题'),'wrap'=>array('mark'=>'span','class'=>'show-schedule','id'=>'{id}')),
+			'start'=>array('heading'=>array('data'=>'时间'),'parser'=>array('function'=>function($start){
+				return $start?date('Y-m-d H:i',intval($start)):null;
+			},'args'=>array('{start}'))),
+			'creater_name'=>array('heading'=>array('data'=>'人员'))
 		);
 		
 		$this->plan_list_args=array(
-			'name'=>array('heading'=>array('data'=>'标题','width'=>'150px'),'wrap'=>array('mark'=>'span','class'=>'show-schedule','id'=>'{id}')),
-			'time_start'=>array('heading'=>array('data'=>'时间','width'=>'60px'),'eval'=>true,'cell'=>"
-				if('{time_start}') return date('m-d H:i','{time_start}');
-			"),
-			'username'=>array('heading'=>array('data'=>'填写人','width'=>'90px'))
+			'name'=>array('heading'=>array('data'=>'标题'),'wrap'=>array('mark'=>'span','class'=>'show-schedule','id'=>'{id}')),
+			'start'=>array('heading'=>array('data'=>'时间'),'parser'=>array('function'=>function($start){
+				return $start?date('Y-m-d H:i',intval($start)):null;
+			},'args'=>array('{start}'))),
+			'creater_name'=>array('heading'=>array('data'=>'人员'))
 		);
 		
 		$this->status_list_args=array();
@@ -77,7 +77,7 @@ class Project extends SS_controller{
 				return \$return;
 			"),
 			'receivable_date'=>array('heading'=>'预计时间'),
-			'comment'=>array('heading'=>'备注','cell'=>array('class'=>'ellipsis','title'=>'{comment}'))
+			'comment'=>array('heading'=>'条件/备注','cell'=>array('class'=>'ellipsis','title'=>'{comment}'))
 		);
 		
 		$this->relative_list_args=array(
@@ -255,13 +255,18 @@ class Project extends SS_controller{
 			->setAttribute('name','schedule')
 			//@TODO 点击列表打开日程尚有问题
 			->setRowAttributes(array('onclick'=>"$.viewSchedule(\{id:{id}\})"))
-			->generate($this->schedule->getList(array('limit'=>10,'project'=>$this->project->id,'completed'=>true)));
+			->generate($this->schedule->getList(array('show_creater'=>true,'limit'=>10,'project'=>$this->project->id,'completed'=>true,'orderby'=>'id desc')));
 	}
 	
 	function planList(){
+		
+		$this->load->model('schedule_model','schedule');
+		
 		return $this->table->setFields($this->plan_list_args)
-			->setAttribute('name','plan')
-			->generate($this->schedule->getList(array('limit'=>10,'project'=>$this->project->id,'completed'=>false)));
+			->setAttribute('name','schedule')
+			//@TODO 点击列表打开日程尚有问题
+			->setRowAttributes(array('onclick'=>"$.viewSchedule(\{id:{id}\})"))
+			->generate($this->schedule->getList(array('show_creater'=>true,'limit'=>10,'project'=>$this->project->id,'completed'=>false)));
 	}
 	
 	function statusList(){
@@ -391,34 +396,6 @@ class Project extends SS_controller{
 				}else{
 					$this->output->setData($this->miscfeeList(),'miscfee-list','content-table','.item[name="miscfee"]>.contentTable','replace');
 				}
-			}
-			
-			elseif($submit=='case_fee_misc'){
-				
-				$misc_fee=$this->input->sessionPost('case_fee_misc');
-				
-				if(!$misc_fee['receiver']){
-					$this->output->message('请选择办案费收款方','warning');
-				}
-				
-				if(!$misc_fee['fee']){
-					$this->output->message('请填写办案费约定金额（数值）','warning');
-				}
-				
-				if(!$misc_fee['pay_date']){
-					$this->output->message('请填写收费时间','warning');
-				}
-				
-				if(count($this->output->message['warning'])>0){
-					throw new Exception();
-				}
-				
-				if($this->project->addFee($this->project->id,$misc_fee['fee'],$misc_fee['pay_date'],'办案费',NULL,$misc_fee['receiver'],$misc_fee['comment'])){
-					$this->output->setData($this->miscfeeList(),'miscfee-list','content-table','.item[name="miscfee"]>.contentTable','replace');
-				}else{
-					$this->output->message('收费添加错误', 'warning');
-				}
-				unset($_SESSION[CONTROLLER]['post'][$this->project->id]['case_fee_misc']);
 			}
 			
 			elseif($submit=='document'){

@@ -13,10 +13,10 @@ class Schedule extends SS_controller{
 		$this->load->model('project_model','project');
 		
 		$this->list_args=array(
-			'name'=>array('heading'=>'标题'),
-			'time'=>array('heading'=>'时间','parser'=>array('function'=>function($time_start){
-				return date('Y-m-d H:i',intval($time_start));
-			},'args'=>array('{time_start}'))),
+			'name'=>array('heading'=>'标题','cell'=>array('class'=>'ellipsis','title'=>'{content}')),
+			'time'=>array('heading'=>'时间','parser'=>array('function'=>function($start){
+				return $start?date('Y-m-d H:i',intval($start)):null;
+			},'args'=>array('{start}')),'cell'=>array('style'=>'color:{color}')),
 			'hours'=>array('heading'=>'时长','parser'=>array('function'=>function($hours_own,$hours_checked){
 				if($hours_checked!==''){
 					return $hours_checked;
@@ -24,12 +24,13 @@ class Schedule extends SS_controller{
 					return $hours_own;
 				}
 			},'args'=>array('{hours_own}','{hours_checked}'))),
+			'creater_name'=>array('heading'=>'人员'),
 			'project'=>array('heading'=>'事项','cell'=>'{project_name}')
 		);
 	}
 	
 	function calendar(){
-		$this->load->addViewData('side_task_board', $this->schedule->getList(array('in_todo_list'=>true)));
+		$this->load->addViewData('side_task_board', $this->schedule->getList(array('people'=>$this->user->id,'in_todo_list'=>true)));
 		
 		$this->load->view('schedule/calendar');
 		$this->load->view('schedule/calendar_sidebar',true,'sidebar');
@@ -41,6 +42,16 @@ class Schedule extends SS_controller{
 	
 	function plan(){
 		$this->config->set_user_item('search/completed', false, false);
+		
+		$this->list_args=array(
+			'name'=>array('heading'=>'标题','cell'=>array('class'=>'ellipsis','title'=>'{content}')),
+			'time'=>array('heading'=>'时间','parser'=>array('function'=>function($start){
+				return $start?date('Y-m-d H:i',intval($start)):null;
+			},'args'=>array('{start}'))),
+			'creater_name'=>array('heading'=>'人员'),
+			'project'=>array('heading'=>'事项','cell'=>'{project_name}')
+		);
+		
 		$this->lists();
 	}
 	
@@ -49,12 +60,14 @@ class Schedule extends SS_controller{
 		$this->config->set_user_item('search/orderby', 'schedule.id desc', false);
 		$this->config->set_user_item('search/limit', 'pagination', false);
 		$this->config->set_user_item('search/in_project_of_people', $this->user->id, false);
+		$this->config->set_user_item('search/show_creater', true, false);
 		
 		if($this->input->get('project')){
 			$this->section_title='日程 - '.$this->project->fetch($this->input->get('project'),'name');
+			$this->config->set_user_item('search/project', $this->input->get('project'),false);
 		}
 		
-		$search_items=array('name','project');
+		$search_items=array('name');
 		
 		foreach($search_items as $item){
 			if($this->input->post($item)!==false){
@@ -77,20 +90,20 @@ class Schedule extends SS_controller{
 			$field=array(
 				'name'=>array('heading'=>'标题'),
 				'content'=>array('heading'=>'内容'),
-				'time_start'=>array('heading'=>'时间','eval'=>true,'cell'=>"return date('Y-m-d H:i',{time_start});"),
+				'start'=>array('heading'=>'时间','eval'=>true,'cell'=>"return date('Y-m-d H:i',{start});"),
 				'hours_own'=>array('heading'=>'自报小时'),
-				'staff_name'=>array('heading'=>'律师')
+				'creater_name'=>array('heading'=>'人员')
 			);
 			
 			$this->table->setFields($field)
 				->setData($this->schedule->getList($this->config->user_item('search')))
 				->generateExcel();
 		}else{
-			$table=
-				$this->table
-					->setFields($this->list_args)
-					->setData($this->schedule->getList($this->config->user_item('search')))
-					->generate();
+			$table=$this->table
+				->setFields($this->list_args)
+				->setData($this->schedule->getList($this->config->user_item('search')))
+				->generate();
+			
 			$this->load->addViewData('list',$table);
 			$this->load->view('schedule/list');
 			$this->load->view('schedule/list_sidebar',true,'sidebar');
@@ -104,8 +117,8 @@ class Schedule extends SS_controller{
 		$field=array(
 			'staff_name'=>array('heading'=>array('data'=>'人员','width'=>'60px'),'cell'=>'<a href="#schedule/lists?staff={staff}"> {staff_name}</a>'),
 		
-			'time_start'=>array('heading'=>array('data'=>'时间','width'=>'60px'),'eval'=>true,'cell'=>"
-				return date('m-d H:i',{time_start});
+			'start'=>array('heading'=>array('data'=>'时间','width'=>'60px'),'eval'=>true,'cell'=>"
+				return date('m-d H:i',{start});
 			"),
 		
 			'place'=>array('heading'=>array('data'=>'外出地点','width'=>'25%'))
@@ -127,7 +140,7 @@ class Schedule extends SS_controller{
 		
 		}else{
 			//获得当前视图的全部日历，根据$this->input->get('start'),$this->input->get('end')(timestamp)
-			$this->output->data=$this->schedule->fetch_range($start,$end,$this->input->get('staff'),$this->input->get('project'));
+			$this->output->data=$this->schedule->getList(array('date_form'=>false,'time'=>array('from'=>$start,'to'=>$end),'people'=>$this->user->id));
 		}
 	}
 	
@@ -177,7 +190,7 @@ class Schedule extends SS_controller{
 			
 			$new_schedule_id = $this->schedule->add($data);
 			$this->schedule->updatePeople($new_schedule_id,$this->input->post('people'));
-			if(!isset($data['time_start']) && !isset($data['time_end']) && !isset($data['all_day'])){
+			if(!isset($data['start']) && !isset($data['end']) && !isset($data['all_day'])){
 				$this->addToTaskBoard($new_schedule_id);
 			}
 			$this->schedule->updateProfiles($new_schedule_id, $this->input->post('profiles'));
@@ -199,7 +212,7 @@ class Schedule extends SS_controller{
 			
 			$schedule=$this->schedule->fetch($schedule_id);
 			
-			$this->output->data=array('id'=>$schedule_id,'name'=>$schedule['name'],'completed'=>(bool)$schedule['completed'],'start'=>$schedule['time_start'],'end'=>$schedule['time_end']);
+			$this->output->data=array('id'=>$schedule_id,'name'=>$schedule['name'],'completed'=>(bool)$schedule['completed'],'start'=>$schedule['start'],'end'=>$schedule['end']);
 			
 			$this->output->status='success';
 		
@@ -230,7 +243,7 @@ class Schedule extends SS_controller{
 		}
 		
 		$this->load->addViewData('task_board' , $task_board);
-		$this->load->addViewData('side_task_board', $this->schedule->getList(array('in_todo_list'=>true)));
+		$this->load->addViewData('side_task_board', $this->schedule->getList(array('people'=>$this->user->id,'in_todo_list'=>true)));
 		$this->load->view('schedule/taskboard');
 		$this->load->view('schedule/taskboard_sidebar',true,'sidebar');
 	}
@@ -305,6 +318,9 @@ class Schedule extends SS_controller{
 			$this->schedule->id=$schedule_id;
 
 			$schedule=$this->schedule->fetch($schedule_id);
+			
+			$this->load->model('people_model','people');
+			$schedule['creater_name']=$this->people->fetch($schedule['uid'],'name');
 			
 			$profiles=$this->schedule->getProfiles($schedule_id);
 			

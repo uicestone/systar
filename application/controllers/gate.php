@@ -41,8 +41,8 @@ class Gate extends SS_Controller{
 				'name'=>$this->input->post('title'),
 				'people'=>$receptionist,
 				'content'=>$content,
-				'time_start'=>$this->date->now,
-				'time_end'=>$this->date->now+3600,
+				'start'=>$this->date->now,
+				'end'=>$this->date->now+3600,
 				'completed'=>false
 			));
 

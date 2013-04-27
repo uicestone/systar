@@ -19,7 +19,7 @@
 <?	}?>
 		<input type="text" name="project[time_contract]" value="<?=$this->value('project/time_contract')?>" placeholder="立案日期" title="立案日期" class="date" <? if(in_array('在办',$labels))echo 'disabled';?> />
 		-
-		<input type="text" name="project[time_end]" value="<?=$this->value('project/time_end')?>" placeholder="预估结案日期" title="预估结案日期" class="date" <? if(in_array('在办',$labels))echo 'disabled';?> />
+		<input type="text" name="project[end]" value="<?=$this->value('project/end')?>" placeholder="预估结案日期" title="预估结案日期" class="date" <? if(in_array('在办',$labels))echo 'disabled';?> />
 	</div>
 
 	<div class="item" name="client">
@@ -141,7 +141,7 @@
 			</select>
 <?}?>
 			<input type="text" name="account[date]" value="<?=$this->value('account/date')?>" placeholder="预估日期" class="date" />
-			<input type="text" name="account[comment]" value="<?=$this->value('account/comment');?>" placeholder="备注" />
+			<input type="text" name="account[comment]" value="<?=$this->value('account/comment');?>" placeholder="条件/备注" />
 			<button type="submit" name="submit[account]">添加</button>
 		</span>
 	</div>
@@ -152,13 +152,20 @@
 		<?=$miscfee_list?>
 		<button type="button" class="toggle-add-form">＋</button>
 		<span class="add-form hidden">
-			<select name="case_fee_misc[receiver]">
-				<?=options(array('承办律师','律所'),$this->value('case_fee_misc[receiver]'),'收款方');?>
+			<select name="miscfee[receiver]">
+				<?=options(array('承办律师','律所'),$this->value('miscfee[receiver]'),'收款方');?>
 			</select>
-			<input type="text" name="case_fee_misc[fee]" value="<?=$this->value('case_fee_misc/fee');?>" placeholder="数额" />
-			<input type="text" name="case_fee_misc[comment]" value="<?=$this->value('case_fee_misc/comment');?>" placeholder="备注" />
-			<input type="text" name="case_fee_misc[pay_date]" value="<?=$this->value('case_fee_misc/pay_date')?>" placeholder="预估日期" class="date" />
-			<button type="submit" name="submit[case_fee_misc]">添加</button>
+			<input type="text" name="miscfee[account]" value="<?=$this->value('miscfee/account')?>" placeholder="帐目编号" />
+			<input type="text" name="miscfee[amount]" value="<?=$this->value('miscfee/amount');?>" placeholder="数额" />
+<?if($this->user->isLogged('finance')){?>
+			<select name="miscfee[received]">
+				<option value="0">应收帐款</option>
+				<option value="1">已到帐</option>
+			</select>
+<?}?>
+			<input type="text" name="miscfee[date]" value="<?=$this->value('miscfee/date')?>" placeholder="预估日期" class="date" />
+			<input type="text" name="miscfee[comment]" value="<?=$this->value('miscfee/comment');?>" placeholder="条件/备注" />
+			<button type="submit" name="submit[miscfee]">添加</button>
 		</span>
 	</div>
 
@@ -185,11 +192,11 @@
 	<div class="item" name="schedule">
 		<div class="title">
 			<span class="right">
-				<?=$schedule_time?>小时
+				<?=(double)$schedule_time?>小时
 				<a href="#schedule/lists?project=<?=$this->value('project/id')?>">所有日志>></a>
 			</span>
 			<label>最新日志：
-				<a href="javascript:$.createSchedule({project:<?=$this->value('project/id')?>,completed:true})">添加>></a>
+				<a href="javascript:$.createSchedule({project:<?=$this->value('project/id')?>,completed:true,refreshOnSave:true})">添加>></a>
 			</label>
 		</div>
 		<?=$schedule_list?>
@@ -201,10 +208,10 @@
 				<a href="#schedule/plan?project=<? echo $this->value('project/id')?>">所有计划>></a>
 			</span>
 			<label>日程计划：
-				<a href="javascript:$.createSchedule({project:<?=$this->value('project/id')?>,completed:false})">添加>></a>
+				<a href="javascript:$.createSchedule({project:<?=$this->value('project/id')?>,completed:false,refreshOnSave:true})">添加>></a>
 			</label>
 		</div>
-		<?$plan_list?>
+		<?=$plan_list?>
 	</div>
 
 	<div class="item">

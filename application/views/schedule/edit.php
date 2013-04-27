@@ -15,14 +15,14 @@
 ),'name','id'),$people,NULL,true)?></select>
 <br />
 <?if($this->input->get('period')){?>
-<input type="text" name="time_start" value="<?=$this->value('schedule/time_start')?>" class="datetime" placeholder="开始" style="width:48%" />
-<input type="text" name="time_end" value="<?=$this->value('schedule/time_end')?>" class="datetime" placeholder="结束" style="width:48%" /><br />
+<input type="text" name="start" value="<?=$this->value('schedule/start')?>" class="datetime" placeholder="开始时间" style="width:68%;margin-right:1%" /><input type="text" name="hours_own" value="<?=$this->value('schedule/hours_own')?>" placeholder="小时长" style="width:25%;margin-right:1%" /><?=checkbox('','in_todo_list',$this->value('schedule/in_todo_list')!=='0','1','title="在任务列表显示" style="width:3%;margin:0;"')?>
+<br />
 <?}?>
 <input type="text" name="deadline" value="<?=$this->value('schedule/deadline')?>" class="datetime" placeholder="截止" style="width:98%" /><br />
 <div class="profile hidden">
-	<select class="profile-name" style="width:23%">
+	<select class="profile-name" style="width:35%">
 		<?=options(array('外出地点','费用金额','费用用途','备注'),NULL)?>
 	</select>
 	: 
-	<input type="text" name="profiles[]" placeholder="信息内容" style="width:68%" />
+	<input type="text" name="profiles[]" placeholder="信息内容" style="width:60%" />
 </div>

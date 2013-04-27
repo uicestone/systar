@@ -4,8 +4,8 @@ class Schedule_model extends BaseItem_model{
 	static $fields=array(
 		'name'=>'标题',
 		'content'=>'内容',
-		'time_start'=>'开始时间',
-		'time_end'=>'结束时间',
+		'start'=>'开始时间',
+		'end'=>'结束时间',
 		'deadline'=>'截止日期',
 		'in_todo_list'=>'在任务列表中',
 		'hours_own'=>'自报时长',
@@ -21,12 +21,18 @@ class Schedule_model extends BaseItem_model{
 		$this->table='schedule';
 	}
 
+	/**
+	 * start & end time of schedule returned in Y-m-d H:i format
+	 * @param int $id
+	 * @param string $field
+	 * @return mixed $schedule array, or a specific field of it.
+	 */
 	function fetch($id,$field=NULL){
 		$schedule=parent::fetch($id,$field);
 		
 		if(is_null($field)){
-			isset($schedule['time_start']) && $schedule['time_start']=date('Y-m-d H:i',$schedule['time_start']);
-			isset($schedule['time_end']) && $schedule['time_end']=date('Y-m-d H:i',$schedule['time_end']);
+			isset($schedule['start']) && $schedule['start']=date('Y-m-d H:i',$schedule['start']);
+			isset($schedule['end']) && $schedule['end']=date('Y-m-d H:i',$schedule['end']);
 		}
 		
 		return $schedule;
@@ -35,8 +41,9 @@ class Schedule_model extends BaseItem_model{
 	/**
 	 * 
 	 * @param array $args
-	 * project
-	 * people
+	 * project: get schedule only under this project
+	 * people: get schedule related with this people (by schedule.uid and schedule_people)
+	 * show_creater
 	 * id_in_set
 	 * in_todo_list
 	 * completed
@@ -58,21 +65,22 @@ class Schedule_model extends BaseItem_model{
 			$this->db->where('schedule.project',$args['project']);
 		}
 		
-		if(!isset($args['people'])){
-			$args['people']=$this->user->id;
-		}else{
-			$args['people']=intval($args['people']);
+		if(isset($args['people'])){
+			$this->db->where("
+				(
+					schedule.uid = {$args['people']} 
+					OR 
+					schedule.id IN (
+						SELECT schedule FROM schedule_people WHERE people = {$args['people']}
+					)
+				)
+			",NULL,FALSE);
 		}
 		
-		$this->db->where("
-			(
-				uid = {$args['people']} 
-				OR 
-				id IN (
-					SELECT schedule FROM schedule_people WHERE people = {$args['people']}
-				)
-			)
-		",NULL,FALSE);
+		if(isset($args['show_creater']) && $args['show_creater']){
+			$this->db->join('people creater','creater.id = schedule.uid','inner')
+				->select('creater.id creater, creater.name creater_name');
+		}
 		
 		if(isset($args['id_in_set'])){
 			if(!$args['id_in_set']){
@@ -93,14 +101,14 @@ class Schedule_model extends BaseItem_model{
 		
 		if(isset($args['time'])){
 			if($args['time']===false){
-				$this->db->where(array('time_start'=>NULL,'time_end'=>NULL));
+				$this->db->where(array('start'=>NULL,'end'=>NULL));
 			}
 			
 			if(isset($args['time']['from'])){
 				if(isset($args['time']['input_format']) && $args['time']['input_format']!=='timestamp'){
 					$args['time']['from']=strtotime($args['time']['from']);
 				}
-				$this->db->where('time_start >=',$args['time']['from']);
+				$this->db->where('start >=',$args['time']['from']);
 			}
 			
 			if(isset($args['time']['to'])){
@@ -109,23 +117,22 @@ class Schedule_model extends BaseItem_model{
 				}
 				
 				if(isset($args['time']['input_format']) && $args['time']['input_format']==='date'){
-					$this->db->where('time_end <=',$args['time']['end']);
+					$this->db->where('end <=',$args['time']['to']);
 				}else{
-					$this->db->where('time_end <',$args['time']['end']);
+					$this->db->where('end <',$args['time']['to']);
 				}
 				
 			}
 			
-			if(!isset($args['date']['form'])){
-				$args['date']['form']='%Y-%m-%d';
+			if(!isset($args['date_form'])){
+				$args['date_form']='%Y-%m-%d';
 			}
-			if($args['date']['form']!==false){
+			if($args['date_form']!==false){
 				$this->db->select("
-					FROM_UNIXTIME(schedule.time_start, '{$args['date']['form']}') AS time_start,
-					FROM_UNIXTIME(schedule.time_end, '{$args['date']['form']}') AS time_end
+					FROM_UNIXTIME(schedule.start, '{$args['date_form']}') AS start,
+					FROM_UNIXTIME(schedule.end, '{$args['date_form']}') AS end
 				",false);
 			}
-			
 		}
 		
 		if(isset($args['in_project_of_people']) && $args['in_project_of_people']){
@@ -134,7 +141,26 @@ class Schedule_model extends BaseItem_model{
 				->select('project.name AS project_name, project.id AS project');
 		}
 		
-		return parent::getList($args);
+		$schedules = parent::getList($args);
+		
+		array_walk($schedules,function(&$schedule,$index,$CI){
+			if($schedule['completed']){
+				$schedule['color']='#36C';
+			}else{
+				if($schedule['start']<$CI->date->now){
+					$schedule['color']='#555';
+				}else{
+					$schedule['color']='#E35B00';
+				}
+			}
+			
+			$schedule['all_day']=(bool)$schedule['all_day'];
+			$schedule['completed']=(bool)$schedule['completed'];
+
+		},$this);
+		
+		return $schedules;
+	
 	}
 	
 	/**
@@ -145,15 +171,15 @@ class Schedule_model extends BaseItem_model{
 		$data=array_intersect_key($data, self::$fields);
 		
 		//attemp to convert date string to timestamp
-		foreach(array('time_start','time_end','deadline') as $timepoint){
+		foreach(array('start','end','deadline') as $timepoint){
 			if(isset($data[$timepoint]) && strtotime($data[$timepoint])){
 				$data[$timepoint]=strtotime($data[$timepoint]);
 			}
 		}
 		
 		//generate  hours automatically on time
-		if(isset($data['time_start']) && isset($data['time_end'])){
-			$data['hours_own'] = round(($data['time_end']-$data['time_start'])/3600,2);
+		if(isset($data['start']) && isset($data['end'])){
+			$data['hours_own'] = round(($data['end']-$data['start'])/3600,2);
 			$data['in_todo_list'] = false;
 		}
 		
@@ -170,17 +196,14 @@ class Schedule_model extends BaseItem_model{
 		$schedule_id=intval($schedule_id);
 		
 		//attemp to convert date string to timestamp
-		foreach(array('time_start','time_end','deadline') as $timepoint){
-			if(isset($data[$timepoint]) && !is_integer($data[$timepoint])){
+		foreach(array('start','end','deadline') as $timepoint){
+			if(isset($data[$timepoint]) && strtotime($data[$timepoint])){
 				$data[$timepoint]=strtotime($data[$timepoint]);
-				if($data[$timepoint]===false){
-					return false;
-				}
 			}
 		}
 		
-		if(isset($data['time_start']) && isset($data['time_end'])){
-			$data['hours_own'] = round(($data['time_end']-$data['time_start'])/3600,2);
+		if(isset($data['start']) && isset($data['end'])){
+			$data['hours_own'] = round(($data['end']-$data['start'])/3600,2);
 		}
 		
 		$data=array_intersect_key($data, self::$fields);
@@ -194,18 +217,11 @@ class Schedule_model extends BaseItem_model{
 		return $this->db->update('schedule',array('display'=>false),array('id'=>$schedule_id));	
 	}
 	
-	function addPeople($schedule_id,$people){
+	function addPeople($schedule_id,$people_id){
 		$schedule_id=intval($schedule_id);
+		$people_id=intval($people_id);
 		
-		if(is_array($people)){
-			$set=array();
-			foreach($people as $person){
-				$set[]=array('people'=>$person,'schedule'=>$schedule_id);
-			}
-			return $this->db->insert_batch('schedule_people',$set);
-		}elseif($people){
-			return $this->db->insert('schedule_people',array('people'=>intval($people),'schedule'=>$schedule_id));
-		}
+		return $this->db->insert('schedule_people',array('schedule'=>$schedule_id,'people'=>$people_id));
 	}
 	
 	function getPeople($schedule_id){
@@ -214,7 +230,9 @@ class Schedule_model extends BaseItem_model{
 	}
 	
 	/**
-	 * 
+	 * update relatied people of a schedule
+	 * will add new ones and remove old ones
+	 * suitbable for all add/remove/update operation when an array of people is given
 	 * @param int $schedule_id
 	 * @param array $setto
 	 */
@@ -253,70 +271,10 @@ class Schedule_model extends BaseItem_model{
 		}
 	}
 	
-	function removePeople($schedule_id){
+	function removePeople($schedule_id,$people_id){
 		$schedule_id=intval($schedule_id);
-		return $this->db->delete('schedule_people',array('schedule'=>$schedule_id));
-	}
-	
-	/**
-	 * 获得一个时间范围内的多个日程
-	 * @param $start 开始时间戳
-	 * @param $end 结束时间戳
-	 * @param $staff
-	 * @param $project
-	 * @return array
-	 */
-	function fetch_range($start,$end,&$staff,&$project){
-		$start=intval($start);
-		$end=intval($end);
-	
-		if($staff){
-			$people=intval($staff);
-		}else{
-			$people=$this->user->id;
-		}
-		
-		$q_calendar="
-			SELECT * 
-			FROM schedule
-			WHERE company = {$this->company->id} AND display = 1 
-				AND time_start>=$start AND time_start<$end
-				AND (uid = $people OR id IN (SELECT schedule FROM schedule_people WHERE people = $people))
-		";
-		
-		if($project){
-			$project=intval($project);
-			$q_calendar.=" AND `project` = $project";
-		}
-	
-		$calendar=$this->db->query($q_calendar)->result_array();
-		
-		$scheduleArray=array();
-		foreach($calendar as $order => $schedule){
-			
-			if($schedule['completed']){
-				$schedule['color']='#36C';
-			}else{
-				if($schedule['time_start']<$this->date->now){
-					$schedule['color']='#555';
-				}else{
-					$schedule['color']='#E35B00';
-				}
-			}
-
-			$scheduleArray[$order]=array(
-				'id'=>$schedule['id'],
-				'title'=>$schedule['name'],
-				'start'=>date('Y-m-d H:i',$schedule['time_start']),
-				'end'=>date('Y-m-d H:i',$schedule['time_end']),
-				'allDay'=>(bool)$schedule['all_day'],
-				'completed'=>(bool)$schedule['completed'],
-				'color'=>$schedule['color']
-			);
-
-		}
-	
-		return $scheduleArray;
+		$people_id=intval($people_id);
+		return $this->db->delete('schedule_people',array('schedule'=>$schedule_id,'people'=>$people_id));
 	}
 	
 	/**
@@ -348,7 +306,7 @@ class Schedule_model extends BaseItem_model{
 	 */
 	function resize($schedule_id,$time_delta){
 		$hours_delta=$time_delta/3600;
-		return $this->db->query("UPDATE schedule SET `hours_own` = `hours_own`+'{$hours_delta}', `time_end`=`time_end`+'{$time_delta}' WHERE id='{$schedule_id}'");
+		return $this->db->query("UPDATE schedule SET `hours_own` = `hours_own`+'{$hours_delta}', `end`=`end`+'{$time_delta}' WHERE id='{$schedule_id}'");
 	}
 	
 	/**
@@ -361,8 +319,8 @@ class Schedule_model extends BaseItem_model{
 		
 		$query="
 			UPDATE schedule 
-			SET `time_start` = `time_start`+$seconds_delta,
-				`time_end`=`time_end`+ $seconds_delta,
+			SET `start` = `start`+$seconds_delta,
+				`end`=`end`+ $seconds_delta,
 				all_day = $all_day
 			WHERE id= $schedule_id
 		";
@@ -451,13 +409,13 @@ class Schedule_model extends BaseItem_model{
 			FROM staff INNER JOIN (
 				SELECT uid,SUM(IF(schedule.hours_checked IS NULL,schedule.hours_own,schedule.hours_checked)) AS hours
 				FROM schedule
-				WHERE completed=1 AND schedule.time_start >= '".$last_week_monday."' AND schedule.time_start < '".($last_week_monday+86400*7)."'
+				WHERE completed=1 AND schedule.start >= '".$last_week_monday."' AND schedule.start < '".($last_week_monday+86400*7)."'
 				GROUP BY uid
 			)lastweek ON staff.id=lastweek.uid
 			LEFT JOIN (
 				SELECT uid,SUM(IF(schedule.hours_checked IS NULL,schedule.hours_own,schedule.hours_checked)) AS hours
 				FROM schedule
-				WHERE completed=1 AND schedule.time_start >= '".($last_week_monday-86400*7)."' AND schedule.time_start < '".$last_week_monday."'
+				WHERE completed=1 AND schedule.start >= '".($last_week_monday-86400*7)."' AND schedule.start < '".$last_week_monday."'
 				GROUP BY uid
 			)last2week ON staff.id=last2week.uid
 			ORDER BY lastweek DESC"
@@ -474,7 +432,7 @@ class Schedule_model extends BaseItem_model{
 			WHERE completed=1 AND schedule.display=1
 		";
 
-		$query=$this->dateRange($query, 'time_start' ,true);
+		$query=$this->dateRange($query, 'start' ,true);
 
 		$query.="	GROUP BY schedule.uid
 		";
