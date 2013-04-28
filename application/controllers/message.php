@@ -9,34 +9,77 @@ class Message extends SS_Controller{
 	
 	function index(){
 		
-		if($this->input->post('submit')==='send'){
-			$this->message->send($this->input->post('content'), $this->input->post('receivers'));
+		try{
+			if($this->input->post('submit')==='send'){
+				if(!$this->input->post('content')){
+					throw new Exception('请填写消息内容');
+				}
+				$message_id=$this->message->send($this->input->post('content'), $this->input->post('receivers'));
+
+				if($this->input->post('documents')){
+					$this->message->addDocuments($message_id, $this->input->post('documents'));
+				}
+				
+			}
+			
+			$dialogs=$this->message->getDialogList();
+
+			$this->load->model('document_model','document');
+			
+			foreach($dialogs as $index => $dialog){
+				$dialogs[$index]['last_message_documents']=$this->document->getList(array('message'=>$dialog['last_message']));
+			}
+			
+			$this->load->addViewData('dialogs', $dialogs);
+
+			$this->load->view('message/dialog');
+			$this->load->view('message/sidebar',true,'sidebar');
+			
+		}catch(Exception $e){
+			if($e->getMessage()){
+				$this->output->message($e->getMessage(),'warning');
+			}
 		}
-		
-		$dialogs=$this->message->getDialogList();
-		
-		$this->load->addViewData('dialogs', $dialogs);
-		
-		$this->load->view('message/dialog');
-		$this->load->view('message/sidebar',true,'sidebar');
 	}
 
 	function content($dialog_id){
+		try{
+			if($this->input->post('submit')==='send'){
+				
+				if(!$this->input->post('content')){
+					throw new Exception('请填写消息内容');
+				}
+				
+				$message_id=$this->message->sendByDialog($this->input->post('content'), $dialog_id);
+				
+				if($this->input->post('documents')){
+					$this->message->addDocuments($message_id, $this->input->post('documents'));
+				}
+				
+			}
 		
-		if($this->input->post('submit')==='send'){
-			$this->message->sendByDialog($this->input->post('content'), $dialog_id);
+			$dialog=$this->message->fetchDialog($dialog_id);
+
+			$this->section_title='对话 '.$dialog['title'];
+
+			$messages=$this->message->getList($dialog_id);
+			
+			$this->load->model('document_model','document');
+			
+			foreach($messages as $index => $message){
+				$messages[$index]['documents']=$this->document->getList(array('message'=>$message['id']));
+			}
+
+			$this->load->addViewData('messages', $messages);
+
+			$this->load->view('message/list');
+			$this->load->view('message/content_sidebar',true,'sidebar');
+			
+		}catch(Exception $e){
+			if($e->getMessage()){
+				$this->output->message($e->getMessage(),'warning');
+			}
 		}
-		
-		$dialog=$this->message->fetchDialog($dialog_id);
-		
-		$this->section_title='对话 '.$dialog['title'];
-		
-		$messages=$this->message->getList($dialog_id);
-		
-		$this->load->addViewData('messages', $messages);
-		
-		$this->load->view('message/list');
-		$this->load->view('message/content_sidebar',true,'sidebar');
 	}
 	
 	function to($receiver){

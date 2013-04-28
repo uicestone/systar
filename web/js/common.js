@@ -412,7 +412,7 @@ $(document)
 					label=event.added.id;
 					method='add';
 				}else if(event.removed && id){
-					label=event.removed.id
+					label=event.removed.id;
 					method='remove';
 				}
 				
@@ -423,6 +423,18 @@ $(document)
 			});
 		});
 		
+		section.find('[display-for]:not([locked-by])').on('enable',function(){
+			$(this).find(':input:disabled:not([locked-by])').removeAttr('disabled');
+			$(this).show();
+
+		});
+		
+		section.find('[display-for]:not([locked-by])').on('disable',function(){
+			$(this).hide();
+			$(this).find(':input:enabled').attr('disabled','disabled');
+
+		});
+				
 	});
 
 	tabs
@@ -515,13 +527,13 @@ jQuery.changeUrlPar=function(url,par,par_value){
 	}
 
 	return url+'\n'+par+'\n'+par_value;
-}
+};
 
 jQuery.unsetURLPar=function(url,par){
 	//删除url中的指定变量，并返回
 	var regUnsetPara=new RegExp('\\?'+par+'$|\\?'+par+'=[^&]*$|'+par+'=[^&]*\\&*|'+par+'&|'+par+'$');
 	return url.replace(regUnsetPara,'');
-}
+};
 
 /*扩展jQuery工具函数库*/
 jQuery.showMessage=function(message,type,directExport){

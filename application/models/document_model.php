@@ -15,10 +15,21 @@ class Document_model extends BaseItem_model{
 		$this->load->library('filetype');
 	}
 	
+	/**
+	 * 
+	 * @param array $args
+	 * project
+	 * message
+	 * @return array
+	 */
 	function getList($args=array()){
 		
 		if(isset($args['project'])){
 			$this->db->join('project_document',"project_document.document = document.id AND project_document.project = {$args['project']}",'INNER');
+		}
+		
+		if(isset($args['message'])){
+			$this->db->join('message_document',"message_document.document = document.id AND message_document.message = {$args['message']}",'inner');
 		}
 		
 		return parent::getList($args);
@@ -48,7 +59,9 @@ class Document_model extends BaseItem_model{
 	function getMime($file_extension){
 		$file_extension=strtolower($file_extension);
 		$filetype=new Filetype();
-		return $filetype->type[$file_extension];
+		if(isset($filetype->type[$file_extension])){
+			return $filetype->type[$file_extension];
+		}
 	}
 	
 	/**

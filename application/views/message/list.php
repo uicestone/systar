@@ -1,9 +1,16 @@
 <div class="contentTableBox">
 <?foreach($messages as $message){?>
 	<div class="message-dialog-list-item">
+		<p class="time right"><?=date('Y-m-d H:i:s',$message['time'])?></p>
 		<span class="author"><?=$message['author_name']?>：</span>
 		<?=$message['content']?>
-		<p class="time"><?=date('Y-m-d H:i:s',$message['time'])?></p>
+<?if($message['documents']){?>
+	<p><label>附件：</label>
+<?	foreach($message['documents'] as $document){?>
+		<a href="/document/download/<?=$document['id']?>"><?=$document['name']?></a>
+<?	}?>
+	</p>
+<?}?>
 	</div>
 	<hr />
 <?}?>

@@ -63,7 +63,7 @@ class Message_model extends BaseItem_model{
 		$this->db->select('
 				dialog.*,
 				dialog_user.title,
-				message.content AS last_message,message.uid AS last_message_author,people.name AS last_message_author_name,message.time AS last_message_time')
+				message.content AS last_message_content,message.uid AS last_message_author,people.name AS last_message_author_name,message.time AS last_message_time')
 			->from('dialog')
 			->join('message',"message.id = dialog.last_message",'INNER')
 			->join('people',"people.id = message.uid")
@@ -158,7 +158,9 @@ class Message_model extends BaseItem_model{
 			$set[]=array('dialog'=>$dialog,'message'=>$message);
 		}
 		
-		return $this->db->insert_batch('dialog_message', $set);
+		$this->db->insert_batch('dialog_message', $set);
+		
+		return $message;
 	}
 	
 	/**
@@ -190,6 +192,15 @@ class Message_model extends BaseItem_model{
 		}
 		
 		return $this->db->query($query);
+	}
+	
+	function addDocuments($message_id,array $documents){
+		$set=array();
+		foreach($documents as $document){
+			$set[]=array('message'=>$message_id,'document'=>$document);
+		}
+		
+		return $this->db->insert_batch('message_document',$set);
 	}
 	
 }

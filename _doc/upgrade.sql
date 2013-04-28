@@ -331,3 +331,17 @@ ALTER TABLE  `people_status` ADD INDEX (  `team` );
 ALTER TABLE  `people_status` ADD FOREIGN KEY (  `team` ) REFERENCES  `syssh`.`team` (
 `id`
 ) ON DELETE NO ACTION ON UPDATE CASCADE ;
+
+CREATE TABLE IF NOT EXISTS `message_document` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `message` int(11) NOT NULL,
+  `document` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `message` (`message`),
+  KEY `document` (`document`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+
+ALTER TABLE `message_document`
+  ADD CONSTRAINT `message_document_ibfk_2` FOREIGN KEY (`document`) REFERENCES `document` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `message_document_ibfk_1` FOREIGN KEY (`message`) REFERENCES `message` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
