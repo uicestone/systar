@@ -83,7 +83,7 @@ $(function(){
 				start:date.getTime()/1000,
 				end:date.getTime()/1000+3600,
 				all_day:Number(allDay),
-				completed:Boolean(Number(completed))
+				completed:Boolean(Number($(jsEvent.target).data('completed')))
 			};
 			$.post('/schedule/writecalendar/update/'+$(jsEvent.target).attr('event-id'),data,function(response){
 				event={

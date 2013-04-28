@@ -33,6 +33,7 @@ class Schedule_model extends BaseItem_model{
 		if(is_null($field)){
 			isset($schedule['start']) && $schedule['start']=date('Y-m-d H:i',$schedule['start']);
 			isset($schedule['end']) && $schedule['end']=date('Y-m-d H:i',$schedule['end']);
+			isset($schedule['deadline']) && $schedule['deadline']=date('Y-m-d H:i',$schedule['deadline']);
 		}
 		
 		return $schedule;
@@ -130,7 +131,8 @@ class Schedule_model extends BaseItem_model{
 			if($args['date_form']!==false){
 				$this->db->select("
 					FROM_UNIXTIME(schedule.start, '{$args['date_form']}') AS start,
-					FROM_UNIXTIME(schedule.end, '{$args['date_form']}') AS end
+					FROM_UNIXTIME(schedule.end, '{$args['date_form']}') AS end,
+					FROM_UNIXTIME(schedule.deadline, '{$args['date_form']}') AS deadline,
 				",false);
 			}
 		}
@@ -172,18 +174,28 @@ class Schedule_model extends BaseItem_model{
 		
 		//attemp to convert date string to timestamp
 		foreach(array('start','end','deadline') as $timepoint){
-			if(isset($data[$timepoint]) && strtotime($data[$timepoint])){
-				$data[$timepoint]=strtotime($data[$timepoint]);
+			if(isset($data[$timepoint])){
+				if($data[$timepoint]===''){
+					$data[$timepoint]=NULL;
+				}
+				elseif(strtotime($data[$timepoint])){
+					$data[$timepoint]=strtotime($data[$timepoint]);
+				}
 			}
 		}
 		
-		//generate  hours automatically on time
+		//generate hours by start timestamp and end timestamp
 		if(isset($data['start']) && isset($data['end'])){
 			$data['hours_own'] = round(($data['end']-$data['start'])/3600,2);
-			$data['in_todo_list'] = false;
+		}
+		//generate end timestamp by start timestamp end hours
+		elseif(isset($data['start']) && isset($data['hours_own'])){
+			$data['end'] = $data['start']+$data['hours_own']*3600;
+		}
+		else{
+			$data['hours_own']=NULL;
 		}
 		
-		$data['display']=1;
 		$data+=uidTime(true,true);
 		
 		$this->db->insert('schedule',$data);
@@ -197,13 +209,26 @@ class Schedule_model extends BaseItem_model{
 		
 		//attemp to convert date string to timestamp
 		foreach(array('start','end','deadline') as $timepoint){
-			if(isset($data[$timepoint]) && strtotime($data[$timepoint])){
-				$data[$timepoint]=strtotime($data[$timepoint]);
+			if(isset($data[$timepoint])){
+				if($data[$timepoint]===''){
+					$data[$timepoint]=NULL;
+				}
+				elseif(strtotime($data[$timepoint])){
+					$data[$timepoint]=strtotime($data[$timepoint]);
+				}
 			}
 		}
 		
+		//generate hours by start timestamp and end timestamp
 		if(isset($data['start']) && isset($data['end'])){
 			$data['hours_own'] = round(($data['end']-$data['start'])/3600,2);
+		}
+		//generate end timestamp by start timestamp end hours
+		elseif(isset($data['start']) && isset($data['hours_own'])){
+			$data['end'] = $data['start']+$data['hours_own']*3600;
+		}
+		else{
+			$data['hours_own']=NULL;
 		}
 		
 		$data=array_intersect_key($data, self::$fields);

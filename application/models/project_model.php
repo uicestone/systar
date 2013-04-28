@@ -303,7 +303,7 @@ class Project_model extends BaseItem_model{
 		}
 
 		if(isset($args['num'])){
-			$this->db->where('project.num',$args['num']);
+			$this->db->like('project.num',$args['num']);
 		}
 		
 		if(isset($args['active'])){

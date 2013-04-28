@@ -282,7 +282,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 
 		that.element.find(':input[name][changed]').each(function(){
 			if($(this).is(':checkbox')){
-				data[$(this).attr('name')]=$(this).is(':checked');
+				data[$(this).attr('name')]=Number($(this).is(':checked'));
 			}else{
 				data[$(this).attr('name')]=$(this).val();
 			}

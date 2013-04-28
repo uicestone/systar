@@ -97,7 +97,7 @@ class Project extends SS_controller{
 			$this->config->set_user_item('search/labels', $labels, false);
 		}
 		
-		$search_items=array('name','labels');
+		$search_items=array('num','name','labels');
 		
 		foreach($search_items as $item){
 			if($this->input->post($item)!==false){

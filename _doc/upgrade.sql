@@ -316,7 +316,7 @@ ALTER TABLE  `schedule` CHANGE  `time_start`  `start` INT( 10 ) NULL DEFAULT NUL
 CHANGE  `time_end`  `end` INT( 10 ) NULL DEFAULT NULL;
 
 ALTER TABLE  `project` CHANGE  `time_end`  `end` DATE NULL DEFAULT NULL;
--- server updated
+
 ALTER TABLE  `people_status` CHANGE  `type`  `type` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
 ALTER TABLE `people_status` DROP `level`;
 ALTER TABLE `people_status` DROP `company`;
@@ -345,3 +345,10 @@ CREATE TABLE IF NOT EXISTS `message_document` (
 ALTER TABLE `message_document`
   ADD CONSTRAINT `message_document_ibfk_2` FOREIGN KEY (`document`) REFERENCES `document` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `message_document_ibfk_1` FOREIGN KEY (`message`) REFERENCES `message` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+
+ALTER TABLE  `schedule` CHANGE  `hours_own`  `hours_own` DECIMAL( 10, 2 ) NULL DEFAULT NULL;
+
+update schedule set start = null where start = 0;
+update schedule set end = null where end = 0;
+update schedule set deadline = null where deadline = 0;
+-- server updated
