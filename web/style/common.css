@@ -370,8 +370,10 @@ article .contentTable td input[type="text"], article .contentTable td textarea{
 
 /*右侧工具栏*/
 aside>section{
-	position:fixed;right:0;top:25px;bottom:0;
+	position:absolute;right:0;top:25px;bottom:0;
 	width:240px;
+	overflow-x: hidden;
+	overflow-y: auto;
 }
 aside.minimized{
 	max-width:100px;

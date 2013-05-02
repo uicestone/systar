@@ -13,7 +13,8 @@ class Schedule_model extends BaseItem_model{
 		'hours_bill'=>'账单时长',
 		'all_day'=>'全天',
 		'completed'=>'已完成',
-		'project'=>'关联案件'
+		'project'=>'关联案件',
+		'display'=>'显示'
 	);
 	
 	function __construct(){

@@ -109,7 +109,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			}
 		];
 		
-		if(this.options.calendar || this.options.taskboard){
+		/*if(this.options.calendar || this.options.taskboard){
 			this.options.buttons.unshift({
 				text:'>',
 				tabIndex:-1,
@@ -124,7 +124,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 					}
 				}
 			});
-		}
+		}*/
 		
 		if(!this.options.method){
 			if(this.options.id || this.event){
@@ -270,8 +270,8 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 		/*对于新建日程，添加日历时间数据*/
 		if(this.options.method==='create' && this.options.start !== null && this.options.end !== null && this.options.allDay !== null){
 			$.extend(data,{
-				time_start:this.options.start.getTime()/1000,
-				time_end:this.options.end.getTime()/1000,
+				start:this.options.start.getTime()/1000,
+				end:this.options.end.getTime()/1000,
 				all_day:Number(this.options.allDay)
 			});
 		}
@@ -328,6 +328,16 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			.find('#completed');
 		}
 		buttonCheckbox.button();
+		
+		var inTodoList=this.widget().children('.ui-dialog-buttonpane').find('#in-todo-list');
+		
+		if(!inTodoList.length){
+			var inTodoList=$('<div class="ui-dialog-buttonset" style="float:left;padding:.5em .4em"><input type="checkbox" id="in-todo-list" name="inTodoList" text-checked="/" text-unchecked="x" /><label for="inTodoList" ></label></div>')
+			.appendTo(this.widget().children('.ui-dialog-buttonpane'))
+			.find('#in-todo-list');
+		}
+		inTodoList.button();
+		
 	},
 	
 	edit:function(){

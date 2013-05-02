@@ -187,12 +187,9 @@ class Schedule extends SS_controller{
 		
 		if($action=='add'){//插入新的任务
 			$data = $this->input->post();
-			
+			$data['display']=true;
 			$new_schedule_id = $this->schedule->add($data);
 			$this->schedule->updatePeople($new_schedule_id,$this->input->post('people'));
-			if(!isset($data['start']) && !isset($data['end']) && !isset($data['all_day'])){
-				$this->addToTaskBoard($new_schedule_id);
-			}
 			$this->schedule->updateProfiles($new_schedule_id, $this->input->post('profiles'));
 			
 			if($new_schedule_id){
