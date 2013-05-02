@@ -15,6 +15,8 @@
 	content: attr(data-icon);
 	speak: none;
 	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
 	line-height: 1;
 	-webkit-font-smoothing: antialiased;
 }
@@ -23,49 +25,45 @@
 /*
 Instead of a list of all class selectors,
 you can use the generic selector below, but it's slower:
-[class*="icon-"]:before {
+[class*="icon-"] {
 */
-.icon-plus:before, .icon-minus:before, .icon-checkmark:before, .icon-x:before, .icon-file-pdf:before, .icon-file-word:before, .icon-file-excel:before, .icon-play:before, .icon-first:before, .icon-last:before, .icon-arrow-right:before, .icon-arrow-left:before {
+.icon-close, .icon-list, .icon-checkmark, .icon-play, .icon-plus, .icon-minus, .icon-home, .icon-envelop, .icon-unlocked, .icon-lock {
 	font-family: 'icomoon';
 	speak: none;
 	font-style: normal;
 	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
 	line-height: 1;
 	-webkit-font-smoothing: antialiased;
 }
-.icon-plus:before {
-	content: "\21";
+.icon-close:before {
+	content: "\20";
 }
-.icon-minus:before {
-	content: "\22";
-}
-.icon-checkmark:before {
-	content: "\23";
-}
-.icon-x:before {
-	content: "\24";
-}
-.icon-file-pdf:before {
-	content: "\27";
-}
-.icon-file-word:before {
-	content: "\28";
-}
-.icon-file-excel:before {
-	content: "\29";
-}
-.icon-play:before {
-	content: "\e10a";
-}
-.icon-first:before {
-	content: "\e000";
-}
-.icon-last:before {
+.icon-list:before {
 	content: "\e001";
 }
-.icon-arrow-right:before {
+.icon-checkmark:before {
 	content: "\e002";
 }
-.icon-arrow-left:before {
+.icon-play:before {
 	content: "\e003";
+}
+.icon-plus:before {
+	content: "\e004";
+}
+.icon-minus:before {
+	content: "\e005";
+}
+.icon-home:before {
+	content: "\e006";
+}
+.icon-envelop:before {
+	content: "\e007";
+}
+.icon-unlocked:before {
+	content: "\e009";
+}
+.icon-lock:before {
+	content: "\e00a";
 }

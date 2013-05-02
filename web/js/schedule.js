@@ -323,7 +323,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 		var buttonCheckbox=this.widget().children('.ui-dialog-buttonpane').find('#completed');
 		
 		if(!buttonCheckbox.length){
-			var buttonCheckbox=$('<div class="ui-dialog-buttonset" style="float:left;padding:.5em .4em"><input type="checkbox" id="completed" name="completed" text-checked="已完成" text-unchecked="未完成" /><label for="completed" ></label></div>')
+			var buttonCheckbox=$('<div class="ui-dialog-buttonset" style="float:left;padding:.5em .4em"><input type="checkbox" id="completed" name="completed" text-checked="已完成" text-unchecked="未完成" /><label for="completed" >未完成</label></div>')
 			.appendTo(this.widget().children('.ui-dialog-buttonpane'))
 			.find('#completed');
 		}
@@ -332,7 +332,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 		var inTodoList=this.widget().children('.ui-dialog-buttonpane').find('#in-todo-list');
 		
 		if(!inTodoList.length){
-			var inTodoList=$('<div class="ui-dialog-buttonset" style="float:left;padding:.5em .4em"><input type="checkbox" id="in-todo-list" name="inTodoList" text-checked="/" text-unchecked="x" /><label for="inTodoList" ></label></div>')
+			var inTodoList=$('<div class="ui-dialog-buttonset" style="float:left;padding:.5em .4em"><input type="checkbox" id="in-todo-list" name="inTodoList" /><label for="in-todo-list" ><span class="icon-x"></span></label></div>')
 			.appendTo(this.widget().children('.ui-dialog-buttonpane'))
 			.find('#in-todo-list');
 		}
@@ -341,7 +341,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 	},
 	
 	edit:function(){
-		that=this;
+		var that=this;
 		this.option('method','edit');
 		this._getContent();
 		
