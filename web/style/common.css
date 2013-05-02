@@ -503,19 +503,3 @@ section>form>.submit{
 	font-size:1.2em;
 	color:#007;
 }
-
-/*webkit滚动条*/
-::-webkit-scrollbar{
-	/*全局滚动条*/
-	background:transparent;
-	width:11px;
-}
-::-webkit-scrollbar-thumb{
-	/*全局滚动条滑块*/
-	-webkit-box-shadow:0 0 3px rgba(0,0,0,0.5);
-	background:#BCD7DF;
-}
-nav::-webkit-scrollbar{
-	/*导航菜单框架滚动条*/
-	width:0;
-}
