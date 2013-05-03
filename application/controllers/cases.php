@@ -131,6 +131,28 @@ class Cases extends Project{
 		return $list;
 	}
 	
+	function workList(){
+		
+		$this->load->model('schedule_model','schedule');
+		
+		return $this->table->setFields($this->schedule_list_args)
+			->setAttribute('name','schedule')
+			//@TODO 点击列表打开日程尚有问题
+			->setRowAttributes(array('onclick'=>"$.viewSchedule(\{id:{id}\})"))
+			->generate($this->schedule->getList(array('show_creater'=>true,'limit'=>10,'project'=>$this->project->id,'completed'=>true,'orderby'=>'id desc')));
+	}
+	
+	function planList(){
+		
+		$this->load->model('schedule_model','schedule');
+		
+		return $this->table->setFields($this->plan_list_args)
+			->setAttribute('name','schedule')
+			//@TODO 点击列表打开日程尚有问题
+			->setRowAttributes(array('onclick'=>"$.viewSchedule(\{id:{id}\})"))
+			->generate($this->schedule->getList(array('show_creater'=>true,'limit'=>10,'project'=>$this->project->id,'completed'=>false)));
+	}
+	
 	function staffList(){
 		
 		$this->staff_list_args['role']=array('heading'=>'本案职位','parser'=>array('function'=>array($this->cases,'getCompiledPeopleRoles'),'args'=>array($this->cases->id,'{id}')));

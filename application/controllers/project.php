@@ -255,18 +255,7 @@ class Project extends SS_controller{
 			->setAttribute('name','schedule')
 			//@TODO 点击列表打开日程尚有问题
 			->setRowAttributes(array('onclick'=>"$.viewSchedule(\{id:{id}\})"))
-			->generate($this->schedule->getList(array('show_creater'=>true,'limit'=>10,'project'=>$this->project->id,'completed'=>true,'orderby'=>'id desc')));
-	}
-	
-	function planList(){
-		
-		$this->load->model('schedule_model','schedule');
-		
-		return $this->table->setFields($this->plan_list_args)
-			->setAttribute('name','schedule')
-			//@TODO 点击列表打开日程尚有问题
-			->setRowAttributes(array('onclick'=>"$.viewSchedule(\{id:{id}\})"))
-			->generate($this->schedule->getList(array('show_creater'=>true,'limit'=>10,'project'=>$this->project->id,'completed'=>false)));
+			->generate($this->schedule->getList(array('show_creater'=>true,'limit'=>10,'project'=>$this->project->id,'orderby'=>'id desc')));
 	}
 	
 	function statusList(){
