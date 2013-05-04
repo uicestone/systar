@@ -1,3 +1,7 @@
+/* WARNING:	Your are using ligatures for your icon font.
+			Ligatures are not supported in IE 9 (and older).
+			Use the Private Use Area encoding for best browser support.
+==================================================================== */
 @font-face {
 	font-family: 'icomoon';
 	src:url('fonts/icomoon.eot');
@@ -13,8 +17,12 @@
 [data-icon]:before {
 	font-family: 'icomoon';
 	content: attr(data-icon);
-	speak: none;
-	font-weight: normal;
+		speak: none;
+	/* Enable Ligatures */
+	-webkit-font-feature-settings:"liga","dlig";-moz-font-feature-settings:"liga=1, dlig=1";-moz-font-feature-settings:"liga","dlig";-ms-font-feature-settings:"liga","dlig";-o-font-feature-settings:"liga","dlig";
+	font-feature-settings:"liga","dlig";
+	text-rendering:optimizeLegibility;
+		font-weight: normal;
 	font-variant: normal;
 	text-transform: none;
 	line-height: 1;
@@ -29,8 +37,12 @@ you can use the generic selector below, but it's slower:
 */
 .icon-close, .icon-list, .icon-checkmark, .icon-play, .icon-plus, .icon-minus, .icon-home, .icon-envelop, .icon-unlocked, .icon-lock {
 	font-family: 'icomoon';
-	speak: none;
-	font-style: normal;
+		speak: none;
+	/* Enable Ligatures */
+	-webkit-font-feature-settings:"liga","dlig";-moz-font-feature-settings:"liga=1, dlig=1";-moz-font-feature-settings:"liga","dlig";-ms-font-feature-settings:"liga","dlig";-o-font-feature-settings:"liga","dlig";
+	font-feature-settings:"liga","dlig";
+	text-rendering:optimizeLegibility;
+		font-style: normal;
 	font-weight: normal;
 	font-variant: normal;
 	text-transform: none;
@@ -38,32 +50,32 @@ you can use the generic selector below, but it's slower:
 	-webkit-font-smoothing: antialiased;
 }
 .icon-close:before {
-	content: "\20";
+	content: "\78";
 }
 .icon-list:before {
-	content: "\e001";
+	content: "\54\6f\64\6f";
 }
 .icon-checkmark:before {
-	content: "\e002";
+	content: "\44\6f\6e\65";
 }
 .icon-play:before {
-	content: "\e003";
+	content: "\3e";
 }
 .icon-plus:before {
-	content: "\e004";
+	content: "\2b";
 }
 .icon-minus:before {
-	content: "\e005";
+	content: "\2d";
 }
 .icon-home:before {
-	content: "\e006";
+	content: "\48\6f\6d\65";
 }
 .icon-envelop:before {
-	content: "\e007";
+	content: "\4d\61\69\6c";
 }
 .icon-unlocked:before {
-	content: "\e009";
+	content: "\55\6e\6c\6f\63\6b\65\64";
 }
 .icon-lock:before {
-	content: "\e00a";
+	content: "\4c\6f\63\6b\65\64";
 }

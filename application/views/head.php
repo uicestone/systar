@@ -35,7 +35,8 @@
 	<?=javascript('schedule')?>
 
 	<?=stylesheet('style/common')?>
-	<?=javascript('common')?>
+	<?=javascript('functions')?>
+	<?=javascript('events')?>
 
 	<link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
 	<title><?=$this->company->sysname?></title>

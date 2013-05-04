@@ -48,7 +48,7 @@
 $active_group = 'default';
 $active_record = TRUE;
 
-$db['default']['hostname'] = 'localhost';
+$db['default']['hostname'] = '';
 $db['default']['username'] = 'root';
 $db['default']['password'] = '';
 $db['default']['database'] = 'syssh';
@@ -64,7 +64,7 @@ $db['default']['swap_pre'] = '';
 $db['default']['autoinit'] = TRUE;
 $db['default']['stricton'] = FALSE;
 
-$db['star']['hostname'] = 'localhost';
+$db['star']['hostname'] = '';
 $db['star']['username'] = 'root';
 $db['star']['password'] = '';
 $db['star']['database'] = 'star';
@@ -77,7 +77,7 @@ $db['star']['cachedir'] = '';
 $db['star']['char_set'] = 'utf8';
 $db['star']['dbcollat'] = 'utf8_general_ci';
 $db['star']['swap_pre'] = '';
-$db['star']['autoinit'] = TRUE;
+$db['star']['autoinit'] = FALSE;
 $db['star']['stricton'] = FALSE;
 
 

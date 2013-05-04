@@ -17,6 +17,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 		id:null,
 		project:null,
 		completed:null,
+		in_todo_list:null,
 		buttons:[],
 		method:null,/*schedule method: create, view or edit*/
 		event:{},/*event object for fullCalendar*/
@@ -109,23 +110,6 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			}
 		];
 		
-		/*if(this.options.calendar || this.options.taskboard){
-			this.options.buttons.unshift({
-				text:'>',
-				tabIndex:-1,
-				title:'添加到任务列表',
-				click:function(){
-					$.post('/schedule/writecalendar/update/'+that.options.id,{in_todo_list:1},function(){
-						$.refresh(hash);
-					});
-					if(that.options.taskboard){
-						that.element.schedule('close');
-						$.get('/schedule/removefromtaskboard/'+that.options.id);
-					}
-				}
-			});
-		}*/
-		
 		if(!this.options.method){
 			if(this.options.id || this.event){
 				this.options.method='view';
@@ -199,12 +183,26 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			
 			/*根据响应，设置completed选项*/
 			if(response.data.completed){
-				that.options.completed=Boolean(Number(response.data.completed.content));
+				that.options.event.completed
+					=that.options.completed
+					=Boolean(Number(response.data.completed.content));
+			}
+			
+			if(response.data.in_todo_list){
+				that.options.event.in_todo_list
+					=that.options.in_todo_list
+					=Boolean(Number(response.data.in_todo_list.content));
 			}
 			
 			/*对于新建日程，由当前时间和日程时间给出预设的completed值*/
 			if(that.options.method==='create' && that.options.completed===null){
-				that.options.completed=that.options.start<new Date() && that.options.calendar;
+				that.options.event.completed
+					=that.options.completed
+					=that.options.start<new Date() && that.options.calendar;
+			}
+			
+			if(that.options.method==='create' && that.options.in_todo_list===null){
+				that.options.event.in_todo_list=that.options.in_todo_list=true;
 			}
 			
 			/*根据completed选项，设置“已完成”按钮状态*/
@@ -212,8 +210,12 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 				that.widget().find(':checkbox#completed').attr('checked','checked');
 			}
 			
-			/*触发一次“已完成”按钮，来使显示按钮文字*/
-			that.widget().find(':checkbox#completed').trigger('change');
+			if(that.options.in_todo_list){
+				that.widget().find(':checkbox#in-todo-list').attr('checked','checked');
+			}
+			
+			/*触发一次按钮面板中的每个切换按钮，来使显示按钮提示文字*/
+			that.widget().find('.ui-dialog-buttonpane').find(':checkbox').trigger('change');
 
 			/*载入日程内容*/
 			that.element.html(response.data.content.content).trigger('blockload')
@@ -239,7 +241,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 				that.element.find('[name="project"]').val(that.options.project).attr('changed','changed');
 			}
 			
-		},'json');
+		});
 	},
 	
 	_save:function(){
@@ -249,6 +251,10 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 		this.options.event.completed
 			=this.options.completed
 			=this.element.siblings('.ui-dialog-buttonpane').find(':checkbox[name="completed"]').is(':checked');
+
+		this.options.event.in_todo_list
+			=this.options.in_todo_list
+			=this.element.siblings('.ui-dialog-buttonpane').find(':checkbox[name="in_todo_list"]').is(':checked');
 
 		/*将content第一行作为name*/
 		if(that.element.find(':input[name="content"]').val()){
@@ -264,6 +270,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 		/*初始化准备提交的数据*/
 		var data={
 			completed:Number(this.options.completed),
+			in_todo_list:Number(this.options.in_todo_list),
 			name:this.options.title
 		};
 
@@ -294,7 +301,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 
 			if(response.status==='success'){
 				
-				if(typeof calendar!=='undefined' && $(calendar)){
+				if(that.options.calendar){
 					that.options.id=that.options.event.id=response.data.id;
 
 					if(that.options.completed){
@@ -306,12 +313,22 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 							that.options.event.color='#E35B00';
 						}
 					}
-					$(calendar)
+					$(that.options.calendar)
 					.fullCalendar(that.options.method==='create'?'renderEvent':'updateEvent',that.options.event);
 				}
+				
+				/*并非从日历中点击打开的日程，保存时我们将刷新日历*/
+				else if(typeof calendar!=='undefined' && $(calendar)){
+					$(calendar).fullCalendar('refetchEvents');
+				}
+				
 				if(that.options.refreshOnSave){
 					$.refresh(hash);
 				}
+				
+				/*对于所有日程 ，保存时我们刷新任务列表*/
+				$.get('schedule/todolist');
+				
 				that.element.schedule('close');
 			}
 		});
@@ -323,20 +340,20 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 		var buttonCheckbox=this.widget().children('.ui-dialog-buttonpane').find('#completed');
 		
 		if(!buttonCheckbox.length){
-			var buttonCheckbox=$('<div class="ui-dialog-buttonset" style="float:left;padding:.5em .4em"><input type="checkbox" id="completed" name="completed" text-checked="已完成" text-unchecked="未完成" /><label for="completed" >未完成</label></div>')
+			var buttonCheckbox=$('<div class="ui-dialog-buttonset" style="float:left;padding:.5em .4em"><input type="checkbox" id="completed" name="completed" title-checked="已完成" title-unchecked="未完成" /><label for="completed"><span class="icon-checkmark"></span></label></div>')
 			.appendTo(this.widget().children('.ui-dialog-buttonpane'))
 			.find('#completed');
 		}
 		buttonCheckbox.button();
 		
-		var inTodoList=this.widget().children('.ui-dialog-buttonpane').find('#in-todo-list');
+		var in_todo_list=this.widget().children('.ui-dialog-buttonpane').find('#in-todo-list');
 		
-		if(!inTodoList.length){
-			var inTodoList=$('<div class="ui-dialog-buttonset" style="float:left;padding:.5em .4em"><input type="checkbox" id="in-todo-list" name="inTodoList" /><label for="in-todo-list" ><span class="icon-x"></span></label></div>')
+		if(!in_todo_list.length){
+			var in_todo_list=$('<div class="ui-dialog-buttonset" style="float:left;padding:.5em .4em"><input type="checkbox" id="in-todo-list" name="in_todo_list" title-checked="在任务列表中显示" title-unchecked="不在任务列表中显示" /><label for="in-todo-list"><span class="icon-list"></span></label></div>')
 			.appendTo(this.widget().children('.ui-dialog-buttonpane'))
 			.find('#in-todo-list');
 		}
-		inTodoList.button();
+		in_todo_list.button();
 		
 	},
 	

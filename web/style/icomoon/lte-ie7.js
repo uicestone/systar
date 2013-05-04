@@ -6,16 +6,16 @@ window.onload = function() {
 		el.innerHTML = '<span style="font-family: \'icomoon\'">' + entity + '</span>' + html;
 	}
 	var icons = {
-			'icon-close' : '&#x20;',
-			'icon-list' : '&#xe001;',
-			'icon-checkmark' : '&#xe002;',
-			'icon-play' : '&#xe003;',
-			'icon-plus' : '&#xe004;',
-			'icon-minus' : '&#xe005;',
-			'icon-home' : '&#xe006;',
-			'icon-envelop' : '&#xe007;',
-			'icon-unlocked' : '&#xe009;',
-			'icon-lock' : '&#xe00a;'
+			'icon-close' : '&#x78;',
+			'icon-list' : '&#x54;&#x6f;&#x64;&#x6f;',
+			'icon-checkmark' : '&#x44;&#x6f;&#x6e;&#x65;',
+			'icon-play' : '&#x3e;',
+			'icon-plus' : '&#x2b;',
+			'icon-minus' : '&#x2d;',
+			'icon-home' : '&#x48;&#x6f;&#x6d;&#x65;',
+			'icon-envelop' : '&#x4d;&#x61;&#x69;&#x6c;',
+			'icon-unlocked' : '&#x55;&#x6e;&#x6c;&#x6f;&#x63;&#x6b;&#x65;&#x64;',
+			'icon-lock' : '&#x4c;&#x6f;&#x63;&#x6b;&#x65;&#x64;'
 		},
 		els = document.getElementsByTagName('*'),
 		i, attr, html, c, el;

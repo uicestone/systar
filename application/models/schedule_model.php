@@ -46,6 +46,7 @@ class Schedule_model extends BaseItem_model{
 	 * project: get schedule only under this project
 	 * people: get schedule related with this people (by schedule.uid and schedule_people)
 	 * show_creater
+	 * show_project
 	 * id_in_set
 	 * in_todo_list
 	 * completed
@@ -82,6 +83,11 @@ class Schedule_model extends BaseItem_model{
 		if(isset($args['show_creater']) && $args['show_creater']){
 			$this->db->join('people creater','creater.id = schedule.uid','inner')
 				->select('creater.id creater, creater.name creater_name');
+		}
+		
+		if(isset($args['show_project']) && $args['show_project']){
+			$this->db->join('project','project.id = schedule.project','left')
+				->select('project.name project_name');
 		}
 		
 		if(isset($args['id_in_set'])){
@@ -224,17 +230,21 @@ class Schedule_model extends BaseItem_model{
 		if(isset($data['start']) && isset($data['end'])){
 			$data['hours_own'] = round(($data['end']-$data['start'])/3600,2);
 		}
-		//generate end timestamp by start timestamp end hours
-		elseif(isset($data['start']) && isset($data['hours_own'])){
-			$data['end'] = $data['start']+$data['hours_own']*3600;
-		}
-		else{
-			$data['hours_own']=NULL;
+		
+		if(array_key_exists('hours_own',$data) && is_null($data['hours_own'])){
+			$data['hours_own']=$data['end']=NULL;
 		}
 		
 		$data=array_intersect_key($data, self::$fields);
 		
-		return $this->db->update('schedule',$data,array('id'=>$schedule_id));
+		$return = $this->db->update('schedule',$data,array('id'=>$schedule_id));
+
+		//generate end timestamp by start timestamp end hours
+		if(isset($data['hours_own']) && is_numeric($data['hours_own'])){
+			$this->db->query("UPDATE schedule SET end = start + 3600 * {$data['hours_own']} WHERE id = {$schedule_id}");
+		}
+		
+		return $return;
 	}
 	
 	function remove($schedule_id){

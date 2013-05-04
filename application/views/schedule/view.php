@@ -4,7 +4,12 @@
 	事项：<?=$this->value('project/name')?> 
 <?}?>
 <?if($this->value('schedule/uid')!=$this->user->id){?>
+	<br />
 	创建人：<?=$this->value('schedule/creater_name')?>
+<?}?>
+<?if($this->value('schedule/deadline')){?>
+	<br />
+	截止：<?=$this->value('schedule/deadline')?>
 <?}?>
 </div>
 <?foreach($profiles as $profile){?>

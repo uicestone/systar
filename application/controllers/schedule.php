@@ -30,10 +30,10 @@ class Schedule extends SS_controller{
 	}
 	
 	function calendar(){
-		$this->load->addViewData('side_task_board', $this->schedule->getList(array('people'=>$this->user->id,'in_todo_list'=>true)));
+		$this->load->addViewData('side_task_board', $this->schedule->getList(array('people'=>$this->user->id,'in_todo_list'=>true,'show_project'=>true)));
 		
 		$this->load->view('schedule/calendar');
-		$this->load->view('schedule/calendar_sidebar',true,'sidebar');
+		$this->load->view('schedule/todo_list',true,'sidebar');
 	}
 	
 	function mine(){
@@ -240,9 +240,9 @@ class Schedule extends SS_controller{
 		}
 		
 		$this->load->addViewData('task_board' , $task_board);
-		$this->load->addViewData('side_task_board', $this->schedule->getList(array('people'=>$this->user->id,'in_todo_list'=>true)));
+		$this->load->addViewData('side_task_board', $this->schedule->getList(array('people'=>$this->user->id,'in_todo_list'=>true,'show_project'=>true)));
 		$this->load->view('schedule/taskboard');
-		$this->load->view('schedule/taskboard_sidebar',true,'sidebar');
+		$this->load->view('schedule/todo_list',true,'sidebar');
 	}
 	
 	function setTaskBoardSort(){
@@ -333,11 +333,17 @@ class Schedule extends SS_controller{
 			$this->load->addViewData('people', $people);
 
 			isset($schedule['name']) && $this->output->setData($schedule['name'],'name');
-
 			isset($schedule['completed']) && $this->output->setData($schedule['completed'],'completed');
+			isset($schedule['in_todo_list']) && $this->output->setData($schedule['in_todo_list'],'in_todo_list');
 		}
 		
 		$this->output->setData($this->load->view("schedule/$mode",true));
 	}
+	
+	function todoList(){
+		$this->load->addViewData('side_task_board', $this->schedule->getList(array('people'=>$this->user->id,'in_todo_list'=>true,'show_project'=>true)));
+		$this->output->setData($this->load->view('schedule/todo_list',true),'todo-list','sidebar','aside>section[for="schedule"], aside>section[for="schedule/taskboard"]');
+	}
+	
 }
 ?>
