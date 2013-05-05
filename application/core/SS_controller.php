@@ -78,8 +78,11 @@ class SS_Controller extends CI_Controller{
 	}
 	
 	/**
+	 * @TODO 统一的_output方法最好还是写成Output:_display()的继承
+	 * 
 	 * 自定义的通用输出方法，系统不再直接将输出内容打印，而是传给此方法
 	 * 此方法将当前Output类中的data,status,message等属性统一封装为json后输出
+	 * 
 	 * 而且他还会判断当前页面是否包含一个传统html输出
 	 * 如果是，那么追加一些需要执行的内嵌js代码，然后添加到Output::data中（这里需要用内嵌js是因为js的变量需要由后台程序赋值）
 	 */
@@ -90,13 +93,7 @@ class SS_Controller extends CI_Controller{
 			return;
 		}
 		
-		if($this->agent->browser()=='Internet Explorer' && strpos($this->input->header('Content-Type'),'multipart/form-data')!==false){
-			header('Content-type: text/html');
-		}
-		
-		if(!$this->output->header('Content-type')){
-			header('Content-type: application/json');
-		}
+		header('Content-Type: application/json');
 		
 		if($output){
 			/*

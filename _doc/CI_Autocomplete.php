@@ -54,6 +54,7 @@
 * @property Instrument_model $instrument
 * @property Label_model $label
 * @property Message_model $message
+* @property Minify $minify
 * @property People_model $people
 * @property Project_model $project
 * @property Query_model $query

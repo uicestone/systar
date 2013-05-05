@@ -5,39 +5,8 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><![endif]-->
 	<!--[if lt IE 9]><?=javascript('html5')?><![endif]-->
-	
-	<?=stylesheet('style/redmond/jquery-ui-1.10.2.custom')?>
-	<?=stylesheet('style/icomoon/style')?>
-	
-	<?=javascript('jQuery/jquery-1.7.2.min')?>
-	<?=javascript('jQuery/jquery-ui-1.10.2.custom.min')?>
-
-	<?=javascript('jQuery/jquery.placeholder')?>
-	<?=javascript('jQuery/jQueryRotate.2.2')?>
-	<?=javascript('jQuery/jquery.hashchange-us')?>
-	<?=javascript('jQuery/jquery-ui.etc')?>
-
-	<?=stylesheet('js/jQuery/fullcalendar/fullcalendar')?>
-	<?=javascript('jQuery/fullcalendar/fullcalendar')?>
-	
-	<?=javascript('jQuery/highcharts/highcharts')?>
-	
-	<?=stylesheet('js/jQuery/select2/select2')?>
-	<?=javascript('jQuery/select2/select2')?>
-	<?=javascript('jQuery/select2/select2_locale_zh-CN')?>
-	
-	<?=javascript('jQuery/jquery.iframe-transport')?>
-	<?=javascript('jQuery/jquery.fileupload')?>
-	
-	<?=javascript('jQuery/jQuery-Timepicker-Addon/jquery-ui-timepicker-addon')?>
-	<?=stylesheet('js/jQuery/jQuery-Timepicker-Addon/jquery-ui-timepicker-addon')?>
-
-	<?=javascript('schedule')?>
-
-	<?=stylesheet('style/common')?>
-	<?=javascript('functions')?>
-	<?=javascript('events')?>
-
+	<link type="text/css" rel="stylesheet" href="/style/combined.css" />
+	<script type="text/javascript" src="/js/combined.js"></script>
 	<link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
 	<title><?=$this->company->sysname?></title>
 </head>

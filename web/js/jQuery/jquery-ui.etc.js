@@ -107,4 +107,4 @@ var highchartsOptions={
 	credits: {
 		enabled: false
 	}
-}
+};
