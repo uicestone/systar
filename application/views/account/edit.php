@@ -28,4 +28,3 @@
 		<textarea name="account[comment]"><?=$this->value('account/comment')?></textarea>
 	</div>
 </form>
-<?=javascript('account_edit')?>

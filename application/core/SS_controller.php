@@ -106,7 +106,7 @@ class SS_Controller extends CI_Controller{
 		}
 		
 		if(array_key_exists('sidebar',$this->load->blocks)){
-			$this->output->setData($this->load->blocks['sidebar'],'sidebar','html','aside>section[for="'.substr($this->input->server('REQUEST_URI'),1).'"]');
+			$this->output->setData($this->load->blocks['sidebar'],'sidebar','html','aside>section[hash="'.substr($this->input->server('REQUEST_URI'),1).'"]');
 		}
 		
 		if(is_null($this->output->status)){

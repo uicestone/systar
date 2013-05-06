@@ -16,7 +16,7 @@
 <?}?>
 <input type="text" name="deadline" value="<?=$this->value('schedule/deadline')?>" class="datetime" placeholder="截止" style="width:98%" />
 <div class="profile hidden">
-	<select class="profile-name" style="width:35%">
+	<select class="profile-name allow-new" style="width:35%">
 		<?=options(array('外出地点','费用金额','费用用途','备注'),NULL)?>
 	</select>
 	: 

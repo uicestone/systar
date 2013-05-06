@@ -1,49 +1,3 @@
-var page,nav,header,tabs,aside,hash,controller,action,username,sysname,uriSegments;
-
-$(window).on('hashchange',function(){
-	//console.log('hashchange');
-	hash=$.locationHash();
-
-	uriSegments=hash.split('/');
-	
-	/*根据当前hash，设置标签选项卡和导航菜单激活状态*/
-	tabs.children('[for="'+hash+'"]').addClass('activated');
-	tabs.children('[for!="'+hash+'"]').removeClass('activated');
-	
-	nav.find('li').removeClass('activated');
-	nav.find('li[href="#'+hash+'"]').addClass('activated').parent('ul').show().parents('li').addClass('activated').children('.arrow').children('img').rotate(90);
-	/*默认展开当前二级导航所在的子导航*/
-
-	/*
-	 *根据当前hash，显示对应标签页面，隐藏其他页面。
-	 *如果当前page中没有请求的页面（或者已过期），那么向服务器发送请求，获取新的页面并添加标签选项卡。
-	 */
-	if(page.children('section[hash="'+hash+'"]').length>0){
-		page.children('section[hash!="'+hash+'"]').hide();
-		aside.children('section[for!="'+hash+'"]').hide();
-	
-		page.children('section[hash="'+hash+'"]').show().attr('time-access',$.now()).trigger('sectionshow');
-		aside.children('section[for="'+hash+'"]').show().trigger('sidebarshow');
-		
-	}else{
-		$.get(hash,function(response){
-			//只对成功的响应生成标签选项卡、边栏和主页面元素
-			if(response.status==='success'){
-				page.children('section[hash!="'+hash+'"]').hide();
-				aside.children('section[for!="'+hash+'"]').hide();
-
-				$('<section hash="'+hash+'" time-access="'+$.now()+'"></section>').appendTo(page).trigger('sectioncreate');
-				$('<section for="'+hash+'"></section>').appendTo(aside).trigger('sidebarcreate');
-				/*如果请求的hash在导航菜单中不存在，则生成标签选项卡*/
-				if(nav.find('a[href="#'+hash+'"]').length===0 && response.section_title){
-					tabs.append('<li for="'+hash+'" class="activated"><a href="#'+hash+'">'+response.section_title+'</a></li>');
-				}
-			}
-		});
-	}
-	
-});
-
 $(document)
 .tooltip({
 	tooltipClass:'pre-line',
@@ -56,20 +10,21 @@ $(document)
 	}
 })
 .ready(function(){
+	
 	page=$('article');nav=$('nav');aside=$('aside');header=$('header');
 	tabs=header.children('#tabs');throbber=header.children('.throbber');
+	
+	Backbone.history.start();
 	
 	/*老浏览器警告*/
 	if($.browser.msie && ($.browser.version<8 || document.documentMode && document.documentMode<8)){
 		$.showMessage('您正在使用不被推荐的浏览器，请关闭浏览器兼容模式。如果问题仍然存在，<a href="/browser">请点此下载推荐的浏览器</a>','warning');
 	}
 	
-	/*为主体载入指定页面或默认页面*/
-	if(window.location.hash){
-		$(window).trigger('hashchange');
-	}else if(page.attr('default-uri')){
- 		$.locationHash(page.attr('default-uri'));
- 	}
+	/*载入默认主页面*/
+	if(!hash && page.attr('default-uri')){
+		syssh.navigate(page.attr('default-uri'),true);
+	}
 	
 	/*导航栏配置*/
 	nav.find('a').click(function(event){
@@ -119,7 +74,7 @@ $(document)
 	.on('mouseenter','li',function(){
 		$('<span/>',{'class':'icon-close'}).appendTo(this)
 		.click(function(){
-			$.closeTab($(this).parent('li').attr('for'));
+			$.closeTab($(this).parent('li').attr('hash'));
 		});
 	})
 	.on('mouseleave','li',function(){
@@ -139,7 +94,7 @@ $(document)
 			//console.log('contenttableload: '+$(this).attr('name'));
 			$(this).children('tbody').children('tr[hash]')
 				.on('click',function(){
-					$.locationHash($(this).attr('hash'));
+					syssh.navigate($(this).attr('hash'),true);
 				})
 				.find('a, :input')
 					.on('click',function(event){
@@ -269,91 +224,7 @@ $(document)
 		
 		});
 				
-		section.find('select.chosen').each(function(index,object){
-			var options={dropdownCss:{minWidth:100}};
-			if($(object).is('.allow-new')){
-				$.extend(options,{
-					createSearchChoice:function(term,results){
-						if(typeof results==='undefined'){
-							return {id:term,text:term,create:true};
-						}
-
-						var options=[];
-						$.each(results,function(){
-							options.push(this.text);
-						});
-
-						if($.inArray(term,options)===-1){
-							return {id:term,text:term,create:true};
-						}
-					},
-					formatSelection:function(object,container){
-						if(this.element.find('option[value="'+object.id+'"]').length===0){
-							this.element.append($('<option/>',{value:object.id,text:object.text}));
-
-							if(this.element.is('[multiple]')){
-								var val=this.element.val();
-								if(!val){
-									val=[];
-								}
-								val.push(object.id);
-								this.element.val(val);
-							}
-							else{
-								this.element.val(object.id);
-							}
-
-						}
-						return object.text;
-					},
-					formatResult:function(object,container,query){
-						if(object.create){
-							return '添加：'+object.text;
-						}
-						else if(object.text){
-							return object.text;
-						}
-						else{
-							return object.id;
-						}
-					}
-				});
-			}
-			
-			$(object).select2(options);
-		});
-		
-		if(hash==='schedule/taskboard'){
-	
-			section.find( ".sortable.column" ).sortable({
-				connectWith: ".sortable.column",
-				stop:function(event,ui){
-					var taskSort=[];
-					$(".sortable.column").each(function(){
-						taskSort.push($(this).sortable('toArray',{attribute:'event-id'}));
-					});
-					$.post('/schedule/settaskboardsort',{sortData:taskSort});
-				},
-				receive:function(event,ui){
-					var senderId=ui.sender.attr('event-id');
-					if(senderId){
-						$.post('/schedule/writecalendar/update/'+senderId,{in_todo_list:0});
-					}
-				}
-			}).disableSelection();
-			
-			section.on('click','.portlet',function(){
-				$.viewSchedule({id:$(this).attr('event-id'),target:this,taskboard:section});
-			});
-
-			section.on('click','.portlet-header .ui-icon',function(event){
-				event.stopPropagation();
-				$(this).toggleClass( 'ui-icon-minusthick' ).toggleClass( 'ui-icon-plusthick' );
-				$(this).parents( '.portlet:first' ).find( '.portlet-content' ).toggle();
-			});
-
-		}
-		
+		section.find('select.chosen').tagging();
 	});
 	
 	aside
@@ -370,7 +241,7 @@ $(document)
 				var form = pageSection.children('form');
 				var formData=form.serialize();
 
-				var asideSection = aside.children('section[for="'+hash+'"]');
+				var asideSection = aside.children('section[hash="'+hash+'"]');
 				var asideData=asideSection.find(':input').serialize();
 
 				var id = form.attr('id');
@@ -389,80 +260,31 @@ $(document)
 				});
 			}
 			else{
-				$.post($(this).closest('section').attr('for'),$(this).closest('section').find(':input').serialize()+'&submit='+$(this).attr('name'));
+				$.post($(this).closest('section').attr('hash'),$(this).closest('section').find(':input').serialize()+'&submit='+$(this).attr('name'));
 			}
 
 		});
 		
-		section.find('select.chosen').each(function(index,object){
-			var options={dropdownCss:{minWidth:100}};
-			if($(object).is('.allow-new')){
-				$.extend(options,{
-					createSearchChoice:function(term,results){
-						if(typeof results==='undefined'){
-							return {id:term,text:term,create:true};
-						}
+		section.find('select.chosen').tagging()
+		.on('change',function(event,newLabel){
+			var id=page.children('[hash="'+hash+'"]').children('form').attr('id');
+			var label,method;
 
-						var options=[];
-						$.each(results,function(){
-							options.push(this.text);
-						});
-
-						if($.inArray(term,options)===-1){
-							return {id:term,text:term,create:true};
-						}
-					},
-					formatSelection:function(object,container){
-						if(this.element.find('option[value="'+object.id+'"]').length===0){
-							this.element.append($('<option/>',{value:object.id,text:object.text}));
-
-							if(this.element.is('[multiple]')){
-								var val=this.element.val();
-								val.push(object.id);
-								this.element.val(val);
-							}
-							else{
-								this.element.val(object.id);
-							}
-
-						}
-						return object.text;
-					},
-					formatResult:function(object,container,query){
-						if(object.create){
-							return '添加：'+object.text;
-						}
-						else if(object.text){
-							return object.text;
-						}
-						else{
-							return object.id;
-						}
-					}
-				});
+			if(newLabel){
+				label=newLabel;
+				method='add';
+			}else if(event.added && id){
+				label=event.added.id;
+				method='add';
+			}else if(event.removed && id){
+				label=event.removed.id;
+				method='remove';
 			}
-			
-			$(object).select2(options)
-			.on('change',function(event,newLabel){
-				var id=page.children('[hash="'+hash+'"]').children('form').attr('id');
-				var label,method;
-				
-				if(newLabel){
-					label=newLabel;
-					method='add';
-				}else if(event.added && id){
-					label=event.added.id;
-					method='add';
-				}else if(event.removed && id){
-					label=event.removed.id;
-					method='remove';
-				}
-				
-				if(method && id){
-					$.post('/'+controller+'/'+method+'label/'+id,{label:label});
-				}
-				
-			});
+
+			if(method && id){
+				$.post('/'+controller+'/'+method+'label/'+id,{label:label});
+			}
+
 		});
 		
 		section.find('[display-for]:not([locked-by])').on('enable',function(){
@@ -477,23 +299,6 @@ $(document)
 
 		});
 		
-		if(hash==='schedule/taskboard'){
-			section.find('.draggable.portlet').draggable({
-				helper: 'clone',
-				connectToSortable:'.sortable.column'
-			});
-
-			section.on('click','.portlet',function(){
-				$.viewSchedule({id:$(this).attr('event-id'),target:this,taskboard:section});
-			});
-
-			section.on('click','.portlet-header .ui-icon',function(event){
-				event.stopPropagation();
-				$(this).toggleClass( 'ui-icon-minusthick' ).toggleClass( 'ui-icon-plusthick' );
-				$(this).parents( '.portlet:first' ).find( '.portlet-content' ).toggle();
-			});
-		}
-				
 	});
 
 })

@@ -15,11 +15,13 @@ class Gate extends SS_Controller{
 		switch($type){
 			case 'js':
 				$files=array(
+					'../web/js/underscore-min.js',
 					'../web/js/jQuery/jquery-1.7.2.min.js',
+					'../web/js/backbone-min.js',
 					'../web/js/jQuery/jquery-ui-1.10.2.custom.min.js',
+					
 					'../web/js/jQuery/jquery.placeholder.js',
 					'../web/js/jQuery/jQueryRotate.2.2.js',
-					'../web/js/jQuery/jquery.hashchange-us.js',
 					'../web/js/jQuery/jquery-ui.etc.js',
 					'../web/js/jQuery/fullcalendar/fullcalendar.js',
 					'../web/js/jQuery/highcharts/highcharts.js',
@@ -28,9 +30,16 @@ class Gate extends SS_Controller{
 					'../web/js/jQuery/jquery.iframe-transport.js',
 					'../web/js/jQuery/jquery.fileupload.js',
 					'../web/js/jQuery/jQuery-Timepicker-Addon/jquery-ui-timepicker-addon.js',
-					'../web/js/schedule.js',
+					
+					'../web/js/router.js',
+					
 					'../web/js/functions.js',
-					'../web/js/events.js'
+					'../web/js/events.js',
+					
+					'../web/js/schedule.js',
+					'../web/js/schedule_widget.js',
+					'../web/js/schedule_calendar.js'
+
 				);
 				$export='../web/js/combined.js';
 				$this->output->set_content_type('js');
@@ -50,7 +59,11 @@ class Gate extends SS_Controller{
 				break;
 		}
 		$combined = $this->minify->combine_files($files, $type, false);
-		$this->minify->save_file($combined, $export);
+		
+		if(ENVIRONMENT==='production'){
+			$this->minify->save_file($combined, $export);
+		}
+		
 		$this->output->set_output($combined);
 	}
 	

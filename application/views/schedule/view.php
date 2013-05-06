@@ -16,7 +16,7 @@
 <div class="field"><?=$profile['name']?>: <?=$profile['content']?></div>
 <?}?>
 <div class="profile hidden">
-	<select class="profile-name" style="width:35%">
+	<select class="profile-name allow-new" style="width:35%">
 		<?=options(array('外出地点','费用金额','费用用途','备注'),NULL)?>
 	</select>
 	: 

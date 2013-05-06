@@ -27,7 +27,7 @@
 <script type="text/javascript">
 $(function () {
 	
-	var section = aside.children('section[for="'+hash+'"]');
+	var section = aside.children('section[hash="'+hash+'"]');
 	
 	section.find('#fileupload').fileupload({
         dataType: 'json',

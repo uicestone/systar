@@ -342,7 +342,7 @@ class Schedule extends SS_controller{
 	
 	function todoList(){
 		$this->load->addViewData('side_task_board', $this->schedule->getList(array('people'=>$this->user->id,'in_todo_list'=>true,'show_project'=>true)));
-		$this->output->setData($this->load->view('schedule/todo_list',true),'todo-list','sidebar','aside>section[for="schedule"], aside>section[for="schedule/taskboard"]');
+		$this->output->setData($this->load->view('schedule/todo_list',true),'todo-list','sidebar','aside>section[hash="schedule"], aside>section[hash="schedule/taskboard"]');
 	}
 	
 }
