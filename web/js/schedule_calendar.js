@@ -86,7 +86,7 @@ $(function(){
 					completed:Number($(jsEvent.target).data('completed'))
 				};
 				$.post('/schedule/writecalendar/update/'+$(jsEvent.target).attr('event-id'),data,function(response){
-					calendar.fullCalendar('renderEvent',event);
+					$(calendar).fullCalendar('refetchEvents');
 				});
 			},
 			dropAccept:'.portlet'

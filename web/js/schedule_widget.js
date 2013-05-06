@@ -155,7 +155,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 					=that.options.start<new Date() && that.options.calendar;
 			}
 			
-			if(that.options.method==='create' && that.options.in_todo_list===null){
+			if(that.options.method==='create' && that.options.in_todo_list===null && !that.options.calendar){
 				that.options.event.in_todo_list=that.options.in_todo_list=true;
 			}
 			
