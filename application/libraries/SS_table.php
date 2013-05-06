@@ -433,10 +433,12 @@ class SS_Table extends CI_Table{
 		$column_max_char_units=array_fill(0,count($this->heading),0);
 		
 		//对excel对象的每一行每一列写入相应的数据
-		foreach($this->heading as $column_index=>$heading_cell){
+		$column_index=0;
+		foreach($this->heading as $heading_cell){
 			$cell_value=strip_tags($heading_cell['data']);
 			$this->_compareAndSetColumnMaxCharUnit($column_max_char_units,$column_index,$cell_value);
 			$current_sheet->setCellValueByColumnAndRow($column_index,1,$cell_value);
+			$column_index++;
 		}
 		
 		for($row_id=0;$row_id<count($this->rows);$row_id++){

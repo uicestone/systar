@@ -90,12 +90,16 @@ class Schedule extends SS_controller{
 			$field=array(
 				'name'=>array('heading'=>'标题'),
 				'content'=>array('heading'=>'内容'),
-				'start'=>array('heading'=>'时间','eval'=>true,'cell'=>"return date('Y-m-d H:i',{start});"),
-				'hours_own'=>array('heading'=>'自报小时'),
-				'creater_name'=>array('heading'=>'人员')
+				'time'=>array('heading'=>'时间','parser'=>array('function'=>function($start){
+					return $start?date('Y-m-d H:i',intval($start)):null;
+				},'args'=>array('{start}'))),
+				'hours_own'=>array('heading'=>'时长'),
+				'creater_name'=>array('heading'=>'人员'),
+				'project_name'=>array('heading'=>'事务')
 			);
 			
-			$this->table->setFields($field)
+			$this->table
+				->setFields($field)
 				->setData($this->schedule->getList($this->config->user_item('search')))
 				->generateExcel();
 		}else{
@@ -236,7 +240,7 @@ class Schedule extends SS_controller{
 		$task_board = array();
 		
 		foreach($sort_data as $column){
-			$task_board[]=$this->schedule->getList(array('id_in_set'=>$column));
+			$task_board[]=$this->schedule->getList(array('id_in_set'=>$column,'show_project'=>true));
 		}
 		
 		$this->load->addViewData('task_board' , $task_board);
