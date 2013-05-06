@@ -18,7 +18,7 @@ class Gate extends SS_Controller{
 					'../web/js/underscore-min.js',
 					'../web/js/jQuery/jquery-1.7.2.min.js',
 					'../web/js/backbone-min.js',
-					'../web/js/jQuery/jquery-ui-1.10.2.custom.min.js',
+					'../web/js/jQuery/jquery-ui-1.10.3.custom.min.js',
 					
 					'../web/js/jQuery/jquery.placeholder.js',
 					'../web/js/jQuery/jQueryRotate.2.2.js',
@@ -47,7 +47,7 @@ class Gate extends SS_Controller{
 		
 			case 'css':
 				$files=array(
-					'../web/style/redmond/jquery-ui-1.10.2.custom.css',
+					'../web/style/redmond/jquery-ui-1.10.3.custom.css',
 					'../web/style/icomoon/style.css',
 					'../web/js/jQuery/fullcalendar/fullcalendar.css',
 					'../web/js/jQuery/select2/select2.css',
