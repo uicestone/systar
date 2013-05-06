@@ -3,11 +3,12 @@ var page,nav,header,tabs,aside,calendar,
 
 var Workspace = Backbone.Router.extend({
 	routes: {
-		'(:controller)(/:method)':'common'
+		'(:controller)(/:method)(/:para1)(/:para2)(/:para3)':'common'
 	},
 	
 	common: function(){
 		hash=window.location.hash.substr(1);
+		console.log(hash);
 
 		uriSegments=hash.split('/');
 
