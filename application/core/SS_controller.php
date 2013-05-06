@@ -93,7 +93,12 @@ class SS_Controller extends CI_Controller{
 			return;
 		}
 		
-		header('Content-Type: application/json');
+		if($this->agent->browser()=='Internet Explorer' && strpos($this->input->header('Content-Type'),'multipart/form-data')!==false){
+			header('Content-type: text/html');
+		}
+		else{
+			header('Content-Type: application/json');
+		}
 		
 		if($output){
 			/*
