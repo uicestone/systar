@@ -485,6 +485,8 @@ section>form>.submit{
 /*任务块*/
 .column { width: 170px; float: left; padding-bottom: 100px; }
 .portlet { margin: 0 1em 1em 0; }
+.portlet.todo .portlet-header{border:#E35B00; background:#E35B00;}
+.portlet.todo.expired .portlet-header{border:#555; background:#555;}
 .portlet-header { padding-bottom: 4px; padding-left: 0.2em; }
 .portlet-header .ui-icon { float: right; }
 .portlet-content { padding: 0.4em; white-space: pre-line;}

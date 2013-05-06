@@ -5,7 +5,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><![endif]-->
 	<!--[if lt IE 9]><?=javascript('html5')?><![endif]-->
-	<?=stylesheet('style/redmond/jquery-ui-1.10.2.custom.min')?>
+	<?=stylesheet('style/redmond/jquery-ui-1.10.3.custom')?>
 	<?=stylesheet('style/common')?>
 	
 	<?=javascript('jQuery/jquery-1.7.2.min')?>

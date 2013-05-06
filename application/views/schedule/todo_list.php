@@ -5,7 +5,7 @@
 			<span class='ui-icon ui-icon-minusthick'></span>
 			<?=$task['name'] ?>
 		</div>
-		<div class="portlet-content"><?=$task['content'] ?>
+		<div class="portlet-content"><?=str_getSummary($task['content'],60)?>
 <?	if(isset($task['project'])){?>
 			<hr /><span class="project">事务：<?=$task['project_name']?></span>
 <?}?>

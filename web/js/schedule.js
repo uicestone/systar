@@ -25,7 +25,7 @@ $(function(){
 		if(controller==='schedule' && method==='lists'){
 			/*日程excel导出按钮*/
 			$(this).find('[name="export-excel"]').click(function(){
-				window.open(changeURLPar(hash,'export','excel'));
+				window.open($.changeUrlPar(hash,'export','excel'));
 			});
 		}
 		

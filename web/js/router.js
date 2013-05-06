@@ -8,7 +8,7 @@ var Workspace = Backbone.Router.extend({
 	
 	common: function(){
 		hash=window.location.hash.substr(1);
-		console.log(hash);
+		//console.log(hash);
 
 		uriSegments=hash.split('/');
 
