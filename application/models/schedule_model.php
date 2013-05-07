@@ -46,7 +46,6 @@ class Schedule_model extends BaseItem_model{
 	 * project: get schedule only under this project
 	 * people: get schedule related with this people (by schedule.uid and schedule_people)
 	 * show_creater
-	 * show_project
 	 * id_in_set
 	 * in_todo_list
 	 * completed
@@ -58,6 +57,7 @@ class Schedule_model extends BaseItem_model{
 	 *		format=>mysql date form string, or false (default: '%Y-%m-%d')
 	 *	)
 	 * in_project_of_people bool
+	 * show_project
 	 * @return type
 	 */
 	function getList(array $args=array()){
@@ -83,11 +83,6 @@ class Schedule_model extends BaseItem_model{
 		if(isset($args['show_creater']) && $args['show_creater']){
 			$this->db->join('people creater','creater.id = schedule.uid','inner')
 				->select('creater.id creater, creater.name creater_name');
-		}
-		
-		if(isset($args['show_project']) && $args['show_project']){
-			$this->db->join('project','project.id = schedule.project','left')
-				->select('project.name project_name');
 		}
 		
 		if(isset($args['id_in_set'])){
@@ -148,6 +143,10 @@ class Schedule_model extends BaseItem_model{
 			$this->db->join('project_people',"project_people.project  = schedule.project AND project_people.people = {$args['in_project_of_people']}",'inner')
 				->join('project','project.id = project_people.project','inner')
 				->select('project.name AS project_name, project.id AS project');
+		}
+		elseif(isset($args['show_project']) && $args['show_project']){
+			$this->db->join('project','project.id = schedule.project','left')
+				->select('project.name project_name');
 		}
 		
 		$schedules = parent::getList($args);
