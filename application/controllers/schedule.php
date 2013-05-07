@@ -87,12 +87,13 @@ class Schedule extends SS_controller{
 		
 		if($this->input->get('export')=='excel'){
 			
+			$this->config->set_user_item('search/date_form', '%Y-%m-%d', false);
+			
 			$field=array(
-				'name'=>array('heading'=>'标题'),
-				'content'=>array('heading'=>'内容'),
-				'start'=>array('heading'=>'时间'),
-				'hours_own'=>array('heading'=>'时长'),
-				'creater_name'=>array('heading'=>'人员'),
+				'start'=>array('heading'=>'日期'),
+				'content'=>array('heading'=>'工作内容'),
+				'hours_own'=>array('heading'=>'工作时长'),
+				'creater_name'=>array('heading'=>'经办人'),
 				'project_name'=>array('heading'=>'事务')
 			);
 			
