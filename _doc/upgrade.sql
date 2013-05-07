@@ -351,4 +351,6 @@ ALTER TABLE  `schedule` CHANGE  `hours_own`  `hours_own` DECIMAL( 10, 2 ) NULL D
 update schedule set start = null where start = 0;
 update schedule set end = null where end = 0;
 update schedule set deadline = null where deadline = 0;
+
+ALTER TABLE `schedule_profile` DROP `username`;
 -- server updated

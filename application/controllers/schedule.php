@@ -323,7 +323,7 @@ class Schedule extends SS_controller{
 			$this->load->model('people_model','people');
 			$schedule['creater_name']=$this->people->fetch($schedule['uid'],'name');
 			
-			$profiles=$this->schedule->getProfiles($schedule_id);
+			$profiles=$this->schedule->getProfiles($schedule_id,array('show_author'=>true));
 			
 			$people=$this->schedule->getPeople($schedule_id);
 

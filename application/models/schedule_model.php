@@ -179,7 +179,7 @@ class Schedule_model extends BaseItem_model{
 		$data=array_intersect_key($data, self::$fields);
 		
 		//attemp to convert date string to timestamp
-		foreach(array('start','end','deadline') as $timepoint){
+		foreach(array('start','end','deadline','hours_own') as $timepoint){
 			if(isset($data[$timepoint])){
 				if($data[$timepoint]===''){
 					$data[$timepoint]=NULL;
@@ -214,7 +214,7 @@ class Schedule_model extends BaseItem_model{
 		$schedule_id=intval($schedule_id);
 		
 		//attemp to convert date string to timestamp
-		foreach(array('start','end','deadline') as $timepoint){
+		foreach(array('start','end','deadline','hours_own') as $timepoint){
 			if(isset($data[$timepoint])){
 				if($data[$timepoint]===''){
 					$data[$timepoint]=NULL;

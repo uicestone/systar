@@ -344,15 +344,22 @@ class BaseItem_model extends SS_Model{
 	/**
 	 * 返回一个item的资料项列表
 	 * @param ${item}_id
+	 * @param array $args
+	 *	show_author
 	 * @return type
 	 */
-	function getProfiles($item_id){
+	function getProfiles($item_id,array $args=array()){
 		$item_id=intval($item_id);
 		
 		$this->db->select("{$this->table}_profile.id,{$this->table}_profile.comment,{$this->table}_profile.content,{$this->table}_profile.name")
 			->from("{$this->table}_profile")
 			->join($this->table,"{$this->table}_profile.{$this->table}={$this->table}.id",'inner')
 			->where("{$this->table}_profile.{$this->table}",$item_id);
+			
+		if(isset($args['show_author']) && $args['show_author']){
+			$this->db->join('people author',"author.id = {$this->table}_profile.uid",'inner')
+				->select('author.id author, author.name author_name');
+		}
 		
 		return $this->db->get()->result_array();
 	}

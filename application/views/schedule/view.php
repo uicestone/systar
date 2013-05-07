@@ -13,7 +13,7 @@
 <?}?>
 </div>
 <?foreach($profiles as $profile){?>
-<div class="field"><?=$profile['name']?>: <?=$profile['content']?></div>
+<div class="field" style="border-bottom: none;border-top:#999 1px solid;"><?=$profile['name']?>: <?=$profile['content']?> (<?=$profile['author_name']?>)</div>
 <?}?>
 <div class="profile hidden">
 	<select class="profile-name allow-new" style="width:35%">
