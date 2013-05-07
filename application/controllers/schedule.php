@@ -14,9 +14,7 @@ class Schedule extends SS_controller{
 		
 		$this->list_args=array(
 			'name'=>array('heading'=>'标题','cell'=>array('class'=>'ellipsis','title'=>'{content}')),
-			'time'=>array('heading'=>'时间','parser'=>array('function'=>function($start){
-				return $start?date('Y-m-d H:i',intval($start)):null;
-			},'args'=>array('{start}')),'cell'=>array('style'=>'color:{color}')),
+			'start'=>array('heading'=>'时间','cell'=>array('style'=>'color:{color}')),
 			'hours'=>array('heading'=>'时长','parser'=>array('function'=>function($hours_own,$hours_checked){
 				if($hours_checked!==''){
 					return $hours_checked;
@@ -61,13 +59,15 @@ class Schedule extends SS_controller{
 		$this->config->set_user_item('search/limit', 'pagination', false);
 		$this->config->set_user_item('search/in_project_of_people', $this->user->id, false);
 		$this->config->set_user_item('search/show_creater', true, false);
+		$this->config->set_user_item('search/time/input_format', 'date', false);
+		$this->config->set_user_item('search/date_form', '%Y-%m-%d %H:%i', false);
 		
 		if($this->input->get('project')){
 			$this->section_title='日程 - '.$this->project->fetch($this->input->get('project'),'name');
 			$this->config->set_user_item('search/project', $this->input->get('project'),false);
 		}
 		
-		$search_items=array('name');
+		$search_items=array('name','time/from','time/to');
 		
 		foreach($search_items as $item){
 			if($this->input->post($item)!==false){
@@ -90,9 +90,7 @@ class Schedule extends SS_controller{
 			$field=array(
 				'name'=>array('heading'=>'标题'),
 				'content'=>array('heading'=>'内容'),
-				'time'=>array('heading'=>'时间','parser'=>array('function'=>function($start){
-					return $start?date('Y-m-d H:i',intval($start)):null;
-				},'args'=>array('{start}'))),
+				'start'=>array('heading'=>'时间'),
 				'hours_own'=>array('heading'=>'时长'),
 				'creater_name'=>array('heading'=>'人员'),
 				'project_name'=>array('heading'=>'事务')
@@ -193,13 +191,17 @@ class Schedule extends SS_controller{
 			$data = $this->input->post();
 			$data['display']=true;
 			$new_schedule_id = $this->schedule->add($data);
-			$this->schedule->updatePeople($new_schedule_id,$this->input->post('people'));
-			$this->schedule->updateProfiles($new_schedule_id, $this->input->post('profiles'));
 			
-			if($new_schedule_id){
-				$this->output->status='success';
-				$this->output->data=array('id'=>$new_schedule_id,'name'=>$data['name']);
+			$this->schedule->updatePeople($new_schedule_id,$this->input->post('people'));
+			
+			if(is_array($this->input->post('profiles'))){
+				foreach($this->input->post('profiles') as $name => $content){
+					$this->schedule->addProfile($new_schedule_id,$name,$content);
+				}
 			}
+			
+			$this->output->status='success';
+			$this->output->data=array('id'=>$new_schedule_id,'name'=>$data['name']);
 			
 		}elseif($action=='delete'){//删除任务
 			if($this->schedule->remove($schedule_id)){
@@ -208,8 +210,13 @@ class Schedule extends SS_controller{
 		
 		}elseif($action=='update'){//更新任务内容
 			$this->schedule->update($schedule_id,$this->input->post());
-			$this->schedule->updateProfiles($schedule_id, $this->input->post('profiles'));
 			$this->schedule->updatePeople($schedule_id,$this->input->post('people'));
+			
+			if(is_array($this->input->post('profiles'))){
+				foreach($this->input->post('profiles') as $name => $content){
+					$this->schedule->addProfile($schedule_id,$name,$content);
+				}
+			}
 			
 			$schedule=$this->schedule->fetch($schedule_id);
 			
@@ -296,6 +303,10 @@ class Schedule extends SS_controller{
 		$this->schedule->setTaskBoardSort($sort_data, $uid);
 		
 		$this->output->status='success';
+	}
+	
+	function removeProfile($schedule_id,$profile_id){
+		$this->schedule->removeProfile($item_id, $profile_id);
 	}
 	
 	function add(){

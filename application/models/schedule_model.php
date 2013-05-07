@@ -54,7 +54,8 @@ class Schedule_model extends BaseItem_model{
 	 *	array(
 	 *		from=>timestamp/date string/datetime string
 	 *		to=>timestamp/date string/datetime string
-	 *		format=>mysql date form string, or false (default: '%Y-%m-%d')
+	 *		input_format=>timestamp, date
+	 *		date_form=>mysql date form string, or false (default: '%Y-%m-%d')
 	 *	)
 	 * in_project_of_people bool
 	 * show_project
@@ -102,16 +103,20 @@ class Schedule_model extends BaseItem_model{
 			$this->db->where('schedule.completed',$args['completed']);
 		}
 		
-		if(isset($args['time'])){
+		if(!isset($args['time'])){
+			$args['time']=array_prefix($args, 'time');
+		}
+		
+		if($args['time']){
 			if($args['time']===false){
-				$this->db->where(array('start'=>NULL,'end'=>NULL));
+				$this->db->where(array('schedule.start'=>NULL,'schedule.end'=>NULL));
 			}
 			
 			if(isset($args['time']['from'])){
 				if(isset($args['time']['input_format']) && $args['time']['input_format']!=='timestamp'){
 					$args['time']['from']=strtotime($args['time']['from']);
 				}
-				$this->db->where('start >=',$args['time']['from']);
+				$this->db->where('schedule.start >=',$args['time']['from']);
 			}
 			
 			if(isset($args['time']['to'])){
@@ -120,9 +125,9 @@ class Schedule_model extends BaseItem_model{
 				}
 				
 				if(isset($args['time']['input_format']) && $args['time']['input_format']==='date'){
-					$this->db->where('end <=',$args['time']['to']);
+					$this->db->where('schedule.end <=',$args['time']['to']);
 				}else{
-					$this->db->where('end <',$args['time']['to']);
+					$this->db->where('schedule.end <',$args['time']['to']);
 				}
 				
 			}
@@ -166,7 +171,7 @@ class Schedule_model extends BaseItem_model{
 			$schedule['completed']=(bool)$schedule['completed'];
 
 		},$this);
-		
+
 		return $schedules;
 	
 	}
