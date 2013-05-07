@@ -284,7 +284,7 @@ class Schedule extends SS_controller{
 		$this->output->status='success';
 	}
 	
-	function removefromtaskboard($task_id , $uid=NULL){
+	function removeFromTaskboard($task_id , $uid=NULL){
 		if(is_null($uid)){
 			$uid=$this->user->id;
 		}
@@ -305,8 +305,25 @@ class Schedule extends SS_controller{
 		$this->output->status='success';
 	}
 	
+	function removeTaskboardCompleted(){
+		$sort_data = $this -> schedule -> getTaskBoardSort($this->user->id);
+		
+		$schedule=array();
+		
+		foreach($sort_data as $column_id => $column){
+			$schedule=array_merge($schedule,$column);
+		}
+		
+		$taskboard_completed=$this->schedule->getArray(array('completed'=>true,'id_in'=>$schedule),'id');
+		
+		foreach($sort_data as $column_id =>$column){
+			$sort_data[$column_id]=array_values(array_diff($column,$taskboard_completed));
+		}
+		$this->schedule->setTaskBoardSort($sort_data, $this->user->id);
+	}
+	
 	function removeProfile($schedule_id,$profile_id){
-		$this->schedule->removeProfile($item_id, $profile_id);
+		$this->schedule->removeProfile($schedule_id, $profile_id);
 	}
 	
 	function add(){

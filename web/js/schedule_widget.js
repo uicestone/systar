@@ -12,6 +12,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 		dialogClass:'shadow schedule-form',
 		autoOpen:true,
 		close:null,/*function on close*/
+		closeText:null,
 		title:'新日程',
 		content:'',
 		id:null,
@@ -193,6 +194,56 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			
 			if(that.options.project){
 				that.element.find('[name="project"]').val(that.options.project).attr('changed','changed');
+			}
+			
+			if(that.options.method==='view'){
+				
+				that.element.find('div.field')
+					.on('mouseenter',function(){
+						$(this).siblings('.profile.field[removable]').each(function(){
+							if($(this).data('delete-button')){
+								$(this).data('delete-button').remove();
+							}
+						});
+					});
+				
+				that.element.find('.profile.field[removable]')
+					.on('mouseenter',function(){
+				
+						var row=this;
+
+						$(this).data('delete-button',
+							$('<button/>',{text:'x'}).appendTo('body')
+								.position({
+									my:'right top',
+									at:'right top',
+									of:$(row)
+								})
+								.hide()
+								.css({zIndex:100000})
+								.on('mouseenter',function(){
+									$(this).clearQueue();
+								})
+								.on('mouseleave',function(){
+									$(this).stop().remove();
+								})
+								.on('click',function(){
+									var button=this;
+									var event_id=that.options.id;
+									var profile_id=$(row).attr('id');
+									$.post('/schedule/removeprofile/'+event_id+'/'+profile_id,function(){
+										$(button).remove();
+										that._getContent();
+									});
+								}).delay(100).fadeIn()
+							);
+					})
+					.on('mouseleave','span[role]',function(){
+						$(this).data('delete-button').clearQueue().delay(200).hide(0,function(){
+							$(this).remove();
+						});
+					});
+
 			}
 			
 		});

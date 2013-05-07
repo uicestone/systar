@@ -13,7 +13,7 @@
 <?}?>
 </div>
 <?foreach($profiles as $profile){?>
-<div class="field" style="border-bottom: none;border-top:#999 1px solid;"><?=$profile['name']?>: <?=$profile['content']?> (<?=$profile['author_name']?>)</div>
+<div class="field profile" id="<?=$profile['id']?>" style="border-bottom: none;border-top:#999 1px solid;"<?if($profile['author']==$this->user->id){?> removable<?}?>><?=$profile['name']?>：<?=$profile['content']?> (<?=$profile['author_name']?>)</div>
 <?}?>
 <div class="profile hidden">
 	<select class="profile-name allow-new" style="width:35%">

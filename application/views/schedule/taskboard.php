@@ -1,3 +1,6 @@
+<div class="contentTableMenu">
+	<button type="button" name="clear-completed" title="将已完成的任务移出任务墙">清除已完成</button>
+</div>
 <? foreach ($task_board as $column) { ?>
 <div class="column sortable">	
 <? foreach ($column as $task) { ?>

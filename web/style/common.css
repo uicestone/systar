@@ -294,7 +294,7 @@ nav .arrow{
 	margin:0;
 }
 .contentTableMenu{
-	position:fixed;top:0;right:150px;z-index:6;
+	position:fixed;top:0;right:240px;z-index:6;
 	color:#FFF;
 }
 .contentTableFoot{
@@ -462,9 +462,6 @@ section>form>.item .title{
 	font-size:15px;
 	line-height:2;
 	min-height:30px;
-}
-section>form>.item>.title .ui-dialog-buttonset .ui-button-text{
-	padding:0.2em 0.8em;
 }
 section>form>.item .content{
 	background:#FFF;

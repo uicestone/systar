@@ -48,6 +48,12 @@ $(function(){
 					}
 				}
 			}).disableSelection();
+			
+			$(this).find('button[name="clear-completed"]').on('click',function(){
+				$.get('/schedule/removetaskboardcompleted',function(){
+					$.refresh('schedule/taskboard');
+				});
+			});
 		}
 	});
 	

@@ -63,6 +63,7 @@ class BaseItem_model extends SS_Model{
 	 * @param array $args
 	 * name
 	 * type
+	 * id_in
 	 * orderby string or array
 	 * limit string, array OR 'pagination'
 	 * team array or int
@@ -105,6 +106,10 @@ class BaseItem_model extends SS_Model{
 		
 		if(isset($args['type']) && $args['type']){
 			$this->db->where($this->table.'.type',$args['type']);
+		}
+		
+		if(isset($args['id_in']) && is_array($args['id_in']) && !empty($args['id_in'])){
+			$this->db->where_in($this->table.'.id',$args['id_in']);
 		}
 		
 		//复制一个DB对象用来计算行数，因为计算行数需要运行sql，将清空DB对象中属性
