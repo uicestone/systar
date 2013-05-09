@@ -198,7 +198,7 @@ jQuery.fn.extend({
 			window.location.href='login';
 			return this;
 		}
-
+		
 		else if(response.status==='redirect'){
 			$.redirect(response.data);
 			return this;
@@ -271,6 +271,7 @@ jQuery.fn.extend({
 				if(dataName==='sidebar' || data.type==='sidebar'){
 					block.trigger('sidebarload');
 				}
+				
 				if(data.type==='content-table'){
 					block.trigger('contenttableload');
 				}

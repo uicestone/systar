@@ -1,5 +1,5 @@
 var page,nav,header,tabs,aside,calendar,
-	hash,controller,method,username,sysname,uriSegments;
+	hash,controller,method,username,sysname,uriSegments,polling={};
 
 var Workspace = Backbone.Router.extend({
 	routes: {
@@ -9,8 +9,12 @@ var Workspace = Backbone.Router.extend({
 	common: function(){
 		hash=window.location.hash.substr(1);
 		//console.log(hash);
-
+		
 		uriSegments=hash.split('/');
+		
+		for(var key in polling){
+			window.clearInterval(polling[key]);
+		}
 
 		/*根据当前hash，设置标签选项卡和导航菜单激活状态*/
 		tabs.children('[hash="'+hash+'"]').addClass('activated');

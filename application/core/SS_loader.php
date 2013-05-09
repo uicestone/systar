@@ -16,14 +16,6 @@ class SS_Loader extends CI_Loader{
 	 */
 	var $selector='article';
 	
-	/**
-	 * 在ajax响应页面中，用来保存提示信息的数组
-	 */
-	var $message=array(
-		'notice'=>array(),
-		'warning'=>array()
-	);
-	
 	function __construct(){
 		parent::__construct();
 	}

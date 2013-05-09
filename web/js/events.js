@@ -21,6 +21,10 @@ $(document)
 		$.showMessage('您正在使用不被推荐的浏览器，请关闭浏览器兼容模式。如果问题仍然存在，<a href="/browser">请点此下载推荐的浏览器</a>','warning');
 	}
 	
+	setInterval(function(){
+		$.get('/polling');
+	},10000);
+	
 	/*载入默认主页面*/
 	if(!hash && page.attr('default-uri')){
 		syssh.navigate(page.attr('default-uri'),true);
@@ -62,6 +66,20 @@ $(document)
 			subMenu.hide(200);
 		}
 	});
+	
+	header.on('blockload','.new-messages:not(:empty)',function(){
+		$(this).clone().appendTo(page)
+			.removeClass('new-messages')
+			.css({zIndex:100,color:'#FFF'})
+			.position({
+				of:'.new-messages'
+			})
+			.animate({fontSize:'20em',opacity:0},1000,function(){
+				$(this).remove();
+			});
+	});
+	
+	header.children('#topMenu').children('#message').children('.new-messages').trigger('blockload');
 	
 	tabs
 	/*标签手动刷新*/

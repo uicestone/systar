@@ -354,3 +354,5 @@ update schedule set deadline = null where deadline = 0;
 
 ALTER TABLE `schedule_profile` DROP `username`;
 -- server updated
+
+ALTER TABLE  `dialog_user` ADD  `read` BOOLEAN NOT NULL;

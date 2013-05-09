@@ -179,6 +179,12 @@ header{
 	margin:auto 5px auto 5px;
 	color:#FFF;
 }
+#topMenu>#message>.new-messages{
+	font-weight:bold;
+}
+#topMenu>#message:hover{
+	text-decoration: none;
+}
 header,nav{
 	font-weight:normal;
 }
@@ -491,12 +497,18 @@ section>form>.submit{
 .ui-sortable-placeholder * { visibility: hidden; }
 
 /*消息模块*/
-.message-dialog-list-item{
+.message-dialog-list-item, .message-content-list-item{
 	background-color:rgba(255,255,255,0.4);
 	padding:15px;
+}
+.message-dialog-list-item{
 	cursor:pointer;
 }
-.message-dialog-list-item>.title{
+.message-dialog-list-item.unread, .message-content-list-item.unread{
+	font-weight:bold;
+}
+
+.message-dialog-list-item>.title, .message-content-list-item>title{
 	float:left;
 	width:80px;height:60px;
 	font-size:1.2em;

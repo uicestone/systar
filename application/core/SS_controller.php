@@ -38,6 +38,7 @@ class SS_Controller extends CI_Controller{
 		$this->load->model('team_model','team');
 		$this->load->model('user_model','user');
 		$this->load->model('label_model','label');
+		$this->load->model('message_model','message');
 		
 		if(is_file(APPPATH.'models/'.$class.'_model.php')){
 			$this->load->model($class.'_model',$class);
@@ -107,7 +108,7 @@ class SS_Controller extends CI_Controller{
 			 * 并作为data的content键封装json传输到前段
 			 */
 			$output.=$this->load->view('innerjs',true);
-			$this->output->setData($output,'content','html','article>section[hash="'.substr($this->input->server('REQUEST_URI'),1).'"]');
+			$this->output->setData($output,substr($this->input->server('REQUEST_URI'),1),'html','article>section[hash="'.substr($this->input->server('REQUEST_URI'),1).'"]');
 		}
 		
 		if(array_key_exists('sidebar',$this->load->blocks)){

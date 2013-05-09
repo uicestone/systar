@@ -42,7 +42,8 @@ class Message extends SS_Controller{
 		}
 	}
 
-	function content($dialog_id){
+	function content($dialog_id,$blocks='all'){
+		
 		try{
 			if($this->input->post('submit')==='send'){
 				
@@ -57,7 +58,7 @@ class Message extends SS_Controller{
 				}
 				
 			}
-		
+			
 			$dialog=$this->message->fetchDialog($dialog_id);
 
 			$this->section_title='对话 '.$dialog['title'];
@@ -73,7 +74,12 @@ class Message extends SS_Controller{
 			$this->load->addViewData('messages', $messages);
 
 			$this->load->view('message/list');
-			$this->load->view('message/content_sidebar',true,'sidebar');
+			
+			if($blocks=='all' || $blocks=='sidebar'){
+				$this->load->view('message/content_sidebar',true,'sidebar');
+			}
+			
+			$this->message->setDialogRead($dialog_id);
 			
 		}catch(Exception $e){
 			if($e->getMessage()){
