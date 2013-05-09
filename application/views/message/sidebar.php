@@ -27,11 +27,12 @@
 		</tr>
 		<tr>
 			<td class="submit">
-				<button type="submit" name="send">发送</button>
+				<button type="submit" name="send" class="major">发送</button>
 			</td>
 		</tr>
 	</tbody>
 </table>
+<button id="enable-desktop-notification" class="hidden">启用桌面通知</button>
 <p class="upload-list-item hidden">
 	<input type="hidden" name="documents[]" disabled="disabled" />
 	<input type="text" name="document[name]" disabled="disabled" placeholder="名称" />
@@ -41,6 +42,14 @@
 $(function () {
 	
 	var section = aside.children('section[hash="'+hash+'"]');
+	
+	if(window.webkitNotifications && window.webkitNotifications.checkPermission() !== 0){
+		section.find('#enable-desktop-notification')
+		.on('click',function(){
+			window.webkitNotifications.requestPermission();
+		})
+		.show();
+	}
 	
 	section.find('#fileupload').fileupload({
         dataType: 'json',
