@@ -160,7 +160,7 @@ jQuery.each( [ "get", "post" ], function( i, method ) {
 				throbber.stop().fadeOut(200).stopRotate();
 			},
 			error:function(){
-				$.showMessage('服务器返回了错误的数据','warning');
+				//$.showMessage('服务器返回了错误的数据','warning');
 			}
 		});
 	};
