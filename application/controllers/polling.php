@@ -9,7 +9,7 @@ class Polling extends SS_Controller{
 		$this->output->setData($new_messages,'messages','html','.new-messages');
 		
 		if($new_messages){
-			$this->output->setData("$.get('/message')",'dialog','script');
+			$this->output->setData("$.post('/message',{blocks:'content'})",'dialog','script');
 		}
 	}
 }

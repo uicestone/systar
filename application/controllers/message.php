@@ -33,7 +33,10 @@ class Message extends SS_Controller{
 			$this->load->addViewData('dialogs', $dialogs);
 
 			$this->load->view('message/dialog');
-			$this->load->view('message/sidebar',true,'sidebar');
+			
+			if(!$this->input->post('blocks') || $this->input->post('sidebar')){
+				$this->load->view('message/sidebar',true,'sidebar');
+			}
 			
 		}catch(Exception $e){
 			if($e->getMessage()){
@@ -42,7 +45,7 @@ class Message extends SS_Controller{
 		}
 	}
 
-	function content($dialog_id,$blocks='all'){
+	function content($dialog_id){
 		
 		try{
 			if($this->input->post('submit')==='send'){
@@ -75,7 +78,7 @@ class Message extends SS_Controller{
 
 			$this->load->view('message/list');
 			
-			if($blocks=='all' || $blocks=='sidebar'){
+			if(!$this->input->post('blocks') || $this->input->post('blocks')=='sidebar'){
 				$this->load->view('message/content_sidebar',true,'sidebar');
 			}
 			

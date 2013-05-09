@@ -17,8 +17,9 @@
 $(function(){
 	page.on('sectionshow sectionload','section',function(){
 		if(controller==='message' && method==='content'){
+			window.clearInterval(polling.message);
 			polling.message=window.setInterval(function(){
-				$.get('/'+hash+'/content');
+				$.post('/'+hash,{blocks:'content'});
 			},3000);
 		}
 	});
