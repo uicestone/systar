@@ -355,4 +355,6 @@ update schedule set deadline = null where deadline = 0;
 ALTER TABLE `schedule_profile` DROP `username`;
 
 ALTER TABLE  `dialog_user` ADD  `read` BOOLEAN NOT NULL;
+
+ALTER TABLE  `project` CHANGE  `type`  `type` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT  'project';
 -- server updated

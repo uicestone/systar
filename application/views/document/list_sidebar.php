@@ -18,7 +18,7 @@
 		</tr>
 	</tbody>
 </table>
-<input id="fileupload" type="file" name="document" data-url="/document/submit" multiple="multiple" />
+<input id="fileupload" type="file" name="document" data-url="/document/submit/upload" multiple="multiple" />
 <p class="upload-list-item hidden">
 	<input type="text" name="document[name]" placeholder="名称" />
 	<select name="labels[]" data-placeholder="标签" multiple="multiple" class="allow-new" style="width:99%">

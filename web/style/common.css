@@ -75,6 +75,17 @@ button.hover{
 	display:none;
 	position:absolute;
 }
+dl.horizontal>dt, dl.horizontal>table{
+	display:inline-block;
+	vertical-align:top;
+}
+dl.horizontal>table{
+	margin-top:1em;
+}
+dl.horizontal th{
+	text-align: right;
+	font-weight: bold;
+}
 
 .ui-autocomplete {
 	max-height: 200px;

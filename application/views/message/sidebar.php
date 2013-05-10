@@ -21,7 +21,7 @@
 		</tr>
 		<tr>
 			<td>
-				<input id="fileupload" type="file" name="document" data-url="/document/submit" multiple="multiple" />
+				<input id="fileupload" type="file" name="document" data-url="/document/submit/upload" multiple="multiple" />
 				<div id="upload-info"></div>
 			</td>
 		</tr>

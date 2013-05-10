@@ -48,6 +48,7 @@ class Gate extends SS_Controller{
 			case 'css':
 				$files=array(
 					'../web/style/redmond/jquery-ui-1.10.3.custom.css',
+					'../web/style/jquery-ui-bootstrap/jquery-ui-1.10.0.custom.css',
 					'../web/style/icomoon/style.css',
 					'../web/js/jQuery/fullcalendar/fullcalendar.css',
 					'../web/js/jQuery/select2/select2.css',
@@ -69,8 +70,8 @@ class Gate extends SS_Controller{
 	
 	function index(){
 		$this->load->view('head');
-		$this->load->view('nav');
 		$this->load->view('menu');
+		$this->load->view('nav');
 		$this->load->view('frame');
 		$this->load->view('foot');
 	}

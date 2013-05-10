@@ -179,7 +179,7 @@
 		<?=$document_list?>
 
 		<div class="add-form">
-			<input type="file" name="document" id="file" data-url="/document/submit" />
+			<input type="file" name="document" id="file" data-url="/document/submit/upload" />
 			<input name="document[id]" class="hidden" />
 			<input type="text" name="document[name]" placeholder="文件名称" style="padding:4px" />
 			<select name="document_labels[]" class="chosen allow-new" data-placeholder="标签" multiple="multiple" style="width:200px;height:15px;">

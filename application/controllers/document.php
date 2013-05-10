@@ -55,6 +55,7 @@ class Document extends SS_controller{
 		}
 		
 		$table=$this->table->setFields($this->list_args)
+			->setRowAttributes(array('hash'=>'document/{id}'))
 			->setData($this->document->getList($this->config->user_item('search')))
 			->generate();
 		
@@ -71,6 +72,9 @@ class Document extends SS_controller{
 	}
 
 	function download($id){
+		
+		$this->output->as_ajax=false;
+		
 		$document=$this->document->fetch($id);
 		
 		$this->document->exportHead($document['filename']);
@@ -81,44 +85,115 @@ class Document extends SS_controller{
 		readfile($filename);
 	}
 	
-	function submit(){
-		
-		$config=array(
-			'upload_path'=>'../uploads/',
-			'allowed_types'=>'*',
-			'encrypt_name'=>true
-		);
-		
-		$this->load->library('upload', $config);
-		$this->document->data=$this->input->sessionPost('');
-		$this->document->labels=$this->input->sessionPost('labels');
+	function edit($id){
+		$this->document->id=$id;
 		
 		try{
-			if (!$this->upload->do_upload('document')) {
-				$this->output->message($this->upload->display_errors(), 'warning');
-				throw new Exception;
+			$this->document->data=array_merge($this->document->fetch($id),$this->input->sessionPost('document'));
+
+			$this->document->labels=array_merge($this->document->getLabels($this->document->id),$this->input->sessionPost('labels'));
+
+			if(!$this->document->data['name']){
+				$this->section_title='未命名'.$this->section_title;
+			}else{
+				$this->section_title=$this->document->data['name'];
 			}
 			
-			$file_info = $this->upload->data();
+			if(is_file(APPPATH.'../web/images/file_type/'.substr($this->document->data['extname'],1).'.png')){
+				$this->document->data['icon']=substr($this->document->data['extname'],1).'.png';
+			}
+			else{
+				$this->document->data['icon']='unknown.png';
+			}
 			
-			$file_info['mail_name']=substr($file_info['client_name'], 0, -strlen($file_info['file_ext']));
+			$this->load->model('people_model','people');
+			$this->document->data['uploader_name']=$this->people->fetch($this->document->data['uid'],'name');
+
+			$this->load->addViewData('document', $this->document->data);
 			
-			$document_id=$this->document->add(array(
-				'name'=>$file_info['mail_name'],
-				'filename'=>$file_info['client_name'],
-				'extname'=>$file_info['file_ext'],
-				'size'=>$file_info['file_size']
-			));
+			$this->load->addViewData('labels', $this->document->labels);
+
+			$this->load->view('document/edit');
 			
-			rename('../uploads/'.$file_info['file_name'],'../uploads/'.$document_id);
+			$this->load->view('document/edit_sidebar',true,'sidebar');
+		}
+		catch(Exception $e){
+			$this->output->status='fail';
+			if($e->getMessage()){
+				$this->output->message($e->getMessage(), 'warning');
+			}
+		}
+
+	}
+	
+	function submit($submit,$id=NULL){
+		
+		if(isset($id)){
+			$this->document->id=$id;
+
+			$this->document->data=array_merge($this->document->fetch($id),$this->input->sessionPost('document'));
+			$this->document->labels=array_merge($this->document->getLabels($this->document->id),$this->input->sessionPost('labels'));
+		}
+		
+		$this->load->library('form_validation');
+
+		try{
 			
-			$data=array(
-				'id'=>$document_id,
-				'name'=>$file_info['mail_name']
-			);
-			$this->output->data=$data;
+			if($submit=='upload'){
+				$config=array(
+					'upload_path'=>'../uploads/',
+					'allowed_types'=>'*',
+					'encrypt_name'=>true
+				);
+
+				$this->load->library('upload', $config);
+
+				if (!$this->upload->do_upload('document')) {
+					$this->output->message($this->upload->display_errors(), 'warning');
+					throw new Exception;
+				}
+
+				$file_info = $this->upload->data();
+
+				$file_info['mail_name']=substr($file_info['client_name'], 0, -strlen($file_info['file_ext']));
+
+				$document_id=$this->document->add(array(
+					'name'=>$file_info['mail_name'],
+					'filename'=>$file_info['client_name'],
+					'extname'=>$file_info['file_ext'],
+					'size'=>$file_info['file_size']
+				));
+
+				rename('../uploads/'.$file_info['file_name'],'../uploads/'.$document_id);
+
+				$data=array(
+					'id'=>$document_id,
+					'name'=>$file_info['mail_name']
+				);
+				$this->output->data=$data;
+			}
+			
+			elseif($submit=='document'){
+				$this->document->update($this->document->id,$this->document->data);
+				
+				unset($_SESSION[CONTROLLER]['post'][$this->document->id]);
+				$this->output->message($this->section_title.' 已保存');
+			}
+			
+			elseif($submit=='delete'){
+				
+				if($this->document->delete($id)){
+					$this->output->status='close';
+				}
+				else{
+					throw new Exception('无法删除此文档，可能已与其他数据关联');
+				}
+			}
 			
 		}catch(Exception $e){
+			if($e->getMessage()){
+				$this->output->message($e->getMessage(), 'warning');
+			}
 			$this->output->status='fail';
 		}
 		

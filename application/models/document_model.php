@@ -56,6 +56,11 @@ class Document_model extends BaseItem_model{
 		return $this->db->update('document',$document,array('id'=>$id));
 	}
 	
+	function delete($id){
+		$id=intval($id);
+		return $this->db->delete('document',array('id'=>$id));
+	}
+	
 	function getMime($file_extension){
 		$file_extension=strtolower($file_extension);
 		$filetype=new Filetype();
