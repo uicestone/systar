@@ -9,5 +9,10 @@
 	<script type="text/javascript" src="/js/combined.js"></script>
 	<link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
 	<title><?=$this->company->sysname?></title>
+<?if($css){?>
+	<style type="text/css">
+		<?=$css?>
+	</style>
+<?}?>
 </head>
 <body style="background-image:url('/images/bg_<?=$this->company->syscode?>.gif')">

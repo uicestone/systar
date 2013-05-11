@@ -216,7 +216,7 @@ nav [level="0"] .arrow{
 }
 nav [level="0"] a{
 	color:#FFF;
-	font-size:17px;
+	font-size:1.3em;
 	line-height:3;
 }
 nav>ul[level="0"]>li>a.dink{

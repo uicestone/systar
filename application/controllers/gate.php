@@ -69,6 +69,8 @@ class Gate extends SS_Controller{
 	}
 	
 	function index(){
+		$this->load->addViewData('css', $this->config->user_item('css'));
+		
 		$this->load->view('head');
 		$this->load->view('menu');
 		$this->load->view('nav');
