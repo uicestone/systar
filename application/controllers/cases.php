@@ -18,8 +18,8 @@ class Cases extends Project{
 				'cell'=>array('data'=>'{num}','title'=>'立案时间：{time_contract}')
 			),
 			'name'=>array('heading'=>'案名','cell'=>'{name}'),
-			'responsible'=>array('heading'=>array('data'=>'主办律师','width'=>'110px'),'parser'=>array('function'=>array($this->cases,'getResponsibleStaffNames'),'args'=>array('{id}'))),
-			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->cases,'getCompiledLabels'),'args'=>array('{id}')))
+			'responsible'=>array('heading'=>array('data'=>'主办律师','width'=>'110px'),'parser'=>array('function'=>array($this->cases,'getResponsibleStaffNames'),'args'=>array('id'))),
+			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->cases,'getCompiledLabels'),'args'=>array('id')))
 		);
 		
 		$this->client_list_args=array(
@@ -137,8 +137,7 @@ class Cases extends Project{
 		
 		return $this->table->setFields($this->schedule_list_args)
 			->setAttribute('name','schedule')
-			//@TODO 点击列表打开日程尚有问题
-			->setRowAttributes(array('onclick'=>"$.viewSchedule(\{id:{id}\})"))
+			->setRowAttributes(array('onclick'=>"$.viewSchedule({id:{id}})",'style'=>'cursor:pointer;'))
 			->generate($this->schedule->getList(array('show_creater'=>true,'limit'=>10,'project'=>$this->project->id,'completed'=>true,'orderby'=>'id desc')));
 	}
 	
@@ -148,14 +147,13 @@ class Cases extends Project{
 		
 		return $this->table->setFields($this->plan_list_args)
 			->setAttribute('name','schedule')
-			//@TODO 点击列表打开日程尚有问题
-			->setRowAttributes(array('onclick'=>"$.viewSchedule(\{id:{id}\})"))
+			->setRowAttributes(array('onclick'=>"$.viewSchedule({id:{id}})",'style'=>'cursor:pointer;'))
 			->generate($this->schedule->getList(array('show_creater'=>true,'limit'=>10,'project'=>$this->project->id,'completed'=>false)));
 	}
 	
 	function staffList(){
 		
-		$this->staff_list_args['role']=array('heading'=>'本案职位','parser'=>array('function'=>array($this->cases,'getCompiledPeopleRoles'),'args'=>array($this->cases->id,'{id}')));
+		$this->staff_list_args['role']=array('heading'=>'本案职位','parser'=>array('function'=>array($this->cases,'getCompiledPeopleRoles'),'args'=>array($this->cases->id,'id')));
 		$this->load->model('staff_model','staff');
 		
 		$list=$this->table->setFields($this->staff_list_args)

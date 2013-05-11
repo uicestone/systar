@@ -67,7 +67,7 @@ class Evaluation extends Project{
 					case 'text':return '文字';
 					case 'score':return '分数';
 				}
-			},'args'=>array('{type}'))),
+			},'args'=>array('type'))),
 			'weight'=>array('heading'=>'分值'),
 			'candidates'=>array('heading'=>'被评价人角色'),
 			'judges'=>array('heading'=>'评价人角色')
@@ -119,7 +119,7 @@ class Evaluation extends Project{
 				}else{
 					return '<textarea></textarea>';
 				}
-			},'args'=>array('{type}','{weight}')))
+			},'args'=>array('type','weight')))
 		);
 		
 		$table=$this->table->setFields($list_args)

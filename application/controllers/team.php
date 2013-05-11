@@ -15,7 +15,7 @@ class Team extends SS_Controller{
 		
 		$this->list_args=array(
 			'name'=>array('heading'=>'名称'),
-			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->team,'getCompiledLabels'),'args'=>array('{id}')))
+			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->team,'getCompiledLabels'),'args'=>array('id')))
 		);
 
 		if($this->input->post('name')){

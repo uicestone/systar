@@ -37,8 +37,8 @@ class Project extends SS_controller{
 		
 		$this->list_args=array(
 			'name'=>array('heading'=>'名称','cell'=>'{name}'),
-			'people'=>array('heading'=>'人员','cell'=>array('class'=>'ellipsis'),'parser'=>array('function'=>array($this->$controller,'getCompiledPeople'),'args'=>array('{id}'))),
-			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->$controller,'getCompiledLabels'),'args'=>array('{id}')))
+			'people'=>array('heading'=>'人员','cell'=>array('class'=>'ellipsis'),'parser'=>array('function'=>array($this->$controller,'getCompiledPeople'),'args'=>array('id'))),
+			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->$controller,'getCompiledLabels'),'args'=>array('id')))
 			/*
 			 * 此处被迫使用了$this->$controller来调用被继承后的model。
 			 * 因为Project::__construct()时，Cases::__construct()尚未运行，
@@ -55,7 +55,7 @@ class Project extends SS_controller{
 			'name'=>array('heading'=>array('data'=>'标题'),'wrap'=>array('mark'=>'span','class'=>'show-schedule','id'=>'{id}')),
 			'start'=>array('heading'=>array('data'=>'时间'),'parser'=>array('function'=>function($start){
 				return $start?date('Y-m-d H:i',intval($start)):null;
-			},'args'=>array('{start}'))),
+			},'args'=>array('start'))),
 			'creater_name'=>array('heading'=>array('data'=>'人员'))
 		);
 		
@@ -63,7 +63,7 @@ class Project extends SS_controller{
 			'name'=>array('heading'=>array('data'=>'标题'),'wrap'=>array('mark'=>'span','class'=>'show-schedule','id'=>'{id}')),
 			'start'=>array('heading'=>array('data'=>'时间'),'parser'=>array('function'=>function($start){
 				return $start?date('Y-m-d H:i',intval($start)):null;
-			},'args'=>array('{start}'))),
+			},'args'=>array('start'))),
 			'creater_name'=>array('heading'=>array('data'=>'人员'))
 		);
 		
@@ -209,7 +209,7 @@ class Project extends SS_controller{
 	function peopleList(){
 		$this->load->model('people_model','people');
 		
-		$this->people_list_args['role']=array('heading'=>'角色','parser'=>array('function'=>array($this->project,'getCompiledPeopleRoles'),'args'=>array($this->project->id,'{id}')));
+		$this->people_list_args['role']=array('heading'=>'角色','parser'=>array('function'=>array($this->project,'getCompiledPeopleRoles'),'args'=>array($this->project->id,'id')));
 		
 		return $this->table->setFields($this->people_list_args)
 			->setRowAttributes(array('hash'=>'{type}/{id}'))
@@ -237,9 +237,9 @@ class Project extends SS_controller{
 					$name=$filename;
 				}
 				return '<a href="/document/download/'.$id.'">'.$name.'</a>';
-			},'args'=>array('{id}','{name}','{filename}'))),
-			'time_insert'=>array('heading'=>'上传时间','parser'=>array('function'=>function($time_insert){return date('Y-m-d H:i:s',$time_insert);},'args'=>array('{time_insert}'))),
-			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->document,'getCompiledLabels'),'args'=>array('{id}')))
+			},'args'=>array('id','name','filename'))),
+			'time_insert'=>array('heading'=>'上传时间','parser'=>array('function'=>function($time_insert){return date('Y-m-d H:i:s',$time_insert);},'args'=>array('time_insert'))),
+			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->document,'getCompiledLabels'),'args'=>array('id')))
 		);
 		
 		return $this->table->setFields($this->document_list_args)
@@ -253,8 +253,7 @@ class Project extends SS_controller{
 		
 		return $this->table->setFields($this->schedule_list_args)
 			->setAttribute('name','schedule')
-			//@TODO 点击列表打开日程尚有问题
-			->setRowAttributes(array('onclick'=>"$.viewSchedule(\{id:{id}\})"))
+			->setRowAttributes(array('onclick'=>"$.viewSchedule({id:{id}})",'style'=>'cursor:pointer;'))
 			->generate($this->schedule->getList(array('show_creater'=>true,'limit'=>10,'project'=>$this->project->id,'orderby'=>'id desc')));
 	}
 	

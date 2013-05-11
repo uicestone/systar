@@ -21,7 +21,7 @@ class Schedule extends SS_controller{
 				}else{
 					return $hours_own;
 				}
-			},'args'=>array('{hours_own}','{hours_checked}'))),
+			},'args'=>array('hours_own','hours_checked'))),
 			'creater_name'=>array('heading'=>'人员'),
 			'project'=>array('heading'=>'事项','cell'=>'{project_name}')
 		);
@@ -45,7 +45,7 @@ class Schedule extends SS_controller{
 			'name'=>array('heading'=>'标题','cell'=>array('class'=>'ellipsis','title'=>'{content}')),
 			'time'=>array('heading'=>'时间','parser'=>array('function'=>function($start){
 				return $start?date('Y-m-d H:i',intval($start)):null;
-			},'args'=>array('{start}'))),
+			},'args'=>array('start'))),
 			'creater_name'=>array('heading'=>'人员'),
 			'project'=>array('heading'=>'事项','cell'=>'{project_name}')
 		);
@@ -148,7 +148,7 @@ class Schedule extends SS_controller{
 	}
 	
 	function workHours(){
-		//@todo
+		//@TODO 工作时间统计
 
 		if(date('w')==1){//今天是星期一
 			$start_of_this_week=strtotime($this->date->today);

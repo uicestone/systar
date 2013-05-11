@@ -10,8 +10,8 @@ class Query extends Project{
 		$this->list_args=array(
 			'first_contact'=>array('heading'=>'日期'),
 			'name'=>array('heading'=>'名称','cell'=>'{name}'),
-			'people'=>array('heading'=>'人员','cell'=>array('class'=>'ellipsis'),'parser'=>array('function'=>array($this->query,'getCompiledPeople'),'args'=>array('{id}'))),
-			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->query,'getCompiledLabels'),'args'=>array('{id}')))
+			'people'=>array('heading'=>'人员','cell'=>array('class'=>'ellipsis'),'parser'=>array('function'=>array($this->query,'getCompiledPeople'),'args'=>array('id'))),
+			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->query,'getCompiledLabels'),'args'=>array('id')))
 		);
 		
 	}

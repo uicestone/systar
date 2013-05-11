@@ -34,7 +34,7 @@ class Student extends People{
 			'num'=>array('heading'=>'学号'),
 			'name'=>array('heading'=>'姓名'),
 			'class_name'=>array('heading'=>'班级'),
-			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->people,'getCompiledLabels'),'args'=>array('{id}')))
+			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->people,'getCompiledLabels'),'args'=>array('id')))
 		);
 		
 		$this->config->set_user_item('search/type', 'student', false);

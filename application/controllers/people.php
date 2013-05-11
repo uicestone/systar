@@ -27,7 +27,7 @@ class People extends SS_Controller{
 			),
 			'phone'=>array('heading'=>'电话'),
 			'email'=>array('heading'=>'电邮'),
-			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->$controller,'getCompiledLabels'),'args'=>array('{id}')))
+			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->$controller,'getCompiledLabels'),'args'=>array('id')))
 		);
 		
 		$this->relative_list_args=array(
@@ -45,7 +45,7 @@ class People extends SS_Controller{
 				}else{
 					return $content;
 				}
-			},'args'=>array('{name}','{content}'))), 
+			},'args'=>array('name','content'))), 
 			'comment'=>array('heading'=>'备注')
 		);
 		
@@ -131,11 +131,6 @@ class People extends SS_Controller{
 		
 	}
 	
-	/**
-	 * 添加入口
-	 * 将立即跳转
-	 * @todo 存在刷新整个页面的问题
-	 */
 	function add(){
 		$this->people->id=$this->people->getAddingItem();
 		
@@ -246,7 +241,7 @@ class People extends SS_Controller{
 			'name'=>array(
 				'heading'=>'名称'
 			),
-			'people'=>array('heading'=>'人员','cell'=>array('class'=>'ellipsis'),'parser'=>array('function'=>array($project_model,'getCompiledPeople'),'args'=>array('{id}')))
+			'people'=>array('heading'=>'人员','cell'=>array('class'=>'ellipsis'),'parser'=>array('function'=>array($project_model,'getCompiledPeople'),'args'=>array('id')))
 		);
 		
 		$list=$this->table->setFields($this->project_list_args)

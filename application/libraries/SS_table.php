@@ -46,23 +46,6 @@ class SS_Table extends CI_Table{
 		return $attributes_array;
 	}
 	
-	/**
-	 * 将field->cell中包含的变量占位替换为数据结果中他们的值
-	 */
-	function _variableReplace($content,$row){
-		while(preg_match('/{(\S*?)}/',$content,$match)){
-			if(!isset($row[$match[1]])){
-				$row[$match[1]]=NULL;
-			}
-			$content=str_replace($match[0],$row[$match[1]]['data'],$content);
-		}
-		
-		$content=str_replace('\{','{',$content);
-		$content=str_replace('\}','}',$content);
-		
-		return $content;
-	}
-
 	function _set_from_object($query) {
 		parent::_set_from_object($query);
 		$this->_compile_rows();
@@ -91,7 +74,7 @@ class SS_Table extends CI_Table{
 			}
 			
 			foreach($this->row_attr as $attr_name => $attr_value){
-				$row_compiled['_attr'][$attr_name]=$this->_variableReplace($attr_value, $row);
+				$row_compiled['_attr'][$attr_name]=$this->parser->parse_string($attr_value, array_sub($row,'data'), true);
 			}
 			
 			foreach($this->fields as $field_name => $field){
@@ -117,7 +100,7 @@ class SS_Table extends CI_Table{
 				}
 				
 				foreach($cell as $attr_name => $attr_value){
-					$cell[$attr_name]=$this->_variableReplace($attr_value,$row);
+					$cell[$attr_name]=$this->parser->parse_string($attr_value,array_sub($row,'data'),true);
 				}
 				//@deprecated 应该用函数调用替代eval
 				if(isset($field['eval']) && $field['eval']){
@@ -127,7 +110,9 @@ class SS_Table extends CI_Table{
 				//用指定函数来处理$cell[data]
 				if(isset($field['parser'])){
 					foreach($field['parser']['args'] as $key => $value){
-						$field['parser']['args'][$key]=$this->_variableReplace($value,$row);
+						if(array_key_exists($value, $row)){
+							$field['parser']['args'][$key]=$row[$value]['data'];
+						}
 					}
 					$cell['data']=call_user_func_array($field['parser']['function'], $field['parser']['args']);
 				}

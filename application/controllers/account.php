@@ -18,7 +18,7 @@ class Account extends SS_controller{
 				}else{
 					return '<span style="color:#A00">'.$amount.'</span> '.(intval($received)?'√':'？');
 				}
-			},'args'=>array('{amount}','{received}')),'cell'=>array('style'=>'text-align:right')),
+			},'args'=>array('amount','received')),'cell'=>array('style'=>'text-align:right')),
 			'date'=>array('heading'=>'日期'),
 			'payer_name'=>array('heading'=>'付款/收款人')
 		);
