@@ -156,22 +156,6 @@ class People_model extends BaseItem_model{
 		return $this->db->delete('people_relationship',array('id'=>$people_relaionship_id,'people'=>$people_id));
 	}
 	
-	function getRelatives($people_id){
-		$people_id=intval($people_id);
-		
-		$query="
-			SELECT 
-				people_relationship.id AS id,people_relationship.relation,people_relationship.relative,
-				IF(people.abbreviation IS NULL,people.name,people.abbreviation) AS name,
-				people.phone,people.email
-			FROM 
-				people_relationship INNER JOIN people ON people_relationship.relative=people.id
-			WHERE people_relationship.people = $people_id
-			ORDER BY relation
-		";
-		return $this->db->query($query)->result_array();
-	}
-	
 	/**
 	 * 继承自SS_Model::getList()，具有基本的type,label,orderby和limit配置功能
 	 * @param array $args:
@@ -203,7 +187,7 @@ class People_model extends BaseItem_model{
 	function getList($args=array()){
 		
 		$this->db->select('
-			people.id,people.name,people.phone,people.email,
+			people.id,people.type,people.name,people.phone,people.email,
 			IF(people.abbreviation IS NULL,people.name,people.abbreviation) AS abbreviation
 		',false);
 		

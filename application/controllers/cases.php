@@ -124,7 +124,7 @@ class Cases extends Project{
 		$this->load->model('client_model','client');
 		
 		$list=$this->table->setFields($this->client_list_args)
-			->setRowAttributes(array('hash'=>'client/{id}'))
+			->setRowAttributes(array('hash'=>'{type}/{id}'))
 			->setAttribute('name','client')
 			->generate($this->client->getList(array('project'=>$this->cases->id)));
 		

@@ -205,8 +205,8 @@ class People extends SS_Controller{
 	function relativeList(){
 		
 		$list=$this->table->setFields($this->relative_list_args)
-			->setRowAttributes(array('hash'=>CONTROLLER.'/{relative}'))
-			->setData($this->people->getRelatives($this->people->id))
+			->setRowAttributes(array('hash'=>'{type}/{id}'))
+			->setData($this->people->getList(array('everyone'=>false,'is_relative_of'=>$this->people->id)))
 			->generate();
 		
 		return $list;
@@ -250,7 +250,7 @@ class People extends SS_Controller{
 		);
 		
 		$list=$this->table->setFields($this->project_list_args)
-			->setRowAttributes(array('hash'=>'cases/{id}'))
+			->setRowAttributes(array('hash'=>'{type}/{id}'))
 			->setData($project_model->getList(array('people'=>$this->people->id,'limit'=>10,'orderby'=>'project.id DESC')))
 			->generate();
 		

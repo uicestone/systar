@@ -212,7 +212,7 @@ class Project extends SS_controller{
 		$this->people_list_args['role']=array('heading'=>'角色','parser'=>array('function'=>array($this->project,'getCompiledPeopleRoles'),'args'=>array($this->project->id,'{id}')));
 		
 		return $this->table->setFields($this->people_list_args)
-			->setRowAttributes(array('hash'=>'people/{id}'))
+			->setRowAttributes(array('hash'=>'{type}/{id}'))
 			->setAttribute('name', 'people')
 			->generate($this->people->getList(array('project'=>$this->project->id)));
 	}
