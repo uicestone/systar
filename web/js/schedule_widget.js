@@ -66,7 +66,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 		];
 		
 		if(!this.options.method){
-			if(this.options.id || this.event){
+			if(this.options.id){
 				this.options.method='view';
 			}else{
 				this.options.method='create';
@@ -340,23 +340,26 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 	},
 	
 	_createButtons:function(buttons){
+
+		var that=this;
+
 		this._super(buttons);
 		
 		var buttonCheckbox=this.widget().children('.ui-dialog-buttonpane').find('#completed');
 		
 		if(!buttonCheckbox.length){
-			var buttonCheckbox=$('<div class="ui-dialog-buttonset" style="float:left;padding:.5em .4em"><input type="checkbox" id="completed" name="completed" title-checked="已完成" title-unchecked="未完成" /><label for="completed"><span class="icon-checkmark"></span></label></div>')
+			var buttonCheckbox=$('<div class="ui-dialog-buttonset" style="float:left;padding:.5em .4em"><input type="checkbox" id="completed-'+that.element.attr('id')+'" name="completed" title-checked="已完成" title-unchecked="未完成" /><label for="completed-'+that.element.attr('id')+'"><span class="icon-checkmark"></span></label></div>')
 			.appendTo(this.widget().children('.ui-dialog-buttonpane'))
-			.find('#completed');
+			.find('#completed-'+that.element.attr('id'));
 		}
 		buttonCheckbox.button();
 		
 		var in_todo_list=this.widget().children('.ui-dialog-buttonpane').find('#in-todo-list');
 		
 		if(!in_todo_list.length){
-			var in_todo_list=$('<div class="ui-dialog-buttonset" style="float:left;padding:.5em .4em"><input type="checkbox" id="in-todo-list" name="in_todo_list" title-checked="在任务列表中显示" title-unchecked="不在任务列表中显示" /><label for="in-todo-list"><span class="icon-list"></span></label></div>')
+			var in_todo_list=$('<div class="ui-dialog-buttonset" style="float:left;padding:.5em .4em"><input type="checkbox" id="in-todo-list-'+that.element.attr('id')+'" name="in-todo-list" title-checked="在任务列表中显示" title-unchecked="不在任务列表中显示" /><label for="in-todo-list-'+that.element.attr('id')+'"><span class="icon-list"></span></label></div>')
 			.appendTo(this.widget().children('.ui-dialog-buttonpane'))
-			.find('#in-todo-list');
+			.find('#in-todo-list-'+that.element.attr('id'));
 		}
 		in_todo_list.button();
 		
