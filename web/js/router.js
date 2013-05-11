@@ -1,5 +1,5 @@
 var page,nav,header,tabs,aside,calendar,
-	hash,controller,method,username,sysname,uriSegments,polling={};
+	hash,controller,method,username,sysname,uriSegments,polling={},environment;
 
 var Workspace = Backbone.Router.extend({
 	routes: {

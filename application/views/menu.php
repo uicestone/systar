@@ -9,7 +9,7 @@
 			<span class="new-messages"><?=$this->message->getNewMessages()?></span>
 		</a>
 		<a href="/logout" target="_top">退出</a>
-		<a href="#" title="请提出您宝贵的意见">意见反馈</a>
+		<a href="mailto:uicestone@gmail.com" title="请提出您宝贵的意见">意见反馈</a>
 <?}else{?>
 	<a href="/login">登陆</a>
 <?}?>

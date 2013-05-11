@@ -1,1 +1,1 @@
-<div class="contentTableBox" id="calendar"></div>
+<div id="calendar"></div>

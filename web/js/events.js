@@ -10,24 +10,32 @@ $(document)
 	}
 })
 .ready(function(){
+	//console.log('document ready');
 	
 	page=$('article');nav=$('nav');aside=$('aside');header=$('header');
 	tabs=header.children('#tabs');throbber=header.children('.throbber');
-	
-	Backbone.history.start();
-	
+
 	/*老浏览器警告*/
 	if($.browser.msie && ($.browser.version<8 || document.documentMode && document.documentMode<8)){
 		$.showMessage('您正在使用不被推荐的浏览器，请关闭浏览器兼容模式。如果问题仍然存在，<a href="/browser">请点此下载推荐的浏览器</a>','warning');
 	}
 	
-	setInterval(function(){
-		$.get('/polling');
-	},10000);
+	if(environment !== 'development'){
+		setInterval(function(){
+				$.get('/polling');
+		},10000);
+	}
 	
-	/*载入默认主页面*/
-	if(!hash && page.attr('default-uri')){
-		syssh.navigate(page.attr('default-uri'),true);
+	if(!window.location.hash.substr(1)){//start()方法尚未运行，hash尚未定义，只能直接获取
+		//如果当前没有hash，那么不请求ajax，载入默认页面
+		Backbone.history.start({silent:true});
+		
+		if(page.attr('default-uri')){
+			syssh.navigate(page.attr('default-uri'),true);
+		}
+	}
+	else{
+		Backbone.history.start();
 	}
 	
 	/*导航栏配置*/
