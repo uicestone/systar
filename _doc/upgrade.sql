@@ -22,7 +22,6 @@ ALTER TABLE `company_config`
 
 ALTER TABLE `user_config`
   ADD CONSTRAINT `user_config_ibfk_1` FOREIGN KEY (`user`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
--- structure exported
 
 alter table account drop summary;
 drop table account_team;
@@ -357,4 +356,7 @@ ALTER TABLE `schedule_profile` DROP `username`;
 ALTER TABLE  `dialog_user` ADD  `read` BOOLEAN NOT NULL;
 
 ALTER TABLE  `project` CHANGE  `type`  `type` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT  'project';
+
+ALTER TABLE  `people` CHANGE  `type`  `type` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT  'people';
 -- server updated
+-- structure exported
