@@ -1,6 +1,7 @@
 $(document)
 .tooltip({
 	tooltipClass:'pre-line',
+	items:'[title]:not(.no-tooltip)',
 	position:{
 		my:'right bottom',
 		at:'right top'
