@@ -1,26 +1,10 @@
 $(document)
-.tooltip({
-	tooltipClass:'pre-line',
-	items:'[title]:not(.no-tooltip)',
-	position:{
-		my:'right bottom',
-		at:'right top'
-	},
-	show:{
-		delay:500
-	}
-})
 .ready(function(){
 	//console.log('document ready');
 	
 	page=$('article');nav=$('nav');aside=$('aside');header=$('header');
 	tabs=header.children('#tabs');throbber=header.children('.throbber');
 
-	/*老浏览器警告*/
-	if($.browser.msie && ($.browser.version<8 || document.documentMode && document.documentMode<8)){
-		$.showMessage('您正在使用不被推荐的浏览器，请关闭浏览器兼容模式。如果问题仍然存在，<a href="/browser">请点此下载推荐的浏览器</a>','warning');
-	}
-	
 	if(environment !== 'development'){
 		setInterval(function(){
 				$.get('/polling');

@@ -41,7 +41,7 @@ $(function(){
 				selectable: true,
 				selectHelper: true,
 				select: function(start, end, allDay, event, view) {
-					$('<div/>').appendTo(document).schedule({start:start,end:end,allDay:allDay,target:$(event.target),calendar:calendar});
+					$('<div/>').appendTo(document.body).schedule({start:start,end:end,allDay:allDay,target:$(event.target),calendar:calendar});
 				},
 
 				unselectAuto:false,
@@ -59,7 +59,7 @@ $(function(){
 				},
 
 				eventClick: function(event,jsEvent) {
-					$('<div/>').appendTo(document).schedule({target:$(jsEvent.target),event:event,method:'view',calendar:calendar});
+					$('<div/>').appendTo(document.body).schedule({target:$(jsEvent.target),event:event,method:'view',calendar:calendar});
 				},
 				eventDrop: function(event,dayDelta,minuteDelta,allDay) {
 					$.post('/schedule/writecalendar/drag/'+event.id,{dayDelta:dayDelta,minuteDelta:minuteDelta,allDay:Number(allDay)},function(){

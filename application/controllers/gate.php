@@ -16,7 +16,8 @@ class Gate extends SS_Controller{
 			case 'js':
 				$files=array(
 					'../web/js/underscore-min.js',
-					'../web/js/jQuery/jquery-1.7.2.min.js',
+					ENVIRONMENT==='development'?'../web/js/jQuery/jquery-1.9.1.min.js':'../web/js/jQuery/jquery-1.9.1.js',
+					'../web/js/jQuery/jquery-migrate-1.1.1.js',
 					'../web/js/backbone-min.js',
 					'../web/js/jQuery/jquery-ui-1.10.3.custom.min.js',
 					

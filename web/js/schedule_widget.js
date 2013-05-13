@@ -162,11 +162,11 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			
 			/*根据completed选项，设置“已完成”按钮状态*/
 			if(that.options.completed){
-				that.widget().find(':checkbox[name="completed"]').attr('checked','checked');
+				that.widget().find(':checkbox[name="completed"]').prop('checked',true);
 			}
 			
 			if(that.options.in_todo_list){
-				that.widget().find(':checkbox[name="in_todo_list"]').attr('checked','checked');
+				that.widget().find(':checkbox[name="in_todo_list"]').prop('checked',true);
 			}
 			
 			/*触发一次按钮面板中的每个切换按钮，来使显示按钮提示文字*/
@@ -348,7 +348,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 		var buttonCheckbox=this.widget().children('.ui-dialog-buttonpane').find('#completed');
 		
 		if(!buttonCheckbox.length){
-			var buttonCheckbox=$('<div class="ui-dialog-buttonset" style="float:left;padding:.5em .4em"><input type="checkbox" id="completed-'+that.element.attr('id')+'" name="completed" title-checked="已完成" title-unchecked="未完成" /><label class="no-tooltip" for="completed-'+that.element.attr('id')+'"><span class="icon-checkmark"></span></label></div>')
+			var buttonCheckbox=$('<div class="ui-dialog-buttonset" style="float:left;padding:.5em .4em"><input type="checkbox" id="completed-'+that.element.attr('id')+'" name="completed" title-checked="已完成" title-unchecked="未完成" /><label for="completed-'+that.element.attr('id')+'"><span class="icon-checkmark"></span></label></div>')
 			.appendTo(this.widget().children('.ui-dialog-buttonpane'))
 			.find('#completed-'+that.element.attr('id'));
 		}
@@ -357,7 +357,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 		var in_todo_list=this.widget().children('.ui-dialog-buttonpane').find('#in-todo-list');
 		
 		if(!in_todo_list.length){
-			var in_todo_list=$('<div class="ui-dialog-buttonset" style="float:left;padding:.5em .4em"><input type="checkbox" id="in-todo-list-'+that.element.attr('id')+'" name="in_todo_list" title-checked="在任务列表中显示" title-unchecked="不在任务列表中显示" /><label class="no-tooltip" for="in-todo-list-'+that.element.attr('id')+'"><span class="icon-list"></span></label></div>')
+			var in_todo_list=$('<div class="ui-dialog-buttonset" style="float:left;padding:.5em .4em"><input type="checkbox" id="in-todo-list-'+that.element.attr('id')+'" name="in_todo_list" title-checked="在任务列表中显示" title-unchecked="不在任务列表中显示" /><label for="in-todo-list-'+that.element.attr('id')+'"><span class="icon-list"></span></label></div>')
 			.appendTo(this.widget().children('.ui-dialog-buttonpane'))
 			.find('#in-todo-list-'+that.element.attr('id'));
 		}
