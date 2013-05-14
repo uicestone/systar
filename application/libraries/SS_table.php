@@ -74,7 +74,7 @@ class SS_Table extends CI_Table{
 			}
 			
 			foreach($this->row_attr as $attr_name => $attr_value){
-				$row_compiled['_attr'][$attr_name]=$this->parser->parse_string($attr_value, array_sub($row,'data'), true);
+				$row_compiled['_attr'][$attr_name]=$this->parser->parse_string($attr_value, array_sub($row,'data',NULL,true), true);
 			}
 			
 			foreach($this->fields as $field_name => $field){
@@ -82,7 +82,7 @@ class SS_Table extends CI_Table{
 				
 				//如果列设定中没有cell,或者cell是数组但没有data键，那么使用原始数据
 				if(!isset($field['cell']) || (is_array($field['cell']) && !isset($field['cell']['data']))){
-					if(isset($row[$field_name]['data'])){
+					if(array_key_exists($field_name, $row) && array_key_exists('data', $row[$field_name])){
 						$cell['data']=$row[$field_name]['data'];
 					}
 				}
@@ -100,7 +100,7 @@ class SS_Table extends CI_Table{
 				}
 				
 				foreach($cell as $attr_name => $attr_value){
-					$cell[$attr_name]=$this->parser->parse_string($attr_value,array_sub($row,'data'),true);
+					$cell[$attr_name]=$this->parser->parse_string($attr_value,array_sub($row,'data',NULL,true),true);
 				}
 				//@deprecated 应该用函数调用替代eval
 				if(isset($field['eval']) && $field['eval']){
@@ -202,7 +202,7 @@ class SS_Table extends CI_Table{
 					continue;
 				}
 				$cell['data']=strip_tags($cell['data']);
-				if($cell['data']!=='' && $cell['data']!==NULL){
+				if($cell['data']!=='' && !is_null($cell['data'])){
 					$column_is_empty[$column_id]=false;
 				}
 			}
