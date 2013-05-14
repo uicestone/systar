@@ -1,10 +1,3 @@
--- 根据案下案源人是否存在确定案件案源标签
-delete from project_label where label_name = '所内案源' and project in (select project from project_people where role='案源人');
-insert ignore into project_label (project,label,label_name)
-select id,138,'个人案源' from project where 
-	id in (select project from project_people where role = '案源人')
-	and id not in (select project from project_label where label_name = '再成案');
-
 -- 监测是否有未设定type的领域
 select * from project_label where label_name in ('公司','房产建筑','劳动人事','涉外','韩日','知识产权','婚姻家庭','诉讼','刑事行政') and type is null;
 
@@ -40,10 +33,6 @@ and id in (select project from project_label where label_name = '案件')
 and id in (select project from project_label where label_name = '所内案源')
 and id not in (select project from project_people where role = '接洽律师')
 
-delete from project_label where label_name = '个人案源' and project not in (select project from project_people where role = '案源人');
-insert ignore into project_label (project,label,label_name)
-select id,139,'所内案源' from project where id not in (select project from project_people where role = '案源人');
-
 -- 校验并纠正item-label.label_name冗余
 update account_label inner join label on account_label.label = label.id set account_label.label_name = label.name;
 update people_label inner join label on people_label.label = label.id set people_label.label_name = label.name;
@@ -57,16 +46,16 @@ select project,sum(weight) sum from project_people where role = '案源人'
 and project in (select project from project_label where label_name='个人案源')
 group by project having sum != 1
 
--- 确定个人案源的案源总和
+-- 确定个人案源的接洽总和
 select project,sum(weight) sum from project_people where role = '接洽律师'
 and project in (select project from project_label where label_name='所内案源')
 group by project having sum != 1
 
--- 监测同案同人同时为主办和协办的错误
-select count(*) count from project_people where role in ('主办律师','协办律师') group by project,people having count!=1;
+-- 协办律师没有比例
+select * from project_people where weight is not null and role = '协办律师';
 
 -- 确定办案总和
-select project,sum(weight) sum from project_people where role in ('主办律师','协办律师')
+select project,sum(weight) sum from project_people where role = '主办律师'
 group by project having sum != 1
 
 -- 所内案源多人接洽平摊
@@ -85,6 +74,9 @@ delete from project where display = 0 and name is null;
 delete from people_label where label_name ='';
 delete from project_label where label_name ='';
 delete from label where name = '';
+delete from people_label where label_name ='null';
+delete from document_label where label_name ='null';
+delete from label where name = 'null';
 
 -- 对于没有督办人的案件设置默认督办人
 insert ignore into project_people (project,people,role)

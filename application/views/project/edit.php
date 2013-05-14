@@ -17,7 +17,7 @@
 		<span class="add-form hidden">
 			<input type="text" name="people[name]" value="<?=$this->value('people/name');?>" placeholder="姓名" autocomplete-model="people" />
 			<select name="people[role]" class="chosen allow-new" data-placeholder="角色" style="width:150px;">
-				<?=options($this->project->getAllRoles(),$this->value('people/role'),'角色');?>
+				<?=options($this->project->getAllRoles(),$this->value('people/role'),'角色',false,false,false);?>
 			</select>
 			<input name="people[id]" class="hidden" />
 			<button type="submit" name="submit[people]">添加</button>

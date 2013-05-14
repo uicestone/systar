@@ -291,6 +291,7 @@ jQuery.fn.extend({
 		var options={dropdownCss:{minWidth:100}};
 		if($(this).is('.allow-new')){
 			$.extend(options,{
+				width:'off',
 				createSearchChoice:function(term,results){
 					if(typeof results==='undefined'){
 						return {id:term,text:term,create:true};

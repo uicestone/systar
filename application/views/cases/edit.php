@@ -40,7 +40,7 @@
 			<input type="text" name="case_client[client]" class="hidden" />
 
 			<select name="case_client[role]" class="chosen allow-new" data-placeholder="本案地位">
-				<?=options(array('原告','被告','第三人','上诉人','被上诉人','申请人','被申请人','对方代理人','法官','检察官'),$this->value('case_client/role'),'');?>
+				<?=options(array('原告','被告','第三人','上诉人','被上诉人','申请人','被申请人','对方代理人','法官','检察官'),$this->value('case_client/role'),'',false,false,false);?>
 			</select>
 
 			<span display-for="new" class="hidden">
@@ -107,7 +107,7 @@
 			<input type="text" name="staff[name]" value="<?=$this->value('staff/name');?>" placeholder="姓名" autocomplete-model="staff" />
 			<input name="staff[id]" class="hidden" />
 			<select name="staff[role]" class="chosen allow-new" data-placeholder="本案职务">
-				<?=options($staff_role_array,$this->value('staff/role'),'');?>
+				<?=options($staff_role_array,$this->value('staff/role'),'',false,false,false);?>
 			</select>
 			<input type="text" name="staff[weight]" value="<?=$this->value('staff/weight')?>" placeholder="占比%" />
 			<button type="submit" name="submit[staff]">添加</button>

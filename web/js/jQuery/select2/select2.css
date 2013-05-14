@@ -496,7 +496,7 @@ disabled look for disabled choices in the results dropdown
     padding: 5px;
     margin: 1px 0;
 
-    font-family: sans-serif;
+/*    font-family: sans-serif;	uicestone 2013-5-14*/
     font-size: 100%;
     color: #666;
     outline: 0;
