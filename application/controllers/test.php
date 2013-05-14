@@ -5,7 +5,7 @@ class Test extends SS_controller{
 	}
 	
 	function index(){
-		echo $this->parser->parse_string('{abc}', array('abc'=>111),true);
+		$this->load->view('test');
 		//print_r($this->session->all_userdata());
 		//print_r($this->user);
 	}

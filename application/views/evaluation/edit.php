@@ -57,4 +57,4 @@
 		<textarea class="item" name="project[comment]" type="text" rows="3"><?=$this->value('project/comment')?></textarea>
 	</div>
 </form>
-<?=javascript('project_add')?>
+<?=$this->javascript('project_add')?>

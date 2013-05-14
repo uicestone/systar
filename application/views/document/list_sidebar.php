@@ -1,4 +1,4 @@
-<?=javascript('document_list')?>
+<?=$this->javascript('document_list')?>
 <table class="contentTable search-bar">
 	<thead><tr><th>搜索</th></tr></thead>
 	<tbody>

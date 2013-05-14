@@ -73,7 +73,7 @@ class SS_Controller extends CI_Controller{
 			$this->_output();
 			exit;
 		}
-		
+
 		$this->config->session=$this->session->all_userdata('config');
 		
 	}

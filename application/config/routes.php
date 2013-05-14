@@ -51,8 +51,5 @@ $route['reception']='gate/reception';
 $route['(account|cases|classes|client|contact|document|people|project|query|staff|student|team)/(:num)']='$1/edit/$2';
 $route['evaluation/(:num)']='evaluation/candidates/$1';
 
-$route['js/combined.js']='gate/combined/js';
-$route['style/combined.css']='gate/combined/css';
-
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

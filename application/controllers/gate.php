@@ -5,71 +5,12 @@ class Gate extends SS_Controller{
 		parent::__construct();
 	}
 	
-	function combined($type){
-		$this->load->driver('minify');
-		
-		if(!in_array($type,array('js','css'))){
-			show_error('error type for request combined file');
-		}
-		
-		switch($type){
-			case 'js':
-				$files=array(
-					'../web/js/underscore-min.js',
-					ENVIRONMENT==='development'?'../web/js/jQuery/jquery-1.9.1.min.js':'../web/js/jQuery/jquery-1.9.1.js',
-					'../web/js/jQuery/jquery-migrate-1.1.1.js',
-					'../web/js/backbone-min.js',
-					'../web/js/jQuery/jquery-ui-1.10.3.custom.min.js',
-					
-					'../web/js/jQuery/jquery.placeholder.js',
-					'../web/js/jQuery/jQueryRotate.2.2.js',
-					'../web/js/jQuery/jquery-ui.etc.js',
-					'../web/js/jQuery/fullcalendar/fullcalendar.js',
-					'../web/js/jQuery/highcharts/highcharts.js',
-					'../web/js/jQuery/select2/select2.js',
-					'../web/js/jQuery/select2/select2_locale_zh-CN.js',
-					'../web/js/jQuery/jquery.iframe-transport.js',
-					'../web/js/jQuery/jquery.fileupload.js',
-					'../web/js/jQuery/jQuery-Timepicker-Addon/jquery-ui-timepicker-addon.js',
-					
-					'../web/js/router.js',
-					
-					'../web/js/functions.js',
-					'../web/js/events.js',
-					
-					'../web/js/schedule.js',
-					'../web/js/schedule_widget.js',
-					'../web/js/schedule_calendar.js'
-
-				);
-				$export='../web/js/combined.js';
-				$this->output->set_content_type('js');
-				break;
-		
-			case 'css':
-				$files=array(
-					'../web/style/redmond/jquery-ui-1.10.3.custom.css',
-					'../web/style/jquery-ui-bootstrap/jquery-ui-1.10.0.custom.css',
-					'../web/style/icomoon/style.css',
-					'../web/js/jQuery/fullcalendar/fullcalendar.css',
-					'../web/js/jQuery/select2/select2.css',
-					'../web/js/jQuery/jQuery-Timepicker-Addon/jquery-ui-timepicker-addon.css',
-					'../web/style/common.css'
-				);
-				$export='../web/style/combined.css';
-				$this->output->set_content_type('css');
-				break;
-		}
-		$combined = $this->minify->combine_files($files, $type, false);
-		
-		if(ENVIRONMENT==='production'){
-			$this->minify->save_file($combined, $export);
-		}
-		
-		$this->output->set_output($combined);
-	}
-	
 	function index(){
+		
+		if(!$this->user->isLogged()){
+			redirect('login');
+		}
+		
 		$this->load->addViewData('css', $this->config->user_item('css'));
 		
 		$this->load->view('head');

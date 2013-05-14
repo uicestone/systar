@@ -57,4 +57,4 @@
 		<textarea name="cases[comment]"><?=$this->value('project/comment'); ?></textarea>
 	</div>
 </form>
-<?=javascript('query_add')?>
+<?=$this->javascript('query_add')?>

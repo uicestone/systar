@@ -5,7 +5,7 @@ $(document)
 	page=$('article');nav=$('nav');aside=$('aside');header=$('header');
 	tabs=header.children('#tabs');throbber=header.children('.throbber');
 
-	if(environment !== 'development'){
+	if(environment !== 'development' && username){
 		setInterval(function(){
 				$.get('/polling');
 		},10000);

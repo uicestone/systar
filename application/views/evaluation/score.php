@@ -1,2 +1,2 @@
-<?=javascript('Jeditable/jquery.jeditable.mini')?>
-<?=javascript('evaluation_score')?>
+<?=$this->javascript('Jeditable/jquery.jeditable.mini')?>
+<?=$this->javascript('evaluation_score')?>

@@ -4,12 +4,13 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><![endif]-->
-	<!--[if lt IE 9]><?=javascript('html5')?><![endif]-->
-	<link type="text/css" rel="stylesheet" href="/style/combined.css" />
-	<script type="text/javascript" src="/js/combined.js"></script>
+	<!--[if lt IE 9]><?=$this->javascript('html5')?><![endif]-->
+	<?=$this->stylesheet('style/combined')?>
+	<?=$this->javascript('combined')?>
 	<link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+	<link href="/style/fonts/icomoon.woff" type="application/x-font-woff" />
 	<title><?=$this->company->sysname?></title>
-<?if($css){?>
+<?if(isset($css) && $css){?>
 	<style type="text/css">
 		<?=$css?>
 	</style>

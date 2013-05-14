@@ -89,4 +89,4 @@
 		<textarea name="people[comment]"><?=$this->value('people/comment')?></textarea>
 	</div>
 </form>
-<?=javascript('people_add')?>
+<?=$this->javascript('people_add')?>
