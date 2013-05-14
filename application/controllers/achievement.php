@@ -44,6 +44,7 @@ class Achievement extends SS_controller{
 				'received'=>true,
 				'contract_date'=>array('from'=>$this->date->year_begin),
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
+				'project_labels'=>array('费用已锁定'),
 				'orderby'=>'sum desc'
 			)),
 
@@ -52,14 +53,16 @@ class Achievement extends SS_controller{
 				'group'=>'team',
 				'received'=>true,
 				'contract_date'=>array('to'=>$this->date->last_year_end),
-				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
+				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
+				'project_labels'=>array('费用已锁定')
 			)),
 
 			'签约'=>$this->account->getList(array(
 				'sum'=>true,
 				'group'=>'team',
 				'received'=>false,
-				'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
+ 				'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
+				'project_labels'=>array('费用已锁定')
 			))
 		);
 		
@@ -179,6 +182,7 @@ class Achievement extends SS_controller{
 				'received'=>true,
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 				'contract_date'=>array('from'=>$this->date->year_begin),
+				'project_labels'=>array('费用已锁定'),
 				'orderby'=>'sum desc'
 			)),
 			
@@ -189,6 +193,7 @@ class Achievement extends SS_controller{
 				'received'=>true,
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 				'contract_date'=>array('to'=>$this->date->last_year_end),
+				'project_labels'=>array('费用已锁定')
 			)),
 			
 			'所内接洽创收'=>$this->account->getList(array(
@@ -197,7 +202,8 @@ class Achievement extends SS_controller{
 				'role'=>array('接洽律师'),
 				'project_labels'=>array('所内案源'),
 				'received'=>true,
-				'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
+				'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
+				'project_labels'=>array('费用已锁定')
 			)),
 
 			'个人案源创收'=>$this->account->getList(array(
@@ -205,7 +211,8 @@ class Achievement extends SS_controller{
 				'group'=>'people',
 				'role'=>array('案源人'),
 				'received'=>true,
-				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
+				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
+				'project_labels'=>array('费用已锁定')
 			)),
 
 			'主办签约'=>$this->account->getList(array(
@@ -213,7 +220,8 @@ class Achievement extends SS_controller{
 				'group'=>'people',
 				'role'=>array('主办律师'),
 				'received'=>false,
-				'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
+				'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
+				'project_labels'=>array('费用已锁定')
 			))
 
 		);
