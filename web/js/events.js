@@ -61,7 +61,7 @@ $(document)
 	});
 	
 	header.on('blockload','.new-messages:not(:empty)',function(){
-		if (window.webkitNotifications.checkPermission() === 0) {
+		if (window.webkitNotifications && window.webkitNotifications.checkPermission() === 0) {
 			window.webkitNotifications.createNotification('/images/favicon.ico', sysname,'您有新的消息').show();
 		}
 		
