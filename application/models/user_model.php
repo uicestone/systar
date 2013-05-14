@@ -91,14 +91,16 @@ class User_model extends People_model{
 	}
 	
 	function verify($username,$password){
-		$this->db->select('id,name,password,`group`,lastip,lastlogin,company')
-			->from('user')
-			->where("
-				(name = '$username' OR alias='$username')
-				AND (password = '$password' OR password IS NULL)
-				AND company={$this->company->id}
-			",NULL,FALSE);
 		
+		$username=$this->db->escape($username);
+		$password=$this->db->escape($password);
+		
+		$this->db
+			->from('user')
+			->where('company',$this->company->id)
+			->where("(name = $username OR alias = $username)",NULL,false)
+			->where("(password = $password OR password IS NULL)",NULL,false);
+				
 		$user=$this->db->get()->row_array();
 		
 		if(empty($user)){
