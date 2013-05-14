@@ -59,7 +59,7 @@ $(function(){
 				},
 
 				eventClick: function(event,jsEvent) {
-					$('<div/>').appendTo(document.body).schedule({target:$(jsEvent.target),event:event,method:'view',calendar:calendar});
+					$.viewSchedule({target:$(jsEvent.target),event:event,id:event.id,method:'view',calendar:calendar});
 				},
 				eventDrop: function(event,dayDelta,minuteDelta,allDay) {
 					$.post('/schedule/writecalendar/drag/'+event.id,{dayDelta:dayDelta,minuteDelta:minuteDelta,allDay:Number(allDay)},function(){

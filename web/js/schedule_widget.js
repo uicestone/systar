@@ -341,25 +341,31 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 	
 	_createButtons:function(buttons){
 
-		var that=this;
-
 		this._super(buttons);
 		
-		var buttonCheckbox=this.widget().children('.ui-dialog-buttonpane').find('#completed');
+		var ui_id;
+		
+		if(this.options.id){
+			ui_id=this.options.id;
+		}else{
+			ui_id=this.element.attr('id');
+		}
+		
+		var buttonCheckbox=this.widget().children('.ui-dialog-buttonpane').find('#completed-'+ui_id);
 		
 		if(!buttonCheckbox.length){
-			var buttonCheckbox=$('<div class="ui-dialog-buttonset" style="float:left;padding:.5em .4em"><input type="checkbox" id="completed-'+that.element.attr('id')+'" name="completed" title-checked="已完成" title-unchecked="未完成" /><label for="completed-'+that.element.attr('id')+'"><span class="icon-checkmark"></span></label></div>')
+			var buttonCheckbox=$('<div class="ui-dialog-buttonset" style="float:left;padding:.5em .4em"><input type="checkbox" id="completed-'+ui_id+'" name="completed" title-checked="已完成" title-unchecked="未完成" /><label for="completed-'+ui_id+'"><span class="icon-checkmark"></span></label></div>')
 			.appendTo(this.widget().children('.ui-dialog-buttonpane'))
-			.find('#completed-'+that.element.attr('id'));
+			.find('#completed-'+ui_id);
 		}
 		buttonCheckbox.button();
 		
-		var in_todo_list=this.widget().children('.ui-dialog-buttonpane').find('#in-todo-list');
+		var in_todo_list=this.widget().children('.ui-dialog-buttonpane').find('#in-todo-list-'+ui_id);
 		
 		if(!in_todo_list.length){
-			var in_todo_list=$('<div class="ui-dialog-buttonset" style="float:left;padding:.5em .4em"><input type="checkbox" id="in-todo-list-'+that.element.attr('id')+'" name="in_todo_list" title-checked="在任务列表中显示" title-unchecked="不在任务列表中显示" /><label for="in-todo-list-'+that.element.attr('id')+'"><span class="icon-list"></span></label></div>')
+			var in_todo_list=$('<div class="ui-dialog-buttonset" style="float:left;padding:.5em .4em"><input type="checkbox" id="in-todo-list-'+ui_id+'" name="in_todo_list" title-checked="在任务列表中显示" title-unchecked="不在任务列表中显示" /><label for="in-todo-list-'+ui_id+'"><span class="icon-list"></span></label></div>')
 			.appendTo(this.widget().children('.ui-dialog-buttonpane'))
-			.find('#in-todo-list-'+that.element.attr('id'));
+			.find('#in-todo-list-'+ui_id);
 		}
 		in_todo_list.button();
 		
@@ -380,7 +386,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 						that.element.schedule('close');
 						$(calendar).fullCalendar('removeEvents',that.options.id);
 					}
-				},'json');
+				});
 			}
 		});
 		this.option('buttons',this.options.buttons);
