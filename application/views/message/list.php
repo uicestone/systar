@@ -13,15 +13,3 @@
 </div>
 <hr />
 <?}?>
-<script type="text/javascript">
-$(function(){
-	page.on('sectionshow sectionload','section',function(){
-		if(controller==='message' && method==='content'){
-			window.clearInterval(polling.message);
-			polling.message=window.setInterval(function(){
-				$.post('/'+hash,{blocks:'content'});
-			},3000);
-		}
-	});
-});
-</script>

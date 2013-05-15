@@ -7,7 +7,7 @@ $(document)
 
 	if(environment !== 'development' && username){
 		setInterval(function(){
-				$.get('/polling');
+			$.get('/polling');
 		},10000);
 	}
 	
@@ -61,10 +61,6 @@ $(document)
 	});
 	
 	header.on('blockload','.new-messages:not(:empty)',function(){
-		if (window.webkitNotifications && window.webkitNotifications.checkPermission() === 0) {
-			window.webkitNotifications.createNotification('/images/favicon.ico', sysname,'您有新的消息').show();
-		}
-		
 		$(this).clone().appendTo(page)
 			.removeClass('new-messages')
 			.css({zIndex:100,color:'#FFF'})
@@ -102,11 +98,14 @@ $(document)
 		document.title=affair+' - '+(username?username+' - ':'')+sysname;
 	})
 	.on('sectioncreate','section',function(){
-		//console.log('section create');
 		var section = $(this);
 		/*为表格代理绑定事件*/
 		section.on('contenttableload','.contentTable',function(event){
 			//console.log('contenttableload: '+$(this).attr('name'));
+			$(this).children('tbody').children('tr').on('mouseenter mouseleave',function(){
+				$(this).toggleClass('highlighted');
+			});
+			
 			$(this).children('tbody').children('tr[hash]')
 				.on('click',function(){
 					syssh.navigate($(this).attr('hash'),true);
@@ -234,11 +233,6 @@ $(document)
 				
 		section.find('.contentTable').trigger('contenttableload');
 		
-		section.find('.contentTable>tbody>tr').on('mouseenter mouseleave',function(){
-			$(this).toggleClass('highlighted');
-		
-		});
-				
 		section.find('select.chosen').tagging();
 	});
 	

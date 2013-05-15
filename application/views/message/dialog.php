@@ -14,11 +14,3 @@
 </div>
 <hr />
 <?}?>
-<script type="text/javascript">
-$(function(){
-	var section = page.children('section[hash="'+hash+'"]');
-	section.find('.message-dialog-list-item').click(function(){
-		syssh.navigate('message/content/'+$(this).attr('id'),true);
-	});
-});
-</script>

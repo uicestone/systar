@@ -75,6 +75,7 @@ class CI_Controller {};
 * @property SS_Config $config
 * @property Company_model $company
 * @property Label_model $label
+* @property Message_model $message
 * @property People_model $people
 * @property User_model $user
 */

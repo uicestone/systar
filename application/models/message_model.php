@@ -59,11 +59,15 @@ class Message_model extends BaseItem_model{
 		}
 	}
 	
+	/**
+	 * 将当前用户的一个会话和其中的所有信息标记为已读
+	 * @param int $dialog_id
+	 */
 	function setDialogRead($dialog_id){
 		
 		$dialog_id=intval($dialog_id);
 		
-		$this->db->update('dialog_user',array('read'=>true),array('dialog'=>$dialog_id));
+		$this->db->update('dialog_user',array('read'=>true),array('dialog'=>$dialog_id,'user'=>$this->user->id));
 		
 		$this->db->where("user = {$this->user->id} AND message IN (SELECT message FROM dialog_message WHERE dialog = $dialog_id)",NULL,false)
 			->update('message_user',array('read'=>true));
@@ -99,9 +103,9 @@ class Message_model extends BaseItem_model{
 	
 	/**
 	 * 根据会话id插入发送的消息
-	 * @param $content 消息内容
+	 * @param string $content 消息内容
 	 * @param int $dialog 会话id
-	 * @return dialog_message insert_id
+	 * @return message.id
 	 */
 	function sendByDialog($content,$dialog){
 		
@@ -148,6 +152,7 @@ class Message_model extends BaseItem_model{
 	 * 注意，只有不知道dialog的时候才调用此函数，否则使用sendByDialog
 	 * @param $content
 	 * @param array or int $user 接收消息的用户
+	 * @return message.id
 	 */
 	function send($content,$receiver){
 		
@@ -155,6 +160,13 @@ class Message_model extends BaseItem_model{
 			$receivers=array($receiver);
 		}else{
 			$receivers=$receiver;
+		}
+		
+		//根据user过滤收件人，并且去除本人
+		$receivers=array_sub($this->db->select('id')->from('user')->where_in('id',$receivers)->where('id !=',$this->user->id)->get()->result_array(),'id');
+
+		if(empty($receivers)){
+			return;
 		}
 		
 		$message=$this->add($content);
@@ -277,6 +289,22 @@ class Message_model extends BaseItem_model{
 		}else{
 			return $count;
 		}
+	}
+	
+	function getNewMessagesContent($user_id=NULL){
+		if(is_null($user_id)){
+			$user_id=$this->user->id;
+		}else{
+			$user_id=intval($user_id);
+		}
+		
+		$this->db->select('message.id, message.content, message.uid AS author, author.name as author_name, message.time')
+			->from('message')
+			->join('message_user','message_user.message = message.id','inner')
+			->join('people author','message.uid = author.id','inner')
+			->where(array('message_user.user'=>$user_id,'read'=>false));
+		
+		return $this->db->get()->result_array();
 	}
 	
 	function addDocuments($message_id,array $documents){

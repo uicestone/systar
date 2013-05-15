@@ -294,11 +294,9 @@ class Schedule_model extends BaseItem_model{
 		$delete=array_diff($origin,$setto);
 		
 		if($delete){
-			$this->db->query("
-				DELETE FROM schedule_people
-				WHERE schedule = $schedule_id
-					AND people IN (".implode($delete).")
-			");
+			$this->db->where('schedule',$schedule_id)
+				->where_in('people',$delete)
+				->delete('schedule_people');
 		}
 
 		if($insert){
@@ -308,6 +306,10 @@ class Schedule_model extends BaseItem_model{
 				FROM people
 				WHERE id IN (".implode(',',$insert).")
 			");
+			
+			$name=$this->fetch($schedule_id, 'name');
+			
+			$this->message->send('邀请你参与日程：'.$name, $insert);
 		}
 	}
 	

@@ -57,22 +57,7 @@ class Cases_model extends Project_model{
 	}
 	
 	function addStaff($project,$people,$role,$weight=NULL){
-		$project=intval($project);
-		$people=intval($people);
-		
-		$data=array(
-			'project'=>$project,
-			'people'=>$people,
-			'role'=>$role,
-			'weight'=>$weight,
-			'type'=>'律师'
-		);
-		
-		$data+=uidTime(false);
-		
-		$this->db->insert('project_people',$data);
-		
-		return $this->db->insert_id();
+		return $this->addPeople($project, $people, '律师', $role, $weight);
 	}
 	
 	/**

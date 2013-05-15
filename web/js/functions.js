@@ -231,6 +231,33 @@ jQuery.fn.extend({
 			if(data.type==='script'){
 				eval(data.content);
 			}
+			
+			else if(data.type==='notifications' || dataName==='notifications'){
+				if (!window.webkitNotifications || window.webkitNotifications.checkPermission() !== 0) {
+					return;
+				}
+				
+				var messages_to_notify=[];
+				
+				for(id in data.content){
+					
+					var notification = data.content[id];
+
+					messages_to_notify.push(notification.id);
+					
+					if(!notifications[notification.id]){
+						notifications[notification.id]=window.webkitNotifications.createNotification('/images/favicon.ico', notification.author_name, notification.content);
+						notifications[notification.id].show();
+					}
+				}
+				
+				for(id in notifications){
+					if($.inArray(id,messages_to_notify)===-1){
+						notifications[id].cancel();
+					}
+				}
+
+			}
 
 			else if(data.method==='replace'){
 				if(data.selector){

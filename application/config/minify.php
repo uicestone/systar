@@ -24,7 +24,8 @@ $config['minify_source']['js/combined.js']=array(
 
 	'js/schedule.js',
 	'js/schedule_widget.js',
-	'js/schedule_calendar.js'
+	'js/schedule_calendar.js',
+	'js/message.js'
 );
 
 $config['minify_source']['style/combined.css']=array(

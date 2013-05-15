@@ -58,10 +58,12 @@ $(function(){
 	});
 	
 	aside.on('sectionload','section',function(){
-		$(this).find('.draggable.portlet').draggable({
-			helper: 'clone',
-			connectToSortable:'.sortable.column',
-			zIndex:10
-		});
+		if(controller==='schedule'){
+			$(this).find('.draggable.portlet').draggable({
+				helper: 'clone',
+				connectToSortable:'.sortable.column',
+				zIndex:10
+			});
+		}
 	});
 });

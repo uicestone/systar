@@ -204,13 +204,16 @@ class Project_model extends BaseItem_model{
 		return array_sub($result,'role');
 	}
 	
-	function addPeople($project_id,$people_id,$type=NULL,$role=NULL){
+	function addPeople($project_id,$people_id,$type=NULL,$role=NULL,$weight=NULL){
+		
+		$this->message->send('将你加入事务：'.$this->fetch($project_id,'name'),$people_id);
 		
 		$this->db->insert('project_people',array(
 			'project'=>$project_id,
 			'people'=>$people_id,
 			'type'=>$type,
-			'role'=>$role
+			'role'=>$role,
+			'weight'=>$weight
 		));
 		
 		return $this->db->insert_id();
