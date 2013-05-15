@@ -19,7 +19,7 @@
 	<div class="item hidden" display-for="new">
 		<div class="title"><label>来源：</label></div>
 		<select name="client_profiles[来源类型]" disabled="disabled">
-			<?=options($this->config->item('客户来源类型'),$this->value('client_profiles/来源类型'),'来源类型')?>
+			<?=options($this->config->user_item('客户来源类型'),$this->value('client_profiles/来源类型'),'来源类型')?>
 		</select>
 		<input type="text" name="client_profiles[来源]" value="<?=$this->value('client_profiles/来源') ?>" class="hidden" placeholder="具体来源" disabled="disabled" locked-by="client_profiles[来源类型]" />
 		<input type="text" name="client[staff_name]" value="<?=$this->value('client/staff_name')?$this->value('client/staff_name'):$this->user->name?>" title="来源律师" placeholder="来源律师" autocomplete-model="staff" disabled="disabled" />

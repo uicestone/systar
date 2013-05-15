@@ -310,7 +310,7 @@ jQuery.fn.extend({
 
 	reset: function(){
 		$(this).find(':input').val('');
-		$(this).find('select').find('option').removeAttr('checked');
+		$(this).find('select').find('option').removeAttr('checked').trigger('change');
 		$(this).find(':checkbox, :radio').removeAttr('checked');
 	},
 

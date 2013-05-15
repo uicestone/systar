@@ -23,7 +23,7 @@
 	<div class="item">
 		<div class="title"><label>来源：</label></div>
 		<select name="profiles[来源类型]">
-			<?=options($this->config->item('客户来源类型'),$this->value('profiles/来源类型'),'来源类型')?>
+			<?=options($this->config->user_item('客户来源类型'),$this->value('profiles/来源类型'),'来源类型')?>
 		</select>
 
 		<input type="text" name="profiles[来源]" value="<?=$this->value('profiles/来源')?>" <?if(!$this->value('profiles/来源')){?>class="hidden" disabled="disabled"<?}?> />
@@ -36,8 +36,8 @@
 		<?=$profile_list?>
 		<button type="button" class="toggle-add-form">＋</button>
 		<span class="add-form hidden">
-			<select name="profile[name]">
-				<?=options($profile_name_options,$this->value('profile/name'),'资料项名称')?>
+			<select name="profile[name]" class="chosen allow-new" data-placeholder="资料项名称">
+				<?=options($profile_name_options,$this->value('profile/name'),'',false,false,false)?>
 			</select>
 			<input type="text" name="profile[content]" value="<?=$this->value('profile/content')?>" placeholder="资料项内容" />
 			<input type="text" name="profile[comment]" value="<?=$this->value('profile/comment')?>" placeholder="备注" />
@@ -54,8 +54,8 @@
 			<input type="text" name="relative[name]" value="<?=$this->value('relative/name')?>" placeholder="名称" autocomplete-model="people" />
 			<input name="relative[id]" class="hidden" />
 
-			<select name="relative[relation]">
-				<?=options($this->config->item(($this->value('people/character')=='单位'?'单位':'个人').'相关人关系'),$this->value('relative/relation'),'关系',false,true)?>
+			<select name="relative[relation]" class="chosen allow-new" data-placeholder="关系">
+				<?=options($this->config->user_item(($this->value('people/character')=='单位'?'单位':'个人').'相关人关系'),$this->value('relative/relation'),'',false,false,false)?>
 			</select>
 			<span display-for="new" class="hidden">
 				<?=checkbox('单位','relative[character]',$this->value('relative/character'),'单位')?>

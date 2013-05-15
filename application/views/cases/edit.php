@@ -5,7 +5,7 @@
 		</div>
 
 		<select id="type" name="labels[领域]"<?if(in_array('类型已锁定',$labels)){?> disabled="disabled"<?}?>>
-		<?=options($this->config->item('案件领域'),$this->value('labels/领域'),'领域');?>
+		<?=options($this->config->user_item('案件领域'),$this->value('labels/领域'),'领域');?>
 		</select>
 		<select id="classification" name="labels[分类]"<?if(in_array('类型已锁定',$labels)){?> disabled="disabled"<?}?>>
 		<?=options(array('争议','非争议','法律顾问'),$this->value('labels/分类'),'分类');?>
@@ -67,7 +67,7 @@
 			<span display-for="new client" class="hidden">
 				<label>来源：</label>
 				<select name="client_profiles[来源类型]" disabled="disabled">
-					<?=options($this->config->item('客户来源类型'),$this->value('client_profiles/来源类型'),'来源类型')?>
+					<?=options($this->config->user_item('客户来源类型'),$this->value('client_profiles/来源类型'),'来源类型')?>
 				</select>
 				<input type="text" name="client_profiles[来源]" value="<?=$this->value('client_profiles/来源')?>" class="hidden" disabled="disabled" locked-by="client_profiles[来源类型]" />
 				<input type="text" name="client[staff_name]" placeholder="来源律师" value="<?=$this->value('client/staff_name')?$this->value('client/staff_name'):$this->user->name?>" disabled="disabled" />
