@@ -51,7 +51,7 @@
 				</select>
 
 				<select name="client_labels[类型]" disabled="disabled">
-					<?=options($this->label->getRelatives($this->value('client/type')),$this->value('client_labels/类型'),$this->value('client/type').'类型');?>
+					<?=options($this->label->getRelatives($this->value('client/type')),$this->value('client_labels/类型'),lang($this->value('client/type')).'类型');?>
 				</select>
 
 			</span>

@@ -80,7 +80,7 @@ $(function(){
 			addForm.find('[name="client_labels[类型]"]').hide().attr('disabled','disabled');
 		}else{
 			addForm.find('[name="client_labels[类型]"]').removeAttr('disabled').show();
-			$(this).siblings('[name="client_labels[类型]"]').getOptionsByLabelRelative($(this).val());
+			$(this).siblings('[name="client_labels[类型]"]').getOptionsByLabelRelative($(this).find('option:selected').text());
 		}
 
 		if($(this).val()==='client'){

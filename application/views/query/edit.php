@@ -12,7 +12,7 @@
 			<?=options(array('面谈','电话','网络'),$this->value('labels/咨询方式'),'咨询方式')?>
 		</select>
 		<select name="labels[领域]">
-			<?=options($this->config->item('案件领域'), $this->value('labels/领域'), '领域')?>
+			<?=options($this->config->user_item('案件领域'), $this->value('labels/领域'), '领域')?>
 		</select>
 	</div>
 
