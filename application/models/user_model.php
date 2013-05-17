@@ -33,7 +33,7 @@ class User_model extends People_model{
 			$this->group=explode(',',$user['group']);
 		}
 		
-		$this->teams=$this->team->traceByPeople($this->id);
+		$this->teams=$this->team->trace($this->id);
 
 		//获取存在数据库中的用户配置项
 		$this->db->from('user_config')
@@ -78,16 +78,6 @@ class User_model extends People_model{
 		$this->db->insert('user',$data);
 		
 		return $user_id;
-	}
-	
-	function addToTeam($user_id,$team_id){
-		return $this->db->insert('team_people',array('team'=>$team_id,'people'=>$user_id));
-	}
-	
-	function addToTeamByName($user_id,$team_name){
-		$team=$this->team->match($team_name);
-		isset($team[0]) && $team_id=$team[0]['id'];
-		return $this->addToTeam($user_id, $team_id);
 	}
 	
 	function verify($username,$password){

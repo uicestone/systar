@@ -362,3 +362,75 @@ ALTER TABLE  `people` CHANGE  `type`  `type` VARCHAR( 255 ) CHARACTER SET utf8 C
 -- structure exported
 
 ALTER TABLE  `log` CHANGE  `username`  `username` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+ALTER TABLE  `account` DROP FOREIGN KEY  `account_ibfk_7` ;
+ALTER TABLE  `account` DROP FOREIGN KEY  `account_ibfk_8` ;
+
+update team set id = id + 13000 order by id desc;
+ALTER TABLE  `people` CHANGE  `type`  `type` ENUM(  'people',  'team',  'staff',  'contact',  'client',  'student',  'classes' ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT  'people';
+
+ALTER TABLE  `people` CHANGE  `name_pinyin`  `name_pinyin` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+ALTER TABLE  `people` CHANGE  `time_insert`  `time_insert` INT( 11 ) NULL;
+ALTER TABLE  `people` CHANGE  `time`  `time` INT( 11 ) NULL DEFAULT NULL;
+INSERT INTO `people`(`id`, `name`, `type`, `num`,`staff`, `display`,`company`, `uid`,`time_insert`, `time`) 
+select id,name,type,num,leader,display,company,uid,time_insert,time from team;
+
+ALTER TABLE  `account` DROP FOREIGN KEY  `account_ibfk_13` ;
+ALTER TABLE  `dialog_team` DROP FOREIGN KEY  `dialog_team_ibfk_2` ;
+ALTER TABLE  `nav` DROP FOREIGN KEY  `nav_ibfk_1` ;
+ALTER TABLE  `people_status` DROP FOREIGN KEY  `people_status_ibfk_5` ;
+ALTER TABLE  `project` DROP FOREIGN KEY  `project_ibfk_4` ;
+ALTER TABLE  `project_team` DROP FOREIGN KEY  `project_team_ibfk_2` ;
+ALTER TABLE  `school_room` DROP FOREIGN KEY  `school_room_ibfk_1` ;
+ALTER TABLE  `team_label` DROP FOREIGN KEY  `team_label_ibfk_1` ;
+ALTER TABLE  `team_people` DROP FOREIGN KEY  `team_people_ibfk_2` ;
+ALTER TABLE  `team_relationship` DROP FOREIGN KEY  `team_relationship_ibfk_1` ;
+ALTER TABLE  `team_relationship` DROP FOREIGN KEY  `team_relationship_ibfk_2` ;
+ALTER TABLE  `team` CHANGE  `id`  `id` INT( 11 ) NOT NULL;
+ALTER TABLE `team` DROP `username`;
+
+ALTER TABLE  `account` ADD FOREIGN KEY (  `team` ) REFERENCES  `syssh`.`team` (
+`id`
+) ON DELETE NO ACTION ON UPDATE CASCADE ;
+ALTER TABLE  `dialog_team` ADD FOREIGN KEY (  `team` ) REFERENCES  `syssh`.`team` (
+`id`
+) ON DELETE NO ACTION ON UPDATE CASCADE ;
+ALTER TABLE  `nav` ADD FOREIGN KEY (  `team` ) REFERENCES  `syssh`.`team` (
+`id`
+) ON DELETE NO ACTION ON UPDATE CASCADE ;
+ALTER TABLE  `people_status` ADD FOREIGN KEY (  `team` ) REFERENCES  `syssh`.`team` (
+`id`
+) ON DELETE NO ACTION ON UPDATE CASCADE ;
+ALTER TABLE  `project` ADD FOREIGN KEY (  `team` ) REFERENCES  `syssh`.`team` (
+`id`
+) ON DELETE NO ACTION ON UPDATE CASCADE ;
+ALTER TABLE  `school_room` ADD FOREIGN KEY (  `team` ) REFERENCES  `syssh`.`team` (
+`id`
+) ON DELETE NO ACTION ON UPDATE CASCADE ;
+ALTER TABLE  `team` ADD FOREIGN KEY (  `id` ) REFERENCES  `syssh`.`people` (
+`id`
+) ON DELETE NO ACTION ON UPDATE CASCADE ;
+
+ALTER TABLE  `people_relationship` ADD  `num` INT NULL AFTER  `relation_type` ,
+ADD INDEX (  `num` );
+
+ALTER TABLE  `people_relationship` ADD  `till` DATE NULL AFTER  `relation_type` ,
+ADD INDEX (  `till` );
+
+ALTER TABLE `people_relationship` DROP `username`;
+
+ALTER TABLE  `syssh`.`people_relationship` DROP INDEX  `people` ,
+ADD INDEX  `people` (  `people` );
+
+INSERT INTO `people_relationship`(`people`, `relative`, `relation`,  `till`, num)
+select team,people,relation,till,id_in_team from team_people;
+
+insert into people_label (people,label,type,label_name)
+select team,label,type,label_name from team_label;
+
+INSERT INTO people_relationship( people, relative, relation ) 
+SELECT team, relative, relation
+FROM  `team_relationship`;
+
+DROP TABLE team_label;
+DROP TABLE team_people;
+DROP TABLE team_relationship;

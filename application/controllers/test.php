@@ -5,9 +5,10 @@ class Test extends SS_controller{
 	}
 	
 	function index(){
-		$this->load->view('test');
-		//print_r($this->session->all_userdata());
-		//print_r($this->user);
+		$this->load->model('classes_model','classes');
+		print_r($this->classes->fetchByStudent(9260));
+		print_r($this->session->all_userdata());
+		print_r($this->user);
 	}
 	
 	function select2(){

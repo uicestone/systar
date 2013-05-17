@@ -98,7 +98,6 @@ aside .select2-container{
 	margin-bottom: 5px;
 }
 .select2-container .select2-choice{
-	line-height:2;
 	font-size:0.8em;
 }
 .select2-container .select2-choice div b, .select2-dropdown-open .select2-choice div b{

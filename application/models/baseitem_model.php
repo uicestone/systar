@@ -59,6 +59,28 @@ class BaseItem_model extends SS_Model{
 	}
 	
 	/**
+	 * 根据部分名称，返回唯一的id
+	 * @param type $part_or_name
+	 */
+	function check($part_or_name){
+		$result=$this->db->from($this->table)
+			->where($this->table.'.company',$this->company->id)
+			->where($this->table.'.display',true)
+			->like('name',$part_or_name)
+			->get();
+
+		if($result->num_rows()>1){
+			throw new Exception('无法确定人员，多个名称匹配 '.$part_or_name);
+		}
+		elseif($result->num_rows===0){
+			throw new Exception('找不到名称匹配 '.$part_or_name.' 的人员');
+		}
+		else{
+			return $result->row()->id;
+		}
+	}
+	
+	/**
 	 * 
 	 * @param array $args
 	 * name

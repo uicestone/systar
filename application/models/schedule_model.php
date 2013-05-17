@@ -388,7 +388,6 @@ class Schedule_model extends BaseItem_model{
 	 * 计算特定职员在特定案件上所消耗的时间
 	 * @param $project_id 接受一个项目的id，或一组项目id构成的数组
 	 * @param $people_id 接受一个人员的id，或一组人员id构成的数组
-	 * @param $team_id 接受一个人员组的id，或一组人员组id构成的数组
 	 * @return type
 	 */
 	function timeSpent($project_id=NULL,$people_id=NULL,$team_id=NULL){
@@ -416,20 +415,6 @@ class Schedule_model extends BaseItem_model{
 			}else{
 				$people_id=intval($people_id);
 				$q.=" AND schedule.uid = $people_id";
-			}
-		}
-		
-		if(isset($team_id)){
-			if(is_array($team_id)){
-				$team_ids=implode(',',$team_id);
-				$q.=" AND schedule.uid IN (
-					SELECT people FROM team_people WHERE team IN ($team_ids)
-				)";
-			}else{
-				$team_id=intval($team_id);
-				$q.=" AND schedule.uid = IN (
-					SELECT people FROM team_people WHERE team = $team_id
-				)";
 			}
 		}
 		
