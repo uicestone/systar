@@ -547,6 +547,88 @@ class Achievement extends SS_controller{
 		
 		$this->load->addViewData('summary', $summary);
 		
+		//月业绩表
+		$summary_monthly=array(
+			'_heading'=>array(
+				'本月',
+				'全所',
+				'主办',
+				'案源'
+			),
+			
+			array(
+				'签约',
+				$this->account->getSum(array(
+					'received'=>false,
+					'contract_date'=>array('from'=>$this->date->month_begin,'to'=>$this->date->month_end),
+					'ten_thousand_unit'=>true
+				)),
+				$this->account->getSum(array(
+					'received'=>false,
+					'contract_date'=>array('from'=>$this->date->month_begin,'to'=>$this->date->month_end),
+					'people'=>$this->user->id,
+					'role'=>array('主办律师'),
+					'ten_thousand_unit'=>true
+				)),
+				$this->account->getSum(array(
+					'received'=>false,
+					'contract_date'=>array('from'=>$this->date->month_begin,'to'=>$this->date->month_end),
+					'people'=>$this->user->id,
+					'role'=>array('案源人'),
+					'ten_thousand_unit'=>true
+				))
+			),
+			
+			array(
+				'预计',
+				$this->account->getSum(array(
+					'received'=>false,
+					'date'=>array('from'=>$this->date->month_begin,'to'=>$this->date->month_end),
+					'ten_thousand_unit'=>true
+				)),
+				$this->account->getSum(array(
+					'received'=>false,
+					'date'=>array('from'=>$this->date->month_begin,'to'=>$this->date->month_end),
+					'people'=>$this->user->id,
+					'role'=>array('主办律师'),
+					'ten_thousand_unit'=>true
+				)),
+				$this->account->getSum(array(
+					'received'=>false,
+					'date'=>array('from'=>$this->date->month_begin,'to'=>$this->date->month_end),
+					'people'=>$this->user->id,
+					'role'=>array('案源人'),
+					'ten_thousand_unit'=>true
+				))
+			),
+			
+			array(
+				'创收',
+				$this->account->getSum(array(
+					'received'=>true,
+					'date'=>array('from'=>$this->date->month_begin,'to'=>$this->date->month_end),
+					'ten_thousand_unit'=>true
+				)),
+				$this->account->getSum(array(
+					'received'=>true,
+					'date'=>array('from'=>$this->date->month_begin,'to'=>$this->date->month_end),
+					'people'=>$this->user->id,
+					'role'=>array('主办律师'),
+					'ten_thousand_unit'=>true
+				)),
+				$this->account->getSum(array(
+					'received'=>true,
+					'date'=>array('from'=>$this->date->month_begin,'to'=>$this->date->month_end),
+					'people'=>$this->user->id,
+					'role'=>array('案源人'),
+					'ten_thousand_unit'=>true
+				))
+			)
+			
+		);
+		
+		$this->load->addViewData('summary_monthly', $summary_monthly);
+		
 		$this->load->view('achievement/summary');
 		$this->load->view('achievement/sidebar',true,'sidebar');
 		$this->load->view('achievement/summary_sidebar',true,'sidebar');
