@@ -66,7 +66,7 @@ class Query extends Project{
 		
 		$this->load->model('staff_model','staff');
 		$this->load->model('client_model','client');
-		$client_list=$this->client->getList(array('project'=>$this->query->id));
+		$client_list=$this->client->getList(array('in_project'=>$this->query->id));
 		if($client_list){
 			$this->load->addViewData('client', $client_list[0]);
 		}

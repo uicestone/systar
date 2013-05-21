@@ -3,14 +3,13 @@
 	<tbody>
 		<tr>
 			<td>
-				<select name="receivers[]" class="chosen allow-new" data-placeholder="收件人" multiple="multiple">
-					<?=options($this->user->getArray(array(
-						'is_relative_of'=>$this->user->id,
-						'has_relative_like'=>$this->user->id,
-						'in_team'=>array_keys($this->user->teams),
-						'in_related_team_of'=>array_keys($this->user->teams),
-						'in_team_which_has_relative_like'=>array_keys($this->user->teams)
-					),'name','id'), NULL, NULL, true)?>
+				<select name="receivers[]" class="chosen" data-placeholder="收件人" multiple="multiple">
+					<?=options(
+						$this->user->getArray(array('is_relative_of'=>array_keys($this->user->teams)+array($this->user->id)),'name','id')
+						+$this->user->getArray(array('has_relative_like'=>$this->user->id),'name','id')
+						+$this->user->getArray(array('is_secondary_relative_of'=>$this->user->id),'name','id')
+						+$this->user->getArray(array('is_both_relative_with'=>$this->user->id),'name','id')
+					, NULL, NULL, true)?>
 				</select>
 			</td>
 		</tr>

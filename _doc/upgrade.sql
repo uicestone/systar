@@ -434,3 +434,12 @@ FROM  `team_relationship`;
 DROP TABLE team_label;
 DROP TABLE team_people;
 DROP TABLE team_relationship;
+
+ALTER TABLE `team`
+  DROP `type`,
+  DROP `num`;
+
+insert ignore into staff (id)
+select people from people_relationship
+where people in (select id from team)
+and relative in (select id from staff);

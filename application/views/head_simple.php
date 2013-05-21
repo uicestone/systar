@@ -8,7 +8,7 @@
 	<?=$this->stylesheet('style/redmond/jquery-ui-1.10.3.custom')?>
 	<?=$this->stylesheet('style/common')?>
 	
-	<?=$this->javascript('jQuery/jquery-1.7.2.min')?>
+	<?=$this->javascript('jQuery/jquery-1.9.1.min')?>
 	<?=$this->javascript('jQuery/jquery.placeholder')?>
 
 	<link rel="icon" href="/images/favicon.ico" type="image/x-icon" />

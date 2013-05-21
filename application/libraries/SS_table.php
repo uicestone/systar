@@ -102,10 +102,6 @@ class SS_Table extends CI_Table{
 				foreach($cell as $attr_name => $attr_value){
 					$cell[$attr_name]=$this->parser->parse_string($attr_value,array_sub($row,'data',NULL,true),true);
 				}
-				//@deprecated 应该用函数调用替代eval
-				if(isset($field['eval']) && $field['eval']){
-					$cell['data']=eval($cell['data']);
-				}
 				
 				//用指定函数来处理$cell[data]
 				if(isset($field['parser'])){

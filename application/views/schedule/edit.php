@@ -4,13 +4,12 @@
 	<?=options($this->project->getArray(array('people'=>$this->user->id),'name','id'),$this->value('project/id'),'',true,false,false)?>
 </select>
 <?}?>
-<select name="people" data-placeholder="邀请其他人" multiple="multiple" style="width:98%"><?=options($this->user->getArray(array(
-	'is_relative_of'=>$this->user->id,
-	'has_relative_like'=>$this->user->id,
-	'in_team'=>array_keys($this->user->teams),
-	'in_related_team_of'=>array_keys($this->user->teams),
-	'in_team_which_has_relative_like'=>array_keys($this->user->teams)
-),'name','id'),$people,NULL,true)?></select>
+<select name="people" data-placeholder="邀请其他人" multiple="multiple" style="width:98%"><?=options(
+	$this->user->getArray(array('is_relative_of'=>array_keys($this->user->teams)+array($this->user->id)),'name','id')
+	+$this->user->getArray(array('has_relative_like'=>$this->user->id),'name','id')
+	+$this->user->getArray(array('is_secondary_relative_of'=>$this->user->id),'name','id')
+	+$this->user->getArray(array('is_both_relative_with'=>$this->user->id),'name','id')
+,$people,NULL,true)?></select>
 <?if($this->input->get('period')){?>
 <input type="text" name="start" value="<?=$this->value('schedule/start')?>" class="datetime" placeholder="开始时间" style="width:68%;margin-right:1%" /><input type="text" name="hours_own" value="<?=$this->value('schedule/hours_own')?>" placeholder="小时长" style="width:29%;" />
 <?}?>

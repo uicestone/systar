@@ -1,17 +1,9 @@
 # Auto detect text files and perform LF normalization
-* text=auto
+* text=auto eol=lf
 
-*.php diff=php eol=lf
-*.htm diff=html eol=lf
-*.html diff=html eol=lf
-*.css eol=lf
-*.js eol=lf
-*.sql eol=lf
-*.txt eol=lf
-<<<<<<< HEAD
-
-=======
->>>>>>> master
+*.php diff=php
+*.htm diff=html
+*.html diff=html
 
 # Standard to msysgit
 *.doc	 diff=astextplain

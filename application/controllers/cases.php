@@ -37,10 +37,9 @@ class Cases extends Project{
 		$this->miscfee_list_args=array(
 			'account'=>array('heading'=>'帐目编号'),
 			'type'=>array('heading'=>'类型','cell'=>'{type}'),
-			'amount'=>array('heading'=>array('data'=>'数额','width'=>'30%'),'eval'=>true,'cell'=>"
-				\$return='{total}'.('{received}'==''?'':' <span title=\"{received_date}\">（到账：{received}）</span>');
-				return \$return;
-			"),
+			'amount'=>array('heading'=>array('data'=>'数额','width'=>'30%'),'parser'=>array('function'=>function($total,$received,$received_date){
+				return $total.($received==''?'':' <span title="'.$received_date.'">（到账：'.$received.'）</span>');
+			},'args'=>array('total','received','received_date'))),
 			'receivable_date'=>array('heading'=>'预计时间'),
 			'comment'=>array('heading'=>'收款方/备注','cell'=>array('class'=>'ellipsis','title'=>'{comment}'))
 		);
@@ -126,7 +125,7 @@ class Cases extends Project{
 		$list=$this->table->setFields($this->client_list_args)
 			->setRowAttributes(array('hash'=>'{type}/{id}'))
 			->setAttribute('name','client')
-			->generate($this->client->getList(array('project'=>$this->cases->id)));
+			->generate($this->client->getList(array('in_project'=>$this->cases->id)));
 		
 		return $list;
 	}
@@ -159,7 +158,7 @@ class Cases extends Project{
 		$list=$this->table->setFields($this->staff_list_args)
 			->setAttribute('name','staff')
 			->setRowAttributes(array('hash'=>'staff/{id}'))
-			->generate($this->staff->getList(array('project'=>$this->cases->id)));
+			->generate($this->staff->getList(array('in_project'=>$this->cases->id)));
 		
 		return $list;
 	}

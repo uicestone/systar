@@ -95,7 +95,7 @@ $(function(){
 		}
 	});
 
-	$(window).on('resize hashchange',function(){
+	$(window).on('resize',function(){
 		$(calendar).fullCalendar('option','height',$(window).height()-25);
 	});
 	

@@ -119,17 +119,15 @@ class Schedule extends SS_controller{
 		
 		$field=array(
 			'staff_name'=>array('heading'=>array('data'=>'人员','width'=>'60px'),'cell'=>'<a href="#schedule/lists?staff={staff}"> {staff_name}</a>'),
-		
-			'start'=>array('heading'=>array('data'=>'时间','width'=>'60px'),'eval'=>true,'cell'=>"
-				return date('m-d H:i',{start});
-			"),
-		
+			'start'=>array('heading'=>array('data'=>'时间','width'=>'60px'),'parser'=>array('function'=>function($start){
+				return date('m-d H:i',$start);
+			},'args'=>array('start'))),
 			'place'=>array('heading'=>array('data'=>'外出地点','width'=>'25%'))
 		);
 		
 		$table=$this->table->setFields($field)
-					->setData($this->schedule->getOutPlanList())
-					->generate();
+			->setData($this->schedule->getOutPlanList())
+			->generate();
 		
 		$this->load->addViewData('list',$table);
 		

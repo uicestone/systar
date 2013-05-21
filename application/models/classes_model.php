@@ -20,7 +20,7 @@ class Classes_model extends Team_model{
 		$this->db->select('
 			people_team.id,people_team.name,team.leader,leader.name AS leader_name,
 			people_relationship.num,
-			CONCAT(RIGHT(10000+team.num,4),people_relationship.num) AS num
+			CONCAT(RIGHT(10000+people_relationship.num,4),people_relationship.num) AS num
 		',false)
 			->from('people people_team')
 			->join('team','people_team.id = team.id','inner')

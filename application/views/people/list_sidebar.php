@@ -11,9 +11,9 @@
 				</td>
 			</tr>
 			<tr>
-				<td>
-					<select name="team[]" class="chosen" title="输入多个团组，将采取“或”方式查找" multiple="multiple" data-placeholder="团组">
-						<?=options($this->team->getArray(array('people_type'=>$this->config->user_item('search/type')),'name','id'),$this->config->user_item('search/team'),NULL,true)?>
+				<td><?//TODO select的title变成在转换为select2后消失?>
+					<select name="in_team[]" class="chosen" title="输入多个团组，将采取“或”方式查找" multiple="multiple" data-placeholder="团组">
+						<?=options($this->team->getArray(array('people_type'=>$this->config->user_item('search/type')),'name','id'),$this->config->user_item('search/in_team'),NULL,true)?>
 					</select>
 				</td>
 			</tr>

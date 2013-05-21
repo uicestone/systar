@@ -85,7 +85,7 @@ class People extends SS_Controller{
 		$this->config->set_user_item('search/orderby', 'people.id desc', false);
 		$this->config->set_user_item('search/limit', 'pagination', false);
 		
-		$search_items=array('name','labels','team');
+		$search_items=array('name','labels','in_team');
 		
 		foreach($search_items as $item){
 			if($this->input->post($item)!==false){
@@ -201,7 +201,7 @@ class People extends SS_Controller{
 		
 		$list=$this->table->setFields($this->relative_list_args)
 			->setRowAttributes(array('hash'=>'{type}/{id}'))
-			->setData($this->people->getList(array('everyone'=>false,'is_relative_of'=>$this->people->id)))
+			->setData($this->people->getList(array('is_relative_of'=>$this->people->id)))
 			->generate();
 		
 		return $list;

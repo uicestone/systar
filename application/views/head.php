@@ -8,7 +8,6 @@
 	<?=$this->stylesheet('style/combined')?>
 	<?=$this->javascript('combined')?>
 	<link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-	<link href="/style/fonts/icomoon.woff" type="application/x-font-woff" />
 	<title><?=$this->company->sysname?></title>
 <?if(isset($css) && $css){?>
 	<style type="text/css">
