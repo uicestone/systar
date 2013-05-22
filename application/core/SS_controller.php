@@ -76,6 +76,23 @@ class SS_Controller extends CI_Controller{
 
 		$this->config->session=$this->session->all_userdata('config');
 		
+		$uri=$this->uri->uri_string;
+		$get=$this->input->get();
+		$post=$this->input->post();
+		if($uri!=='polling' && ($get || $post)){
+			$this->db->insert('log',array(
+				'uri'=>$uri,
+				'host'=>$this->input->server('HTTP_HOST'),
+				'get'=>json_encode($get,256),
+				'post'=>json_encode($post,256),
+				'client'=>$this->input->user_agent(),
+				//'duration'=>$this->benchmark->elapsed_time('total_execution_time_start'),
+				'ip'=>$this->input->ip_address(),
+				'company'=>$this->company->id,
+				'username'=>$this->user->name,
+				'time'=>date('Y-m-d H:i:s',$this->date->now)
+			));
+		}
 	}
 	
 	/**

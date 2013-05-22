@@ -1,6 +1,7 @@
 <?php
 
 /**
+* @property CI_User_agent $agent
 * @property CI_DB_mysql_driver $db
 * @property CI_DB_active_record $db
 * @property CI_DB_forge $dbforge
