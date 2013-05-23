@@ -29,10 +29,8 @@ class Message_model extends BaseItem_model{
 		
 		$dialog=$this->db->insert_id();
 		
-		$people_model=new People_model();
-		
-		$this->db->insert('dialog_user',array('dialog'=>$dialog,'user'=>$sender,'title'=>$people_model->fetch($receiver,'name')));
-		$this->db->insert('dialog_user',array('dialog'=>$dialog,'user'=>$receiver,'title'=>$people_model->fetch($sender,'name')));
+		$this->db->insert('dialog_user',array('dialog'=>$dialog,'user'=>$sender,'title'=>$this->people->fetch($receiver,'name')));
+		$this->db->insert('dialog_user',array('dialog'=>$dialog,'user'=>$receiver,'title'=>$this->people->fetch($sender,'name')));
 		
 		return $dialog;
 	}
@@ -42,14 +40,13 @@ class Message_model extends BaseItem_model{
 		$sender=intval($sender);
 		$receiver=intval($receiver);
 		
-		$query="
-			SELECT d0.dialog
-			FROM dialog_user d0 INNER JOIN dialog_user d1 USING (dialog)
-				INNER JOIN dialog ON dialog.id = d0.dialog AND dialog.users = 2
-			WHERE d0.user = $sender AND d1.user = $receiver
-		";
+		$this->db->select('d0.dialog')
+			->from('dialog_user d0')
+			->join('dialog_user d1','d0.dialog = d1.dialog','inner')
+			->join('dialog','dialog.id = d0.dialog AND dialog.users = 2')
+			->where(array('d0.user'=>$sender,'d1.user'=>$receiver));
 		
-		$row=$this->db->query($query)->row();
+		$row=$this->db->get()->row();
 		
 		if($row){
 			return $row->dialog;
@@ -148,22 +145,31 @@ class Message_model extends BaseItem_model{
 	}
 	
 	/**
-	 * 当前用户向一个或多个用户发送消息
+	 * 当前用户向一个或多个用户或组发送消息
 	 * 注意，只有不知道dialog的时候才调用此函数，否则使用sendByDialog
 	 * @param $content
-	 * @param array or int $user 接收消息的用户
+	 * @param array or int $user 接收消息的用户或组
 	 * @return message.id
+	 * @todo 非本组成员向本组发送消息，应当先经过组长审批
+	 * @todo 已经存在的组对话，外来发件人不会自动加入会话
 	 */
-	function send($content,$receiver){
+	function send($content,$receivers){
 		
-		if(!is_array($receiver)){
-			$receivers=array($receiver);
-		}else{
-			$receivers=$receiver;
+		if(!is_array($receivers)){
+			$receivers=array($receivers);
 		}
 		
+		array_walk($receivers,function($value){
+			$value=intval($value);
+		});
+		
 		//根据user过滤收件人，并且去除本人
-		$receivers=array_sub($this->db->select('id')->from('user')->where_in('id',$receivers)->where('id !=',$this->user->id)->get()->result_array(),'id');
+		$receivers=array_sub(
+			$this->db->select('id')->from('user')
+				->where_in('id',$receivers)
+				->where('id !=',$this->user->id)
+				->get()->result_array()
+		,'id');
 
 		if(empty($receivers)){
 			return;
@@ -171,48 +177,74 @@ class Message_model extends BaseItem_model{
 		
 		$message=$this->add($content);
 		
-		//获得每个收件人和当前用户所在的2人会话
-		$query="
-			SELECT d0.dialog,d1.user
-			FROM dialog_user d0 INNER JOIN dialog_user d1 USING (dialog)
-				INNER JOIN dialog ON dialog.id = d0.dialog AND dialog.users = 2
-			WHERE FALSE
-		";
+		$team_receivers=array_sub($this->db->select('id')->from('team')->where_in('id',$receivers)->get()->result_array(),'id');
 		
-		foreach($receivers as $receiver){
-			$receiver=intval($receiver);
-			$query.=" OR (d0.user = {$this->user->id} AND d1.user = $receiver)";
+		$personal_receivers=array_diff($receivers,$team_receivers);
+		
+		//找出组收件人，获得其对话。由于一个组只可能出现在一个会话中，因此单找即可
+		$result_existed_team_dialogs=$this->db->select('dialog,user')
+			->from('dialog_user')
+			->where_in('user',$team_receivers)
+			->get()->result_array();
+		
+		$team_dialogs=array_sub($result_existed_team_dialogs,'dialog');
+		$team_receivers_with_dialog=array_sub($result_existed_team_dialogs,'user');
+		
+		//获得每个非组收件人和当前用户所在的2人会话
+		$this->db->select('d0.dialog, d1.user')
+			->from('dialog_user d0')
+			->join('dialog_user d1','d0.dialog = d1.dialog','inner')
+			->where('FALSE',NULL,false);
+		
+		foreach($personal_receivers as $personal_receiver){
+			$this->db->or_where("(d0.user = {$this->user->id} AND d1.user = $personal_receiver)",NULL,false);
 		}
 		
-		$result_existed_dialogs=$this->db->query($query)->result_array();
-		
-		//获得已有会话的收件人
-		$receivers_with_dialog=array_sub($result_existed_dialogs,'user');
-		$existed_dialogs=array_sub($result_existed_dialogs,'dialog');
-		
-		if($existed_dialogs){
-			$this->db->query("
-				UPDATE dialog SET last_message = $message
-				WHERE id IN (".implode(',',$existed_dialogs).")
-			");
-		}
+		$result_existed_personal_dialogs=$this->db->get()->result_array();
+		$personal_dialogs=array_sub($result_existed_personal_dialogs,'dialog');
+		$personal_receivers_with_dialog=array_sub($result_existed_personal_dialogs,'user');
 		
 		//获得不存在会话的收件人
-		$receivers_without_dialog=array_diff($receivers,$receivers_with_dialog);
+		$personal_receivers_without_dialog=array_diff($personal_receivers,$personal_receivers_with_dialog);
+		$team_receivers_without_dialog=array_diff($team_receivers,$team_receivers_with_dialog);
 		
-		$people_model=new People_model();
-		
-		foreach($receivers_without_dialog as $receiver){
+		//创建非组收件人的会话
+		foreach($personal_receivers_without_dialog as $personal_receiver_without_dialog){
 			$this->db->insert('dialog',array('company'=>$this->company->id,'users'=>2,'uid'=>$this->user->id,'time'=>$this->date->now,'last_message'=>$message));
 			$dialog=$this->db->insert_id();
-			$this->db->insert('dialog_user',array('dialog'=>$dialog,'user'=>$receiver,'title'=>$this->user->name,'read'=>false));
-			$this->db->insert('dialog_user',array('dialog'=>$dialog,'user'=>$this->user->id,'title'=>$people_model->fetch($receiver,'name'),'read'=>true));
+			$personal_dialogs[]=$dialog;
+			$this->db->insert('dialog_user',array('dialog'=>$dialog,'user'=>$personal_receiver_without_dialog,'title'=>$this->user->name,'read'=>false));
+			$this->db->insert('dialog_user',array('dialog'=>$dialog,'user'=>$this->user->id,'title'=>$this->people->fetch($personal_receiver_without_dialog,'name'),'read'=>true));
+		}
+		
+		//创建组收件人的会话
+		foreach($team_receivers_without_dialog as $team_receiver_without_dialog){
+			$team_members_result=$this->db->select('relative')->from('people_relationship')->where('people',$team_receiver_without_dialog)->get()->result_array();
+			$team_members=array_sub($team_members_result,'relative');
+
+			$this->db->insert('dialog',array('company'=>$this->company->id,'users'=>count($team_members),'uid'=>$this->user->id,'time'=>$this->date->now,'last_message'=>$message));
+			$dialog=$this->db->insert_id();
+			
+			$team_dialogs[]=$dialog;
+			
+			$set=array(
+				array('dialog'=>$dialog,'user'=>$team_receiver_without_dialog,'title'=>$this->team->fetch($team_receiver_without_dialog,'name'))
+			);
+			
+			foreach($team_members as $team_member){
+				$set[]=array('dialog'=>$dialog,'user'=>$team_member,'title'=>$this->team->fetch($team_receiver_without_dialog,'name'));
+			}
+			
+			if(!in_array($this->user->id,$team_members)){
+				$set[]=array('dialog'=>$dialog,'user'=>$this->user->id,'title'=>$this->team->fetch($team_receiver_without_dialog,'name'));
+			}
+			
+			$this->db->insert_batch('dialog_user',$set);
 		}
 		
 		$set=array();
 		
-		//现在所有的收件人和当前用户都有会话了，我们再获得一次所有会话
-		$dialogs=array_sub($this->db->query($query)->result_array(),'dialog');
+		$dialogs=$personal_dialogs+$team_dialogs;
 		
 		//把新消息插入这些会话
 		foreach($dialogs as $dialog){
@@ -221,52 +253,22 @@ class Message_model extends BaseItem_model{
 		
 		$this->db->insert_batch('dialog_message', $set);
 		
-		$message_user_set=array(
-			array('message'=>$message,'user'=>$this->user->id,'read'=>true,'deleted'=>false)
-		);
+		$this->db->where_in('id',$dialogs)->update('dialog',array('last_message'=>$message));
+		$this->db->where_in('dialog',$dialogs)->update('dialog_user',array('read'=>false));
 		
-		foreach($receivers as $receiver){
-			$message_user_set[]=array('message'=>$message,'user'=>$receiver,'read'=>false,'deleted'=>false);
+		$set=$this->db->select('user')->from('dialog_user')->where_in('dialog',$dialogs)->get()->result_array();
+		foreach($set as $key=>$val){
+			$set[$key]+=array('message'=>$message,'read'=>false,'deleted'=>false);
 		}
+		$this->db->insert_batch('message_user',$set);
 		
-		$this->db->insert_batch('message_user',$message_user_set);
-		
-		//将收件人的会话标记为未读
-		$this->db->where_in('dialog',$dialogs)->where('user !=',$this->user->id)
-			->update('dialog_user',array('read'=>false));
+		//将发件人的会话和消息标记为未读
+		$this->db->where_in('dialog',$dialogs)->where('user',$this->user->id)
+			->update('dialog_user',array('read'=>true));
+		$this->db->where(array('message'=>$message,'user'=>$this->user->id))
+			->update('message_user',array('read'=>true));
 		
 		return $message;
-	}
-	
-	/**
-	 * 向用户组发送消息
-	 * 注意，这与向用户组中的多人群发是有区别的：
-	 * sendToTeam发送的邮件发送对象是team，会话参与人是发件人和收件组（如果发件人也属于收件组，那么会话参与人仅包括收件组）
-	 * 因此在这样的消息会话中回复的消息，发件人和组成员将都可看到
-	 * @param $content
-	 * @param array or int $team 接受消息的用户组
-	 */
-	function sendToTeam($content,$team){
-		if(!is_array($team)){
-			$teams=array($team);
-		}
-		
-		$message=$this->add($content);
-		
-		$query="
-			INSERT INTO dialog_message (dialog, message)
-			SELECT d0.dialog, $message
-			FROM dialog_team d0 INNER JOIN dialog_team d1 USING (dialog)
-				INNER JOIN dialog ON dialog.id = d0.dialog AND dialog.teams = 2
-			WHERE FALSE
-		";
-		
-		foreach($teams as $team){
-			$team=intval($team);
-			$query.=" OR (d0.team = {$this->team->id} AND d1.team = $team)";
-		}
-		
-		return $this->db->query($query);
 	}
 	
 	/**

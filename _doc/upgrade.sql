@@ -443,3 +443,11 @@ insert ignore into staff (id)
 select people from people_relationship
 where people in (select id from team)
 and relative in (select id from staff);
+
+insert ignore into user (id)
+select people from people_relationship
+where people in (select id from team)
+and relative in (select id from user);
+
+DROP TABLE dialog_team;
+DROP TABLE project_team;

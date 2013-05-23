@@ -124,7 +124,6 @@ class Account extends SS_controller{
 	function edit($id){
 		$this->account->id=$id;
 		
-		$this->load->model('people_model','people');
 		$this->load->model('project_model','project');
 		
 		try{

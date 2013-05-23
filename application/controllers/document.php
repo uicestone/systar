@@ -106,7 +106,6 @@ class Document extends SS_controller{
 				$this->document->data['icon']='unknown.png';
 			}
 			
-			$this->load->model('people_model','people');
 			$this->document->data['uploader_name']=$this->people->fetch($this->document->data['uid'],'name');
 
 			$this->load->addViewData('document', $this->document->data);

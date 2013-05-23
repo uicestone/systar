@@ -56,9 +56,8 @@ class Project_model extends BaseItem_model{
 	}
 	
 	function getCompiledPeople($project_id){
-		$people_model = new People_model();
 		
-		$people=$people_model->getList(array('project'=>$project_id));
+		$people=$this->people->getList(array('project'=>$project_id));
 		$compiled='';
 		foreach($people as $person){
 			$compiled.='<span title="'.$person['role'].'"><a href="#people/'.$person['id'].'">'.$person['abbreviation'].'</a></span> ';

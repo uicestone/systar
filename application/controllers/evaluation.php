@@ -104,8 +104,6 @@ class Evaluation extends Project{
 	function score($evaluation_id,$people_id){
 		$this->evaluation->id=$evaluation_id;
 		
-		$this->load->model('people_model','people');
-		
 		$people=$this->people->fetch($people_id);
 		$this->evaluation->data=$this->evaluation->fetch($this->evaluation->id);
 		

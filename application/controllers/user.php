@@ -7,8 +7,6 @@ class user extends SS_controller{
 		
 		parent::__construct();
 		
-		$this->load->model('people_model','people');
-		
 		if($this->company->ucenter){
 			require APPPATH.'third_party/ucenter_client/config.php';
 			require APPPATH.'third_party/ucenter_client/client.php';

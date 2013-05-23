@@ -35,6 +35,7 @@ class SS_Controller extends CI_Controller{
 		 * 自动载入的资源，没有使用autoload.php是因为后者载入以后不能起简称...
 		 */
 		$this->load->model('company_model','company');
+		$this->load->model('people_model','people');
 		$this->load->model('team_model','team');
 		$this->load->model('user_model','user');
 		$this->load->model('label_model','label');

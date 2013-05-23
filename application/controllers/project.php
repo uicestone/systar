@@ -206,8 +206,6 @@ class Project extends SS_controller{
 	}
 	
 	function peopleList(){
-		$this->load->model('people_model','people');
-		
 		$this->people_list_args['role']=array('heading'=>'角色','parser'=>array('function'=>array($this->project,'getCompiledPeopleRoles'),'args'=>array($this->project->id,'id')));
 		
 		return $this->table->setFields($this->people_list_args)
@@ -312,8 +310,6 @@ class Project extends SS_controller{
 			}
 			
 			elseif($submit=='people'){
-				
-				$this->load->model('people_model','people');
 				
 				$people=$this->input->sessionPost('people');
 				if(!$people['id']){
