@@ -18,19 +18,27 @@ class Document_model extends BaseItem_model{
 	/**
 	 * 
 	 * @param array $args
-	 * project
-	 * message
+	 *	project
+	 *	message
 	 * @return array
 	 */
 	function getList($args=array()){
 		
 		if(isset($args['project'])){
-			$this->db->join('project_document',"project_document.document = document.id AND project_document.project = {$args['project']}",'INNER');
+			$this->db->join('project_document',"project_document.document = document.id AND project_document.project = {$args['project']}",'inner');
 		}
 		
 		if(isset($args['message'])){
 			$this->db->join('message_document',"message_document.document = document.id AND message_document.message = {$args['message']}",'inner');
 		}
+		
+		/*
+		$this->db->where("document.id IN (
+			SELECT document FROM document_mod
+			WHERE (document_mod.people IS NULL OR document_mod.people{$this->db->escape_int_array(array_merge(array_keys($this->user->teams),array($this->user->id)))})
+				AND (document_mod.mod & 1 = 1)
+		)");
+		 */
 		
 		return parent::getList($args);
 	}
@@ -88,6 +96,29 @@ class Document_model extends BaseItem_model{
 		}else{
 			return '';
 		}
+	}
+	
+	function getPeopleMod($id,$people){
+		$id=intval($id);
+		$this->db->select('mod')->from('document_mod')->where("people{$this->db->escape_int_array($people)}",NULL,false);
+		$mods=array_sub($this->db->get()->result_array(),'mod');
+		$mod=array_reduce($mods, function($mod, $next_mod){
+			return $mod|$next_mod;
+		});
+		return $mod;
+	}
+	
+	function getModPeople($id,$mod){
+		$id=intval($id);
+		$mod=intval($mod);
+		$this->db->select('people')
+			->from('document_mod')
+			->where('document',$id)
+			->where("`mod` & $mod = $mod",NULL,false);
+		
+		$people=array_sub($this->db->get()->result_array(),'people');
+		
+		return $people;
 	}
 	
 	function exportHead($filename,$as_attachment=false){

@@ -274,8 +274,9 @@ $(document)
 
 		});
 		
-		section.find('select.chosen').tagging()
-		.on('change',function(event,newLabel){
+		section.find('select.chosen').tagging();
+		
+		section.find('select.chosen[name="labels[]"]').on('change',function(event,newLabel){
 			var id=page.children('[hash="'+hash+'"]').children('form').attr('id');
 			var label,method;
 

@@ -5,7 +5,6 @@ class Test extends SS_controller{
 	}
 	
 	function index(){
-		print_r($this->people->getList(array('is_relative_of'=>$this->user->id)));echo $this->db->last_query();
 		print_r($this->session->all_userdata());
 		print_r($this->user);
 	}

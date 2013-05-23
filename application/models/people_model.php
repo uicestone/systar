@@ -215,21 +215,17 @@ class People_model extends BaseItem_model{
 		
 		if(isset($args['in_project'])){
 			
-			$where="people.id IN (SELECT people FROM project_people WHERE project{$this->db->escape_int_array($args['in_project'])}";
+			$this->db->select('project_people.id AS relationship_id,GROUP_CONCAT(project_people.role) AS role',false)
+				->join('project_people',"project_people.people = people.id AND project_people.project{$this->db->escape_int_array($args['in_project'])}",'inner')
+				->group_by('project_people.people');
 			
 			if(isset($args['project_people_type'])){
-				$args['project_people_type']=$this->db->escape($args['project_people_type']);
-				$where.=" AND project_people.type = {$args['project_people_type']}";
+				$this->db->where('project_people.type',$args['project_people_type']);
 			}
-			
 			if(isset($args['project_people_role'])){
-				$args['project_people_role']=$this->db->escape($args['project_people_role']);
-				$where.=" AND project_people.role = {$args['project_people_role']}";
+				$this->db->where('project_people.role',$args['project_people_role']);
 			}
 			
-			$where.=')';
-			
-			$this->db->where($where,NULL,false);
 		}
 		
 		if(isset($args['in_same_project_with'])){

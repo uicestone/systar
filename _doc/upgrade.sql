@@ -451,3 +451,19 @@ and relative in (select id from user);
 
 DROP TABLE dialog_team;
 DROP TABLE project_team;
+
+CREATE TABLE IF NOT EXISTS `document_mod` (
+  `id` int(11) DEFAULT NULL,
+  `document` int(11) NOT NULL,
+  `people` int(11) DEFAULT NULL,
+  `mod` tinyint(4) NOT NULL COMMENT '1:read 2:write',
+  KEY `document` (`document`),
+  KEY `people` (`people`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `document_mod`
+  ADD CONSTRAINT `document_mod_ibfk_1` FOREIGN KEY (`document`) REFERENCES `document` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `document_mod_ibfk_2` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+
+insert into document_mod (document,people,`mod`)
+select id,uid,7 from document;

@@ -108,6 +108,12 @@ class Document extends SS_controller{
 			
 			$this->document->data['uploader_name']=$this->people->fetch($this->document->data['uid'],'name');
 
+			$this->load->addViewData('mod', $this->document->getPeopleMod($this->document->id,array_merge(array_keys($this->user->teams),array($this->user->id))));
+			
+			$this->load->addViewData('read_mod_people', $this->document->getModPeople($this->document->id, 1));
+			
+			$this->load->addViewData('write_mod_people', $this->document->getModPeople($this->document->id, 2));
+			
 			$this->load->addViewData('document', $this->document->data);
 			
 			$this->load->addViewData('labels', $this->document->labels);
