@@ -211,7 +211,7 @@ class Project extends SS_controller{
 		return $this->table->setFields($this->people_list_args)
 			->setRowAttributes(array('hash'=>'{type}/{id}'))
 			->setAttribute('name', 'people')
-			->generate($this->people->getList(array('project'=>$this->project->id)));
+			->generate($this->people->getList(array('in_project'=>$this->project->id)));
 	}
 
 	function accountList(){

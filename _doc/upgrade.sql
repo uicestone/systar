@@ -358,7 +358,6 @@ ALTER TABLE  `dialog_user` ADD  `read` BOOLEAN NOT NULL;
 ALTER TABLE  `project` CHANGE  `type`  `type` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT  'project';
 
 ALTER TABLE  `people` CHANGE  `type`  `type` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT  'people';
--- server updated
 -- structure exported
 
 ALTER TABLE  `log` CHANGE  `username`  `username` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
@@ -467,3 +466,4 @@ ALTER TABLE `document_mod`
 
 insert into document_mod (document,people,`mod`)
 select id,uid,7 from document;
+-- server updated
