@@ -194,6 +194,7 @@ class Message_model extends BaseItem_model{
 		$this->db->select('d0.dialog, d1.user')
 			->from('dialog_user d0')
 			->join('dialog_user d1','d0.dialog = d1.dialog','inner')
+			->join('dialog','dialog.id = d0.dialog AND dialog.users=2','inner')
 			->where('FALSE',NULL,false);
 		
 		foreach($personal_receivers as $personal_receiver){
