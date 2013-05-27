@@ -249,11 +249,13 @@ class People_model extends BaseItem_model{
 		}
 
 		if(isset($args['is_relative_of'])){
-			$this->db->where('people.id IN (SELECT relative FROM people_relationship WHERE people'.$this->db->escape_int_array($args['is_relative_of']).')',NULL,false);
+			$this->db->join("people_relationship","people.id = people_relationship.relative AND people_relationship.people{$this->db->escape_int_array($args['is_relative_of'])}",'inner')
+				->select('people_relationship.relation');
 		}
 
 		if(isset($args['has_relative_like'])){
-			$this->db->where('people.id IN (SELECT people FROM people_relationship WHERE relative'.$this->db->escape_int_array($args['has_relative_like']).')',NULL,false);
+			$this->db->join('people_relationship',"people.id = people_relationship.people AND people_relationship.relative{$this->db->escape_int_array($args['has_relative_like'])}",'inner')
+				->select('people_relationship.relation');
 		}
 		
 		if(isset($args['is_secondary_relative_of'])){

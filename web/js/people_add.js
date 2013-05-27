@@ -43,10 +43,4 @@ $(function(){
 		$(this).find('[name="relative[id]"]').val('').trigger('change');
 	});
 	
-	/*相关人关系“其他”选项*/
-	section.find('[name="relative[relation]"]').change(function(){
-		if($(this).val()===''){
-			$('<input>',{type:'text',name:$(this).attr('name'),placeholder:$(this).children('option:first').html()}).insertAfter(this);
-		}
-	});
 });
