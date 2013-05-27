@@ -108,4 +108,16 @@ left join people_profile score2 on score2.name = '区质管考数学成绩' and 
 left join people_profile score3 on score3.name = '区质管考英语成绩' and score3.people=people.id
 left join people_profile score4 on score4.name = '区质管考理化成绩' and score4.people=people.id
 left join people_profile locale on locale.name = '户籍情况' and locale.people=people.id
-inner join people_label on people.id = people_label.people and people_label.label_name='报名考生'
+inner join people_label on people.id = people_label.people and people_label.label_name='报名考生';
+
+-- 含有职员的组也是职员
+insert ignore into staff (id)
+select people from people_relationship
+where people in (select id from team)
+and relative in (select id from staff);
+
+-- 含有用户的组也是用户
+insert ignore into user (id)
+select people from people_relationship
+where people in (select id from team)
+and relative in (select id from user);

@@ -466,4 +466,9 @@ ALTER TABLE `document_mod`
 
 insert into document_mod (document,people,`mod`)
 select id,uid,7 from document;
+
+ALTER TABLE  `people` DROP FOREIGN KEY  `people_ibfk_4` ,
+ADD FOREIGN KEY (  `staff` ) REFERENCES  `syssh`.`people` (
+`id`
+) ON DELETE NO ACTION ON UPDATE CASCADE ;
 -- server updated

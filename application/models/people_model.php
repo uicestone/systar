@@ -263,11 +263,11 @@ class People_model extends BaseItem_model{
 		}
 
 		if(isset($args['is_both_relative_with'])){
-			$this->db->where("people.id IN (SELECT people FROM people_relationship WHERE relative IN (SELECT relative FROM people_relationship".(empty($args['is_both_relative_with_team'])?'':' INNER JOIN team ON team.id = people_relationship.relative')." WHERE people{$this->db->escape_int_array($args['is_both_relative_with'])}))");
+			$this->db->where("people.id IN (SELECT relative FROM people_relationship WHERE people IN (SELECT people FROM people_relationship".(empty($args['is_both_relative_with_team'])?'':' INNER JOIN team ON team.id = people_relationship.people')." WHERE relative{$this->db->escape_int_array($args['is_both_relative_with'])}))");
 		}
 
 		if(isset($args['has_common_relative_with'])){
-			$this->db->where("people.id IN (SELECT relative FROM people_relationship WHERE people IN (SELECT people FROM people_relationship".(empty($args['has_common_relative_with_team'])?'':' INNER JOIN team ON team.id = people_relationship.people')." WHERE relative{$this->db->escape_int_array($args['has_common_relative_with'])}))");
+			$this->db->where("people.id IN (SELECT people FROM people_relationship WHERE relative IN (SELECT relative FROM people_relationship".(empty($args['has_common_relative_with_team'])?'':' INNER JOIN team ON team.id = people_relationship.relative')." WHERE people{$this->db->escape_int_array($args['has_common_relative_with'])}))");
 		}
 
 		if(isset($args['has_secondary_relative_like'])){

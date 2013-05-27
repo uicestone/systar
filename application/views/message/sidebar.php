@@ -9,6 +9,8 @@
 						+$this->user->getArray(array('has_relative_like'=>$this->user->id),'name','id')
 						+$this->user->getArray(array('is_secondary_relative_of'=>$this->user->id),'name','id')
 						+$this->user->getArray(array('is_both_relative_with'=>$this->user->id),'name','id')
+						+$this->user->getArray(array('has_common_relative_with'=>$this->user->id),'name','id')
+						+$this->user->getArray(array('has_secondary_relative_like'=>$this->user->id),'name','id')
 					, NULL, NULL, true)?>
 				</select>
 			</td>
