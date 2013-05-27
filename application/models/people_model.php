@@ -154,10 +154,10 @@ class People_model extends BaseItem_model{
 	/**
 	 * 删除相关人
 	 */
-	function removeRelationship($people_id,$people_relaionship_id){
+	function removeRelationship($people_id,$relative_id){
 		$people_id=intval($people_id);
-		$people_relaionship_id=intval($people_relaionship_id);
-		return $this->db->delete('people_relationship',array('id'=>$people_relaionship_id,'people'=>$people_id));
+		$relative_id=intval($relative_id);
+		return $this->db->delete('people_relationship',array('people'=>$people_id,'relative'=>$relative_id));
 	}
 	
 	/**
