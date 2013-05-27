@@ -540,8 +540,13 @@ class CI_DB_active_record extends CI_DB_driver {
 		{
 			return;
 		}
-
-		if ( ! is_array($values))
+		
+		//uicestone 2013/5/24 work around with empty input
+		if(is_null($values) || $values === array()){
+			$values = array(NULL);
+		}
+		elseif ( ! is_array($values))
+		//if ( ! is_array($values))
 		{
 			$values = array($values);
 		}
