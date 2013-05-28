@@ -15,7 +15,6 @@ class Achievement extends SS_controller{
 	
 	function __construct(){
 		parent::__construct();
-		$this->load->model('achievement_model','achievement');
 		$this->load->model('account_model','account');
 	}
 	
