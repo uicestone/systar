@@ -7,7 +7,7 @@ class Document extends SS_controller{
 	
 	function __construct(){
 		parent::__construct();
-		
+		$this->load->model('document_model','document');
 		$controller=CONTROLLER;
 		
 		$this->list_args=array(

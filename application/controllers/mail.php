@@ -3,6 +3,7 @@ class Mail extends SS_Controller{
 	function __construct() {
 		$this->default_method='sendexpress';
 		parent::__construct();
+		$this->load->model('mail_model','mail');
 	}
 	
 	function sendExpress(){

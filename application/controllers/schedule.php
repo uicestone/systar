@@ -9,7 +9,7 @@ class Schedule extends SS_controller{
 		$this->default_method='calendar';
 		
 		parent::__construct();
-		
+		$this->load->model('schedule_model','schedule');
 		$this->load->model('project_model','project');
 		
 		$this->list_args=array(

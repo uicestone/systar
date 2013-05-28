@@ -7,6 +7,7 @@ class Student extends People{
 	
 	function __construct(){
 		parent::__construct();
+		$this->load->model('student_model','student');
 		$this->people=$this->student;
 		$this->load->model('classes_model','classes');
 		$this->score_list_args=array(

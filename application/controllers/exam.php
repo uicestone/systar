@@ -2,6 +2,7 @@
 class Exam extends SS_controller{
 	function __construct(){
 		parent::__construct();
+		$this->load->model('exam_model','exam');
 	}
 	
 	function lists(){

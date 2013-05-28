@@ -7,6 +7,7 @@ class Account extends SS_controller{
 	function __construct(){
 		
 		parent::__construct();
+		$this->load->model('account_model','account');
 		
 		$this->list_args=array(
 			'account'=>array('heading'=>'账目编号'),

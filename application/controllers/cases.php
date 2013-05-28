@@ -9,7 +9,8 @@ class Cases extends Project{
 	
 	function __construct() {
 		parent::__construct();
-		
+		array_unshift($this->controllers, __CLASS__);
+		$this->load->model('cases_model','cases');
 		$this->project=$this->cases;
 
 		$this->list_args=array(
@@ -50,8 +51,7 @@ class Cases extends Project{
 		$this->cases->id=$this->cases->getAddingItem();
 		
 		if($this->cases->id===false){
-			$this->cases->id=$this->cases->add(array('type'=>'业务','time_contract'=>$this->date->today,'end'=>date('Y-m-d',$this->date->now+100*86400)));
-			$this->cases->addLabel($this->cases->id, '案件');
+			$this->cases->id=$this->cases->add(array('time_contract'=>$this->date->today,'end'=>date('Y-m-d',$this->date->now+100*86400)));
 		}
 		
 		$this->edit($this->cases->id);
@@ -182,7 +182,7 @@ class Cases extends Project{
 		
 			if($submit=='project'){
 				
-				if(!$this->cases->data['num']){
+				if(in_array('案件',$this->cases->labels) && !$this->cases->data['num']){
 					$this->output->message('尚未获取案号，请选择案件领域和分类后获取案号','warning');
 					throw new Exception();
 				}
@@ -228,7 +228,7 @@ class Cases extends Project{
 							$this->cases->addRelative($this->cases->id, $recent_case[0]['id'],'上次签约案件');
 							$previous_roles=$this->cases->getRolesPeople($recent_case[0]['id']);
 							
-							foreach(array('案源人','接洽律师') as $role){
+							foreach(array('案源人') as $role){
 								if(isset($previous_roles[$role])){
 									foreach($previous_roles[$role] as $people){
 										$this->cases->addStaff($this->cases->id, $people['people'], $role, $people['weight']/2);
@@ -417,12 +417,6 @@ class Cases extends Project{
 
 			}
 			
-			elseif($submit=='file' && in_array('咨询',$this->cases->labels)){
-				$this->cases->addLabel($this->cases->id, '已归档');
-				$this->output->status='refresh';
-				$this->output->message('咨询案件已归档');
-			}
-			
 			elseif($submit=='review'){
 				$this->cases->removeLabel($this->cases->id, '等待立案审核');
 				$this->cases->addLabel($this->cases->id, '在办');
@@ -493,7 +487,7 @@ class Cases extends Project{
 				$this->output->message('案件已经审核，已正式归档');
 			}
 			
-			elseif(!in_array('咨询',$this->cases->labels) && $submit=='file'){
+			elseif($submit=='file' && !in_array('咨询',$this->cases->labels)){
 				$this->cases->removeLabel($this->cases->id, '已申请归档');
 				$this->cases->addLabel($this->cases->id, '案卷已归档');
 				$this->cases->update($this->cases->id,array('active',false));
@@ -570,11 +564,25 @@ class Cases extends Project{
 	}
 	
 	function index(){
+		$this->load->model('staff_model','staff');//用于边栏职员搜索
+
+		$search_items=array('time_contract/from','time_contract/to');
+		
+		foreach($search_items as $item){
+			if($this->input->post($item)!==false){
+				if($this->input->post($item)!==''){
+					$this->config->set_user_item('search/'.$item, $this->input->post($item));
+				}else{
+					$this->config->unset_user_item('search/'.$item);
+				}
+			}
+		}
+		
 		$this->config->set_user_item('search/active', true, false);
-		$this->config->set_user_item('search/labels', array('案件'), false);
+		$this->config->set_user_item('search/labels', array($this->section_title), false);
 		
 		if($this->user->isLogged('service')){
-			$this->config->set_user_item('search/people', NULL);
+			$this->config->set_user_item('search/people', NULL, false);
 		}
 		
 		parent::index();

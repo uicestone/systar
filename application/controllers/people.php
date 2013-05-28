@@ -18,8 +18,6 @@ class People extends SS_Controller{
 	function __construct() {
 		parent::__construct();
 		
-		$controller=CONTROLLER;
-		
 		$this->list_args=array(
 			'abbreviation'=>array(
 				'heading'=>'名称',
@@ -27,7 +25,7 @@ class People extends SS_Controller{
 			),
 			'phone'=>array('heading'=>'电话'),
 			'email'=>array('heading'=>'电邮'),
-			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->$controller,'getCompiledLabels'),'args'=>array('id')))
+			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->people,'getCompiledLabels'),'args'=>array('id')))
 		);
 		
 		$this->relative_list_args=array(

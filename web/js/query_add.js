@@ -1,7 +1,8 @@
 $(function(){
 	
-	$('.item[name="client"]').on('autocompleteselect',function(event,data){
+	$('.item[name="client[name]"]').on('autocompleteselect',function(event,data){
 		/*有自动完成结果且已选择*/
+		console.log('select');
 		$(this).find('[name="client[id]"]').val(data.value).trigger('change');
 
 		$(this).closest('.contentTableBox').find('[display-for~="new"]').trigger('disable');

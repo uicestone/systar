@@ -5,6 +5,7 @@ class Evaluation extends Project{
 	
 	function __construct(){
 		parent::__construct();
+		$this->load->model('evaluation_model','evaluation');
 		$this->project=$this->evaluation;
 		$this->default_view_method='candidates';
 	}

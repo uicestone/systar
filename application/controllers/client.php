@@ -5,7 +5,7 @@ class Client extends People{
 	
 	function __construct(){
 		parent::__construct();
-		
+		$this->load->model('client_model', 'client');
 		$this->people=$this->client;
 		
 		$this->form_validation_rules['people']=array(

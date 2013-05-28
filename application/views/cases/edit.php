@@ -13,21 +13,25 @@
 		<select name="labels[阶段]"<?if(!isset($labels['分类']) || $labels['分类']!='争议'){?> class="hidden" disabled="disabled"<?}?>>
 		<?=options($case_type_array,$this->value('labels/阶段'),'阶段');?>
 		</select>
-		<input type="text" name="project[name]" value="<?=$this->value('project/name')?>" placeholder="案件名称" style="width:300px;">
-<?	if(!$project['num']){?>
+		<input type="text" name="project[name]" value="<?=$this->value('project/name')?>" placeholder="<?=lang(CONTROLLER)?>名称" style="width:300px;">
+<?	if(!$project['num'] && !in_array('咨询',$labels)){?>
 		<button type="submit" name="submit[apply_num]" class="major">获得案号</button>
 <?	}?>
+<?	if(in_array('咨询',$labels)){?>
+		<input type="text" name="project[first_contact]" value="<?=$this->value('project/first_contact')?>" placeholder="首次接待日期" title="首次接待日期" class="date" />
+<?	}else{?>
 		<input type="text" name="project[time_contract]" value="<?=$this->value('project/time_contract')?>" placeholder="立案日期" title="立案日期" class="date" <? if(in_array('在办',$labels))echo 'disabled';?> />
 		-
 		<input type="text" name="project[end]" value="<?=$this->value('project/end')?>" placeholder="预估结案日期" title="预估结案日期" class="date" <? if(in_array('在办',$labels))echo 'disabled';?> />
+<?	}?>
 	</div>
 
 	<div class="item" name="client">
 		<div class="title"><label>客户及相关人：</label>
-<? if(isset($people_roles[$this->user->id]) && in_subarray('督办人', $people_roles[$this->user->id], 'role') && !in_array('客户已锁定',$labels)){?>
+<? if(isset($people_roles[$this->user->id]) && in_subarray('督办人', $people_roles[$this->user->id], 'role')!==false && !in_array('客户已锁定',$labels)){?>
 			<button type="submit" name="submit[lock_client]">锁定</button>
 <? }?>
-<? if(isset($people_roles[$this->user->id]) && in_subarray('督办人', $people_roles[$this->user->id], 'role') && in_array('客户已锁定',$labels)){ ?>
+<? if(isset($people_roles[$this->user->id]) && in_subarray('督办人', $people_roles[$this->user->id], 'role')!==false && in_array('客户已锁定',$labels)){ ?>
 			<button type="submit" name="submit[unlock_client]">解锁</button>
 <? } ?>
 		</div>
@@ -92,10 +96,10 @@
 	
 	<div class="item" name="staff"<?if(in_array('职员已锁定',$labels)){?> locked="locked"<?}?>>
 		<div class="title"><label>律师：</label>
-<?if(isset($people_roles[$this->user->id]) && in_subarray('督办人', $people_roles[$this->user->id], 'role') && !in_array('职员已锁定',$labels)){?>
+<?if(isset($people_roles[$this->user->id]) && in_subarray('督办人', $people_roles[$this->user->id], 'role')!==false && !in_array('职员已锁定',$labels)){?>
 			<button type="submit" name="submit[lock_staff]">锁定</button>
 <? }?>
-<? if(isset($people_roles[$this->user->id]) && in_subarray('督办人', $people_roles[$this->user->id], 'role') && in_array('职员已锁定',$labels)){ ?>
+<? if(isset($people_roles[$this->user->id]) && in_subarray('督办人', $people_roles[$this->user->id], 'role')!==false && in_array('职员已锁定',$labels)){ ?>
 			<button type="submit" name="submit[unlock_staff]">解锁</button>
 <? } ?>
 		</div>
@@ -118,10 +122,10 @@
 		<div class="title">
 			<label>签约律师费：</label>
 			
-<? if((isset($people_roles[$this->user->id]) && in_subarray('督办人', $people_roles[$this->user->id], 'role') || $this->user->isLogged('finance')) && !in_array('费用已锁定',$labels)){?>
+<? if((isset($people_roles[$this->user->id]) && in_subarray('督办人', $people_roles[$this->user->id], 'role')!==false || $this->user->isLogged('finance')) && !in_array('费用已锁定',$labels)){?>
 			<button type="submit" name="submit[lock_fee]">锁定</button>
 <? }?>
-<? if((isset($people_roles[$this->user->id]) && in_subarray('督办人', $people_roles[$this->user->id], 'role') || $this->user->isLogged('finance')) && in_array('费用已锁定',$labels)){ ?>
+<? if((isset($people_roles[$this->user->id]) && in_subarray('督办人', $people_roles[$this->user->id], 'role')!==false || $this->user->isLogged('finance')) && in_array('费用已锁定',$labels)){ ?>
 			<button type="submit" name="submit[unlock_fee]">解锁</button>
 <? } ?>
 		</div>

@@ -5,6 +5,7 @@ class Classes extends Team{
 	
 	function __construct(){
 		parent::__construct();
+		$this->load->model('classes_model','classes');
 	}
 	
 	function index(){

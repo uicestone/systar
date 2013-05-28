@@ -3,6 +3,7 @@ class Score extends SS_controller{
 	function __construct(){
 		$this->default_method='uploadBoard';
 		parent::__construct();
+		$this->load->model('score_model','score');
 	}
 	
 	//阅卷结果（分数文件）上传

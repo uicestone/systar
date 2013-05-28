@@ -25,25 +25,14 @@ class Project extends SS_controller{
 	
 	function __construct(){
 		parent::__construct();
-		
-		$controller=CONTROLLER;
+		array_unshift($this->controllers, __CLASS__);
+		$this->load->model('project_model','project');
 		
 		$this->form_validation_rules['people'][]=array('rules'=>'required','label'=>'相关人员姓名','field'=>'people[name]');
 		$this->form_validation_rules['account']=array(
 			array('field'=>'account[type]','label'=>'收费类型','rules'=>'required'),
 			array('field'=>'account[amount]','label'=>'金额','rules'=>'required|numeric'),
 			array('field'=>'account[date]','label'=>'收费日起','rules'=>'required')
-		);
-		
-		$this->list_args=array(
-			'name'=>array('heading'=>'名称','cell'=>'{name}'),
-			'people'=>array('heading'=>'人员','cell'=>array('class'=>'ellipsis'),'parser'=>array('function'=>array($this->$controller,'getCompiledPeople'),'args'=>array('id'))),
-			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->$controller,'getCompiledLabels'),'args'=>array('id')))
-			/*
-			 * 此处被迫使用了$this->$controller来调用被继承后的model。
-			 * 因为Project::__construct()时，Cases::__construct()尚未运行，
-			 * $this->project=$this->cases也尚未运行，因此$this->project未定义
-			 */
 		);
 		
 		$this->people_list_args=array(
@@ -87,7 +76,7 @@ class Project extends SS_controller{
 	
 	function index(){
 		
-		$this->config->set_user_item('search/people', $this->user->id, false);
+		$this->config->set_user_item('search/people', $this->user->id, false,'method',false);
 		$this->config->set_user_item('search/orderby', 'project.id desc', false);
 		$this->config->set_user_item('search/limit', 'pagination', false);
 		
@@ -96,7 +85,7 @@ class Project extends SS_controller{
 			$this->config->set_user_item('search/labels', $labels, false);
 		}
 		
-		$search_items=array('num','name','labels');
+		$search_items=array('num','name','labels','people');
 		
 		foreach($search_items as $item){
 			if($this->input->post($item)!==false){
@@ -118,6 +107,12 @@ class Project extends SS_controller{
 			}
 		}
 		
+		$this->list_args=array(
+			'name'=>array('heading'=>'名称','cell'=>'{name}'),
+			'people'=>array('heading'=>'人员','cell'=>array('class'=>'ellipsis'),'parser'=>array('function'=>array($this->project,'getCompiledPeople'),'args'=>array('id'))),
+			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->project,'getCompiledLabels'),'args'=>array('id')))
+		);
+		
 		$table=$this->table->setFields($this->list_args)
 			->setRowAttributes(array('hash'=>CONTROLLER.'/{id}'))
 			->setData($this->project->getList($this->config->user_item('search')))
@@ -125,16 +120,29 @@ class Project extends SS_controller{
 		
 		$this->load->addViewData('list',$table);
 		
-		if(file_exists(APPPATH.'/views/'.CONTROLLER.'/list'.EXT)){
-			$this->load->view(CONTROLLER.'/list');
-		}else{
-			$this->load->view('list');
+		//让视图实现继承
+		$hierarchical_views=array();
+		foreach($this->controllers as $controller){
+			$controller=strtolower($controller);
+			$hierarchical_views[]=$controller.'/list';
 		}
+		$hierarchical_views[]='list';
 		
-		if(file_exists(APPPATH.'/views/'.CONTROLLER.'/list_sidebar'.EXT)){
-			$this->load->view(CONTROLLER.'/list_sidebar',true,'sidebar');
-		}else{
-			$this->load->view('project/list_sidebar',true,'sidebar');
+		foreach($hierarchical_views as $view){
+			
+			if(is_file(APPPATH.'views/'.$view.EXT)){
+				$this->load->view($view);
+				break;
+			}
+		}
+
+		foreach($this->controllers as $controller){
+			$controller=strtolower($controller);
+
+			if(is_file(APPPATH.'views/'.$controller.'/list_sidebar'.EXT)){
+				$this->load->view($controller.'/list_sidebar',true,'sidebar');
+				break;
+			}
 		}
 	}
 	
@@ -184,16 +192,22 @@ class Project extends SS_controller{
 			
 			$this->load->addViewData('relative_list', $this->relativeList());
 
-			if(is_file(APPPATH.'views/'.CONTROLLER.'/edit'.EXT)){
-				$this->load->view(CONTROLLER.'/edit');
-			}else{
-				$this->load->view('project/edit');
+			foreach($this->controllers as $controller){
+				$controller=strtolower($controller);
+				
+				if(is_file(APPPATH.'views/'.$controller.'/edit'.EXT)){
+					$this->load->view($controller.'/edit');
+					break;
+				}
 			}
-			
-			if(is_file(APPPATH.'views/'.CONTROLLER.'/edit_sidebar'.EXT)){
-				$this->load->view(CONTROLLER.'/edit_sidebar',true,'sidebar');
-			}else{
-				$this->load->view('project/edit_sidebar',true,'sidebar');
+
+			foreach($this->controllers as $controller){
+				$controller=strtolower($controller);
+				
+				if(is_file(APPPATH.'views/'.$controller.'/edit_sidebar'.EXT)){
+					$this->load->view($controller.'/edit_sidebar',true,'sidebar');
+					break;
+				}
 			}
 		}
 		catch(Exception $e){

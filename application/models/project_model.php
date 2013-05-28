@@ -20,6 +20,7 @@ class Project_model extends BaseItem_model{
 	function __construct(){
 		parent::__construct();
 		$this->table='project';
+		$this->default_type='project';
 	}
 	
 	function match($part_of_name){
@@ -42,8 +43,14 @@ class Project_model extends BaseItem_model{
 		
 		$data['active']=true;
 		
+		$data['type']=$this->default_type;
+		
 	    $this->db->insert('project',$data);
-		return $this->db->insert_id();
+		$this->id=$this->db->insert_id();
+		
+		$this->addLabels($this->id, $this->default_labels);
+		
+		return $this->id;
 	}
 	
 	function update($id,$data){

@@ -2,14 +2,12 @@
 class BaseItem_model extends SS_Model{
 	
 	var $id;
-	
 	var $data;//具体对象数据
-	
 	var $labels;//具体对象的标签数组
-	
 	var $profiles;//具体对象的资料项数组
-	
 	var $table;//具体对象存放于数据库的表名
+	var $default_type;//插入的新数据的type段
+	var $default_labels;//插入的新数据所包含的标签
 	
 	function __construct() {
 		parent::__construct();
@@ -282,7 +280,7 @@ class BaseItem_model extends SS_Model{
 	 *	...
 	 * )
 	 */
-	function addLabels($item_id,array $labels){
+	function addLabels($item_id,$labels){
 		$item_id=intval($item_id);
 		
 		//没有在参数列表中直接做出限制，用来兼容一些特殊情况

@@ -12,6 +12,8 @@ class SS_Controller extends CI_Controller{
 	var $company_type_model_loaded=false;
 	var $company_model_loaded=false;
 	
+	var $controllers=array();
+	
 	function __construct(){
 		parent::__construct();
 		
@@ -41,10 +43,6 @@ class SS_Controller extends CI_Controller{
 		$this->load->model('label_model','label');
 		$this->load->model('message_model','message');
 		
-		if(is_file(APPPATH.'models/'.$class.'_model.php')){
-			$this->load->model($class.'_model',$class);
-		}
-
 		if(is_file(APPPATH.'models/'.$this->company->type.'_model.php')){
 			$this->load->model($this->company->type.'_model',$this->company->type);
 			$this->company_type_model_loaded=true;

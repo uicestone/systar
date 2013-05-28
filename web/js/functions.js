@@ -121,6 +121,10 @@ jQuery.extend({
 	 * 关闭当前标签选项卡并打开一个新的标签选项卡
 	 */
 	redirect: function(newhash){
+		if(hash===newhash){
+			$.refresh(newhash);
+			return;
+		}
 		tabs.children('li[hash="'+hash+'"]').remove();
 		page.children('section[hash="'+hash+'"]').remove();
 		aside.children('section[hash="'+hash+'"]').remove();

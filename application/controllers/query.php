@@ -1,10 +1,12 @@
 <?php
-class Query extends Project{
+class Query extends Cases{
 	
 	var $section_title='咨询';
 	
 	function __construct(){
 		parent::__construct();
+		array_unshift($this->controllers, __CLASS__);
+		$this->load->model('query_model','query');
 		$this->project=$this->query;
 		$this->cases=$this->query;
 		$this->list_args=array(
@@ -21,81 +23,26 @@ class Query extends Project{
 		$this->index();
 	}
 	
-	function index(){
-		
-		$this->config->set_user_item('search/active', true, false);
-		$this->config->set_user_item('search/labels', array('咨询'), false);
-		
-		$this->load->model('staff_model','staff');//用于边栏职员搜索
-		
-		$search_items=array('date/from','date/to','people');
-		
-		foreach($search_items as $item){
-			if($this->input->post($item)!==false){
-				if($this->input->post($item)!==''){
-					$this->config->set_user_item('search/'.$item, $this->input->post($item));
-				}else{
-					$this->config->unset_user_item('search/'.$item);
-				}
-			}
-		}
-		
-		if($this->input->post('submit')==='search_cancel'){
-			foreach($search_items as $item){
-				$this->config->unset_user_item('search/'.$item);
-			}
-		}
-		
-		parent::index();
-	}
-
 	function add(){
 		$this->query->id=$this->query->getAddingItem();
 		
 		if($this->query->id===false){
 			$this->query->id=$this->query->add(array('type'=>'业务','first_contact'=>$this->date->today));
-			$this->query->addLabel($this->query->id, '咨询');
 		}
 		
 		$this->edit($this->query->id);
 	}
-
-	function edit($id){
-		
-		$this->query->id=$id;
-		
-		$this->load->model('staff_model','staff');
-		$this->load->model('client_model','client');
-		$client_list=$this->client->getList(array('in_project'=>$this->query->id));
-		if($client_list){
-			$this->load->addViewData('client', $client_list[0]);
-		}
-		
-		$roles_people=$this->query->getRolesPeople($this->query->id);
-		$related_staff_name=array();
-		foreach($roles_people as $role => $people_role){
-			$related_staff_name[$role]=$this->staff->fetch($people_role[0]['people'],'name');
-		}
-		
-		$this->load->addViewData('related_staff_name', $related_staff_name);
-		
-		parent::edit($id);
-	}
 	
-	function submit($submit,$id){
+	function submit($submit,$id,$button_id=NULL){
 		
-		$this->query->id=$id;
-
+		parent::submit($submit,$id,$button_id);
+		
 		$this->load->model('client_model','client');
 		$this->load->model('staff_model','staff');
-		
-		$this->query->data=array_merge($this->query->fetch($id),$this->input->sessionPost('cases'));
 		
 		try{
 			
 			if($submit=='query'){
-				
-				$this->query->labels=$this->input->sessionPost('labels');
 				
 				$client=$this->input->sessionPost('client');
 				
@@ -151,12 +98,12 @@ class Query extends Project{
 					$this->query->addPeople($this->query->id,$client['id'],'client');
 				}
 
-				if(!$this->query->labels['咨询方式']){
+				if(empty($this->query->labels['咨询方式'])){
 					$this->output->message('请选择咨询方式','warning');
 					throw new Exception;
 				}
 				
-				if(!$this->query->labels['领域']){
+				if(empty($this->query->labels['领域'])){
 					$this->output->message('请选择业务领域','warning');
 					throw new Exception;
 				}
@@ -229,7 +176,6 @@ class Query extends Project{
 			elseif($submit=='file'){
 				$this->query->addLabel($this->query->id, '已归档');
 				$this->query->update($this->query->id,array('active'=>false));
-				$this->output->status='refresh';
 				$this->output->message('咨询案件已归档');
 			}
 			

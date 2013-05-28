@@ -66,8 +66,9 @@ class SS_Config extends CI_Config{
 	 * @param $value
 	 * @param $session 是否在session中改变设置
 	 * @param $level 配置项的作用范围method,  global
+	 * @param $override 当配置已存在时是否覆盖
 	 */
-	function set_user_item($item,$value,$session=true,$level='method'){
+	function set_user_item($item,$value,$session=true,$level='method',$override=true){
 		
 		$prefix='';
 		if($level==='method'){
@@ -75,15 +76,19 @@ class SS_Config extends CI_Config{
 		}
 			
 		if($session){
-			$this->session[$prefix.$item]=$value;
-			
-			$CI=&get_instance();
-			//及时更新一次session的本地映射，否则更新的session要在下次请求才能被读取
-			
-			$CI->session->set_userdata('config/'.$prefix.$item,$value);
+			if($override || !array_key_exists($prefix.$item, $this->session)){
+				$this->session[$prefix.$item]=$value;
+
+				$CI=&get_instance();
+				//及时更新一次session的本地映射，否则更新的session要在下次请求才能被读取
+
+				$CI->session->set_userdata('config/'.$prefix.$item,$value);
+			}
 		}
 		else{
-			$this->user[$prefix.$item]=$value;
+			if($override || !array_key_exists($prefix.$item, $this->user)){
+				$this->user[$prefix.$item]=$value;
+			}
 		}
 	}
 }
