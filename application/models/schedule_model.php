@@ -125,10 +125,10 @@ class Schedule_model extends BaseItem_model{
 				}
 				
 				if(isset($args['time']['input_format']) && $args['time']['input_format']==='date'){
-					$this->db->where('schedule.end <=',$args['time']['to']);
-				}else{
-					$this->db->where('schedule.end <',$args['time']['to']);
+					$args['time']['to']+=86400;
 				}
+				
+				$this->db->where('schedule.end <',$args['time']['to']);
 				
 			}
 			
