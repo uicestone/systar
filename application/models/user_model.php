@@ -155,27 +155,24 @@ class User_model extends People_model{
 	 * 根据用户名或uid直接为其设置登录状态
 	 */
 	function sessionLogin($uid=NULL,$username=NULL){
-		if(isset($uid)){
-			$q_user="
-				SELECT user.id,user.`group`,user.username,staff.position
-				FROM user 
-					LEFT JOIN staff ON user.id=staff.id 
-				WHERE user.id=$uid
-			";
+		$this->db->select('user.id,user.`group`,user.username,staff.position')
+			->from('user')
+			->join('staff','user.id = staff.id','left');
 
-		}elseif(!is_null($username)){
-			$q_user="
-				SELECT user.id,user.`group`,user.username,staff.position 
-				FROM user 
-					LEFT JOIN staff ON user.id=staff.id 
-				WHERE user.username='$username'
-			";
+		if(isset($uid)){
+			$this->db->where('user.id',$uid);
+		}
+		elseif(!is_null($username)){
+			$this->db->where('user.name',$username);
 		}
 		
-		if($user=$this->db->query($q_user)->row_array()){
+		$user=$this->db->get()->row_array();
+		
+		if($user){
 			$this->session->set_userdata('user/id', $user['id']);
 			return true;
 		}
+		
 		return false;
 	}
 
