@@ -134,10 +134,10 @@
 		<button type="button" class="toggle-add-form">＋</button>
 		<span class="add-form hidden">
 			<select name="account[type]">
-				<?=options(array('固定','风险','计时预付'),$this->value('account/type'),'类型');?>
+				<?=options(array('固定','风险','计时预付','律师服务费'),$this->value('account/type'),'类型');?>
 			</select>
 			<input type="text" name="account[account]" value="<?=$this->value('account/account')?>" placeholder="帐目编号" />
-			<input type="text" name="account[amount]" value="<?=$this->value('account/amount');?>" placeholder="数额" />
+			<input type="text" name="account[amount]" value="<?=$this->value('account/amount')?>" placeholder="数额" />
 <?if($this->user->isLogged('finance')){?>
 			<select name="account[received]">
 				<option value="0">应收帐款</option>
