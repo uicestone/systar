@@ -35,6 +35,12 @@ class Project extends SS_controller{
 			array('field'=>'account[date]','label'=>'收费日起','rules'=>'required')
 		);
 		
+		$this->list_args=array(
+			'name'=>array('heading'=>'名称','cell'=>'{name}'),
+			'people'=>array('heading'=>'人员','cell'=>array('class'=>'ellipsis'),'parser'=>array('function'=>array($this->project,'getCompiledPeople'),'args'=>array('id'))),
+			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->project,'getCompiledLabels'),'args'=>array('id')))
+		);
+		
 		$this->people_list_args=array(
 			'name'=>array('heading'=>'名称','cell'=>'{abbreviation}<button type="submit" name="submit[remove_people]" id="{id}" class="hover">删除</button>'),
 			'role'=>array('heading'=>'角色')
@@ -106,12 +112,6 @@ class Project extends SS_controller{
 				$this->config->unset_user_item('search/'.$item);
 			}
 		}
-		
-		$this->list_args=array(
-			'name'=>array('heading'=>'名称','cell'=>'{name}'),
-			'people'=>array('heading'=>'人员','cell'=>array('class'=>'ellipsis'),'parser'=>array('function'=>array($this->project,'getCompiledPeople'),'args'=>array('id'))),
-			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->project,'getCompiledLabels'),'args'=>array('id')))
-		);
 		
 		$table=$this->table->setFields($this->list_args)
 			->setRowAttributes(array('hash'=>CONTROLLER.'/{id}'))
@@ -371,7 +371,7 @@ class Project extends SS_controller{
 					throw new Exception;
 				}
 				
-				if(in_array('咨询',$this->project->labels)){
+				if($this->cases->data['type']==='query'){
 					$subject='咨询费';
 				}elseif(in_array('法律顾问',$this->project->labels)){
 					$subject='顾问费';

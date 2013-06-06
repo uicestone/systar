@@ -100,28 +100,31 @@ class Achievement extends SS_controller{
 			'签约案件'=>$this->project->getList(array(
 				'count'=>true,
 				'group'=>'team',
-				'labels'=>array('案件'),
+				'type'=>'cases',
 				'time_contract'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 				'orderby'=>'count desc'
 			)),
 			
 			'面谈咨询'=>$this->project->getList(array(
 				'count'=>true,
-				'labels'=>array('咨询','面谈'),
+				'labels'=>array('面谈'),
+				'type'=>'query',
 				'group'=>'team',
 				'first_contact'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 			)),
 
 			'电话咨询'=>$this->project->getList(array(
 				'count'=>true,
-				'labels'=>array('咨询','电话'),
+				'labels'=>array('电话'),
+				'type'=>'query',
 				'group'=>'team',
 				'first_contact'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
 			)),
 
 			'网络咨询'=>$this->project->getList(array(
 				'count'=>true,
-				'labels'=>array('咨询','网络'),
+				'labels'=>array('网络'),
+				'type'=>'query',
 				'group'=>'team',
 				'first_contact'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
 			))
@@ -263,7 +266,8 @@ class Achievement extends SS_controller{
 				'count'=>true,
 				'group'=>'people',
 				'role'=>'接洽律师',
-				'labels'=>array('案件','所内案源'),
+				'labels'=>array('所内案源'),
+				'type'=>'cases',
 				'time_contract'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 				'orderby'=>'count desc'
 			)),
@@ -272,14 +276,15 @@ class Achievement extends SS_controller{
 				'count'=>true,
 				'group'=>'people',
 				'role'=>'案源人',
-				'labels'=>array('案件','个人案源'),
+				'labels'=>array('个人案源'),
+				'type'=>'cases',
 				'time_contract'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 				'orderby'=>'count desc'
 			)),
 			
 			'面谈接洽'=>$this->project->getList(array(
 				'count'=>true,
-				'labels'=>array('咨询','面谈'),
+				'labels'=>array('面谈'),
 				'group'=>'people',
 				'role'=>'接洽律师',
 				'first_contact'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),

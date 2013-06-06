@@ -14,10 +14,10 @@
 		<?=options($case_type_array,$this->value('labels/阶段'),'阶段');?>
 		</select>
 		<input type="text" name="project[name]" value="<?=$this->value('project/name')?>" placeholder="<?=lang(CONTROLLER)?>名称" style="width:300px;">
-<?	if(!$project['num'] && !in_array('咨询',$labels)){?>
+<?	if(!$project['num'] && $project['type']==='cases'){?>
 		<button type="submit" name="submit[apply_num]" class="major">获得案号</button>
 <?	}?>
-<?	if(in_array('咨询',$labels)){?>
+<?	if($project['type']==='query'){?>
 		<input type="text" name="project[first_contact]" value="<?=$this->value('project/first_contact')?>" placeholder="首次接待日期" title="首次接待日期" class="date" />
 <?	}else{?>
 		<input type="text" name="project[time_contract]" value="<?=$this->value('project/time_contract')?>" placeholder="立案日期" title="立案日期" class="date" <? if(in_array('在办',$labels))echo 'disabled';?> />

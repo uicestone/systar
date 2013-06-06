@@ -84,7 +84,7 @@ class Cases extends Project{
 
 			$this->load->view_data['case_type_array']=array('诉前','一审','二审','再审','执行','劳动仲裁','商事仲裁');
 
-			if(in_array('咨询',$this->cases->labels)){
+			if($this->cases->data['type']==='query'){
 				$this->load->view_data['staff_role_array']=array('督办人','接洽律师','律师助理');
 			}else{
 				$this->load->view_data['staff_role_array']=array('案源人','督办人','接洽律师','主办律师','协办律师','律师助理');
@@ -182,12 +182,12 @@ class Cases extends Project{
 		
 			if($submit=='project'){
 				
-				if(in_array('案件',$this->cases->labels) && !$this->cases->data['num']){
+				if($this->cases->data['type']==='cases' && !$this->cases->data['num']){
 					$this->output->message('尚未获取案号，请选择案件领域和分类后获取案号','warning');
 					throw new Exception();
 				}
 				
-				if(isset($this->cases->labels['分类']) && !in_array('咨询', $this->cases->labels) && !$this->cases->data['focus']){
+				if(isset($this->cases->labels['分类']) && $this->cases->data['type']==='cases' && !$this->cases->data['focus']){
 					if($this->cases->labels['分类']==='争议'){
 						$this->output->message('请填写案件争议焦点','warning');
 						throw new Exception;
@@ -219,7 +219,7 @@ class Cases extends Project{
 					$new_client_type=$this->client->fetch($project_client['client'],'type');
 					
 					if($new_client_type==='client'){
-						$recent_case=$this->cases->getList(array('people'=>$project_client['client'],'labels'=>array('案件'),'limit'=>1,'before'=>$this->cases->id));
+						$recent_case=$this->cases->getList(array('people'=>$project_client['client'],'type'=>'cases','limit'=>1,'before'=>$this->cases->id));
 						
 						if(isset($recent_case[0])){
 							
@@ -487,7 +487,7 @@ class Cases extends Project{
 				$this->output->message('案件已经审核，已正式归档');
 			}
 			
-			elseif($submit=='file' && !in_array('咨询',$this->cases->labels)){
+			elseif($submit=='file' && $this->cases->data['type']==='cases'){
 				$this->cases->removeLabel($this->cases->id, '已申请归档');
 				$this->cases->addLabel($this->cases->id, '案卷已归档');
 				$this->cases->update($this->cases->id,array('active',false));
@@ -579,7 +579,7 @@ class Cases extends Project{
 		}
 		
 		$this->config->set_user_item('search/active', true, false);
-		$this->config->set_user_item('search/labels', array($this->section_title), false);
+		$this->config->set_user_item('search/type', 'cases', false, 'method', false);
 		
 		if($this->user->isLogged('service')){
 			$this->config->set_user_item('search/people', NULL, false);

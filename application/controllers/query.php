@@ -18,8 +18,13 @@ class Query extends Cases{
 		
 	}
 	
+	function index(){
+		$this->config->set_user_item('search/type', 'query', false);
+		parent::index();
+	}
+	
 	function filed(){
-		$this->config->set_user_item('search/labels', array('已归档','咨询'), false);
+		$this->config->set_user_item('search/labels', array('已归档'), false);
 		$this->index();
 	}
 	
@@ -158,10 +163,9 @@ class Query extends Cases{
 			
 			elseif($submit=='new_case'){
 				$this->query->removeLabel($this->query->id, '已归档');
-				$this->query->removeLabel($this->query->id, '咨询');
 				$this->query->addLabel($this->query->id, '等待立案审核');
-				$this->query->addLabel($this->query->id, '案件');
 				$this->query->update($this->query->id,array(
+					'type'=>'cases',
 					'num'=>NULL,
 					'time_contract'=>$this->date->today,
 					'end'=>date('Y-m-d',$this->date->now+100*86400)

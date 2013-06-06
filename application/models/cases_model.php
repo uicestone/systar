@@ -3,7 +3,7 @@ class Cases_model extends Project_model{
 	function __construct() {
 		parent::__construct();
 		$this->default_type='cases';
-		$this->default_labels=array('等待立案审核','案件','所内案源');
+		$this->default_labels=array('等待立案审核','所内案源');
 	}
 	
 	/*
