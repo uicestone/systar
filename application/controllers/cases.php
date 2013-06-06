@@ -581,10 +581,6 @@ class Cases extends Project{
 		$this->config->set_user_item('search/active', true, false);
 		$this->config->set_user_item('search/type', 'cases', false, 'method', false);
 		
-		if($this->user->isLogged('service')){
-			$this->config->set_user_item('search/people', NULL, false);
-		}
-		
 		parent::index();
 	}
 	
