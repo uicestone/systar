@@ -61,9 +61,10 @@ class Account_model extends BaseItem_model{
 			$this->db->where('project',$args['project']);
 		}
 		
-		if(isset($args['project_labels']) && is_array($args['project_labels'])){
+		if(isset($args['project_labels'])){
+			
 			foreach($args['project_labels'] as $id => $label_name){
-				$this->db->join("project_label t_$id","account.project = t_$id.project AND t_$id.label_name = '$label_name'",'INNER');
+				$this->db->join("project_label t_$id","account.project = t_$id.project AND t_$id.label_name = '$label_name'",'inner');
 			}
 		}
 		
@@ -76,7 +77,7 @@ class Account_model extends BaseItem_model{
 		}
 		
 		if(isset($args['show_payer'])){
-			$this->db->join('people payer',"payer.id = account.people", 'LEFT')
+			$this->db->join('people payer',"payer.id = account.people", 'left')
 				->select('IF(payer.abbreviation IS NULL, payer.name, payer.abbreviation) AS payer_name,payer.id AS payer',false);
 			
 			if(isset($args['payer_name'])){
