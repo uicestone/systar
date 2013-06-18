@@ -327,7 +327,7 @@ class People extends SS_Controller{
 
 					foreach($this->people->profiles as $name => $content){
 						if($name=='电话'){
-							if($this->client->isMobileNumber($content)){
+							if($this->people->isMobileNumber($content)){
 								$relative['profiles']['手机']=$content;
 							}else{
 								$relative['profiles']['电话']=$content;
