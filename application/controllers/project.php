@@ -28,7 +28,7 @@ class Project extends SS_controller{
 		array_unshift($this->controllers, __CLASS__);
 		$this->load->model('project_model','project');
 		
-		$this->form_validation_rules['people'][]=array('rules'=>'required','label'=>'相关人员姓名','field'=>'people[name]');
+		$this->form_validation_rules['people'][]=array('rules'=>'required','label'=>'人员','field'=>'people[id]');
 		$this->form_validation_rules['account']=array(
 			array('field'=>'account[type]','label'=>'收费类型','rules'=>'required'),
 			array('field'=>'account[amount]','label'=>'金额','rules'=>'required|numeric'),
@@ -330,16 +330,6 @@ class Project extends SS_controller{
 			elseif($submit=='people'){
 				
 				$people=$this->input->sessionPost('people');
-				if(!$people['id']){
-					$people['id']=$this->people->check($people['name']);
-					
-					if($people['id']){
-						post('people/id',$people['id']);
-					}else{
-						$this->output->message('请输入人员名称','warning');
-						throw new Exception;
-					}
-				}
 				
 				if($this->project->addPeople($this->project->id,$people['id'],NULL,$people['role'])){
 					$this->output->setData($this->peopleList(),'people-list','content-table','.item[name="people"]>.contentTable','replace');

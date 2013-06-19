@@ -233,7 +233,7 @@ $(document)
 				
 		section.find('.contentTable').trigger('contenttableload');
 		
-		section.find('select.chosen').tagging();
+		section.find('select.chosen, .tagging').tagging();
 	});
 	
 	aside
@@ -274,7 +274,7 @@ $(document)
 
 		});
 		
-		section.find('select.chosen').tagging();
+		section.find('select.chosen, .tagging').tagging();
 		
 		section.find('select.chosen[name="labels[]"]').on('change',function(event,newLabel){
 			var id=page.children('[hash="'+hash+'"]').children('form').attr('id');

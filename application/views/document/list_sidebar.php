@@ -21,7 +21,7 @@
 <input id="fileupload" type="file" name="document" data-url="/document/submit/upload" multiple="multiple" />
 <p class="upload-list-item hidden">
 	<input type="text" name="document[name]" placeholder="名称" />
-	<select name="labels[]" data-placeholder="标签" multiple="multiple" class="allow-new" style="width:99%">
+	<select name="labels[]" data-placeholder="标签" multiple="multiple" class="allow-new">
 		<?=options($this->document->getAllLabels(NULL,$this->config->user_item('search/labels')), $this->config->user_item('search/labels'))?>
 	</select>
 	<hr />

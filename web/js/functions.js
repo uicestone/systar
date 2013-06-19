@@ -314,62 +314,92 @@ jQuery.fn.extend({
 
 	reset: function(){
 		$(this).find(':input').val('');
+		$(this).find(':input').each(function(){
+			if($(this).data().select2){
+				$(this).select2('val',null, true);
+			}
+		});
 		$(this).find('select').find('option').removeAttr('checked').end().trigger('change');
 		$(this).find(':checkbox, :radio').removeAttr('checked');
 	},
 
 	tagging: function(){
-		var options={dropdownCss:{minWidth:100}};
-		if($(this).is('.allow-new')){
-			$.extend(options,{
-				width:'off',
-				createSearchChoice:function(term,results){
-					if(typeof results==='undefined'){
-						return {id:term,text:term,create:true};
-					}
+		$(this).each(function(){
+			var options={dropdownCss:{minWidth:'10em'}, allowClear:true};
+			
+			if($(this).is('.allow-new')){
+				$.extend(options,{
+					width:'off',
+					createSearchChoice:function(term,results){
+						if(typeof results==='undefined'){
+							return {id:term,text:term,create:true};
+						}
 
-					var options=[];
-					$.each(results,function(){
-						options.push(this.text);
-					});
+						var options=[];
+						$.each(results,function(){
+							options.push(this.text);
+						});
 
-					if($.inArray(term,options)===-1){
-						return {id:term,text:term,create:true};
-					}
-				},
-				formatSelection:function(object,container){
-					if(this.element.find('option[value="'+object.id+'"]').length===0){
-						this.element.append($('<option/>',{value:object.id,text:object.text}));
+						if($.inArray(term,options)===-1){
+							return {id:term,text:term,create:true};
+						}
+					},
+					formatSelection:function(object,container){
+						if(this.element.find('option[value="'+object.id+'"]').length===0){
+							this.element.append($('<option/>',{value:object.id,text:object.text}));
 
-						if(this.element.is('[multiple]')){
-							var val=this.element.val();
-							if(!val){
-								val=[];
+							if(this.element.is('[multiple]')){
+								var val=this.element.val();
+								if(!val){
+									val=[];
+								}
+								val.push(object.id);
+								this.element.val(val);
 							}
-							val.push(object.id);
-							this.element.val(val);
+							else{
+								this.element.val(object.id);
+							}
+
+						}
+						return object.text;
+					},
+					formatResult:function(object,container,query){
+						if(object.create){
+							return '添加：'+object.text;
+						}
+						else if(object.text){
+							return object.text;
 						}
 						else{
-							this.element.val(object.id);
+							return object.id;
 						}
+					}
+				});
+			}
 
+			if($(this).is('input')){
+				$.extend(options,{
+					minimumInputLength: 1,
+					ajax: {
+						url: function(term){
+							return '/people/match/'+term;
+						},
+						dataType: 'json',
+						results: function (response) {
+							return {results: response.data};
+						}
+					},
+					formatResult:function(object){
+						return object.name+' '+object.type;
+					},
+					formatSelection:function(object){
+						return object.name;
 					}
-					return object.text;
-				},
-				formatResult:function(object,container,query){
-					if(object.create){
-						return '添加：'+object.text;
-					}
-					else if(object.text){
-						return object.text;
-					}
-					else{
-						return object.id;
-					}
-				}
-			});
-		}
+				})
+			}
 
-		return $(this).select2(options);
+			$(this).select2(options);
+		});
+		return this;
 	}
 });

@@ -58,9 +58,9 @@ class People extends SS_Controller{
 	/**
 	 * 根据请求的字符串返回匹配的人员id，名称和类别
 	 */
-	function match(){
-
-		$term=$this->input->post('term');
+	function match($term){
+		
+		$term=urldecode($term);
 		
 		$result=$this->people->match($term);
 
@@ -68,8 +68,12 @@ class People extends SS_Controller{
 
 		foreach ($result as $row){
 			$array[]=array(
+				'id'=>$row['id'],
+				'type'=>lang($row['type'])?lang($row['type']):'',
+				'name'=>$row['name'],
+				//TODO 以下需要删除
 				'label'=>lang($row['type']).'　'.$row['name'],
-				'value'=>$row['id']
+				'value'=>$row['id'],
 			);
 		}
 		$this->output->data=$array;

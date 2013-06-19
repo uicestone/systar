@@ -19,13 +19,8 @@ account
 inner join project on project.id=account.project
 set account.team=project.team;
 
--- 确定个人案源的案源总和
-select sum(weight) sum from project_people where role = '案源人' group by project having sum!=1
-
--- 个人案源接洽无比例
-update project_people set weight = null where 
-project in (select project from project_label where label_name='个人案源')
-and role = '接洽律师';
+-- 确定案源总和
+select project,sum(weight) sum from project_people where role = '案源人' group by project having sum>1;
 
 -- 所内案源都有接洽律师
 select * from project where type='业务'
@@ -44,9 +39,9 @@ update schedule_label inner join label on schedule_label.label = label.id set sc
 -- 确定个人案源的案源总和
 select project,sum(weight) sum from project_people where role = '案源人'
 and project in (select project from project_label where label_name='个人案源')
-group by project having sum != 1
+group by project having sum > 1
 
--- 确定个人案源的接洽总和
+-- 确定所内案源接洽总和
 select project,sum(weight) sum from project_people where role = '接洽律师'
 and project in (select project from project_label where label_name='所内案源')
 group by project having sum != 1
@@ -57,15 +52,6 @@ select * from project_people where weight is not null and role = '协办律师';
 -- 确定办案总和
 select project,sum(weight) sum from project_people where role = '主办律师'
 group by project having sum != 1
-
--- 所内案源多人接洽平摊
-update project_people inner join(
-	select project,count(*) count,sum(weight) sum from project_people where role = '接洽律师'
-	and project in (select project from project_label where label_name='所内案源')
-	group by project having sum != 1
-)project_peoplecount
-using (project)
-set project_people.weight = 1/project_peoplecount.count where project_people.role = '接洽律师'
 
 -- 清除添加失败的project
 delete from project_people where project in (select id from project where display = 0 and name is null);

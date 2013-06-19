@@ -15,11 +15,10 @@
 
 		<button type="button" class="toggle-add-form">＋</button>
 		<span class="add-form hidden">
-			<input type="text" name="people[name]" value="<?=$this->value('people/name');?>" placeholder="姓名" autocomplete-model="people" />
+			<input type="hidden" name="people[id]" class="tagging" data-autocomplete="/people/match/" data-placeholder="人员" />
 			<select name="people[role]" class="chosen allow-new" data-placeholder="角色" style="width:150px;">
-				<?=options($this->project->getAllRoles(),$this->value('people/role'),'角色',false,false,false);?>
+				<?=options($this->project->getAllRoles(),$this->value('people/role'),'',false,false,false);?>
 			</select>
-			<input name="people[id]" class="hidden" />
 			<button type="submit" name="submit[people]">添加</button>
 		</span>
 	</div>
