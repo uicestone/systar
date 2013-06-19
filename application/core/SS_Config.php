@@ -19,13 +19,16 @@ class SS_Config extends CI_Config{
 	 * @param type $item
 	 * @return boolean
 	 */
-	function user_item($item){
+	function user_item($item, $method=NULL, $controller=NULL){
+		
+		is_null($controller) && $controller=CONTROLLER;
+		is_null($method) && $method=METHOD;
 		
 		$plain_config = array_merge($this->company,$this->user,$this->session);
 		
-		$method = array_prefix($plain_config, CONTROLLER.'/'.METHOD.'/'.$item);
+		$method = array_prefix($plain_config, $controller.'/'.$method.'/'.$item);
 		
-		$controller = array_prefix($plain_config, CONTROLLER.'/'.$item);
+		$controller = array_prefix($plain_config, $controller.'/'.$item);
 		
 		if($method!==array()){
 			return $method;

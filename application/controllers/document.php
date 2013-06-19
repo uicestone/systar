@@ -29,7 +29,7 @@ class Document extends SS_controller{
 		
 		if($this->input->get('labels')!==false){
 			$labels=explode(' ',urldecode($this->input->get('labels')));
-			$this->config->set_user_item('search/labels', $labels, false);
+			$this->config->set_user_item('search/labels', $labels);
 		}
 		
 		$search_items=array('name','labels');
@@ -168,6 +168,11 @@ class Document extends SS_controller{
 					'extname'=>$file_info['file_ext'],
 					'size'=>$file_info['file_size']
 				));
+				
+				$labels=$this->config->user_item('search/labels','index');
+				if($labels){
+					$this->document->addLabels($document_id, $labels);
+				}
 
 				rename('../uploads/'.$file_info['file_name'],'../uploads/'.$document_id);
 

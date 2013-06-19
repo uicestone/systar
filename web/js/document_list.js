@@ -20,7 +20,9 @@ $(function () {
 			uploadItem.appendTo(section.find('#upload-info')).removeClass('hidden')
 				.attr('id',data.result.data.id).children('[name="document[name]"]').val(data.result.data.name);
 
-			uploadItem.find('select').tagging()
+			uploadItem.find('select').tagging({
+				width:'element'
+			})
 			.on('change',function(event){
 		
 				var id=uploadItem.attr('id');

@@ -312,8 +312,6 @@ class BaseItem_model extends SS_Model{
 	 * )
 	 */
 	function updateLabels($item_id,array $labels){
-		$item_id=intval($item_id);
-		
 		foreach($labels as $type => $name){
 			if(!is_integer($type)){
 				$label_id=$this->label->match($name);

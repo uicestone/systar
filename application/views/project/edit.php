@@ -15,7 +15,7 @@
 
 		<button type="button" class="toggle-add-form">＋</button>
 		<span class="add-form hidden">
-			<input type="hidden" name="people[id]" class="tagging" data-autocomplete="/people/match/" data-placeholder="人员" />
+			<input type="hidden" name="people[id]" class="tagging" data-ajax="/people/match/" data-placeholder="人员" />
 			<select name="people[role]" class="chosen allow-new" data-placeholder="角色" style="width:150px;">
 				<?=options($this->project->getAllRoles(),$this->value('people/role'),'',false,false,false);?>
 			</select>

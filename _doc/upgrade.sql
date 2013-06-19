@@ -472,3 +472,8 @@ ADD FOREIGN KEY (  `staff` ) REFERENCES  `syssh`.`people` (
 `id`
 ) ON DELETE NO ACTION ON UPDATE CASCADE ;
 -- server updated
+
+ALTER TABLE  `document_mod` DROP FOREIGN KEY  `document_mod_ibfk_1` ,
+ADD FOREIGN KEY (  `document` ) REFERENCES  `syssh`.`document` (
+`id`
+) ON DELETE CASCADE ON UPDATE CASCADE ;

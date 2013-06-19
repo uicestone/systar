@@ -323,12 +323,12 @@ jQuery.fn.extend({
 		$(this).find(':checkbox, :radio').removeAttr('checked');
 	},
 
-	tagging: function(){
+	tagging: function(options_passedin){
 		$(this).each(function(){
-			var options={dropdownCss:{minWidth:'10em'}, allowClear:true};
+			var options=$.extend({}, {dropdownCss:{minWidth:'10em'}, allowClear:true}, options_passedin);
 			
 			if($(this).is('.allow-new')){
-				$.extend(options,{
+				options=$.extend({},{
 					width:'off',
 					createSearchChoice:function(term,results){
 						if(typeof results==='undefined'){
@@ -374,15 +374,16 @@ jQuery.fn.extend({
 							return object.id;
 						}
 					}
-				});
+				},options);
 			}
 
-			if($(this).is('input')){
-				$.extend(options,{
+			if($(this).is('input.tagging') && $(this).data().ajax){
+				var url=$(this).data().ajax;
+				options=$.extend({},{
 					minimumInputLength: 1,
 					ajax: {
 						url: function(term){
-							return '/people/match/'+term;
+							return url+term;
 						},
 						dataType: 'json',
 						results: function (response) {
@@ -395,11 +396,12 @@ jQuery.fn.extend({
 					formatSelection:function(object){
 						return object.name;
 					}
-				})
+				},options)
 			}
-
+			
 			$(this).select2(options);
 		});
+		
 		return this;
 	}
 });
