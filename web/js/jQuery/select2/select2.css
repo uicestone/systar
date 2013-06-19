@@ -1,3 +1,6 @@
+/*
+Version: @@ver@@ Timestamp: @@timestamp@@
+*/
 .select2-container {
     margin: 0;
     position: relative;
@@ -121,11 +124,30 @@
     cursor: pointer;
 }
 
-.select2-drop-mask {
+.select2-drop-undermask {
+    border: 0;
+    margin: 0;
+    padding: 0;
     position: absolute;
     left: 0;
     top: 0;
     z-index: 9998;
+    background-color: transparent;
+    filter: alpha(opacity=0);
+}
+
+.select2-drop-mask {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 9998;
+    /* styles required for IE to work */
+    background-color: #fff;
+    opacity: 0;
+    filter: alpha(opacity=0);
 }
 
 .select2-drop {
@@ -496,7 +518,7 @@ disabled look for disabled choices in the results dropdown
     padding: 5px;
     margin: 1px 0;
 
-/*    font-family: sans-serif;	uicestone 2013-5-14*/
+    font-family: sans-serif;
     font-size: 100%;
     color: #666;
     outline: 0;
