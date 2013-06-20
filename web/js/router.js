@@ -7,7 +7,7 @@ var Workspace = Backbone.Router.extend({
 	},
 	
 	common: function(){
-		hash=window.location.hash.substr(1);
+		hash=encodeURI(window.location.hash.substr(1));
 		//console.log(hash);
 		
 		uriSegments=hash.split('/');
@@ -21,7 +21,7 @@ var Workspace = Backbone.Router.extend({
 		tabs.children('[hash!="'+hash+'"]').removeClass('activated');
 
 		nav.find('li').removeClass('activated');
-		nav.find('li[href="#'+hash+'"]').addClass('activated').parent('ul').show().parents('li').addClass('activated').children('.arrow').children('img').rotate(90);
+		nav.find('li[href="#'+decodeURI(hash)+'"]').addClass('activated').parent('ul').show().parents('li').addClass('activated').children('.arrow').children('img').rotate(90);
 		/*默认展开当前二级导航所在的子导航*/
 
 		/*
@@ -45,7 +45,7 @@ var Workspace = Backbone.Router.extend({
 					$('<section hash="'+hash+'" time-access="'+$.now()+'"></section>').appendTo(page).trigger('sectioncreate');
 					$('<section hash="'+hash+'"></section>').appendTo(aside).trigger('sectioncreate').trigger('sidebarcreate');
 					/*如果请求的hash在导航菜单中不存在，则生成标签选项卡*/
-					if(nav.find('a[href="#'+hash+'"]').length===0 && response.section_title){
+					if(nav.find('a[href="#'+decodeURI(hash)+'"]').length===0 && response.section_title){
 						tabs.append('<li hash="'+hash+'" class="activated"><a href="#'+hash+'">'+response.section_title+'</a></li>');
 					}
 				}

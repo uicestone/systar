@@ -477,3 +477,5 @@ ALTER TABLE  `document_mod` DROP FOREIGN KEY  `document_mod_ibfk_1` ,
 ADD FOREIGN KEY (  `document` ) REFERENCES  `syssh`.`document` (
 `id`
 ) ON DELETE CASCADE ON UPDATE CASCADE ;
+
+ALTER TABLE  `dialog_user` ADD  `hidden` BOOLEAN NOT NULL;

@@ -8,7 +8,7 @@
 	<?=$this->stylesheet('style/combined')?>
 	<?=$this->javascript('combined')?>
 	<link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-	<title><?=$this->company->sysname?></title>
+	<title><?=$this->section_title.' '.$this->company->sysname?></title>
 <?if(isset($css) && $css){?>
 	<style type="text/css">
 		<?=$css?>

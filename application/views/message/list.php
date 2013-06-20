@@ -1,5 +1,6 @@
 <?foreach($messages as $message){?>
-<div class="message-content-list-item<?if(!$message['read']){?> unread<?}?>">
+<div id="<?=$message['id']?>" class="message-content-list-item<?if(!$message['read']){?> unread<?}?>">
+	<span id="delete" class="icon-close hidden" style="position:absolute;right:10px;top:10px;"></span>
 	<p class="time right"><?=date('Y-m-d H:i:s',$message['time'])?></p>
 	<span class="author"><?=$message['author_name']?>：</span>
 	<?=$message['content']?>
@@ -13,3 +14,4 @@
 </div>
 <hr />
 <?}?>
+&nbsp;

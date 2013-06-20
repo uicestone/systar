@@ -80,7 +80,7 @@ class Message_model extends BaseItem_model{
 			->from('dialog')
 			->join('message last_message',"last_message.id = dialog.last_message",'inner')
 			->join('people last_message_author',"last_message_author.id = last_message.uid",'inner')
-			->join('dialog_user',"dialog.id = dialog_user.dialog AND dialog_user.user = {$this->user->id}",'inner')
+			->join('dialog_user',"dialog.id = dialog_user.dialog AND dialog_user.hidden=0 AND dialog_user.user = {$this->user->id}",'inner')
 			->order_by('last_message.id','DESC');
 		
 		return $this->db->get()->result_array();
@@ -92,7 +92,7 @@ class Message_model extends BaseItem_model{
 			->from('message')
 			->join('dialog_message',"dialog_message.message = message.id AND dialog_message.dialog = $dialog_id",'inner')
 			->join('people','people.id = message.uid','inner')
-			->join('message_user',"message_user.message = message.id AND message_user.user = {$this->user->id}",'inner')
+			->join('message_user',"message_user.message = message.id AND message_user.user = {$this->user->id} AND message_user.deleted=0",'inner')
 			->order_by('message.id','desc');
 		
 		return $this->db->get()->result_array();
@@ -317,6 +317,30 @@ class Message_model extends BaseItem_model{
 		}
 		
 		return $this->db->insert_batch('message_document',$set);
+	}
+	
+	/**
+	 * 更新用户消息关联
+	 * @param int $message
+	 * @param int $user
+	 * @param array $data
+	 */
+	function updateMessageUser($message, $user, array $data){
+		$this->db->update('message_user', $data, array('message'=>$message,'user'=>$user));
+		return $this->db->affected_rows();
+	}
+	
+	/**
+	 * 将一个用户的一个会话下的所有消息标记为删除，并将会话标记为隐藏
+	 * @param int $dialog
+	 * @param int $user
+	 */
+	function deleteDialogMessage($dialog, $user){
+		$this->db->where("message IN (SELECT message FROM dialog_message WHERE dialog{$this->db->escape_int_array($dialog)})",NULL,false)
+			->where('user',$user)
+			->update('message_user',array('deleted'=>1));
+		
+		$this->db->update('dialog_user',array('hidden'=>true),array('dialog'=>$dialog,'user'=>$user));
 	}
 	
 }

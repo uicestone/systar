@@ -1,5 +1,5 @@
 /*全局*/
-html,body,div,span,h1,h2,h3,p,a,img,ul,li,form,label{
+html,body,div,span,p,a,img,ul,li,form,label{
 	margin:0;padding:0;border:0;
 }
 /*让IE8和以前的浏览器识别html5标签*/
@@ -8,6 +8,9 @@ article,aside,dialog,footer,header,section,footer,nav,figure,menu{
 }
 input[type="text"],input[type="password"],select,textarea{
 	box-sizing: border-box;
+}
+h1,h2,h3{
+	font-weight:normal;
 }
 ul,li{
 	list-style:none;

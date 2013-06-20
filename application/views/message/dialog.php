@@ -1,5 +1,6 @@
 <?foreach($dialogs as $dialog){?>
 <div class="message-dialog-list-item<?if(!$dialog['read']){?> unread<?}?>" id="<?=$dialog['id']?>">
+	<span id="delete" class="icon-close hidden" style="position:absolute;right:10px;top:10px;"></span>
 	<p class="title"><?=$dialog['title']?></p>
 	<span class="author"><?=$dialog['last_message_author_name']?>：</span>
 	<?=$dialog['last_message_content']?>
@@ -14,3 +15,4 @@
 </div>
 <hr />
 <?}?>
+&nbsp;

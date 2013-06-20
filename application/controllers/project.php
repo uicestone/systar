@@ -91,8 +91,8 @@ class Project extends SS_controller{
 		}
 		
 		if($this->input->get('labels')!==false){
-			$labels=explode(' ',urldecode($this->input->get('labels')));
-			$this->config->set_user_item('search/labels', $labels, false);
+			$labels=preg_split('/\s|,/',urldecode($this->input->get('labels')));
+			$this->config->set_user_item('search/labels', $labels);
 		}
 		
 		$search_items=array('num','name','labels','people');

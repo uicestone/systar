@@ -59,6 +59,10 @@ class SS_Controller extends CI_Controller{
 		
 		$this->output->as_ajax=$this->input->is_ajax_request();
 		
+		if(CONTROLLER==='gate' && METHOD!=='browser' && $this->agent->browser()==='Internet Explorer' && $this->agent->version()<8){
+			redirect('browser');
+		}
+		
 		if(is_null($this->require_login)){
 			if(in_array(METHOD,$this->gate_pages)){
 				$this->require_login=false; 

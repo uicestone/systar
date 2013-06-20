@@ -96,5 +96,17 @@ class Message extends SS_Controller{
 		$this->content($dialog);
 	}
 	
+	/**
+	 * 将当前用户的某条消息设为已删除
+	 * @param $message_id
+	 */
+	function delete($message_id){
+		$this->message->updateMessageUser($message_id,$this->user->id,array('deleted'=>true));
+	}
+	
+	function deleteDialogMessage($dialog_id){
+		$this->message->deleteDialogMessage($dialog_id, $this->user->id);
+	}
+	
 }
 ?>
