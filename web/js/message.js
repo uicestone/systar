@@ -22,7 +22,7 @@ $(function(){
 	.on('sectioncreate','section[hash^="message/content"]',function(){
 		window.clearInterval(polling.message);
 		polling.message=window.setInterval(function(){
-			$.post('/'+hash,{blocks:'content'});
+			$.get('/'+hash,{blocks:'content'});
 		},3000);
 		
 		$(this).on('mouseenter','.message-content-list-item',function(){
@@ -30,7 +30,7 @@ $(function(){
 				.on('click.deletemessage',function(){
 					var id=$(this).parent('.message-content-list-item').attr('id');
 					$.post('/message/delete/'+id,function(){
-						$.post('/'+hash,{blocks:'content'});
+						$.get('/'+hash,{blocks:'content'});
 					});
 				});
 		});

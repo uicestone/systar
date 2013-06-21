@@ -82,7 +82,7 @@ class SS_Controller extends CI_Controller{
 		$uri=$this->uri->uri_string;
 		$get=$this->input->get();
 		$post=$this->input->post();
-		if($uri!=='polling' && ($get || $post)){
+		if($post){
 			$this->db->insert('log',array(
 				'uri'=>$uri,
 				'host'=>$this->input->server('HTTP_HOST'),

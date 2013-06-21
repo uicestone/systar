@@ -470,7 +470,7 @@ section>form>.item .large-field{
 	display:block;
 	width:100%;
 	font-size:18px;
-	margin:5px auto;
+	margin-bottom:5px;
 }
 section>form>.item .title{
 	padding-left:1em;

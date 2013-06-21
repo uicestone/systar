@@ -34,7 +34,7 @@ class Message extends SS_Controller{
 
 			$this->load->view('message/dialog');
 			
-			if(!$this->input->post('blocks') || $this->input->post('sidebar')){
+			if(!$this->input->get('blocks') || $this->input->post('sidebar')){
 				$this->load->view('message/sidebar',true,'sidebar');
 			}
 			
@@ -78,7 +78,7 @@ class Message extends SS_Controller{
 
 			$this->load->view('message/list');
 			
-			if(!$this->input->post('blocks') || $this->input->post('blocks')=='sidebar'){
+			if(!$this->input->get('blocks') || $this->input->get('blocks')=='sidebar'){
 				$this->load->view('message/content_sidebar',true,'sidebar');
 			}
 			
