@@ -128,6 +128,10 @@ class BaseItem_model extends SS_Model{
 			$this->db->where($this->table.'.type',$args['type']);
 		}
 		
+		if(isset($args['uid']) && $args['uid']){
+			$this->db->where($this->table.'.uid',$args['uid']);
+		}
+		
 		if(isset($args['id_in']) && is_array($args['id_in']) && !empty($args['id_in'])){
 			$this->db->where_in($this->table.'.id',$args['id_in']);
 		}

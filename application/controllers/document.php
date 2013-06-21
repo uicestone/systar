@@ -26,6 +26,7 @@ class Document extends SS_controller{
 		
 		$this->config->set_user_item('search/orderby', 'document.id desc', false);
 		$this->config->set_user_item('search/limit', 'pagination', false);
+		$this->config->set_user_item('search/uid', $this->user->id, false);
 		
 		if($this->input->get('labels')!==false){
 			$labels=explode(' ',urldecode($this->input->get('labels')));
