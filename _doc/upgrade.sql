@@ -480,4 +480,4 @@ ADD FOREIGN KEY (  `document` ) REFERENCES  `syssh`.`document` (
 
 ALTER TABLE  `dialog_user` ADD  `hidden` BOOLEAN NOT NULL;
 
-ALTER TABLE  `project` CHANGE  `type`  `type` ENUM(  'project',  'activity',  'cases',  'query' ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT  'project';
+ALTER TABLE  `project` CHANGE  `type`  `type` ENUM(  'project',  'evaluation',  'cases',  'query' ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT  'project';
