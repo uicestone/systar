@@ -226,6 +226,9 @@ nav [level="1"]{
 nav [level="1"] li{
 	background-color: #113C68;
 	padding-left: 23px;
+	font-style: italic;
+	font-size: 0.7em;
+	color: #999;
 }
 nav [level="1"] a{
 	color:#EEE;

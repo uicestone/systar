@@ -118,7 +118,7 @@ class Project extends SS_controller{
 		}
 		
 		$table=$this->table->setFields($this->list_args)
-			->setRowAttributes(array('hash'=>CONTROLLER.'/{id}'))
+			->setRowAttributes(array('hash'=>'{type}/{id}'))
 			->setData($this->project->getList($this->config->user_item('search')))
 			->generate();
 		

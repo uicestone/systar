@@ -180,7 +180,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 				$(this).attr('changed','changed');
 			});
 			
-			that.element.find('[name="project"]').tagging();
+			that.element.find('[name="project"]').tagging({width:'element'});
 			
 			that.element.find('[name="people"]').tagging();
 			

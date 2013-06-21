@@ -299,7 +299,7 @@ class BaseItem_model extends SS_Model{
 			if(!is_integer($type)){
 				$where['type']=$type;
 			}
-			$result=$this->db->get_where($this->table.'_label',$where);
+			$result=$this->db->get_where($this->table.'_label',$where+$set);
 			if($result->num_rows()===0){
 				$this->db->insert($this->table.'_label',$set+$where);
 			}

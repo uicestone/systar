@@ -327,9 +327,18 @@ jQuery.fn.extend({
 		$(this).each(function(){
 			var options=$.extend({}, {dropdownCss:{minWidth:'10em'}, allowClear:true}, options_passedin);
 			
+			if($(this).is('[multiple]')){
+				options=$.extend({},{
+					width:'element'
+				},options);
+			}else{
+				options=$.extend({},{
+					width:'off'
+				},options);
+			}
+			
 			if($(this).is('.allow-new')){
 				options=$.extend({},{
-					width:'off',
 					createSearchChoice:function(term,results){
 						if(typeof results==='undefined'){
 							return {id:term,text:term,create:true};
