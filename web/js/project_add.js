@@ -12,6 +12,84 @@ $(function(){
 			$(this).siblings('[name="labels[阶段]"]').hide().attr('disabled','disabled');
 		}
 	});
+	
+	/*人员子表的删除行按钮*/
+	section.find('.item[name="people"]:not([locked])')
+		.on('mouseenter','tbody>tr',function(){
+	
+			$(this).siblings('tr').each(function(){
+				if($(this).data('delete-button')){
+					$(this).data('delete-button').remove();
+				}
+			});
+	
+			var that=$(this).data('delete-button',
+				$('<button/>',{text:'删除',type:'submit',name:'submit[remove_people]',id:$(this).attr('id')})
+					.appendTo(document.body)
+					.position({
+						my:'right-5 center',
+						at:'right center',
+						of:$(this)
+					})
+					.on('mouseenter',function(){
+						$(this).clearQueue();
+					})
+					.on('mouseleave',function(){
+						$(this).stop().remove();
+					})
+					.on('click',function(){
+						var project=that.closest('form[id]').attr('id');
+						var people=that.closest('tr').attr('id');
+						$.post('/'+controller+'/submit/remove_people/'+project+'/'+people,function(){
+							that.data('delete-button').remove();
+						});
+					})
+				);
+		})
+		.on('mouseleave','tbody>tr',function(){
+			$(this).data('delete-button').clearQueue().delay(200).hide(0,function(){
+				$(this).remove();
+			});
+		});
+
+	/*文档子表的删除行按钮*/
+	section.find('.item[name="document"]:not([locked])')
+		.on('mouseenter','tbody>tr',function(){
+	
+			$(this).siblings('tr').each(function(){
+				if($(this).data('delete-button')){
+					$(this).data('delete-button').remove();
+				}
+			});
+	
+			var that=$(this).data('delete-button',
+				$('<button/>',{text:'删除',type:'submit',name:'submit[remove_document]',id:$(this).attr('id')})
+					.appendTo(document.body)
+					.position({
+						my:'right-5 center',
+						at:'right center',
+						of:$(this)
+					})
+					.on('mouseenter',function(){
+						$(this).clearQueue();
+					})
+					.on('mouseleave',function(){
+						$(this).stop().remove();
+					})
+					.on('click',function(){
+						var project=that.closest('form[id]').attr('id');
+						var document=that.closest('tr').attr('id');
+						$.post('/'+controller+'/submit/remove_document/'+project+'/'+document,function(){
+							that.data('delete-button').remove();
+						});
+					})
+				);
+		})
+		.on('mouseleave','tbody>tr',function(){
+			$(this).data('delete-button').clearQueue().delay(200).hide(0,function(){
+				$(this).remove();
+			});
+		});
 
 	/*子表的删除行按钮*/
 	section.find('.item[name="staff"]:not([locked])')

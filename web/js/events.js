@@ -147,26 +147,9 @@ $(document)
 				return false;
 			});
 		});
-	})
-	.on('sectionload','section',function(){
-		//console.log('section load');
-		
-		var section = $(this);
-
-		/*每一栏标题上的"+"并显示/隐藏添加菜单*/
-		section.find('.item>.toggle-add-form').on('click',function(){
-			var addForm=$(this).siblings('.add-form');
-			if(addForm.is(':hidden')){
-				addForm.fadeIn(200);
-				$(this).html('－');
-			}else{
-				addForm.fadeOut(200);
-				$(this).html('＋');
-			}
-		});
 		
 		/*编辑页的提交按钮点击事件，提交数据到后台，在页面上反馈数据和提示*/
-		section.find('button:submit').on('click.submit',function(){
+		section.on('click.submit','button:submit',function(){
 			var form = section.children('form');
 			var button = $(this);
 
@@ -196,6 +179,24 @@ $(document)
 			});
 
 			return false;
+		});
+		
+	})
+	.on('sectionload','section',function(){
+		//console.log('section load');
+		
+		var section = $(this);
+
+		/*每一栏标题上的"+"并显示/隐藏添加菜单*/
+		section.find('.item>.toggle-add-form').on('click',function(){
+			var addForm=$(this).siblings('.add-form');
+			if(addForm.is(':hidden')){
+				addForm.fadeIn(200);
+				$(this).html('－');
+			}else{
+				addForm.fadeOut(200);
+				$(this).html('＋');
+			}
 		});
 		
 		/*edit表单元素更改时实时提交到后台 */

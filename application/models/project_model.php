@@ -246,10 +246,8 @@ class Project_model extends BaseItem_model{
 		return $this->db->insert_id();
 	}
 	
-	function removeDocument($project_id,$project_document_id){
-		$project_id=intval($project_id);
-		$project_document_id=intval($project_document_id);
-		return $this->db->delete('project_document',array('id'=>$project_document_id,'project'=>$project_id));
+	function removeDocument($project_id,$document_id){
+		return $this->db->delete('project_document',array('document'=>$document_id,'project'=>$project_id));
 	}
 	
 	function getDocumentList($project_id){
@@ -301,7 +299,7 @@ class Project_model extends BaseItem_model{
 	function getList($args=array()){
 
 		if(isset($args['people'])){
-			$where='project.id IN (SELECT project FROM project_people WHERE people = '.intval($args['people']);
+			$where="project.id IN (SELECT project FROM project_people WHERE people{$this->db->escape_int_array($args['people'])}";
 			if(isset($args['role'])){
 				$where.=" AND role = '{$args['role']}'";
 			}

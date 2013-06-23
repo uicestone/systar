@@ -184,13 +184,18 @@ class Schedule_model extends BaseItem_model{
 		$data=array_intersect_key($data, self::$fields);
 		
 		//attemp to convert date string to timestamp
-		foreach(array('start','end','deadline','hours_own') as $timepoint){
+		foreach(array('start','end','deadline') as $timepoint){
 			if(isset($data[$timepoint])){
 				if($data[$timepoint]===''){
 					$data[$timepoint]=NULL;
 				}
-				elseif(strtotime($data[$timepoint])){
-					$data[$timepoint]=strtotime($data[$timepoint]);
+			}
+		}
+		
+		foreach(array('start','end','deadline','hours_own') as $var){
+			if(isset($data[$var])){
+				if($data[$var]===''){
+					$data[$var]=NULL;
 				}
 			}
 		}
@@ -219,13 +224,18 @@ class Schedule_model extends BaseItem_model{
 		$schedule_id=intval($schedule_id);
 		
 		//attemp to convert date string to timestamp
-		foreach(array('start','end','deadline','hours_own') as $timepoint){
+		foreach(array('start','end','deadline') as $timepoint){
 			if(isset($data[$timepoint])){
 				if($data[$timepoint]===''){
 					$data[$timepoint]=NULL;
 				}
-				elseif(strtotime($data[$timepoint])){
-					$data[$timepoint]=strtotime($data[$timepoint]);
+			}
+		}
+		
+		foreach(array('start','end','deadline','hours_own') as $var){
+			if(isset($data[$var])){
+				if($data[$var]===''){
+					$data[$var]=NULL;
 				}
 			}
 		}
@@ -245,7 +255,9 @@ class Schedule_model extends BaseItem_model{
 
 		//generate end timestamp by start timestamp end hours
 		if(isset($data['hours_own']) && is_numeric($data['hours_own'])){
-			$this->db->query("UPDATE schedule SET end = start + 3600 * {$data['hours_own']} WHERE id = {$schedule_id}");
+			$this->db->where('id',$schedule_id)
+				->set('end',"start + 3600 * {$data['hours_own']}",false)
+				->update('schedule');
 		}
 		
 		return $return;

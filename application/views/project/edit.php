@@ -1,13 +1,14 @@
-<form method="post" name="<?=CONTROLLER?>" id="<?=$this->project->id?>" enctype="multipart/form-data" encoding="multipart/form-data">
+<form method="post" name="<?=CONTROLLER?>" id="<?=$this->project->id?>">
 	<div class="item">
-		<input type="text" name="project[name]" value="<?=$this->value('project/name')?>" placeholder="事项名称" class='large-field'>
+		<input type="text" name="project[name]" value="<?=$this->value('project/name')?>" placeholder="名称" class="large-field"<?if($project['uid']!==$this->user->id){?> readonly="readonly"<?}?>>
 	 </div>
 
+<?if($project['summary'] || $project['uid']===$this->user->id){?>
 	<div class="item">
-		<div class="title"><label>事项概述：</label></div>
-		<textarea class="item" name="project[summary]" type="text" rows="4"><?=$this->value('project/summary')?></textarea>
+		<textarea class="item" name="project[summary]" type="text" placeholder="描述" rows="4"<?if($project['uid']!==$this->user->id){?> readonly="readonly"<?}?>><?=$this->value('project/summary')?></textarea>
 	</div>
-
+<?}?>
+	
 	<div class="item" name="people">
 		<div class="title"><label>人员：</label></div>
 
@@ -42,7 +43,7 @@
 	<div class="item" name="schedule">
 		<div class="title">
 			<label>日程：
-				<a href="javascript:$.createSchedule({project:<?=$this->value('project/id')?>})">添加>></a>
+				<a href="javascript:$.createSchedule({project:<?=$this->value('project/id')?>,refreshOnSave:true,target:this})">添加>></a>
 			</label>
 		</div>
 		<?=$schedule_list?>

@@ -40,7 +40,7 @@ class Project extends SS_controller{
 		);
 		
 		$this->people_list_args=array(
-			'name'=>array('heading'=>'名称','cell'=>'{abbreviation}<button type="submit" name="submit[remove_people]" id="{id}" class="hover">删除</button>'),
+			'name'=>array('heading'=>'名称','cell'=>'{abbreviation}'),
 			'role'=>array('heading'=>'角色')
 		);
 		
@@ -80,13 +80,9 @@ class Project extends SS_controller{
 	
 	function index(){
 		
-		$this->config->set_user_item('search/people', $this->user->id, false,'method',false);
+		$this->config->set_user_item('search/people', array($this->user->id)+array_keys($this->user->teams), false,'method',false);
 		$this->config->set_user_item('search/orderby', 'project.id desc', false);
 		$this->config->set_user_item('search/limit', 'pagination', false);
-		
-		if($this->user->isLogged('service')){
-			$this->config->set_user_item('search/people', NULL, false);
-		}
 		
 		if($this->input->get('labels')!==false){
 			$labels=preg_split('/\s|,/',urldecode($this->input->get('labels')));
@@ -153,7 +149,7 @@ class Project extends SS_controller{
 		
 		if($this->project->id===false){
 			$data=array();
-			if($this->config->item('project/index/search/type')!==false){
+			if($this->config->user_item('project/index/search/type')!==false){
 				$data['type']=$this->config->item('project/index/search/type');
 			}
 			if($this->input->get('labels')!==false){
@@ -257,6 +253,7 @@ class Project extends SS_controller{
 		
 		return $this->table->setFields($this->document_list_args)
 			->setAttribute('name','document')
+			->setRowAttributes(array('hash'=>'document/{id}'))
 			->generate($this->document->getList(array('project'=>$this->project->id)));
 	}
 	

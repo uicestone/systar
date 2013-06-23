@@ -107,3 +107,9 @@ insert ignore into user (id)
 select people from people_relationship
 where people in (select id from team)
 and relative in (select id from user);
+
+-- 用户组下的人员都是用户
+insert ignore into user (id,name,company)
+select id,name,company from people where id in(
+	select relative from people_relationship where people in (select id from user) and people in (select id from team) and relative not in (select id from user)
+);

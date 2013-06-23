@@ -571,6 +571,10 @@ class Cases extends Project{
 
 		$search_items=array('time_contract/from','time_contract/to');
 		
+		if($this->user->inTeam('客服')){
+			$this->config->set_user_item('search/people', NULL, false);
+		}
+		
 		foreach($search_items as $item){
 			if($this->input->post($item)!==false){
 				if($this->input->post($item)!==''){
