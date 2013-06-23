@@ -344,7 +344,8 @@ $(document)
 		focus: function(event,ui){
 			//$(this).val(ui.item.label);
 			return false;
-		}
+		},
+		delay: 600
 	});
 })
 /*分页按钮响应*/

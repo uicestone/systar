@@ -29,17 +29,18 @@ function post($arrayindex){
 	
 	$controller=CONTROLLER;
 	
-	if(is_null($CI->$controller->id)){
-		$backtrace = debug_backtrace();
-		$file = $backtrace[0]['file']; $line = $backtrace[0]['line'];
-		return;
-	}
-	
 	if(count($args)==1){
-		return array_dir('_SESSION/'.CONTROLLER.'/post/'.$CI->$controller->id.'/'.$arrayindex);
+		return array_dir(CONTROLLER.'/post/'.$CI->$controller->id.'/'.$arrayindex);
 	}elseif(count($args)==2){
-		return array_dir('_SESSION/'.CONTROLLER.'/post/'.$CI->$controller->id.'/'.$arrayindex,$args[1]);
+		return array_dir(CONTROLLER.'/post/'.$CI->$controller->id.'/'.$arrayindex,$args[1]);
 	}
+}
+
+function unsetPost($arrayindex=''){
+	$CI=&get_instance();
 	
+	$controller=CONTROLLER;
+	
+	return $CI->session->unset_userdata(CONTROLLER.'/post/'.$CI->$controller->id.($arrayindex===''?'':'/'.$arrayindex));
 }
 ?>

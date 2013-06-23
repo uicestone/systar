@@ -3,7 +3,14 @@ class user extends SS_controller{
 	
 	function __construct(){
 		
-		$this->gate_pages=array('signup','login','setfields','submit');
+		$this->permission=array(
+			'signup'=>true,
+			'login'=>true,
+			'logout'=>array(),
+			'submit'=>true,
+			'setfields'=>true,
+			'profile'=>array()
+		);
 		
 		parent::__construct();
 		
@@ -54,13 +61,6 @@ class user extends SS_controller{
 
 				$this->user->__construct($user['id']);
 
-				foreach($this->user->group as $group){
-					$company_type=$this->company->type;
-					if($this->company_type_model_loaded && method_exists($this->$company_type,$group.'_setSession')){
-						call_user_func(array($this->$company_type,$group.'_setSession'),$this->user->id);
-					}
-				}
-
 				$this->user->updateLoginTime();
 
 				if(!$this->company->ucenter && !isset($user['password'])){
@@ -83,7 +83,7 @@ class user extends SS_controller{
 	}
 	
 	function signUp(){
-		$this->section_title='新用户注册';
+		$this->output->title='新用户注册';
 		$this->load->view('user/signup');
 		$this->load->view('user/signup_sidebar',true,'sidebar');
 	}
@@ -94,7 +94,7 @@ class user extends SS_controller{
 		$people_profiles=array_merge_recursive(array_sub($this->people->getProfiles($this->user->id),'content','name'),$this->input->sessionPost('people'));
 		$this->load->addViewArrayData(compact('people','people_profiles'));
 		
-		$this->section_title='用户资料';
+		$this->output->title='用户资料';
 		$this->load->view('user/profile');
 		$this->load->view('user/profile_sidebar',true,'sidebar');
 	}
@@ -132,7 +132,7 @@ class user extends SS_controller{
 				$this->people->update($this->user->id,$people);
 				$this->people->updateProfiles($this->user->id, $profiles);
 				
-				$this->output->message($this->section_title.' 已保存');
+				$this->output->message($this->output->title.' 已保存');
 			}
 
 			elseif($submit=='signup'){

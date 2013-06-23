@@ -1,8 +1,6 @@
 <?php
 class Achievement extends SS_controller{
 	
-	var $section_title='业绩';
-	
 	var $list_args=array(
 		'case_name'=>array('heading'=>array('data'=>'案件','width'=>'25%'),'cell'=>'<a href="#cases/{case}" class="right" style="margin-left:10px;">查看</a>{case_name}'),
 		'client_name'=>array('heading'=>'客户'),
@@ -23,7 +21,7 @@ class Achievement extends SS_controller{
 	 */
 	function teams(){
 		
-		$this->section_title='小组业绩';
+		$this->output->title='小组业绩';
 		
 		$this->config->set_user_item('date/from', $this->date->year_begin,false);
 		
@@ -164,7 +162,7 @@ class Achievement extends SS_controller{
 
 	function staff(){
 		
-		$this->section_title='个人业绩';
+		$this->output->title='个人业绩';
 		
 		$this->config->set_user_item('date/from', $this->date->year_begin,false);
 		

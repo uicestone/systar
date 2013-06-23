@@ -1,13 +1,10 @@
 <?php
 class Schedule extends SS_controller{
 	
-	var $section_title='日程';
-	
 	var $list_args;
 	
 	function __construct(){
 		$this->default_method='calendar';
-		
 		parent::__construct();
 		$this->load->model('schedule_model','schedule');
 		$this->load->model('project_model','project');
@@ -63,7 +60,7 @@ class Schedule extends SS_controller{
 		$this->config->set_user_item('search/date_form', '%Y-%m-%d %H:%i', false);
 		
 		if($this->input->get('project')){
-			$this->section_title='日程 - '.$this->project->fetch($this->input->get('project'),'name');
+			$this->output->title='日程 - '.$this->project->fetch($this->input->get('project'),'name');
 			$this->config->set_user_item('search/project', $this->input->get('project'),false);
 		}
 		

@@ -1,8 +1,7 @@
-.project
-nbproject
 .DS_Store
-.settings
 /uploads
 /web/js/combined.js
 /web/style/combined.css
 /web/downloads
+/application/logs
+

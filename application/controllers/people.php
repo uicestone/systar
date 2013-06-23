@@ -13,8 +13,6 @@ class People extends SS_Controller{
 
 	var $project_list_args;
 
-	var $section_title='人员';
-		
 	function __construct() {
 		parent::__construct();
 		
@@ -58,7 +56,11 @@ class People extends SS_Controller{
 	/**
 	 * 根据请求的字符串返回匹配的人员id，名称和类别
 	 */
-	function match($term){
+	function match($term=NULL){
+		
+		if(is_null($term)){
+			$term=$this->input->post('term');
+		}
 		
 		$term=urldecode($term);
 		
@@ -71,7 +73,6 @@ class People extends SS_Controller{
 				'id'=>$row['id'],
 				'type'=>lang($row['type'])?lang($row['type']):'',
 				'name'=>$row['name'],
-				//TODO 以下需要删除
 				'label'=>lang($row['type']).'　'.$row['name'],
 				'value'=>$row['id'],
 			);
@@ -160,9 +161,9 @@ class People extends SS_Controller{
 
 			if(!$this->people->data['name'] && !$this->people->data['abbreviation']){
 				
-				$this->section_title='未命名'.$this->section_title;
+				$this->output->title='未命名'.lang(CONTROLLER);
 			}else{
-				$this->section_title=$this->people->data['abbreviation']?$this->people->data['abbreviation']:$this->people->data['name'];
+				$this->output->title=$this->people->data['abbreviation']?$this->people->data['abbreviation']:$this->people->data['name'];
 			}
 
 			$available_options=$this->people->getAllLabels();
@@ -276,7 +277,7 @@ class People extends SS_Controller{
 			}
 		
 			if($submit=='cancel'){
-				unset($_SESSION[CONTROLLER]['post'][$this->people->id]);
+				unsetPost();
 				$this->output->status='close';
 			}
 
@@ -303,8 +304,8 @@ class People extends SS_Controller{
 				$this->people->update($this->people->id,$this->people->data);
 				$this->people->updateProfiles($this->people->id,$this->people->profiles);
 
-				unset($_SESSION[CONTROLLER]['post'][$this->people->id]);
-				$this->output->message($this->section_title.' 已保存');
+				unsetPost();
+				$this->output->message($this->output->title.' 已保存');
 			}
 
 			elseif($submit=='relative'){
@@ -368,7 +369,7 @@ class People extends SS_Controller{
 
 				$this->output->setData($this->relativeList(),'relative-list','content-table','.item[name="relative"]>.contentTable','replace');
 				
-				unset($_SESSION[CONTROLLER]['post'][$this->people->id]['relative']);
+				unsetPost('relative');
 
 			}
 
@@ -389,7 +390,7 @@ class People extends SS_Controller{
 				
 				$this->output->setData($this->profileList(),'profile-list','content-table','.item[name="profile"]>.contentTable','replace');
 				
-				unset($_SESSION[CONTROLLER]['post'][$this->people->id]['profile']);
+				unsetPost('profile');
 			}
 
 			elseif($submit=='remove_profile'){
@@ -409,7 +410,7 @@ class People extends SS_Controller{
 				
 				$this->output->setData($this->statusList(),'status-list','content-table','.item[name="status"]>.contentTable','replace');
 				
-				unset($_SESSION[CONTROLLER]['post'][$this->people->id]['status']);
+				unsetPost('status');
 			}
 
 			elseif($submit=='remove_status'){

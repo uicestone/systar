@@ -99,12 +99,22 @@ aside .select2-container{
 }
 .select2-container .select2-choice{
 	font-size:0.8em;
+	height: 20px;
+	border-radius: 0;
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+	line-height: 1.5;
+}
+.select2-container .select2-choice div{
+	border-radius: 0;
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
 }
 .select2-container .select2-choice div b, .select2-dropdown-open .select2-choice div b{
-	background-position-y: -.1em;
+	background-position-y: 10%;
 }
 .select2-container .select2-choice abbr{
-	top:0.4em;
+	top:20%;
 }
 .select2-search-choice-close{
 	top:3px;

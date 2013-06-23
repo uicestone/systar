@@ -1,8 +1,6 @@
 <?php
 class Query extends Cases{
 	
-	var $section_title='咨询';
-	
 	function __construct(){
 		parent::__construct();
 		array_unshift($this->controllers, __CLASS__);
@@ -158,7 +156,7 @@ class Query extends Cases{
 					}
 				}
 				
-				$this->output->message($this->section_title.'已保存');
+				$this->output->message($this->output->title.'已保存');
 			}
 			
 			elseif($submit=='new_case'){

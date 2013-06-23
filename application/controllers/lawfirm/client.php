@@ -1,8 +1,6 @@
 <?php
 class Client extends People{
 	
-	var $section_title='客户';
-	
 	function __construct(){
 		parent::__construct();
 		$this->load->model('client_model', 'client');

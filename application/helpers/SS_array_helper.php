@@ -21,20 +21,15 @@ function array_trim($array){
 	若指定第二个参数$setto,则会改变$arrayindex的值
 */
 function array_dir($arrayindex){
-	preg_match('/^[^\/]*/',$arrayindex,$match);
-	$arraystr=$match[0];
 	
-	preg_match('/\/.*$/',$arrayindex,$match);
-	$indexstr=$match[0];
-
-	$indexstr=str_replace('/',"']['",$indexstr);
-	$indexstr=substr($indexstr,2).substr($indexstr,0,2);
+	$CI=&get_instance();
 	
 	$args=func_get_args();
+	
 	if(count($args)==1){
-		return @eval('return $'.$arraystr.$indexstr.';');
+		return $CI->session->userdata($arrayindex);
 	}elseif(count($args)==2){
-		return @eval('return $'.$arraystr.$indexstr.'=$args[1];');
+		return $CI->session->set_userdata($arrayindex,$args[1]);
 	}
 }
 

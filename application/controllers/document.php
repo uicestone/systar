@@ -3,12 +3,9 @@ class Document extends SS_controller{
 	
 	var $list_args;
 	
-	var $section_title='文件';
-	
 	function __construct(){
 		parent::__construct();
 		$this->load->model('document_model','document');
-		$controller=CONTROLLER;
 		
 		$this->list_args=array(
 			'name'=>array('heading'=>'文件名','parser'=>array('function'=>function($id,$name,$filename){
@@ -18,7 +15,7 @@ class Document extends SS_controller{
 				return '<a href="/document/download/'.$id.'">'.$name.'</a>';
 			},'args'=>array('id','name','filename'))),
 			'time_insert'=>array('heading'=>'上传时间','parser'=>array('function'=>function($time_insert){return date('Y-m-d H:i',$time_insert);},'args'=>array('time_insert'))),
-			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->$controller,'getCompiledLabels'),'args'=>array('id')))
+			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->document,'getCompiledLabels'),'args'=>array('id')))
 		);
 	}
 	
@@ -95,9 +92,9 @@ class Document extends SS_controller{
 			$this->document->labels=array_merge($this->document->getLabels($this->document->id),$this->input->sessionPost('labels'));
 
 			if(!$this->document->data['name']){
-				$this->section_title='未命名'.$this->section_title;
+				$this->output->title='未命名'.lang(CONTROLLER);
 			}else{
-				$this->section_title=$this->document->data['name'];
+				$this->output->title=$this->document->data['name'];
 			}
 			
 			if(is_file(APPPATH.'../web/images/file_type/'.substr($this->document->data['extname'],1).'.png')){
@@ -187,8 +184,8 @@ class Document extends SS_controller{
 			elseif($submit=='document'){
 				$this->document->update($this->document->id,$this->document->data);
 				
-				unset($_SESSION[CONTROLLER]['post'][$this->document->id]);
-				$this->output->message($this->section_title.' 已保存');
+				unsetPost();
+				$this->output->message($this->output->title.' 已保存');
 			}
 			
 			elseif($submit=='delete'){

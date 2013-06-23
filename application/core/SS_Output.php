@@ -13,6 +13,8 @@ class SS_Output extends CI_Output{
 	 */
 	var $status;
 	
+	var $title;
+	
 	var $message;
 	
 	var $data=array();

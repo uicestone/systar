@@ -1,8 +1,6 @@
 <?php
 class Team extends SS_Controller{
 	
-	var $section_title='团组';
-	
 	var $list_args;
 	
 	function __construct() {

@@ -11,7 +11,7 @@ $(function(){
 			height:categories.length * 3*30
 		},
 		title: {
-			text: '<?=$this->section_title?>'+'金额'
+			text: '<?=$this->output->title?>'+'金额'
 		},
 		plotOptions: {
 			bar: {
@@ -36,7 +36,7 @@ $(function(){
 			height:categories.length * 3*30
 		},
 		title: {
-			text: '<?=$this->section_title?>'+'数量'
+			text: '<?=$this->output->title?>'+'数量'
 		},
 		plotOptions: {
 			bar: {

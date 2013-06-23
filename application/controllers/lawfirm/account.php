@@ -1,7 +1,6 @@
 <?php
 class Account extends SS_controller{
 	
-	var $section_title='资金';
 	var $list_args;
 	
 	function __construct(){
@@ -131,9 +130,9 @@ class Account extends SS_controller{
 			$this->account->data=$this->account->fetch($this->account->id);
 
 			if($this->account->data['name']){
-				$this->section_title=$this->account->data['name'];
+				$this->output->title=$this->account->data['name'];
 			}else{
-				$this->section_title='未命名'.$this->section_title;
+				$this->output->title='未命名'.lang(CONTROLLER);
 			}
 			
 			$this->load->addViewData('account',$this->account->data);
@@ -158,7 +157,7 @@ class Account extends SS_controller{
 		try{
 			
 			if($submit=='cancel'){
-				unset($_SESSION[CONTROLLER]['post'][$this->account->id]);
+				unsetPost();
 				$this->output->status='close';
 			}
 			
@@ -182,9 +181,9 @@ class Account extends SS_controller{
 
 				$this->account->update($this->account->id,$this->account->data);
 				
-				unset($_SESSION[CONTROLLER]['post'][$this->account->id]);
+				unsetPost();
 				
-				$this->output->message($this->section_title.' 已保存');
+				$this->output->message($this->output->title.' 已保存');
 			}
 			
 			if(is_null($this->output->status)){

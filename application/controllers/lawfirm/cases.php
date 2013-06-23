@@ -1,8 +1,6 @@
 <?php
 class Cases extends Project{
 	
-	var $section_title='案件';
-
 	var $client_list_args;
 	
 	var $staff_list_args;
@@ -11,6 +9,7 @@ class Cases extends Project{
 		parent::__construct();
 		array_unshift($this->controllers, __CLASS__);
 		$this->load->model('cases_model','cases');
+		
 		$this->project=$this->cases;
 
 		$this->list_args=array(
@@ -66,9 +65,9 @@ class Cases extends Project{
 			$this->cases->labels=array_merge($this->cases->getLabels($this->cases->id),$this->input->sessionPost('labels'));
 
 			if(!$this->cases->data['name']){
-				$this->section_title='未命名'.$this->section_title;
+				$this->output->title='未命名'.lang(CONTROLLER);
 			}else{
-				$this->section_title=$this->cases->data['name'];
+				$this->output->title=$this->cases->data['name'];
 			}
 			
 			$people_roles=$this->cases->getPeopleRoles($this->cases->id);
@@ -254,7 +253,7 @@ class Cases extends Project{
 						'type'=>$client['type'],
 						'labels'=>$client_labels
 					);
-					
+				
 					if(!$client_profiles['电话'] && !$client_profiles['电子邮件']){
 						$this->output->message('至少输入一种联系方式', 'warning');
 						throw new Exception;
@@ -322,10 +321,14 @@ class Cases extends Project{
 					throw new Exception;
 				}
 				
-				unset($_SESSION[CONTROLLER]['post'][$this->cases->id]['case_client']);
-				unset($_SESSION[CONTROLLER]['post'][$this->cases->id]['client']);
-				unset($_SESSION[CONTROLLER]['post'][$this->cases->id]['client_profiles']);
-				unset($_SESSION[CONTROLLER]['post'][$this->cases->id]['client_labels']);
+				unsetPost('case_client');
+				
+				$this->session->unset_userdata();
+				
+				unsetPost('case_client');
+				unsetPost('client');
+				unsetPost('client_profiles');
+				unsetPost('client_labels');
 			}
 
 			elseif($submit=='remove_client'){
@@ -371,12 +374,12 @@ class Cases extends Project{
 				
 				if($this->cases->addStaff($this->cases->id,$staff['id'],$staff['role'],$staff['weight'])){
 					$this->output->setData($this->staffList(),'staff-list','content-table','.item[name="staff"]>.contentTable','replace');
-					unset($_SESSION[CONTROLLER]['post'][$this->cases->id]['staff']['id']);
+					unsetPost('staff/id');
 				}else{
 					$this->output->message('人员添加错误', 'warning');
 				}
 
-				unset($_SESSION[CONTROLLER]['post'][$this->cases->id]['staff']);
+				unsetPost('staff');
 			}
 			
 			elseif($submit=='remove_staff'){
@@ -413,7 +416,7 @@ class Cases extends Project{
 				$this->account->add($misc_fee+array('project'=>$this->project->id,'display'=>true));
 				$this->output->setData($this->miscfeeList(),'miscfee-list','content-table','.item[name="miscfee"]>.contentTable','replace');
 				
-				unset($_SESSION[CONTROLLER]['post'][$this->project->id]['miscfee']);
+				unsetPost('miscfee');
 
 			}
 			
@@ -542,14 +545,14 @@ class Cases extends Project{
 	}
 	
 	function host(){
-		$this->section_title='主办案件';
+		$this->output->title='主办案件';
 		$this->config->set_user_item('search/role','主办律师',false);
 		$this->index();
 	}
 	
 	function consultant(){
 		
-		$this->section_title='法律顾问案件';
+		$this->output->title='法律顾问案件';
 		
 		$this->config->set_user_item('search/labels', array('分类'=>'法律顾问'));
 		

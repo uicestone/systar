@@ -1,0 +1,10 @@
+<?php
+$company=array(
+	'lawfirm'=>array(
+		'starsys'=>'sys.lawyerstars.com'
+	),
+	'school'=>array(
+		'shdfz'=>'sdfz.sys.sh'
+	),
+)
+?>

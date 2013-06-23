@@ -1,8 +1,6 @@
 <?php
 class Message extends SS_Controller{
 	
-	var $section_title='消息';
-	
 	function __construct() {
 		parent::__construct();
 	}
@@ -64,7 +62,7 @@ class Message extends SS_Controller{
 			
 			$dialog=$this->message->fetchDialog($dialog_id);
 
-			$this->section_title='对话 '.$dialog['title'];
+			$this->output->title='对话 '.$dialog['title'];
 
 			$messages=$this->message->getList($dialog_id);
 			

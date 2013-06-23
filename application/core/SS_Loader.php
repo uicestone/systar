@@ -141,7 +141,7 @@ class SS_Loader extends CI_Loader{
 	 * @return mixed
 	 */
 	function value($index){
-		if(!is_null(post($index))){
+		if(post($index)!==false){
 			return post($index);
 		}else{
 			$CI=&get_instance();

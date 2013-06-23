@@ -1,14 +1,10 @@
 <?php
 class Evaluation extends Project{
 	
-	var $section_title='评价';
-	
 	function __construct(){
 		parent::__construct();
-		array_unshift($this->controllers, __CLASS__);
 		$this->load->model('evaluation_model','evaluation');
 		$this->project=$this->evaluation;
-		$this->default_view_method='candidates';
 	}
 	
 	function index(){
@@ -40,8 +36,8 @@ class Evaluation extends Project{
 				
 				$this->output->setData($this->indicatorList(),'indicator-list','content-table','.item[name="indicator"]>.contentTable','replace');
 				
-				unset($_SESSION[CONTROLLER]['post'][$this->evaluation->id]['indicator']);
-				unset($_SESSION[CONTROLLER]['post'][$this->evaluation->id]['evaluation_indicator']);
+				unsetPost('indicator');
+				unsetPost('evaluation_indicator');
 			}
 			
 			elseif($submit=='apply_model'){
@@ -87,7 +83,7 @@ class Evaluation extends Project{
 		$this->evaluation->id=$id;
 		$this->evaluation->data=$this->evaluation->fetch($this->evaluation->id);
 		
-		$this->section_title='被评价人 - '.$this->evaluation->data['name'];
+		$this->output->title='被评价人 - '.$this->evaluation->data['name'];
 		
 		$list_args=array(
 			'name'=>array('heading'=>'姓名'),
@@ -109,7 +105,7 @@ class Evaluation extends Project{
 		$people=$this->people->fetch($people_id);
 		$this->evaluation->data=$this->evaluation->fetch($this->evaluation->id);
 		
-		$this->section_title=$people['name'].' - '.$this->evaluation->data['name'];
+		$this->output->title=$people['name'].' - '.$this->evaluation->data['name'];
 		
 		$list_args=array(
 			'name'=>array('heading'=>'评分指标'),

@@ -1,8 +1,6 @@
 <?php
 class Project extends SS_controller{
 	
-	var $section_title='事项';
-	
 	var $form_validation_rules=array();
 	
 	var $list_args;
@@ -179,9 +177,9 @@ class Project extends SS_controller{
 			$this->project->labels=array_merge($this->project->getLabels($this->project->id),$this->input->sessionPost('labels'));
 
 			if(!$this->project->data['name']){
-				$this->section_title='未命名'.$this->section_title;
+				$this->output->title='未命名'.lang(CONTROLLER);
 			}else{
-				$this->section_title=$this->project->data['name'];
+				$this->output->title=$this->project->data['name'];
 			}
 			
 			$this->load->addViewData('project', $this->project->data);
@@ -306,7 +304,7 @@ class Project extends SS_controller{
 			}
 
 			if($submit=='cancel'){
-				unset($_SESSION[CONTROLLER]['post'][$this->project->id]);
+				unsetPost();
 				$this->output->status='close';
 			}
 		
@@ -323,8 +321,8 @@ class Project extends SS_controller{
 				$this->project->addLabels($this->project->id,$this->project->labels);
 				$this->project->updateLabels($this->project->id,$this->project->labels);
 				
-				unset($_SESSION[CONTROLLER]['post'][$this->project->id]);
-				$this->output->message($this->section_title.' 已保存');
+				unsetPost();
+				$this->output->message($this->output->title.' 已保存');
 			}
 			
 			elseif($submit=='people'){
@@ -333,12 +331,11 @@ class Project extends SS_controller{
 				
 				if($this->project->addPeople($this->project->id,$people['id'],NULL,$people['role'])){
 					$this->output->setData($this->peopleList(),'people-list','content-table','.item[name="people"]>.contentTable','replace');
-					unset($_SESSION[CONTROLLER]['post'][$this->project->id]['people']['id']);
 				}else{
 					$this->output->message('人员添加错误', 'warning');
 				}
 
-				unset($_SESSION[CONTROLLER]['post'][$this->project->id]['people']);
+				unsetPost('people');
 			}
 			
 			elseif($submit=='remove_people'){
@@ -376,7 +373,7 @@ class Project extends SS_controller{
 				$this->account->add($account+array('project'=>$this->project->id,'subject'=>$subject,'display'=>true));
 				$this->output->setData($this->accountList(),'account-list','content-table','.item[name="account"]>.contentTable','replace');
 				
-				unset($_SESSION[CONTROLLER]['post'][$this->project->id]['account']);
+				unsetPost('account');
 			}
 			
 			elseif($submit=='remove_fee' || $submit=='remove_miscfee'){
@@ -409,7 +406,7 @@ class Project extends SS_controller{
 				
 				$this->output->setData($this->documentList(),'document-list','content-table','.item[name="document"]>.contentTable','replace');
 				
-				unset($_SESSION[CONTROLLER]['post'][$this->project->id]['document']);
+				unsetPost('document');
 			}
 			
 			elseif($submit=='remove_document'){

@@ -106,7 +106,7 @@ $config['enable_hooks'] = TRUE;
 | http://codeigniter.com/user_guide/general/creating_libraries.html
 |
 */
-$config['subclass_prefix'] = 'SS_';//sys.sh系统的自由类前缀
+$config['subclass_prefix'] = 'SS_';//sys.sh系统的自有类前缀
 
 
 /*
@@ -180,7 +180,8 @@ $config['directory_trigger']	= 'd'; // experimental not currently in use
 | your log files will fill up very fast.
 |
 */
-$config['log_threshold'] = 1;
+$config['log_threshold'] = 2;
+
 
 /*
 |--------------------------------------------------------------------------

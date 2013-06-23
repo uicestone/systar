@@ -2,16 +2,20 @@
 class SS_Controller extends CI_Controller{
 	
 	var $default_method='index';
-	var $default_view_method;
 	
-	var $section_title='';
+	/**
+	 * 当前控制器允许的用户组
+	 * array()为登录即可
+	 * true为不限制
+	 * 包含子数组时，按照独立方法区分权限，子数组的键名是方法名
+	 * @var bool or array 
+	 */
+	var $permission=array();
 	
-	var $require_login;
-	var $gate_pages=array();//当前控制器下不需要登陆也能访问的页面方法名称
-
-	var $company_type_model_loaded=false;
-	var $company_model_loaded=false;
-	
+	/**
+	 * 用于纪录有继承关系的控制器的继承层次
+	 * @var type 
+	 */
 	var $controllers=array();
 	
 	function __construct(){
@@ -43,41 +47,46 @@ class SS_Controller extends CI_Controller{
 		$this->load->model('label_model','label');
 		$this->load->model('message_model','message');
 		
-		if(is_file(APPPATH.'models/'.$this->company->type.'_model.php')){
-			$this->load->model($this->company->type.'_model',$this->company->type);
-			$this->company_type_model_loaded=true;
+		$this->output->as_ajax=$this->input->is_ajax_request();
+		
+		/*
+		 * 页面权限判断
+		 */
+		if(isset($this->permission[METHOD])){
+			$this->permission=$this->permission[METHOD];
 		}
 		
-		if(is_file(APPPATH.'models/'.$this->company->syscode.'_model.php')){
-			$this->load->model($this->company->syscode.'_model',$this->company->syscode);
-			$this->company_model_loaded=true;
+		if($this->permission===array() && !$this->user->isLogged()){
+			if($this->output->as_ajax){
+				$this->output->status='login';
+				$this->_output();
+				exit;
+			}else{
+				redirect('login');
+			}
 		}
 		
-		if(is_file(APPPATH.'language/chinese/'.$this->company->syscode.'_lang.php')){
+		if(is_array($this->permission) && $this->permission && !array_intersect(array_keys($this->user->teams),$this->permission)){
+			if($this->output->as_ajax){
+				$this->output->status='denied';
+				$this->output->message('no permission','warning');
+				exit;
+			}else{
+				show_error('no permission');
+			}
+		}
+
+		if(file_exists(APPPATH.'language/chinese/'.$this->company->syscode.'_lang.php')){
 			$this->load->language($this->company->syscode);
 		}
-		
-		$this->output->as_ajax=$this->input->is_ajax_request();
 		
 		if(CONTROLLER==='gate' && METHOD!=='browser' && $this->agent->browser()==='Internet Explorer' && $this->agent->version()<8){
 			redirect('browser');
 		}
 		
-		if(is_null($this->require_login)){
-			if(in_array(METHOD,$this->gate_pages)){
-				$this->require_login=false; 
-			}else{
-				$this->require_login=true;
-			}
-		}
-	
-		if($this->require_login && !$this->user->isLogged()){
-			$this->output->status='login';
-			$this->_output();
-			exit;
-		}
-
 		$this->config->session=$this->session->all_userdata('config');
+		
+		$this->output->title=lang(CONTROLLER);
 		
 		$uri=$this->uri->uri_string;
 		$get=$this->input->get();
@@ -143,7 +152,7 @@ class SS_Controller extends CI_Controller{
 			'status'=>$this->output->status,
 			'message'=>$this->output->message,
 			'data'=>$this->output->data,
-			'section_title'=>$this->section_title
+			'section_title'=>$this->output->title
 		);
 		
 		echo json_encode($output_array);

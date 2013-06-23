@@ -99,7 +99,7 @@ $autoload['config'] = array();
 |
 */
 
-$autoload['language'] = array('common');
+$autoload['language'] = array('controllers');
 
 
 /*

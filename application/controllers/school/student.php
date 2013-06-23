@@ -1,8 +1,6 @@
 <?php
 class Student extends People{
 	
-	var $section_title='学生';
-	
 	var $score_list_args=array();
 	
 	function __construct(){
@@ -57,9 +55,9 @@ class Student extends People{
 			$profiles=array_sub($this->people->getProfiles($this->people->id),'content','name');
 
 			if(!$people['name'] && !$people['abbreviation']){
-				$this->section_title='未命名'.$this->section_title;
+				$this->output->title='未命名'.lang(CONTROLLER);
 			}else{
-				$this->section_title=$people['abbreviation']?$people['abbreviation']:$people['name'];
+				$this->output->title=$people['abbreviation']?$people['abbreviation']:$people['name'];
 			}
 
 			$available_options=$this->people->getAllLabels();
@@ -271,7 +269,7 @@ class Student extends People{
 
 	function viewscore($student){
 		
-		$this->section_title='成绩 - '.$this->student->fetch($student,'name');
+		$this->output->title='成绩 - '.$this->student->fetch($student,'name');
 		
 		$exams_scores=$this->student->getscores($student,array('limit'=>'pagination','orderby'=>'exam asc'));
 		

@@ -10,7 +10,7 @@ $(function(){
 			renderTo: 'chart_<?=METHOD?>',type: 'column'
 		},
 		title: {
-			text: '<?=$this->section_title?>'+'金额'
+			text: '<?=$this->output->title?>'+'金额'
 		},
 		plotOptions: {
 			column: {
@@ -31,7 +31,7 @@ $(function(){
 			renderTo: 'chart_<?=METHOD?>_count',type: 'column'
 		},
 		title: {
-			text: '<?=$this->section_title?>'+'数量'
+			text: '<?=$this->output->title?>'+'数量'
 		},
 		plotOptions: {
 			bar: {

@@ -1,18 +1,17 @@
 <?php
-class Gate extends SS_Controller{
+class Index extends SS_Controller{
 	function __construct() {
-		$this->require_login=false;
+		$this->permission=array(
+			'index'=>array(),
+			'browser'=>array(),
+			'reception'=>true
+		);
 		parent::__construct();
 	}
 	
 	function index(){
 		
-		if(!$this->user->isLogged()){
-			redirect('login');
-		}
-		
 		$this->load->addViewData('css', $this->config->user_item('css'));
-		
 		$this->load->view('head');
 		$this->load->view('menu');
 		$this->load->view('nav');
@@ -24,7 +23,7 @@ class Gate extends SS_Controller{
 	 * ie6跳转提示页面
 	 */
 	function browser(){
-		$this->section_title='请更新您的浏览器';
+		$this->output->title='请更新您的浏览器';
 		$this->load->view('head');
 		$this->load->view('browser');
 		$this->load->view('foot');
@@ -54,7 +53,7 @@ class Gate extends SS_Controller{
 			));
 
 			if($insert_id){
-				echo '您提交的信息已经收到！';
+				$this->output->set_output('您提交的信息已经收到！');
 			}
 		}catch(Exception $e){
 			foreach($this->output->message as $messages){
