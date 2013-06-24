@@ -113,3 +113,8 @@ insert ignore into user (id,name,company)
 select id,name,company from people where id in(
 	select relative from people_relationship where people in (select id from user) and people in (select id from team) and relative not in (select id from user)
 );
+
+-- 根据人员名更新空的组名和用户名
+update user inner join people using (id) set user.name = people.name where user.name is null;
+update team inner join people using (id) set team.name = people.name where team.name is null;
+

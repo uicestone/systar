@@ -1,11 +1,5 @@
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
-
 CREATE DATABASE `syssh` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
 USE `syssh`;
 
@@ -42,7 +36,7 @@ CREATE TABLE IF NOT EXISTS `account` (
   KEY `subject` (`subject`),
   KEY `type` (`type`),
   KEY `team` (`team`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='账目（主表）' AUTO_INCREMENT=1803 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='账目（主表）' AUTO_INCREMENT=1917 ;
 
 CREATE TABLE IF NOT EXISTS `account_label` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -77,7 +71,7 @@ CREATE TABLE IF NOT EXISTS `company_config` (
   PRIMARY KEY (`id`),
   KEY `company` (`company`),
   KEY `name` (`name`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=9 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=20 ;
 
 CREATE TABLE IF NOT EXISTS `course` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -99,7 +93,7 @@ CREATE TABLE IF NOT EXISTS `dialog` (
   KEY `time` (`time`),
   KEY `company` (`company`),
   KEY `users` (`users`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=150 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=295 ;
 
 CREATE TABLE IF NOT EXISTS `dialog_message` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -108,16 +102,7 @@ CREATE TABLE IF NOT EXISTS `dialog_message` (
   PRIMARY KEY (`id`),
   KEY `dialog` (`dialog`),
   KEY `message` (`message`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=82 ;
-
-CREATE TABLE IF NOT EXISTS `dialog_team` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `dialog` int(11) NOT NULL,
-  `team` int(11) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `dialog` (`dialog`),
-  KEY `team` (`team`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=440 ;
 
 CREATE TABLE IF NOT EXISTS `dialog_user` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -125,10 +110,11 @@ CREATE TABLE IF NOT EXISTS `dialog_user` (
   `user` int(11) NOT NULL,
   `title` varchar(255) NOT NULL,
   `read` tinyint(1) NOT NULL,
+  `hidden` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `dialog` (`dialog`),
   KEY `user` (`user`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=229 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=555 ;
 
 CREATE TABLE IF NOT EXISTS `document` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -148,7 +134,7 @@ CREATE TABLE IF NOT EXISTS `document` (
   KEY `time` (`time`),
   KEY `company` (`company`),
   KEY `time_insert` (`time_insert`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='项目下文件' AUTO_INCREMENT=2188 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='项目下文件' AUTO_INCREMENT=2347 ;
 
 CREATE TABLE IF NOT EXISTS `document_label` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -162,7 +148,16 @@ CREATE TABLE IF NOT EXISTS `document_label` (
   KEY `label` (`label`),
   KEY `type` (`type`),
   KEY `label_name` (`label_name`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=4486 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=4620 ;
+
+CREATE TABLE IF NOT EXISTS `document_mod` (
+  `id` int(11) DEFAULT NULL,
+  `document` int(11) NOT NULL,
+  `people` int(11) DEFAULT NULL,
+  `mod` tinyint(4) NOT NULL COMMENT '1:read 2:write',
+  KEY `document` (`document`),
+  KEY `people` (`people`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `evaluation_indicator` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -174,7 +169,7 @@ CREATE TABLE IF NOT EXISTS `evaluation_indicator` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `project` (`project`,`indicator`),
   KEY `indicator` (`indicator`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=25 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `evaluation_model` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -265,7 +260,7 @@ CREATE TABLE IF NOT EXISTS `label` (
   UNIQUE KEY `name` (`name`),
   KEY `order` (`order`),
   KEY `type` (`type`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=200 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=215 ;
 
 CREATE TABLE IF NOT EXISTS `label_relationship` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -288,10 +283,10 @@ CREATE TABLE IF NOT EXISTS `log` (
   `duration` float NOT NULL,
   `ip` char(15) DEFAULT NULL,
   `company` varchar(255) NOT NULL,
-  `username` varchar(255) NOT NULL,
+  `username` varchar(255) DEFAULT NULL,
   `time` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='系统请求日志（记录表）' AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='系统请求日志（记录表）' AUTO_INCREMENT=198801 ;
 
 CREATE TABLE IF NOT EXISTS `message` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -301,7 +296,7 @@ CREATE TABLE IF NOT EXISTS `message` (
   PRIMARY KEY (`id`),
   KEY `uid` (`uid`),
   KEY `time` (`time`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='公告（主表）' AUTO_INCREMENT=161 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='公告（主表）' AUTO_INCREMENT=474 ;
 
 CREATE TABLE IF NOT EXISTS `message_document` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -310,7 +305,7 @@ CREATE TABLE IF NOT EXISTS `message_document` (
   PRIMARY KEY (`id`),
   KEY `message` (`message`),
   KEY `document` (`document`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=7 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=12 ;
 
 CREATE TABLE IF NOT EXISTS `message_user` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -321,7 +316,7 @@ CREATE TABLE IF NOT EXISTS `message_user` (
   PRIMARY KEY (`id`),
   KEY `user` (`user`),
   KEY `message` (`message`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=35 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=903 ;
 
 CREATE TABLE IF NOT EXISTS `nav` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -340,16 +335,16 @@ CREATE TABLE IF NOT EXISTS `nav` (
   KEY `href` (`href`),
   KEY `company_type` (`company_type`),
   KEY `order` (`order`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=50 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=66 ;
 
 CREATE TABLE IF NOT EXISTS `people` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `character` enum('单位','个人') NOT NULL DEFAULT '个人',
   `name` varchar(255) DEFAULT NULL,
   `name_en` varchar(255) NOT NULL DEFAULT '',
-  `name_pinyin` varchar(255) NOT NULL,
+  `name_pinyin` varchar(255) DEFAULT NULL,
   `abbreviation` varchar(255) DEFAULT NULL,
-  `type` enum('people','staff','contact','client','student') NOT NULL DEFAULT 'people',
+  `type` enum('people','team','staff','contact','client','student','classes','teacher_group','course_group') NOT NULL DEFAULT 'people',
   `num` varchar(255) DEFAULT NULL,
   `gender` enum('男','女') DEFAULT NULL,
   `phone` varchar(255) DEFAULT NULL,
@@ -365,8 +360,8 @@ CREATE TABLE IF NOT EXISTS `people` (
   `company` int(11) DEFAULT NULL,
   `uid` int(11) DEFAULT NULL,
   `username` varchar(255) DEFAULT NULL,
-  `time_insert` int(11) NOT NULL,
-  `time` int(11) NOT NULL DEFAULT '0',
+  `time_insert` int(11) DEFAULT NULL,
+  `time` int(11) DEFAULT NULL,
   `comment` text,
   PRIMARY KEY (`id`),
   KEY `name` (`name`),
@@ -378,7 +373,7 @@ CREATE TABLE IF NOT EXISTS `people` (
   KEY `time_insert` (`time_insert`),
   KEY `name_pinyin` (`name_pinyin`),
   KEY `num` (`num`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='客户（主表）' AUTO_INCREMENT=12726 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='客户（主表）' AUTO_INCREMENT=13544 ;
 
 CREATE TABLE IF NOT EXISTS `people_label` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -392,7 +387,7 @@ CREATE TABLE IF NOT EXISTS `people_label` (
   KEY `label` (`label`),
   KEY `type` (`type`),
   KEY `label_name` (`label_name`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=20024 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=20172 ;
 
 CREATE TABLE IF NOT EXISTS `people_profile` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -408,7 +403,7 @@ CREATE TABLE IF NOT EXISTS `people_profile` (
   KEY `time` (`time`),
   KEY `name` (`name`),
   KEY `people-name` (`people`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='客户联系方式' AUTO_INCREMENT=44983 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='客户联系方式' AUTO_INCREMENT=45200 ;
 
 CREATE TABLE IF NOT EXISTS `people_relationship` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -416,18 +411,21 @@ CREATE TABLE IF NOT EXISTS `people_relationship` (
   `relative` int(11) DEFAULT NULL,
   `relation` varchar(255) DEFAULT NULL,
   `relation_type` varchar(255) DEFAULT NULL,
+  `till` date DEFAULT NULL,
+  `num` int(11) DEFAULT NULL,
   `is_default_contact` tinyint(1) DEFAULT NULL,
   `uid` int(11) DEFAULT NULL,
-  `username` varchar(255) NOT NULL DEFAULT '',
   `time` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `people` (`people`,`relative`,`relation`),
   KEY `uid` (`uid`),
   KEY `time` (`time`),
   KEY `relative` (`relative`),
   KEY `relation` (`relation`),
-  KEY `relation_type` (`relation_type`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='人员关系' AUTO_INCREMENT=8628 ;
+  KEY `relation_type` (`relation_type`),
+  KEY `num` (`num`),
+  KEY `till` (`till`),
+  KEY `people` (`people`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='人员关系' AUTO_INCREMENT=17566 ;
 
 CREATE TABLE IF NOT EXISTS `people_status` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -460,7 +458,7 @@ CREATE TABLE IF NOT EXISTS `position` (
 CREATE TABLE IF NOT EXISTS `project` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
-  `type` varchar(255) NOT NULL DEFAULT 'project',
+  `type` enum('project','evaluation','cases','query') NOT NULL DEFAULT 'project',
   `team` int(11) DEFAULT NULL,
   `num` char(20) DEFAULT NULL,
   `active` tinyint(1) NOT NULL DEFAULT '0',
@@ -488,7 +486,7 @@ CREATE TABLE IF NOT EXISTS `project` (
   KEY `company` (`company`),
   KEY `time_insert` (`time_insert`),
   KEY `team` (`team`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='项目（主表）' AUTO_INCREMENT=2417 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='项目（主表）' AUTO_INCREMENT=2672 ;
 
 CREATE TABLE IF NOT EXISTS `project_document` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -502,7 +500,7 @@ CREATE TABLE IF NOT EXISTS `project_document` (
   KEY `document` (`document`),
   KEY `uid` (`uid`),
   KEY `time` (`time`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2367 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2492 ;
 
 CREATE TABLE IF NOT EXISTS `project_label` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -516,7 +514,7 @@ CREATE TABLE IF NOT EXISTS `project_label` (
   KEY `label` (`label`),
   KEY `label_name` (`label_name`),
   KEY `type` (`type`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=18618 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=19315 ;
 
 CREATE TABLE IF NOT EXISTS `project_people` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -536,7 +534,7 @@ CREATE TABLE IF NOT EXISTS `project_people` (
   KEY `people` (`people`),
   KEY `role` (`role`),
   KEY `weight` (`weight`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='项目人员关系' AUTO_INCREMENT=47339 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='项目人员关系' AUTO_INCREMENT=47964 ;
 
 CREATE TABLE IF NOT EXISTS `project_profile` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -562,7 +560,7 @@ CREATE TABLE IF NOT EXISTS `project_relationship` (
   UNIQUE KEY `project-relative-relation` (`project`),
   KEY `relative` (`relative`),
   KEY `relation` (`relation`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=8 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=14 ;
 
 CREATE TABLE IF NOT EXISTS `project_status` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -616,7 +614,7 @@ CREATE TABLE IF NOT EXISTS `schedule` (
   KEY `document` (`document`),
   KEY `time_insert` (`time_insert`),
   KEY `deadline` (`deadline`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='日程（主表）' AUTO_INCREMENT=20217 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='日程（主表）' AUTO_INCREMENT=21205 ;
 
 CREATE TABLE IF NOT EXISTS `schedule_label` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -640,7 +638,7 @@ CREATE TABLE IF NOT EXISTS `schedule_people` (
   UNIQUE KEY `schedule-people` (`schedule`,`people`),
   KEY `schedule` (`schedule`),
   KEY `people` (`people`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=150 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=265 ;
 
 CREATE TABLE IF NOT EXISTS `schedule_profile` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -655,7 +653,7 @@ CREATE TABLE IF NOT EXISTS `schedule_profile` (
   KEY `name` (`name`),
   KEY `uid` (`uid`),
   KEY `time` (`time`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1482 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1485 ;
 
 CREATE TABLE IF NOT EXISTS `schedule_taskboard` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -665,7 +663,7 @@ CREATE TABLE IF NOT EXISTS `schedule_taskboard` (
   PRIMARY KEY (`id`),
   KEY `uid` (`uid`),
   KEY `time` (`time`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=359 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=382 ;
 
 CREATE TABLE IF NOT EXISTS `school_room` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -735,16 +733,6 @@ CREATE TABLE IF NOT EXISTS `score` (
   KEY `project` (`project`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='阅卷分数' AUTO_INCREMENT=95017 ;
 
-CREATE TABLE IF NOT EXISTS `sessions` (
-  `session_id` varchar(40) NOT NULL DEFAULT '0',
-  `ip_address` varchar(16) NOT NULL DEFAULT '0',
-  `user_agent` varchar(120) NOT NULL,
-  `last_activity` int(10) unsigned NOT NULL DEFAULT '0',
-  `user_data` mediumtext,
-  PRIMARY KEY (`session_id`),
-  KEY `last_activity_idx` (`last_activity`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 CREATE TABLE IF NOT EXISTS `staff` (
   `id` int(11) NOT NULL DEFAULT '0',
   `position` int(11) DEFAULT NULL,
@@ -759,16 +747,13 @@ CREATE TABLE IF NOT EXISTS `staff` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='员工（主表）';
 
 CREATE TABLE IF NOT EXISTS `team` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL,
   `name` varchar(255) DEFAULT NULL,
-  `type` varchar(255) DEFAULT NULL,
-  `num` varchar(255) DEFAULT NULL,
   `leader` int(11) DEFAULT NULL,
   `extra_course` int(11) DEFAULT NULL,
   `display` tinyint(1) NOT NULL DEFAULT '0',
   `company` int(11) DEFAULT NULL,
   `uid` int(11) DEFAULT NULL,
-  `username` varchar(255) DEFAULT NULL,
   `time_insert` int(11) DEFAULT NULL,
   `time` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -777,51 +762,8 @@ CREATE TABLE IF NOT EXISTS `team` (
   KEY `company` (`company`),
   KEY `uid` (`uid`),
   KEY `time` (`time`),
-  KEY `num` (`num`),
   KEY `time_insert` (`time_insert`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='团队（主表）' AUTO_INCREMENT=455 ;
-
-CREATE TABLE IF NOT EXISTS `team_label` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `team` int(11) NOT NULL,
-  `label` int(11) NOT NULL,
-  `type` varchar(255) DEFAULT NULL,
-  `label_name` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `team-label` (`team`,`label`),
-  UNIQUE KEY `team-type` (`team`,`type`),
-  KEY `label` (`label`),
-  KEY `label_name` (`label_name`),
-  KEY `type` (`type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
-CREATE TABLE IF NOT EXISTS `team_people` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `team` int(11) DEFAULT NULL,
-  `people` int(11) NOT NULL,
-  `relation` varchar(255) NOT NULL,
-  `id_in_team` int(11) DEFAULT NULL,
-  `position` varchar(255) DEFAULT NULL,
-  `till` date DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `team` (`team`),
-  KEY `relation` (`relation`),
-  KEY `num_in_class` (`id_in_team`),
-  KEY `people` (`people`),
-  KEY `till` (`till`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='人与团队关系' AUTO_INCREMENT=8008 ;
-
-CREATE TABLE IF NOT EXISTS `team_relationship` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `team` int(11) NOT NULL,
-  `relative` int(11) NOT NULL,
-  `relation` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `team-relative` (`team`,`relative`),
-  KEY `team` (`team`),
-  KEY `relative` (`relative`),
-  KEY `relation` (`relation`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='团队间关系' AUTO_INCREMENT=160 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='团队（主表）';
 
 CREATE TABLE IF NOT EXISTS `user` (
   `id` int(11) NOT NULL,
@@ -833,7 +775,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   `lastlogin` int(11) DEFAULT NULL,
   `company` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`),
+  UNIQUE KEY `name` (`name`,`company`),
   KEY `company` (`company`),
   KEY `password` (`password`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户';
@@ -845,7 +787,7 @@ CREATE TABLE IF NOT EXISTS `user_config` (
   `value` text NOT NULL,
   PRIMARY KEY (`id`),
   KEY `user-name` (`user`,`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 
 ALTER TABLE `account`
@@ -854,8 +796,6 @@ ALTER TABLE `account`
   ADD CONSTRAINT `account_ibfk_13` FOREIGN KEY (`team`) REFERENCES `team` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `account_ibfk_3` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `account_ibfk_4` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `account_ibfk_7` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `account_ibfk_8` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `account_ibfk_9` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
 ALTER TABLE `account_label`
@@ -873,10 +813,6 @@ ALTER TABLE `dialog_message`
   ADD CONSTRAINT `dialog_message_ibfk_1` FOREIGN KEY (`dialog`) REFERENCES `dialog` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `dialog_message_ibfk_2` FOREIGN KEY (`message`) REFERENCES `message` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
-ALTER TABLE `dialog_team`
-  ADD CONSTRAINT `dialog_team_ibfk_1` FOREIGN KEY (`dialog`) REFERENCES `dialog` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `dialog_team_ibfk_2` FOREIGN KEY (`team`) REFERENCES `team` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
 ALTER TABLE `dialog_user`
   ADD CONSTRAINT `dialog_user_ibfk_1` FOREIGN KEY (`dialog`) REFERENCES `dialog` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `dialog_user_ibfk_2` FOREIGN KEY (`user`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
@@ -888,6 +824,10 @@ ALTER TABLE `document`
 ALTER TABLE `document_label`
   ADD CONSTRAINT `document_label_ibfk_2` FOREIGN KEY (`label`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `document_label_ibfk_3` FOREIGN KEY (`document`) REFERENCES `document` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `document_mod`
+  ADD CONSTRAINT `document_mod_ibfk_3` FOREIGN KEY (`document`) REFERENCES `document` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `document_mod_ibfk_2` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
 ALTER TABLE `evaluation_indicator`
   ADD CONSTRAINT `evaluation_indicator_ibfk_1` FOREIGN KEY (`project`) REFERENCES `project` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
@@ -927,14 +867,14 @@ ALTER TABLE `message_user`
   ADD CONSTRAINT `message_user_ibfk_2` FOREIGN KEY (`user`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
 ALTER TABLE `nav`
-  ADD CONSTRAINT `nav_ibfk_1` FOREIGN KEY (`team`) REFERENCES `team` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `nav_ibfk_2` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `nav_ibfk_3` FOREIGN KEY (`parent`) REFERENCES `nav` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+  ADD CONSTRAINT `nav_ibfk_3` FOREIGN KEY (`parent`) REFERENCES `nav` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `nav_ibfk_4` FOREIGN KEY (`team`) REFERENCES `team` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
 ALTER TABLE `people`
   ADD CONSTRAINT `people_ibfk_2` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `people_ibfk_3` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `people_ibfk_4` FOREIGN KEY (`staff`) REFERENCES `staff` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+  ADD CONSTRAINT `people_ibfk_5` FOREIGN KEY (`staff`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
 ALTER TABLE `people_label`
   ADD CONSTRAINT `people_label_ibfk_2` FOREIGN KEY (`label`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
@@ -994,50 +934,3 @@ ALTER TABLE `schedule`
 ALTER TABLE `schedule_label`
   ADD CONSTRAINT `schedule_label_ibfk_2` FOREIGN KEY (`label`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   ADD CONSTRAINT `schedule_label_ibfk_4` FOREIGN KEY (`schedule`) REFERENCES `schedule` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
-ALTER TABLE `schedule_people`
-  ADD CONSTRAINT `schedule_people_ibfk_1` FOREIGN KEY (`schedule`) REFERENCES `schedule` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `schedule_people_ibfk_2` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
-ALTER TABLE `schedule_profile`
-  ADD CONSTRAINT `schedule_profile_ibfk_2` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `schedule_profile_ibfk_3` FOREIGN KEY (`schedule`) REFERENCES `schedule` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
-ALTER TABLE `schedule_taskboard`
-  ADD CONSTRAINT `schedule_taskboard_ibfk_1` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
-ALTER TABLE `school_room`
-  ADD CONSTRAINT `school_room_ibfk_1` FOREIGN KEY (`team`) REFERENCES `team` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
-ALTER TABLE `staff`
-  ADD CONSTRAINT `staff_ibfk_1` FOREIGN KEY (`id`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `staff_ibfk_2` FOREIGN KEY (`course`) REFERENCES `course` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `staff_ibfk_3` FOREIGN KEY (`position`) REFERENCES `position` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
-ALTER TABLE `team`
-  ADD CONSTRAINT `team_ibfk_1` FOREIGN KEY (`leader`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `team_ibfk_2` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `team_ibfk_3` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
-ALTER TABLE `team_label`
-  ADD CONSTRAINT `team_label_ibfk_1` FOREIGN KEY (`team`) REFERENCES `team` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `team_label_ibfk_2` FOREIGN KEY (`label`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
-ALTER TABLE `team_people`
-  ADD CONSTRAINT `team_people_ibfk_2` FOREIGN KEY (`team`) REFERENCES `team` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `team_people_ibfk_3` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
-ALTER TABLE `team_relationship`
-  ADD CONSTRAINT `team_relationship_ibfk_1` FOREIGN KEY (`team`) REFERENCES `team` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `team_relationship_ibfk_2` FOREIGN KEY (`relative`) REFERENCES `team` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
-ALTER TABLE `user`
-  ADD CONSTRAINT `user_ibfk_1` FOREIGN KEY (`id`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `user_ibfk_2` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
-ALTER TABLE `user_config`
-  ADD CONSTRAINT `user_config_ibfk_1` FOREIGN KEY (`user`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
