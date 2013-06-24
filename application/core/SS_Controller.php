@@ -80,7 +80,7 @@ class SS_Controller extends CI_Controller{
 			$this->load->language($this->company->syscode);
 		}
 		
-		if(CONTROLLER==='gate' && METHOD!=='browser' && $this->agent->browser()==='Internet Explorer' && $this->agent->version()<8){
+		if(CONTROLLER==='index' && METHOD!=='browser' && $this->agent->browser()==='Internet Explorer' && $this->agent->version()<8){
 			redirect('browser');
 		}
 		
