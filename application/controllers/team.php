@@ -1,5 +1,5 @@
 <?php
-class Team extends SS_Controller{
+class Team extends People{
 	
 	var $list_args;
 	

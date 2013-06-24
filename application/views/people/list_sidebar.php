@@ -11,7 +11,7 @@
 				</td>
 			</tr>
 			<tr>
-				<td><?//TODO select的title变成在转换为select2后消失?>
+				<td>
 					<select name="in_team[]" class="chosen" title="输入多个团组，将采取“或”方式查找" multiple="multiple" data-placeholder="团组">
 						<?=options($this->team->getArray(array('people_type'=>$this->config->user_item('search/type')),'name','id'),$this->config->user_item('search/in_team'),NULL,true)?>
 					</select>
@@ -20,7 +20,7 @@
 			<tr>
 				<td class="submit">
 					<button type="submit" name="search" tabindex="0">搜索</button>
-					<button type="submit" name="search_cancel" tabindex="1"<?if(!$this->config->user_item('search/name') && !$this->config->user_item('search/labels') && !$this->config->user_item('search/team')){?> class="hidden"<?}?>>取消</button>
+					<button type="submit" name="search_cancel" tabindex="1"<?if(!$this->config->user_item('search/name') && !$this->config->user_item('search/labels') && !$this->config->user_item('search/in_team')){?> class="hidden"<?}?>>取消</button>
 				</td>
 			</tr>
 		</tbody>

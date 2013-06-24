@@ -5,7 +5,7 @@ class Test extends SS_controller{
 	}
 	
 	function index(){
-		//print_r($this->session->all_userdata());
+		print_r($this->session->all_userdata());
 		print_r($this->user);
 	}
 	

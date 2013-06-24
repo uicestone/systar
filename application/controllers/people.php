@@ -21,20 +21,23 @@ class People extends SS_Controller{
 				'heading'=>'名称',
 				'cell'=>array('data'=>'{abbreviation}','class'=>"ellipsis",'title'=>'{name}')
 			),
+			'type'=>array('heading'=>'类型','parser'=>array('function'=>function($type){
+				return lang($type);
+			},'args'=>array('type'))),
 			'phone'=>array('heading'=>'电话'),
 			'email'=>array('heading'=>'电邮'),
 			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->people,'getCompiledLabels'),'args'=>array('id')))
 		);
 		
 		$this->relative_list_args=array(
-			'name'=>array('heading'=>'名称','cell'=>'{name}<button type="submit" id="{id}" name="submit[remove_relative]" class="hover">删除</button>'), 
+			'name'=>array('heading'=>'名称','cell'=>'{name}'), 
 			'phone'=>array('heading'=>'电话'), 
 			'email'=>array('heading'=>'电邮'), 
 			'relation'=>array('heading'=>'关系')
 		);
 		
 		$this->profile_list_args=array(
-			'name'=>array('heading'=>'名称','cell'=>'{name}<button type="submit" id="{id}" name="submit[remove_profile]" class="hover">删除</button>'), 
+			'name'=>array('heading'=>'名称','cell'=>'{name}'), 
 			'content'=>array('heading'=>'内容','parser'=>array('function'=>function($name,$content){
 				if($name=='电子邮件'){
 					return '<a href="mailto:'.$content.'" target="_blank">'.$content.'</a>';
@@ -115,7 +118,7 @@ class People extends SS_Controller{
 		}
 		
 		$table=$this->table->setFields($this->list_args)
-			->setRowAttributes(array('hash'=>CONTROLLER.'/{id}'))
+			->setRowAttributes(array('hash'=>'{type}/{id}'))
 			->setData($this->people->getList($this->config->user_item('search')))
 			->generate();
 		$this->load->addViewData('list', $table);

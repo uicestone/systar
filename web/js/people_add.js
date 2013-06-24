@@ -9,6 +9,84 @@ $(function(){
 		});
 	});
 	
+	/*相关人子表的删除行按钮*/
+	section.find('.item[name="relative"]:not([locked])')
+		.on('mouseenter','tbody>tr',function(){
+	
+			$(this).siblings('tr').each(function(){
+				if($(this).data('delete-button')){
+					$(this).data('delete-button').remove();
+				}
+			});
+	
+			var that=$(this).data('delete-button',
+				$('<button/>',{text:'删除',type:'submit',name:'submit[remove_relative]',id:$(this).attr('id')})
+					.appendTo(document.body)
+					.position({
+						my:'right-5 center',
+						at:'right center',
+						of:$(this)
+					})
+					.on('mouseenter',function(){
+						$(this).clearQueue();
+					})
+					.on('mouseleave',function(){
+						$(this).stop().remove();
+					})
+					.on('click',function(){
+						var project=that.closest('form[id]').attr('id');
+						var people=that.closest('tr').attr('id');
+						$.post('/'+controller+'/submit/remove_relative/'+project+'/'+people,function(){
+							that.data('delete-button').remove();
+						});
+					})
+				);
+		})
+		.on('mouseleave','tbody>tr',function(){
+			$(this).data('delete-button').clearQueue().delay(200).hide(0,function(){
+				$(this).remove();
+			});
+		});
+
+	/*资料项子表的删除行按钮*/
+	section.find('.item[name="profile"]:not([locked])')
+		.on('mouseenter','tbody>tr',function(){
+	
+			$(this).siblings('tr').each(function(){
+				if($(this).data('delete-button')){
+					$(this).data('delete-button').remove();
+				}
+			});
+	
+			var that=$(this).data('delete-button',
+				$('<button/>',{text:'删除',type:'submit',name:'submit[remove_profile]',id:$(this).attr('id')})
+					.appendTo(document.body)
+					.position({
+						my:'right-5 center',
+						at:'right center',
+						of:$(this)
+					})
+					.on('mouseenter',function(){
+						$(this).clearQueue();
+					})
+					.on('mouseleave',function(){
+						$(this).stop().remove();
+					})
+					.on('click',function(){
+						var project=that.closest('form[id]').attr('id');
+						var people=that.closest('tr').attr('id');
+						$.post('/'+controller+'/submit/remove_profile/'+project+'/'+people,function(){
+							that.data('delete-button').remove();
+						});
+					})
+				);
+		})
+		.on('mouseleave','tbody>tr',function(){
+			$(this).data('delete-button').clearQueue().delay(200).hide(0,function(){
+				$(this).remove();
+			});
+		});
+
 	/*响应客户来源选项*/
 	section.find('[name="profiles[来源类型]"]').on('change',function(){
 		if($.inArray($(this).val(),['其他网络','媒体','老客户介绍','合作单位介绍','其他'])===-1){
