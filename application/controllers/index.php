@@ -4,7 +4,9 @@ class Index extends SS_Controller{
 		$this->permission=array(
 			'index'=>array(),
 			'browser'=>array(),
-			'reception'=>true
+			'reception'=>true,
+			'favicon'=>true,
+			'robots'=>true
 		);
 		parent::__construct();
 	}
@@ -63,6 +65,25 @@ class Index extends SS_Controller{
 			}
 		}
 		
+	}
+	
+	function robots(){
+		$this->output->set_output($this->config->user_item('robots'));
+	}
+	
+	function favicon(){
+		
+		$this->output->set_content_type('ico');
+		
+		foreach(array(
+			APPPATH.'../web/images/favicon_'.COMPANY_CODE.'.ico',
+			APPPATH.'../web/images/favicon_'.COMPANY_TYPE.'.ico',
+			APPPATH.'../web/images/favicon.ico',
+		) as $path){
+			if(file_exists($path)){
+				readfile($path);
+			}
+		}
 	}
 }
 

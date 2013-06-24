@@ -66,7 +66,7 @@ class SS_Controller extends CI_Controller{
 			}
 		}
 		
-		if(is_array($this->permission) && $this->permission && !array_intersect(array_keys($this->user->teams),$this->permission)){
+		if(is_array($this->permission) && $this->permission && (!$this->user->teams || !array_intersect(array_keys($this->user->teams),$this->permission))){
 			if($this->output->as_ajax){
 				$this->output->status='denied';
 				$this->output->message('no permission','warning');

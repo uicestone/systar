@@ -51,6 +51,8 @@ $route['reception']='index/reception';
 $route['(account|cases|classes|client|contact|document|people|project|query|staff|student|team)/(:num)']='$1/edit/$2';
 $route['evaluation/(:num)']='evaluation/candidates/$1';
 $route['activity/(:num)']='activity/edit/$1';
+$route['favicon.ico']='index/favicon';
+$route['robots.txt']='index/robots';
 
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

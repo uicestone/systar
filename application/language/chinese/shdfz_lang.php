@@ -1,7 +1,11 @@
 <?php
 $lang=array(
+	'classes'=>'班级',
+	'course_group'=>'教研组',
+	'exam'=>'考试',
 	'parent'=>'家长',
+	'score'=>'分数',
+	'student'=>'学生',
 	'teacher_group'=>'备课组',
-	'course_group'=>'教研组'
 );
 ?>

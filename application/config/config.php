@@ -393,6 +393,10 @@ foreach($company as $company_type => $company)
 	}
 }
 
+if(!defined('COMPANY_TYPE') || !defined('COMPANY_CODE')){
+	show_error('unknown host '.$_SERVER['HTTP_HOST']);
+}
+
 /**
  * 启用php5风格的autoloader
  */
@@ -420,6 +424,7 @@ function __autoload($class) {
 		require_once APPPATH.'controllers/'.strtolower($class).EXT;
 	}
 	
-} 
+}
+
 /* End of file config.php */
 /* Location: ./application/config/config.php */
