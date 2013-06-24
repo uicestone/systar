@@ -12,50 +12,20 @@ class SS_Router extends CI_Router{
 			return $segments;
 		}
 
-		// Load the company.php file.
-		if (defined('ENVIRONMENT') AND is_file(APPPATH.'config/'.ENVIRONMENT.'/company.php'))
+		if(file_exists(APPPATH.'controllers/'.COMPANY_TYPE.'/'.COMPANY_CODE.'/'.$segments[0].EXT))
 		{
-			include(APPPATH.'config/'.ENVIRONMENT.'/company.php');
-		}
-		elseif (is_file(APPPATH.'config/company.php'))
-		{
-			include(APPPATH.'config/company.php');
-		}
-		
-		$type=$code=NULL;
-		$host=$_SERVER['HTTP_HOST'];
-		
-		foreach($company as $company_type => $company)
-		{
-			foreach($company as $company_code => $company_hostname)
-			{
-				if($company_code===$host || $company_hostname===$host)
-				{
-					$type=$company_type;$code=$company_code;
-					break;
-				}
-			}
-			
-			if(isset($type) && isset($code))
-			{
-				break;
-			}
-		}
-		
-		if(file_exists(APPPATH."controllers/$type/$code/{$segments[0]}".EXT))
-		{
-			$this->directory="$type/$code/";
+			$this->directory=COMPANY_TYPE.'/'.COMPANY_CODE.'/';
 			return $segments;
 			
 		}
 		
-		if(file_exists(APPPATH."controllers/$type/{$segments[0]}".EXT)){
-			$this->directory="$type/";
+		if(file_exists(APPPATH.'controllers/'.COMPANY_TYPE.'/'.$segments[0].EXT)){
+			$this->directory=COMPANY_TYPE.'/';
 			return $segments;
 		}
 		
 		// Does the requested controller exist in the root folder?
-		if (file_exists(APPPATH.'controllers/'.$segments[0].'.php'))
+		if (file_exists(APPPATH.'controllers/'.$segments[0].EXT))
 		{
 			return $segments;
 		}

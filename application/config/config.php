@@ -364,24 +364,62 @@ date_default_timezone_set('Asia/Shanghai');
 session_set_cookie_params(86400); 
 session_start();
 
+$company=array(
+	'lawfirm'=>array(
+		'starsys'=>'sys.lawyerstars.com'
+	),
+	'school'=>array(
+		'shdfz'=>'sdfz.sys.sh'
+	),
+);
+
+$type=$code=NULL;
+
+foreach($company as $company_type => $company)
+{
+	foreach($company as $company_code => $company_hostname)
+	{
+		if($company_code===$_SERVER['HTTP_HOST'] || $company_hostname===$_SERVER['HTTP_HOST'])
+		{
+			define('COMPANY_TYPE',$company_type);
+			define('COMPANY_CODE',$company_code);
+			break;
+		}
+	}
+
+	if(defined('COMPANY_TYPE') && defined('COMPANY_CODE'))
+	{
+		break;
+	}
+}
+
 /**
  * 启用php5风格的autoloader
  */
 function __autoload($class) {
 	
 	if(preg_match('/_model$/', $class)){
-		if(file_exists(APPPATH."models/".strtolower($class).EXT)){
-			require_once APPPATH."models/".strtolower($class).EXT;
+		if(file_exists(APPPATH.'models/'.strtolower($class).EXT)){
+			require_once APPPATH.'models/'.strtolower($class).EXT;
 		}
 	}
 	
 	elseif(file_exists(APPPATH.'libraries/.'.strtolower($class).EXT)){
-		require_once APPPATH."libraries/".strtolower($class).EXT;
+		require_once APPPATH.'libraries/'.strtolower($class).EXT;
+	}
+
+	elseif(file_exists(APPPATH.'controllers/'.COMPANY_TYPE.'/'.COMPANY_CODE.'/'.strtolower($class).EXT)){
+		require_once APPPATH.'controllers/'.COMPANY_TYPE.'/'.COMPANY_CODE.'/'.strtolower($class).EXT;
 	}
 	
-	elseif(file_exists(APPPATH."controllers/".strtolower($class).EXT)){
-		require_once APPPATH."controllers/".strtolower($class).EXT;
+	elseif(file_exists(APPPATH.'controllers/'.COMPANY_TYPE.'/'.strtolower($class).EXT)){
+		require_once APPPATH.'controllers/'.COMPANY_TYPE.'/'.strtolower($class).EXT;
 	}
+	
+	elseif(file_exists(APPPATH.'controllers/'.strtolower($class).EXT)){
+		require_once APPPATH.'controllers/'.strtolower($class).EXT;
+	}
+	
 } 
 /* End of file config.php */
 /* Location: ./application/config/config.php */
