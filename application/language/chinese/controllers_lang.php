@@ -1,5 +1,6 @@
 <?php
 $lang=array(
+	''=>'',
 	'account'=>'资金',
 	'achivement'=>'业绩',
 	'cases'=>'案件',
