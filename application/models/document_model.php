@@ -151,7 +151,7 @@ class Document_model extends BaseItem_model{
 		$this->db
 			->where('document',$document)
 			->where('people',$people)
-			->set('mod','`mod` ^ '.intval($mod),false)
+			->set('mod','`mod` & ~'.intval($mod),false)
 			->update('document_mod');
 		
 		return $this->db->affected_rows();
