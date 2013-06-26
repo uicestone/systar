@@ -32,13 +32,13 @@ class Document_model extends BaseItem_model{
 			$this->db->join('message_document',"message_document.document = document.id AND message_document.message = {$args['message']}",'inner');
 		}
 		
-		/*
+		//验证读权限
 		$this->db->where("document.id IN (
 			SELECT document FROM document_mod
 			WHERE (document_mod.people IS NULL OR document_mod.people{$this->db->escape_int_array(array_merge(array_keys($this->user->teams),array($this->user->id)))})
-				AND (document_mod.mod & 1 = 1)
-		)");
-		 */
+				AND ((document_mod.mod & 1) = 1)
+			)
+		");
 		
 		return parent::getList($args);
 	}
@@ -119,6 +119,42 @@ class Document_model extends BaseItem_model{
 		$people=array_sub($this->db->get()->result_array(),'people');
 		
 		return $people;
+	}
+	
+	function addMod($mod,$people,$document=NULL){
+		
+		is_null($document) && $document=$this->id;
+		
+		if($this->db->where('document',$document)->where('people',$people)->count_all_results('document_mod')===0){
+			$this->db->insert('document_mod',array(
+				'document'=>$document,
+				'people'=>$people,
+				'mod'=>$mod
+			));
+			
+			return $this->db->insert_id();
+		}
+		
+		$this->db
+			->where('document',$document)
+			->where('people',$people)
+			->set('mod','`mod` | '.intval($mod),false)
+			->update('document_mod');
+		
+		return $this->db->affected_rows();
+	}
+	
+	function removeMod($mod,$people,$document=NULL){
+		
+		is_null($document) && $document=$this->id;
+		
+		$this->db
+			->where('document',$document)
+			->where('people',$people)
+			->set('mod','`mod` ^ '.intval($mod),false)
+			->update('document_mod');
+		
+		return $this->db->affected_rows();
 	}
 	
 	function exportHead($filename,$as_attachment=false){

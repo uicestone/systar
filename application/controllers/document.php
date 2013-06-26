@@ -23,7 +23,6 @@ class Document extends SS_controller{
 		
 		$this->config->set_user_item('search/orderby', 'document.id desc', false);
 		$this->config->set_user_item('search/limit', 'pagination', false);
-		$this->config->set_user_item('search/uid', $this->user->id, false);
 		
 		if($this->input->get('labels')!==false){
 			$labels=explode(' ',urldecode($this->input->get('labels')));
@@ -213,6 +212,29 @@ class Document extends SS_controller{
 		if($this->input->post('document')){
 			$this->document->update($id,$this->input->post('document'));
 		}
+	}
+	
+	function addMod($id,$people,$mod){
+		
+		$this->document->data=$this->document->fetch($id);
+		
+		if($this->user->id!=$this->document->data['uid']){
+			$this->output->status='denied';
+			return;
+		}
+		
+		$this->document->addMod($mod, $people,$id);
+	}
+	
+	function removeMod($id,$people,$mod){
+		$this->document->data=$this->document->fetch($id);
+		
+		if($this->user->id!=$this->document->data['uid']){
+			$this->output->status='denied';
+			return;
+		}
+		
+		$this->document->removeMod($mod, $people,$id);
 	}
 }
 ?>
