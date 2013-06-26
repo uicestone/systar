@@ -50,7 +50,11 @@ class Document_model extends BaseItem_model{
 		
 		$this->db->insert('document',$document);
 		
-		return $this->db->insert_id();
+		$insert_id=$this->db->insert_id();
+		
+		$this->addMod(7, $this->user->id, $insert_id);
+		
+		return $insert_id;
 	}
 	
 	function update($id,$data=array()){
