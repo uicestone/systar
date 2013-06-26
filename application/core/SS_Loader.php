@@ -3,6 +3,8 @@ class SS_Loader extends CI_Loader{
 	
 	var $view_data=array();//要传递给视图的参数
 	
+	var $view_path=array();
+	
 	var $blocks=array();
 	
 	var $inner_js='';
@@ -41,6 +43,10 @@ class SS_Loader extends CI_Loader{
 	 */
 	function view($view, $return=FALSE, $block_name = FALSE){
 		
+		if(array_key_exists($view, $this->view_path)){
+			$view=$this->view_path[$view];
+		}
+		
 		$vars=array_merge($this->getViewData());//每次载入视图时，都将当前视图数据传递给他一次
 		
 		if($block_name===FALSE){
@@ -67,7 +73,7 @@ class SS_Loader extends CI_Loader{
 	function javascript($js_file_path){
 		$path='js/'.$js_file_path.'.js';
 		
-		if(!is_file($path)){
+		if(!file_exists($path)){
 			//找不到文件？我们看看这个文件是不是需要根据其他文件合并
 			$this->config('minify');
 			$sources=$this->config->item('minify_source');
@@ -104,7 +110,7 @@ class SS_Loader extends CI_Loader{
 	function stylesheet($js_file_path){
 		$path=$js_file_path.'.css';
 		
-		if(!is_file($path)){
+		if(!file_exists($path)){
 			//找不到文件？我们看看这个文件是不是需要根据其他文件合并
 			$this->config('minify');
 			$sources=$this->config->item('minify_source');

@@ -53,8 +53,7 @@ class Document extends SS_controller{
 		
 		$table=$this->table->setFields($this->list_args)
 			->setRowAttributes(array('hash'=>'document/{id}'))
-			->setData($this->document->getList($this->config->user_item('search')))
-			->generate();
+			->setData($this->document->getList($this->config->user_item('search')));
 		
 		$this->load->addViewData('list',$table);
 		
@@ -96,7 +95,7 @@ class Document extends SS_controller{
 				$this->output->title=$this->document->data['name'];
 			}
 			
-			if(is_file(APPPATH.'../web/images/file_type/'.substr($this->document->data['extname'],1).'.png')){
+			if(file_exists(APPPATH.'../web/images/file_type/'.substr($this->document->data['extname'],1).'.png')){
 				$this->document->data['icon']=substr($this->document->data['extname'],1).'.png';
 			}
 			else{

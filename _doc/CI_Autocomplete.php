@@ -61,6 +61,7 @@
 * @property Query_model $query
 * @property Schedule_model $schedule
 * @property Score_model $score
+* @property Society_model $society
 * @property Staff_model $staff
 * @property Student_model $student
 * @property Team_model $team

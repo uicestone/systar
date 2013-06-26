@@ -4,7 +4,6 @@ class Society extends Team{
 		parent::__construct();
 		
 		$this->load->model('society_model','society');
-		array_unshift($this->controllers, __CLASS__);
 		$this->people=$this->society;
 		$this->team=$this->society;
 
@@ -33,9 +32,6 @@ class Society extends Team{
 		
 	}
 	
-	/**
-	 * 社团列表
-	 */
 	function index(){
 		
 		if($this->user->inTeam(13453)){

@@ -70,7 +70,7 @@
 
 			<span display-for="new client" class="hidden">
 				<label>来源：</label>
-				<select name="client_profiles[来源类型]" disabled="disabled">
+				<select name="client_profiles[来源类型]" class="tagging" disabled="disabled">
 					<?=options($this->config->user_item('客户来源类型'),$this->value('client_profiles/来源类型'),'来源类型')?>
 				</select>
 				<input type="text" name="client_profiles[来源]" value="<?=$this->value('client_profiles/来源')?>" class="hidden" disabled="disabled" locked-by="client_profiles[来源类型]" />

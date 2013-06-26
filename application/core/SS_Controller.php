@@ -12,12 +12,6 @@ class SS_Controller extends CI_Controller{
 	 */
 	var $permission=array();
 	
-	/**
-	 * 用于纪录有继承关系的控制器的继承层次
-	 * @var type 
-	 */
-	var $controllers=array();
-	
 	function __construct(){
 		parent::__construct();
 		
@@ -108,7 +102,7 @@ class SS_Controller extends CI_Controller{
 	}
 	
 	/**
-	 * @TODO 统一的_output方法最好还是写成Output:_display()的继承
+	 * @todo 统一的_output方法最好还是写成Output:_display()的继承
 	 * 
 	 * 自定义的通用输出方法，系统不再直接将输出内容打印，而是传给此方法
 	 * 此方法将当前Output类中的data,status,message等属性统一封装为json后输出

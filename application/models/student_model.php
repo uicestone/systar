@@ -22,6 +22,8 @@ class Student_model extends People_model{
 	
 	function getList($args=array()){
 		
+		!isset($args['type']) && $args['type']='student';
+		
 		$this->db->select('
 			people.*,
 			RIGHT((1000000 + CONCAT(people_team.num, RIGHT((100 + class_student.num),2))),6) AS num,

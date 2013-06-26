@@ -3,6 +3,8 @@ class People extends SS_Controller{
 	
 	var $form_validation_rules=array();
 	
+	var $search_items=array();
+	
 	var $list_args;
 	
 	var $relative_list_args;
@@ -15,6 +17,7 @@ class People extends SS_Controller{
 
 	function __construct() {
 		parent::__construct();
+		$this->search_items=array('name','labels','in_team');
 		
 		$this->list_args=array(
 			'abbreviation'=>array(
@@ -54,6 +57,10 @@ class People extends SS_Controller{
 			'date'=>array('heading'=>'日期'),
 			'comment'=>array('heading'=>'备注')
 		);
+		
+		$this->load->view_path['list_aside']='people/list_sidebar';
+		$this->load->view_path['edit']='people/edit';
+		$this->load->view_path['edit_aside']='people/edit_sidebar';
 	}
 	
 	/**
@@ -83,58 +90,31 @@ class People extends SS_Controller{
 		$this->output->data=$array;
 	}
 	
-	/**
-	 * 列表页
-	 */
 	function index(){
 		
-		$this->config->set_user_item('search/orderby', 'people.id desc', false);
 		$this->config->set_user_item('search/limit', 'pagination', false);
 		
-		$search_items=array('name','labels','in_team');
-		
-		foreach($search_items as $item){
-			if($this->input->post($item)!==false){
-				if($this->input->post($item)!==''){
-					$this->config->set_user_item('search/'.$item, $this->input->post($item));
-				}else{
-					$this->config->unset_user_item('search/'.$item);
-				}
+		foreach($this->search_items as $item){
+			if($this->input->post($item)){
+				$this->config->set_user_item('search/'.$item, $this->input->post($item));
 			}
-		}
-		
-		if($this->input->post('submit')==='search' && $this->input->post('labels')===false){
-			$this->config->unset_user_item('search/labels');
-		}
-		
-		if($this->input->post('submit')==='search' && $this->input->post('team')===false){
-			$this->config->unset_user_item('search/team');
-		}
-		
-		if($this->input->post('submit')==='search_cancel'){
-			foreach($search_items as $item){
+			elseif($this->input->post('submit')==='search'){
 				$this->config->unset_user_item('search/'.$item);
 			}
 		}
 		
-		$table=$this->table->setFields($this->list_args)
+		if($this->input->post('submit')==='search_cancel'){
+			foreach($this->search_items as $item){
+				$this->config->unset_user_item('search/'.$item);
+			}
+		}
+		
+		$this->table->setFields($this->list_args)
 			->setRowAttributes(array('hash'=>'{type}/{id}'))
-			->setData($this->people->getList($this->config->user_item('search')))
-			->generate();
-		$this->load->addViewData('list', $table);
+			->setData($this->people->getList($this->config->user_item('search')));
 		
-		if(file_exists(APPPATH.'/views/'.CONTROLLER.'/list'.EXT)){
-			$this->load->view(CONTROLLER.'/list');
-		}else{
-			$this->load->view('list');
-		}
-		
-		if(file_exists(APPPATH.'/views/'.CONTROLLER.'/list_sidebar'.EXT)){
-			$this->load->view(CONTROLLER.'/list_sidebar',true,'sidebar');
-		}else{
-			$this->load->view('people/list_sidebar',true,'sidebar');
-		}
-		
+		$this->load->view('list');
+		$this->load->view('list_aside',true,'sidebar');
 	}
 	
 	function add(){
@@ -147,15 +127,11 @@ class People extends SS_Controller{
 		$this->edit($this->people->id);
 	}
 	
-	/**
-	 * 查看/编辑页面
-	 */
 	function edit($id){
 
 		$this->people->id=$id;
 		
 		$this->load->model('staff_model','staff');
-		$this->load->model('cases_model','cases');
 
 		try{
 			$this->people->data=array_merge($this->people->fetch($id),$this->input->sessionPost('people'));
@@ -189,8 +165,8 @@ class People extends SS_Controller{
 				post('people/character', $this->input->post('character'));
 			}
 
-			$this->load->view('people/edit');
-			$this->load->view('people/edit_sidebar',true,'sidebar');
+			$this->load->view('edit');
+			$this->load->view('edit_aside',true,'sidebar');
 		}
 		catch(Exception $e){
 			$this->output->status='fail';

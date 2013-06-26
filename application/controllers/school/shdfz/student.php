@@ -6,8 +6,9 @@ class Student extends People{
 	function __construct(){
 		parent::__construct();
 		$this->load->model('student_model','student');
-		$this->people=$this->student;
 		$this->load->model('classes_model','classes');
+		$this->student=$this->student;
+		
 		$this->score_list_args=array(
 			'exam_name'=>array('heading'=>'考试'),
 			'语文'=>array('heading'=>'语文','cell'=>'{语文}<span class="rank">{rank_语文}</span>'),
@@ -24,6 +25,8 @@ class Student extends People{
 			'4总/5总'=>array('heading'=>'4总/5总','cell'=>'{5总}<span class="rank">{rank_5总}</span>'),
 			'8总'=>array('heading'=>'8总','cell'=>'{8总}<span class="rank">{rank_8总}</span>')
 		);
+		
+		$this->load->view_path['edit']='student/edit';
 
 	}
 	
@@ -33,10 +36,8 @@ class Student extends People{
 			'num'=>array('heading'=>'学号'),
 			'name'=>array('heading'=>'姓名'),
 			'class_name'=>array('heading'=>'班级'),
-			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->people,'getCompiledLabels'),'args'=>array('id')))
+			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->student,'getCompiledLabels'),'args'=>array('id')))
 		);
-		
-		$this->config->set_user_item('search/type', 'student', false);
 		
 		parent::index();
 		
@@ -47,12 +48,12 @@ class Student extends People{
 	}
 	
 	function edit($id){
-		$this->people->id=$id;
+		$this->student->id=$id;
 		
 		try{
-			$people=array_merge($this->people->fetch($id),$this->input->sessionPost('people'));
-			$labels=$this->people->getLabels($this->people->id);
-			$profiles=array_sub($this->people->getProfiles($this->people->id),'content','name');
+			$people=array_merge($this->student->fetch($id),$this->input->sessionPost('people'));
+			$labels=$this->student->getLabels($this->student->id);
+			$profiles=array_sub($this->student->getProfiles($this->student->id),'content','name');
 
 			if(!$people['name'] && !$people['abbreviation']){
 				$this->output->title='未命名'.lang(CONTROLLER);
@@ -60,8 +61,8 @@ class Student extends People{
 				$this->output->title=$people['abbreviation']?$people['abbreviation']:$people['name'];
 			}
 
-			$available_options=$this->people->getAllLabels();
-			$profile_name_options=$this->people->getProfileNames();
+			$available_options=$this->student->getAllLabels();
+			$profile_name_options=$this->student->getProfileNames();
 			
 			$this->load->addViewData('class', $this->classes->fetchByStudent($this->student->id));
 			$this->load->addViewData('score_list', $this->scoreList());
@@ -70,8 +71,6 @@ class Student extends People{
 			$this->load->addViewData('relative_list', $this->relativeList());
 			$this->load->addViewArrayData(compact('people','labels','profiles','available_options','profile_name_options'));
 
-			$this->load->view('student/edit');
-			$this->load->view('people/edit_sidebar',true,'sidebar');
 		}
 		catch(Exception $e){
 			$this->output->status='fail';
@@ -79,6 +78,8 @@ class Student extends People{
 				$this->output->message($e->getMessage(), 'warning');
 			}
 		}
+		
+		parent::edit($id);
 	}
 	
 	function mychild(){

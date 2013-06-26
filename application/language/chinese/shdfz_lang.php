@@ -5,6 +5,7 @@ $lang=array(
 	'exam'=>'考试',
 	'parent'=>'家长',
 	'score'=>'分数',
+	'society'=>'社团',
 	'student'=>'学生',
 	'teacher_group'=>'备课组',
 );

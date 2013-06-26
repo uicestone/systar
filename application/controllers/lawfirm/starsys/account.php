@@ -59,12 +59,9 @@ class Account extends SS_controller{
 			}
 		}
 		
-		$list=$this->table->setFields($this->list_args)
+		$this->table->setFields($this->list_args)
 			->setRowAttributes(array('hash'=>'account/{id}'))
-			->setData($this->account->getList($this->config->user_item('search')))
-			->generate();
-		
-		$this->load->addViewData('list', $list);
+			->setData($this->account->getList($this->config->user_item('search')));
 		
 		//总业绩表
 		$summary=array(

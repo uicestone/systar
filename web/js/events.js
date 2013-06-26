@@ -136,10 +136,10 @@ $(document)
 				if(id){
 					postURI+='/'+id;
 
-					if(buttonId){
-						postURI+='/'+buttonId;
-					}
+				}
 
+				if(buttonId){
+					postURI+='/'+buttonId;
 				}
 
 				$.post(postURI,$('article>section[hash="'+hash+'"]>form').serialize());

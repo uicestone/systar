@@ -110,6 +110,11 @@ class Cases_model extends Project_model{
 		
 		return $labels_string;
 	}
+	
+	function getList(array $args=array()){
+		!isset($args['type']) && $args['type']='cases';
+		return parent::getList($args);
+	}
 
 }
 ?>

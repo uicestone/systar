@@ -3,6 +3,8 @@ class Project extends SS_controller{
 	
 	var $form_validation_rules=array();
 	
+	var $search_items=array();
+	
 	var $list_args;
 	
 	var $people_list_args;
@@ -23,7 +25,6 @@ class Project extends SS_controller{
 	
 	function __construct(){
 		parent::__construct();
-		array_unshift($this->controllers, __CLASS__);
 		$this->load->model('project_model','project');
 		
 		$this->form_validation_rules['people'][]=array('rules'=>'required','label'=>'人员','field'=>'people[id]');
@@ -33,6 +34,8 @@ class Project extends SS_controller{
 			array('field'=>'account[date]','label'=>'收费日起','rules'=>'required')
 		);
 		
+		$this->search_items=array('num','name','labels','people');
+
 		$this->list_args=array(
 			'name'=>array('heading'=>'名称','cell'=>'{name}'),
 			'people'=>array('heading'=>'人员','cell'=>array('class'=>'ellipsis'),'parser'=>array('function'=>array($this->project,'getCompiledPeople'),'args'=>array('id'))),
@@ -76,6 +79,11 @@ class Project extends SS_controller{
 			'name'=>array('heading'=>'名称'),
 			'relation'=>array('heading'=>'关系'),
 		);
+		
+		$this->load->view_path['list_aside']='project/list_sidebar';
+		$this->load->view_path['edit']='project/edit';
+		$this->load->view_path['edit_aside']='project/edit_sidebar';
+		
 	}
 	
 	function index(){
@@ -89,59 +97,27 @@ class Project extends SS_controller{
 			$this->config->set_user_item('search/labels', $labels);
 		}
 		
-		$search_items=array('num','name','labels','people');
-		
-		foreach($search_items as $item){
-			if($this->input->post($item)!==false){
-				if($this->input->post($item)!==''){
-					$this->config->set_user_item('search/'.$item, $this->input->post($item));
-				}else{
-					$this->config->unset_user_item('search/'.$item);
-				}
+		foreach($this->search_items as $item){
+			if($this->input->post($item)){
+				$this->config->set_user_item('search/'.$item, $this->input->post($item));
 			}
-		}
-		
-		if($this->input->post('submit')==='search' && $this->input->post('labels')===false){
-			$this->config->unset_user_item('search/labels');
-		}
-		
-		if($this->input->post('submit')==='search_cancel'){
-			foreach($search_items as $item){
+			elseif($this->input->post('submit')==='search'){
 				$this->config->unset_user_item('search/'.$item);
 			}
 		}
 		
-		$table=$this->table->setFields($this->list_args)
+		if($this->input->post('submit')==='search_cancel'){
+			foreach($this->search_items as $item){
+				$this->config->unset_user_item('search/'.$item);
+			}
+		}
+		
+		$this->table->setFields($this->list_args)
 			->setRowAttributes(array('hash'=>'{type}/{id}'))
-			->setData($this->project->getList($this->config->user_item('search')))
-			->generate();
+			->setData($this->project->getList($this->config->user_item('search')));
 		
-		$this->load->addViewData('list',$table);
-		
-		//让视图实现继承
-		$hierarchical_views=array();
-		foreach($this->controllers as $controller){
-			$controller=strtolower($controller);
-			$hierarchical_views[]=$controller.'/list';
-		}
-		$hierarchical_views[]='list';
-		
-		foreach($hierarchical_views as $view){
-			
-			if(is_file(APPPATH.'views/'.$view.EXT)){
-				$this->load->view($view);
-				break;
-			}
-		}
-
-		foreach($this->controllers as $controller){
-			$controller=strtolower($controller);
-
-			if(is_file(APPPATH.'views/'.$controller.'/list_sidebar'.EXT)){
-				$this->load->view($controller.'/list_sidebar',true,'sidebar');
-				break;
-			}
-		}
+		$this->load->view('list');
+		$this->load->view('list_aside',true,'sidebar');
 	}
 	
 	function add(){
@@ -190,23 +166,9 @@ class Project extends SS_controller{
 			
 			$this->load->addViewData('relative_list', $this->relativeList());
 
-			foreach($this->controllers as $controller){
-				$controller=strtolower($controller);
-				
-				if(is_file(APPPATH.'views/'.$controller.'/edit'.EXT)){
-					$this->load->view($controller.'/edit');
-					break;
-				}
-			}
-
-			foreach($this->controllers as $controller){
-				$controller=strtolower($controller);
-				
-				if(is_file(APPPATH.'views/'.$controller.'/edit_sidebar'.EXT)){
-					$this->load->view($controller.'/edit_sidebar',true,'sidebar');
-					break;
-				}
-			}
+			$this->load->view('edit');
+			$this->load->view('edit_aside',true,'sidebar');
+			
 		}
 		catch(Exception $e){
 			$this->output->status='fail';

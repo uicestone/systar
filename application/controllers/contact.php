@@ -7,9 +7,5 @@ class Contact extends People{
 		$this->people=$this->contact;
 	}
 
-	function index(){
-		parent::index();
-	}
-
 }
 ?>

@@ -13,7 +13,6 @@ class User_model extends People_model{
 	static $fields=array(
 		'name'=>'用户名',
 		'alias'=>'别名',
-		'group'=>'用户组',
 		'password'=>'密码'
 	);
 	
@@ -59,17 +58,14 @@ class User_model extends People_model{
 			->where('people.company',$this->company->id)
 			->where('people.display',true);
 		
-		$args+=array('display'=>false,'company'=>false,'everyone'=>false);
+		$args+=array('display'=>false,'company'=>false);
 		
 		return parent::getList($args);
 	}
 	
 	function add($data=array()){
-		$data['type']='student';
 		$user_id=parent::add($data);
 
-		$data['group']='candidate';
-		$this->addToTeamByName($user_id, '报名考生');
 		$data=array_intersect_key($data, self::$fields);
 		
 		$data['id']=$user_id;
@@ -98,37 +94,6 @@ class User_model extends People_model{
 	
 		}else{
 			return $user;
-		}
-	}
-	
-	function check($username,$field='id',$show_error=true){
-		//$data_type:id,array
-		
-		if(!$username){
-			if($show_error){
-				showMessage('请输入用户名','warning');
-			}
-			return -3;
-		}
-	
-		$query="SELECT * FROM `user` WHERE company={$this->company->id} AND `username` = '{$username}'";
-		$result=$this->db->query($query);
-		$num_lawyers=$result->num_rows();
-	
-		if($num_lawyers==0){
-			if($show_error){
-				showMessage('没有这个用户：'.$username,'warning');
-			}
-			return -1;
-			
-		}else{
-			$data=$result->row_array($result);
-			if($field=='array' || is_null($field)){
-				$return=$data;
-			}else{
-				$return=$data[$field];
-			}
-			return $return;
 		}
 	}
 	
@@ -197,7 +162,7 @@ class User_model extends People_model{
 	 */
 	function isLogged($check_type=NULL){
 		if(is_null($check_type)){
-			if(empty($this->group)){
+			if(empty($this->id)){
 				return false;
 			}
 		}elseif(empty($this->group) || !in_array($check_type,$this->group)){
@@ -208,7 +173,7 @@ class User_model extends People_model{
 	}
 	
 	function inTeam($team){
-		if(in_array($team,$this->teams) || array_key_exists($team, $this->teams)){
+		if(array_key_exists($team, $this->teams)){
 			return true;
 		}
 		else{
@@ -223,14 +188,14 @@ class User_model extends People_model{
 				SELECT * FROM nav
 				WHERE (company_type is null or company_type = '{$this->company->type}')
 					AND (company ={$this->company->id} OR company IS NULL)
-					AND (team IS NULL ".($this->teams?"OR team IN (".implode(',',array_keys($this->teams)).")":'').")
-				ORDER BY company_type DESC,company DESC,team DESC
+					AND (team IS NULL OR team{$this->db->escape_int_array(array_keys($this->teams))})
+				ORDER BY company_type DESC, company DESC, team DESC
 			)nav_ordered
 			GROUP BY href
-			ORDER BY parent,`order`
+			ORDER BY parent, `order`
 		";
 				
-	$result=$this->db->query($query);
+		$result=$this->db->query($query);
 		
 		$nav=array();
 		
@@ -267,18 +232,6 @@ class User_model extends People_model{
 		}
 		
 		return generate($nav);
-	}
-
-	/**
-	 * 调用uc接口发送用户信息
-	 */
-	function sendMessage($receiver,$message,$title='',$sender=NULL){
-		if(is_null($sender)){
-			$sender=$this->id;
-		}
-		if($CFG->item('ucenter')){
-			uc_pm_send($sender,$receiver,$title,$message);
-		}
 	}
 
 }

@@ -67,7 +67,7 @@ class Project_model extends BaseItem_model{
 		$people=$this->people->getList(array('in_project'=>$project_id));
 		$compiled='';
 		foreach($people as $person){
-			$compiled.='<span title="'.$person['role'].'"><a href="#people/'.$person['id'].'">'.$person['abbreviation'].'</a></span> ';
+			$compiled.='<span title="'.$person['role'].'"><a href="#'.$person['type'].'/'.$person['id'].'">'.$person['abbreviation'].'</a></span> ';
 		}
 		
 		return $compiled;
@@ -296,7 +296,7 @@ class Project_model extends BaseItem_model{
 	 *		role
 	 * 
 	 */
-	function getList($args=array()){
+	function getList(array $args=array()){
 
 		if(isset($args['people'])){
 			$where="project.id IN (SELECT project FROM project_people WHERE people{$this->db->escape_int_array($args['people'])}";

@@ -4,6 +4,11 @@ class Evaluation_model extends Project_model{
 		parent::__construct();
 	}
 	
+	function getList(array $args = array()) {
+		!isset($args['type']) && $args['type']='evaluation';
+		return parent::getList($args);
+	}
+	
 	function applyModel($project,$model){
 		return $this->db->query("
 			INSERT IGNORE INTO evaluation_indicator (project,indicator,candidates,judges,weight)

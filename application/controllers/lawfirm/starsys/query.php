@@ -3,7 +3,6 @@ class Query extends Cases{
 	
 	function __construct(){
 		parent::__construct();
-		array_unshift($this->controllers, __CLASS__);
 		$this->load->model('query_model','query');
 		$this->project=$this->query;
 		$this->cases=$this->query;
@@ -14,16 +13,6 @@ class Query extends Cases{
 			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->query,'getCompiledLabels'),'args'=>array('id')))
 		);
 		
-	}
-	
-	function index(){
-		$this->config->set_user_item('search/type', 'query', false);
-		parent::index();
-	}
-	
-	function filed(){
-		$this->config->set_user_item('search/labels', array('已归档'), false);
-		$this->index();
 	}
 	
 	function add(){

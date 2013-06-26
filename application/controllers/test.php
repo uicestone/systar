@@ -1,11 +1,11 @@
 <?php
 class Test extends SS_controller{
 	function __construct() {
+		$this->permission=true;
 		parent::__construct();
 	}
 	
 	function index(){
-		print_r($this->user->teams);
 		print_r($this->session->all_userdata());
 		print_r($this->user);
 	}

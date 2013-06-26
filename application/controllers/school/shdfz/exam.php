@@ -21,11 +21,9 @@ class Exam extends SS_controller{
 			")
 		);
 		
-		$list=$this->table->setFields($field)
-			->setData($this->exam->getList())
-			->generate();
+		$this->table->setFields($field)
+			->setData($this->exam->getList());
 		
-		$this->load->addViewData('list', $list);
 		$this->load->view('exam/lists');
 	}
 
@@ -150,11 +148,9 @@ class Exam extends SS_controller{
 			")
 		);
 		
-		$list=$this->table->setFields($field)
-			->setData($this->exam->getPaperList($exam_id))
-			->generate();
+		$this->table->setFields($field)
+			->setData($this->exam->getPaperList($exam_id));
 		
-		$this->load->addViewData('list', $list);
 		$this->load->view('exam/paperlist');
 	}
 
@@ -167,11 +163,9 @@ class Exam extends SS_controller{
 			'course_name'=>array('heading'=>'加科')
 		);
 		
-		$list=$this->table->setFields($field)
-			->setData($this->exam->getSeatList($exam_id))
-			->generate();
+		$this->table->setFields($field)
+			->setData($this->exam->getSeatList($exam_id));
 		
-		$this->load->addViewData('list', $list);
 		$this->load->view('list',$this->view_data);
 
 	}

@@ -5,11 +5,7 @@ class Evaluation extends Project{
 		parent::__construct();
 		$this->load->model('evaluation_model','evaluation');
 		$this->project=$this->evaluation;
-	}
-	
-	function index(){
-		$this->config->set_user_item('search/type', 'evaluation', false);
-		parent::index();
+		$this->load->view_path['edit']='evaluation/edit';
 	}
 	
 	function add(){
@@ -133,9 +129,8 @@ class Evaluation extends Project{
 			'staff_name'=>array('heading'=>'评分人','cell'=>'{staff_name}({position_name})')
 		);
 		
-		$table=$this->table->setFields($field)
-			->setData($this->evaluation->getCommentList())
-			->generate();
+		$this->table->setFields($field)
+			->setData($this->evaluation->getCommentList());
 
 		$evaluation_result=array(
 			'_field'=>array(
@@ -150,14 +145,10 @@ class Evaluation extends Project{
 			)
 		);
 		
-		$this->load->addViewData('list', $table);
 		$this->load->addViewData('evaluation_result', $evaluation_result);
 		$this->load->view('list');
 	}
 	
-	/**
-	 * TODO 此方法需要MC分离
-	 */
 	function result(){
 		$field=array(
 			'staff_name'=>array('heading'=>'姓名'),
@@ -166,11 +157,9 @@ class Evaluation extends Project{
 			'manager'=>array('heading'=>'主管评分')
 		);
 
-		$table=$this->table->setFields($field)
-			->setData($this->evaluation->getResultList())
-			->generate();
+		$this->table->setFields($field)
+			->setData($this->evaluation->getResultList());
 		
-		$this->load->addViewData('list', $table);
 		$this->load->view('list');
 	}
 	

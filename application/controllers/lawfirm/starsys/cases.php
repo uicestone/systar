@@ -7,10 +7,11 @@ class Cases extends Project{
 	
 	function __construct() {
 		parent::__construct();
-		array_unshift($this->controllers, __CLASS__);
 		$this->load->model('cases_model','cases');
 		
 		$this->project=$this->cases;
+
+		$this->search_items=array('time_contract/from','time_contract/to');
 
 		$this->list_args=array(
 			'time_contract'=>array(
@@ -43,6 +44,10 @@ class Cases extends Project{
 			'receivable_date'=>array('heading'=>'预计时间'),
 			'comment'=>array('heading'=>'收款方/备注','cell'=>array('class'=>'ellipsis','title'=>'{comment}'))
 		);
+			
+		$this->load->view_path['edit']='cases/edit';
+		$this->load->view_path['edit_aside']='cases/edit_sidebar';
+		$this->load->view_path['list_aside']='cases/list_sidebar';
 		
 	}
 	
@@ -279,7 +284,7 @@ class Cases extends Project{
 					}
 
 					if($client['type']=='client'){//客户必须输入来源
-						if(!$client_profiles['来源类型']){
+						if(!isset($client_profiles['来源类型'])){
 							$this->output->message('请选择客户来源类型','warning');
 							throw new Exception;
 						}
@@ -550,43 +555,24 @@ class Cases extends Project{
 		$this->index();
 	}
 	
-	function consultant(){
-		
-		$this->output->title='法律顾问案件';
-		
-		$this->config->set_user_item('search/labels', array('分类'=>'法律顾问'));
-		
-		$this->index();
-	}
-	
-	function file(){
-		
-		$this->config->set_user_item('search/labels', array('已申请归档','案卷已归档'), false);
-		
-		$this->index();
-	}
-	
 	function index(){
 		$this->load->model('staff_model','staff');//用于边栏职员搜索
 
-		$search_items=array('time_contract/from','time_contract/to');
-		
-		if($this->user->inTeam('客服')){
+		if($this->user->isLogged('service')){
 			$this->config->set_user_item('search/people', NULL, false);
 		}
 		
-		foreach($search_items as $item){
-			if($this->input->post($item)!==false){
-				if($this->input->post($item)!==''){
-					$this->config->set_user_item('search/'.$item, $this->input->post($item));
-				}else{
-					$this->config->unset_user_item('search/'.$item);
-				}
-			}
-		}
-		
 		$this->config->set_user_item('search/active', true, false);
-		$this->config->set_user_item('search/type', 'cases', false, 'method', false);
+		
+		parent::index();
+	}
+	
+	function archived(){
+		$this->config->set_user_item('search/active', false, false);
+
+		if($this->user->isLogged('service')){
+			$this->config->set_user_item('search/people', NULL, false);
+		}
 		
 		parent::index();
 	}

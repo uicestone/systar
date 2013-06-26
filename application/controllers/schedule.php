@@ -99,12 +99,10 @@ class Schedule extends SS_controller{
 				->setData($this->schedule->getList($this->config->user_item('search')))
 				->generateExcel();
 		}else{
-			$table=$this->table
+			$this->table
 				->setFields($this->list_args)
-				->setData($this->schedule->getList($this->config->user_item('search')))
-				->generate();
+				->setData($this->schedule->getList($this->config->user_item('search')));
 			
-			$this->load->addViewData('list',$table);
 			$this->load->view('schedule/list');
 			$this->load->view('schedule/list_sidebar',true,'sidebar');
 		}		

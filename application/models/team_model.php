@@ -19,6 +19,10 @@ class Team_model extends People_model{
 			$this->db->join('project_team',"project_team.team = team.id AND project_team.project = $project",'inner');
 		}
 		
+		if(isset($args['leaded_by'])){
+			$this->db->where("team.leader{$this->db->escape_int_array($args['leaded_by'])}");
+		}
+		
 		$this->db->join('team','team.id = people.id','inner');
 		
 		return parent::getList($args);

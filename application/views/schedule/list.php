@@ -3,5 +3,5 @@
 	<?=$this->view('pagination',true,'pagination')?>
 </div>
 <div class="contetTableBox">
-	<?=$list?>
+	<?=$this->table->generate()?>
 </div>
