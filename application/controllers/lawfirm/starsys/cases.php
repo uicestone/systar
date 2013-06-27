@@ -11,7 +11,7 @@ class Cases extends Project{
 		
 		$this->project=$this->cases;
 
-		$this->search_items=array('time_contract/from','time_contract/to');
+		$this->search_items=array('name','num','people','time_contract/from','time_contract/to','labels');
 
 		$this->list_args=array(
 			'time_contract'=>array(
@@ -284,7 +284,7 @@ class Cases extends Project{
 					}
 
 					if($client['type']=='client'){//客户必须输入来源
-						if(!isset($client_profiles['来源类型'])){
+						if(empty($client_profiles['来源类型'])){
 							$this->output->message('请选择客户来源类型','warning');
 							throw new Exception;
 						}
@@ -505,12 +505,12 @@ class Cases extends Project{
 
 			elseif($submit=='apply_num'){
 				
-				if(!$this->cases->labels['领域']){
+				if(empty($this->cases->labels['领域'])){
 					$this->output->message('获得案号前要先选择案件领域','warning');
 					throw new Exception();
 				}
 
-				if(!$this->cases->labels['分类']){
+				if(empty($this->cases->labels['分类'])){
 					$this->output->message('获得案号前要先选择案件分类','warning');
 					throw new Exception();
 				}
@@ -562,17 +562,7 @@ class Cases extends Project{
 			$this->config->set_user_item('search/people', NULL, false);
 		}
 		
-		$this->config->set_user_item('search/active', true, false);
-		
-		parent::index();
-	}
-	
-	function archived(){
-		$this->config->set_user_item('search/active', false, false);
-
-		if($this->user->isLogged('service')){
-			$this->config->set_user_item('search/people', NULL, false);
-		}
+		$this->config->set_user_item('search/active', true, false, 'method', false);
 		
 		parent::index();
 	}

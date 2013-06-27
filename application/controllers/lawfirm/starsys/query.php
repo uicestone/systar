@@ -74,7 +74,7 @@ class Query extends Cases{
 						}
 					}
 
-					if(!isset($client['staff'])){
+					if(empty($client['staff'])){
 						$client['staff']=$this->staff->check($client['staff_name']);
 					}
 					

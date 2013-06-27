@@ -13,7 +13,7 @@
 			<tr>
 				<td class="submit">
 					<button type="submit" name="search" tabindex="0">搜索</button>
-					<button type="submit" name="search_cancel" tabindex="1"<?if(!$this->config->user_item('search/name') && !$this->config->user_item('search/labels')){?> class="hidden"<?}?>>取消</button>
+					<button type="submit" name="search_cancel" tabindex="1"<?if(!array_reduce($this->search_items, function($result, $item){return ($result || $this->config->user_item('search/'.$item));},false)){?> class="hidden"<?}?>>取消</button>
 				</td>
 			</tr>
 		</tbody>

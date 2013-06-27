@@ -95,7 +95,7 @@ dl.horizontal th{
 	padding:0;
 }
 aside .select2-container{
-	margin-bottom: 5px;
+	margin:1px 0;
 }
 /*主页面列表中的多选标签（用于标签）无右边距（用于显示“x”）*/
 article .contentTable .select2-container-multi .select2-choices .select2-search-choice{

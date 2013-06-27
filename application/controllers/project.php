@@ -120,6 +120,12 @@ class Project extends SS_controller{
 		$this->load->view('list_aside',true,'sidebar');
 	}
 	
+	function archived(){
+		$this->output->title='已归档'.$this->output->title;
+		$this->config->set_user_item('search/active', false, false);
+		$this->index();
+	}
+	
 	function add(){
 		$this->project->id=$this->project->getAddingItem();
 		

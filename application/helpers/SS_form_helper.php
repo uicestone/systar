@@ -11,6 +11,10 @@
  */
 function options($options,$checked=NULL,$label=NULL,$array_key_as_option_value=false,$etc_option=false,$disable_empty_option=true){
 	
+	if(!is_array($options)){
+		return;
+	}
+	
 	$options_html='';
 	
 	if(isset($label)){

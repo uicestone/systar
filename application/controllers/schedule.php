@@ -22,6 +22,8 @@ class Schedule extends SS_controller{
 			'creater_name'=>array('heading'=>'人员'),
 			'project'=>array('heading'=>'事项','cell'=>'{project_name}')
 		);
+		
+		$this->search_items=array('name','time/from','time/to');
 	}
 	
 	function calendar(){
@@ -60,24 +62,21 @@ class Schedule extends SS_controller{
 		$this->config->set_user_item('search/date_form', '%Y-%m-%d %H:%i', false);
 		
 		if($this->input->get('project')){
-			$this->output->title='日程 - '.$this->project->fetch($this->input->get('project'),'name');
+			$this->output->title=$this->output->title.' - '.$this->project->fetch($this->input->get('project'),'name');
 			$this->config->set_user_item('search/project', $this->input->get('project'),false);
 		}
 		
-		$search_items=array('name','time/from','time/to');
-		
-		foreach($search_items as $item){
-			if($this->input->post($item)!==false){
-				if($this->input->post($item)!==''){
-					$this->config->set_user_item('search/'.$item, $this->input->post($item));
-				}else{
-					$this->config->unset_user_item('search/'.$item);
-				}
+		foreach($this->search_items as $item){
+			if($this->input->post($item)){
+				$this->config->set_user_item('search/'.$item, $this->input->post($item));
+			}
+			elseif($this->input->post('submit')==='search'){
+				$this->config->unset_user_item('search/'.$item);
 			}
 		}
 		
 		if($this->input->post('submit')==='search_cancel'){
-			foreach($search_items as $item){
+			foreach($this->search_items as $item){
 				$this->config->unset_user_item('search/'.$item);
 			}
 		}
