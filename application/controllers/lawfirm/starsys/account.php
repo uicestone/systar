@@ -3,6 +3,8 @@ class Account extends SS_controller{
 	
 	var $list_args;
 	
+	var $search_items=array();
+	
 	function __construct(){
 		
 		parent::__construct();
@@ -22,6 +24,8 @@ class Account extends SS_controller{
 			'date'=>array('heading'=>'日期'),
 			'payer_name'=>array('heading'=>'付款/收款人')
 		);
+
+		$this->search_items=array('account','date/from','date/to','project_name','amount','payer_name','labels','received','people','team','role');
 	}
 	
 	function index(){
@@ -33,30 +37,23 @@ class Account extends SS_controller{
 		$this->config->set_user_item('search/limit', 'pagination', false);
 		$this->config->set_user_item('search/date/from', $this->date->year_begin, false);
 		
-		$search_items=array('account','date/from','date/to','project_name','amount','payer_name','labels','received','people','team','role');
+		foreach($this->search_items as $item){
+			if($this->input->post($item)){
+				$this->config->set_user_item('search/'.$item, $this->input->post($item));
+			}
+			elseif($this->input->post('submit')==='search'){
+				$this->config->unset_user_item('search/'.$item);
+			}
+		}
 		
-		foreach($search_items as $item){
-			if($this->input->post($item)!==false){
-				if($this->input->post($item)!==''){
-					$this->config->set_user_item('search/'.$item, $this->input->post($item));
-				}else{
-					$this->config->unset_user_item('search/'.$item);
-				}
+		if($this->input->post('submit')==='search_cancel'){
+			foreach($this->search_items as $item){
+				$this->config->unset_user_item('search/'.$item);
 			}
 		}
 		
 		if($this->config->user_item('search/role')){
 			$this->list_args['weight']=array('heading'=>'占比');
-		}
-		
-		if($this->input->post('submit')==='search' && $this->input->post('labels')===false){
-			$this->config->unset_user_item('search/labels');
-		}
-		
-		if($this->input->post('submit')==='search_cancel'){
-			foreach($search_items as $item){
-				$this->config->unset_user_item('search/'.$item);
-			}
 		}
 		
 		$this->table->setFields($this->list_args)

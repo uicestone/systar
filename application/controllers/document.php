@@ -3,6 +3,8 @@ class Document extends SS_controller{
 	
 	var $list_args;
 	
+	var $search_items=array();
+	
 	function __construct(){
 		parent::__construct();
 		$this->load->model('document_model','document');
@@ -18,6 +20,8 @@ class Document extends SS_controller{
 			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->document,'getCompiledLabels'),'args'=>array('id')))
 		);
 		
+		$this->search_items=array('name','labels');
+
 		$this->load->view_path['list_aside']='document/list_sidebar';
 	}
 	
@@ -31,24 +35,17 @@ class Document extends SS_controller{
 			$this->config->set_user_item('search/labels', $labels);
 		}
 		
-		$search_items=array('name','labels');
-		
-		foreach($search_items as $item){
-			if($this->input->post($item)!==false){
-				if($this->input->post($item)!==''){
-					$this->config->set_user_item('search/'.$item, $this->input->post($item));
-				}else{
-					$this->config->unset_user_item('search/'.$item);
-				}
+		foreach($this->search_items as $item){
+			if($this->input->post($item)){
+				$this->config->set_user_item('search/'.$item, $this->input->post($item));
+			}
+			elseif($this->input->post('submit')==='search'){
+				$this->config->unset_user_item('search/'.$item);
 			}
 		}
 		
-		if($this->input->post('submit')==='search' && $this->input->post('labels')===false){
-			$this->config->unset_user_item('search/labels');
-		}
-		
 		if($this->input->post('submit')==='search_cancel'){
-			foreach($search_items as $item){
+			foreach($this->search_items as $item){
 				$this->config->unset_user_item('search/'.$item);
 			}
 		}
