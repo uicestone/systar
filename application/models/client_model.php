@@ -15,8 +15,6 @@ class Client_model extends People_model{
 	function getList($args = array()) {
 		!isset($args['type']) && $args['type']='client';
 		
-		$this->db->where('people.id NOT IN (SELECT id FROM staff)');
-		
 		return parent::getList($args);
 	}
 	

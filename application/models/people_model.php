@@ -173,6 +173,8 @@ class People_model extends BaseItem_model{
 	 * 
 	 * in_same_project_with, int or array, people.id 有相同的相关案件的人员
 	 * 
+	 * is_staff
+	 * 
 	 * 人员 - 人员关系查找
 	 * 直接关系
 	 * is_relative_of =>user_id people_relationship 人员关联，根据本人获得相关人
@@ -238,10 +240,17 @@ class People_model extends BaseItem_model{
 			",NULL,false);
 		}
 		
-		
 		if(isset($args['in_team'])){
 			$args['is_relative_of']=$args['in_team'];
 			unset($args['in_team']);
+		}
+		
+		if(isset($args['is_staff'])){
+			if($args['is_staff']){
+				$this->db->join('staff','staff.id = people.id','inner');
+			}else{
+				$this->db->where('people.id NOT IN (SELECT id FROM staff)');
+			}
 		}
 
 		if(isset($args['team_leader_of'])){

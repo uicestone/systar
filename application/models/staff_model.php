@@ -5,9 +5,7 @@ class Staff_model extends People_model{
 	}
 	
 	function getList(array $args=array()){
-		
-		$this->db->join('staff','staff.id = people.id','inner');
-		
+		$args['is_staff']=true;
 		return parent::getList($args);
 	}
 	

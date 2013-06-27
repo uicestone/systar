@@ -17,6 +17,8 @@ class Document extends SS_controller{
 			'time_insert'=>array('heading'=>'上传时间','parser'=>array('function'=>function($time_insert){return date('Y-m-d H:i',$time_insert);},'args'=>array('time_insert'))),
 			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->document,'getCompiledLabels'),'args'=>array('id')))
 		);
+		
+		$this->load->view_path['list_aside']='document/list_sidebar';
 	}
 	
 	function index(){
@@ -51,19 +53,14 @@ class Document extends SS_controller{
 			}
 		}
 		
-		$table=$this->table->setFields($this->list_args)
+		$this->table->setFields($this->list_args)
 			->setRowAttributes(array('hash'=>'document/{id}'))
 			->setData($this->document->getList($this->config->user_item('search')));
 		
-		$this->load->addViewData('list',$table);
+		$this->load->addViewData('search_items', $this->search_items);
 		
 		$this->load->view('list');
-		
-		if(file_exists(APPPATH.'/views/'.CONTROLLER.'/list_sidebar'.EXT)){
-			$this->load->view(CONTROLLER.'/list_sidebar',true,'sidebar');
-		}else{
-			$this->load->view('document/list_sidebar',true,'sidebar');
-		}
+		$this->load->view('list_aside',true,'sidebar');
 
 	}
 

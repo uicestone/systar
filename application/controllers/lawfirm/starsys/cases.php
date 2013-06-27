@@ -129,7 +129,7 @@ class Cases extends Project{
 		$list=$this->table->setFields($this->client_list_args)
 			->setRowAttributes(array('hash'=>'{type}/{id}'))
 			->setAttribute('name','client')
-			->generate($this->client->getList(array('in_project'=>$this->cases->id)));
+			->generate($this->people->getList(array('in_project'=>$this->cases->id,'is_staff'=>false)));
 		
 		return $list;
 	}
