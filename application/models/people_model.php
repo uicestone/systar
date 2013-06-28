@@ -137,11 +137,12 @@ class People_model extends BaseItem_model{
 		return $types_lang;
 	}
 	
-	function addRelationship($people,$relative,$relation=NULL){
+	function addRelationship($people,$relative,$relation=NULL,$accepted=true){
 		$data=array(
 			'people'=>$people,
 			'relative'=>$relative,
-			'relation'=>$relation
+			'relation'=>$relation,
+			'accepted'=>$accepted
 		);
 		
 		$data+=uidTime(false);
@@ -149,6 +150,11 @@ class People_model extends BaseItem_model{
 		$this->db->insert('people_relationship',$data);
 		
 		return $this->db->insert_id();
+	}
+	
+	function updateRelationship($people, $relative, $data){
+		$this->db->update('people_relationship',$data,array('people'=>$people,'relative'=>$relative));
+		return $this->db->affected_rows();
 	}
 	
 	/**
@@ -259,12 +265,12 @@ class People_model extends BaseItem_model{
 
 		if(isset($args['is_relative_of'])){
 			$this->db->join("people_relationship","people.id = people_relationship.relative AND people_relationship.people{$this->db->escape_int_array($args['is_relative_of'])}",'inner')
-				->select('people_relationship.relation');
+				->select('people_relationship.relation, people_relationship.accepted, people_relationship.time relationship_time');
 		}
 
 		if(isset($args['has_relative_like'])){
 			$this->db->join('people_relationship',"people.id = people_relationship.people AND people_relationship.relative{$this->db->escape_int_array($args['has_relative_like'])}",'inner')
-				->select('people_relationship.relation');
+				->select('people_relationship.relation, people_relationship.accepted, people_relationship.time relationship_time');
 		}
 		
 		if(isset($args['is_secondary_relative_of'])){

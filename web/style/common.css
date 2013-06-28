@@ -65,7 +65,7 @@ header .throbber{
 	margin-bottom:1px;
 	text-align:left;
 	background:#FFF;
-	border-bottom:#999 1px solid;
+	border:#999 1px solid;
 }
 button.transparent{
 	background:transparent;
@@ -94,8 +94,14 @@ dl.horizontal th{
 .ui-dialog{
 	padding:0;
 }
+.select2-container .select2-choice{
+	height:1.5em;line-height:1.5;
+}
 aside .select2-container{
 	margin:1px 0;
+}
+aside .select2-container .select2-choice{
+	padding:4px 0 4px 8px;
 }
 /*主页面列表中的多选标签（用于标签）无右边距（用于显示“x”）*/
 article .contentTable .select2-container-multi .select2-choices .select2-search-choice{

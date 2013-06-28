@@ -5,7 +5,7 @@
 
 	<div class="item">
 		<div class="title"><label>文件：</label></div>
-		<dl class="horizontal">
+		<dl class="horizontal field">
 			<dt title="点击下载文件">
 				<a href="/document/download/<?=$this->value('document/id')?>"><img src="/images/file_type/<?=$this->value('document/icon')?>" /></a>
 			</dt>

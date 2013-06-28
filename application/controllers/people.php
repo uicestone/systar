@@ -14,6 +14,8 @@ class People extends SS_Controller{
 	var $status_list_args;
 
 	var $project_list_args;
+	
+	var $team_list_args;
 
 	function __construct() {
 		parent::__construct();
@@ -56,6 +58,12 @@ class People extends SS_Controller{
 			'content'=>array('heading'=>'内容','cell'=>array('class'=>'ellipsis','title'=>'{content}')),
 			'date'=>array('heading'=>'日期'),
 			'comment'=>array('heading'=>'备注')
+		);
+		
+		$this->team_list_args=array(
+			'name'=>array('heading'=>'名称'),
+			'type'=>array('heading'=>'类型','parser'=>array('function'=>'lang','args'=>array('type'))),
+			'leader_name'=>array('heading'=>'负责人','cell'=>array('data'=>'<a href="#{leader_type}/{leader}">{leader_name}</a>'))
 		);
 		
 		$this->load->view_path['list_aside']='people/list_sidebar';
@@ -217,23 +225,38 @@ class People extends SS_Controller{
 	 */
 	function projectList(){
 		
-		$project_model=new Project_model();
+		$project=new Project_model();
 		
 		$this->project_list_args=array(
 			'name'=>array(
 				'heading'=>'名称'
 			),
-			'people'=>array('heading'=>'人员','cell'=>array('class'=>'ellipsis'),'parser'=>array('function'=>array($project_model,'getCompiledPeople'),'args'=>array('id')))
+			'people'=>array('heading'=>'人员','cell'=>array('class'=>'ellipsis'),'parser'=>array('function'=>array($project,'getCompiledPeople'),'args'=>array('id')))
 		);
 		
 		$list=$this->table->setFields($this->project_list_args)
 			->setRowAttributes(array('hash'=>'{type}/{id}'))
-			->setData($project_model->getList(array('people'=>$this->people->id,'limit'=>10,'orderby'=>'project.id DESC')))
+			->setData($project->getList(array('people'=>$this->people->id,'limit'=>10,'orderby'=>'project.id DESC')))
 			->generate();
 		
 		return $list;
 	}
 
+	/**
+	 * 返回人员所在的组列表
+	 */
+	function teamList(){
+		
+		$team=new Team_model();
+		
+		$list=$this->table->setFields($this->team_list_args)
+			->setRowAttributes(array('hash'=>'{type}/{id}'))
+			->setData($team->getList(array('has_relative_like'=>$this->people->id,'get_leader'=>true,'limit'=>10)))
+			->generate();
+		
+		return $list;
+	}
+	
 	/**
 	 * 提交处理
 	 */
@@ -291,11 +314,6 @@ class People extends SS_Controller{
 				
 				$relative=$this->input->sessionPost('relative');
 				
-				if(!isset($relative['relation'])){
-					$this->output->message('请选择相关人与客户关系','warning');
-					throw new Exception;
-				}
-				
 				if(!$relative['id']){
 					$this->people->profiles=$this->input->sessionPost('relative_profiles');
 					
@@ -340,11 +358,9 @@ class People extends SS_Controller{
 					
 					$relative['id']=$this->people->add($relative);
 					$this->output->message('新客户 <a href="#'.CONTROLLER.'/' . $relative['id'] . '">' . $relative['name'] . ' </a>已经添加');
-				}else{
-					$this->output->message('系统中已经存在 ' . $relative['name'] . '，已自动识别并添加');
 				}
-
-				$this->people->addRelationship($this->people->id,$relative['id'],$relative['relation']);
+				
+				$this->people->addRelationship($this->people->id,$relative['id'],empty($relative['relation'])?NULL:$relative['relation']);
 
 				$this->output->setData($this->relativeList(),'relative-list','content-table','.item[name="relative"]>.contentTable','replace');
 				

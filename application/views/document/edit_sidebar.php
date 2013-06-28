@@ -8,7 +8,7 @@
 <?if($mod&3){?>
 <label>有权限查看：</label>
 <select name="read_mod_people" class="chosen" data-placeholder="查看权限" multiple="multiple" title="查看权限">
-	<?=options($this->user->teams
+	<?=options(array_sub($this->user->teams,'name')
 			+$this->user->getArray(array('is_relative_of'=>array_keys($this->user->teams)+array($this->user->id)),'name','id')
 			+$this->user->getArray(array('has_relative_like'=>$this->user->id),'name','id')
 			+$this->user->getArray(array('is_secondary_relative_of'=>$this->user->id),'name','id')

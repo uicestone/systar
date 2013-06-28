@@ -107,7 +107,7 @@ class SS_Table extends CI_Table{
 				if(isset($field['parser'])){
 					foreach($field['parser']['args'] as $key => $value){
 						if(array_key_exists($value, $row)){
-							$field['parser']['args'][$key]=$row[$value]['data'];
+							$field['parser']['args'][$key]=array_key_exists('data', $row[$value])?$row[$value]['data']:$row[$value];
 						}
 					}
 					$cell['data']=call_user_func_array($field['parser']['function'], $field['parser']['args']);

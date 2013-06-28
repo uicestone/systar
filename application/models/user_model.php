@@ -27,11 +27,12 @@ class User_model extends People_model{
 		
 		if($uid){
 			$user=$this->fetch($uid);
-			$this->id=$user['id'];
+			$this->id=$uid;
 			$this->name=$user['name'];
 			$this->group=explode(',',$user['group']);
 		}
 		
+		//TODO 生成了过多的查询，应予以优化
 		$this->teams=$this->team->trace($this->id);
 
 		//获取存在数据库中的用户配置项
@@ -145,14 +146,7 @@ class User_model extends People_model{
 	 * 登出当前用户
 	 */
 	function sessionLogout(){
-		session_unset();
-		session_destroy();
 		$this->session->sess_destroy();
-
-		if($this->company->ucenter){
-			//生成同步退出代码
-			echo uc_user_synlogout();
-		}
 	}
 
 	/**
@@ -176,9 +170,16 @@ class User_model extends People_model{
 		if(array_key_exists($team, $this->teams)){
 			return true;
 		}
-		else{
-			return false;
+		
+		if(in_subarray($team, $this->teams, 'num')){
+			return true;
 		}
+		
+		if(in_subarray($team, $this->teams,'name')){
+			return true;
+		}
+		
+		return false;
 	}
 
 	function generateNav(){

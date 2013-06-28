@@ -327,7 +327,10 @@ jQuery.fn.extend({
 		$(this).each(function(){
 			var options=$.extend({}, {dropdownCss:{minWidth:'10em'}, allowClear:true}, options_passedin);
 			
-			if($(this).is('[multiple]')){
+			if($(this).data('width')){
+				options.width=$(this).data('width');
+			}
+			else if($(this).is('[multiple]')){
 				options=$.extend({},{
 					width:'element'
 				},options);

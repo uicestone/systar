@@ -1,28 +1,28 @@
 <form method="post" name="<?=CONTROLLER?>" id="<?=$this->society->id?>">
 	<div class="item">
 		<div class="title"><label>基本信息：</label></div>
-		<input name="people[name]" value="<?=$this->value('people/name'); ?>" type="text" placeholder="中文名" />
-		<input name="people[abbreviation]" value="<?=$this->value('people/abbreviation')?>" placeholder="简称" />
-		<input name="profiles[名额]" value="<?=$this->value('people/abbreviation')?>" placeholder="名额" />
+		<label>社团名称：</label><input name="people[name]" value="<?=$this->value('people/name'); ?>" type="text" placeholder="名称" />
+		<label>名额：</label><input name="profiles[名额]" value="<?=$this->value('profiles/名额')?>" placeholder="名额" />
+		<label>状态：</label>
+		<select name="profiles[状态]">
+			<?=options(array('内部招生','不限额开放报名','限额开放报名'),$this->value('profiles/状态'))?>
+		</select>
 	</div>
 
+	<div class="item">
+		<div class="title"><label>简介：</label></div>
+<?if($this->user->inTeam('teacher')){?>
+		<textarea name="profiles[简介]" rows="7"><?=$this->value('profiles/简介')?></textarea>
+<?}else{?>
+		<div class="field"><?=$profiles['简介']?></div>
+<?}?>
+	</div>
 	<div class="item" name="relative">
 		<div class="title"><label>学生</label></div>
 		<?=$relative_list?>
 		<button type="button" class="toggle-add-form">＋</button>
 		<span class="add-form hidden">
-			<input type="text" name="relative[name]" value="<?=$this->value('relative/name')?>" placeholder="名称" autocomplete-model="people" />
-			<input name="relative[id]" class="hidden" />
-
-			<select name="relative[relation]" class="chosen allow-new" data-placeholder="关系">
-				<?=options($this->config->user_item(($this->value('people/character')=='单位'?'单位':'个人').'相关人关系'),$this->value('relative/relation'),'',false,false,false)?>
-			</select>
-			<span display-for="new" class="hidden">
-				<?=checkbox('单位','relative[character]',$this->value('relative/character'),'单位')?>
-
-				<input type="text" name="relative_profiles[电话]" value="<?=$this->value('relative_profiles/电话')?>" placeholder="电话" />
-				<input type="text" name="relative_profiles[电子邮件]" value="<?=$this->value('relative_profiles/电子邮件')?>" placeholder="电子邮件" />
-			</span>
+			<input type="hidden" name="relative[id]" class="tagging" data-ajax="/student/match/" data-width="150px" value="<?=$this->value('relative/name')?>" placeholder="姓名" autocomplete-model="student" />
 			<button type="submit" name="submit[relative]">添加</button>
 		</span>
 	 </div>

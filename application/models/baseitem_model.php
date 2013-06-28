@@ -81,16 +81,17 @@ class BaseItem_model extends SS_Model{
 	/**
 	 * 
 	 * @param array $args
-	 * name
-	 * type
-	 * id_in
-	 * orderby string or array
-	 * limit string, array OR 'pagination'
-	 * team array or int
-	 * labels array
-	 * profiles array() @todo
-	 * company
-	 * display
+	 *	labels array
+	 *	name
+	 *	company
+	 *	display
+	 *	type
+	 *	id_in
+	 *	orderby string or array
+	 *	limit string, array or 'pagination'
+	 *	with_profiles bool or array()
+	 *	@todo team array or int
+	 *	profiles array()
 	 * @return array
 	 */
 	function getList($args=array()){
@@ -132,7 +133,7 @@ class BaseItem_model extends SS_Model{
 			$this->db->where($this->table.'.uid',$args['uid']);
 		}
 		
-		if(isset($args['id_in']) && is_array($args['id_in']) && !empty($args['id_in'])){
+		if(!empty($args['id_in']) && is_array($args['id_in'])){
 			$this->db->where_in($this->table.'.id',$args['id_in']);
 		}
 		
@@ -162,7 +163,41 @@ class BaseItem_model extends SS_Model{
 			}
 		}
 		
-		return $this->db->get()->result_array();
+		$result_array=$this->db->get()->result_array();
+		
+		if(isset($args['get_profiles']) && $args['get_profiles']){
+			foreach($result_array as &$row){
+				$profiles=array_sub($this->getProfiles($row['id']),'content','name');
+				if($args['get_profiles']===true){
+					$row['profiles']=$profiles;
+				}
+				elseif(is_array($args['get_profiles'])){
+					foreach($args['get_profiles'] as $key => $value){
+						$profile_content=array_key_exists($value, $profiles)?$profiles[$value]:NULL;
+						if(is_integer($key)){
+							$row[$value]=$profile_content;
+						}
+						else{
+							$row[$key]=$profile_content;
+						}
+					}
+				}
+			}
+		}
+		
+		if(isset($args['has_profiles']) && is_array($args['has_profiles'])){
+			foreach($args['profiles'] as $name => $content){
+				if(is_integer($name)){
+					$on="{$this->table}.id = {$this->table}_profile.{$this->table} AND {$this->table}_profile.name = $content";
+				}else{
+					$on="{$this->table}.id = {$this->table}_profile.{$this->table} AND {$this->table}_profile.name = $name AND {$this->table}_profile.content = $content";
+				}
+				
+				$this->db->join("{$this->table}_profile `".$name.'`',$on,'inner');
+			}
+		}
+		
+		return $result_array;
 	}
 	
 	
@@ -402,6 +437,7 @@ class BaseItem_model extends SS_Model{
 	
 	/**
 	 * 对于指定对象，在{item}_profiles中写入一组资料项
+	 * 遇不存在的profile.name则插入，遇存在的profile.name则更新
 	 * @param int $item_id
 	 * @param array $profiles: array($name=>$content,...)
 	 */
@@ -475,6 +511,5 @@ class BaseItem_model extends SS_Model{
 		$status_id=intval($status_id);
 		return $this->db->delete($this->table.'_status',array('id'=>$status_id,$this->table=>$item_id));
 	}
-	
 }
 ?>

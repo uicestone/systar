@@ -25,7 +25,7 @@ $(function(){
 	
 			var that=$(this).data('delete-button',
 				$('<button/>',{text:'删除',type:'submit',name:'submit[remove_people]',id:$(this).attr('id')})
-					.appendTo(document.body)
+					.appendTo($(this).children('td:last'))
 					.position({
 						my:'right-5 center',
 						at:'right center',
@@ -47,7 +47,7 @@ $(function(){
 				);
 		})
 		.on('mouseleave','tbody>tr',function(){
-			$(this).data('delete-button').clearQueue().delay(200).hide(0,function(){
+			$(this).data('delete-button').clearQueue().hide(0,function(){
 				$(this).remove();
 			});
 		});
@@ -64,7 +64,7 @@ $(function(){
 	
 			var that=$(this).data('delete-button',
 				$('<button/>',{text:'删除',type:'submit',name:'submit[remove_document]',id:$(this).attr('id')})
-					.appendTo(document.body)
+					.appendTo($(this).children('td:last'))
 					.position({
 						my:'right-5 center',
 						at:'right center',
@@ -86,7 +86,7 @@ $(function(){
 				);
 		})
 		.on('mouseleave','tbody>tr',function(){
-			$(this).data('delete-button').clearQueue().delay(200).hide(0,function(){
+			$(this).data('delete-button').clearQueue().hide(0,function(){
 				$(this).remove();
 			});
 		});

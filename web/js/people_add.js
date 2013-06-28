@@ -11,7 +11,7 @@ $(function(){
 	
 	/*相关人子表的删除行按钮*/
 	section.find('.item[name="relative"]:not([locked])')
-		.on('mouseenter','tbody>tr',function(){
+		.on('mouseenter','tbody>tr:not([locked])',function(){
 	
 			$(this).siblings('tr').each(function(){
 				if($(this).data('delete-button')){
@@ -20,8 +20,8 @@ $(function(){
 			});
 	
 			var that=$(this).data('delete-button',
-				$('<button/>',{text:'删除',type:'submit',name:'submit[remove_relative]',id:$(this).attr('id')})
-					.appendTo(document.body)
+				$('<button/>',{text:'删除',type:'submit',name:'remove_relative',id:$(this).attr('id')})
+					.appendTo($(this).children('td:last'))
 					.position({
 						my:'right-5 center',
 						at:'right center',
@@ -43,7 +43,7 @@ $(function(){
 				);
 		})
 		.on('mouseleave','tbody>tr',function(){
-			$(this).data('delete-button').clearQueue().delay(200).hide(0,function(){
+			$(this).data('delete-button').clearQueue().hide(0,function(){
 				$(this).remove();
 			});
 		});
@@ -60,7 +60,7 @@ $(function(){
 	
 			var that=$(this).data('delete-button',
 				$('<button/>',{text:'删除',type:'submit',name:'submit[remove_profile]',id:$(this).attr('id')})
-					.appendTo(document.body)
+					.appendTo($(this).children('td:last'))
 					.position({
 						my:'right-5 center',
 						at:'right center',
@@ -82,7 +82,7 @@ $(function(){
 				);
 		})
 		.on('mouseleave','tbody>tr',function(){
-			$(this).data('delete-button').clearQueue().delay(200).hide(0,function(){
+			$(this).data('delete-button').clearQueue().hide(0,function(){
 				$(this).remove();
 			});
 		});

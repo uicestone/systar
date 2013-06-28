@@ -23,6 +23,7 @@ class user extends SS_controller{
 	function logout(){
 		$this->user->sessionLogout();
 		if($this->company->ucenter){
+			$this->output->set_output(uc_user_synlogout());
 			redirect('login','js');
 		}else{
 			redirect('login');
@@ -57,7 +58,7 @@ class user extends SS_controller{
 
 			if($user){
 
-				$this->session->set_userdata('user/id', $user['id']);
+				$this->session->set_userdata('user/id', intval($user['id']));
 
 				$this->user->__construct($user['id']);
 

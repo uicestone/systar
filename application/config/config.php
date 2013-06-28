@@ -361,9 +361,6 @@ $config['proxy_ips'] = '';
 //定义时区，windows系统中php不能识别到系统时区
 date_default_timezone_set('Asia/Shanghai');
 
-session_set_cookie_params(86400); 
-session_start();
-
 $company=array(
 	'lawfirm'=>array(
 		'starsys'=>'sys.lawyerstars.com'

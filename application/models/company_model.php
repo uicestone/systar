@@ -3,7 +3,6 @@ class Company_model extends BaseItem_model{
 	
 	var $name;
 	var $type;
-	var $host;
 	var $syscode;
 	var $sysname;
 	var $ucenter;
@@ -35,15 +34,13 @@ class Company_model extends BaseItem_model{
 			->from('company')
 			->or_where(array('host'=>$host_name,'syscode'=>$host_name));
 
-		$row_array=$this->db->get()->row_array();
+		$row=$this->db->get()->row();
 		
-		if(!$row_array){
-			show_error("We're sorry but no company called $host_name here.");
-		}
-		
-		foreach($row_array as $key => $value){
-			$this->$key=$value;
-		}
+		$this->id=intval($row->id);
+		$this->name=$row->name;
+		$this->type=COMPANY_TYPE;
+		$this->syscode=COMPANY_CODE;
+		$this->sysname=$row->name;
 	}
 	
 	/**

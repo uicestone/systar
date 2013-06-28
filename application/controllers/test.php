@@ -6,6 +6,7 @@ class Test extends SS_controller{
 	}
 	
 	function index(){
+		echo strpos("abc/as", 'abc/');
 		print_r($this->session->all_userdata());
 		print_r($this->user);
 	}

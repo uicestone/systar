@@ -7,7 +7,7 @@ class Student extends People{
 		parent::__construct();
 		$this->load->model('student_model','student');
 		$this->load->model('classes_model','classes');
-		$this->student=$this->student;
+		$this->people=$this->student;
 		
 		$this->score_list_args=array(
 			'exam_name'=>array('heading'=>'考试'),
@@ -24,6 +24,22 @@ class Student extends People{
 			'3总'=>array('heading'=>'3总','cell'=>'{3总}<span class="rank">{rank_3总}</span>'),
 			'4总/5总'=>array('heading'=>'4总/5总','cell'=>'{5总}<span class="rank">{rank_5总}</span>'),
 			'8总'=>array('heading'=>'8总','cell'=>'{8总}<span class="rank">{rank_8总}</span>')
+		);
+		
+		$this->team_list_args['name']=array(
+			'heading'=>'名称','parser'=>array('function'=>function($name,$type,$accepted){
+				$out=$name;
+				if($type=='society'){
+					if(is_null($accepted)){
+						$out.=' 待批准加入';
+					}elseif($accepted){
+						$out.=' 已批准加入';
+					}else{
+						$out.=' 已拒绝加入';
+					}
+				}
+				return $out;
+			},'args'=>array('name','type','accepted'))
 		);
 		
 		$this->load->view_path['edit']='student/edit';
@@ -69,6 +85,7 @@ class Student extends People{
 			$this->load->addViewData('status_list', $this->statusList());
 			$this->load->addViewData('profile_list', $this->profileList());
 			$this->load->addViewData('relative_list', $this->relativeList());
+			$this->load->addViewData('team_list', $this->teamList());
 			$this->load->addViewArrayData(compact('people','labels','profiles','available_options','profile_name_options'));
 
 		}

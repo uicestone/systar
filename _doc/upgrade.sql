@@ -3,5 +3,12 @@ ALTER TABLE  `people_relationship` CHANGE  `accepted`  `accepted` TINYINT( 1 ) N
 -- server updated
 
 ALTER TABLE  `team` ADD  `open` BOOLEAN NOT NULL AFTER  `leader`;
-`document_mod` DROP `id`;
+
+ALTER TABLE `document_mod` DROP `id`;
 ALTER TABLE  `document_mod` ADD  `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+
+UPDATE  `syssh`.`people` SET  `num` =  'teacher' WHERE  `people`.`id` =13453;
+UPDATE  `syssh`.`people` SET  `num` =  'finance' WHERE  `people`.`id` =13447;
+UPDATE  `syssh`.`people` SET  `num` =  'hr' WHERE  `people`.`id` =13448;
+UPDATE  `syssh`.`people` SET  `num` =  'service' WHERE  `people`.`id` =13450;
+UPDATE  `syssh`.`people` SET  `num` =  'hr' WHERE  `people`.`id` =13532;

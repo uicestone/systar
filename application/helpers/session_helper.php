@@ -41,6 +41,6 @@ function unsetPost($arrayindex=''){
 	
 	$controller=CONTROLLER;
 	
-	return $CI->session->unset_userdata(CONTROLLER.'/post/'.$CI->$controller->id.($arrayindex===''?'':'/'.$arrayindex));
+	return $CI->session->unset_userdata(CONTROLLER.'/post/'.$CI->$controller->id.($arrayindex===''?'':'/'.$arrayindex),true);
 }
 ?>

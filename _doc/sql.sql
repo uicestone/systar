@@ -134,3 +134,11 @@ insert ignore into document_mod (document,people,`mod`)
 select document,people,1
 from project_document inner join project_people using (project)
 where project_people.people in (select id from staff);
+
+-- 更新学生学号
+update people
+inner join people_relationship class_student ON class_student.relative = people.id AND class_student.till>=CURDATE()
+inner join team ON team.id = class_student.people
+inner join people people_team ON people_team.id = class_student.people
+SET people.num = RIGHT((1000000 + CONCAT(people_team.num, RIGHT((100 + class_student.num),2))),6)
+where people.type = 'student';

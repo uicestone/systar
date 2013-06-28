@@ -7,12 +7,14 @@ class Team_model extends People_model{
 	
 	/**
 	 * @param array $args
-	 *	project	查找某个事务关联的组
-	 *	people_type	只列出含有某类人员的组
-	 *	has_relative	根据相关组查找组
-	 *	is_relative_of
+	 *	project 查找某个事务关联的组
+	 *	leaded_by 根据组长查找组
+	 *	open 开放报名 
 	 */
 	function getList($args=array()){
+		
+		$this->db->join('team','team.id = people.id','inner')
+			->select('team.*');
 		
 		if(isset($args['project'])){
 			$project=intval($args['project']);
@@ -23,7 +25,19 @@ class Team_model extends People_model{
 			$this->db->where("team.leader{$this->db->escape_int_array($args['leaded_by'])}");
 		}
 		
-		$this->db->join('team','team.id = people.id','inner');
+		if(isset($args['get_leader'])){
+			$this->db->join('people leader','leader.id = team.leader','left')
+				->select('leader.name leader_name, leader.type leader_type');
+		}
+		
+		if(isset($args['open'])){
+			if($args['open']){
+				$this->db->where('team.open',true);
+			}
+			else{
+				$this->db->where('team.open',false);
+			}
+		}
 		
 		return parent::getList($args);
 	}
@@ -35,16 +49,16 @@ class Team_model extends People_model{
 		
 		$id=intval($id);
 		
-		$result=$this->db->select('people.id, people.name')
+		$result=$this->db->select('people.id, people.name, people.num, people.type')
 			->from('people_relationship')
 			->join('team','team.id = people_relationship.people','inner')
 			->join('people','people.id = people_relationship.people','inner')
 			->where(is_null($relation)?array('relative'=>$id):array('relative'=>$id,'relation'=>$relation))
 			->get();
 			
-		foreach($result->result() as $row){
-			$teams[$row->id]=$row->name;
-			$teams+=$this->trace($row->id,$relation,$teams);
+		foreach($result->result_array() as $row){
+			$teams[$row['id']]=$row;
+			$teams+=$this->trace($row['id'],$relation,$teams);
 		}
 		
 		return $teams;

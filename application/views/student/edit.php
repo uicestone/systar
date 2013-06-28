@@ -3,10 +3,6 @@
 		<div class="title"><label>基本信息：</label></div>
 		<input name="people[name]" value="<?=$this->value('people/name'); ?>" type="text" placeholder="姓名" />
 
-		<select name="people[type]">
-			<?=options($this->people->getTypes(),$this->value('people/type'),'人员类型',true)?>
-		</select>
-
 		<select name="people[gender]"><?=options(array('男','女'), $this->value('people/gender'), '性别')?></select>
 		<input type="text" name="people[id_card]" value="<?=$this->value('people/id_card'); ?>" placeholder="身份证" style="width:195px;" />
 		<input type="text" name="people[birthday]" value="<?=$this->value('people/birthday'); ?>" placeholder="生日" class="date" />
@@ -30,10 +26,15 @@
 		
 	 </div>
 
+	<div class="item" name="team">
+		<div class="title"><label>所属团组</label></div>
+		<?=$team_list?>
+	 </div>
+
 	<div class="item" name="status">
 		<div class="title"><label>动态</label></div>
 		<?=$status_list?>
-<?if($this->user->inTeam('教师')){?>
+<?if($this->user->inTeam('teacher')){?>
 		<button type="button" class="toggle-add-form">＋</button>
 		<span class="add-form hidden">
 			<input type="text" name="status[name]" value="<?=$this->value('status/name')?>" placeholder="状态" />
@@ -41,7 +42,7 @@
 			<input type="text" name="status[content]" value="<?=$this->value('status/content')?>" placeholder="内容" />
 			<input type="text" name="status[comment]" value="<?=$this->value('status/comment')?>" placeholder="备注" />
 			<select name="status[team]">
-				<?=options($this->user->teams,$this->value('status/team'),'评价团队',true)?>
+				<?=options(array_sub($this->user->teams,'name'),$this->value('status/team'),'评价团队',true)?>
 			</select>
 			<button type="submit" name="submit[status]">添加</button>
 		</span>
@@ -66,22 +67,6 @@
 	<div class="item" name="relative">
 		<div class="title"><label>相关人</label></div>
 		<?=$relative_list?>
-		<button type="button" class="toggle-add-form">＋</button>
-		<span class="add-form hidden">
-			<input type="text" name="relative[name]" value="<?=$this->value('relative/name')?>" placeholder="名称" autocomplete-model="people" />
-			<input name="relative[id]" class="hidden" />
-
-			<select name="relative[relation]">
-				<?=options($this->config->item(($this->value('people/character')=='单位'?'单位':'个人').'相关人关系'),$this->value('relative/relation'),'关系',false,true)?>
-			</select>
-			<span display-for="new" class="hidden">
-				<?=checkbox('单位','relative[character]',$this->value('relative/character'),'单位')?>
-
-				<input type="text" name="relative_profiles[电话]" value="<?=$this->value('relative_profiles/电话')?>" placeholder="电话" />
-				<input type="text" name="relative_profiles[电子邮件]" value="<?=$this->value('relative_profiles/电子邮件')?>" placeholder="电子邮件" />
-			</span>
-			<button type="submit" name="submit[relative]">添加</button>
-		</span>
 	 </div>
 
 	<div class="item">

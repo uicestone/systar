@@ -20,13 +20,17 @@ class Student_model extends People_model{
 		parent::__construct();
 	}
 	
+	function match($part_of_name) {
+		$this->db->where('people.type','student');
+		return parent::match($part_of_name);
+	}
+	
 	function getList($args=array()){
 		
 		!isset($args['type']) && $args['type']='student';
 		
 		$this->db->select('
 			people.*,
-			RIGHT((1000000 + CONCAT(people_team.num, RIGHT((100 + class_student.num),2))),6) AS num,
 			team.id AS class,team.name AS class_name
 		',false)
 			->join('people_relationship class_student',"class_student.relative = people.id AND class_student.till>=CURDATE()",'inner')

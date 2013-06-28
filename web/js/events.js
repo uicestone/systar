@@ -102,9 +102,13 @@ $(document)
 		/*为表格代理绑定事件*/
 		section.on('contenttableload','.contentTable',function(event){
 			//console.log('contenttableload: '+$(this).attr('name'));
-			$(this).children('tbody').children('tr').on('mouseenter mouseleave',function(){
-				$(this).toggleClass('highlighted');
-			});
+			$(this).children('tbody').children('tr')
+				.on('mouseenter',function(){
+					$(this).addClass('highlighted');
+				})
+				.on('mouseleave',function(){
+					$(this).removeClass('highlighted');
+				});
 			
 			$(this).children('tbody').children('tr[hash]')
 				.on('click',function(){
@@ -339,15 +343,18 @@ $(document)
 			});
 		},
 		select: function(event,ui){
-			$(this).val(ui.item.label).trigger('autocompleteselect',{value:ui.item.value}).trigger('change');
+			$(this).val(ui.item.name).trigger('autocompleteselect',{value:ui.item.id}).trigger('change');
 			return false;
 		},
 		focus: function(event,ui){
-			//$(this).val(ui.item.label);
 			return false;
 		},
 		delay: 600
-	});
+	}).data( "ui-autocomplete" )._renderItem = function( ul, item ) {
+      return $( "<li>" )
+        .append( "<a>" + item.name + " " + item.type + "</a>" )
+        .appendTo( ul );
+    };
 })
 /*分页按钮响应*/
 .on('click','.pagination button',function(){

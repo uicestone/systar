@@ -47,7 +47,7 @@ class SS_Loader extends CI_Loader{
 			$view=$this->view_path[$view];
 		}
 		
-		$vars=array_merge($this->getViewData());//每次载入视图时，都将当前视图数据传递给他一次
+		$vars=$this->getViewData();//每次载入视图时，都将当前视图数据传递给他一次
 		
 		if($block_name===FALSE){
 			return parent::view($view, $vars, $return);
