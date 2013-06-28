@@ -2,9 +2,7 @@
 select * from project_label where label_name in ('公司','房产建筑','劳动人事','涉外','韩日','知识产权','婚姻家庭','诉讼','刑事行政') and type is null;
 
 -- 监测是否有未设定领域的案件
-select * from project where id not in (select project from project_label where type = '领域')
-and type = '业务' and
-id in (select project from project_label where label_name = '案件');
+select * from project where type='cases' and id not in (select project from project_label where type = '领域');
 
 -- 根据业务领域确定案件小组
 update 
@@ -19,12 +17,12 @@ account
 inner join project on project.id=account.project
 set account.team=project.team;
 
--- 确定案源总和
-select project,sum(weight) sum from project_people where role = '案源人' group by project having sum>1;
+-- 检测没有案源类型的案件
+select * from project where type = 'cases' 
+	and id not in (select project from project_label where label_name in ('所内案源','个人案源'));
 
 -- 所内案源都有接洽律师
-select * from project where type='业务'
-and id in (select project from project_label where label_name = '案件')
+select * from project where type='cases'
 and id in (select project from project_label where label_name = '所内案源')
 and id not in (select project from project_people where role = '接洽律师')
 
@@ -32,7 +30,6 @@ and id not in (select project from project_people where role = '接洽律师')
 update account_label inner join label on account_label.label = label.id set account_label.label_name = label.name;
 update people_label inner join label on people_label.label = label.id set people_label.label_name = label.name;
 update project_label inner join label on project_label.label = label.id set project_label.label_name = label.name;
-update team_label inner join label on team_label.label = label.id set team_label.label_name = label.name;
 update document_label inner join label on document_label.label = label.id set document_label.label_name = label.name;
 update schedule_label inner join label on schedule_label.label = label.id set schedule_label.label_name = label.name;
 
@@ -69,7 +66,18 @@ delete from label where name = 'null';
 
 -- 对于没有督办人的案件设置默认督办人
 insert ignore into project_people (project,people,role)
-select id,6356,'督办人' from project where id in (select project from project_label where label_name = '案件');
+select id,6356,'督办人' from project where type = 'cases';
+
+-- 统计所内案源创收
+select amount,project.name,group_concat(people.name)
+from account 
+inner join project on project.id = account.project 
+inner join project_label on project_label.project=account.project and project_label.label_name = '所内案源'
+inner join project_people on project_people.project = account.project
+inner join people on people.id = project_people.people
+where account.date between '2013-01-01' and '2013-06-30' and received = 1
+group by account.id
+order by amount desc;
 
 -- 将人员资料项中的电话更新到人员基本字段
 update people inner join people_profile on people_profile.people=people.id and people_profile.name in ('电话','手机','固定电话')

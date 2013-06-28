@@ -10,6 +10,29 @@ class Test extends SS_controller{
 		print_r($this->user);
 	}
 	
+	function account(){
+		$this->load->view('head');
+		$account=new Account_model();
+		
+		$this->table->setFields(array(
+			'people_name'=>array('heading'=>'名称'),
+			'sum'=>array('heading'=>'签约金')
+		))
+		->setData($account->getlist(array(
+			'sum'=>true,
+			'received'=>true,
+			'date'=>array('from'=>'2013-01-01','to'=>'2013-06-30'),
+			//'group'=>'team',
+			'group'=>'people',
+			'role'=>'主办律师',
+			'project_labels'=>array('费用已锁定'),
+			'orderby'=>'sum desc'
+		)));
+		
+		$this->load->view('list');
+		$this->load->view('foot');
+	}
+	
 	function select2(){
 		$this->load->view('head');
 		$this->load->view('test/select2');
