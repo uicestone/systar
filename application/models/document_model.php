@@ -129,23 +129,38 @@ class Document_model extends BaseItem_model{
 		
 		is_null($document) && $document=$this->id;
 		
-		if($this->db->where('document',$document)->where('people',$people)->count_all_results('document_mod')===0){
-			$this->db->insert('document_mod',array(
-				'document'=>$document,
-				'people'=>$people,
-				'mod'=>$mod
-			));
-			
-			return $this->db->insert_id();
+		if(!is_array($people)){
+			$people=array($people);
 		}
 		
-		$this->db
+		$result_document_mod=$this->db->from('document_mod')
 			->where('document',$document)
-			->where('people',$people)
-			->set('mod','`mod` | '.intval($mod),false)
-			->update('document_mod');
+			->where_in('people',$people)
+			->get()->result_array();
 		
-		return $this->db->affected_rows();
+		$people_with_permission=array_sub($result_document_mod,'people');
+		
+		$people_without_permission=array_diff($people,$people_with_permission);
+		
+		foreach($people_with_permission as $person_with_permission){
+			$this->db
+				->where('document',$document)
+				->where('people',$person_with_permission)
+				->set('mod','`mod` | '.intval($mod),false)
+				->update('document_mod');
+		}
+		
+		$set=array();
+		
+		foreach($people_without_permission as $person_without_permission){
+			$set[]=array(
+				'document'=>$document,
+				'people'=>$person_without_permission,
+				'mod'=>$mod
+			);
+		}
+		$this->db->insert_batch('document_mod',$set);
+		
 	}
 	
 	function removeMod($mod,$people,$document=NULL){

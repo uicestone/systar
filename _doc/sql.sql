@@ -57,9 +57,12 @@ group by project having sum != 1
 delete from project_people where project in (select id from project where display = 0 and name is null);
 delete from project where display = 0 and name is null;
 
-delete from people_label where label_name ='';
-delete from project_label where label_name ='';
+-- 删除错误的标签
+delete from people_label where label in (select id from label where name = '');
+delete from project_label where label in (select id from label where name = '');
+delete from document_label where label in (select id from label where name = '');
 delete from label where name = '';
+
 delete from people_label where label_name ='null';
 delete from document_label where label_name ='null';
 delete from label where name = 'null';
@@ -118,3 +121,8 @@ select id,name,company from people where id in(
 update user inner join people using (id) set user.name = people.name where user.name is null;
 update team inner join people using (id) set team.name = people.name where team.name is null;
 
+-- 给项目成员以项目文件的读权限
+insert ignore into document_mod (document,people,`mod`)
+select document,people,1
+from project_document inner join project_people using (project)
+where project_people.people in (select id from staff);

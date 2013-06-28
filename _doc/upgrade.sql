@@ -3,4 +3,5 @@ ALTER TABLE  `people_relationship` CHANGE  `accepted`  `accepted` TINYINT( 1 ) N
 -- server updated
 
 ALTER TABLE  `team` ADD  `open` BOOLEAN NOT NULL AFTER  `leader`;
-
+`document_mod` DROP `id`;
+ALTER TABLE  `document_mod` ADD  `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;

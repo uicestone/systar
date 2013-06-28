@@ -367,6 +367,8 @@ class Project extends SS_controller{
 				
 				$this->document->addLabels($document['id'],$document_labels);
 				
+				$this->document->addmod(1,$this->people->getArray(array('in_project'=>$this->project->id),'id'),$document['id']);
+				
 				$this->project->addDocument($this->project->id, $document['id']);
 				
 				$this->output->setData($this->documentList(),'document-list','content-table','.item[name="document"]>.contentTable','replace');
