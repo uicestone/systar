@@ -221,25 +221,25 @@ class Account_model extends BaseItem_model{
 			if(isset($args['role'])){
 				
 				if(isset($args['ten_thousand_unit']) && $args['ten_thousand_unit']){
-					$this->db->select('ROUND(SUM(amount * weight)/1E4,1) AS sum',false);
+					$this->db->select('ROUND(SUM(account.amount * weight)/1E4,1) AS sum',false);
 				}
 				else{
-					$this->db->select('ROUND(SUM(amount * weight)) AS sum',false);
+					$this->db->select('ROUND(SUM(account.amount * weight)) AS sum',false);
 				}
 			}
 			else{
 				if(isset($args['ten_thousand_unit']) && $args['ten_thousand_unit']){
-					$this->db->select('ROUND(SUM(amount)/1E4,1) AS sum',false);
+					$this->db->select('ROUND(SUM(account.amount)/1E4,1) AS sum',false);
 				}
 				else{
-					$this->db->select('ROUND(SUM(amount)) AS sum',false);
+					$this->db->select('ROUND(SUM(account.amount)) AS sum',false);
 				}
 			}
 			
 			$this->db->having('sum >',0);
 		}else{
 			if(isset($args['ten_thousand_unit']) && $args['ten_thousand_unit']){
-				$this->db->select('ROUND(amount/1E4,1) AS amount',false);
+				$this->db->select('ROUND(account.amount/1E4,1) AS amount',false);
 			}
 		}
 		

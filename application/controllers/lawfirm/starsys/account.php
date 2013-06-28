@@ -25,10 +25,12 @@ class Account extends SS_controller{
 			'payer_name'=>array('heading'=>'付款/收款人')
 		);
 
-		$this->search_items=array('account','date/from','date/to','project_name','amount','payer_name','labels','received','people','team','role');
+		$this->search_items=array('account','date/from','date/to','project_name','amount','payer_name','labels','project_labels','received','people','team','role');
 	}
 	
 	function index(){
+		
+		$this->load->model('project_model','project');
 		
 		$this->config->set_user_item('search/show_project', true, false);
 		$this->config->set_user_item('search/show_payer', true , false);
@@ -71,19 +73,25 @@ class Account extends SS_controller{
 			array(
 				$this->account->getSum(array(
 					'received'=>false,
+					'limit'=>false,
+					'orderby'=>false,
 					'contract_date'=>array('from'=>$this->config->user_item('search/date/from'),'to'=>$this->config->user_item('search/date/to')),
 					'ten_thousand_unit'=>true
-				)),
+				)+$this->config->user_item('search')),
 				$this->account->getSum(array(
 					'received'=>false,
+					'limit'=>false,
+					'orderby'=>false,
 					'date'=>array('from'=>$this->config->user_item('search/date/from'),'to'=>$this->config->user_item('search/date/to')),
 					'ten_thousand_unit'=>true
-				)),
+				)+$this->config->user_item('search')),
 				$this->account->getSum(array(
 					'received'=>true,
+					'limit'=>false,
+					'orderby'=>false,
 					'date'=>array('from'=>$this->config->user_item('search/date/from'),'to'=>$this->config->user_item('search/date/to')),
 					'ten_thousand_unit'=>true
-				))
+				)+$this->config->user_item('search'))
 			)
 			
 		);

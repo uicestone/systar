@@ -3,10 +3,18 @@
 	<thead><tr><th>搜索</th></tr></thead>
 	<tbody>
 		<tr>
-			<td><input type="text" name="account" value="<?=$this->config->user_item('search/account')?>" placeholder="帐目编号" title="帐目编号" /></td>
+			<td>
+				<input type="text" name="account" value="<?=$this->config->user_item('search/account')?>" placeholder="帐目编号" title="帐目编号" style="width:50%" />
+				<?=checkbox('按账目分组', 'group_account', $this->config->user_item('search/group')=='acount', 'account')?>
+			</td>
 		</tr>
 		<tr>
 			<td><input type="text" name="project_name" value="<?=$this->config->user_item('search/project_name')?>" placeholder="项目" title="项目" /></td>
+		</tr>
+		<tr>
+			<td>
+				<select name="labels[]" class="chosen" data-placeholder="标签" data-width="copy" multiple="multiple"><?=options($this->account->getAllLabels(),$this->config->user_item('search/labels'))?></select>
+			</td>
 		</tr>
 		<tr>
 			<td><input type="text" name="amount" value="<?=$this->config->user_item('search/amount')?>" placeholder="金额" title="金额" /></td>
@@ -34,7 +42,9 @@
 		</tr>
 		<tr>
 			<td>
-				<select name="labels[]" class="chosen" data-placeholder="标签" multiple="multiple"><?=options($this->account->getAllLabels(),$this->config->user_item('search/labels'))?></select>
+				<select name="project_labels[]" class="chosen" data-width="copy" data-placeholder="事务标签" multiple="multiple">
+					<?=options($this->project->getAllLabels(),$this->config->user_item('search/project_labels'))?>
+				</select>
 			</td>
 		</tr>
 		<tr>
