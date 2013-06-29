@@ -16,6 +16,7 @@
 		<?=$score_list?>
 	 </div>
 
+<?if(!empty($class)){?>
 	<div class="item" name="class">
 		<div class="title">
 			<label class="right">班主任：<?=$class['leader_name']?>
@@ -23,9 +24,8 @@
 			</label>
 			<label><a href="#classes/<?=$class['id']?>"><?=$class['name']?></a></label>
 		</div>
-		
 	 </div>
-
+<?}?>
 	<div class="item" name="team">
 		<div class="title"><label>所属团组</label></div>
 		<?=$team_list?>

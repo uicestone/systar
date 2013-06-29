@@ -39,6 +39,7 @@ $(function(){
 						$.post('/'+controller+'/submit/remove_relative/'+project+'/'+people,function(){
 							that.data('delete-button').remove();
 						});
+						return false;
 					})
 				);
 		})
@@ -78,6 +79,7 @@ $(function(){
 						$.post('/'+controller+'/submit/remove_profile/'+project+'/'+people,function(){
 							that.data('delete-button').remove();
 						});
+						return false;
 					})
 				);
 		})

@@ -4,9 +4,13 @@
 		<label>社团名称：</label><input name="people[name]" value="<?=$this->value('people/name'); ?>" type="text" placeholder="名称" />
 		<label>名额：</label><input name="profiles[名额]" value="<?=$this->value('profiles/名额')?>" placeholder="名额" />
 		<label>状态：</label>
+<?if($this->user->inTeam('科训')){?>
 		<select name="profiles[状态]">
 			<?=options(array('内部招生','不限额开放报名','限额开放报名'),$this->value('profiles/状态'))?>
 		</select>
+<?}else{?>
+		<?=$this->value('profiles/状态')?>
+<?}?>
 	</div>
 
 	<div class="item">

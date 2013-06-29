@@ -81,9 +81,11 @@ order by amount desc;
 
 -- 将人员资料项中的电话更新到人员基本字段
 update people inner join people_profile on people_profile.people=people.id and people_profile.name in ('电话','手机','固定电话')
-set people.phone = people_profile.content;
+set people.phone = people_profile.content
+where people.phone is null;
 update people inner join people_profile on people_profile.people=people.id and people_profile.name in ('电子邮件')
-set people.email = people_profile.content;
+set people.email = people_profile.content
+where people.email is null;
 
 -- 人员信息导出
 select

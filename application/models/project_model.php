@@ -39,6 +39,12 @@ class Project_model extends BaseItem_model{
 	function add($data=array()){
 		$data=array_intersect_key($data, self::$fields);
 		
+		foreach(array('first_contact','time_contract','end') as $date_field){
+			if(empty($data[$date_field])){
+				$data[$date_field]=NULL;
+			}
+		}
+		
 	    $data+=uidTime(true,true);
 		
 		$data['active']=true;
@@ -56,6 +62,12 @@ class Project_model extends BaseItem_model{
 	function update($id,$data){
 		$id=intval($id);
 	    $data=array_intersect_key((array)$data,self::$fields);
+		
+		foreach(array('first_contact','time_contract','end') as $date_field){
+			if(empty($data[$date_field])){
+				$data[$date_field]=NULL;
+			}
+		}
 		
 		$data+=uidTime();
 	    
@@ -318,8 +330,8 @@ class Project_model extends BaseItem_model{
 		}
 		
 		if(isset($args['is_relative_of'])){
-			$this->db->select('relationship.relation')
-				->join('project_relationship relationship',"relationship.relative = project.id",'INNER')
+			$this->db->select('project.*')->select('relationship.relation')
+				->join('project_relationship relationship',"relationship.relative = project.id",'inner')
 				->where('relationship.project',intval($args['is_relative_of']));
 		}
 		

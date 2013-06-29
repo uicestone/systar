@@ -5,10 +5,10 @@
 
 	<div class="item" name="status">
 		<div class="title"><label>状态：</label>
-			<span class="ui-dialog-buttonset" style="font-size:12px;">
-				<input type="checkbox" id="active"<?if($this->value('project/active')){?> checked="checked"<?}?> name="project[active]" value="1" text-checked="开放" text-unchecked="停止" /><label for="active" ></label>
-			</span>
 		</div>
+		<span class="ui-dialog-buttonset" style="font-size:12px;">
+			<input type="checkbox" id="active"<?if($this->value('project/active')){?> checked="checked"<?}?> name="project[active]" value="1" text-checked="开放" text-unchecked="停止" /><label for="active" ></label>
+		</span>
 		<input type="text" name="project[time_contract]" value="<?=$this->value('project/time_contract')?>" class="date" placeholder="开始日期" />
 		<input type="text" name="project[end]" value="<?=$this->value('project/end')?>" class="date" placeholder="结束日期" />
 	</div>
@@ -26,7 +26,7 @@
 		<button type="button" class="toggle-add-form">＋</button>
 		<span class="add-form hidden">
 			<input type="text" name="indicator[name]" value="<?=$this->value('indicator/name');?>" placeholder="评分项" />
-			<select name="indicator[type]" class="chosen" data-placeholder="类型" style="width:70px">
+			<select name="indicator[type]" style="width:70px">
 				<?=options(array('score'=>'分数','text'=>'文字'),$this->value('indicator/type'),NULL,true);?>
 			</select>
 			<input type="text" name="evaluation_indicator[weight]" value="<?=$this->value('evaluation_indicator/weight');?>" placeholder="分值" />

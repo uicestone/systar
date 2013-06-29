@@ -1,11 +1,11 @@
 <form method="post" name="<?=CONTROLLER?>" id="<?=$this->project->id?>">
 	<div class="item">
-		<input type="text" name="project[name]" value="<?=$this->value('project/name')?>" placeholder="名称" class="large-field"<?if($project['uid']!==$this->user->id){?> readonly="readonly"<?}?>>
+		<input type="text" name="project[name]" value="<?=$this->value('project/name')?>" placeholder="名称" class="large-field"<?if($project['uid']!=$this->user->id){?> readonly="readonly"<?}?>>
 	 </div>
 
-<?if($project['summary'] || $project['uid']===$this->user->id){?>
+<?if($project['summary'] || $project['uid']==$this->user->id){?>
 	<div class="item">
-		<textarea class="item" name="project[summary]" type="text" placeholder="描述" rows="4"<?if($project['uid']!==$this->user->id){?> readonly="readonly"<?}?>><?=$this->value('project/summary')?></textarea>
+		<textarea class="item" name="project[summary]" type="text" placeholder="描述" rows="4"<?if($project['uid']!=$this->user->id){?> readonly="readonly"<?}?>><?=$this->value('project/summary')?></textarea>
 	</div>
 <?}?>
 	

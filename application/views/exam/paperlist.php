@@ -47,4 +47,4 @@ $(function(){
 	<button type="button" id="addExamPaper">添加</button>
 	<button type="button" onclick="location.href='#exam'">返回</button>
 </div>
-<?=$list?>
+<?=$this->table->generate()?>

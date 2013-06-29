@@ -366,8 +366,9 @@ $(document)
 /*toggle button文字根据change事件显示*/
 .on('change',':checkbox',function(){
 	var title=$(this).is(':checked')?$(this).attr('title-checked'):$(this).attr('title-unchecked');
-	/*@TODO tooltip text not changing after label title changed*/
+	var text=$(this).is(':checked')?$(this).attr('text-checked'):$(this).attr('text-unchecked');
 	$(this).next('.ui-button').attr('title',title);
+	$(this).next('.ui-button').children('.ui-button-text').text(text);
 })
 .on('drop dragover', function(event){
 	event.preventDefault();

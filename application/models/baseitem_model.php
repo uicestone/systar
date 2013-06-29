@@ -197,6 +197,26 @@ class BaseItem_model extends SS_Model{
 			}
 		}
 		
+		if(isset($args['get_labels']) && $args['get_labels']){
+			foreach($result_array as &$row){
+				$labels=$this->getlabels($row['id']);
+				if($args['get_labels']===true){
+					$row['labels']=$labels;
+				}
+				elseif(is_array($args['get_labels'])){
+					foreach($args['get_labels'] as $key => $value){
+						$label_content=array_key_exists($value, $labels)?$labels[$value]:NULL;
+						if(is_integer($key)){
+							$row[$value]=$label_content;
+						}
+						else{
+							$row[$key]=$label_content;
+						}
+					}
+				}
+			}
+		}
+		
 		return $result_array;
 	}
 	

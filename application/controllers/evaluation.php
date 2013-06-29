@@ -21,8 +21,8 @@ class Evaluation extends Project{
 		parent::edit($id);
 	}
 	
-	function submit($submit, $id) {
-		parent::submit($submit, $id);
+	function submit($submit, $id,$button_id=NULL) {
+		parent::submit($submit, $id, $button_id);
 		
 		try{
 			if($submit=='indicator'){

@@ -25,6 +25,12 @@ class Student_model extends People_model{
 		return parent::match($part_of_name);
 	}
 	
+	/**
+	 * 
+	 * @param array $args
+	 *	in_class bool 只显示属于某个班级的学生
+	 * @return type
+	 */
 	function getList($args=array()){
 		
 		!isset($args['type']) && $args['type']='student';
@@ -33,9 +39,8 @@ class Student_model extends People_model{
 			people.*,
 			team.id AS class,team.name AS class_name
 		',false)
-			->join('people_relationship class_student',"class_student.relative = people.id AND class_student.till>=CURDATE()",'inner')
-			->join('team','team.id = class_student.people','inner')
-			->join('people people_team','people_team.id = class_student.people','inner');
+			->join('people_relationship class_student',"class_student.relative = people.id AND class_student.till>=CURDATE()",isset($args['in_class']) && $args['in_class']?'inner':'left')
+			->join('team','team.id = class_student.people',isset($args['in_class']) && $args['in_class']?'inner':'left');
 		
 		if(isset($args['team'])){
 			$this->db->where_in('class_student.people',$args['team']);

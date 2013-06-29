@@ -1,68 +1,12 @@
 <?php
-class Exam_model extends SS_Model{
+class Exam_model extends Evaluation_model{
 	function __construct(){
 		parent::__construct();
 	}
 	
-	function getList(){
-		$q="SELECT 
-				exam.id AS id,exam.name AS name,exam.term AS term,exam.is_on,exam.seat_allocated,exam.depart,
-				grade.name AS grade_name
-			FROM exam INNER JOIN grade ON exam.grade=grade.id
-			WHERE
-				1=1
-			";
-				
-		$q=$this->orderby($q,'exam.id','DESC',array('exam.name'));
-		
-		$q=$this->pagination($q);
-		
-		return $this->db->query($q)->result_array();
-	}
-	
-	/**
-	 * 考试相关信息列表，用于阅卷模块
-	 */
-	function getInfoList(){
-		$query="
-		SELECT 
-			exam.id AS exam,exam.name AS name,
-			exam_paper.id AS exam_paper,exam_paper.is_extra_course AS is_extra_course,
-			if(exam_paper.is_extra_course,course.id,NULL) AS extra_course,
-			grade.name AS grade_name,course.id AS course,course.name AS course_name,
-			exam_paper.students AS students, exam_paper.teacher_group AS teacher_group 
-		FROM 
-			exam_paper 
-			INNER JOIN exam ON (exam_paper.exam=exam.id)
-			INNER JOIN course ON exam_paper.course=course.id
-			INNER JOIN grade ON exam.grade=grade.id
-		WHERE  exam_paper.is_scoring=1 
-			AND exam.is_on=1
-			AND (".db_implode($_SESSION['teacher_group'],' OR ','teacher_group').')';
-		
-		return $this->db->query($query)->result_array();
-	}
-	
-	function getPaperList($exam_id){
-		$q="SELECT 
-				course.id AS course,course.name AS course_name,
-				exam_paper.id AS id,exam_paper.is_extra_course,exam_paper.students,exam_paper.is_scoring,exam_paper.term,
-				grade.name,
-				staff_group.name AS teacher_group_name
-			FROM exam_paper
-				INNER JOIN course ON course.id=exam_paper.course
-				INNER JOIN exam ON exam_paper.exam=exam.id
-				INNER JOIN grade ON grade.id=exam.grade
-				LEFT JOIN staff_group ON staff_group.id=exam_paper.teacher_group
-			WHERE
-				exam.id='{$exam_id}'
-			";
-				
-		$q=$this->orderby($q,'course.id');
-		
-		$q=$this->pagination($q);
-		
-		return $this->db->query($q)->result_array();
+	function getList($args=array()){
+		!isset($args['type']) && $args['type']='exam';
+		return parent::getList($args);
 	}
 	
 	function getSeatList($exam_id){
@@ -80,6 +24,103 @@ class Exam_model extends SS_Model{
 		$q=$this->pagination($q);
 		
 		return $this->db->query($q)->result_array();
+	}
+	
+	function uploadScore($data){
+
+		$rows=$data->sheets[0]['numRows'];
+		$cols=$data->sheets[0]['numCols'];
+
+		$exam_part_array=array();
+
+		for($i=1;$i<$cols;$i++){
+			if($data->sheets[0]['cells'][0][$i]=='' || is_numeric($data->sheets[0]['cells'][0][$i])){
+				throw new Exception('某大题的名字是空的或是数字');
+			}
+			$exam_part_data_array[]=array('exam_paper'=>$currentExam['exam_paper'],'name'=>$data->sheets[0]['cells'][0][$i]);
+		}
+
+		for($i=1;$i<$rows;$i++){
+			for($j=1;$j<$cols;$j++){
+				$cell = isset($data->sheets[0]['cells'][$i][$j])?$data->sheets[0]['cells'][$i][$j]:'';
+				if(!(is_numeric($cell) || $cell=='') || $cell<0){
+					throw new Exception('第'.($i+1).'行 第'.($j+1).'列的数据'.$cell.'中包含错误字符，注意只能是数字或留空（缺考）');
+				}
+			}
+			if(array_sum(array_slice($data->sheets[0]['cells'][$i],1))>150){
+				throw new Exception('第'.$i.'行的小分和超过了150分！注意不用填写总分');
+			}
+		}
+
+		if($rows-1<$currentExam['students']){
+			//throw new Exception('本张试卷有'.$currentExam['students'].'人参考，上传的分数为'.($rows-1).'条，请检核数据重新上传');
+		}
+
+		foreach($exam_part_data_array as $exam_part_data){
+			//插入大题
+			$this->db->insert('exam_part',$exam_part_data);
+			$exam_part_array[]=$this->db->insert_id();
+		}
+
+		//创建一张临时表
+		$q_create_temp_table="CREATE TEMPORARY TABLE `t` (`id` INT NOT NULL AUTO_INCREMENT, `num` CHAR( 6 ) NOT NULL,";
+
+		foreach($exam_part_array as $exam_part){
+			$q_create_temp_table.="`".$exam_part."` DECIMAL( 10, 1 ) NULL,";
+		}
+
+		$q_create_temp_table.=" PRIMARY KEY (`id`) ,UNIQUE (`num`))";
+
+		$this->db->query($q_create_temp_table);
+
+		//excel表格上传到临时表
+		$q_insert_t_score='INSERT INTO t (num,`'.implode('`,`',$exam_part_array).'`) VALUES';
+		for($i=1; $i<$rows; $i++) {
+			$q_insert_t_score.="('".$data->sheets[0]['cells'][$i][0]."'";
+			for($j=1; $j<$cols; $j++) {
+				$cell = isset($data->sheets[0]['cells'][$i][$j])?$data->sheets[0]['cells'][$i][$j]:'';
+				$q_insert_t_score.=",".($cell==''?'NULL':"'".$cell."'")."";
+			}
+			$q_insert_t_score.=')';
+			if($i!=$rows-1){
+				$q_insert_t_score.=',';
+			}
+		}
+		if(!$this->db->query($q_insert_t_score)){
+			throw new Exception('上传错误，可能有重复学号或者错误的学号');
+			
+		}
+
+		$q_search_illegal_student="
+			SELECT id,num FROM t WHERE num NOT IN
+			(
+				SELECT view_student.num 
+				FROM exam_student INNER JOIN view_student ON view_student.id=exam_student.student
+				WHERE exam_student.exam='".$currentExam['exam']."'".(isset($currentExam['extra_course'])?" AND exam_student.extra_course='".$currentExam['extra_course']."'":'')."
+			)
+			LIMIT 1
+		";
+
+		$r_search_illegal_student=$this->db->query($q_search_illegal_student);
+
+		if(/*db_rows($r_search_illegal_student)==*/1){
+			$illegal_line=db_fetch_array($r_search_illegal_student);
+			throw new Exception(($illegal_line['id']+1).'行的"'.$illegal_line['num'].'"学号不正确，可能填写错误或学生不属于本场考试');
+			
+		}
+
+		foreach($exam_part_array as $exam_part){
+			//插入分数
+			$q_insert_score="
+			REPLACE INTO score (student,exam,exam_paper,exam_part,score,is_absent,scorer,scorer_username,time)
+			SELECT view_student.id,'".$currentExam['exam']."','".$currentExam['exam_paper']."','".$exam_part."',t.`".$exam_part."`,if(t.`".$exam_part."` IS NULL,1,0),{$this->user->id},'".$_SESSION['username']."','".$this->date->now."'  
+			FROM t INNER JOIN view_student ON t.num=view_student.num
+			";
+			mysql_query($q_insert_score);
+		}
+
+		throw new Exception('文件上传成功！');
+
 	}
 
 	function allocate_seat(){
