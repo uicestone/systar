@@ -186,8 +186,8 @@ class Schedule_model extends BaseItem_model{
 		//attemp to convert date string to timestamp
 		foreach(array('start','end','deadline') as $timepoint){
 			if(isset($data[$timepoint])){
-				if($data[$timepoint]===''){
-					$data[$timepoint]=NULL;
+				if(strtotime($data[$timepoint])){
+					$data[$timepoint]=strtotime($data[$timepoint]);
 				}
 			}
 		}
@@ -226,8 +226,8 @@ class Schedule_model extends BaseItem_model{
 		//attemp to convert date string to timestamp
 		foreach(array('start','end','deadline') as $timepoint){
 			if(isset($data[$timepoint])){
-				if($data[$timepoint]===''){
-					$data[$timepoint]=NULL;
+				if(strtotime($data[$timepoint])){
+					$data[$timepoint]=strtotime($data[$timepoint]);
 				}
 			}
 		}

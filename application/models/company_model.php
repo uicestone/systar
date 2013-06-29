@@ -41,6 +41,7 @@ class Company_model extends BaseItem_model{
 		$this->type=COMPANY_TYPE;
 		$this->syscode=COMPANY_CODE;
 		$this->sysname=$row->name;
+		$this->ucenter=$row->ucenter;
 	}
 	
 	/**
