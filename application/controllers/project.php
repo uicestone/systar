@@ -281,10 +281,8 @@ class Project extends SS_controller{
 					$this->output->status='redirect';
 				}
 				
-				$this->project->labels=$this->input->sessionPost('labels');
 				$this->project->update($this->project->id,$this->project->data);
-				$this->project->addLabels($this->project->id,$this->project->labels);
-				$this->project->updateLabels($this->project->id,$this->project->labels);
+				$this->project->updateLabels($this->project->id,$this->input->sessionPost('labels'));
 				
 				unsetPost();
 				$this->output->message($this->output->title.' 已保存');

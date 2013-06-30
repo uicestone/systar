@@ -351,10 +351,10 @@ class BaseItem_model extends SS_Model{
 			$label_id=$this->label->match($name);
 			$set=array('label'=>$label_id,'label_name'=>$name);
 			$where=array($this->table=>$item_id);
+			$result=$this->db->get_where($this->table.'_label',$where+$set);
 			if(!is_integer($type)){
 				$where['type']=$type;
 			}
-			$result=$this->db->get_where($this->table.'_label',$where+$set);
 			if($result->num_rows()===0){
 				$this->db->insert($this->table.'_label',$set+$where);
 			}
@@ -363,14 +363,18 @@ class BaseItem_model extends SS_Model{
 	
 	/**
 	 * 为一个对象更新一组带类型的标签
+	 * 不存在的标签添加
 	 * @param int $item_id
 	 * @param array $labels
 	 * array(
 	 *	[type=>]name,
 	 *	...
 	 * )
+	 * @param bool $delete_other 将输入数组作为所有标签，删除其他标签
 	 */
-	function updateLabels($item_id,array $labels){
+	function updateLabels($item_id, array $labels, $delete_other=false){
+		
+		//按类别更新标签
 		foreach($labels as $type => $name){
 			if(!is_integer($type)){
 				$label_id=$this->label->match($name);
@@ -379,6 +383,18 @@ class BaseItem_model extends SS_Model{
 				$this->db->update($this->table.'_label',$set,$where);
 			}
 		}
+		
+		$origin_labels=$this->getLabels($item_id);
+		
+		//添加新的标签
+		$this->addLabels($item_id, $labels);
+		
+		//删除其他标签
+		if($delete_other){
+			$other_labels=array_diff($origin_labels,$labels);
+			$this->db->where_in('label_name',$other_labels)->delete($this->table.'_label');
+		}
+		
 	}
 	
 	/**

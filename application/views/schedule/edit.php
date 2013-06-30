@@ -10,6 +10,9 @@
 	+$this->user->getArray(array('is_secondary_relative_of'=>$this->user->id),'name','id')
 	+$this->user->getArray(array('is_both_relative_with'=>$this->user->id),'name','id')
 ,isset($people)?$people:NULL,NULL,true)?></select>
+<select name="labels" data-placeholder="标签" multiple="multiple" class="allow-new" style="width:98%">
+	<?=options($this->schedule->getAllLabels(),$this->value('labels'))?>
+</select>
 <?if($this->input->get('period')){?>
 <input type="text" name="start" value="<?=$this->value('schedule/start')?>" class="datetime" placeholder="开始时间" style="width:68%;margin-right:1%" /><input type="text" name="hours_own" value="<?=$this->value('schedule/hours_own')?>" placeholder="小时长" style="width:29%;" />
 <?}?>

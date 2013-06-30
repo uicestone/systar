@@ -43,23 +43,24 @@ class Schedule_model extends BaseItem_model{
 	/**
 	 * 
 	 * @param array $args
-	 * project: get schedule only under this project
-	 * people: get schedule related with this people (by schedule.uid and schedule_people)
-	 * show_creater
-	 * id_in_set
-	 * in_todo_list
-	 * completed
-	 * time array or boolean
-	 *	false
-	 *	array(
-	 *		from=>timestamp/date string/datetime string
-	 *		to=>timestamp/date string/datetime string
-	 *		input_format=>timestamp, date
-	 *		date_form=>mysql date form string, or false (default: '%Y-%m-%d')
-	 *	)
-	 * in_project_of_people bool
-	 * show_project
-	 * @return type
+	 *	project: get schedule only under this project
+	 *	project_labels: 仅获取带有给定标签的事务的日程
+	 *	people: get schedule related with this people (by schedule.uid and schedule_people)
+	 *	show_creater
+	 *	id_in_set
+	 *	in_todo_list
+	 *	completed
+	 *	time array or boolean
+	 *		false
+	 *		array(
+	 *			from=>timestamp/date string/datetime string
+	 *			to=>timestamp/date string/datetime string
+	 *			input_format=>timestamp, date
+	 *			date_form=>mysql date form string, or false (default: '%Y-%m-%d')
+	 *		)
+	 *	in_project_of_people bool
+	 *	show_project
+	 * @return array
 	 */
 	function getList(array $args=array()){
 		
@@ -67,6 +68,12 @@ class Schedule_model extends BaseItem_model{
 		
 		if(isset($args['project'])){
 			$this->db->where('schedule.project',$args['project']);
+		}
+		
+		if(isset($args['project_labels'])){
+			foreach($args['project_labels'] as $id => $label_name){
+				$this->db->join("project_label t_$id","schedule.project = t_$id.project AND t_$id.label_name = '$label_name'",'inner');
+			}
 		}
 		
 		if(isset($args['people'])){
@@ -152,6 +159,15 @@ class Schedule_model extends BaseItem_model{
 		elseif(isset($args['show_project']) && $args['show_project']){
 			$this->db->join('project','project.id = schedule.project','left')
 				->select('project.name project_name');
+		}
+		
+		if(isset($args['sum'])){
+			$this->db->select('SUM(IF(hours_checked IS NULL, hours_own, hours_checked)) sum',false);
+		}
+		
+		if(isset($args['group_by'])){
+			//TODO
+			$args['group_by']==='people';
 		}
 		
 		$schedules = parent::getList($args);

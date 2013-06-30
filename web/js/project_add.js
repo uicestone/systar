@@ -53,6 +53,46 @@ $(function(){
 			});
 		});
 
+	/*客户子表的删除行按钮*/
+	section.find('.item[name="client"]:not([locked])')
+		.on('mouseenter','tbody>tr',function(){
+	
+			$(this).siblings('tr').each(function(){
+				if($(this).data('delete-button')){
+					$(this).data('delete-button').remove();
+				}
+			});
+	
+			var that=$(this).data('delete-button',
+				$('<button/>',{text:'删除',type:'submit',name:'submit[remove_client]',id:$(this).attr('id')})
+					.appendTo($(this).children('td:last'))
+					.position({
+						my:'right-5 center',
+						at:'right center',
+						of:$(this)
+					})
+					.on('mouseenter',function(){
+						$(this).clearQueue();
+					})
+					.on('mouseleave',function(){
+						$(this).stop().remove();
+					})
+					.on('click',function(){
+						var project=that.closest('form[id]').attr('id');
+						var people=that.closest('tr').attr('id');
+						$.post('/'+controller+'/submit/remove_client/'+project+'/'+people,function(){
+							that.data('delete-button').remove();
+						});
+						return false;
+					})
+				);
+		})
+		.on('mouseleave','tbody>tr',function(){
+			$(this).data('delete-button').clearQueue().hide(0,function(){
+				$(this).remove();
+			});
+		});
+
 	/*文档子表的删除行按钮*/
 	section.find('.item[name="document"]:not([locked])')
 		.on('mouseenter','tbody>tr',function(){

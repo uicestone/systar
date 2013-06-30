@@ -24,7 +24,7 @@ class Cases extends Project{
 		);
 		
 		$this->client_list_args=array(
-			'name'=>array('heading'=>'名称','cell'=>array('data'=>'{name}<button type="submit" name="submit[remove_client]" id="{id}" class="hover">删除</button>')),
+			'name'=>array('heading'=>'名称','cell'=>array('data'=>'{name}')),
 			'phone'=>array('heading'=>'电话','cell'=>array('class'=>'ellipsis','title'=>'{phone}')),
 			'email'=>array('heading'=>'电邮','cell'=>array('data'=>'<a href = "mailto:{email}">{email}</a>','class'=>'ellipsis')),
 			'role'=>array('heading'=>'本案地位')

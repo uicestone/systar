@@ -181,8 +181,10 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			});
 			
 			that.element.find('[name="project"]').tagging({width:'element'});
-			
+
 			that.element.find('[name="people"]').tagging();
+			
+			that.element.find('[name="labels"]').tagging();
 			
 			that.element.on('focus','[name^="profiles"]',function(){
 				$(this).attr('name','profiles['+$(this).prev('.profile-name').val()+']');

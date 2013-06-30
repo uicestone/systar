@@ -139,43 +139,9 @@ class Schedule extends SS_controller{
 		}
 	}
 	
-	function workHours(){
-		//@TODO 工作时间统计
-
-		if(date('w')==1){//今天是星期一
-			$start_of_this_week=strtotime($this->date->today);
-		}else{
-			$start_of_this_week=strtotime("-1 Week Monday");
-		}
-		
-		if(!option('in_date_range')){
-			option('date_range/from',date('Y-m-d',$start_of_this_week));
-			option('date_range/to',$this->date->today);
-			option('date_range/from_timestamp',$start_of_this_week);
-			option('date_range/to_timestamp',$this->date->now);
-			option('in_date_range',true);
-		}
-		
-		$staffly_workhours=$this->schedule->getStafflyWorkHoursList();
-
-		$chart_staffly_workhours_catogary=json_encode(array_sub($staffly_workhours,'staff_name'));
-		$chart_staffly_workhours_series=array(
-			array('name'=>'工作时间','data'=>array_sub($staffly_workhours,'sum'))
-		);
-		$chart_staffly_workhours_series=json_encode($chart_staffly_workhours_series,JSON_NUMERIC_CHECK);
-
-		$field=array(
-			'staff_name'=>array('heading'=>'姓名'),
-			'sum'=>array('heading'=>'总工作时间'),
-			'avg'=>array('heading'=>'工作日平均')
-		);
-		
-		$work_hour_stat=$this->table->setFields($field)
-				->generate($staffly_workhours);
-
-		$this->load->addViewArrayData(compact('chart_staffly_workhours_catogary','chart_staffly_workhours_series','work_hour_stat'));
-	
-		$this->load->view('schedule/workhours');
+	function stats(){
+		//TODO
+		$this->load->view('schedule/stats');
 	}
 	
 	function writeCalendar($action,$schedule_id=NULL){
@@ -186,6 +152,8 @@ class Schedule extends SS_controller{
 			$new_schedule_id = $this->schedule->add($data);
 			
 			$this->schedule->updatePeople($new_schedule_id,$this->input->post('people'));
+			
+			$this->schedule->updateLabels($new_schedule_id, $this->input->post('labels'), true);
 			
 			if(is_array($this->input->post('profiles'))){
 				foreach($this->input->post('profiles') as $name => $content){
@@ -204,6 +172,7 @@ class Schedule extends SS_controller{
 		}elseif($action=='update'){//更新任务内容
 			$this->schedule->update($schedule_id,$this->input->post());
 			$this->schedule->updatePeople($schedule_id,$this->input->post('people'));
+			$this->schedule->updateLabels($schedule_id, $this->input->post('labels'), true);
 			
 			if(is_array($this->input->post('profiles'))){
 				foreach($this->input->post('profiles') as $name => $content){
@@ -346,6 +315,8 @@ class Schedule extends SS_controller{
 			$profiles=$this->schedule->getProfiles($schedule_id,array('show_author'=>true));
 			
 			$people=$this->schedule->getPeople($schedule_id);
+			
+			$labels=$this->schedule->getLabels($schedule_id);
 
 			if(isset($schedule['project'])){
 				$project=$this->project->fetch($schedule['project']);
@@ -355,6 +326,7 @@ class Schedule extends SS_controller{
 			$this->load->addViewData('schedule', $schedule);
 			$this->load->addViewData('profiles', $profiles);
 			$this->load->addViewData('people', $people);
+			$this->load->addViewData('labels', $labels);
 
 			isset($schedule['name']) && $this->output->setData($schedule['name'],'name');
 			isset($schedule['completed']) && $this->output->setData($schedule['completed'],'completed');

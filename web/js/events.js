@@ -256,7 +256,8 @@ $(document)
 				var formData=form.serialize();
 
 				var asideSection = aside.children('section[hash="'+hash+'"]');
-				var asideData=asideSection.find(':input').serialize();
+				//TODO 保存时会将边栏标签一并提交，临时解决
+				var asideData=asideSection.find(':input:not([name="labels[]"])').serialize();
 
 				var id = form.attr('id');
 				var submit = $(this).attr('name').replace('submit[','').replace(']','');
