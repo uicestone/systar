@@ -372,7 +372,11 @@ class BaseItem_model extends SS_Model{
 	 * )
 	 * @param bool $delete_other 将输入数组作为所有标签，删除其他标签
 	 */
-	function updateLabels($item_id, array $labels, $delete_other=false){
+	function updateLabels($item_id, $labels, $delete_other=false){
+		
+		if(!is_array($labels)){
+			$labels=array();
+		}
 		
 		//按类别更新标签
 		foreach($labels as $type => $name){
