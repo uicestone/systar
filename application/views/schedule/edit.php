@@ -1,7 +1,7 @@
 <textarea name="content" placeholder="日程概要" style="width:98%"><?=$this->value('schedule/content')?></textarea>
 <?if($this->input->get('project')===false || $this->input->get('project')){?>
 <select name="project" data-placeholder="相关事务" style="width:98%">
-	<?=options($this->project->getArray(array('people'=>$this->user->id,'active'=>true),'name','id'),$this->value('project/id'),'',true,false,false)?>
+	<?=options($this->project->getArray(array('people'=>array_keys($this->user->teams)+array($this->user->id),'active'=>true),'name','id'),$this->value('project/id'),'',true,false,false)?>
 </select>
 <?}?>
 <select name="people" data-placeholder="邀请其他人" multiple="multiple" style="width:98%"><?=options(
