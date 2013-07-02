@@ -10,9 +10,7 @@ $(function(){
 				.on('click.deletedialogmessage',function(event){
 					event.stopPropagation();
 					var id=$(this).parent('.message-dialog-list-item').attr('id');
-					$.post('/message/deletedialogmessage/'+id,function(){
-						$.refresh(hash);
-					});
+					$.post('/message/deletedialogmessage/'+id);
 				});
 		});
 		$(this).on('mouseleave','.message-dialog-list-item',function(){
@@ -29,9 +27,7 @@ $(function(){
 			$(this).children('#delete').show()
 				.on('click.deletemessage',function(){
 					var id=$(this).parent('.message-content-list-item').attr('id');
-					$.post('/message/delete/'+id,function(){
-						$.get('/'+hash,{blocks:'content'});
-					});
+					$.post('/message/delete/'+id,{dialog:uriSegments[2]});
 				});
 		});
 		$(this).on('mouseleave','.message-content-list-item',function(){

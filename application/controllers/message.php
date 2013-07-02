@@ -100,10 +100,12 @@ class Message extends SS_Controller{
 	 */
 	function delete($message_id){
 		$this->message->updateMessageUser($message_id,$this->user->id,array('deleted'=>true));
+		redirect('message/content/'.$this->input->post('dialog'));
 	}
 	
 	function deleteDialogMessage($dialog_id){
 		$this->message->deleteDialogMessage($dialog_id, $this->user->id);
+		redirect('message');
 	}
 	
 }

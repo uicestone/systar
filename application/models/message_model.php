@@ -138,8 +138,8 @@ class Message_model extends BaseItem_model{
 		
 		$this->db->update('dialog',array('last_message'=>$message),array('id'=>$dialog));
 		
-		//将收件人的会话标记为未读
-		$this->db->update('dialog_user',array('read'=>false),array('dialog'=>$dialog,'user !='=>$this->user->id));
+		//将收件人的会话标记为未读且取消隐藏
+		$this->db->update('dialog_user',array('read'=>false,'hidden'=>false),array('dialog'=>$dialog,'user !='=>$this->user->id));
 		
 		return $message;
 	}
@@ -257,13 +257,14 @@ class Message_model extends BaseItem_model{
 		$this->db->where_in('id',$dialogs)->update('dialog',array('last_message'=>$message));
 		$this->db->where_in('dialog',$dialogs)->update('dialog_user',array('read'=>false));
 		
+		$this->db->set('hidden',false)->where_in('dialog',$dialogs)->update('dialog_user');
 		$set=$this->db->select('user')->from('dialog_user')->where_in('dialog',$dialogs)->get()->result_array();
 		foreach($set as $key=>$val){
 			$set[$key]+=array('message'=>$message,'read'=>false,'deleted'=>false);
 		}
 		$this->db->insert_batch('message_user',$set);
 		
-		//将发件人的会话和消息标记为未读
+		//将发件人的会话和消息标记为已读
 		$this->db->where_in('dialog',$dialogs)->where('user',$this->user->id)
 			->update('dialog_user',array('read'=>true));
 		$this->db->where(array('message'=>$message,'user'=>$this->user->id))
