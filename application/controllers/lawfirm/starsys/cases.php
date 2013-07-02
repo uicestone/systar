@@ -378,6 +378,7 @@ class Cases extends Project{
 				}
 				
 				if($this->cases->addStaff($this->cases->id,$staff['id'],$staff['role'],$staff['weight'])){
+					$this->message->send('将你加入案件：'.$this->cases->data['name'],$staff['id']);
 					$this->output->setData($this->staffList(),'staff-list','content-table','.item[name="staff"]>.contentTable','replace');
 					unsetPost('staff/id');
 				}else{

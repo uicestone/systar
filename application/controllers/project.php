@@ -293,6 +293,7 @@ class Project extends SS_controller{
 				$people=$this->input->sessionPost('people');
 				
 				if($this->project->addPeople($this->project->id,$people['id'],NULL,$people['role'])){
+					$this->message->send('将你加入事务：'.$this->project->data['name'],$people['id']);
 					$this->output->setData($this->peopleList(),'people-list','content-table','.item[name="people"]>.contentTable','replace');
 				}else{
 					$this->output->message('人员添加错误', 'warning');
