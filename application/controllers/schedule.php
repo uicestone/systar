@@ -66,20 +66,7 @@ class Schedule extends SS_controller{
 			$this->config->set_user_item('search/project', $this->input->get('project'),false);
 		}
 		
-		foreach($this->search_items as $item){
-			if($this->input->post($item)){
-				$this->config->set_user_item('search/'.$item, $this->input->post($item));
-			}
-			elseif($this->input->post('submit')==='search'){
-				$this->config->unset_user_item('search/'.$item);
-			}
-		}
-		
-		if($this->input->post('submit')==='search_cancel'){
-			foreach($this->search_items as $item){
-				$this->config->unset_user_item('search/'.$item);
-			}
-		}
+		$this->_search();
 		
 		if($this->input->get('export')=='excel'){
 			

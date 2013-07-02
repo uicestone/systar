@@ -102,20 +102,7 @@ class People extends SS_Controller{
 		
 		$this->config->set_user_item('search/limit', 'pagination', false);
 		
-		foreach($this->search_items as $item){
-			if($this->input->post($item)){
-				$this->config->set_user_item('search/'.$item, $this->input->post($item));
-			}
-			elseif($this->input->post('submit')==='search'){
-				$this->config->unset_user_item('search/'.$item);
-			}
-		}
-		
-		if($this->input->post('submit')==='search_cancel'){
-			foreach($this->search_items as $item){
-				$this->config->unset_user_item('search/'.$item);
-			}
-		}
+		$this->_search();
 		
 		$this->table->setFields($this->list_args)
 			->setRowAttributes(array('hash'=>'{type}/{id}'))

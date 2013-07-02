@@ -152,6 +152,28 @@ class SS_Controller extends CI_Controller{
 		echo json_encode($output_array);
 	}
 	
+	function _search(){
+		if($this->input->get('labels')!==false){
+			$labels=preg_split('/\s|,/',urldecode($this->input->get('labels')));
+			$this->config->set_user_item('search/labels', $labels);
+		}
+		
+		foreach($this->search_items as $item){
+			if($this->input->post($item)){
+				$this->config->set_user_item('search/'.$item, $this->input->post($item),true,'method',false);
+			}
+			elseif($this->input->post('submit')==='search'){
+				$this->config->unset_user_item('search/'.$item);
+			}
+		}
+		
+		if($this->input->post('submit')==='search_cancel'){
+			foreach($this->search_items as $item){
+				$this->config->unset_user_item('search/'.$item);
+			}
+		}
+	}
+	
 	/**
 	 * 在一个form中，用户修改任何input/select值时，就发送一个请求，保存到$_SESSION中
 	 * 如此一来到发生保存请求时，只需要把$_SESSION中的新值保存即可

@@ -557,8 +557,6 @@ class Cases extends Project{
 	}
 	
 	function index(){
-		$this->load->model('staff_model','staff');//用于边栏职员搜索
-
 		if($this->user->isLogged('service')){
 			$this->config->set_user_item('search/people', NULL, false);
 		}

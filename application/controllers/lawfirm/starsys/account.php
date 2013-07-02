@@ -39,20 +39,7 @@ class Account extends SS_controller{
 		$this->config->set_user_item('search/limit', 'pagination', false);
 		$this->config->set_user_item('search/date/from', $this->date->year_begin, false);
 		
-		foreach($this->search_items as $item){
-			if($this->input->post($item)){
-				$this->config->set_user_item('search/'.$item, $this->input->post($item));
-			}
-			elseif($this->input->post('submit')==='search'){
-				$this->config->unset_user_item('search/'.$item);
-			}
-		}
-		
-		if($this->input->post('submit')==='search_cancel'){
-			foreach($this->search_items as $item){
-				$this->config->unset_user_item('search/'.$item);
-			}
-		}
+		$this->_search();
 		
 		if($this->config->user_item('search/role')){
 			$this->list_args['weight']=array('heading'=>'占比');

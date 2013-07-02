@@ -88,29 +88,13 @@ class Project extends SS_controller{
 	
 	function index(){
 		
-		$this->config->set_user_item('search/people', array($this->user->id)+array_keys($this->user->teams), false,'method',false);
+		$this->load->model('staff_model','staff');//用于边栏职员搜索
+
+		!$this->user->isLogged('developer') && $this->config->set_user_item('search/people', array_merge(array($this->user->id),array_keys($this->user->teams)), false,'method',false);
 		$this->config->set_user_item('search/orderby', 'project.id desc', false);
 		$this->config->set_user_item('search/limit', 'pagination', false);
 		
-		if($this->input->get('labels')!==false){
-			$labels=preg_split('/\s|,/',urldecode($this->input->get('labels')));
-			$this->config->set_user_item('search/labels', $labels);
-		}
-		
-		foreach($this->search_items as $item){
-			if($this->input->post($item)){
-				$this->config->set_user_item('search/'.$item, $this->input->post($item));
-			}
-			elseif($this->input->post('submit')==='search'){
-				$this->config->unset_user_item('search/'.$item);
-			}
-		}
-		
-		if($this->input->post('submit')==='search_cancel'){
-			foreach($this->search_items as $item){
-				$this->config->unset_user_item('search/'.$item);
-			}
-		}
+		$this->_search();
 		
 		$this->table->setFields($this->list_args)
 			->setRowAttributes(array('hash'=>'{type}/{id}'))
