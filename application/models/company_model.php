@@ -19,7 +19,7 @@ class Company_model extends BaseItem_model{
 		$config=array_sub($this->db->get()->result_array(),'value','name');
 		
 		array_walk($config, function(&$value){
-			$decoded=json_decode($value);
+			$decoded=json_decode($value,true);
 			if(!is_null($decoded)){
 				$value=$decoded;
 			}

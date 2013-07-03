@@ -20,7 +20,7 @@ $(function(){
 			});
 	
 			var that=$(this).data('delete-button',
-				$('<button/>',{text:'删除',type:'submit',name:'remove_relative',id:$(this).attr('id')})
+				$('<button/>',{text:'删除',type:'submit',name:'remove_relative',id:$(this).attr('id'),style:'position:absolute'})
 					.appendTo($(this).children('td:last'))
 					.position({
 						my:'right-5 center',

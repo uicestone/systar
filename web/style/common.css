@@ -349,15 +349,16 @@ nav .arrow{
 .contentTable tbody td{
 	border-right:1px solid #69C;
 	border-bottom:1px solid #69C;
+	padding:6px 7px;
+}
+.contentTable tbody td button{
+	margin:-6px 0;
 }
 .contentTable tbody a{
 	color:#173C66;
 }
 .contentTable tbody a:visited{
 	color:#666;
-}
-.contentTable tbody td{
-	padding:6px 7px;
 }
 article .contentTable td input[type="text"], article .contentTable td textarea{
 	width:99%;
