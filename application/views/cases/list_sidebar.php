@@ -14,7 +14,7 @@
 				</td>
 			</tr>
 			<tr>
-				<td><select name="people" multiple="multiple" class="chosen allow-new" data-placeholder="职员"><?=options($this->staff->getArray(),$this->config->user_item('search/people'),NULL,true)?></select></td>
+				<td><select name="people[]" multiple="multiple" class="chosen allow-new" data-placeholder="职员"><?=options($this->staff->getArray(),$this->config->user_item('search/people'),NULL,true)?></select></td>
 			</tr>
 			<tr><td><input type="text" name="time_contract[from]" value="<?=$this->config->user_item('search/time_contract/from')?>" class="date" placeholder="立案日期起" /></td></tr>
 			<tr><td><input type="text" name="time_contract[to]" value="<?=$this->config->user_item('search/time_contract/to')?>" class="date" placeholder="立案日期止" /></td></tr>
