@@ -63,13 +63,17 @@ jQuery.extend({
 				$.processMessage();
 			});
 		}).each(function(index,Element){
-			$(this).delay(index*3000).fadeOut(20000,function(){
+			$(this).delay(20000+index*3000).fadeOut(1000,function(){
 				$(this).remove();
+				$.processMessage();
 			});
 		}).mouseenter(function(){
 			$(this).stop(true).dequeue().css('opacity',1);
 		}).mouseout(function(){
-			$(this).fadeOut(10000);
+			$(this).delay(10000).fadeOut(1000,function(){
+				$(this).remove();
+				$.processMessage();
+			});
 		});
 	},
 
