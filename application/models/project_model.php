@@ -337,28 +337,22 @@ class Project_model extends BaseItem_model{
 			$this->db->where('project.id <',$args['before']);
 		}
 		
-		if(isset($args['time_contract'])){
-			
-			if(isset($args['time_contract']['from']) && $args['time_contract']['from']){
-				$this->db->where("TO_DAYS(project.time_contract) >= TO_DAYS('{$args['time_contract']['from']}')",NULL,FALSE);
+		foreach(array('first_contact','time_contract','end') as $date_field){
+			if(isset($args[$date_field]['from']) && $args[$date_field]['from']){
+				$this->db->where("TO_DAYS(project.time_contract) >= TO_DAYS('{$args[$date_field]['from']}')",NULL,FALSE);
+			}
+
+			if(isset($args[$date_field.'/from']) && $args[$date_field.'/from']){
+				$this->db->where("TO_DAYS(project.time_contract) >= TO_DAYS('{$args[$date_field.'/from']}')",NULL,FALSE);
+			}
+
+			if(isset($args[$date_field]['to']) && $args[$date_field]['to']){
+				$this->db->where("TO_DAYS(project.time_contract) <= TO_DAYS('{$args[$date_field]['to']}')",NULL,FALSE);
 			}
 			
-			if(isset($args['time_contract']['to']) && $args['time_contract']['to']){
-				$this->db->where("TO_DAYS(project.time_contract) <= TO_DAYS('{$args['time_contract']['to']}')",NULL,FALSE);
+			if(isset($args[$date_field.'/to']) && $args[$date_field.'/to']){
+				$this->db->where("TO_DAYS(project.time_contract) <= TO_DAYS('{$args[$date_field.'/to']}')",NULL,FALSE);
 			}
-			
-		}
-		
-		if(isset($args['first_contact'])){
-			
-			if(isset($args['first_contact']['from']) && $args['first_contact']['from']){
-				$this->db->where("TO_DAYS(project.first_contact) >= TO_DAYS('{$args['first_contact']['from']}')",NULL,FALSE);
-			}
-			
-			if(isset($args['first_contact']['to']) && $args['first_contact']['to']){
-				$this->db->where("TO_DAYS(project.first_contact) <= TO_DAYS('{$args['first_contact']['to']}')",NULL,FALSE);
-			}
-			
 		}
 		
 		if(isset($args['count'])){

@@ -436,6 +436,9 @@ aside select, aside .chosen{
 aside .contentTable.search-bar tbody td.submit{
 	text-align:right;
 }
+aside .contentTable.search-bar tbody td.submit button{
+	margin:0;
+}
 aside button.major{
 	width:240px;
 	font-size:16px;

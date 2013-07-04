@@ -6,6 +6,9 @@ class Query extends Cases{
 		$this->load->model('query_model','query');
 		$this->project=$this->query;
 		$this->cases=$this->query;
+
+		$this->search_items=array('name','num','people','first_contact/from','first_contact/to','labels');
+
 		$this->list_args=array(
 			'first_contact'=>array('heading'=>'日期'),
 			'name'=>array('heading'=>'名称','cell'=>'{name}'),
