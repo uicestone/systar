@@ -176,9 +176,11 @@ class People extends SS_Controller{
 	 */
 	function relativeList(){
 		
+		$people=new People_model();
+		
 		$list=$this->table->setFields($this->relative_list_args)
 			->setRowAttributes(array('hash'=>'{type}/{id}'))
-			->setData($this->people->getList(array('is_relative_of'=>$this->people->id)))
+			->setData($people->getList(array('is_relative_of'=>$this->people->id)))
 			->generate();
 		
 		return $list;

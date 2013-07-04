@@ -47,14 +47,23 @@ class Document extends SS_controller{
 		
 		$this->output->as_ajax=false;
 		
-		$document=$this->document->fetch($id);
+		try{
 		
-		$this->document->exportHead($document['filename']);
-		
-		$filename='../uploads/'.$document['id'];
-		
-		$filename=iconv("utf-8","gbk",$filename);//Windows服务器的文件名采用gbk编码保存
-		readfile($filename);
+			$document=$this->document->fetch($id);
+
+			$this->document->exportHead($document['filename']);
+
+			$filename='../uploads/'.$document['id'];
+
+			$filename=iconv("utf-8","gbk",$filename);//Windows服务器的文件名采用gbk编码保存
+			readfile($filename);
+			
+		}catch(Exception $e){
+			$this->output->status='fail';
+			if($e->getMessage()){
+				$this->output->message($e->getMessage(), 'warning');
+			}
+		}
 	}
 	
 	function edit($id){

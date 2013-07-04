@@ -8,19 +8,33 @@ class BaseItem_model extends SS_Model{
 	var $table;//具体对象存放于数据库的表名
 	var $default_type;//插入的新数据的type段
 	var $default_labels;//插入的新数据所包含的标签
+	var $mod=false;//本模型是否带权限验证
 	
 	function __construct() {
 		parent::__construct();
 	}
 	
-	function fetch($id,$field=NULL,$query=NULL){
+	function fetch($id,$field=NULL,$query=NULL,$mod=true){
 		
 		$id=intval($id);
 		
 		$row=array();
 		
 		if(is_null($query)){
-			$row=$this->db->get_where($this->table,array('id'=>$id,'company'=>$this->company->id))->row_array();
+			$this->db
+				->from($this->table)
+				->where(array('id'=>$id,'company'=>$this->company->id));
+			
+			if($this->mod){
+				$this->db->where("document.id IN (
+					SELECT document FROM document_mod
+					WHERE (document_mod.people IS NULL OR document_mod.people{$this->db->escape_int_array(array_merge(array_keys($this->user->teams),array($this->user->id)))})
+						AND ((document_mod.mod & 1) = 1)
+					)
+				");
+			}
+			
+			$row=$this->db->get()->row_array();
 		}
 		else{
 			$row=$this->db->query($query)->row_array();

@@ -12,6 +12,7 @@ class Document_model extends BaseItem_model{
 	function __construct(){
 		parent::__construct();
 		$this->table='document';
+		$this->mod=true;
 		$this->load->library('filetype');
 	}
 	
