@@ -33,7 +33,7 @@ class Document_model extends BaseItem_model{
 		}
 		
 		//验证读权限
-		$this->db->where("document.id IN (
+		!$this->user->isLogged('docadmin') && $this->db->where("document.id IN (
 			SELECT document FROM document_mod
 			WHERE (document_mod.people IS NULL OR document_mod.people{$this->db->escape_int_array(array_merge(array_keys($this->user->teams),array($this->user->id)))})
 				AND ((document_mod.mod & 1) = 1)
