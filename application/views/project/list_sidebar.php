@@ -11,7 +11,7 @@
 				</td>
 			</tr>
 			<tr>
-				<td><select name="people" multiple="multiple" class="chosen allow-new" data-placeholder="职员"><?=options($this->staff->getArray(),$this->config->user_item('search/people'),NULL,true)?></select></td>
+				<td><select name="people[]" multiple="multiple" class="chosen allow-new" data-placeholder="职员"><?=options($this->staff->getArray(),$this->config->user_item('search/people'),NULL,true)?></select></td>
 			</tr>
 			<tr>
 				<td class="submit">

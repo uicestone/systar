@@ -419,7 +419,7 @@ class BaseItem_model extends SS_Model{
 		$labels_string='<div class="select2-container-multi"><ul class="select2-choices">';
 		foreach($labels as $key=>$label){
 			if(!$this->config->user_item('search/labels') || !in_array($label['name'],$this->config->user_item('search/labels'))){
-				$labels_string.='<li class="select2-search-choice" style="color:'.$label['color'].'">'.$label['name'].'</li>';
+				$labels_string.='<a href="#'.CONTROLLER.'?labels='.urlencode($label['name']).'"><li class="select2-search-choice" style="color:'.$label['color'].'">'.$label['name'].'</li></a>';
 			}
 		}
 		
