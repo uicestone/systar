@@ -9,7 +9,7 @@ class SS_Model extends CI_Model{
 		if($is_group_query){
 			$db_active_record->_ar_select=array();
 			$db_active_record->select("COUNT(DISTINCT $field_for_distinct_count) AS num_rows",FALSE);
-			$rows=$db_active_record->get()->row()->num_rows;
+			$rows=$db_active_record->get()->num_rows;
 		}else{
 			$rows=$db_active_record->count_all_results();
 		}

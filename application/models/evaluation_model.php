@@ -45,13 +45,13 @@ class Evaluation_model extends Project_model{
 		
 		$db_num_rows=clone $this->db;
 		
-		if(isset($args['orderby'])){
-			if(is_array($args['orderby'])){
-				foreach($args['orderby'] as $orderby){
+		if(isset($args['order_by'])){
+			if(is_array($args['order_by'])){
+				foreach($args['order_by'] as $orderby){
 					$this->db->order_by($orderby[0],$orderby[1]);
 				}
-			}elseif($args['orderby']){
-				$this->db->order_by($args['orderby']);
+			}elseif($args['order_by']){
+				$this->db->order_by($args['order_by']);
 			}
 		}
 		
@@ -89,13 +89,13 @@ class Evaluation_model extends Project_model{
 		$this->db->group_by('evaluation_candidates.people')
 			->select('people.id, people.name, evaluation_candidates.role');
 		
-		if(isset($args['orderby'])){
-			if(is_array($args['orderby'])){
-				foreach($args['orderby'] as $orderby){
+		if(isset($args['order_by'])){
+			if(is_array($args['order_by'])){
+				foreach($args['order_by'] as $orderby){
 					$this->db->order_by($orderby[0],$orderby[1]);
 				}
-			}elseif($args['orderby']){
-				$this->db->order_by($args['orderby']);
+			}elseif($args['order_by']){
+				$this->db->order_by($args['order_by']);
 			}
 		}
 		

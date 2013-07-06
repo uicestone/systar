@@ -40,7 +40,7 @@ class Cases extends Project{
 			'type'=>array('heading'=>'类型','cell'=>'{type}'),
 			'amount'=>array('heading'=>array('data'=>'数额','width'=>'30%'),'parser'=>array('function'=>function($total,$received,$received_date){
 				return $total.($received==''?'':' <span title="'.$received_date.'">（到账：'.$received.'）</span>');
-			},'args'=>array('total','received','received_date'))),
+			},'args'=>array('total_amount','received_amount','received_date'))),
 			'receivable_date'=>array('heading'=>'预计时间'),
 			'comment'=>array('heading'=>'收款方/备注','cell'=>array('class'=>'ellipsis','title'=>'{comment}'))
 		);

@@ -1,11 +1,12 @@
 <?=$this->table->generate($summary)?>
+<form method="post">
 <table class="contentTable search-bar">
 	<thead><tr><th>搜索</th></tr></thead>
 	<tbody>
 		<tr>
 			<td>
 				<input type="text" name="account" value="<?=$this->config->user_item('search/account')?>" placeholder="帐目编号" title="帐目编号" style="width:50%" />
-				<?=checkbox('按账目分组', 'group_account', $this->config->user_item('search/group')=='acount', 'account')?>
+				<?=checkbox('按账目分组', 'group_by', $this->config->user_item('search/group_by')=='account', 'account')?>
 			</td>
 		</tr>
 		<tr>
@@ -55,3 +56,4 @@
 		</tr>
 	</tbody>
 </table>
+</form>

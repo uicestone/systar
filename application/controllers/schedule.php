@@ -54,7 +54,7 @@ class Schedule extends SS_controller{
 	
 	function lists(){
 		
-		$this->config->set_user_item('search/orderby', 'schedule.id desc', false);
+		$this->config->set_user_item('search/order_by', 'schedule.id desc', false);
 		$this->config->set_user_item('search/limit', 'pagination', false);
 		$this->config->set_user_item('search/in_project_of_people', $this->user->id, false);
 		$this->config->set_user_item('search/show_creater', true, false);

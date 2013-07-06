@@ -154,19 +154,23 @@ class BaseItem_model extends SS_Model{
 		//复制一个DB对象用来计算行数，因为计算行数需要运行sql，将清空DB对象中属性
 		$db_num_rows=clone $this->db;
 		
-		if(isset($args['orderby']) && $args['orderby']){
-			if(is_array($args['orderby'])){
-				foreach($args['orderby'] as $orderby){
+		if(isset($args['order_by']) && $args['order_by']){
+			if(is_array($args['order_by'])){
+				foreach($args['order_by'] as $orderby){
 					$this->db->order_by($orderby[0],$orderby[1]);
 				}
 			}else{
-				$this->db->order_by($args['orderby']);
+				$this->db->order_by($args['order_by']);
 			}
 		}
 		
 		if(isset($args['limit']) && $args['limit']){
 			if($args['limit']==='pagination'){
-				$args['limit']=$this->pagination($db_num_rows);
+				if(array_key_exists('group_by', $args)){
+					$args['limit']=$this->pagination($db_num_rows,true,$this->table.'.id');
+				}else{
+					$args['limit']=$this->pagination($db_num_rows);
+				}
 				call_user_func_array(array($this->db,'limit'), $args['limit']);
 			}
 			elseif(is_array($args['limit'])){

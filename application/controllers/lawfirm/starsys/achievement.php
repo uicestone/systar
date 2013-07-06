@@ -38,7 +38,7 @@ class Achievement extends SS_controller{
 		
 			'新增创收'=>$this->account->getList(array(
 				'sum'=>true,
-				'group'=>'team',
+				'group_by'=>'team',
 				'received'=>true,
 				'contract_date'=>array('from'=>$this->date->year_begin),
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
@@ -48,7 +48,7 @@ class Achievement extends SS_controller{
 
 			'存量创收'=>$this->account->getList(array(
 				'sum'=>true,
-				'group'=>'team',
+				'group_by'=>'team',
 				'received'=>true,
 				'contract_date'=>array('to'=>$this->date->last_year_end),
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
@@ -57,7 +57,7 @@ class Achievement extends SS_controller{
 
 			'签约'=>$this->account->getList(array(
 				'sum'=>true,
-				'group'=>'team',
+				'group_by'=>'team',
 				'received'=>false,
  				'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 				'project_labels'=>array('费用已锁定')
@@ -97,7 +97,7 @@ class Achievement extends SS_controller{
 			
 			'签约案件'=>$this->project->getList(array(
 				'count'=>true,
-				'group'=>'team',
+				'group_by'=>'team',
 				'type'=>'cases',
 				'time_contract'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 				'orderby'=>'count desc'
@@ -107,7 +107,7 @@ class Achievement extends SS_controller{
 				'count'=>true,
 				'labels'=>array('面谈'),
 				'type'=>'query',
-				'group'=>'team',
+				'group_by'=>'team',
 				'first_contact'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 			)),
 
@@ -115,7 +115,7 @@ class Achievement extends SS_controller{
 				'count'=>true,
 				'labels'=>array('电话'),
 				'type'=>'query',
-				'group'=>'team',
+				'group_by'=>'team',
 				'first_contact'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
 			)),
 
@@ -123,7 +123,7 @@ class Achievement extends SS_controller{
 				'count'=>true,
 				'labels'=>array('网络'),
 				'type'=>'query',
-				'group'=>'team',
+				'group_by'=>'team',
 				'first_contact'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
 			))
 			
@@ -178,7 +178,7 @@ class Achievement extends SS_controller{
 		$data=array(
 			'主办新增创收'=>$this->account->getList(array(
 				'sum'=>true,
-				'group'=>'people',
+				'group_by'=>'people',
 				'role'=>array('主办律师'),
 				'received'=>true,
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
@@ -189,7 +189,7 @@ class Achievement extends SS_controller{
 			
 			'主办存量创收'=>$this->account->getList(array(
 				'sum'=>true,
-				'group'=>'people',
+				'group_by'=>'people',
 				'role'=>array('主办律师'),
 				'received'=>true,
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
@@ -199,7 +199,7 @@ class Achievement extends SS_controller{
 			
 			'所内接洽创收'=>$this->account->getList(array(
 				'sum'=>true,
-				'group'=>'people',
+				'group_by'=>'people',
 				'role'=>array('接洽律师'),
 				'project_labels'=>array('所内案源','费用已锁定'),
 				'received'=>true,
@@ -208,7 +208,7 @@ class Achievement extends SS_controller{
 
 			'个人案源创收'=>$this->account->getList(array(
 				'sum'=>true,
-				'group'=>'people',
+				'group_by'=>'people',
 				'role'=>array('案源人'),
 				'received'=>true,
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
@@ -217,7 +217,7 @@ class Achievement extends SS_controller{
 
 			'主办签约'=>$this->account->getList(array(
 				'sum'=>true,
-				'group'=>'people',
+				'group_by'=>'people',
 				'role'=>array('主办律师'),
 				'received'=>false,
 				'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
@@ -261,7 +261,7 @@ class Achievement extends SS_controller{
 			
 			'接洽签约'=>$this->project->getList(array(
 				'count'=>true,
-				'group'=>'people',
+				'group_by'=>'people',
 				'role'=>'接洽律师',
 				'labels'=>array('所内案源'),
 				'type'=>'cases',
@@ -271,7 +271,7 @@ class Achievement extends SS_controller{
 			
 			'案源签约'=>$this->project->getList(array(
 				'count'=>true,
-				'group'=>'people',
+				'group_by'=>'people',
 				'role'=>'案源人',
 				'labels'=>array('个人案源'),
 				'type'=>'cases',
@@ -282,7 +282,7 @@ class Achievement extends SS_controller{
 			'面谈接洽'=>$this->project->getList(array(
 				'count'=>true,
 				'labels'=>array('面谈'),
-				'group'=>'people',
+				'group_by'=>'people',
 				'role'=>'接洽律师',
 				'first_contact'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 			))
@@ -349,7 +349,7 @@ class Achievement extends SS_controller{
 		$data=array(
 			'主办新增创收'=>$this->account->getList(array(
 				'sum'=>true,
-				'group'=>'people',
+				'group_by'=>'people',
 				'role'=>array('主办律师'),
 				'received'=>true,
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
@@ -360,7 +360,7 @@ class Achievement extends SS_controller{
 			
 			'主办存量创收'=>$this->account->getList(array(
 				'sum'=>true,
-				'group'=>'people',
+				'group_by'=>'people',
 				'role'=>array('主办律师'),
 				'received'=>true,
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
@@ -370,7 +370,7 @@ class Achievement extends SS_controller{
 			
 			'所内接洽创收'=>$this->account->getList(array(
 				'sum'=>true,
-				'group'=>'people',
+				'group_by'=>'people',
 				'role'=>array('接洽律师'),
 				'project_labels'=>array('所内案源','费用已锁定'),
 				'received'=>true,
@@ -379,7 +379,7 @@ class Achievement extends SS_controller{
 
 			'个人案源创收'=>$this->account->getList(array(
 				'sum'=>true,
-				'group'=>'people',
+				'group_by'=>'people',
 				'role'=>array('案源人'),
 				'project_labels'=>array('费用已锁定'),
 				'received'=>true,
@@ -388,7 +388,7 @@ class Achievement extends SS_controller{
 
 			'主办签约'=>$this->account->getList(array(
 				'sum'=>true,
-				'group'=>'people',
+				'group_by'=>'people',
 				'role'=>array('主办律师'),
 				'project_labels'=>array('费用已锁定'),
 				'received'=>false,
@@ -424,14 +424,14 @@ class Achievement extends SS_controller{
 		$data=array(
 			'签约'=>$this->account->getList(array(
 				'sum'=>true,
-				'group'=>'month_contract',
+				'group_by'=>'month_contract',
 				'received'=>false,
 				'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
 			)),
 			
 			'新增创收'=>$this->account->getList(array(
 				'sum'=>true,
-				'group'=>'month',
+				'group_by'=>'month',
 				'received'=>true,
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 				'contract_date'=>array('from'=>$this->date->year_begin)
@@ -439,7 +439,7 @@ class Achievement extends SS_controller{
 			
 			'存量创收'=>$this->account->getList(array(
 				'sum'=>true,
-				'group'=>'month',
+				'group_by'=>'month',
 				'received'=>true,
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 				'contract_date'=>array('to'=>$this->date->last_year_end),

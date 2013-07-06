@@ -36,7 +36,7 @@ class Account_model extends BaseItem_model{
 	 *		from=>日期字符串
 	 *		to=>日期字符串
 	 *	)
-	 * group: 
+	 * group_by: 
 	 *	account: 根据帐目编号分组并获得帐目中创收金额received, 总额total, receive_date, receivable_date, comment
 	 *	team: 根据团组分组并获得team_name, team
 	 *	people: 根据项目人员分组并获得people_name, people,role,type
@@ -155,24 +155,24 @@ class Account_model extends BaseItem_model{
 			$this->db->where('account.received',(bool)intval($args['reviewed']));
 		}
 		
-		if(isset($args['group'])){
-			if($args['group']==='account'){
+		if(isset($args['group_by'])){
+			if($args['group_by']==='account'){
 				$this->db->group_by('account.account')
 					->select('
 						MAX(account.type) AS type, 
-						SUM(IF(received,amount,0)) AS received, 
-						SUM(IF(received,0,amount)) AS total, 
-						MAX(IF(received,date,NULL)) AS received_date, 
-						MAX(IF(received,NULL,date)) AS receivable_date, 
+						SUM(IF(account.received,account.amount,0)) AS received_amount,
+						SUM(IF(account.received,0,account.amount)) AS total_amount,
+						MAX(IF(account.received,account.date,NULL)) AS received_date, 
+						MAX(IF(account.received,NULL,account.date)) AS receivable_date, 
 						GROUP_CONCAT(account.comment) AS comment
 					',false);
 			}
-			elseif($args['group']==='team'){
+			elseif($args['group_by']==='team'){
 				$this->db->group_by('account.team')
 					->join('team','team.id = account.team','inner')
 					->select('team.name AS team_name, team.id AS team');
 			}
-			elseif($args['group']==='people'){
+			elseif($args['group_by']==='people'){
 				
 				if($args['role']){
 					
@@ -194,12 +194,12 @@ class Account_model extends BaseItem_model{
 					->group_by('project_people.people')
 					->select('people.name AS people_name, people.id AS people');
 			}
-			elseif($args['group']==='month'){
+			elseif($args['group_by']==='month'){
 				$this->db->group_by('LEFT(account.date,7)',false)
 					->order_by('month')
 					->select('LEFT(account.date,7) AS month',false);
 			}
-			elseif($args['group']==='month_contract'){
+			elseif($args['group_by']==='month_contract'){
 				$this->db->group_by('LEFT(project.time_contract,7)',false)
 					->order_by('month')
 					->select('LEFT(project.time_contract,7) AS month',false);

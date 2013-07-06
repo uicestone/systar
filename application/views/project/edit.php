@@ -44,6 +44,7 @@
 		<div class="title">
 			<label>日程：
 				<a href="javascript:$.createSchedule({project:<?=$this->value('project/id')?>,refreshOnSave:true,target:this})">添加>></a>
+				<a href="#schedule/lists?project=<?=$this->value('project/id')?>" class="right">查看全部</a>
 			</label>
 		</div>
 		<?=$schedule_list?>

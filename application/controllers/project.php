@@ -70,7 +70,7 @@ class Project extends SS_controller{
 			'type'=>array('heading'=>'类型','cell'=>'{type}'),
 			'amount'=>array('heading'=>array('data'=>'数额','width'=>'30%'),'parser'=>array('function'=>function($total,$received,$received_date){
 				return $total.($received==''?'':' <span title="'.$received_date.'">（到账：'.$received.'）</span>');
-			},'args'=>array('total','received','received_date'))),
+			},'args'=>array('total_amount','received_amount','received_date'))),
 			'receivable_date'=>array('heading'=>'预计时间'),
 			'comment'=>array('heading'=>'条件/备注','cell'=>array('class'=>'ellipsis','title'=>'{comment}'))
 		);
@@ -91,7 +91,7 @@ class Project extends SS_controller{
 		$this->load->model('staff_model','staff');//用于边栏职员搜索
 
 		!$this->user->isLogged('developer') && $this->config->set_user_item('search/people', array_merge(array($this->user->id),array_keys($this->user->teams)), false,'method',false);
-		$this->config->set_user_item('search/orderby', 'project.id desc', false);
+		$this->config->set_user_item('search/order_by', 'project.id desc', false);
 		$this->config->set_user_item('search/limit', 'pagination', false);
 		
 		$this->_search();
@@ -184,7 +184,7 @@ class Project extends SS_controller{
 		
 		$list=$this->table->setFields($this->account_list_args)
 				->setAttribute('name','account')
-				->generate($this->account->getList(array('project'=>$this->project->id,'group'=>'account')));
+				->generate($this->account->getList(array('project'=>$this->project->id,'group_by'=>'account')));
 		
 		return $list;
 	}

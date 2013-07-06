@@ -99,7 +99,7 @@ class Schedule_model extends BaseItem_model{
 			}
 			$this->db->where_in('schedule.id', $args['id_in_set'])
 				->order_by("FIELD(schedule.id, ".implode(', ',$args['id_in_set']).")",'',false);
-			$args['orderby']=false;
+			$args['order_by']=false;
 		}
 		
 		if(isset($args['in_todo_list'])){

@@ -25,7 +25,7 @@ class Account extends SS_controller{
 			'payer_name'=>array('heading'=>'付款/收款人')
 		);
 
-		$this->search_items=array('account','date/from','date/to','project_name','amount','payer_name','labels','project_labels','received','people','team','role');
+		$this->search_items=array('account','date/from','date/to','project_name','amount','payer_name','labels','project_labels','received','people','team','role','group_by');
 	}
 	
 	function index(){
@@ -35,11 +35,30 @@ class Account extends SS_controller{
 		$this->config->set_user_item('search/show_project', true, false);
 		$this->config->set_user_item('search/show_payer', true , false);
 		$this->config->set_user_item('search/show_account', true, false);
-		$this->config->set_user_item('search/orderby', 'account.time desc', false);
+		$this->config->set_user_item('search/order_by', 'account.time desc', false);
 		$this->config->set_user_item('search/limit', 'pagination', false);
 		$this->config->set_user_item('search/date/from', $this->date->year_begin, false);
 		
 		$this->_search();
+		
+		if($this->config->user_item('search/group_by')==='account'){
+			$this->list_args['amount']=array(
+				'heading'=>'金额',
+				'parser'=>array('function'=>function($total_amount,$received_amount){
+					if($total_amount===$received_amount){
+						return '<span style="color:green">'.$total_amount.'</span>';
+					}
+					elseif($total_amount<$received_amount){
+						return '<span style="color:blue" title="超收'.($received_amount-$total_amount).'">'.$received_amount.'</span>';
+					}
+					else{
+						return '<span style="color:red">'.$received_amount.' ('.($total_amount-$received_amount).')'.'</span>';
+					}
+				},'args'=>array('total_amount','received_amount')),'cell'=>array('style'=>'text-align:right')
+			);
+			$this->list_args['date']=array('heading'=>'日期','cell'=>'{receivable_date}');
+			$this->config->set_user_item('search/order_by', 'receivable_date', false);
+		}
 		
 		if($this->config->user_item('search/role')){
 			$this->list_args['weight']=array('heading'=>'占比');
@@ -50,6 +69,9 @@ class Account extends SS_controller{
 			->setData($this->account->getList($this->config->user_item('search')));
 		
 		//总业绩表
+		$args=$this->config->user_item('search');
+		unset($args['group_by']);
+		unset($args['order_by']);
 		$summary=array(
 			'_heading'=>array(
 				'签约',
@@ -64,21 +86,21 @@ class Account extends SS_controller{
 					'orderby'=>false,
 					'contract_date'=>array('from'=>$this->config->user_item('search/date/from'),'to'=>$this->config->user_item('search/date/to')),
 					'ten_thousand_unit'=>true
-				)+$this->config->user_item('search')),
+				)+$args),
 				$this->account->getSum(array(
 					'received'=>false,
 					'limit'=>false,
 					'orderby'=>false,
 					'date'=>array('from'=>$this->config->user_item('search/date/from'),'to'=>$this->config->user_item('search/date/to')),
 					'ten_thousand_unit'=>true
-				)+$this->config->user_item('search')),
+				)+$args),
 				$this->account->getSum(array(
 					'received'=>true,
 					'limit'=>false,
 					'orderby'=>false,
 					'date'=>array('from'=>$this->config->user_item('search/date/from'),'to'=>$this->config->user_item('search/date/to')),
 					'ten_thousand_unit'=>true
-				)+$this->config->user_item('search'))
+				)+$args)
 			)
 			
 		);

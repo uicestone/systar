@@ -260,26 +260,6 @@ class Project_model extends BaseItem_model{
 		return $this->db->delete('project_document',array('document'=>$document_id,'project'=>$project_id));
 	}
 	
-	function getDocumentList($project_id){
-		$project_id=intval($project_id);
-		
-		$query="
-			SELECT project_document.id,document.id AS document,document.name,extname,type.name AS type,document.comment,document.time,document.username
-			FROM 
-				document
-				INNER JOIN project_document ON document.id=project_document.document
-				LEFT JOIN (
-					SELECT label.name,document_label.document
-					FROM document_label 
-						INNER JOIN label ON document_label.label=label.id
-					WHERE document_label.type='类型'
-				)type ON document.id=type.document
-			WHERE display=1 AND project_document.project = $project_id
-			ORDER BY time DESC";
-
-		return $this->db->query($query)->result_array();
-	}
-	
 	function count(array $args=array()){
 		$args['count']=true;
 		$result=$this->getList($args);
