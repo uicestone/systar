@@ -154,3 +154,17 @@ ALTER TABLE  `school_view_score` ADD FOREIGN KEY (  `exam` ) REFERENCES  `syssh`
 `id`
 ) ON DELETE NO ACTION ON UPDATE CASCADE ;
 -- server updated
+
+ALTER TABLE  `schedule_people` ADD  `enrolled` BOOLEAN NOT NULL;
+ALTER TABLE  `schedule_people` ADD  `deleted` BOOLEAN NOT NULL;
+
+insert ignore into schedule_people (schedule,people,enrolled)
+select id,uid,1 from schedule where uid is not null;
+
+update schedule_people inner join schedule on schedule.uid = schedule_people.people and schedule.id=schedule_people.schedule
+set schedule_people.enrolled = 1;
+
+ALTER TABLE  `schedule_people` ADD  `in_todo_list` BOOLEAN NOT NULL AFTER  `enrolled`;
+
+update schedule_people inner join schedule on schedule.id = schedule_people.schedule
+set schedule_people.in_todo_list = schedule.in_todo_list;

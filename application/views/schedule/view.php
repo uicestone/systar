@@ -15,10 +15,11 @@
 <?foreach($profiles as $profile){?>
 <div class="field profile" id="<?=$profile['id']?>" style="border-bottom: none;border-top:#999 1px solid;"<?if($profile['author']==$this->user->id){?> removable<?}?>><?=$profile['name']?>：<?=$profile['content']?> (<?=$profile['author_name']?>)</div>
 <?}?>
-<div class="profile hidden">
-	<select class="profile-name allow-new" style="width:35%">
+<div class="profile hidden" style="text-align:left;">
+	<select class="profile-name allow-new" style="width:78%">
 		<?=options(array('外出地点','费用金额','费用用途','备注'),NULL)?>
 	</select>
-	: 
-	<input type="text" name="profiles[]" placeholder="信息内容" style="width:60%" />
+	<button>保存</button>
+	<br />
+	<input type="text" name="profiles[]" style="width:98%" />
 </div>

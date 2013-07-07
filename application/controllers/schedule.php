@@ -138,15 +138,11 @@ class Schedule extends SS_controller{
 			$data['display']=true;
 			$new_schedule_id = $this->schedule->add($data);
 			
-			$this->schedule->updatePeople($new_schedule_id,$this->input->post('people'));
+			$people=$this->input->post('people');
+			is_string($people) && $people=explode(',', $people);
+			$this->schedule->updatePeople($new_schedule_id,$people);
 			
 			$this->schedule->updateLabels($new_schedule_id, $this->input->post('labels'), true);
-			
-			if(is_array($this->input->post('profiles'))){
-				foreach($this->input->post('profiles') as $name => $content){
-					$this->schedule->addProfile($new_schedule_id,$name,$content);
-				}
-			}
 			
 			$this->output->status='success';
 			$this->output->data=array('id'=>$new_schedule_id,'name'=>$data['name']);
@@ -158,14 +154,12 @@ class Schedule extends SS_controller{
 		
 		}elseif($action=='update'){//更新任务内容
 			$this->schedule->update($schedule_id,$this->input->post());
-			$this->schedule->updatePeople($schedule_id,$this->input->post('people'));
-			$this->schedule->updateLabels($schedule_id, $this->input->post('labels'), true);
+
+			$people=$this->input->post('people');
+			is_string($people) && $people=explode(',', $people);
+			$this->schedule->updatePeople($schedule_id,$people);
 			
-			if(is_array($this->input->post('profiles'))){
-				foreach($this->input->post('profiles') as $name => $content){
-					$this->schedule->addProfile($schedule_id,$name,$content);
-				}
-			}
+			$this->schedule->updateLabels($schedule_id, $this->input->post('labels'), true);
 			
 			$schedule=$this->schedule->fetch($schedule_id);
 			
@@ -188,6 +182,25 @@ class Schedule extends SS_controller{
 			}
 		}
 			
+	}
+	
+	function setCompleted($schedule_id, $completed='1'){
+		$completed=$completed==='1'?true:false;
+		$this->schedule->update($schedule_id, array('completed'=>$completed));
+	}
+	
+	function showInTodoList($schedule_id,$in_todo_list='1'){
+		$in_todo_list=$in_todo_list==='1'?true:false;
+		$this->schedule->updatePeopleStatus($schedule_id, $this->user->id, array('in_todo_list'=>$in_todo_list));
+	}
+	
+	function enroll($schedule_id,$enrolled='1'){
+		$enrolled=$enrolled==='1'?true:false;
+		$this->schedule->updatePeopleStatus($schedule_id, $this->user->id, array('enrolled'=>$enrolled));
+	}
+	
+	function delete($schedule_id){
+		$this->schedule->updatePeopleStatus($schedule_id, $this->user->id, array('deleted'=>true));
 	}
 	
 	function taskBoard(){
@@ -301,7 +314,11 @@ class Schedule extends SS_controller{
 			
 			$profiles=$this->schedule->getProfiles($schedule_id,array('show_author'=>true));
 			
+			$people_status=$this->schedule->getPeopleStatus($schedule_id,$this->user->id);
+			
 			$people=$this->schedule->getPeople($schedule_id);
+			//从people中删除当前用户，应为当前用户会自动被关联到本日志
+			unset($people[array_search($this->user->id,$people)]);
 			
 			$labels=$this->schedule->getLabels($schedule_id);
 
@@ -309,15 +326,13 @@ class Schedule extends SS_controller{
 				$project=$this->project->fetch($schedule['project']);
 				$this->load->addViewData('project', $project);
 			}
-
-			$this->load->addViewData('schedule', $schedule);
-			$this->load->addViewData('profiles', $profiles);
-			$this->load->addViewData('people', $people);
-			$this->load->addViewData('labels', $labels);
+			
+			$this->load->addViewArrayData(compact('schedule','profiles','people','labels','people_status'));
 
 			isset($schedule['name']) && $this->output->setData($schedule['name'],'name');
 			isset($schedule['completed']) && $this->output->setData($schedule['completed'],'completed');
-			isset($schedule['in_todo_list']) && $this->output->setData($schedule['in_todo_list'],'in_todo_list');
+			isset($people_status[$this->user->id]['in_todo_list']) && $this->output->setData($people_status[$this->user->id]['in_todo_list'],'in_todo_list');
+			isset($people_status[$this->user->id]['enrolled']) && $this->output->setData($people_status[$this->user->id]['enrolled'],'enrolled');
 		}
 		
 		$this->output->setData($this->load->view("schedule/$mode",true));

@@ -329,7 +329,10 @@ jQuery.fn.extend({
 
 	tagging: function(options_passedin){
 		$(this).each(function(){
-			var options=$.extend({}, {dropdownCss:{minWidth:'10em'}, allowClear:true}, options_passedin);
+			var options=$.extend({}, {
+				dropdownCss:{minWidth:'10em'},
+				allowClear:true
+			}, options_passedin);
 			
 			if($(this).data('width')){
 				options.width=$(this).data('width');
@@ -392,6 +395,24 @@ jQuery.fn.extend({
 					}
 				},options);
 			}
+			
+			if($(this).is('[multiple]:not(select)')){
+				options=$.extend({},{
+					multiple: true
+				},options)
+			}
+
+			if($(this).data('initselection')){
+				options=$.extend({},{
+					initSelection : function (element, callback) {
+						var data = [];
+						for(id in element.data('initselection')){
+							data.push({id:id,name:element.data('initselection')[id]});
+						}
+						callback(data);
+					},
+				},options)
+			}
 
 			if($(this).is('input.tagging') && $(this).data().ajax){
 				var url=$(this).data().ajax;
@@ -401,6 +422,7 @@ jQuery.fn.extend({
 						url: function(term){
 							return url+term;
 						},
+						quietMillis:500,
 						dataType: 'json',
 						results: function (response) {
 							return {results: response.data};
@@ -417,7 +439,6 @@ jQuery.fn.extend({
 			
 			$(this).select2(options);
 		});
-		
 		return this;
 	}
 });

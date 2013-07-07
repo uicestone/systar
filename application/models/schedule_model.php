@@ -78,12 +78,8 @@ class Schedule_model extends BaseItem_model{
 		
 		if(isset($args['people'])){
 			$this->db->where("
-				(
-					schedule.uid = {$args['people']} 
-					OR 
-					schedule.id IN (
-						SELECT schedule FROM schedule_people WHERE people = {$args['people']}
-					)
+				schedule.id IN (
+					SELECT schedule FROM schedule_people WHERE people = {$args['people']}
 				)
 			",NULL,FALSE);
 		}
@@ -103,7 +99,7 @@ class Schedule_model extends BaseItem_model{
 		}
 		
 		if(isset($args['in_todo_list'])){
-			$this->db->where('schedule.in_todo_list',$args['in_todo_list']);
+			$this->db->where("schedule.id IN (SELECT schedule FROM schedule_people WHERE people={$this->user->id} AND in_todo_list=1)", NULL, false);
 		}
 		
 		if(isset($args['completed'])){
@@ -233,6 +229,8 @@ class Schedule_model extends BaseItem_model{
 		$this->db->insert('schedule',$data);
 		$schedule_id=$this->db->insert_id();
 		
+		$this->updatePeople($schedule_id, array($this->user->id));
+		
 		return $schedule_id;
 	}
 	
@@ -312,6 +310,11 @@ class Schedule_model extends BaseItem_model{
 			$setto=array();
 		}
 		
+		//操作人总在人员列表中
+		if(!in_array($this->user->id,$setto)){
+			array_push($setto,$this->user->id);
+		}
+		
 		$this->db->select('people')
 			->from('schedule_people')
 			->where('schedule_people.schedule',$schedule_id);
@@ -344,7 +347,30 @@ class Schedule_model extends BaseItem_model{
 	function removePeople($schedule_id,$people_id){
 		$schedule_id=intval($schedule_id);
 		$people_id=intval($people_id);
-		return $this->db->delete('schedule_people',array('schedule'=>$schedule_id,'people'=>$people_id));
+		$this->db->delete('schedule_people',array('schedule'=>$schedule_id,'people'=>$people_id));
+		return $this->db->affected_rows();
+	}
+	
+	function getPeopleStatus($schedule_id, $people_id){
+		$this->db->from('schedule_people')
+			->where('schedule',$schedule_id)
+			->where('people',$people_id);
+		
+		$result_array=$this->db->get()->result_array();
+		
+		$people_status=array();
+		
+		foreach($result_array as $row){
+			$people_status[$row['people']]=$row;
+		}
+		
+		return $people_status;
+	}
+	
+	function updatePeopleStatus($schedule_id,$people_id,$data){
+		$data=array_intersect_key($data, array('enrolled'=>'参与','deleted'=>'已删除','in_todo_list'=>'在任务列表显示'));
+		$this->db->update('schedule_people',$data,array('schedule'=>$schedule_id,'people'=>$people_id));
+		return $this->db->affected_rows();
 	}
 	
 	/**

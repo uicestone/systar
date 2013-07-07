@@ -94,8 +94,20 @@ dl.horizontal th{
 .ui-dialog{
 	padding:0;
 }
+.ui-widget button{
+	font-size:0.8em;
+}
 .select2-container .select2-choice{
 	height:1.5em;line-height:1.5;
+}
+.select2-container .select2-choice div b {
+	background: url('select2.png') no-repeat 0 10%;
+}
+.select2-dropdown-open .select2-choice div b {
+	background-position: -18px 10%;
+}
+.select2-container .select2-choice abbr{
+	top:20%;
 }
 aside .select2-container{
 	margin:1px 0;

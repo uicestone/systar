@@ -9,7 +9,7 @@
  * @param type $disable_empty_option 生成的字段名提示文字的option是否加disabled属性 用于chosen
  * @return string
  */
-function options($options,$checked=NULL,$label=NULL,$array_key_as_option_value=false,$etc_option=false,$disable_empty_option=true){
+function options($options,$checked=NULL,$label=NULL,$array_key_as_option_value=false,$etc_option=false,$disable_empty_option=true,$locked_options=array()){
 	
 	if(!is_array($options)){
 		return;
@@ -18,7 +18,7 @@ function options($options,$checked=NULL,$label=NULL,$array_key_as_option_value=f
 	$options_html='';
 	
 	if(isset($label)){
-		$options_html.='<option value=""'.($disable_empty_option?'disabled="disabled"':'').(is_null($checked)?' selected="selected"':'').">$label</option>";
+		$options_html.='<option value=""'.($disable_empty_option?' disabled="disabled"':'').">$label</option>";
 	}
 	
 	foreach($options as $option_key=>$option){
@@ -27,12 +27,12 @@ function options($options,$checked=NULL,$label=NULL,$array_key_as_option_value=f
 			$options_html.='<optgroup label="'.$option_key.'">';
 			foreach($option as $option_key => $option){
 				$value=$array_key_as_option_value?$option_key:$option;
-				$options_html.='<option value="'.$value.'"'.($checked!==false && (is_array($checked)?in_array($value,$checked):$value==$checked)?' selected="selected"':'').'>'.$option.'</option>';
+				$options_html.='<option value="'.$value.'"'.(($checked!==false && (is_array($checked)?in_array($value,$checked):$value==$checked))?' selected="selected"':'').(in_array($value,$locked_options)?' locked="locked"':'').'>'.$option.'</option>';
 			}
 			$options_html.='</optgroup>';
 		}else{
 			$value=$array_key_as_option_value?$option_key:$option;
-			$options_html.='<option value="'.$value.'"'.($checked!==false && (is_array($checked)?in_array($value,$checked):$value==$checked)?' selected="selected"':'').'>'.$option.'</option>';
+			$options_html.='<option value="'.$value.'"'.(($checked!==false && (is_array($checked)?in_array($value,$checked):$value==$checked)?' selected="selected"':'')).(in_array($value,$locked_options)?' locked="locked"':'').'>'.$option.'</option>';
 		}
 	}
 	

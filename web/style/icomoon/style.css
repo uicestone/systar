@@ -1,4 +1,4 @@
-/* WARNING:	Your are using ligatures for your icon font.
+/* WARNING:	You are using ligatures for your icon font.
 			Ligatures are not supported in IE 9 (and older).
 			Use the Private Use Area encoding for best browser support.
 ==================================================================== */
@@ -35,7 +35,7 @@ Instead of a list of all class selectors,
 you can use the generic selector below, but it's slower:
 [class*="icon-"] {
 */
-.icon-close, .icon-list, .icon-checkmark, .icon-play, .icon-plus, .icon-minus, .icon-home, .icon-envelop, .icon-unlocked, .icon-lock {
+.icon-checkmark, .icon-list, .icon-close, .icon-clock {
 	font-family: 'icomoon';
 		speak: none;
 	/* Enable Ligatures */
@@ -49,33 +49,15 @@ you can use the generic selector below, but it's slower:
 	line-height: 1;
 	-webkit-font-smoothing: antialiased;
 }
+.icon-checkmark:before {
+	content: "\63\6f\6d\70\6c\65\74\65\64";
+}
+.icon-list:before {
+	content: "\74\6f\64\6f";
+}
 .icon-close:before {
 	content: "\78";
 }
-.icon-list:before {
-	content: "\54\6f\64\6f";
-}
-.icon-checkmark:before {
-	content: "\44\6f\6e\65";
-}
-.icon-play:before {
-	content: "\3e";
-}
-.icon-plus:before {
-	content: "\2b";
-}
-.icon-minus:before {
-	content: "\2d";
-}
-.icon-home:before {
-	content: "\48\6f\6d\65";
-}
-.icon-envelop:before {
-	content: "\4d\61\69\6c";
-}
-.icon-unlocked:before {
-	content: "\55\6e\6c\6f\63\6b\65\64";
-}
-.icon-lock:before {
-	content: "\4c\6f\63\6b\65\64";
+.icon-clock:before {
+	content: "\65\6e\72\6f\6c\6c\65\64";
 }

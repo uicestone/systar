@@ -3,24 +3,25 @@
 <select name="project" data-placeholder="相关事务" style="width:98%">
 	<?=options($this->project->getArray(array('people'=>array_merge(array_keys($this->user->teams),array($this->user->id)),'active'=>true),'name','id'),$this->value('project/id'),'',true,false,false)?>
 </select>
+<br />
 <?}?>
-<select name="people" data-placeholder="邀请其他人" multiple="multiple" style="width:98%"><?=options(
-	$this->user->getArray(array('is_relative_of'=>array_merge(array_keys($this->user->teams),array($this->user->id))),'name','id')
-	+$this->user->getArray(array('has_relative_like'=>$this->user->id),'name','id')
-	+$this->user->getArray(array('is_secondary_relative_of'=>$this->user->id),'name','id')
-	+$this->user->getArray(array('is_both_relative_with'=>$this->user->id),'name','id')
-,isset($people)?$people:NULL,NULL,true)?></select>
+<input type="hidden" name="people" data-placeholder="邀请其他人" class="tagging" multiple="multiple" value="<?=implode(',',$people)?>" data-initselection='<?=json_encode($this->people->getArray(array('id_in'=>$people)))?>' data-ajax="/people/match/" style="width:98%">
+<br />
 <select name="labels" data-placeholder="标签" multiple="multiple" class="allow-new" style="width:98%">
 	<?=options($this->schedule->getAllLabels(),$this->value('labels'))?>
 </select>
+<hr />
 <?if($this->input->get('period')){?>
 <input type="text" name="start" value="<?=$this->value('schedule/start')?>" class="datetime" placeholder="开始时间" style="width:68%;margin-right:1%" /><input type="text" name="hours_own" value="<?=$this->value('schedule/hours_own')?>" placeholder="小时长" style="width:29%;" />
+<br />
 <?}?>
 <input type="text" name="deadline" value="<?=$this->value('schedule/deadline')?>" class="datetime" placeholder="截止" style="width:98%" />
-<div class="profile hidden">
-	<select class="profile-name allow-new" style="width:35%">
+<br />
+<div class="profile hidden" style="text-align:left;">
+	<select class="profile-name allow-new" style="width:78%">
 		<?=options(array('外出地点','费用金额','费用用途','备注'),NULL)?>
 	</select>
-	: 
-	<input type="text" name="profiles[]" placeholder="信息内容" style="width:60%" />
+	<button>保存</button>
+	<br />
+	<input type="text" name="profiles[]" style="width:98%" />
 </div>
