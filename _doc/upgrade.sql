@@ -153,7 +153,6 @@ update project set end=null where end = '0000-00-00';
 ALTER TABLE  `school_view_score` ADD FOREIGN KEY (  `exam` ) REFERENCES  `syssh`.`project` (
 `id`
 ) ON DELETE NO ACTION ON UPDATE CASCADE ;
--- server updated
 
 ALTER TABLE  `schedule_people` ADD  `enrolled` BOOLEAN NOT NULL;
 ALTER TABLE  `schedule_people` ADD  `deleted` BOOLEAN NOT NULL;
@@ -168,3 +167,4 @@ ALTER TABLE  `schedule_people` ADD  `in_todo_list` BOOLEAN NOT NULL AFTER  `enro
 
 update schedule_people inner join schedule on schedule.id = schedule_people.schedule
 set schedule_people.in_todo_list = schedule.in_todo_list;
+-- server updated

@@ -173,7 +173,7 @@ class Cases extends Project{
 		
 		$list=$this->table->setFields($this->miscfee_list_args)
 				->setAttribute('name','miscfee')
-				->generate($this->account->getList(array('project'=>$this->cases->id,'type'=>'办案费','group'=>'account')));
+				->generate($this->account->getList(array('project'=>$this->cases->id,'type'=>'办案费','group_by'=>'account')));
 		
 		return $list;
 	}

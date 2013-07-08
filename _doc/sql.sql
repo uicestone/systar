@@ -43,6 +43,14 @@ select project,sum(weight) sum from project_people where role = '接洽律师'
 and project in (select project from project_label where label_name='所内案源')
 group by project having sum != 1
 
+-- 确认已申请归档案件的实际贡献总额
+select project.id,project.name,sum(weight) sum from
+project left join project_people on project.id = project_people.project and project_people.role = '实际贡献'
+where project.active=1 
+and project.id in (select project from project_label where label_name='已申请归档')
+and project.id not in (select project from project_label where label_name='案卷已归档')
+group by project.id having sum != 1 or sum is null;
+
 -- 协办律师没有比例
 select * from project_people where weight is not null and role = '协办律师';
 
