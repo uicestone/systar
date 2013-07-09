@@ -82,7 +82,7 @@ class SS_Loader extends CI_Loader{
 				return;
 			}
 			else{
-				if(ENVIRONMENT==='development'){
+				if(true || ENVIRONMENT==='development'){
 					//开发环境下，直接根据合并列表分别载入所有文件
 					$html='';
 					foreach($sources[$path] as $source){
@@ -119,7 +119,7 @@ class SS_Loader extends CI_Loader{
 				return;
 			}
 			else{
-				if(ENVIRONMENT==='development'){
+				if(true || ENVIRONMENT==='development'){
 					//开发环境下，直接根据合并列表分别载入所有文件
 					$html='';
 					foreach($sources[$path] as $source){
