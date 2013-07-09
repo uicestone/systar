@@ -139,6 +139,7 @@ class Account extends SS_controller{
 		
 		try{
 			$this->account->data=$this->account->fetch($this->account->id);
+			$this->account->labels=$this->account->getLabels($this->account->id);
 
 			if($this->account->data['name']){
 				$this->output->title=$this->account->data['name'];
@@ -147,6 +148,7 @@ class Account extends SS_controller{
 			}
 			
 			$this->load->addViewData('account',$this->account->data);
+			$this->load->addViewData('labels', $this->account->labels);
 
 			$this->load->view('account/edit');
 			$this->load->view('account/edit_sidebar',true,'sidebar');
