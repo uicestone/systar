@@ -184,6 +184,7 @@ class Project extends SS_controller{
 		
 		$list=$this->table->setFields($this->account_list_args)
 				->setAttribute('name','account')
+				->setRowAttributes(array('hash'=>'account/{id}'))
 				->generate($this->account->getList(array('project'=>$this->project->id,'group_by'=>'account')));
 		
 		return $list;
