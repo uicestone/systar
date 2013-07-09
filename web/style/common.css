@@ -312,6 +312,10 @@ nav .arrow{
 	padding:0;
 	margin:0;
 }
+.schedule-form .field{
+	border: none;
+	border-bottom: #CCC dotted 1px;
+}
 
 /*内容表*/
 .pagination button{

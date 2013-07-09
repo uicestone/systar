@@ -7,7 +7,6 @@ class Schedule_model extends BaseItem_model{
 		'start'=>'开始时间',
 		'end'=>'结束时间',
 		'deadline'=>'截止日期',
-		'in_todo_list'=>'在任务列表中',
 		'hours_own'=>'自报时长',
 		'hours_checked'=>'核准时长',
 		'hours_bill'=>'账单时长',

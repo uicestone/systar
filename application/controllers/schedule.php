@@ -144,6 +144,11 @@ class Schedule extends SS_controller{
 			
 			$this->schedule->updateLabels($new_schedule_id, $this->input->post('labels'), true);
 			
+			$this->schedule->updatePeopleStatus($new_schedule_id, $this->user->id, array(
+				'in_todo_list'=>$this->input->post('in_todo_list'),
+				'enrolled'=>$this->input->post('enrolled')
+			));
+			
 			$this->output->status='success';
 			$this->output->data=array('id'=>$new_schedule_id,'name'=>$data['name']);
 			
@@ -305,6 +310,8 @@ class Schedule extends SS_controller{
 		
 		$this->load->model('project_model','project');
 		
+		$people=array();
+		
 		if(isset($schedule_id)){
 			$this->schedule->id=$schedule_id;
 
@@ -327,13 +334,13 @@ class Schedule extends SS_controller{
 				$this->load->addViewData('project', $project);
 			}
 			
-			$this->load->addViewArrayData(compact('schedule','profiles','people','labels','people_status'));
-
 			isset($schedule['name']) && $this->output->setData($schedule['name'],'name');
 			isset($schedule['completed']) && $this->output->setData($schedule['completed'],'completed');
 			isset($people_status[$this->user->id]['in_todo_list']) && $this->output->setData($people_status[$this->user->id]['in_todo_list'],'in_todo_list');
 			isset($people_status[$this->user->id]['enrolled']) && $this->output->setData($people_status[$this->user->id]['enrolled'],'enrolled');
 		}
+		
+		$this->load->addViewArrayData(compact('schedule','profiles','people','labels','people_status'));
 		
 		$this->output->setData($this->load->view("schedule/$mode",true));
 	}

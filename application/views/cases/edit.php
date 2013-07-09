@@ -10,7 +10,7 @@
 		<select id="classification" name="labels[分类]"<?if(in_array('类型已锁定',$labels)){?> disabled="disabled"<?}?>>
 		<?=options(array('争议','非争议','法律顾问'),$this->value('labels/分类'),'分类');?>
 		</select>
-		<select name="labels[阶段]"<?if(!isset($labels['分类']) || $labels['分类']!='争议'){?> class="hidden" disabled="disabled"<?}?>>
+		<select name="labels[阶段]" class="tagging<?if(!isset($labels['分类']) || $labels['分类']!='争议'){?> hidden<?}?>" <?if(!isset($labels['分类']) || $labels['分类']!='争议'){?> disabled="disabled"<?}?>>
 		<?=options($case_type_array,$this->value('labels/阶段'),'阶段');?>
 		</select>
 		<input type="text" name="project[name]" value="<?=$this->value('project/name')?>" placeholder="<?=lang(CONTROLLER)?>名称" style="width:300px;">
