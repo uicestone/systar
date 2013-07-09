@@ -43,62 +43,96 @@ class Schedule_model extends BaseItem_model{
 	 * 
 	 * @param array $args
 	 *	project: get schedule only under this project
+	 *	project_type
 	 *	project_labels: 仅获取带有给定标签的事务的日程
-	 *	people: get schedule related with this people (by schedule.uid and schedule_people)
-	 *	show_creater
-	 *	id_in_set
-	 *	in_todo_list
-	 *	completed
-	 *	time array or boolean
+	 *	people: 
+	 *	people_type: 
+	 *	people_labels: 仅获取带有给定标签的人员的相关日程
+	 *	group_by
+	 *		people
+	 *	in_todo_list 仅在指定people或group_by people的时候有效
+	 *	enrolled 仅在指定people或group_by people的时候有效
+	 *	completed 仅在指定people或group_by people的时候有效
+	 *	time array or boolean 时间段的范围
 	 *		false
 	 *		array(
 	 *			from=>timestamp/date string/datetime string
 	 *			to=>timestamp/date string/datetime string
-	 *			input_format=>timestamp, date
+	 *			input_format=>timestamp, date(default)
 	 *			date_form=>mysql date form string, or false (default: '%Y-%m-%d')
 	 *		)
 	 *	in_project_of_people bool
+	 *	show_creater
 	 *	show_project
+	 *	id_in_set
 	 * @return array
 	 */
 	function getList(array $args=array()){
 		
 		$this->db->select('schedule.*');
 		
-		if(isset($args['project'])){
+		if(isset($args['project']) && $args['project']){
 			$this->db->where('schedule.project',$args['project']);
 		}
 		
-		if(isset($args['project_labels'])){
+		if(isset($args['project_type']) && $args['project_type']){
+			$this->db->where("schedule.project IN (SELECT id FROM project WHERE type ={$this->db->escape($args['project_type'])} AND company = {$this->company->id} )");
+		}
+		
+		if(isset($args['project_labels']) && $args['project_labels']){
 			foreach($args['project_labels'] as $id => $label_name){
-				$this->db->join("project_label t_$id","schedule.project = t_$id.project AND t_$id.label_name = '$label_name'",'inner');
+				$this->db->join("project_label t_$id","schedule.project = t_$id.project AND t_$id.label_name = $label_name",'inner');
 			}
 		}
 		
-		if(isset($args['people'])){
-			$this->db->where("
-				schedule.id IN (
-					SELECT schedule FROM schedule_people WHERE people = {$args['people']}
+		//判断需要内联schedule_people表的参数
+		if(isset($args['people']) || isset($args['people_labels']) || (isset($args['group_by']) && $args['group_by']==='people')){
+			$this->db->join('schedule_people','schedule_people.schedule = schedule.id','inner');
+		}
+		
+		//依赖schedule_people表
+		//TODO 判断多个人同时属于一个日程，并区分对待人员状态（如统计一个律师对一个客户的时间）
+		if(isset($args['people']) && $args['people']){
+			$this->db->where('schedule_people.people',$args['people']);
+		}
+		
+		//依赖schedule_people表
+		if(isset($args['people_type']) && $args['people_type']){
+			$this->db->where("schedule.id IN (
+				SELECT schedule FROM schedule_people WHERE people IN (
+					SELECT id FROM people WHERE type = {$this->db->escape($args['people_type'])}
 				)
-			",NULL,FALSE);
+			)");
 		}
 		
-		if(isset($args['show_creater']) && $args['show_creater']){
-			$this->db->join('people creater','creater.id = schedule.uid','inner')
-				->select('creater.id creater, creater.name creater_name');
-		}
-		
-		if(isset($args['id_in_set'])){
-			if(!$args['id_in_set']){
-				return array();
+		//依赖schedule_people表
+		if(isset($args['people_labels']) && $args['people_labels']){
+			foreach($args['people_labels'] as $id => $label_name){
+				$this->db->join("people_label t_$id","schedule_people.people = t_$id.people AND t_$id.label_name = $label_name",'inner');
 			}
-			$this->db->where_in('schedule.id', $args['id_in_set'])
-				->order_by("FIELD(schedule.id, ".implode(', ',$args['id_in_set']).")",'',false);
-			$args['order_by']=false;
 		}
 		
-		if(isset($args['in_todo_list'])){
-			$this->db->where("schedule.id IN (SELECT schedule FROM schedule_people WHERE people={$this->user->id} AND in_todo_list=1)", NULL, false);
+		if(isset($args['group_by'])){
+			//依赖schedule_people表
+			//TODO 判断多个人同时属于一个日程，并区分对待人员状态（如统计一个律师对一个客户的时间）
+			if($args['group_by']==='people'){
+				if(isset($args['people_is_staff']) && $args['people_is_staff']){
+					$this->db->where('schedule_people.people IN (SELECT id FROM staff)',NULL,false);
+				}
+				$this->db->group_by('schedule_people.people')
+					->join('people','people.id = schedule_people.people','inner')
+					->select('people.id people, people.name people_name');
+			}
+		}
+		
+		//依赖人员参数
+		if((isset($args['people']) || (isset($args['group_by']) && $args['group_by']==='people')) && isset($args['in_todo_list'])){
+			$this->db->where('schedule_people.in_todo_list',$args['in_todo_list']);
+		}
+		
+		//依赖人员参数
+		if((isset($args['people']) || (isset($args['group_by']) && $args['group_by']==='people')) && isset($args['enrolled'])){
+			$this->db->where('schedule_people.enrolled',$args['enrolled']);
 		}
 		
 		if(isset($args['completed'])){
@@ -114,14 +148,14 @@ class Schedule_model extends BaseItem_model{
 				$this->db->where(array('schedule.start'=>NULL,'schedule.end'=>NULL));
 			}
 			
-			if(isset($args['time']['from'])){
+			if(isset($args['time']['from']) && $args['time']['from']){
 				if(isset($args['time']['input_format']) && $args['time']['input_format']!=='timestamp'){
 					$args['time']['from']=strtotime($args['time']['from']);
 				}
 				$this->db->where('schedule.start >=',$args['time']['from']);
 			}
 			
-			if(isset($args['time']['to'])){
+			if(isset($args['time']['to']) && $args['time']['to']){
 				if(isset($args['time']['input_format']) && $args['time']['input_format']!=='timestamp'){
 					$args['time']['to']=strtotime($args['time']['to']);
 				}
@@ -138,11 +172,11 @@ class Schedule_model extends BaseItem_model{
 				$args['date_form']='%Y-%m-%d';
 			}
 			if($args['date_form']!==false){
-				$this->db->select("
-					FROM_UNIXTIME(schedule.start, '{$args['date_form']}') AS start,
-					FROM_UNIXTIME(schedule.end, '{$args['date_form']}') AS end,
-					FROM_UNIXTIME(schedule.deadline, '{$args['date_form']}') AS deadline,
-				",false);
+				$this->db->select(array(
+					"FROM_UNIXTIME(schedule.start, '{$args['date_form']}') `start`",
+					"FROM_UNIXTIME(schedule.end, '{$args['date_form']}') `end`",
+					"FROM_UNIXTIME(schedule.deadline, '{$args['date_form']}') `deadline`"
+				),false);
 			}
 		}
 		
@@ -156,22 +190,36 @@ class Schedule_model extends BaseItem_model{
 				->select('project.name project_name');
 		}
 		
-		if(isset($args['sum'])){
-			$this->db->select('SUM(IF(hours_checked IS NULL, hours_own, hours_checked)) sum',false);
+		if(isset($args['show_creater']) && $args['show_creater']){
+			$this->db->join('people creater','creater.id = schedule.uid','inner')
+				->select('creater.id creater, creater.name creater_name');
 		}
 		
-		if(isset($args['group_by'])){
-			//TODO
-			$args['group_by']==='people';
+		if(isset($args['id_in_set'])){
+			if(!$args['id_in_set']){
+				return array();
+			}
+			$this->db->where_in('schedule.id', $args['id_in_set'])
+				->order_by("FIELD(schedule.id, ".implode(', ',$args['id_in_set']).")",'',false);
+			$args['order_by']=false;
+		}
+		
+		if(isset($args['sum']) && $args['sum']){
+			array_remove_value($this->db->ar_select, 'schedule.*');
+			array_remove_value($this->db->ar_select, '`deadline`',true);
+			array_remove_value($this->db->ar_select, '`start`',true);
+			array_remove_value($this->db->ar_select, '`end`',true);
+			
+			$this->db->select('SUM(IF(hours_checked IS NULL, hours_own, hours_checked)) sum',false);
 		}
 		
 		$schedules = parent::getList($args);
 		
-		array_walk($schedules,function(&$schedule,$index,$CI){
+		!isset($args['sum']) && array_walk($schedules,function(&$schedule,$index){
 			if($schedule['completed']){
 				$schedule['color']='#36C';
 			}else{
-				if($schedule['start']<$CI->date->now){
+				if($schedule['start']<$this->date->now){
 					$schedule['color']='#555';
 				}else{
 					$schedule['color']='#E35B00';
@@ -187,6 +235,15 @@ class Schedule_model extends BaseItem_model{
 	
 	}
 	
+	/**
+	 * @todo 不同人员认领同一任务将不重复计算时间，实际需要计算
+	 */
+	function getSum(array $args=array()){
+		$args=array_merge($args,array('sum'=>true));
+		$result_array=$this->getList($args);
+		return isset($result_array[0]['sum'])?$result_array[0]['sum']:NULL;
+	}
+
 	/**
 	 * 插入一条日程，返回插入的id
 	 */

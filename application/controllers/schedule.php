@@ -3,6 +3,8 @@ class Schedule extends SS_controller{
 	
 	var $list_args;
 	
+	var $search_items=array();
+	
 	function __construct(){
 		$this->default_method='calendar';
 		parent::__construct();
@@ -13,7 +15,7 @@ class Schedule extends SS_controller{
 			'name'=>array('heading'=>'标题','cell'=>array('class'=>'ellipsis','title'=>'{content}')),
 			'start'=>array('heading'=>'时间','cell'=>array('style'=>'color:{color}')),
 			'hours'=>array('heading'=>'时长','parser'=>array('function'=>function($hours_own,$hours_checked){
-				if($hours_checked!==''){
+				if(!is_null($hours_checked)){
 					return $hours_checked;
 				}else{
 					return $hours_own;
@@ -127,8 +129,75 @@ class Schedule extends SS_controller{
 	}
 	
 	function stats(){
-		//TODO
-		$this->load->view('schedule/stats');
+		$this->config->set_user_item('search/time/from', $this->date->month_begin, false);
+		
+		$this->search_items=array('time/from','time/to');
+		
+		$this->_search();
+		
+		$data=array(
+			'总时间'=>$this->schedule->getList(array(
+				'sum'=>true,
+				'group_by'=>'people',
+				'enrolled'=>true,
+				'completed'=>true,
+				'time'=>array('from'=>$this->config->user_item('search/time/from'),'to'=>$this->config->user_item('search/time/to'),'input_format'=>'date'),
+				'order_by'=>'sum desc'
+			)),
+			
+			'案件'=>$this->schedule->getList(array(
+				'sum'=>true,
+				'group_by'=>'people',
+				'enrolled'=>true,
+				'completed'=>true,
+				'time'=>array('from'=>$this->config->user_item('search/time/from'),'to'=>$this->config->user_item('search/time/to'),'input_format'=>'date'),
+				'project_type'=>'cases'
+			)),
+			
+			'客户'=>$this->schedule->getList(array(
+				'sum'=>true,
+				'group_by'=>'people',
+				'enrolled'=>true,
+				'completed'=>true,
+				'time'=>array('from'=>$this->config->user_item('search/time/from'),'to'=>$this->config->user_item('search/time/to'),'input_format'=>'date'),
+				'people_type'=>'client'
+			)),
+
+			'事务'=>$this->schedule->getList(array(
+				'sum'=>true,
+				'group_by'=>'people',
+				'enrolled'=>true,
+				'completed'=>true,
+				'time'=>array('from'=>$this->config->user_item('search/time/from'),'to'=>$this->config->user_item('search/time/to'),'input_format'=>'date'),
+				'project_type'=>'project'
+			))
+		);
+		
+		$joined=array();
+		
+		foreach($data as $key => $array){
+			foreach($array as $row){
+				if(!isset($joined[$row['people']])){
+					$joined[$row['people']]=array(
+						'people_name'=>$row['people_name'],
+					);
+				}
+				$joined[$row['people']][$key]=$row['sum'];
+			}
+		};
+		
+		$joined=array_merge($joined,array());
+		
+		$this->table->setFields(array(
+			'people_name'=>array('heading'=>'人员'),
+			'总时间'=>array('heading'=>'总时间'),
+			'案件'=>array('heading'=>'案件时间'),
+			'客户'=>array('heading'=>'客户时间'),
+			'事务'=>array('heading'=>'事务时间'),
+		))->setData($joined);
+		
+		$this->load->view('list');
+		$this->load->view('schedule/stats_sidebar',true,'sidebar');
 	}
 	
 	function writeCalendar($action,$schedule_id=NULL){

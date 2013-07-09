@@ -242,4 +242,16 @@ function array_trim_rear(array $array){
 
 	return $return;
 }
+
+function array_remove_value(array &$array,$remove,$like=false){
+	foreach($array as $key => $value){
+		if(
+			($like===false && $value==$remove)
+			|| ($like===true && strpos($value,$remove)!==false)
+			|| (is_callable($like) && $like($value,$remove))
+		){
+			unset($array[$key]);
+		}
+	}
+}
 ?>

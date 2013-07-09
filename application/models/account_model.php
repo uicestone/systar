@@ -90,33 +90,26 @@ class Account_model extends BaseItem_model{
 				->select('a.name AS name, a.type AS type');
 		}
 		
+		foreach(array('date','contract_date') as $date_args){
+			if(!isset($args[$date_args])){
+				$args[$date_args]=array_prefix($args, $date_args);
+			}
+		}
+		
 		if(isset($args['date']['from']) && $args['date']['from']){
 			$this->db->where("TO_DAYS(account.date) >= TO_DAYS('{$args['date']['from']}')",NULL,FALSE);
-		}
-		elseif(isset($args['date/from']) && isset($args['date/from'])){
-			$this->db->where("TO_DAYS(account.date) >= TO_DAYS('{$args['date/from']}')",NULL,FALSE);
 		}
 		
 		if(isset($args['date']['to']) && $args['date']['to']){
 			$this->db->where("TO_DAYS(account.date) <= TO_DAYS('{$args['date']['to']}')",NULL,FALSE);
 		}
-		elseif(isset($args['date/to']) && isset($args['date/to'])){
-			$this->db->where("TO_DAYS(account.date) <= TO_DAYS('{$args['date/to']}')",NULL,FALSE);
-		}
 		
-		//同时支持数组型和目录型的日期参数
 		if(isset($args['contract_date']['from']) && $args['contract_date']['from']){
 			$this->db->where("TO_DAYS(project.time_contract) >= TO_DAYS('{$args['contract_date']['from']}')",NULL,FALSE);
-		}
-		elseif(isset($args['contract_date/from']) && $args['contract_date/from']){
-			$this->db->where("TO_DAYS(project.time_contract) >= TO_DAYS('{$args['contract_date/from']}')",NULL,FALSE);
 		}
 		
 		if(isset($args['contract_date']['to']) && $args['contract_date']['to']){
 			$this->db->where("TO_DAYS(project.time_contract) <= TO_DAYS('{$args['contract_date']['to']}')",NULL,FALSE);
-		}
-		elseif(isset($args['contract_date/to']) && $args['contract_date/to']){
-			$this->db->where("TO_DAYS(project.time_contract) <= TO_DAYS('{$args['contract_date/to']}')",NULL,FALSE);
 		}
 		
 		if(isset($args['team'])){
@@ -177,7 +170,7 @@ class Account_model extends BaseItem_model{
 				if($args['role']){
 					
 					$this->db->join('project_people','project_people.project = account.project','inner')
-						->select('project_people.role, project_people.weight, account.amount * project_people.weight AS amount',false);
+						->select('project_people.role, project_people.weight, account.amount * project_people.weight `amount`',false);
 					
 					if(is_array($args['role'])){
 						$this->db->where_in('project_people.role',$args['role']);
@@ -208,38 +201,31 @@ class Account_model extends BaseItem_model{
 
 		if(isset($args['sum']) && $args['sum']===true){
 			
-			$key=array_search('account.*',$this->db->ar_select);
-			if($key!==false){
-				unset($this->db->ar_select[$key]);
-			}
-			
-			$key=array_search('account.amount * project_people.weight AS amount',$this->db->ar_select);
-			if($key!==false){
-				unset($this->db->ar_select[$key]);
-			}
+			array_remove_value($this->db->ar_select, 'account.*');
+			array_remove_value($this->db->ar_select, '`amount`',true);
 			
 			if(isset($args['role'])){
 				
 				if(isset($args['ten_thousand_unit']) && $args['ten_thousand_unit']){
-					$this->db->select('ROUND(SUM(account.amount * weight)/1E4,1) AS sum',false);
+					$this->db->select('ROUND(SUM(account.amount * weight)/1E4,1) `sum`',false);
 				}
 				else{
-					$this->db->select('ROUND(SUM(account.amount * weight)) AS sum',false);
+					$this->db->select('ROUND(SUM(account.amount * weight)) `sum`',false);
 				}
 			}
 			else{
 				if(isset($args['ten_thousand_unit']) && $args['ten_thousand_unit']){
-					$this->db->select('ROUND(SUM(account.amount)/1E4,1) AS sum',false);
+					$this->db->select('ROUND(SUM(account.amount)/1E4,1) `sum`',false);
 				}
 				else{
-					$this->db->select('ROUND(SUM(account.amount)) AS sum',false);
+					$this->db->select('ROUND(SUM(account.amount)) `sum`',false);
 				}
 			}
 			
 			$this->db->having('sum >',0);
 		}else{
 			if(isset($args['ten_thousand_unit']) && $args['ten_thousand_unit']){
-				$this->db->select('ROUND(account.amount/1E4,1) AS amount',false);
+				$this->db->select('ROUND(account.amount/1E4,1) `amount`',false);
 			}
 		}
 		

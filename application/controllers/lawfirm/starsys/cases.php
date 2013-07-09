@@ -84,7 +84,8 @@ class Cases extends Project{
 
 			//计算本案有效日志总时间
 			$this->load->model('schedule_model','schedule');
-			$this->load->view_data['schedule_time']=$this->schedule->calculateTime($this->cases->id);
+			
+			$this->load->view_data['schedule_time']=$this->schedule->getSum(array('project'=>$this->cases->id,'completed'=>true));
 
 			$this->load->view_data['case_type_array']=array('诉前','一审','二审','再审','执行','劳动仲裁','商事仲裁');
 
