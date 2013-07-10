@@ -339,14 +339,14 @@ class Project_model extends BaseItem_model{
 			$this->db->select('COUNT(*) as `count`',false);
 		}
 		
-		if(isset($args['group'])){
-			if($args['group']==='team'){
+		if(isset($args['group_by'])){
+			if($args['group_by']==='team'){
 				$this->db->join('team','team.id = project.team','inner')
 					->group_by('project.team')
-					->select('team.id AS team, team.name AS team_name');
+					->select('team.id `team`, team.name `team_name`');
 			}
 			
-			if($args['group']==='people'){
+			if($args['group_by']==='people'){
 				$this->db->join('project_people','project_people.project = project.id','inner')
 					->join('people','people.id = project_people.people','inner')
 					->group_by('project_people.people')

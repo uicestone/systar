@@ -125,14 +125,20 @@ class Schedule_model extends BaseItem_model{
 			}
 		}
 		
-		//依赖人员参数
 		if((isset($args['people']) || (isset($args['group_by']) && $args['group_by']==='people')) && isset($args['in_todo_list'])){
+			//依赖人员参数
 			$this->db->where('schedule_people.in_todo_list',$args['in_todo_list']);
 		}
 		
-		//依赖人员参数
 		if((isset($args['people']) || (isset($args['group_by']) && $args['group_by']==='people')) && isset($args['enrolled'])){
+			//依赖人员参数
 			$this->db->where('schedule_people.enrolled',$args['enrolled']);
+		}
+		
+		if((isset($args['people']) || (isset($args['group_by']) && $args['group_by']==='people'))){
+			//依赖人员参数
+			!isset($args['deleted']) && $args['deleted']=false;
+			$this->db->where('schedule_people.deleted',$args['deleted']);
 		}
 		
 		if(isset($args['completed'])){

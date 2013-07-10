@@ -274,7 +274,7 @@ class Schedule extends SS_controller{
 	}
 	
 	function delete($schedule_id){
-		$this->schedule->updatePeopleStatus($schedule_id, $this->user->id, array('deleted'=>true));
+		$this->schedule->updatePeopleStatus($schedule_id, $this->user->id, array('deleted'=>true,'enrolled'=>false));
 	}
 	
 	function taskBoard(){

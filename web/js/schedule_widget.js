@@ -108,7 +108,6 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 		this._getContent();
 		
 	},
-	
 	_getContent:function(callback){
 		
 		var uri,that=this;
@@ -140,19 +139,19 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			}
 			
 			/*根据响应，设置completed选项*/
-			if(response.data.completed){
+			if(response.data.completed!==undefined){
 				that.options.event.completed
 					=that.options.completed
 					=Boolean(Number(response.data.completed.content));
 			}
 			
-			if(response.data.in_todo_list){
+			if(response.data.in_todo_list!==undefined){
 				that.options.event.in_todo_list
 					=that.options.in_todo_list
 					=Boolean(Number(response.data.in_todo_list.content));
 			}
 			
-			if(response.data.enrolled){
+			if(response.data.enrolled!==undefined){
 				that.options.event.enrolled
 					=that.options.enrolled
 					=Boolean(Number(response.data.enrolled.content));
@@ -170,16 +169,17 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			}
 			
 			/*根据completed选项，设置“已完成”按钮状态*/
-			if(that.options.completed){
-				that.widget().find(':checkbox[name="completed"]').prop('checked',true);
+			//TODO 争取做到根据状态直接确定按钮状态，而非事后补上
+			if(that.options.completed!==undefined){
+				that.widget().find(':checkbox[name="completed"]').prop('checked',that.options.completed);
 			}
 			
-			if(that.options.in_todo_list){
-				that.widget().find(':checkbox[name="in_todo_list"]').prop('checked',true);
+			if(that.options.in_todo_list!==undefined){
+				that.widget().find(':checkbox[name="in_todo_list"]').prop('checked',that.options.in_todo_list);
 			}
 			
-			if(that.options.enrolled){
-				that.widget().find(':checkbox[name="enrolled"]').prop('checked',true);
+			if(that.options.enrolled!==undefined){
+				that.widget().find(':checkbox[name="enrolled"]').prop('checked',that.options.enrolled);
 			}
 			
 			/*触发一次按钮面板中的每个切换按钮，来使显示按钮提示文字*/
@@ -404,7 +404,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 		var enrolled=this.widget().children('.ui-dialog-buttonpane').find('#enrolled-'+ui_id);
 		
 		if(!enrolled.length){
-			var enrolled=$('<div class="ui-dialog-buttonset" style="float:left;padding:.5em .4em"><input type="checkbox" id="enrolled-'+ui_id+'" name="enrolled" title-checked="计入我的工作时间" title-unchecked="不计入我的工作时间" /><label for="enrolled-'+ui_id+'"><span class="icon-clock"></span></label></div>')
+			var enrolled=$('<div class="ui-dialog-buttonset" style="float:left;padding:.5em .4em"><input type="checkbox" id="enrolled-'+ui_id+'" name="enrolled" title-checked="计入我的工作时间" title-unchecked="不计入我的工作时间" checked="checked" /><label for="enrolled-'+ui_id+'"><span class="icon-clock"></span></label></div>')
 			.appendTo(this.widget().children('.ui-dialog-buttonpane'))
 			.find('#enrolled-'+ui_id)
 				.on('change',function(event){
