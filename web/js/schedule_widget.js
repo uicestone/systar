@@ -141,19 +141,19 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			}
 			
 			/*根据响应，设置completed选项*/
-			if(response.data.completed!==null){
+			if(response.data.completed !==undefined && response.data.completed!==null){
 				that.options.event.completed
 					=that.options.completed
 					=Boolean(Number(response.data.completed.content));
 			}
 			
-			if(response.data.in_todo_list!==null){
+			if(response.data.in_todo_list!==undefined && response.data.in_todo_list!==null){
 				that.options.event.in_todo_list
 					=that.options.in_todo_list
 					=Boolean(Number(response.data.in_todo_list.content));
 			}
 			
-			if(response.data.enrolled!==null){
+			if(response.data.in_todo_list!==undefined && response.data.enrolled!==null){
 				that.options.event.enrolled
 					=that.options.enrolled
 					=Boolean(Number(response.data.enrolled.content));
