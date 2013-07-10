@@ -6,10 +6,10 @@ window.onload = function() {
 		el.innerHTML = '<span style="font-family: \'icomoon\'">' + entity + '</span>' + html;
 	}
 	var icons = {
-			'icon-checkmark' : '&#x63;&#x6f;&#x6d;&#x70;&#x6c;&#x65;&#x74;&#x65;&#x64;',
-			'icon-list' : '&#x74;&#x6f;&#x64;&#x6f;',
-			'icon-close' : '&#x78;',
-			'icon-clock' : '&#x65;&#x6e;&#x72;&#x6f;&#x6c;&#x6c;&#x65;&#x64;'
+			'icon-checkmark' : '&#x2713;',
+			'icon-clock' : '&#x2610;',
+			'icon-list' : '&#x25a4;',
+			'icon-close' : '&#x78;'
 		},
 		els = document.getElementsByTagName('*'),
 		i, attr, html, c, el;

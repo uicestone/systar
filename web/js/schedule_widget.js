@@ -127,6 +127,8 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			uri=$.changeUrlPar(uri,'period','1');
 		}
 		
+		uri=$.changeUrlPar(uri,'_',$.now());
+		
 		$.get(uri,function(response){
 			
 			/*根据响应，刷新日程标题*/
@@ -139,19 +141,19 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			}
 			
 			/*根据响应，设置completed选项*/
-			if(response.data.completed!==undefined){
+			if(response.data.completed!==null){
 				that.options.event.completed
 					=that.options.completed
 					=Boolean(Number(response.data.completed.content));
 			}
 			
-			if(response.data.in_todo_list!==undefined){
+			if(response.data.in_todo_list!==null){
 				that.options.event.in_todo_list
 					=that.options.in_todo_list
 					=Boolean(Number(response.data.in_todo_list.content));
 			}
 			
-			if(response.data.enrolled!==undefined){
+			if(response.data.enrolled!==null){
 				that.options.event.enrolled
 					=that.options.enrolled
 					=Boolean(Number(response.data.enrolled.content));
@@ -183,7 +185,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			}
 			
 			/*触发一次按钮面板中的每个切换按钮，来使显示按钮提示文字*/
-			that.widget().find('.ui-dialog-buttonpane').find(':checkbox').trigger('change');
+			that.widget().find('.ui-dialog-buttonpane').find(':checkbox').trigger('change',true);
 
 			/*载入日程内容*/
 			that.element.html(response.data.content.content).trigger('blockload')
@@ -383,8 +385,8 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			var buttonCheckbox=$('<div class="ui-dialog-buttonset" style="float:left;padding:.5em .4em"><input type="checkbox" id="completed-'+ui_id+'" name="completed" title-checked="已完成" title-unchecked="未完成" /><label for="completed-'+ui_id+'"><span class="icon-checkmark"></span></label></div>')
 			.appendTo(this.widget().children('.ui-dialog-buttonpane'))
 			.find('#completed-'+ui_id)
-				.on('change',function(event){
-					!event.isTrigger && that.options.id && $.post('/schedule/setcompleted/'+that.options.id+'/'+Number($(this).is(':checked')));
+				.on('change',function(event,isOnloadTrigger){
+					!isOnloadTrigger && that.options.id && $.post('/schedule/setcompleted/'+that.options.id+'/'+Number($(this).is(':checked')));
 				});
 		}
 		buttonCheckbox.button();
@@ -395,8 +397,8 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			var in_todo_list=$('<div class="ui-dialog-buttonset" style="float:left;padding:.5em .4em"><input type="checkbox" id="in-todo-list-'+ui_id+'" name="in_todo_list" title-checked="在任务列表中显示" title-unchecked="不在任务列表中显示" /><label for="in-todo-list-'+ui_id+'"><span class="icon-list"></span></label></div>')
 			.appendTo(this.widget().children('.ui-dialog-buttonpane'))
 			.find('#in-todo-list-'+ui_id)
-				.on('change',function(event){
-					!event.isTrigger && that.options.id && $.post('/schedule/showintodolist/'+that.options.id+'/'+Number($(this).is(':checked')));
+				.on('change',function(event,isOnloadTrigger){
+					!isOnloadTrigger && that.options.id && $.post('/schedule/showintodolist/'+that.options.id+'/'+Number($(this).is(':checked')));
 				});
 		}
 		in_todo_list.button();
@@ -407,8 +409,8 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			var enrolled=$('<div class="ui-dialog-buttonset" style="float:left;padding:.5em .4em"><input type="checkbox" id="enrolled-'+ui_id+'" name="enrolled" title-checked="计入我的工作时间" title-unchecked="不计入我的工作时间" checked="checked" /><label for="enrolled-'+ui_id+'"><span class="icon-clock"></span></label></div>')
 			.appendTo(this.widget().children('.ui-dialog-buttonpane'))
 			.find('#enrolled-'+ui_id)
-				.on('change',function(event){
-					!event.isTrigger && that.options.id && $.post('/schedule/enroll/'+that.options.id+'/'+Number($(this).is(':checked')));
+				.on('change',function(event,isOnloadTrigger){
+					!isOnloadTrigger && that.options.id && $.post('/schedule/enroll/'+that.options.id+'/'+Number($(this).is(':checked')));
 				});
 		}
 		enrolled.button();
