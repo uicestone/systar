@@ -25,7 +25,8 @@ class BaseItem_model extends SS_Model{
 				->from($this->table)
 				->where(array('id'=>$id,'company'=>$this->company->id));
 			
-			if($this->mod){
+			//验证读权限
+			if($this->mod && !$this->user->isLogged($this->table.'admin')){
 				$this->db->where("document.id IN (
 					SELECT document FROM document_mod
 					WHERE (document_mod.people IS NULL OR document_mod.people{$this->db->escape_int_array(array_merge(array_keys($this->user->teams),array($this->user->id)))})
@@ -119,6 +120,16 @@ class BaseItem_model extends SS_Model{
 		}
 		
 		$this->db->from($this->table);
+		
+		//验证读权限
+		if($this->mod && !$this->user->isLogged($this->table.'admin')){
+			$this->db->where("document.id IN (
+				SELECT document FROM document_mod
+				WHERE (document_mod.people IS NULL OR document_mod.people{$this->db->escape_int_array(array_merge(array_keys($this->user->teams),array($this->user->id)))})
+					AND ((document_mod.mod & 1) = 1)
+				)
+			");
+		}
 		
 		//使用INNER JOIN的方式来筛选标签，聪明又机灵。
 		if(isset($args['labels']) && is_array($args['labels'])){

@@ -33,14 +33,6 @@ class Document_model extends BaseItem_model{
 			$this->db->join('message_document',"message_document.document = document.id AND message_document.message = {$args['message']}",'inner');
 		}
 		
-		//验证读权限
-		!$this->user->isLogged('docadmin') && $this->db->where("document.id IN (
-			SELECT document FROM document_mod
-			WHERE (document_mod.people IS NULL OR document_mod.people{$this->db->escape_int_array(array_merge(array_keys($this->user->teams),array($this->user->id)))})
-				AND ((document_mod.mod & 1) = 1)
-			)
-		");
-		
 		return parent::getList($args);
 	}
 	
