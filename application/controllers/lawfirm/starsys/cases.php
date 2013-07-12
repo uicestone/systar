@@ -11,7 +11,7 @@ class Cases extends Project{
 		
 		$this->project=$this->cases;
 
-		$this->search_items=array('name','num','people','time_contract/from','time_contract/to','labels');
+		$this->search_items=array('name','num','people','time_contract/from','time_contract/to','labels','without_labels');
 
 		$this->list_args=array(
 			'time_contract'=>array(

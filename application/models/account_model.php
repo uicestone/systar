@@ -25,6 +25,8 @@ class Account_model extends BaseItem_model{
 	 * name: 帐目摘要
 	 * received: 是否到帐
 	 * project: 指定项目id
+	 * project_labels
+	 * project_without_labels
 	 * show_payer: 获得付款人信息payer, payer_name
 	 * date: (预估)到账日期
 	 *	array(
@@ -62,9 +64,14 @@ class Account_model extends BaseItem_model{
 		}
 		
 		if(isset($args['project_labels'])){
-			
 			foreach($args['project_labels'] as $id => $label_name){
 				$this->db->join("project_label t_$id","account.project = t_$id.project AND t_$id.label_name = '$label_name'",'inner');
+			}
+		}
+		
+		if(isset($args['project_without_labels'])){
+			foreach($args['project_without_labels'] as $id => $label_name){
+				$this->db->where("account.project NOT IN (SELECT project FROM project_label WHERE label_name = '$label_name')");
 			}
 		}
 		

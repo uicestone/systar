@@ -184,7 +184,7 @@ class Achievement extends SS_controller{
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 				'contract_date'=>array('from'=>$this->date->year_begin),
 				'project_labels'=>array('费用已锁定'),
-				'orderby'=>'sum desc'
+				'order_by'=>'sum desc'
 			)),
 			
 			'主办存量创收'=>$this->account->getList(array(
@@ -531,21 +531,24 @@ class Achievement extends SS_controller{
 				$this->account->getSum(array(
 					'received'=>true,
 					'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
-					'ten_thousand_unit'=>true
+					'ten_thousand_unit'=>true,
+					'project_labels'=>array('费用已锁定')
 				)),
 				$this->account->getSum(array(
 					'received'=>true,
 					'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 					'people'=>$this->user->id,
 					'role'=>array('主办律师'),
-					'ten_thousand_unit'=>true
+					'ten_thousand_unit'=>true,
+					'project_labels'=>array('费用已锁定')
 				)),
 				$this->account->getSum(array(
 					'received'=>true,
 					'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 					'people'=>$this->user->id,
 					'role'=>array('案源人'),
-					'ten_thousand_unit'=>true
+					'ten_thousand_unit'=>true,
+					'project_labels'=>array('费用已锁定')
 				))
 			)
 			

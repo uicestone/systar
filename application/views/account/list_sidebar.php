@@ -49,6 +49,13 @@
 			</td>
 		</tr>
 		<tr>
+			<td>
+				<select name="project_without_labels[]" class="chosen" data-width="copy" data-placeholder="事务标签不包括" multiple="multiple">
+					<?=options($this->project->getAllLabels(),$this->config->user_item('search/project_without_labels'))?>
+				</select>
+			</td>
+		</tr>
+		<tr>
 			<td class="submit">
 				<button type="submit" name="search" tabindex="0">搜索</button>
 				<button type="submit" name="search_cancel" tabindex="1"<?if(!array_reduce($this->search_items, function($result, $item){return ($result || $this->config->user_item('search/'.$item));},false)){?> class="hidden"<?}?>>取消</button>

@@ -25,7 +25,7 @@ class Account extends SS_controller{
 			'payer_name'=>array('heading'=>'付款/收款人')
 		);
 
-		$this->search_items=array('account','date/from','date/to','project_name','amount','payer_name','labels','project_labels','received','people','team','role','group_by');
+		$this->search_items=array('account','date/from','date/to','project_name','amount','payer_name','labels','project_labels','project_without_labels','received','people','team','role','group_by');
 	}
 	
 	function index(){
