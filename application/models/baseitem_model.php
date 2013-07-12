@@ -169,7 +169,7 @@ class BaseItem_model extends SS_Model{
 			if(!$args['id_in']){
 				$this->db->where('FALSE',NULL,false);
 			}else{
-				$this->db->where_in($this->table.'.id');
+				$this->db->where_in($this->table.'.id',$args['id_in']);
 			}
 		}
 		
