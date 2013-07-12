@@ -202,12 +202,11 @@ class Schedule_model extends BaseItem_model{
 		}
 		
 		if(isset($args['id_in_set'])){
-			if(!$args['id_in_set']){
-				return array();
+			$args['id_in']=$args['id_in_set'];
+			if($args['id_in_set']){
+				$this->db->order_by("FIELD(schedule.id, ".implode(', ',$args['id_in_set']).")",'',false);
+				$args['order_by']=false;
 			}
-			$this->db->where_in('schedule.id', $args['id_in_set'])
-				->order_by("FIELD(schedule.id, ".implode(', ',$args['id_in_set']).")",'',false);
-			$args['order_by']=false;
 		}
 		
 		if(isset($args['sum']) && $args['sum']){

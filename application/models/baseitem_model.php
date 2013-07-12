@@ -154,8 +154,12 @@ class BaseItem_model extends SS_Model{
 			$this->db->where($this->table.'.uid',$args['uid']);
 		}
 		
-		if(!empty($args['id_in']) && is_array($args['id_in'])){
-			$this->db->where_in($this->table.'.id',$args['id_in']);
+		if(array_key_exists('id_in',$args)){
+			if(!$args['id_in']){
+				$this->db->where('FALSE',NULL,false);
+			}else{
+				$this->db->where_in($this->table.'.id');
+			}
 		}
 		
 		//复制一个DB对象用来计算行数，因为计算行数需要运行sql，将清空DB对象中属性

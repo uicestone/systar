@@ -172,15 +172,15 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			
 			/*根据completed选项，设置“已完成”按钮状态*/
 			//TODO 争取做到根据状态直接确定按钮状态，而非事后补上
-			if(that.options.completed!==undefined){
+			if(that.options.completed!==null){
 				that.widget().find(':checkbox[name="completed"]').prop('checked',that.options.completed);
 			}
 			
-			if(that.options.in_todo_list!==undefined){
+			if(that.options.in_todo_list!==null){
 				that.widget().find(':checkbox[name="in_todo_list"]').prop('checked',that.options.in_todo_list);
 			}
 			
-			if(that.options.enrolled!==undefined){
+			if(that.options.enrolled!==null){
 				that.widget().find(':checkbox[name="enrolled"]').prop('checked',that.options.enrolled);
 			}
 			
