@@ -244,6 +244,10 @@ class Account_model extends BaseItem_model{
 
 	function add(array $data=array()){
 		
+		if(empty($data['account'])){
+			unset($data['account']);
+		}
+		
 		$insert_id=parent::add($data);
 		
 		if(!isset($data['account'])){
