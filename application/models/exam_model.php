@@ -2,6 +2,7 @@
 class Exam_model extends Evaluation_model{
 	function __construct(){
 		parent::__construct();
+		$this->fields['type']='exam';
 	}
 	
 	function getList($args=array()){

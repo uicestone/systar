@@ -2,14 +2,7 @@
 class Client_model extends People_model{
 	function __construct(){
 		parent::__construct();
-	}
-	
-	function add($data=array('type'=>'client')){
-		if(!isset($data['type'])){
-			$data['type']='client';
-		}
-		
-		return parent::add($data);
+		$this->fields['type']='client';
 	}
 	
 	function getList($args = array()) {

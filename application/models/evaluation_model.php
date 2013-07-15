@@ -2,11 +2,7 @@
 class Evaluation_model extends Project_model{
 	function __construct(){
 		parent::__construct();
-	}
-	
-	function getList(array $args = array()) {
-		!isset($args['type']) && $args['type']='evaluation';
-		return parent::getList($args);
+		$this->fields['type']='evaluation';
 	}
 	
 	function applyModel($project,$model){

@@ -19,7 +19,7 @@ class User_model extends People_model{
 			'alias'=>'',//别名
 			'password'=>''//密码
 		));
-
+		
 		if(is_null($uid)){
 			$uid=$this->session->userdata('user/id');
 		}

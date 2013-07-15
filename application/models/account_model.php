@@ -244,8 +244,10 @@ class Account_model extends BaseItem_model{
 
 	function add(array $data=array()){
 		
-		if(empty($data['account'])){
-			unset($data['account']);
+		foreach(array('account','received','people') as $field){
+			if(empty($data[$field])){
+				unset($data[$field]);
+			}
 		}
 		
 		$insert_id=parent::add($data);
@@ -253,12 +255,16 @@ class Account_model extends BaseItem_model{
 		if(!isset($data['account'])){
 			$this->db->update('account',array('account'=>$insert_id),array('id'=>$insert_id));
 		}else{
-			$account=$this->db->select('project, team')
+			$account=$this->db->select('project, team, subject')
 				->from('account')
 				->where('id',intval($data['account']))
 				->limit(1)
 				->get()->row();
 			$this->db->update('account',$account,array('id'=>$insert_id));
+		}
+		
+		if(isset($data['received']) && $data['received']){
+			
 		}
 		
 		return $insert_id;
