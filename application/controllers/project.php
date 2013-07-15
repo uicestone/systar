@@ -240,6 +240,7 @@ class Project extends SS_controller{
 		
 		$this->project->data=array_merge($this->project->fetch($id),$this->input->sessionPost('project'));
 		$this->project->labels=array_merge($this->project->getLabels($this->project->id),$this->input->sessionPost('labels'));
+		$this->project->profiles=$this->input->sessionPost('profiles');
 		
 		$this->load->library('form_validation');
 		
@@ -268,6 +269,7 @@ class Project extends SS_controller{
 				
 				$this->project->update($this->project->id,$this->project->data);
 				$this->project->updateLabels($this->project->id,$this->input->sessionPost('labels'));
+				$this->project->updateProfiles($this->project->id,$this->input->sessionPost('profiles'));
 				
 				unsetPost();
 				$this->output->message($this->output->title.' 已保存');

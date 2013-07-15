@@ -6,12 +6,21 @@ class BaseItem_model extends SS_Model{
 	var $labels;//具体对象的标签数组
 	var $profiles;//具体对象的资料项数组
 	var $table;//具体对象存放于数据库的表名
-	var $default_type;//插入的新数据的type段
-	var $default_labels;//插入的新数据所包含的标签
+	var $fields;//存放对象的表结构
 	var $mod=false;//本模型是否带权限验证
 	
 	function __construct() {
 		parent::__construct();
+		$CI=&get_instance();
+		$this->fields=array(
+			'name'=>NULL,
+			'type'=>$this->table,
+			'display'=>false,
+			'company'=>isset($CI->company)?$CI->company->id:NULL,
+			'uid'=>isset($CI->user)?$CI->user->id:NULL,
+			'time_insert'=>0,
+			'time'=>$this->date->now
+		);
 	}
 	
 	function fetch($id,$field=NULL,$query=NULL,$mod=true){
@@ -265,6 +274,16 @@ class BaseItem_model extends SS_Model{
 		return array_sub($this->getList($args),$keyname,$keyname_forkey);
 	}
 	
+	function getRow($args=array()){
+		!isset($args['limit']) && $args['limit']=1;
+		$result=$this->getList($args);
+		if(isset($result[0])){
+			return $result[0];
+		}else{
+			return array();
+		}
+	}
+	
 	function getAddingItem(){
 		$row=$this->db->select('id')
 			->from($this->table)
@@ -278,6 +297,38 @@ class BaseItem_model extends SS_Model{
 		}else{
 			return false;
 		}
+	}
+	
+	function add(array $data=array()){
+		$data+=uidTime(true,true);
+		$data=array_merge($this->fields,array_intersect_key($data,$this->fields));
+		
+		$this->db->insert($this->table,$data);
+		$insert_id=$this->db->insert_id();
+		
+		if($this->mod){
+			$this->addMod(7, $this->user->id, $insert_id);
+		}
+		
+		return $insert_id;
+	}
+	
+	function update($item_id, array $data){
+		$data=array_intersect_key($data, $this->fields);
+		
+		if(empty($data)){
+			return 0;
+		}
+		
+		if(is_array($item_id)){
+			$this->db->where($item_id);
+		}else{
+			$this->db->where('id',$item_id);
+		}
+		
+		$this->db->set($data)->update($this->table);
+		
+		return $this->db->affected_rows();
 	}
 	
 	/**
@@ -366,6 +417,27 @@ class BaseItem_model extends SS_Model{
 		}
 		
 		return $all_labels;
+	}
+	
+	/**
+	 * 返回当前类型的对象中，包含$labels标签的对象，所包含的其他标签
+	 * @param array $labels
+	 * @param string $type
+	 */
+	function getRelatedLabels($labels, $type=NULL){
+		
+		if(empty($labels) || !is_array($labels)){
+			return array();
+		}
+		$this->db->from($this->table.'_label')
+			->where("{$this->table} IN (SELECT {$this->table} FROM {$this->table}_label WHERE label_name{$this->db->escape_array($labels)})")
+			->group_by('label');
+		
+		if(!is_null($type)){
+			$this->db->where('type',$type);
+		}
+		
+		return array_sub($this->db->get()->result_array(),'label_name');
 	}
 	
 	/**

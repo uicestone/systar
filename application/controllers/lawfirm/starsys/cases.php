@@ -35,16 +35,6 @@ class Cases extends Project{
 			'role'=>array()
 		);
 	
-		$this->miscfee_list_args=array(
-			'account'=>array('heading'=>'帐目编号'),
-			'type'=>array('heading'=>'类型','cell'=>'{type}'),
-			'amount'=>array('heading'=>array('data'=>'数额','width'=>'30%'),'parser'=>array('function'=>function($total,$received,$received_date){
-				return $total.($received==''?'':' <span title="'.$received_date.'">（到账：'.$received.'）</span>');
-			},'args'=>array('total_amount','received_amount','received_date'))),
-			'receivable_date'=>array('heading'=>'预计时间'),
-			'comment'=>array('heading'=>'收款方/备注','cell'=>array('class'=>'ellipsis','title'=>'{comment}'))
-		);
-			
 		$this->load->view_path['edit']='cases/edit';
 		$this->load->view_path['edit_aside']='cases/edit_sidebar';
 		$this->load->view_path['list_aside']='cases/list_sidebar';
@@ -65,10 +55,10 @@ class Cases extends Project{
 		$this->cases->id=$id;
 		
 		try{
-			$this->cases->data=array_merge($this->cases->fetch($id),$this->input->sessionPost('project'));
-
+			$this->cases->data=array_merge($this->cases->fetch($this->cases->id),$this->input->sessionPost('project'));
+			$this->cases->profiles=array_merge(array_sub($this->cases->getProfiles($this->cases->id),'content','name'),$this->input->sessionPost('profiles'));
 			$this->cases->labels=array_merge($this->cases->getLabels($this->cases->id),$this->input->sessionPost('labels'));
-
+			
 			if(!$this->cases->data['name']){
 				$this->output->title='未命名'.lang(CONTROLLER);
 			}else{
@@ -81,13 +71,12 @@ class Cases extends Project{
 			
 			$this->load->addViewData('project', $this->cases->data);
 			$this->load->addViewData('labels', $this->cases->labels);
+			$this->load->addViewData('profiles', $this->cases->profiles);
 
 			//计算本案有效日志总时间
 			$this->load->model('schedule_model','schedule');
 			
 			$this->load->view_data['schedule_time']=$this->schedule->getSum(array('project'=>$this->cases->id,'completed'=>true));
-
-			$this->load->view_data['case_type_array']=array('诉前','一审','二审','再审','执行','劳动仲裁','商事仲裁');
 
 			if($this->cases->data['type']==='query'){
 				$this->load->view_data['staff_role_array']=array('督办人','接洽律师','律师助理');
@@ -100,8 +89,6 @@ class Cases extends Project{
 			$this->load->addViewData('staff_list', $this->staffList());
 			
 			$this->load->addViewData('fee_list', $this->accountList());
-			
-			$this->load->addViewData('miscfee_list', $this->miscfeeList());
 			
 			$this->load->addViewData('schedule_list', $this->scheduleList());
 
@@ -168,18 +155,6 @@ class Cases extends Project{
 		return $list;
 	}
 	
-	 function miscfeeList(){
-		
-		$this->load->model('account_model','account');
-		
-		$list=$this->table->setFields($this->miscfee_list_args)
-				->setAttribute('name','miscfee')
-				->setRowAttributes(array('hash'=>'account/{id}'))
-				->generate($this->account->getList(array('project'=>$this->cases->id,'type'=>'办案费','group_by'=>'account')));
-		
-		return $list;
-	}
-	
 	function submit($submit,$id,$button_id=NULL){
 		
 		parent::submit($submit, $id, $button_id);
@@ -221,18 +196,32 @@ class Cases extends Project{
 					throw new Exception;
 				}
 		
-				if($project_client['client']){//autocomplete搜索到已有客户
-					$new_client_type=$this->client->fetch($project_client['client'],'type');
+				if($project_client['client']){
 					
-					if($new_client_type==='client'){
-						$recent_case=$this->cases->getList(array('people'=>$project_client['client'],'type'=>'cases','limit'=>1,'before'=>$this->cases->id));
-						
-						if(isset($recent_case[0])){
-							
+					if($project_client['role']==='主委托人'){
+
+						$recent_case_of_client=$this->cases->getRow(array('people'=>$project_client['client'],'role'=>'主委托人','before'=>$this->cases->id));
+						$recent_case_of_client_relative=$this->cases->getRow(array('people_is_relative_of'=>$project_client['client'],'role'=>'主委托人','before'=>$this->cases->id));
+
+						if($recent_case_of_client && $recent_case_of_client_relative){
+							if($recent_case_of_client['id']>$recent_case_of_client_relative['id']){
+								$recent_case=$recent_case_of_client;
+							}else{
+								$recent_case=$recent_case_of_client_relative;
+							}
+						}elseif($recent_case_of_client){
+							$recent_case=$recent_case_of_client;
+						}elseif($recent_case_of_client_relative){
+							$recent_case=$recent_case_of_client_relative;
+						}
+
+						if(isset($recent_case)){
+
 							$this->cases->addLabel($this->cases->id, '再成案');
-							
-							$this->cases->addRelative($this->cases->id, $recent_case[0]['id'],'上次签约案件');
-							$previous_roles=$this->cases->getRolesPeople($recent_case[0]['id']);
+
+							$this->cases->addRelative($this->cases->id, $recent_case['id'], '上次签约案件');
+							$previous_roles=$this->cases->getRolesPeople($recent_case['id']);
+							$recent_case_profiles=array_sub($this->cases->getProfiles($recent_case['id']),'content','name');
 							
 							foreach(array('案源人') as $role){
 								if(isset($previous_roles[$role])){
@@ -241,13 +230,21 @@ class Cases extends Project{
 									}
 								}
 							}
-							
+
+							$this->cases->addProfile($this->cases->id, '案源系数', 0.2-(0.2-$recent_case_profiles['案源系数'])/2);
+							$this->cases->addProfile($this->cases->id,'案源类型',$recent_case_profiles['案源类型']);
 							$this->output->setData($this->relativeList(),'relative-list','content-table','.item[name="relative"]>.contentTable','replace');
 							$this->output->setData($this->staffList(),'staff-list','content-table','.item[name="staff"]>.contentTable','replace');
+						}else{
+							$this->cases->profiles['案源类型']=array_sub($this->client->getProfiles($project_client['client']),'content','name')['来源类型']==='亲友介绍'?'个人案源':'所内案源';
+							if($this->cases->profiles['案源类型']==='所内案源'){
+								$this->cases->addProfile($this->cases->id, '案源系数', 0.08);
+							}else{
+								$this->cases->addProfile($this->cases->id, '案源系数', 0.2);
+							}
+							$this->cases->addProfile($this->cases->id,'案源类型',$this->cases->profiles['案源类型']);
 						}
 					}
-					
-					$this->output->message("系统中已经存在{$client['name']}，已自动识别");
 				}
 				else{//添加新客户
 					if(!$client['name']){

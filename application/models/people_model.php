@@ -1,32 +1,26 @@
 <?php
 class People_model extends BaseItem_model{
 	
-	/**
-	 * people表下的字段及其显示名
-	 */
-	static $fields=array(
-		'character'=>'性质',
-		'name'=>'名称',
-		'name_en'=>'英文名',
-		'abbreviation'=>'简称',
-		'phone'=>'电话',
-		'email'=>'电子邮件',
-		'type'=>'分类',
-		'gender'=>'性别',
-		'id_card'=>'身份证号',
-		'work_for'=>'工作单位',
-		'position'=>'职位',
-		'birthday'=>'生日',
-		'city'=>'城市',
-		'race'=>'民族',
-		'staff'=>'首要关联职员',
-		'comment'=>'备注',
-		'display'=>'是否显示'
-	);
-	
 	function __construct() {
 		parent::__construct();
 		$this->table='people';
+		$this->fields=array_merge($this->fields,array(
+			'character'=>'个人',//性质
+			'name_en'=>NULL,//英文名
+			'abbreviation'=>NULL,//简称
+			'phone'=>NULL,//电话
+			'email'=>NULL,//电子邮件
+			'gender'=>NULL,//性别
+			'id_card'=>NULL,//身份证号
+			'work_for'=>NULL,//工作单位
+			'position'=>NULL,//职位
+			'birthday'=>NULL,//生日
+			'city'=>NULL,//城市
+			'race'=>NULL,//民族
+			'staff'=>NULL,//首要关联职员
+			'comment'=>NULL,//备注
+		));
+
 	}
 
 	/**
@@ -75,12 +69,8 @@ class People_model extends BaseItem_model{
 	}
 	
 	function add(array $data=array()){
-		$people=array_intersect_key($data,self::$fields);
-		$people+=uidTime(true,true);
 		
-		$this->db->insert('people',$people);
-		
-		$new_people_id=$this->db->insert_id();
+		$new_people_id=parent::add($data);
 		
 		if(isset($data['profiles'])){
 			foreach($data['profiles'] as $name => $content){
@@ -99,24 +89,6 @@ class People_model extends BaseItem_model{
 		}
 		
 		return $new_people_id;
-	}
-	
-	function update($people,$data){
-		$people=intval($people);
-		
-		if(is_null($data)){
-			return true;
-		}
-		
-		$people_data=array_intersect_key($data, self::$fields);
-		
-		$people_data['display']=1;
-		
-		$people_data+=uidTime();
-		
-		$people_data['company']=$this->company->id;
-
-		return $this->db->update('people',$people_data,array('id'=>$people));
 	}
 	
 	function getTypes(){

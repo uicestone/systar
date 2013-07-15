@@ -10,17 +10,16 @@ class User_model extends People_model{
 	var $teams;
 	var $group;
 	
-	static $fields=array(
-		'name'=>'用户名',
-		'alias'=>'别名',
-		'password'=>'密码'
-	);
-	
 	function __construct($uid=NULL){
 		parent::__construct();
 		
 		$this->table='user';
 		
+		$this->fields=array_merge($this->fields,array(
+			'alias'=>'',//别名
+			'password'=>''//密码
+		));
+
 		if(is_null($uid)){
 			$uid=$this->session->userdata('user/id');
 		}

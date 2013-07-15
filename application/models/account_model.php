@@ -1,23 +1,20 @@
 <?php
 class Account_model extends BaseItem_model{
 	
-	static $fields=array(
-		'name'=>'摘要',
-		'type'=>'类型',
-		'subject'=>'科目',
-		'amount'=>'数额',
-		'received'=>'是否到账',
-		'date'=>'日期',
-		'project'=>'案件',
-		'account'=>'关联帐目',
-		'people'=>'人员',
-		'comment'=>'备注',
-		'display'=>'显示在列表'
-	);
-	
 	function __construct(){
 		parent::__construct();
 		$this->table='account';
+		$this->fields=array_merge($this->fields,array(
+			'subject'=>NULL,//科目
+			'amount'=>0,//数额
+			'received'=>false,//是否到账
+			'date'=>$this->date->today,//日期
+			'project'=>NULL,//案件
+			'account'=>NULL,//关联帐目
+			'people'=>NULL,//人员
+			'comment'=>NULL,//备注
+		));
+
 	}
 	
 	/**
@@ -76,7 +73,7 @@ class Account_model extends BaseItem_model{
 		}
 		
 		if(isset($args['show_project'])){
-			$this->db->select('project.id AS project, project.name AS project_name');
+			$this->db->select('project.id project, project.type project_type, project.name project_name');
 			
 			if(isset($args['project_name'])){
 				$this->db->like('project.name',$args['project_name']);
@@ -247,20 +244,7 @@ class Account_model extends BaseItem_model{
 
 	function add(array $data=array()){
 		
-		$data=array_intersect_key($data, self::$fields);
-		
-		if(isset($data['account']) && !$data['account']){
-			unset($data['account']);
-		}
-		
-		if(isset($data['comment']) && $data['comment']===''){
-			unset($data['comment']);
-		}
-		
-		$data+=uidTime(true,true);
-		
-		$this->db->insert('account',$data);
-		$insert_id=$this->db->insert_id();
+		$insert_id=parent::add($data);
 		
 		if(!isset($data['account'])){
 			$this->db->update('account',array('account'=>$insert_id),array('id'=>$insert_id));
@@ -274,14 +258,6 @@ class Account_model extends BaseItem_model{
 		}
 		
 		return $insert_id;
-	}
-	
-	function update($id,array $data){
-		$data=array_intersect_key($data, self::$fields);
-		
-		$data+=uidTime(false);
-		
-		$this->db->update('account',$data,array('id'=>$id));
 	}
 	
 }

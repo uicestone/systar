@@ -2,7 +2,7 @@
 class Cases_model extends Project_model{
 	function __construct() {
 		parent::__construct();
-		$this->default_type='cases';
+		$this->fields['type']='cases';
 	}
 	
 	/*
@@ -115,6 +115,6 @@ class Cases_model extends Project_model{
 		!isset($args['type']) && $args['type']='cases';
 		return parent::getList($args);
 	}
-
+	
 }
 ?>

@@ -1,17 +1,16 @@
 <?php
 class Document_model extends BaseItem_model{
 	
-	static $fields=array(
-		'name'=>'名称',
-		'filename'=>'文件名',
-		'extname'=>'扩展名',
-		'size'=>'大小',
-		'comment'=>'备注'
-	);
-	
 	function __construct(){
 		parent::__construct();
 		$this->table='document';
+		$this->fields=array_merge($this->fields,array(
+			'filename'=>'',//文件名
+			'extname'=>'',//扩展名
+			'size'=>0,//大小
+			'comment'=>NULL//备注
+		));
+
 		$this->mod=true;
 		$this->load->library('filetype');
 	}
@@ -34,31 +33,6 @@ class Document_model extends BaseItem_model{
 		}
 		
 		return parent::getList($args);
-	}
-	
-	function add(array $data=array()){
-		$document=array_intersect_key($data, self::$fields);
-		
-		$document+=uidTime(true,true);
-		
-		$this->db->insert('document',$document);
-		
-		$insert_id=$this->db->insert_id();
-		
-		$this->addMod(7, $this->user->id, $insert_id);
-		
-		return $insert_id;
-	}
-	
-	function update($id,$data=array()){
-		
-		$id=intval($id);
-		
-		$document=array_intersect_key($data, self::$fields);
-		
-		$document+=uidTime(false);
-		
-		return $this->db->update('document',$document,array('id'=>$id));
 	}
 	
 	function delete($id){

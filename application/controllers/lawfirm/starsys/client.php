@@ -13,6 +13,8 @@ class Client extends People{
 				'rules'=>'required'
 			)
 		);
+		
+		$this->load->view_path['edit']='client/edit';
 	}
 
 	function potential(){

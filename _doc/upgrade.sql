@@ -167,4 +167,13 @@ ALTER TABLE  `schedule_people` ADD  `in_todo_list` BOOLEAN NOT NULL AFTER  `enro
 
 update schedule_people inner join schedule on schedule.id = schedule_people.schedule
 set schedule_people.in_todo_list = schedule.in_todo_list;
+
+ALTER TABLE  `project_profile` DROP FOREIGN KEY  `project_profile_ibfk_1` ,
+ADD FOREIGN KEY (  `project` ) REFERENCES  `syssh`.`project` (
+`id`
+) ON DELETE CASCADE ON UPDATE CASCADE ;
+
+ALTER TABLE  `project` CHANGE  `quote`  `quote` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT  '报价';
+ALTER TABLE  `people` CHANGE  `name_en`  `name_en` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
+ALTER TABLE  `people` CHANGE  `city`  `city` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
 -- server updated

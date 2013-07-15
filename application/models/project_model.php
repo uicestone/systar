@@ -1,26 +1,20 @@
 <?php
 class Project_model extends BaseItem_model{
 	
-	static $fields=array(
-		'name'=>'名称',
-		'num'=>'编号',
-		'active'=>'是否有效',
-		'type'=>'类型',
-		'first_contact'=>'首次接洽时间',
-		'time_contract'=>'签约时间',
-		'end'=>'（预估）完结时间',
-		'quote'=>'报价',
-		'timing_fee'=>'是计时收费',
-		'focus'=>'焦点',
-		'summary'=>'概况',
-		'comment'=>'备注',
-		'display'=>'显示在列表中'
-	);
-	
 	function __construct(){
 		parent::__construct();
 		$this->table='project';
-		$this->default_type='project';
+		$this->fields=array_merge($this->fields,array(
+			'num'=>NULL,//编号
+			'active'=>true,//是否有效
+			'first_contact'=>NULL,//首次接洽时间
+			'time_contract'=>NULL,//签约时间
+			'end'=>NULL,//（预估）完结时间
+			'quote'=>NULL,//报价
+			'focus'=>NULL,//焦点
+			'summary'=>NULL,//概况
+			'comment'=>NULL,//备注
+		));
 	}
 	
 	function match($part_of_name){
@@ -37,31 +31,21 @@ class Project_model extends BaseItem_model{
 	}
 
 	function add($data=array()){
-		$data=array_intersect_key($data, self::$fields);
 		
 		foreach(array('first_contact','time_contract','end') as $date_field){
 			if(empty($data[$date_field])){
 				$data[$date_field]=NULL;
 			}
 		}
-		
-	    $data+=uidTime(true,true);
 		
 		$data['active']=true;
 		
-		$data['type']=$this->default_type;
+		$new_project_id=parent::add($data);
 		
-	    $this->db->insert('project',$data);
-		$this->id=$this->db->insert_id();
-		
-		$this->addLabels($this->id, $this->default_labels);
-		
-		return $this->id;
+		return $new_project_id;
 	}
 	
-	function update($id,$data){
-		$id=intval($id);
-	    $data=array_intersect_key((array)$data,self::$fields);
+	function update($id,array $data){
 		
 		foreach(array('first_contact','time_contract','end') as $date_field){
 			if(empty($data[$date_field])){
@@ -69,9 +53,7 @@ class Project_model extends BaseItem_model{
 			}
 		}
 		
-		$data+=uidTime();
-	    
-		return $this->db->update('project',$data,array('id'=>$id));
+		return parent::update($id,$data);
 	}
 	
 	function getCompiledPeople($project_id){
@@ -208,14 +190,20 @@ class Project_model extends BaseItem_model{
 	}
 	
 	/**
-	 * 获得一个所有可选的事务人员角色
+	 * @param array $labels
+	 * @return array
 	 */
-	function getAllRoles(){
-		$this->db->select('project_people.role,COUNT(*) AS hits',false)
+	function getRelatedRoles($labels=NULL){
+		$this->db->select('project_people.role, COUNT(*) AS hits',false)
 			->from('project_people')
 			->join('project',"project_people.project = project.id AND project.company = {$this->company->id}")
+			->where('project_people.role IS NOT NULL',NULL,FALSE)
 			->group_by('project_people.role')
 			->order_by('hits', 'desc');
+		
+		if($labels){
+			$this->db->join('project_label',"project_label.project = project_people.project AND project_label.label_name{$this->db->escape_array($labels)}");
+		}
 		
 		$result=$this->db->get()->result_array();
 		
@@ -296,7 +284,16 @@ class Project_model extends BaseItem_model{
 			$where.=')';
 			
 			$this->db->where($where,NULL,FALSE);
+		}
 		
+		if(isset($args['people_is_relative_of'])){
+			$where="project.id IN (SELECT project FROM project_people WHERE people IN (SELECT relative FROM people_relationship WHERE people{$this->db->escape_int_array($args['people_is_relative_of'])})";
+			if(isset($args['role'])){
+				$where.=" AND role = '{$args['role']}'";
+			}
+			$where.=')';
+			
+			$this->db->where($where,NULL,FALSE);
 		}
 
 		if(isset($args['num'])){
@@ -369,7 +366,7 @@ class Project_model extends BaseItem_model{
 			'relation'=>$relation
 		);
 		
-		$this->db->insert('project_relationship',$data);
+		$this->db->replace('project_relationship',$data);
 		
 		return $this->db->insert_id();
 	}

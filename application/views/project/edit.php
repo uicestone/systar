@@ -18,7 +18,7 @@
 		<span class="add-form hidden">
 			<input type="hidden" name="people[id]" class="tagging" data-ajax="/people/match/" data-placeholder="人员" />
 			<select name="people[role]" class="chosen allow-new" data-placeholder="角色" style="width:150px;">
-				<?=options($this->project->getAllRoles(),$this->value('people/role'),'',false,false,false);?>
+				<?=options($this->project->getRelatedRoles(),$this->value('people/role'),'',false,false,false);?>
 			</select>
 			<button type="submit" name="submit[people]">添加</button>
 		</span>

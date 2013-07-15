@@ -12,7 +12,7 @@ class Account extends SS_controller{
 		
 		$this->list_args=array(
 			'account'=>array('heading'=>'账目编号'),
-			'project_name'=>array('heading'=>array('data'=>'项目','width'=>'30%'),'cell'=>array('class'=>'ellipsis','title'=>'{project_name}','data'=>'<a href="#cases/{project}">{project_name}</a>')),
+			'project_name'=>array('heading'=>array('data'=>'项目','width'=>'30%'),'cell'=>array('class'=>'ellipsis','title'=>'{project_name}','data'=>'<a href="#{project_type}/{project}">{project_name}</a>')),
 			'subject'=>array('heading'=>'科目'),
 			'amount'=>array('heading'=>'金额','parser'=>array('function'=>function($amount,$received){
 				if($amount>0){

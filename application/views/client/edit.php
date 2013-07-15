@@ -16,7 +16,6 @@
 		<input type="text" name="people[work_for]" value="<?=$this->value('people/work_for')?>" placeholder="工作单位" />
 		<input type="text" name="people[position]" value="<?=$this->value('people/position')?>" placeholder="职位" />
 <?}?>
-
 	</div>
 
 <?if($people['type']=='client'){?>		

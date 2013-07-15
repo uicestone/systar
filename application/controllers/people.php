@@ -276,6 +276,12 @@ class People extends SS_Controller{
 				$this->people->labels=$this->input->sessionPost('labels');
 				$this->people->profiles=$this->input->sessionPost('profiles');
 
+				if(!$this->people->data['display']){
+					$this->people->data['display']=true;
+					$this->output->data=CONTROLLER.'/'.$this->people->id;
+					$this->output->status='redirect';
+				}
+				
 				if($this->people->data['character']!='单位' && !$this->people->data['gender']){
 					//个人，则性别必填
 					$this->output->message('选择性别','warning');

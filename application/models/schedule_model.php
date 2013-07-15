@@ -1,24 +1,22 @@
 <?php
 class Schedule_model extends BaseItem_model{
 	
-	static $fields=array(
-		'name'=>'标题',
-		'content'=>'内容',
-		'start'=>'开始时间',
-		'end'=>'结束时间',
-		'deadline'=>'截止日期',
-		'hours_own'=>'自报时长',
-		'hours_checked'=>'核准时长',
-		'hours_bill'=>'账单时长',
-		'all_day'=>'全天',
-		'completed'=>'已完成',
-		'project'=>'关联案件',
-		'display'=>'显示'
-	);
-	
 	function __construct(){
 		parent::__construct();
 		$this->table='schedule';
+		$this->fields=array_merge($this->fields,array(
+			'content'=>NULL,//内容
+			'start'=>NULL,//开始时间
+			'end'=>NULL,//结束时间
+			'deadline'=>NULL,//截止日期
+			'hours_own'=>NULL,//自报时长
+			'hours_checked'=>NULL,//核准时长
+			'hours_bill'=>NULL,//账单时长
+			'all_day'=>false,//全天
+			'completed'=>false,//已完成
+			'project'=>NULL,//关联案件
+		));
+
 	}
 
 	/**
@@ -254,8 +252,6 @@ class Schedule_model extends BaseItem_model{
 	 */
 	function add(array $data=array()){
 		
-		$data=array_intersect_key($data, self::$fields);
-		
 		//attemp to convert date string to timestamp
 		foreach(array('start','end','deadline') as $timepoint){
 			if(isset($data[$timepoint])){
@@ -285,10 +281,7 @@ class Schedule_model extends BaseItem_model{
 			$data['hours_own']=NULL;
 		}
 		
-		$data+=uidTime(true,true);
-		
-		$this->db->insert('schedule',$data);
-		$schedule_id=$this->db->insert_id();
+		$schedule_id=parent::add($data);
 		
 		$this->updatePeople($schedule_id, array($this->user->id));
 		
@@ -324,9 +317,7 @@ class Schedule_model extends BaseItem_model{
 			$data['hours_own']=$data['end']=NULL;
 		}
 		
-		$data=array_intersect_key($data, self::$fields);
-		
-		$return = $this->db->update('schedule',$data,array('id'=>$schedule_id));
+		$return = parent::update($schedule_id,$data);
 
 		//generate end timestamp by start timestamp end hours
 		if(isset($data['hours_own']) && is_numeric($data['hours_own'])){

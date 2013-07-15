@@ -334,29 +334,6 @@ $(document)
 		changeYear: true
 	});
 })
-/*自动完成*/
-.on('focus.autocomplete','[autocomplete-model]',function(){
-	var autocompleteModel=$(this).attr('autocomplete-model');
-	$(this).autocomplete({
-		source: function(request, response){
-			$.post('/'+autocompleteModel+'/match',{term:request.term},function(responseJSON){
-				response(responseJSON.data);
-			});
-		},
-		select: function(event,ui){
-			$(this).val(ui.item.name).trigger('autocompleteselect',{value:ui.item.id}).trigger('change');
-			return false;
-		},
-		focus: function(event,ui){
-			return false;
-		},
-		delay: 600
-	}).data( "ui-autocomplete" )._renderItem = function( ul, item ) {
-      return $( "<li>" )
-        .append( "<a>" + item.name + " " + item.type + "</a>" )
-        .appendTo( ul );
-    };
-})
 /*分页按钮响应*/
 .on('click','.pagination button',function(){
 
