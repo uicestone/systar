@@ -16,6 +16,7 @@ class Schedule_model extends BaseItem_model{
 			'completed'=>false,//已完成
 			'project'=>NULL,//关联案件
 		));
+		unset($this->fields['type']);
 
 	}
 
