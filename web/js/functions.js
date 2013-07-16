@@ -420,7 +420,7 @@ jQuery.fn.extend({
 					minimumInputLength: 1,
 					ajax: {
 						url: function(term){
-							return url+term;
+							return url+encodeURIComponent(term);
 						},
 						quietMillis:500,
 						dataType: 'json',
