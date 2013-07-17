@@ -79,7 +79,7 @@ class Message_model extends BaseItem_model{
 			')
 			->from('dialog')
 			->join('message last_message',"last_message.id = dialog.last_message",'inner')
-			->join('people last_message_author',"last_message_author.id = last_message.uid",'inner')
+			->join('people last_message_author',"last_message_author.id = last_message.uid",'left')
 			->join('dialog_user',"dialog.id = dialog_user.dialog AND dialog_user.hidden=0 AND dialog_user.user = {$this->user->id}",'inner')
 			->order_by('last_message.id','DESC');
 		
@@ -91,7 +91,7 @@ class Message_model extends BaseItem_model{
 		$this->db->select('message.*, people.name AS author_name, message_user.read AS `read`')
 			->from('message')
 			->join('dialog_message',"dialog_message.message = message.id AND dialog_message.dialog = $dialog_id",'inner')
-			->join('people','people.id = message.uid','inner')
+			->join('people','people.id = message.uid','left')
 			->join('message_user',"message_user.message = message.id AND message_user.user = {$this->user->id} AND message_user.deleted=0",'inner')
 			->order_by('message.id','desc');
 		

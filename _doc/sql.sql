@@ -152,3 +152,50 @@ inner join team ON team.id = class_student.people
 inner join people people_team ON people_team.id = class_student.people
 SET people.num = RIGHT((1000000 + CONCAT(people_team.num, RIGHT((100 + class_student.num),2))),6)
 where people.type = 'student';
+
+-- 删除孤立消息
+create temporary table t
+select id from message_user m
+where message not in (select message from dialog_message where dialog in (select dialog from dialog_user where user = m.user))
+and m.read = 0;
+
+delete from message_user where id  in (select id from t);
+
+-- 给星瀚每个用户加一个系统对话
+insert into dialog(company,users,uid,time)
+select 1,1,id,unix_timestamp() from user where company = 1;
+
+insert into dialog_user(dialog,user,title)
+select id,uid,'系统' from dialog where company = 1 and users = 1;
+
+-- 根据符合条件的案件创建一组消息
+insert into message (content,time)
+select concat('您主办的案件 <a href="#cases/',project.id,'">',project.name,'</a> 已申请归档，但案卷尚未实体归档，请核实，否则将影响结案奖金发放，谢谢配合'),unix_timestamp() -- ,project_people.people
+from
+project
+-- inner join project_people on project_people.project = project.id and role='主办律师'
+where
+project.id in (select project from project_label where label_name = '已申请归档')
+and project.id not in (select project from project_label where label_name = '案卷已归档');
+
+-- 向每个主办律师推送消息
+create temporary table t
+select 
+message.id message
+,project_people.people user
+from
+project
+inner join project_people on project_people.project = project.id and role='主办律师'
+inner join message on content = concat('您主办的案件 <a href="#cases/',project.id,'">',project.name,'</a> 已申请归档，但案卷尚未实体归档，请核实，否则将影响结案奖金发放，谢谢配合')
+where
+project.id in (select project from project_label where label_name = '已申请归档')
+and project.id not in (select project from project_label where label_name = '案卷已归档');
+
+insert into message_user (message,user)
+select message,user from t;
+
+insert into dialog_message (dialog,message)
+select dialog.id,t.message
+from dialog inner join t on dialog.uid = t.user and dialog.users=1;
+
+update dialog inner join t on dialog.uid = t.user and dialog.users=1 set last_message = t.message;

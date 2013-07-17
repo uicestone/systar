@@ -2,7 +2,7 @@
 <div class="message-dialog-list-item<?if(!$dialog['read']){?> unread<?}?>" id="<?=$dialog['id']?>">
 	<span id="delete" class="icon-close right hidden"></span>
 	<p class="title"><?=$dialog['title']?></p>
-	<span class="author"><?=$dialog['last_message_author_name']?>：</span>
+	<?if($dialog['last_message_author_name']){?><span class="author"><?=$dialog['last_message_author_name']?>：</span><?}?>
 	<?=$dialog['last_message_content']?>
 <?	if($dialog['last_message_documents']){?>
 	<p><label>附件：</label>
