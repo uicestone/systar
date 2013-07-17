@@ -147,7 +147,8 @@ class Document extends SS_controller{
 					'name'=>$file_info['mail_name'],
 					'filename'=>$file_info['client_name'],
 					'extname'=>$file_info['file_ext'],
-					'size'=>$file_info['file_size']
+					'size'=>$file_info['file_size'],
+					'display'=>true
 				));
 				
 				$labels=$this->config->user_item('search/labels','index');
