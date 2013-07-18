@@ -26,7 +26,7 @@
 		</select>
 
 		<input type="text" name="profiles[来源]" value="<?=$this->value('profiles/来源')?>" <?if(!$this->value('profiles/来源')){?>class="hidden" disabled="disabled"<?}?> />
-		<input type="text" name="people[staff_name]" placeholder="来源律师" value="<?=$this->value('people/staff_name')?$this->value('people/staff_name'):$this->user->name?>" />
+		<input type="text" name="people[staff_name]" placeholder="来源律师" value="<?=$this->value('people/staff_name')?$this->value('people/staff_name'):$this->user->name?>"<?if($this->user->id!=$this->value('people/staff') && !$this->user->isLogged('service')){?> disabled="disabled"<?}?> />
 	</div>
 <?}?>
 

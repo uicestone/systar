@@ -170,13 +170,12 @@ select id,uid,'系统' from dialog where company = 1 and users = 1;
 
 -- 根据符合条件的案件创建一组消息
 insert into message (content,time)
-select concat('您主办的案件 <a href="#cases/',project.id,'">',project.name,'</a> 已申请归档，但案卷尚未实体归档，请核实，否则将影响结案奖金发放，谢谢配合'),unix_timestamp() -- ,project_people.people
+select concat('您主办的案件 <a href="#cases/',project.id,'">',project.name,'</a> 已申请归档，但实际贡献尚未输入，请核实，否则将影响结案奖金发放，谢谢配合'),unix_timestamp() -- ,project_people.people
 from
 project
--- inner join project_people on project_people.project = project.id and role='主办律师'
 where
 project.id in (select project from project_label where label_name = '已申请归档')
-and project.id not in (select project from project_label where label_name = '案卷已归档');
+and (select sum(weight) from project_people where project = project.id and role = '实际贡献') != 1
 
 -- 向每个主办律师推送消息
 create temporary table t
@@ -186,10 +185,10 @@ message.id message
 from
 project
 inner join project_people on project_people.project = project.id and role='主办律师'
-inner join message on content = concat('您主办的案件 <a href="#cases/',project.id,'">',project.name,'</a> 已申请归档，但案卷尚未实体归档，请核实，否则将影响结案奖金发放，谢谢配合')
+inner join message on content = concat('您主办的案件 <a href="#cases/',project.id,'">',project.name,'</a> 已申请归档，但实际贡献尚未输入，请核实，否则将影响结案奖金发放，谢谢配合')
 where
 project.id in (select project from project_label where label_name = '已申请归档')
-and project.id not in (select project from project_label where label_name = '案卷已归档');
+and (select sum(weight) from project_people where project = project.id and role = '实际贡献') != 1;
 
 insert into message_user (message,user)
 select message,user from t;
