@@ -153,6 +153,34 @@ inner join people people_team ON people_team.id = class_student.people
 SET people.num = RIGHT((1000000 + CONCAT(people_team.num, RIGHT((100 + class_student.num),2))),6)
 where people.type = 'student';
 
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+-- 到账贡献明细
+create temporary table account_detail
+select project.name project_name,account.date account_date,people.id people, people.name people_name,
+account.amount,project_people.role,project_people.weight
+from account inner join project on project.id=account.project
+inner join project_people on project_people.project=account.project and role = '主办律师'
+inner join people on people.id = project_people.people
+where account.date between '2013-01-01' and '2013-06-30'
+and account.received=1;
+
+create temporary table account_detail_grouped
+select people,people_name,role,
+SUM(amount * weight) contribute
+from account_detail
+group by people;
+
+select *,
+ROUND(IF(contribute-1000000>0,contribute-1000000,0)*0.4
++IF(IF(contribute>1000000,1000000,contribute)-500000>0,IF(contribute>1000000,1000000,contribute)-500000,0)*0.35
++IF(IF(contribute>500000,500000,contribute)-300000>0,IF(contribute>500000,500000,contribute)-300000,0)*0.25
++IF(IF(contribute>300000,500000,contribute)-100000>0,IF(contribute>300000,300000,contribute)-100000,0)*0.15
+,2) bonus
+from account_detail_grouped;
+=======
+>>>>>>> Stashed changes
 -- 删除孤立消息
 create temporary table t
 select id from message_user m
@@ -198,3 +226,7 @@ select dialog.id,t.message
 from dialog inner join t on dialog.uid = t.user and dialog.users=1;
 
 update dialog inner join t on dialog.uid = t.user and dialog.users=1 set last_message = t.message;
+<<<<<<< Updated upstream
+=======
+>>>>>>> 952fd6b0221ed75a9ca51aaf662941e94e121f03
+>>>>>>> Stashed changes
