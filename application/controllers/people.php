@@ -16,6 +16,8 @@ class People extends SS_Controller{
 	var $project_list_args;
 	
 	var $team_list_args;
+	
+	var $schedule_list_args;
 
 	function __construct() {
 		parent::__construct();
@@ -64,6 +66,14 @@ class People extends SS_Controller{
 			'name'=>array('heading'=>'名称'),
 			'type'=>array('heading'=>'类型','parser'=>array('function'=>'lang','args'=>array('type'))),
 			'leader_name'=>array('heading'=>'负责人','cell'=>array('data'=>'<a href="#{leader_type}/{leader}">{leader_name}</a>'))
+		);
+		
+		$this->schedule_list_args=array(
+			'name'=>array('heading'=>array('data'=>'标题'),'wrap'=>array('mark'=>'span','class'=>'show-schedule','id'=>'{id}')),
+			'start'=>array('heading'=>array('data'=>'时间'),'parser'=>array('function'=>function($start){
+				return $start?date('Y-m-d H:i',intval($start)):null;
+			},'args'=>array('start'))),
+			'creater_name'=>array('heading'=>array('data'=>'人员'))
 		);
 		
 		$this->load->view_path['list_aside']='people/list_sidebar';
@@ -146,6 +156,7 @@ class People extends SS_Controller{
 			$this->load->addViewData('relative_list', $this->relativeList());
 			$this->load->addViewData('profile_list',$this->profileList());
 			$this->load->addViewData('project_list', $this->projectList());
+			$this->load->addViewData('schedule_list', $this->scheduleList());
 
 			if($this->people->data['staff']){
 				$this->people->data['staff_name']=$this->staff->fetch($this->people->data['staff'],'name');
@@ -244,6 +255,19 @@ class People extends SS_Controller{
 			->generate();
 		
 		return $list;
+	}
+	
+	/**
+	 * 返回人员相关日程列表
+	 */
+	function scheduleList(){
+		
+		$this->load->model('schedule_model','schedule');
+		
+		return $this->table->setFields($this->schedule_list_args)
+			->setAttribute('name','schedule')
+			->setRowAttributes(array('onclick'=>"$.viewSchedule({id:{id}})",'style'=>'cursor:pointer;'))
+			->generate($this->schedule->getList(array('show_creater'=>true,'limit'=>10,'people'=>$this->people->id,'orderby'=>'id desc')));
 	}
 	
 	/**

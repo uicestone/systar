@@ -48,7 +48,7 @@ class Project_model extends BaseItem_model{
 	function update($id,array $data){
 		
 		foreach(array('first_contact','time_contract','end') as $date_field){
-			if(empty($data[$date_field])){
+			if(isset($data[$date_field]) && $data[$date_field]===''){
 				$data[$date_field]=NULL;
 			}
 		}
