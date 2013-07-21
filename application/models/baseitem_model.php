@@ -182,6 +182,21 @@ class BaseItem_model extends SS_Model{
 			}
 		}
 		
+		if(isset($args['has_profiles']) && is_array($args['has_profiles'])){
+			foreach($args['has_profiles'] as $name => $content){
+				
+				$content=$this->db->escape($content);
+				
+				if(is_integer($name)){
+					$on="{$this->table}.id = `$name`.{$this->table} AND `$name`.name = $content";
+				}else{
+					$on="{$this->table}.id = `$name`.{$this->table} AND `$name`.name = {$this->db->escape($name)} AND `$name`.content = $content";
+				}
+				
+				$this->db->join("{$this->table}_profile `".$name.'`',$on,'inner',false);
+			}
+		}
+		
 		//复制一个DB对象用来计算行数，因为计算行数需要运行sql，将清空DB对象中属性
 		$db_num_rows=clone $this->db;
 		
@@ -234,18 +249,6 @@ class BaseItem_model extends SS_Model{
 			}
 		}
 		
-		if(isset($args['has_profiles']) && is_array($args['has_profiles'])){
-			foreach($args['profiles'] as $name => $content){
-				if(is_integer($name)){
-					$on="{$this->table}.id = {$this->table}_profile.{$this->table} AND {$this->table}_profile.name = $content";
-				}else{
-					$on="{$this->table}.id = {$this->table}_profile.{$this->table} AND {$this->table}_profile.name = $name AND {$this->table}_profile.content = $content";
-				}
-				
-				$this->db->join("{$this->table}_profile `".$name.'`',$on,'inner');
-			}
-		}
-		
 		if(isset($args['get_labels']) && $args['get_labels']){
 			foreach($result_array as &$row){
 				$labels=$this->getlabels($row['id']);
@@ -275,11 +278,19 @@ class BaseItem_model extends SS_Model{
 	}
 	
 	function getRow($args=array()){
+		
+		if(array_key_exists('id', $args)){
+			$this->db->where($this->table.'.id',$args['id']);
+		}
+		
 		!isset($args['limit']) && $args['limit']=1;
+		
 		$result=$this->getList($args);
+		
 		if(isset($result[0])){
 			return $result[0];
-		}else{
+		}
+		else{
 			return array();
 		}
 	}
