@@ -37,7 +37,7 @@ class Weixin extends SS_Controller{
 			//如果发件人不是已知用户，那么尝试一下将信息作为用户名密码登陆
 			if(!$user){
 				$user=array();
-				$login=explode("\n",$post['CONTENT']);
+				$login=preg_split('/\s/',$post['CONTENT']);
 
 				if(count($login)===2){
 					$user=$this->user->verify($login[0],$login[1]);
