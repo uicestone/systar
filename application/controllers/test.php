@@ -6,16 +6,8 @@ class Test extends SS_controller{
 	}
 	
 	function index(){
-		$schedule=new Schedule_model();
-		print_r($schedule->getList(array(
-			'group_by'=>'people',
-			'people_is_staff'=>true,
-			'time'=>array('from'=>'2013-6-1','to'=>'2013-6-30','input_format'=>'date'),
-			'sum'=>true
-		)));
-		echo $this->db->last_query();
-		print_r($this->session->all_userdata());
-		print_r($this->user);
+		$this->load->library('wechat');
+		$this->wechat->send('1236491540','hello!');
 	}
 	
 	function account(){

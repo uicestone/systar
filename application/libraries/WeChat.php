@@ -2,6 +2,8 @@
 class WeChat
 {
 	
+	protected $cookie;
+	
 	// 构造函数
 	public function __construct(){
 		// 读取cookie
@@ -61,8 +63,21 @@ class WeChat
         $send_snoopy->referer = "http://mp.weixin.qq.com/cgi-bin/singlemsgpage?fromfakeid={$id}&msgid=&source=&count=20&t=wxm-singlechat&lang=zh_CN";
 		$send_snoopy->rawheaders['Cookie']= $this->cookie;
 		$submit = "http://mp.weixin.qq.com/cgi-bin/singlesend?t=ajax-response";
-		$send_snoopy->submit($submit,$post);
-		return $send_snoopy->results;
+		
+		$submit='http://weixin.agideo.com/weixin_v2/do_send.json';
+		
+		$post=array(
+			'username'=>$this->config->user_item('wechat_username'),
+			'password'=>$this->config->user_item('wechat_password'),
+			'tofakeid'=>$id,
+			'content'=>'hello!'
+		);
+
+		$ch = curl_init();  
+		curl_setopt($ch, CURLOPT_URL, $submit);  
+		curl_setopt($ch, CURLOPT_POST, 1);  
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $post);  
+		curl_exec($ch);
 	}
 
 
@@ -155,7 +170,7 @@ class WeChat
 	 * @return [type] [description]
 	 */
 	public function login($locate="file"){
-		$snoopy = new Snoopy; 
+		$snoopy = new Snoopy(); 
 		$submit = "http://mp.weixin.qq.com/cgi-bin/login?lang=zh_CN";
 		$post["username"] = $this->config->user_item('wechat_username');
 		$post["pwd"] = md5($this->config->user_item('wechat_password'));
@@ -196,7 +211,7 @@ class WeChat
 	 * @return [type]           [description]
 	 */
 	public function write($filename,$content){
-		$fp= fopen("./data/".$filename,"w");
+		$fp= fopen("../data/".$filename,"w");
 		fwrite($fp,$content);
 		fclose($fp);
 	}
@@ -207,9 +222,9 @@ class WeChat
 	 * @return [type]           [description]
 	 */
 	public function read($filename){
-		if(file_exists("./data/".$filename)){
+		if(file_exists('../data/'.$filename)){
 			$data = '';
-			$handle=fopen("./data/".$filename,'r');
+			$handle=fopen('../data/'.$filename,'r');
 			while (!feof($handle)){
 				$data.=fgets($handle);
 			}
