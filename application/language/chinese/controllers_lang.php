@@ -14,6 +14,7 @@ $lang=array(
 	'schedule'=>'日程',
 	'staff'=>'职员',
 	'team'=>'团队',
-	'user'=>'用户'
+	'user'=>'用户',
+	'weixin'=>'微信'
 );
 ?>

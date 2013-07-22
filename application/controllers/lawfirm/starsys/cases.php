@@ -247,7 +247,7 @@ class Cases extends Project{
 					}
 				}
 				else{//添加新客户
-					if(!$client['name']){
+					if(empty($client['name'])){
 						$this->output->message('请输入客户或相关人名称', 'warning');
 						throw new Exception;
 					}
@@ -258,7 +258,7 @@ class Cases extends Project{
 						'labels'=>$client_labels
 					);
 				
-					if(!$client_profiles['电话'] && !$client_profiles['电子邮件']){
+					if(empty($client_profiles['电话']) && empty($client_profiles['电子邮件'])){
 						$this->output->message('至少输入一种联系方式', 'warning');
 						throw new Exception;
 					}
