@@ -208,8 +208,13 @@ class Schedule extends SS_controller{
 			$new_schedule_id = $this->schedule->add($data);
 			
 			$people=$this->input->post('people');
-			is_string($people) && $people=explode(',', $people);
-			$this->schedule->updatePeople($new_schedule_id,$people);
+			if($people && is_string($people)){
+				$people=explode(',', $people);
+			}
+			
+			if(is_array($people) && $people){
+				$this->schedule->updatePeople($new_schedule_id,$people);
+			}
 			
 			$this->schedule->updateLabels($new_schedule_id, $this->input->post('labels'), true);
 			
@@ -230,8 +235,13 @@ class Schedule extends SS_controller{
 			$this->schedule->update($schedule_id,$this->input->post());
 
 			$people=$this->input->post('people');
-			is_string($people) && $people=explode(',', $people);
-			$this->schedule->updatePeople($schedule_id,$people);
+			if($people && is_string($people)){
+				$people=explode(',', $people);
+			}
+			
+			if(is_array($people) && $people){
+				$this->schedule->updatePeople($schedule_id,$people);
+			}
 			
 			$this->schedule->updateLabels($schedule_id, $this->input->post('labels'), true);
 			

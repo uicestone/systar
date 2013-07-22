@@ -384,12 +384,13 @@ class Schedule_model extends BaseItem_model{
 		}
 
 		if($insert){
-			$this->db->query("
-				INSERT INTO schedule_people (schedule,people)
-				SELECT $schedule_id, id 
-				FROM people
-				WHERE id IN (".implode(',',$insert).")
-			");
+			$set=array();
+			
+			foreach($insert as $people){
+				$set[]=array('schedule'=>$schedule_id,'people'=>$people);
+			}
+
+			$this->db->insert_batch('schedule_people',$set);
 			
 			$name=$this->fetch($schedule_id, 'name');
 			
