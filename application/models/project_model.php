@@ -5,6 +5,7 @@ class Project_model extends BaseItem_model{
 		parent::__construct();
 		$this->table='project';
 		$this->fields=array_merge($this->fields,array(
+			'type'=>'project',
 			'num'=>NULL,//编号
 			'active'=>true,//是否有效
 			'first_contact'=>NULL,//首次接洽时间

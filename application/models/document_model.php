@@ -5,6 +5,7 @@ class Document_model extends BaseItem_model{
 		parent::__construct();
 		$this->table='document';
 		$this->fields=array_merge($this->fields,array(
+			'type'=>'document',
 			'filename'=>'',//文件名
 			'extname'=>'',//扩展名
 			'size'=>0,//大小

@@ -5,6 +5,7 @@ class Schedule_model extends BaseItem_model{
 		parent::__construct();
 		$this->table='schedule';
 		$this->fields=array_merge($this->fields,array(
+			//'type'=>'schedule',
 			'content'=>NULL,//内容
 			'start'=>NULL,//开始时间
 			'end'=>NULL,//结束时间

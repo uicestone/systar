@@ -217,7 +217,7 @@ class Project extends SS_controller{
 		return $this->table->setFields($this->schedule_list_args)
 			->setAttribute('name','schedule')
 			->setRowAttributes(array('onclick'=>"$.viewSchedule({id:{id}})",'style'=>'cursor:pointer;'))
-			->generate($this->schedule->getList(array('show_creater'=>true,'limit'=>10,'project'=>$this->project->id,'orderby'=>'id desc')));
+			->generate($this->schedule->getList(array('show_creater'=>true,'limit'=>10,'project'=>$this->project->id,'order_by'=>'id desc')));
 	}
 	
 	function statusList(){

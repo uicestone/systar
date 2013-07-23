@@ -5,6 +5,7 @@ class People_model extends BaseItem_model{
 		parent::__construct();
 		$this->table='people';
 		$this->fields=array_merge($this->fields,array(
+			'type'=>'people',
 			'character'=>'个人',//性质
 			'name_en'=>NULL,//英文名
 			'abbreviation'=>NULL,//简称

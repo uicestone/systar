@@ -14,7 +14,6 @@ class BaseItem_model extends SS_Model{
 		$CI=&get_instance();
 		$this->fields=array(
 			'name'=>NULL,
-			'type'=>$this->table,
 			'display'=>false,
 			'company'=>isset($CI->company)?$CI->company->id:NULL,
 			'uid'=>isset($CI->user)?$CI->user->id:NULL,

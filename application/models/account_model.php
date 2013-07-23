@@ -5,6 +5,7 @@ class Account_model extends BaseItem_model{
 		parent::__construct();
 		$this->table='account';
 		$this->fields=array_merge($this->fields,array(
+			'type'=>'account',
 			'subject'=>NULL,//科目
 			'amount'=>0,//数额
 			'received'=>false,//是否到账
