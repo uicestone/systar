@@ -53,7 +53,7 @@ class Document extends SS_controller{
 
 			$this->document->exportHead($document['filename']);
 
-			$filename='../uploads/'.$document['id'];
+			$filename=UPLOADPATH.$document['id'];
 
 			$filename=iconv("utf-8","gbk",$filename);//Windows服务器的文件名采用gbk编码保存
 			readfile($filename);
@@ -127,7 +127,7 @@ class Document extends SS_controller{
 			
 			if($submit=='upload'){
 				$config=array(
-					'upload_path'=>'../uploads/',
+					'upload_path'=>UPLOADPATH,
 					'allowed_types'=>'*',
 					'encrypt_name'=>true
 				);
@@ -156,7 +156,7 @@ class Document extends SS_controller{
 					$this->document->addLabels($document_id, $labels);
 				}
 
-				rename('../uploads/'.$file_info['file_name'],'../uploads/'.$document_id);
+				rename(UPLOADPATH.$file_info['file_name'],UPLOADPATH.$document_id);
 
 				$data=array(
 					'id'=>$document_id,
