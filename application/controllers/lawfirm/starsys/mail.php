@@ -10,10 +10,10 @@ class Mail extends SS_Controller{
 		$this->load->model('client_model','client');
 		$client_emails=$this->client->getAllEmails();
 
-		$this->session->set_userdata('mail/express/receivers',$client_emails);
+		//$this->session->set_userdata('mail/express/receivers',$client_emails);
 		$this->session->set_userdata('mail/express/send_progress',0);
 		
-		$this->load->addViewData('client_emails', $client_emails);
+		//$this->load->addViewData('client_emails', $client_emails);
 
 		$this->load->view('mail/send_express');
 	}
@@ -54,7 +54,7 @@ class Mail extends SS_Controller{
 				
 				$attachment=$Attachment->data();
 				
-				$articles=$this->mail->getArticles('star_global',$article_ids);
+				$articles=$this->mail->getArticles('star',$article_ids);
 				
 				$this->load->addViewData('title', $this->input->post('title'));
 				$this->load->addViewData('articles', $articles);
@@ -71,7 +71,7 @@ class Mail extends SS_Controller{
 			
 			if($submit=='send_express'){
 				if(!$this->session->userdata('mail/express/mail_html')){
-					$this->output->message('还没有生成email');
+					$this->output->message('还没有生成期刊');
 					throw new Exception;
 				}
 				
@@ -124,9 +124,10 @@ class Mail extends SS_Controller{
 			}
 			
 			if($submit=='download'){
+				$this->output->as_ajax=false;
 				$this->load->model('document_model','document');
 				$this->document->exportHead('express.html');
-				echo $this->session->userdata('mail/express/mail_html');
+				$this->output->set_output($this->session->userdata('mail/express/mail_html'));
 			}
 			
 			$this->output->status='success';

@@ -48,7 +48,7 @@ select project.id,project.name,sum(weight) sum from
 project left join project_people on project.id = project_people.project and project_people.role = '实际贡献'
 where project.active=1 
 and project.id in (select project from project_label where label_name='已申请归档')
-and project.id not in (select project from project_label where label_name='案卷已归档')
+	and project.id not in (select project from project_label where label_name='案卷已归档')
 group by project.id having sum != 1 or sum is null;
 
 -- 协办律师没有比例
@@ -153,9 +153,6 @@ inner join people people_team ON people_team.id = class_student.people
 SET people.num = RIGHT((1000000 + CONCAT(people_team.num, RIGHT((100 + class_student.num),2))),6)
 where people.type = 'student';
 
-<<<<<<< Updated upstream
-=======
-<<<<<<< HEAD
 -- 到账贡献明细
 create temporary table account_detail
 select project.name project_name,account.date account_date,people.id people, people.name people_name,
@@ -179,8 +176,7 @@ ROUND(IF(contribute-1000000>0,contribute-1000000,0)*0.4
 +IF(IF(contribute>300000,500000,contribute)-100000>0,IF(contribute>300000,300000,contribute)-100000,0)*0.15
 ,2) bonus
 from account_detail_grouped;
-=======
->>>>>>> Stashed changes
+
 -- 删除孤立消息
 create temporary table t
 select id from message_user m
@@ -226,7 +222,10 @@ select dialog.id,t.message
 from dialog inner join t on dialog.uid = t.user and dialog.users=1;
 
 update dialog inner join t on dialog.uid = t.user and dialog.users=1 set last_message = t.message;
-<<<<<<< Updated upstream
-=======
->>>>>>> 952fd6b0221ed75a9ca51aaf662941e94e121f03
->>>>>>> Stashed changes
+
+update project set active = 0 , end = '2013-06-30' where 
+id in (select project from project_label where label_name = '通过财务审核')
+and id in (select project from project_label where label_name = '通过信息审核')
+and id in (select project from project_label where label_name = '通过主管审核')
+and id in (select project from project_label where label_name = '案卷已归档')
+and active = 1;

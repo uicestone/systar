@@ -158,7 +158,7 @@ jQuery.each( [ "get", "post" ], function( i, method ) {
 			data: data,
 			success: function(data,textStatus,jqXHR){
 				$.isFunction(callback) && callback(data,textStatus,jqXHR);
-				$(document).setBlock(data);
+				$(document.body).setBlock(data);
 			},
 			dataType: type,
 			beforeSend:function(){
@@ -280,7 +280,6 @@ jQuery.fn.extend({
 				}
 			}else{
 				if(data.selector){
-
 					if(parent.is(data.selector)){
 						if(data.method==='append'){
 							block=parent.append(data.content).trigger('blockload');

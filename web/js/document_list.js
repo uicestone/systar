@@ -11,7 +11,7 @@ $(function () {
         dataType: 'json',
         done: function (event, data) {
 			
-			$(document).setBlock(data.result);
+			$(document.body).setBlock(data.result);
 			
 			section.find('#save').show();
 			
