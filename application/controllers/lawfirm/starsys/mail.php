@@ -49,10 +49,10 @@ class Mail extends SS_Controller{
 
 				if (!$Attachment->do_upload('attachment')){
 					$this->output->message($Attachment->display_errors(),'warning');
-					throw new Exception;
+					//throw new Exception;
 				}
 				
-				$attachment=$Attachment->data();
+				//$attachment=$Attachment->data();
 				
 				$articles=$this->mail->getArticles('star',$article_ids);
 				
@@ -64,7 +64,7 @@ class Mail extends SS_Controller{
 
 				$this->session->set_userdata('mail/express/mail_html',$mail_html);
 				$this->session->set_userdata('mail/express/title','星瀚律师 - '.$this->input->post('title'));
-				$this->session->set_userdata('mail/express/attachment','./images/mail/express/'.$attachment['file_name']);
+				//$this->session->set_userdata('mail/express/attachment','./images/mail/express/'.$attachment['file_name']);
 				
 				$this->output->setData($mail_html, 'preview', 'html','#express-preview');
 			}
@@ -101,7 +101,7 @@ class Mail extends SS_Controller{
 
 				$this->email->subject($this->session->userdata('mail/express/title'));
 				$this->email->message($this->session->userdata('mail/express/mail_html')); 
-				$this->email->attach($this->session->userdata('mail/express/attachment'));
+				//$this->email->attach($this->session->userdata('mail/express/attachment'));
 
 				if($this->session->userdata('mail/express/send_progress')<count($this->session->userdata('mail/express/receivers'))){
 					$receivers=$this->session->userdata('mail/express/receivers');

@@ -227,5 +227,8 @@ update project set active = 0 , end = '2013-06-30' where
 id in (select project from project_label where label_name = '通过财务审核')
 and id in (select project from project_label where label_name = '通过信息审核')
 and id in (select project from project_label where label_name = '通过主管审核')
-and id in (select project from project_label where label_name = '案卷已归档')
+and (
+	id in (select project from project_label where label_name = '案卷已归档')
+	OR id in (select project from project_label where label_name = '确认无实体归档')
+)
 and active = 1;
