@@ -305,6 +305,10 @@ class Project extends SS_controller{
 					$this->output->message('请预估收费金额（数值）','warning');
 				}
 				
+				if(!$account['comment']){
+					$this->output->message('请填写付款条件','warning');
+				}
+				
 				if(!$account['date']){
 					$this->output->message('请预估收费时间','warning');
 				}
