@@ -116,7 +116,7 @@ class Project extends SS_controller{
 		if($this->project->id===false){
 			$data=array();
 			if($this->config->user_item('project/index/search/type')!==false){
-				$data['type']=$this->config->item('project/index/search/type');
+				$data['type']=$this->config->user_item('project/index/search/type');
 			}
 			if($this->input->get('labels')!==false){
 				$labels=explode(' ',urldecode($this->input->get('labels')));
@@ -347,6 +347,10 @@ class Project extends SS_controller{
 				$document=$this->input->sessionPost('document');
 				
 				$document_labels=$this->input->sessionPost('document_labels');
+				
+				if(!$document_labels){
+					$document_labels=array();
+				}
 				
 				if(!$document['id']){
 					$this->output->message('请选择要上传的文件', 'warning');
