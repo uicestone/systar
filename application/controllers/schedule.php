@@ -154,22 +154,36 @@ class Schedule extends SS_controller{
 				'project_type'=>'cases'
 			)),
 			
-			'客户'=>$this->schedule->getList(array(
+			'营销'=>$this->schedule->getList(array(
 				'sum'=>true,
 				'group_by'=>'people',
 				'enrolled'=>true,
 				'completed'=>true,
 				'time'=>array('from'=>$this->config->user_item('search/time/from'),'to'=>$this->config->user_item('search/time/to'),'input_format'=>'date'),
-				'people_type'=>'client'
+				'where'=>"(
+					schedule.id IN (SELECT schedule FROM schedule_people WHERE people IN (SELECT id FROM people WHERE type IN ('client','contact')))
+					OR project = 2725
+				)"
 			)),
 
-			'事务'=>$this->schedule->getList(array(
+			'科研学习'=>$this->schedule->getList(array(
 				'sum'=>true,
 				'group_by'=>'people',
 				'enrolled'=>true,
 				'completed'=>true,
 				'time'=>array('from'=>$this->config->user_item('search/time/from'),'to'=>$this->config->user_item('search/time/to'),'input_format'=>'date'),
-				'project_type'=>'project'
+				'where'=>"(
+					schedule.project IN (SELECT project FROM project_label WHERE label_name IN ('科研学习','精品课程','新品研发'))
+				)"
+			)),
+			
+			'所务'=>$this->schedule->getList(array(
+				'sum'=>true,
+				'group_by'=>'people',
+				'enrolled'=>true,
+				'completed'=>true,
+				'project_labels'=>array('所务工作'),
+				'time'=>array('from'=>$this->config->user_item('search/time/from'),'to'=>$this->config->user_item('search/time/to'),'input_format'=>'date'),
 			))
 		);
 		
@@ -192,8 +206,9 @@ class Schedule extends SS_controller{
 			'people_name'=>array('heading'=>'人员'),
 			'总时间'=>array('heading'=>'总时间'),
 			'案件'=>array('heading'=>'案件时间'),
-			'客户'=>array('heading'=>'客户时间'),
-			'事务'=>array('heading'=>'事务时间'),
+			'营销'=>array('heading'=>'营销时间'),
+			'科研学习'=>array('heading'=>'科研学习时间'),
+			'所务'=>array('heading'=>'所务时间'),
 		))->setData($joined);
 		
 		$this->load->view('list');

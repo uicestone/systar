@@ -196,6 +196,10 @@ class BaseItem_model extends SS_Model{
 			}
 		}
 		
+		if(isset($args['where']) && $args['where']){
+			$this->db->where($args['where'],NULL,FALSE);
+		}
+		
 		//复制一个DB对象用来计算行数，因为计算行数需要运行sql，将清空DB对象中属性
 		$db_num_rows=clone $this->db;
 		
@@ -550,7 +554,7 @@ class BaseItem_model extends SS_Model{
 		return $labels_string;
 	}
 
-	function addProfile($item_id,$name,$content,$comment=NULL){
+	function addProfile($item_id,$name,$content,$comment=''){
 		$data=array(
 			$this->table=>$item_id,
 			'name'=>$name,
