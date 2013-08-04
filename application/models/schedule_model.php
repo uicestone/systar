@@ -81,7 +81,7 @@ class Schedule_model extends BaseItem_model{
 		
 		if(isset($args['project_labels']) && $args['project_labels']){
 			foreach($args['project_labels'] as $id => $label_name){
-				$this->db->join("project_label t_$id","schedule.project = t_$id.project AND t_$id.label_name = $label_name",'inner');
+				$this->db->join("project_label t_$id","schedule.project = t_$id.project AND t_$id.label_name = {$this->db->escape($label_name)}",'inner');
 			}
 		}
 		
