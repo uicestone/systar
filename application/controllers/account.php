@@ -22,10 +22,11 @@ class Account extends SS_controller{
 				}
 			},'args'=>array('amount','received')),'cell'=>array('style'=>'text-align:right')),
 			'date'=>array('heading'=>'日期'),
-			'payer_name'=>array('heading'=>'付款/收款人')
+			'payer_name'=>array('heading'=>'付款/收款人'),
+			'comment'=>array('heading'=>'备注','cell'=>array('title'=>'{comment}'),'parser'=>array('function'=>function($comment){return str_getSummary($comment);},'args'=>array('comment')))
 		);
 
-		$this->search_items=array('account','date/from','date/to','project_name','amount','payer_name','labels','project_labels','project_without_labels','received','people','team','role','group_by');
+		$this->search_items=array('account','date/from','date/to','project_name','amount','payer_name','labels','project_labels','project_without_labels','received','people','team','role','group_by','type');
 	}
 	
 	function index(){

@@ -66,13 +66,19 @@ class Project extends SS_controller{
 		$this->status_list_args=array();
 		
 		$this->account_list_args=array(
-			'account'=>array('heading'=>'帐目编号'),
-			'type'=>array('heading'=>'类型','cell'=>'{type}'),
-			'amount'=>array('heading'=>array('data'=>'数额','width'=>'30%'),'parser'=>array('function'=>function($total,$received,$received_date){
-				return $total.($received==''?'':' <span title="'.$received_date.'">（到账：'.$received.'）</span>');
-			},'args'=>array('total_amount','received_amount','received_date'))),
-			'receivable_date'=>array('heading'=>'预计时间'),
-			'comment'=>array('heading'=>'条件/备注','cell'=>array('class'=>'ellipsis','title'=>'{comment}'))
+			'account'=>array('heading'=>'账目编号'),
+			'type'=>array('heading'=>'类型'),
+			'subject'=>array('heading'=>'科目'),
+			'amount'=>array('heading'=>'金额','parser'=>array('function'=>function($amount,$received){
+				if($amount>0){
+					return '<span style="color:#0A0">'.$amount.'</span> '.(intval($received)?'√':'？');
+				}else{
+					return '<span style="color:#A00">'.$amount.'</span> '.(intval($received)?'√':'？');
+				}
+			},'args'=>array('amount','received')),'cell'=>array('style'=>'text-align:right')),
+			'date'=>array('heading'=>'日期'),
+			'payer_name'=>array('heading'=>'付款/收款人'),
+			'comment'=>array('heading'=>'备注','cell'=>array('title'=>'{comment}'),'parser'=>array('function'=>function($comment){return str_getSummary($comment);},'args'=>array('comment')))
 		);
 		
 		$this->relative_list_args=array(
@@ -185,7 +191,7 @@ class Project extends SS_controller{
 		$list=$this->table->setFields($this->account_list_args)
 				->setAttribute('name','account')
 				->setRowAttributes(array('hash'=>'account/{id}'))
-				->generate($this->account->getList(array('project'=>$this->project->id,'group_by'=>'account')));
+				->generate($this->account->getList(array('project'=>$this->project->id,'show_payer'=>true)));
 		
 		return $list;
 	}

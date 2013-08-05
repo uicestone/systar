@@ -10,6 +10,9 @@
 			</td>
 		</tr>
 		<tr>
+			<td><input type="text" name="type" value="<?=$this->config->user_item('search/type')?>" placeholder="类型" title="类型" /></td>
+		</tr>
+		<tr>
 			<td><input type="text" name="project_name" value="<?=$this->config->user_item('search/project_name')?>" placeholder="项目" title="项目" /></td>
 		</tr>
 		<tr>

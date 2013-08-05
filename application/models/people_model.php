@@ -196,7 +196,7 @@ class People_model extends BaseItem_model{
 		
 		if(isset($args['in_project'])){
 			
-			$this->db->select('project_people.id AS relationship_id,GROUP_CONCAT(project_people.role) AS role',false)
+			$this->db->select('project_people.id AS relationship_id,GROUP_CONCAT(project_people.role) AS role, project_people.weight',false)
 				->join('project_people',"project_people.people = people.id AND project_people.project{$this->db->escape_int_array($args['in_project'])}",'inner')
 				->group_by('project_people.people');
 			

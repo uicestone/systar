@@ -40,6 +40,7 @@ class Achievement extends SS_controller{
 				'sum'=>true,
 				'group_by'=>'team',
 				'received'=>true,
+				'count'=>true,
 				'contract_date'=>array('from'=>$this->date->year_begin),
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 				'project_labels'=>array('费用已锁定'),
@@ -50,6 +51,7 @@ class Achievement extends SS_controller{
 				'sum'=>true,
 				'group_by'=>'team',
 				'received'=>true,
+				'count'=>true,
 				'contract_date'=>array('to'=>$this->date->last_year_end),
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 				'project_labels'=>array('费用已锁定')
@@ -59,6 +61,7 @@ class Achievement extends SS_controller{
 				'sum'=>true,
 				'group_by'=>'team',
 				'received'=>false,
+				'count'=>true,
  				'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 				'project_labels'=>array('费用已锁定')
 			))
@@ -181,6 +184,7 @@ class Achievement extends SS_controller{
 				'group_by'=>'people',
 				'role'=>array('主办律师'),
 				'received'=>true,
+				'count'=>true,
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 				'contract_date'=>array('from'=>$this->date->year_begin),
 				'project_labels'=>array('费用已锁定'),
@@ -192,6 +196,7 @@ class Achievement extends SS_controller{
 				'group_by'=>'people',
 				'role'=>array('主办律师'),
 				'received'=>true,
+				'count'=>true,
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 				'contract_date'=>array('to'=>$this->date->last_year_end),
 				'project_labels'=>array('费用已锁定')
@@ -203,6 +208,7 @@ class Achievement extends SS_controller{
 				'role'=>array('接洽律师'),
 				'project_labels'=>array('所内案源','费用已锁定'),
 				'received'=>true,
+				'count'=>true,
 				'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 			)),
 
@@ -211,6 +217,7 @@ class Achievement extends SS_controller{
 				'group_by'=>'people',
 				'role'=>array('案源人'),
 				'received'=>true,
+				'count'=>true,
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 				'project_labels'=>array('费用已锁定')
 			)),
@@ -220,6 +227,7 @@ class Achievement extends SS_controller{
 				'group_by'=>'people',
 				'role'=>array('主办律师'),
 				'received'=>false,
+				'count'=>true,
 				'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 				'project_labels'=>array('费用已锁定')
 			))
@@ -352,6 +360,7 @@ class Achievement extends SS_controller{
 				'group_by'=>'people',
 				'role'=>array('主办律师'),
 				'received'=>true,
+				'count'=>true,
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 				'contract_date'=>array('from'=>$this->date->year_begin),
 				'project_labels'=>array('费用已锁定'),
@@ -363,6 +372,7 @@ class Achievement extends SS_controller{
 				'group_by'=>'people',
 				'role'=>array('主办律师'),
 				'received'=>true,
+				'count'=>true,
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 				'project_labels'=>array('费用已锁定'),
 				'contract_date'=>array('to'=>$this->date->last_year_end)
@@ -374,6 +384,7 @@ class Achievement extends SS_controller{
 				'role'=>array('接洽律师'),
 				'project_labels'=>array('所内案源','费用已锁定'),
 				'received'=>true,
+				'count'=>true,
 				'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
 			)),
 
@@ -383,6 +394,7 @@ class Achievement extends SS_controller{
 				'role'=>array('案源人'),
 				'project_labels'=>array('费用已锁定'),
 				'received'=>true,
+				'count'=>true,
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
 			)),
 
@@ -392,6 +404,7 @@ class Achievement extends SS_controller{
 				'role'=>array('主办律师'),
 				'project_labels'=>array('费用已锁定'),
 				'received'=>false,
+				'count'=>true,
 				'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
 			))
 
@@ -426,6 +439,7 @@ class Achievement extends SS_controller{
 				'sum'=>true,
 				'group_by'=>'month_contract',
 				'received'=>false,
+				'count'=>true,
 				'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
 			)),
 			
@@ -434,6 +448,7 @@ class Achievement extends SS_controller{
 				'group_by'=>'month',
 				'received'=>true,
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
+				'count'=>true,
 				'contract_date'=>array('from'=>$this->date->year_begin)
 			)),
 			
@@ -442,6 +457,7 @@ class Achievement extends SS_controller{
 				'group_by'=>'month',
 				'received'=>true,
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
+				'count'=>true,
 				'contract_date'=>array('to'=>$this->date->last_year_end),
 			))
 		);
@@ -484,11 +500,13 @@ class Achievement extends SS_controller{
 				'签约',
 				$this->account->getSum(array(
 					'received'=>false,
+					'count'=>true,
 					'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 					'ten_thousand_unit'=>true
 				)),
 				$this->account->getSum(array(
 					'received'=>false,
+					'count'=>true,
 					'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 					'people'=>$this->user->id,
 					'role'=>array('主办律师'),
@@ -496,6 +514,7 @@ class Achievement extends SS_controller{
 				)),
 				$this->account->getSum(array(
 					'received'=>false,
+					'count'=>true,
 					'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 					'people'=>$this->user->id,
 					'role'=>array('案源人'),
@@ -507,11 +526,13 @@ class Achievement extends SS_controller{
 				'预计',
 				$this->account->getSum(array(
 					'received'=>false,
+					'count'=>true,
 					'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 					'ten_thousand_unit'=>true
 				)),
 				$this->account->getSum(array(
 					'received'=>false,
+					'count'=>true,
 					'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 					'people'=>$this->user->id,
 					'role'=>array('主办律师'),
@@ -519,6 +540,7 @@ class Achievement extends SS_controller{
 				)),
 				$this->account->getSum(array(
 					'received'=>false,
+					'count'=>true,
 					'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 					'people'=>$this->user->id,
 					'role'=>array('案源人'),
@@ -530,12 +552,14 @@ class Achievement extends SS_controller{
 				'创收',
 				$this->account->getSum(array(
 					'received'=>true,
+					'count'=>true,
 					'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 					'ten_thousand_unit'=>true,
 					'project_labels'=>array('费用已锁定')
 				)),
 				$this->account->getSum(array(
 					'received'=>true,
+					'count'=>true,
 					'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 					'people'=>$this->user->id,
 					'role'=>array('主办律师'),
@@ -544,6 +568,7 @@ class Achievement extends SS_controller{
 				)),
 				$this->account->getSum(array(
 					'received'=>true,
+					'count'=>true,
 					'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 					'people'=>$this->user->id,
 					'role'=>array('案源人'),
@@ -569,11 +594,13 @@ class Achievement extends SS_controller{
 				'签约',
 				$this->account->getSum(array(
 					'received'=>false,
+					'count'=>true,
 					'contract_date'=>array('from'=>$this->date->month_begin,'to'=>$this->date->month_end),
 					'ten_thousand_unit'=>true
 				)),
 				$this->account->getSum(array(
 					'received'=>false,
+					'count'=>true,
 					'contract_date'=>array('from'=>$this->date->month_begin,'to'=>$this->date->month_end),
 					'people'=>$this->user->id,
 					'role'=>array('主办律师'),
@@ -581,6 +608,7 @@ class Achievement extends SS_controller{
 				)),
 				$this->account->getSum(array(
 					'received'=>false,
+					'count'=>true,
 					'contract_date'=>array('from'=>$this->date->month_begin,'to'=>$this->date->month_end),
 					'people'=>$this->user->id,
 					'role'=>array('案源人'),
@@ -592,11 +620,13 @@ class Achievement extends SS_controller{
 				'预计',
 				$this->account->getSum(array(
 					'received'=>false,
+					'count'=>true,
 					'date'=>array('from'=>$this->date->month_begin,'to'=>$this->date->month_end),
 					'ten_thousand_unit'=>true
 				)),
 				$this->account->getSum(array(
 					'received'=>false,
+					'count'=>true,
 					'date'=>array('from'=>$this->date->month_begin,'to'=>$this->date->month_end),
 					'people'=>$this->user->id,
 					'role'=>array('主办律师'),
@@ -604,6 +634,7 @@ class Achievement extends SS_controller{
 				)),
 				$this->account->getSum(array(
 					'received'=>false,
+					'count'=>true,
 					'date'=>array('from'=>$this->date->month_begin,'to'=>$this->date->month_end),
 					'people'=>$this->user->id,
 					'role'=>array('案源人'),
@@ -615,11 +646,13 @@ class Achievement extends SS_controller{
 				'创收',
 				$this->account->getSum(array(
 					'received'=>true,
+					'count'=>true,
 					'date'=>array('from'=>$this->date->month_begin,'to'=>$this->date->month_end),
 					'ten_thousand_unit'=>true
 				)),
 				$this->account->getSum(array(
 					'received'=>true,
+					'count'=>true,
 					'date'=>array('from'=>$this->date->month_begin,'to'=>$this->date->month_end),
 					'people'=>$this->user->id,
 					'role'=>array('主办律师'),
@@ -627,6 +660,7 @@ class Achievement extends SS_controller{
 				)),
 				$this->account->getSum(array(
 					'received'=>true,
+					'count'=>true,
 					'date'=>array('from'=>$this->date->month_begin,'to'=>$this->date->month_end),
 					'people'=>$this->user->id,
 					'role'=>array('案源人'),
@@ -645,6 +679,144 @@ class Achievement extends SS_controller{
 	
 	function client(){
 		//TODO 新增客户统计
+	}
+	
+	function generateBonus(){
+		
+		$staff_bonused=array();
+		$staff_contribute=array();
+		
+		//当年所有到账
+		$received_accounts=$this->account->getList(array(
+			'date'=>array(
+				'from'=>'2013-01-01'
+			),
+			'count'=>true,
+			'received'=>true,
+			'get_labels'=>true,
+			'order_by'=>'date'
+		));
+		
+		//累进算法
+		function progressiveBonus($contribute){
+			return
+				($contribute-1E6>0?$contribute-1E6:0)*0.4
+				+(($contribute>1E6?1E6:$contribute)-5E5>0?($contribute>1E6?1E6:$contribute)-5E5:0)*0.35
+				+(($contribute>5E5?5E5:$contribute)-3E5>0?($contribute>5E5?5E5:$contribute)-3E5:0)*0.25
+				+(($contribute>3E5?3E5:$contribute)-1E5>0?($contribute>3E5?3E5:$contribute)-1E5:0)*0.15;
+		}
+		
+		foreach($received_accounts as $received_account){
+			if(!$received_account['project']){
+				continue;
+			}
+			
+			$staffs=$this->people->getList(array('in_project'=>$received_account['project'],'project_people_role'=>'主办律师'));
+			
+			//对于每一笔到账，列出其案件下的主办律师
+			foreach($staffs as $staff){
+				!isset($staff_contribute[$staff['id']]) && $staff_contribute[$staff['id']]=0;
+				!isset($staff_bonused[$staff['id']]) && $staff_bonused[$staff['id']]=0;
+				
+				//该员工本年总贡献
+				$staff_contribute[$staff['id']]+=$received_account['amount']*$staff['weight'];
+				
+				//该员工本年总奖金
+				$sum_bonus=progressiveBonus($staff_contribute[$staff['id']]);
+				
+				//本次应发奖金=总奖金-已发
+				$bonus=$sum_bonus-$staff_bonused[$staff['id']];
+				
+				if($bonus==0 || in_array('奖金已生成',$received_account['labels'])){
+					continue;
+				}
+				
+				$id=$this->account->add(array(
+					'name'=>'办案奖金',
+					'type'=>'办案奖金',
+					'people'=>$staff['id'],
+					'amount'=>-$bonus*0.65,
+					'received'=>false,
+					'count'=>false,
+					'date'=>$received_account['date'],
+					'project'=>$received_account['project'],
+					'display'=>true,
+					'comment'=>'当年已贡献：'.$staff_contribute[$staff['id']]
+						.'，合计办案奖金：'.$sum_bonus
+						.'，已计：'.$staff_bonused[$staff['id']]
+						.'，补计：'.$bonus
+						.'，立即发放65%（'.round($bonus*0.65,2).'元）'
+				));
+				
+				$id=$this->account->add(array(
+					'name'=>'结案奖金储备',
+					'type'=>'结案奖金储备',
+					'amount'=>-$bonus*0.35,
+					'count'=>false,
+					'received'=>false,
+					'project'=>$received_account['project'],
+					'display'=>true,
+					'comment'=>'当年已贡献：'.$staff_contribute[$staff['id']]
+						.'，合计办案奖金：'.$sum_bonus
+						.'，已计：'.$staff_bonused[$staff['id']]
+						.'，补计：'.$bonus
+						.'，缓发35%（'.round($bonus*0.35,2).'元）作为结案奖金储备'
+				));
+				
+				//保存已发奖金
+				$staff_bonused[$staff['id']]=$sum_bonus;
+			}
+			
+			$this->account->addLabel($received_account['id'], '奖金已生成');
+			
+		}
+		
+	}
+	
+	function generateArchiveBonus(){
+		
+		$this->load->model('cases_model','cases');
+		
+		$archived_cases=$this->cases->getList(array(
+			'end'=>array('from'=>'2013-01-01','to'=>'2013-06-30'),
+			'active'=>false,
+			'without_labels'=>array('结案奖金已生成')
+		));
+		
+		foreach($archived_cases as $archived_case){
+			$archived_accounts=$this->account->getList(array(
+				'type'=>'结案奖金储备',
+				'project'=>$archived_case['id']
+			));
+			
+			$archived_bonus=array_sum(array_sub($archived_accounts,'amount'));
+			
+			if($archived_bonus==0){
+				continue;
+			}
+			
+			$staffs=$this->people->getList(array(
+				'in_project'=>$archived_case['id'],
+				'project_people_role'=>'实际贡献'
+			));
+			
+			foreach($staffs as $staff){
+				$this->account->add(array(
+					'name'=>'结案奖金',
+					'type'=>'结案奖金',
+					'amount'=>$archived_bonus*$staff['weight'],
+					'received'=>false,
+					'count'=>false,
+					'project'=>$archived_case['id'],
+					'people'=>$staff['id'],
+					'display'=>true,
+					'comment'=>"结案奖金储备：\n".implode("\n",array_sub($archived_accounts,'comment'))
+						.' 实际贡献：'.round($staff['weight']*100,1).'%'
+				));
+			}
+			
+			$this->cases->addLabel($archived_case['id'], '结案奖金已生成');
+		}
 	}
 }
 ?>

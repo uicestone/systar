@@ -11,6 +11,7 @@ class Account_model extends BaseItem_model{
 			'received'=>false,//是否到账
 			'date'=>$this->date->today,//日期
 			'project'=>NULL,//案件
+			'count'=>true,//是否记入创收
 			'account'=>NULL,//关联帐目
 			'people'=>NULL,//人员
 			'comment'=>NULL,//备注
@@ -153,6 +154,10 @@ class Account_model extends BaseItem_model{
 			$this->db->where('account.received',(bool)intval($args['reviewed']));
 		}
 		
+		if(isset($args['count'])){
+			$this->db->where('account.count',(bool)intval($args['count']));
+		}
+		
 		if(isset($args['group_by'])){
 			if($args['group_by']==='account'){
 				$this->db->group_by('account.account')
@@ -227,7 +232,7 @@ class Account_model extends BaseItem_model{
 				}
 			}
 			
-			$this->db->having('sum >',0);
+			//$this->db->having('sum >',0);
 		}else{
 			if(isset($args['ten_thousand_unit']) && $args['ten_thousand_unit']){
 				$this->db->select('ROUND(account.amount/1E4,1) `amount`',false);

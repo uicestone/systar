@@ -176,4 +176,7 @@ ADD FOREIGN KEY (  `project` ) REFERENCES  `syssh`.`project` (
 ALTER TABLE  `project` CHANGE  `quote`  `quote` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT  '报价';
 ALTER TABLE  `people` CHANGE  `name_en`  `name_en` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
 ALTER TABLE  `people` CHANGE  `city`  `city` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
+
+ALTER TABLE  `account` ADD  `count` BOOLEAN NOT NULL DEFAULT TRUE AFTER  `distributed_actual`;
 -- server updated
+
