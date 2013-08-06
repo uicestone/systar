@@ -711,6 +711,18 @@ class Achievement extends SS_controller{
 				continue;
 			}
 			
+			//如果该笔创收是退款，而且去年到过钱，则不计入创收，不计算奖金
+			if($this->account->getList(array(
+				'date'=>array(
+					'to'=>'2012-12-31'
+				),
+				'count'=>true,
+				'received'=>true,
+				'account'=>$received_account['account']
+			)) && $received_account['amount']<0){
+				continue;
+			}
+
 			$staffs=$this->people->getList(array('in_project'=>$received_account['project'],'project_people_role'=>'主办律师'));
 			
 			//对于每一笔到账，列出其案件下的主办律师
@@ -794,6 +806,10 @@ class Achievement extends SS_controller{
 				'type'=>'结案奖金储备',
 				'project'=>$archived_case['id']
 			));
+			
+			if(!$archived_accounts){
+				continue;
+			}
 			
 			$archived_bonus=array_sum(array_sub($archived_accounts,'amount'));
 			
