@@ -727,7 +727,7 @@ class Achievement extends SS_controller{
 				//本次应发奖金=总奖金-已发
 				$bonus=$sum_bonus-$staff_bonused[$staff['id']];
 				
-				if($bonus==0 || in_array('奖金已生成',$received_account['labels'])){
+				if(in_array('奖金已生成',$received_account['labels'])){
 					continue;
 				}
 				
@@ -741,7 +741,9 @@ class Achievement extends SS_controller{
 					'date'=>$received_account['date'],
 					'project'=>$received_account['project'],
 					'display'=>true,
-					'comment'=>'当年已贡献：'.$staff_contribute[$staff['id']]
+					'comment'=>'本笔创收：'.$received_account['amount']
+						.'主办比例'.(round($staff['weight']*100,1)).'%'
+						.'当年已贡献：'.$staff_contribute[$staff['id']]
 						.'，合计办案奖金：'.$sum_bonus
 						.'，已计：'.$staff_bonused[$staff['id']]
 						.'，补计：'.$bonus
@@ -756,7 +758,9 @@ class Achievement extends SS_controller{
 					'received'=>false,
 					'project'=>$received_account['project'],
 					'display'=>true,
-					'comment'=>'当年已贡献：'.$staff_contribute[$staff['id']]
+					'comment'=>'本笔创收：'.$received_account['amount']
+						.'主办比例'.(round($staff['weight']*100,1)).'%'
+						.'当年已贡献：'.$staff_contribute[$staff['id']]
 						.'，合计办案奖金：'.$sum_bonus
 						.'，已计：'.$staff_bonused[$staff['id']]
 						.'，补计：'.$bonus
@@ -790,10 +794,6 @@ class Achievement extends SS_controller{
 			));
 			
 			$archived_bonus=array_sum(array_sub($archived_accounts,'amount'));
-			
-			if($archived_bonus==0){
-				continue;
-			}
 			
 			$staffs=$this->people->getList(array(
 				'in_project'=>$archived_case['id'],
