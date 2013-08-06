@@ -736,14 +736,15 @@ class Achievement extends SS_controller{
 					'type'=>'办案奖金',
 					'people'=>$staff['id'],
 					'amount'=>-$bonus*0.65,
+					'account'=>$received_account['account'],
 					'received'=>false,
 					'count'=>false,
 					'date'=>$received_account['date'],
 					'project'=>$received_account['project'],
 					'display'=>true,
 					'comment'=>'本笔创收：'.$received_account['amount']
-						.'主办比例'.(round($staff['weight']*100,1)).'%'
-						.'当年已贡献：'.$staff_contribute[$staff['id']]
+						.'，主办比例'.(round($staff['weight']*100,1)).'%'
+						.'，当年已贡献：'.$staff_contribute[$staff['id']]
 						.'，合计办案奖金：'.$sum_bonus
 						.'，已计：'.$staff_bonused[$staff['id']]
 						.'，补计：'.$bonus
@@ -754,13 +755,14 @@ class Achievement extends SS_controller{
 					'name'=>'结案奖金储备',
 					'type'=>'结案奖金储备',
 					'amount'=>-$bonus*0.35,
+					'account'=>$received_account['account'],
 					'count'=>false,
 					'received'=>false,
 					'project'=>$received_account['project'],
 					'display'=>true,
 					'comment'=>'本笔创收：'.$received_account['amount']
-						.'主办比例'.(round($staff['weight']*100,1)).'%'
-						.'当年已贡献：'.$staff_contribute[$staff['id']]
+						.'，主办比例'.(round($staff['weight']*100,1)).'%'
+						.'，当年已贡献：'.$staff_contribute[$staff['id']]
 						.'，合计办案奖金：'.$sum_bonus
 						.'，已计：'.$staff_bonused[$staff['id']]
 						.'，补计：'.$bonus
