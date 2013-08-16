@@ -232,3 +232,12 @@ and (
 	OR id in (select project from project_label where label_name = '确认无实体归档')
 )
 and active = 1;
+
+-- 删除生成的办案和结案奖金
+delete from account_label where account in (select id from account where type in ('结案奖金','办案奖金','结案奖金储备'));
+
+delete from account where type in ('结案奖金','办案奖金','结案奖金储备');
+
+delete from account_label where  label_name = '奖金已生成';
+
+delete from project_label where label_name = '结案奖金已生成';
