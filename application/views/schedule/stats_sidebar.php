@@ -12,4 +12,10 @@
 			</tr>
 		</tbody>
 	</table>
+	<table class="contentTable">
+		<thead><tr><th>工作日</th><th>基准工作时间</th></tr></thead>
+		<tbody>
+			<tr><td><?=$workdays?></td><td><?=$workdays * 6.5?></td></tr>
+		</tbody>
+	</table>
 </form>

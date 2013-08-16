@@ -211,6 +211,9 @@ class Schedule extends SS_controller{
 			'所务'=>array('heading'=>'所务时间'),
 		))->setData($joined);
 		
+		$workdays=$this->date->workingDays($this->config->user_item('search/time/from'), $this->config->user_item('search/time/to')?$this->config->user_item('search/time/to'):$this->date->today);
+		$this->load->addViewData('workdays', $workdays);
+		
 		$this->load->view('list');
 		$this->load->view('schedule/stats_sidebar',true,'sidebar');
 	}
