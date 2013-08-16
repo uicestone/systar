@@ -103,7 +103,7 @@ class Score extends SS_controller{
 				view_score.course_5=score_view.course_5,view_score.course_6=score_view.course_6,
 				view_score.course_7=score_view.course_7,view_score.course_8=score_view.course_8,
 				view_score.course_9=score_view.course_9,view_score.course_10=score_view.course_10,
-				view_score.time='{$this->date->now}'
+				view_score.time='{time()}'
 				WHERE view_score.student=score_view.student AND view_score.exam=score_view.exam
 			");
 			
@@ -112,7 +112,7 @@ class Score extends SS_controller{
 				INSERT IGNORE INTO view_score (student,extra_course,exam,exam_name,course_1,course_2,course_3,course_4,course_5,course_6,course_7,course_8,course_9,course_10,time)
 				SELECT 
 					student,extra_course,exam,exam_name,
-					course_1,course_2,course_3,course_4,course_5,course_6,course_7,course_8,course_9,course_10,'{$this->date->now}'
+					course_1,course_2,course_3,course_4,course_5,course_6,course_7,course_8,course_9,course_10,'{time()}'
 				FROM
 				(
 					SELECT score_sum.student,student.extra_course,score_sum.exam,score_sum.exam_paper,exam.name AS exam_name,
@@ -478,7 +478,7 @@ class Score extends SS_controller{
 				//插入分数
 				$q_insert_score="
 				REPLACE INTO score (student,exam,exam_paper,exam_part,score,is_absent,scorer,scorer_username,time)
-				SELECT view_student.id,'".$currentExam['exam']."','".$currentExam['exam_paper']."','".$exam_part."',t.`".$exam_part."`,if(t.`".$exam_part."` IS NULL,1,0),{$this->user->id},'".$_SESSION['username']."','".$this->date->now."'  
+				SELECT view_student.id,'".$currentExam['exam']."','".$currentExam['exam_paper']."','".$exam_part."',t.`".$exam_part."`,if(t.`".$exam_part."` IS NULL,1,0),{$this->user->id},'".$_SESSION['username']."','".time()."'  
 				FROM t INNER JOIN view_student ON t.num=view_student.num
 				";
 				mysql_query($q_insert_score);
@@ -529,7 +529,7 @@ class Score extends SS_controller{
 				'is_absent'=>$this->input->post('is_absent')?'1':'0',
 				'scorer'=>$this->user->id,
 				'scorer_username'=>$_SESSION['username'],
-				'time'=>$this->date->now
+				'time'=>time()
 			);
 			
 			if($this->input->post('score')!=$_SESSION['score']['currentScore']['score'] || $this->input->post('is_absent')!=$_SESSION['score']['currentScore']['is_absent'])

@@ -11,7 +11,7 @@ class Cases extends Project{
 		
 		$this->project=$this->cases;
 
-		$this->search_items=array('name','num','people','time_contract/from','time_contract/to','labels','without_labels');
+		$this->search_items=array('name','num','people','time_contract/from','time_contract/to','tags','without_tags');
 
 		$this->list_args=array(
 			'time_contract'=>array(
@@ -20,7 +20,7 @@ class Cases extends Project{
 			),
 			'name'=>array('heading'=>'案名','cell'=>'{name}'),
 			'responsible'=>array('heading'=>array('data'=>'主办律师','width'=>'110px'),'parser'=>array('function'=>array($this->cases,'getResponsibleStaffNames'),'args'=>array('id'))),
-			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->cases,'getCompiledLabels'),'args'=>array('id')))
+			'tags'=>array('heading'=>'标签','parser'=>array('function'=>array($this->cases,'getCompiledTags'),'args'=>array('id')))
 		);
 		
 		$this->client_list_args=array(
@@ -45,7 +45,7 @@ class Cases extends Project{
 		$this->cases->id=$this->cases->getAddingItem();
 		
 		if($this->cases->id===false){
-			$this->cases->id=$this->cases->add(array('time_contract'=>$this->date->today,'end'=>date('Y-m-d',$this->date->now+100*86400)));
+			$this->cases->id=$this->cases->add(array('time_contract'=>$this->date->today,'end'=>date('Y-m-d',time()+100*86400)));
 		}
 		
 		$this->edit($this->cases->id);
@@ -56,8 +56,8 @@ class Cases extends Project{
 		
 		try{
 			$this->cases->data=array_merge($this->cases->fetch($this->cases->id),$this->input->sessionPost('project'));
-			$this->cases->profiles=array_merge(array_sub($this->cases->getProfiles($this->cases->id),'content','name'),$this->input->sessionPost('profiles'));
-			$this->cases->labels=array_merge($this->cases->getLabels($this->cases->id),$this->input->sessionPost('labels'));
+			$this->cases->meta=array_merge(array_column($this->cases->getMeta($this->cases->id),'content','name'),$this->input->sessionPost('meta'));
+			$this->cases->tags=array_merge($this->cases->getTags($this->cases->id),$this->input->sessionPost('tags'));
 			
 			if(!$this->cases->data['name']){
 				$this->output->title='未命名'.lang(CONTROLLER);
@@ -70,8 +70,8 @@ class Cases extends Project{
 			$this->load->addViewData('people_roles', $people_roles);
 			
 			$this->load->addViewData('project', $this->cases->data);
-			$this->load->addViewData('labels', $this->cases->labels);
-			$this->load->addViewData('profiles', $this->cases->profiles);
+			$this->load->addViewData('tags', $this->cases->tags);
+			$this->load->addViewData('meta', $this->cases->meta);
 
 			//计算本案有效日志总时间
 			$this->load->model('schedule_model','schedule');
@@ -168,12 +168,12 @@ class Cases extends Project{
 					throw new Exception();
 				}
 				
-				if(isset($this->cases->labels['分类']) && $this->cases->data['type']==='cases' && !$this->cases->data['focus']){
-					if($this->cases->labels['分类']==='争议'){
+				if(isset($this->cases->tags['分类']) && $this->cases->data['type']==='cases' && !$this->cases->data['focus']){
+					if($this->cases->tags['分类']==='争议'){
 						$this->output->message('请填写案件争议焦点','warning');
 						throw new Exception;
 					}
-					elseif($this->cases->labels['分类']==='非争议'){
+					elseif($this->cases->tags['分类']==='非争议'){
 						$this->output->message('请填写案件标的','warning');
 						throw new Exception;
 					}
@@ -188,8 +188,8 @@ class Cases extends Project{
 				//这样对数组做加法，后者同名键不会替换前者，即后者是前者的补充，而非更新
 				$project_client=$this->input->sessionPost('case_client');
 				$client=$this->input->sessionPost('client');
-				$client_profiles=$this->input->sessionPost('client_profiles');
-				$client_labels=$this->input->sessionPost('client_labels');
+				$client_meta=$this->input->sessionPost('client_meta');
+				$client_tags=$this->input->sessionPost('client_tags');
 				
 				if(!$project_client['role']){
 					$this->output->message('请选择本案地位','warning');
@@ -217,11 +217,11 @@ class Cases extends Project{
 
 						if(isset($recent_case)){
 
-							$this->cases->addLabel($this->cases->id, '再成案');
+							$this->cases->addTag($this->cases->id, '再成案');
 
 							$this->cases->addRelative($this->cases->id, $recent_case['id'], '上次签约案件');
 							$previous_roles=$this->cases->getRolesPeople($recent_case['id']);
-							$recent_case_profiles=array_sub($this->cases->getProfiles($recent_case['id']),'content','name');
+							$recent_case_meta=array_column($this->cases->getMeta($recent_case['id']),'content','name');
 							
 							foreach(array('案源人') as $role){
 								if(isset($previous_roles[$role])){
@@ -231,18 +231,18 @@ class Cases extends Project{
 								}
 							}
 
-							$this->cases->addProfile($this->cases->id, '案源系数', 0.2-(0.2-$recent_case_profiles['案源系数'])/2);
-							$this->cases->addProfile($this->cases->id,'案源类型',$recent_case_profiles['案源类型']);
+							$this->cases->addMeta($this->cases->id, '案源系数', 0.2-(0.2-$recent_case_meta['案源系数'])/2);
+							$this->cases->addMeta($this->cases->id,'案源类型',$recent_case_meta['案源类型']);
 							$this->output->setData($this->relativeList(),'relative-list','content-table','.item[name="relative"]>.contentTable','replace');
 							$this->output->setData($this->staffList(),'staff-list','content-table','.item[name="staff"]>.contentTable','replace');
 						}else{
-							$this->cases->profiles['案源类型']=array_sub($this->client->getProfiles($project_client['client']),'content','name')['来源类型']==='亲友介绍'?'个人案源':'所内案源';
-							if($this->cases->profiles['案源类型']==='所内案源'){
-								$this->cases->addProfile($this->cases->id, '案源系数', 0.08);
+							$this->cases->meta['案源类型']=array_column($this->client->getMeta($project_client['client']),'content','name')['来源类型']==='亲友介绍'?'个人案源':'所内案源';
+							if($this->cases->meta['案源类型']==='所内案源'){
+								$this->cases->addMeta($this->cases->id, '案源系数', 0.08);
 							}else{
-								$this->cases->addProfile($this->cases->id, '案源系数', 0.2);
+								$this->cases->addMeta($this->cases->id, '案源系数', 0.2);
 							}
-							$this->cases->addProfile($this->cases->id,'案源类型',$this->cases->profiles['案源类型']);
+							$this->cases->addMeta($this->cases->id,'案源类型',$this->cases->meta['案源类型']);
 						}
 					}
 				}
@@ -255,20 +255,20 @@ class Cases extends Project{
 						'name'=>$client['name'],
 						'character'=>isset($client['character']) && $client['character']=='单位'?'单位':'个人',
 						'type'=>$client['type'],
-						'labels'=>$client_labels
+						'tags'=>$client_tags
 					);
 				
-					if(!$client_profiles['电话'] && !$client_profiles['电子邮件']){
+					if(!$client_meta['电话'] && !$client_meta['电子邮件']){
 						$this->output->message('至少输入一种联系方式', 'warning');
 						throw new Exception;
 					}
 					
-					foreach($client_profiles as $name => $content){
+					foreach($client_meta as $name => $content){
 						if($name=='电话'){
 							if($this->client->isMobileNumber($content)){
-								$new_client['profiles']['手机']=$content;
+								$new_client['meta']['手机']=$content;
 							}else{
-								$new_client['profiles']['电话']=$content;
+								$new_client['meta']['电话']=$content;
 							}
 							$new_client['phone']=$content;
 						}elseif($name=='电子邮件' && $content){
@@ -278,12 +278,12 @@ class Cases extends Project{
 							}
 							$new_client['email']=$content;
 						}else{
-							$new_client['profiles'][$name]=$content;
+							$new_client['meta'][$name]=$content;
 						}
 					}
 
 					if($client['type']=='client'){//客户必须输入来源
-						if(empty($client_profiles['来源类型'])){
+						if(empty($client_meta['来源类型'])){
 							$this->output->message('请选择客户来源类型','warning');
 							throw new Exception;
 						}
@@ -331,8 +331,8 @@ class Cases extends Project{
 				
 				unsetPost('case_client');
 				unsetPost('client');
-				unsetPost('client_profiles');
-				unsetPost('client_labels');
+				unsetPost('client_meta');
+				unsetPost('client_tags');
 			}
 
 			elseif($submit=='remove_client'){
@@ -366,8 +366,8 @@ class Cases extends Project{
 				}
 				
 				if($staff['role']==='案源人'){
-					$this->cases->removeLabel($this->cases->id, '所内案源');
-					$this->cases->addLabel($this->cases->id, '个人案源');
+					$this->cases->removeTag($this->cases->id, '所内案源');
+					$this->cases->addTag($this->cases->id, '个人案源');
 				}
 				
 				if($staff['weight']===''){
@@ -426,8 +426,8 @@ class Cases extends Project{
 			}
 			
 			elseif($submit=='review'){
-				$this->cases->removeLabel($this->cases->id, '等待立案审核');
-				$this->cases->addLabel($this->cases->id, '在办');
+				$this->cases->removeTag($this->cases->id, '等待立案审核');
+				$this->cases->addTag($this->cases->id, '在办');
 				$this->output->status='refresh';
 				$this->output->message('通过立案审核');
 			}
@@ -437,37 +437,37 @@ class Cases extends Project{
 			}
 			
 			elseif($submit=='lock_client'){
-				$this->cases->addLabel($this->cases->id, '客户已锁定');
+				$this->cases->addTag($this->cases->id, '客户已锁定');
 				$this->output->status='refresh';
 			}
 			
 			elseif($submit=='lock_staff'){
-				$this->cases->addLabel($this->cases->id, '职员已锁定');
+				$this->cases->addTag($this->cases->id, '职员已锁定');
 				$this->output->status='refresh';
 			}
 			
 			elseif($submit=='lock_fee'){
-				$this->cases->addLabel($this->cases->id, '费用已锁定');
+				$this->cases->addTag($this->cases->id, '费用已锁定');
 				$this->output->status='refresh';
 			}
 			
 			elseif($submit=='unlock_client'){
-				$this->cases->removeLabel($this->cases->id, '客户已锁定');
+				$this->cases->removeTag($this->cases->id, '客户已锁定');
 				$this->output->status='refresh';
 			}
 			
 			elseif($submit=='unlock_staff'){
-				$this->cases->removeLabel($this->cases->id, '职员已锁定');
+				$this->cases->removeTag($this->cases->id, '职员已锁定');
 				$this->output->status='refresh';
 			}
 			
 			elseif($submit=='unlock_fee'){
-				$this->cases->removeLabel($this->cases->id, '费用已锁定');
+				$this->cases->removeTag($this->cases->id, '费用已锁定');
 				$this->output->status='refresh';
 			}
 			
 			elseif($submit=='apply_file'){
-				$this->cases->addLabel($this->cases->id, '已申请归档');
+				$this->cases->addTag($this->cases->id, '已申请归档');
 				$this->cases->update($this->cases->id,array(
 					'end'=>$this->date->today
 				));
@@ -475,19 +475,19 @@ class Cases extends Project{
 			}
 			
 			elseif($submit=='review_finance'){
-				$this->cases->addLabel($this->cases->id, '通过财务审核');
+				$this->cases->addTag($this->cases->id, '通过财务审核');
 				$this->output->status='refresh';
 				$this->output->message('结案财务状况已经审核');
 			}
 			
 			elseif($submit=='review_info'){
-				$this->cases->addLabel($this->cases->id, '通过信息审核');
+				$this->cases->addTag($this->cases->id, '通过信息审核');
 				$this->output->status='refresh';
 				$this->output->message('案件信息已经审核');
 			}
 			
 			elseif($submit=='review_manager'){
-				$this->cases->addLabel($this->cases->id, '通过主管审核');
+				$this->cases->addTag($this->cases->id, '通过主管审核');
 				$this->cases->update($this->cases->id,array(
 					'end'=>$this->date->today,
 				));
@@ -496,8 +496,8 @@ class Cases extends Project{
 			}
 			
 			elseif($submit=='file' && $this->cases->data['type']==='cases'){
-				$this->cases->removeLabel($this->cases->id, '已申请归档');
-				$this->cases->addLabel($this->cases->id, '案卷已归档');
+				$this->cases->removeTag($this->cases->id, '已申请归档');
+				$this->cases->addTag($this->cases->id, '案卷已归档');
 				$this->cases->update($this->cases->id,array('active',false));
 				$this->output->status='refresh';
 				$this->output->message('案卷归档归档完成');
@@ -505,12 +505,12 @@ class Cases extends Project{
 
 			elseif($submit=='apply_num'){
 				
-				if(empty($this->cases->labels['领域'])){
+				if(empty($this->cases->tags['领域'])){
 					$this->output->message('获得案号前要先选择案件领域','warning');
 					throw new Exception();
 				}
 
-				if(empty($this->cases->labels['分类'])){
+				if(empty($this->cases->tags['分类'])){
 					$this->output->message('获得案号前要先选择案件分类','warning');
 					throw new Exception();
 				}
@@ -520,13 +520,13 @@ class Cases extends Project{
 					throw new Exception();
 				}
 
-				$this->cases->data['num']=$this->cases->getNum($this->cases->labels);
+				$this->cases->data['num']=$this->cases->getNum($this->cases->tags);
 				
 				$this->cases->data['display']=true;
 				
 				$this->cases->update($this->cases->id,$this->cases->data);
 				
-				$this->cases->updateLabels($this->cases->id, $this->cases->labels);
+				$this->cases->updateTags($this->cases->id, $this->cases->tags);
 				
 				$this->output->status='redirect';
 				$this->output->data='cases/'.$this->cases->id;

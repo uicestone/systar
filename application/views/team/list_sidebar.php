@@ -7,13 +7,13 @@
 			</tr>
 			<tr>
 				<td>
-					<select name="labels[]" class="chosen" data-placeholder="标签" multiple="multiple"><?=options($this->team->getAllLabels(),$this->config->user_item('search/labels'))?></select>
+					<select name="tags[]" class="chosen" data-placeholder="标签" multiple="multiple"><?=options($this->group->getAllTags(),$this->config->user_item('search/tags'))?></select>
 				</td>
 			</tr>
 			<tr>
 				<td>
 					<select name="is_relative_of[]" class="chosen" multiple="multiple" data-placeholder="组">
-						<?=options($this->team->getArray(array(),'name','id'),$this->config->user_item('search/is_relative_of'),NULL,true)?>
+						<?=options($this->group->getArray(array(),'name','id'),$this->config->user_item('search/is_relative_of'),NULL,true)?>
 					</select>
 				</td>
 			</tr>

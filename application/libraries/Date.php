@@ -16,7 +16,7 @@ class SS_Date{
 	function __construct() {
 		$this->now=time();
 		$this->microtime=microtime(true);
-		$this->today=date('Y-m-d',time());
+		$this->today=date('Y-m-d');
 		$this->quarter=date('y',$this->now.ceil(date('m',$this->now/3)));
 		$this->year=date('Y',$this->now);
 		$this->year_begin=date('Y',$this->now).'-01-01';

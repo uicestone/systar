@@ -1,15 +1,18 @@
 <?php
-class Document_model extends BaseItem_model{
+class Document_model extends Object_model{
 	
+	static $fields;
+
 	function __construct(){
 		parent::__construct();
 		$this->table='document';
-		$this->fields=array_merge($this->fields,array(
+		parent::$fields['type']=$this->table;
+		self::$fields=array(
 			'filename'=>'',//文件名
 			'extname'=>'',//扩展名
 			'size'=>0,//大小
 			'comment'=>NULL//备注
-		));
+		);
 
 		$this->mod=true;
 		$this->load->library('filetype');
@@ -25,7 +28,7 @@ class Document_model extends BaseItem_model{
 	function getList($args=array()){
 		
 		if(isset($args['project'])){
-			$this->db->join('project_document',"project_document.document = document.id AND project_document.project = {$args['project']}",'inner');
+			$args['is_relative_of']=$args['project'];
 		}
 		
 		if(isset($args['message'])){
@@ -33,6 +36,16 @@ class Document_model extends BaseItem_model{
 		}
 		
 		return parent::getList($args);
+	}
+	
+	function add($id,$data){
+		$insert_id=parent::add($data);
+		
+		$data=array_merge(self::$fields,array_intersect_key($data,self::$fields));
+		$data['id']=$insert_id;
+		$this->db->insert($this->table,$data);
+		
+		return $insert_id;
 	}
 	
 	function delete($id){
@@ -72,7 +85,7 @@ class Document_model extends BaseItem_model{
 	function getPeopleMod($id,$people){
 		$id=intval($id);
 		$this->db->select('mod')->from('document_mod')->where("people{$this->db->escape_int_array($people)}",NULL,false);
-		$mods=array_sub($this->db->get()->result_array(),'mod');
+		$mods=array_column($this->db->get()->result_array(),'mod');
 		$mod=array_reduce($mods, function($mod, $next_mod){
 			return $mod|$next_mod;
 		});
@@ -87,60 +100,9 @@ class Document_model extends BaseItem_model{
 			->where('document',$id)
 			->where("`mod` & $mod = $mod",NULL,false);
 		
-		$people=array_sub($this->db->get()->result_array(),'people');
+		$people=array_column($this->db->get()->result_array(),'people');
 		
 		return $people;
-	}
-	
-	function addMod($mod,$people,$document=NULL){
-		
-		is_null($document) && $document=$this->id;
-		
-		if(!is_array($people)){
-			$people=array($people);
-		}
-		
-		$result_document_mod=$this->db->from('document_mod')
-			->where('document',$document)
-			->where_in('people',$people)
-			->get()->result_array();
-		
-		$people_with_permission=array_sub($result_document_mod,'people');
-		
-		$people_without_permission=array_diff($people,$people_with_permission);
-		
-		foreach($people_with_permission as $person_with_permission){
-			$this->db
-				->where('document',$document)
-				->where('people',$person_with_permission)
-				->set('mod','`mod` | '.intval($mod),false)
-				->update('document_mod');
-		}
-		
-		$set=array();
-		
-		foreach($people_without_permission as $person_without_permission){
-			$set[]=array(
-				'document'=>$document,
-				'people'=>$person_without_permission,
-				'mod'=>$mod
-			);
-		}
-		$this->db->insert_batch('document_mod',$set);
-		
-	}
-	
-	function removeMod($mod,$people,$document=NULL){
-		
-		is_null($document) && $document=$this->id;
-		
-		$this->db
-			->where('document',$document)
-			->where('people',$people)
-			->set('mod','`mod` & ~'.intval($mod),false)
-			->update('document_mod');
-		
-		return $this->db->affected_rows();
 	}
 	
 	function exportHead($filename,$as_attachment=false){

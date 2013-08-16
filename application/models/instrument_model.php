@@ -221,7 +221,7 @@ class Instrument_model extends SS_Model{
 		
 		$q_items="SELECT * FROM instrument WHERE 1=1 ORDER BY `order`";
 		$items=db_toArray($q_items);
-		$items=array_sub($items,'content');
+		$items=array_column($items,'content');
 		
 		for($i=0;$i<count($items);$i++){
 			$items[$i]=explode("\n",$items[$i]);

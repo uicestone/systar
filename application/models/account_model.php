@@ -1,10 +1,13 @@
 <?php
-class Account_model extends BaseItem_model{
+class Account_model extends Object_model{
 	
+	static $fields;
+
 	function __construct(){
 		parent::__construct();
 		$this->table='account';
-		$this->fields=array_merge($this->fields,array(
+		parent::$fields['type']=$this->table;
+		self::$fields=array(
 			'subject'=>NULL,//科目
 			'amount'=>0,//数额
 			'received'=>false,//是否到账
@@ -13,8 +16,7 @@ class Account_model extends BaseItem_model{
 			'account'=>NULL,//关联帐目
 			'people'=>NULL,//人员
 			'comment'=>NULL,//备注
-		));
-
+		);
 	}
 	
 	/**
@@ -22,8 +24,8 @@ class Account_model extends BaseItem_model{
 	 * name: 帐目摘要
 	 * received: 是否到帐
 	 * project: 指定项目id
-	 * project_labels
-	 * project_without_labels
+	 * project_tags
+	 * project_without_tags
 	 * show_payer: 获得付款人信息payer, payer_name
 	 * date: (预估)到账日期
 	 *	array(
@@ -49,8 +51,9 @@ class Account_model extends BaseItem_model{
 	 * @return array
 	 */
 	function getList(array $args=array()){
-		$this->db->select('account.*')
-			->join('project','project.id = account.project','LEFT');
+		$this->db->select('object.*, account.*')
+			->join('project','project.id = account.project','left')
+			->join('object project_object','project_object.id = project.id','left');
 		
 		if(isset($args['received'])){
 			$this->db->where('account.received',(bool)intval($args['received']));
@@ -60,23 +63,23 @@ class Account_model extends BaseItem_model{
 			$this->db->where('project',$args['project']);
 		}
 		
-		if(isset($args['project_labels'])){
-			foreach($args['project_labels'] as $id => $label_name){
-				$this->db->join("project_label t_$id","account.project = t_$id.project AND t_$id.label_name = '$label_name'",'inner');
+		if(isset($args['project_tags'])){
+			foreach($args['project_tags'] as $id => $tag_name){
+				$this->db->join("object_tag t_$id","account.project = t_$id.object AND t_$id.tag_name = '$tag_name'",'inner');
 			}
 		}
 		
-		if(isset($args['project_without_labels'])){
-			foreach($args['project_without_labels'] as $id => $label_name){
-				$this->db->where("account.project NOT IN (SELECT project FROM project_label WHERE label_name = '$label_name')");
+		if(isset($args['project_without_tags'])){
+			foreach($args['project_without_tags'] as $id => $tag_name){
+				$this->db->where("account.project NOT IN (SELECT object FROM object_tag WHERE tag_name = '$tag_name')");
 			}
 		}
 		
 		if(isset($args['show_project'])){
-			$this->db->select('project.id project, project.type project_type, project.name project_name');
+			$this->db->select('project.id project, project_object.type project_type, project_object.name project_name');
 			
 			if(isset($args['project_name'])){
-				$this->db->like('project.name',$args['project_name']);
+				$this->db->like('project_object.name',$args['project_name']);
 			}
 		}
 		
@@ -244,14 +247,18 @@ class Account_model extends BaseItem_model{
 
 	function add(array $data=array()){
 		
+		$insert_id=parent::add($data);
+		
 		foreach(array('account','received','people') as $field){
 			if(empty($data[$field])){
 				unset($data[$field]);
 			}
 		}
 		
-		$insert_id=parent::add($data);
-		
+		$data=array_merge(self::$fields,array_intersect_key($data,self::$fields));
+		$data['id']=$insert_id;
+		$this->db->insert($this->table,$data);
+
 		if(!isset($data['account'])){
 			$this->db->update('account',array('account'=>$insert_id),array('id'=>$insert_id));
 		}else{

@@ -2,7 +2,7 @@
 class Exam_model extends Evaluation_model{
 	function __construct(){
 		parent::__construct();
-		$this->fields['type']='exam';
+		parent::$fields['type']='exam';
 	}
 	
 	function getList($args=array()){
@@ -114,7 +114,7 @@ class Exam_model extends Evaluation_model{
 			//插入分数
 			$q_insert_score="
 			REPLACE INTO score (student,exam,exam_paper,exam_part,score,is_absent,scorer,scorer_username,time)
-			SELECT view_student.id,'".$currentExam['exam']."','".$currentExam['exam_paper']."','".$exam_part."',t.`".$exam_part."`,if(t.`".$exam_part."` IS NULL,1,0),{$this->user->id},'".$_SESSION['username']."','".$this->date->now."'  
+			SELECT view_student.id,'".$currentExam['exam']."','".$currentExam['exam_paper']."','".$exam_part."',t.`".$exam_part."`,if(t.`".$exam_part."` IS NULL,1,0),{$this->user->id},'".$_SESSION['username']."','".time()."'  
 			FROM t INNER JOIN view_student ON t.num=view_student.num
 			";
 			mysql_query($q_insert_score);
@@ -136,7 +136,7 @@ class Exam_model extends Evaluation_model{
 			//向exam_student表插入学生，生成随机数，教室和座位留空
 			$this->db->query("
 				INSERT INTO exam_student (exam,student,depart,extra_course,time,rand)
-				SELECT ".$exam['id'].",id,depart,extra_course,".$this->date->now.",1000*rand() FROM view_student 
+				SELECT ".$exam['id'].",id,depart,extra_course,".time().",1000*rand() FROM view_student 
 				WHERE grade = ".$exam['grade']." AND depart='".$exam['depart']."'
 				ORDER BY extra_course
 			");

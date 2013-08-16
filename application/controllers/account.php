@@ -25,7 +25,7 @@ class Account extends SS_controller{
 			'payer_name'=>array('heading'=>'付款/收款人')
 		);
 
-		$this->search_items=array('account','date/from','date/to','project_name','amount','payer_name','labels','project_labels','project_without_labels','received','people','team','role','group_by');
+		$this->search_items=array('account','date/from','date/to','project_name','amount','payer_name','tags','project_tags','project_without_tags','received','people','team','role','group_by');
 	}
 	
 	function index(){
@@ -139,7 +139,7 @@ class Account extends SS_controller{
 		
 		try{
 			$this->account->data=$this->account->fetch($this->account->id);
-			$this->account->labels=$this->account->getLabels($this->account->id);
+			$this->account->tags=$this->account->getTags($this->account->id);
 
 			if($this->account->data['name']){
 				$this->output->title=$this->account->data['name'];
@@ -148,7 +148,7 @@ class Account extends SS_controller{
 			}
 			
 			$this->load->addViewData('account',$this->account->data);
-			$this->load->addViewData('labels', $this->account->labels);
+			$this->load->addViewData('tags', $this->account->tags);
 
 			$this->load->view('account/edit');
 			$this->load->view('account/edit_sidebar',true,'sidebar');

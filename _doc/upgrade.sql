@@ -412,7 +412,7 @@ ALTER TABLE  `sessions` CHANGE  `user_data`  `user_data` MEDIUMTEXT CHARACTER SE
 
 ALTER TABLE  `object_status` CHANGE  `date`  `date` DATETIME NOT NULL;
 
-update express set id = id + 44200 order by id desc;
+update express set id = id + (SELECT MAX(id)+10 FROM object) order by id desc;
 
 ALTER TABLE  `object` ADD  `num` VARCHAR( 255 ) NULL AFTER  `type` ,
 ADD INDEX (  `num` );
@@ -524,3 +524,57 @@ ALTER TABLE `team`
   DROP `uid`,
   DROP `time_insert`,
   DROP `time`;
+
+RENAME TABLE  `syssh`.`team` TO  `syssh`.`group` ;
+ALTER TABLE  `object` DROP FOREIGN KEY  `object_ibfk_1` ;
+ALTER TABLE  `object` CHANGE  `team`  `group` INT( 11 ) NULL DEFAULT NULL;
+ALTER TABLE  `object` ADD FOREIGN KEY (  `group` ) REFERENCES  `syssh`.`group` (
+`id`
+) ON DELETE NO ACTION ON UPDATE CASCADE ;
+
+ALTER TABLE `object_meta` DROP `username`;
+
+ALTER TABLE  `object_mod` ADD  `uid` INT NOT NULL ,
+ADD  `time` INT NOT NULL;
+
+ALTER TABLE  `object_mod` ADD INDEX (  `uid` );
+ALTER TABLE  `object_mod` ADD INDEX (  `time` );
+
+ALTER TABLE  `object_mod` ADD FOREIGN KEY (  `uid` ) REFERENCES  `syssh`.`user` (
+`id`
+) ON DELETE NO ACTION ON UPDATE CASCADE ;
+
+ALTER TABLE  `object_status` DROP FOREIGN KEY  `object_status_ibfk_5` ;
+
+ALTER TABLE  `object_status` CHANGE  `team`  `group` INT( 11 ) NULL DEFAULT NULL;
+
+ALTER TABLE  `object_status` ADD FOREIGN KEY (  `group` ) REFERENCES  `syssh`.`group` (
+`id`
+) ON DELETE NO ACTION ON UPDATE CASCADE ;
+
+ALTER TABLE  `object_tag` ADD  `uid` INT NULL ,
+ADD  `time` INT NOT NULL;
+
+ALTER TABLE  `object_tag` ADD INDEX (  `uid` );
+
+ALTER TABLE  `object_tag` ADD INDEX (  `time` );
+
+ALTER TABLE  `object_tag` ADD FOREIGN KEY (  `uid` ) REFERENCES  `syssh`.`user` (
+`id`
+) ON DELETE NO ACTION ON UPDATE CASCADE ;
+
+ALTER TABLE  `syssh`.`object_tag` DROP INDEX  `object-label` ,
+ADD UNIQUE  `object-tag` (  `object` ,  `tag` );
+
+ALTER TABLE  `syssh`.`object_tag` DROP INDEX  `label_name` ,
+ADD INDEX  `tag_name` (  `tag_name` );
+
+ALTER TABLE  `syssh`.`object_meta` DROP INDEX  `object-name` ,
+ADD INDEX  `object` (  `object` );
+
+-- `object_relationship` DROP `till`;
+
+ALTER TABLE  `syssh`.`object_relationship` DROP INDEX  `people` ,
+ADD UNIQUE  `object-relative-relation-till` (  `object` ,  `relative` ,  `relation`, `till` );
+
+ALTER TABLE  `object_status` CHANGE  `date`  `datetime` DATETIME NOT NULL;

@@ -1,8 +1,8 @@
 <?php
-class Label_model extends BaseItem_model{
+class Tag_model extends Object_model{
 	function __construct() {
 		parent::__construct();
-		$this->table='label';
+		$this->table='tag';
 	}
 	
 	/**
@@ -14,11 +14,11 @@ class Label_model extends BaseItem_model{
 	function match($name){
 		$name=urldecode($name);
 		
-		$row=$this->db->get_where('label', array('name'=>$name))->row_array();
+		$row=$this->db->get_where('tag', array('name'=>$name))->row_array();
 		if($row){
 			return $row['id'];
 		}else{
-			$this->db->insert('label',array('name'=>$name));
+			$this->db->insert('tag',array('name'=>$name));
 			return $this->db->insert_id();
 		}
 	}
@@ -30,7 +30,7 @@ class Label_model extends BaseItem_model{
 	
 	/**
 	 * 把一个搜索字符串切分成分词，通过标签匹配，返回相关度最高的相关项目
-	 * @param string $label_string
+	 * @param string $tag_string
 	 * @return array 
 	 * array(
 	 *	0=>array(
@@ -42,10 +42,10 @@ class Label_model extends BaseItem_model{
 	 *		'id'=>5
 	 *	)
 	 * )
-	 * Test case:Test::labelSearch()
+	 * Test case:Test::tagSearch()
 	 */
-	function search($label_string){
-		$non_white_space_strings=explode(' ',$label_string);
+	function search($tag_string){
+		$non_white_space_strings=explode(' ',$tag_string);
 		$keywords=array();
 		foreach($non_white_space_strings as $non_white_space_string){
 			$string_length=strlen($non_white_space_string);
@@ -120,19 +120,19 @@ class Label_model extends BaseItem_model{
 	}
 	
 	/**
-	 * 接受一个label name，返回与其相关的label的id和name构成的数组
-	 * @param type $label
+	 * 接受一个tag name，返回与其相关的tag的id和name构成的数组
+	 * @param type $tag
 	 * @param type $relation
 	 */
-	function getRelatives($label,$relation=NULL){
+	function getRelatives($tag,$relation=NULL){
 		
 		$this->db->select('relative.id,relative.name')
-			->from('label_relationship')
-			->join('label','label.id=label_relationship.label','inner')
-			->join('label relative','relative.id=label_relationship.relative','inner')
-			->or_where(array('label.name'=>$label,'label.id'=>$label));
+			->from('tag_relationship')
+			->join('tag','tag.id=tag_relationship.tag','inner')
+			->join('tag relative','relative.id=tag_relationship.relative','inner')
+			->or_where(array('tag.name'=>$tag,'tag.id'=>$tag));
 
-		return array_sub($this->db->get()->result_array(),'name','id');
+		return array_column($this->db->get()->result_array(),'name','id');
 	}
 }
 

@@ -10,12 +10,12 @@
 			</tr>
 			<tr>
 				<td>
-					<select name="labels[]" class="chosen" data-placeholder="标签" multiple="multiple"><?=options($this->project->getAllLabels(),$this->config->user_item('search/labels'))?></select>
+					<select name="tags[]" class="chosen" data-placeholder="标签" multiple="multiple"><?=options($this->project->getAllTags(),$this->config->user_item('search/tags'))?></select>
 				</td>
 			</tr>
 			<tr>
 				<td>
-					<select name="without_labels[]" class="chosen" data-placeholder="标签不包括" multiple="multiple"><?=options($this->project->getAllLabels(),$this->config->user_item('search/without_labels'))?></select>
+					<select name="without_tags[]" class="chosen" data-placeholder="标签不包括" multiple="multiple"><?=options($this->project->getAllTags(),$this->config->user_item('search/without_tags'))?></select>
 				</td>
 			</tr>
 			<tr>

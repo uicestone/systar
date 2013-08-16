@@ -33,7 +33,7 @@
 * @property SS_Table $table
 * @property CI_Trackback $trackback
 * @property CI_Typography $typography
-* @property CI_Unit_test $unit_test
+* @property CI_Unit_test $unit
 * @property CI_Upload $upload
 * @property CI_URI $uri
 * @property CI_User_agent $user_agent
@@ -52,8 +52,9 @@
 * @property Evaluation_model $evaluation
 * @property Exam_model $exam
 * @property Express_model $express
+* @property Group_model $group
 * @property Instrument_model $instrument
-* @property Label_model $label
+* @property Tag_model $tag
 * @property Message_model $message
 * @property Minify $minify
 * @property People_model $people
@@ -64,7 +65,6 @@
 * @property Society_model $society
 * @property Staff_model $staff
 * @property Student_model $student
-* @property Team_model $team
 * @property User_model $user
 */
 
@@ -76,7 +76,7 @@ class CI_Controller {};
 * @property SS_Date $date
 * @property SS_Config $config
 * @property Company_model $company
-* @property Label_model $label
+* @property Tag_model $tag
 * @property Message_model $message
 * @property People_model $people
 * @property User_model $user

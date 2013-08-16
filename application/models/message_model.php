@@ -1,5 +1,5 @@
 <?php
-class Message_model extends BaseItem_model{
+class Message_model extends Object_model{
 	
 	function __construct(){
 		parent::__construct();
@@ -9,7 +9,7 @@ class Message_model extends BaseItem_model{
 		$this->db->insert('message',array(
 			'content'=>$content,
 			'uid'=>$this->user->id,
-			'time'=>$this->date->now
+			'time'=>time()
 		));
 		
 		return $this->db->insert_id();
@@ -25,7 +25,7 @@ class Message_model extends BaseItem_model{
 	}
 	
 	function createDialog($sender,$receiver,$last_message=NULL){
-		$this->db->insert('dialog',array('company'=>$this->company->id,'users'=>2,'uid'=>$this->user->id,'time'=>$this->date->now,'last_message'=>$last_message));
+		$this->db->insert('dialog',array('company'=>$this->company->id,'users'=>2,'uid'=>$this->user->id,'time'=>time(),'last_message'=>$last_message));
 		
 		$dialog=$this->db->insert_id();
 		
@@ -164,7 +164,7 @@ class Message_model extends BaseItem_model{
 		});
 		
 		//根据user过滤收件人，并且去除本人
-		$receivers=array_sub(
+		$receivers=array_column(
 			$this->db->select('id')->from('user')
 				->where_in('id',$receivers)
 				->where('id !=',$this->user->id)
@@ -177,7 +177,7 @@ class Message_model extends BaseItem_model{
 		
 		$message=$this->add($content);
 		
-		$team_receivers=array_sub($this->db->select('id')->from('team')->where_in('id',$receivers)->get()->result_array(),'id');
+		$team_receivers=array_column($this->db->select('id')->from('team')->where_in('id',$receivers)->get()->result_array(),'id');
 		
 		$personal_receivers=array_diff($receivers,$team_receivers);
 		
@@ -187,8 +187,8 @@ class Message_model extends BaseItem_model{
 			->where_in('user',$team_receivers)
 			->get()->result_array();
 		
-		$team_dialogs=array_sub($result_existed_team_dialogs,'dialog');
-		$team_receivers_with_dialog=array_sub($result_existed_team_dialogs,'user');
+		$team_dialogs=array_column($result_existed_team_dialogs,'dialog');
+		$team_receivers_with_dialog=array_column($result_existed_team_dialogs,'user');
 		
 		//获得每个非组收件人和当前用户所在的2人会话
 		$this->db->select('d0.dialog, d1.user')
@@ -202,8 +202,8 @@ class Message_model extends BaseItem_model{
 		}
 		
 		$result_existed_personal_dialogs=$this->db->get()->result_array();
-		$personal_dialogs=array_sub($result_existed_personal_dialogs,'dialog');
-		$personal_receivers_with_dialog=array_sub($result_existed_personal_dialogs,'user');
+		$personal_dialogs=array_column($result_existed_personal_dialogs,'dialog');
+		$personal_receivers_with_dialog=array_column($result_existed_personal_dialogs,'user');
 		
 		//获得不存在会话的收件人
 		$personal_receivers_without_dialog=array_diff($personal_receivers,$personal_receivers_with_dialog);
@@ -211,7 +211,7 @@ class Message_model extends BaseItem_model{
 		
 		//创建非组收件人的会话
 		foreach($personal_receivers_without_dialog as $personal_receiver_without_dialog){
-			$this->db->insert('dialog',array('company'=>$this->company->id,'users'=>2,'uid'=>$this->user->id,'time'=>$this->date->now,'last_message'=>$message));
+			$this->db->insert('dialog',array('company'=>$this->company->id,'users'=>2,'uid'=>$this->user->id,'time'=>time(),'last_message'=>$message));
 			$dialog=$this->db->insert_id();
 			$personal_dialogs[]=$dialog;
 			$this->db->insert('dialog_user',array('dialog'=>$dialog,'user'=>$personal_receiver_without_dialog,'title'=>$this->user->name,'read'=>false));
@@ -220,24 +220,24 @@ class Message_model extends BaseItem_model{
 		
 		//创建组收件人的会话
 		foreach($team_receivers_without_dialog as $team_receiver_without_dialog){
-			$team_members_result=$this->db->select('relative')->from('people_relationship')->where('people',$team_receiver_without_dialog)->get()->result_array();
-			$team_members=array_sub($team_members_result,'relative');
+			$team_members_result=$this->db->select('relative')->from('object_relationship')->where('object',$team_receiver_without_dialog)->get()->result_array();
+			$team_members=array_column($team_members_result,'relative');
 
-			$this->db->insert('dialog',array('company'=>$this->company->id,'users'=>count($team_members),'uid'=>$this->user->id,'time'=>$this->date->now,'last_message'=>$message));
+			$this->db->insert('dialog',array('company'=>$this->company->id,'users'=>count($team_members),'uid'=>$this->user->id,'time'=>time(),'last_message'=>$message));
 			$dialog=$this->db->insert_id();
 			
 			$team_dialogs[]=$dialog;
 			
 			$set=array(
-				array('dialog'=>$dialog,'user'=>$team_receiver_without_dialog,'title'=>$this->team->fetch($team_receiver_without_dialog,'name'))
+				array('dialog'=>$dialog,'user'=>$team_receiver_without_dialog,'title'=>$this->group->fetch($team_receiver_without_dialog,'name'))
 			);
 			
 			foreach($team_members as $team_member){
-				$set[]=array('dialog'=>$dialog,'user'=>$team_member,'title'=>$this->team->fetch($team_receiver_without_dialog,'name'));
+				$set[]=array('dialog'=>$dialog,'user'=>$team_member,'title'=>$this->group->fetch($team_receiver_without_dialog,'name'));
 			}
 			
 			if(!in_array($this->user->id,$team_members)){
-				$set[]=array('dialog'=>$dialog,'user'=>$this->user->id,'title'=>$this->team->fetch($team_receiver_without_dialog,'name'));
+				$set[]=array('dialog'=>$dialog,'user'=>$this->user->id,'title'=>$this->group->fetch($team_receiver_without_dialog,'name'));
 			}
 			
 			$this->db->insert_batch('dialog_user',$set);

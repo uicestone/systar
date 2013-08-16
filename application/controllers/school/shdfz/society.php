@@ -5,7 +5,7 @@ class Society extends Team{
 		
 		$this->load->model('society_model','society');
 		$this->people=$this->society;
-		$this->team=$this->society;
+		$this->group=$this->society;
 
 		$this->list_args=array(
 			'name'=>array('heading'=>'名称'),
@@ -31,10 +31,10 @@ class Society extends Team{
 			$this->config->set_user_item('search/leaded_by', $this->user->id);
 		}
 		else{
-			$this->config->set_user_item('search/has_profiles',array('状态'=>array('不限额开放报名','限额开放报名')));
+			$this->config->set_user_item('search/has_meta',array('状态'=>array('不限额开放报名','限额开放报名')));
 		}
 		
-		$this->config->set_user_item('search/get_profiles', array('intro'=>'简介','capacity'=>'名额'));
+		$this->config->set_user_item('search/get_meta', array('intro'=>'简介','capacity'=>'名额'));
 		
 		parent::index();
 	}
@@ -44,21 +44,21 @@ class Society extends Team{
 		parent::submit($submit, $id, $button_id);
 		
 		if($submit==='apply'){
-			$this->society->addRelationship($this->society->id, $this->user->id, '报名', NULL);
+			$this->society->addRelative($this->society->id, $this->user->id, '报名', NULL);
 		}
 		
 		elseif($submit==='accept'){
-			$this->society->updateRelationship($this->society->id, $button_id, array('accepted'=>true));
+			$this->society->updateRelative($this->society->id, $button_id, array('accepted'=>true));
 			redirect('society/'.$this->society->id);
 		}
 		
 		elseif($submit==='refuse'){
-			$this->society->updateRelationship($this->society->id, $button_id, array('accepted'=>false));
+			$this->society->updateRelative($this->society->id, $button_id, array('accepted'=>false));
 			redirect('society/'.$this->society->id);
 		}
 		
 		elseif($submit==='cancelacception'){
-			$this->society->updateRelationship($this->society->id, $button_id, array('accepted'=>NULL));
+			$this->society->updateRelative($this->society->id, $button_id, array('accepted'=>NULL));
 			redirect('society/'.$this->society->id);
 		}
 	}

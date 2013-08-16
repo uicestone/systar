@@ -7,13 +7,13 @@
 			</tr>
 			<tr>
 				<td>
-					<select name="labels[]" class="chosen" data-placeholder="标签" title="输入多个标签，将采取“且”方式查找" multiple="multiple"><?=options($this->people->getAllLabels(),$this->config->user_item('search/labels'))?></select>
+					<select name="tags[]" class="chosen" data-placeholder="标签" title="输入多个标签，将采取“且”方式查找" multiple="multiple"><?=options($this->people->getAllTags(),$this->config->user_item('search/tags'))?></select>
 				</td>
 			</tr>
 			<tr>
 				<td>
 					<select name="in_team[]" class="chosen" title="输入多个团组，将采取“或”方式查找" multiple="multiple" data-placeholder="团组">
-						<?=options($this->team->getArray(array('people_type'=>$this->config->user_item('search/type')),'name','id'),$this->config->user_item('search/in_team'),NULL,true)?>
+						<?=options($this->group->getArray(array('people_type'=>$this->config->user_item('search/type')),'name','id'),$this->config->user_item('search/in_team'),NULL,true)?>
 					</select>
 				</td>
 			</tr>

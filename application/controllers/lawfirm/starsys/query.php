@@ -7,13 +7,13 @@ class Query extends Cases{
 		$this->project=$this->query;
 		$this->cases=$this->query;
 
-		$this->search_items=array('name','num','people','first_contact/from','first_contact/to','labels');
+		$this->search_items=array('name','num','people','first_contact/from','first_contact/to','tags');
 
 		$this->list_args=array(
 			'first_contact'=>array('heading'=>'日期'),
 			'name'=>array('heading'=>'名称','cell'=>'{name}'),
 			'people'=>array('heading'=>'人员','cell'=>array('class'=>'ellipsis'),'parser'=>array('function'=>array($this->query,'getCompiledPeople'),'args'=>array('id'))),
-			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->query,'getCompiledLabels'),'args'=>array('id')))
+			'tags'=>array('heading'=>'标签','parser'=>array('function'=>array($this->query,'getCompiledTags'),'args'=>array('id')))
 		);
 		
 	}
@@ -41,7 +41,7 @@ class Query extends Cases{
 				
 				$client=$this->input->sessionPost('client');
 				
-				$this->query->labels[]='咨询';
+				$this->query->tags[]='咨询';
 				
 				$this->load->library('form_validation');
 				
@@ -51,23 +51,23 @@ class Query extends Cases{
 						throw new Exception;
 					}
 					
-					$client_profiles=$this->input->sessionPost('client_profiles');
+					$client_meta=$this->input->sessionPost('client_meta');
 					
 					if(!$client['gender']){
 						$this->output->message('请选择性别','warning');
 						throw new Exception;
 					}
 					
-					if(!$client_profiles['电话'] && !$client_profiles['电子邮件']){
+					if(!$client_meta['电话'] && !$client_meta['电子邮件']){
 						$this->output->message('至少输入一种联系方式','warning');
 						throw new Exception;
 					}
 					
-					foreach($client_profiles as $name => $content){
+					foreach($client_meta as $name => $content){
 						if($name=='电话'){
 							if($this->client->isMobileNumber($content)){
-								$client_profiles+=array('手机'=>$content);
-								unset($client_profiles['电话']);
+								$client_meta+=array('手机'=>$content);
+								unset($client_meta['电话']);
 							}
 						}elseif($name=='电子邮件' && $content){
 							if(!$this->form_validation->valid_email($content)){
@@ -84,8 +84,8 @@ class Query extends Cases{
 					$client['id']=$this->client->add(
 						$client
 						+array(
-							'profiles'=>$client_profiles,
-							'labels'=>array('类型'=>'潜在客户'),
+							'meta'=>$client_meta,
+							'tags'=>array('类型'=>'潜在客户'),
 							'display'=>true
 						)
 					);
@@ -93,12 +93,12 @@ class Query extends Cases{
 					$this->query->addPeople($this->query->id,$client['id'],'client');
 				}
 
-				if(empty($this->query->labels['咨询方式'])){
+				if(empty($this->query->tags['咨询方式'])){
 					$this->output->message('请选择咨询方式','warning');
 					throw new Exception;
 				}
 				
-				if(empty($this->query->labels['领域'])){
+				if(empty($this->query->tags['领域'])){
 					$this->output->message('请选择业务领域','warning');
 					throw new Exception;
 				}
@@ -152,13 +152,13 @@ class Query extends Cases{
 			}
 			
 			elseif($submit=='new_case'){
-				$this->query->removeLabel($this->query->id, '已归档');
-				$this->query->addLabel($this->query->id, '等待立案审核');
+				$this->query->removeTag($this->query->id, '已归档');
+				$this->query->addTag($this->query->id, '等待立案审核');
 				$this->query->update($this->query->id,array(
 					'type'=>'cases',
 					'num'=>NULL,
 					'time_contract'=>$this->date->today,
-					'end'=>date('Y-m-d',$this->date->now+100*86400)
+					'end'=>date('Y-m-d',time()+100*86400)
 				));
 				
 				$this->output->message('已立案，请立即获得案号');
@@ -168,7 +168,7 @@ class Query extends Cases{
 			}
 			
 			elseif($submit=='file'){
-				$this->query->addLabel($this->query->id, '已归档');
+				$this->query->addTag($this->query->id, '已归档');
 				$this->query->update($this->query->id,array('active'=>false));
 				$this->output->message('咨询案件已归档');
 			}

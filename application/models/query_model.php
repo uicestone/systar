@@ -2,7 +2,7 @@
 class Query_model extends Cases_model{
 	function __construct(){
 		parent::__construct();
-		$this->fields['type']='query';
+		parent::$fields['type']='query';
 	}
 	
 	function getList(array $args=array()){

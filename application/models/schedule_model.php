@@ -1,10 +1,21 @@
 <?php
-class Schedule_model extends BaseItem_model{
+class Schedule_model extends Object_model{
 	
+	static $fields;
+
+	var $relative_mod=array(
+		'people'=>array(
+			'deleted'=>1,
+			'enrolled'=>2,
+			'in_todo_list'=>4
+		)
+	);
+
 	function __construct(){
 		parent::__construct();
 		$this->table='schedule';
-		$this->fields=array_merge($this->fields,array(
+		parent::$fields['type']=$this->table;
+		self::$fields=array(
 			'content'=>NULL,//内容
 			'start'=>NULL,//开始时间
 			'end'=>NULL,//结束时间
@@ -15,8 +26,7 @@ class Schedule_model extends BaseItem_model{
 			'all_day'=>false,//全天
 			'completed'=>false,//已完成
 			'project'=>NULL,//关联案件
-		));
-		unset($this->fields['type']);
+		);
 
 	}
 
@@ -43,10 +53,10 @@ class Schedule_model extends BaseItem_model{
 	 * @param array $args
 	 *	project: get schedule only under this project
 	 *	project_type
-	 *	project_labels: 仅获取带有给定标签的事务的日程
+	 *	project_tags: 仅获取带有给定标签的事务的日程
 	 *	people: 
 	 *	people_type: 
-	 *	people_labels: 仅获取带有给定标签的人员的相关日程
+	 *	people_tags: 仅获取带有给定标签的人员的相关日程
 	 *	group_by
 	 *		people
 	 *	in_todo_list 仅在指定people或group_by people的时候有效
@@ -68,46 +78,45 @@ class Schedule_model extends BaseItem_model{
 	 */
 	function getList(array $args=array()){
 		
-		$this->db->select('schedule.*');
+		$this->db->select('object.*, schedule.*');
 		
 		if(isset($args['project']) && $args['project']){
 			$this->db->where('schedule.project',$args['project']);
 		}
 		
 		if(isset($args['project_type']) && $args['project_type']){
-			$this->db->where("schedule.project IN (SELECT id FROM project WHERE type ={$this->db->escape($args['project_type'])} AND company = {$this->company->id} )");
+			$this->db->where("schedule.project IN (SELECT id FROM object INNER JOIN project USING(id) WHERE object.type ={$this->db->escape($args['project_type'])} AND object.company = {$this->company->id} )");
 		}
 		
-		if(isset($args['project_labels']) && $args['project_labels']){
-			foreach($args['project_labels'] as $id => $label_name){
-				$this->db->join("project_label t_$id","schedule.project = t_$id.project AND t_$id.label_name = $label_name",'inner');
+		if(isset($args['project_tags']) && $args['project_tags']){
+			foreach($args['project_tags'] as $id => $tag_name){
+				$this->db->join("object_tag `t_$id`","schedule.project = `t_$id`.object AND `t_$id`.tag_name = {$this->db->escape($tag_name)}",'inner',false);
 			}
 		}
 		
-		//判断需要内联schedule_people表的参数
-		if(isset($args['people']) || isset($args['people_labels']) || (isset($args['group_by']) && $args['group_by']==='people')){
-			$this->db->join('schedule_people','schedule_people.schedule = schedule.id','inner');
+		//判断需要内联object_relationship表的参数
+		if(isset($args['people']) || isset($args['people_tags']) || (isset($args['group_by']) && $args['group_by']==='people')){
+			$this->db->join('object_relationship','object_relationship.object = object.id','inner');
 		}
 		
 		//依赖schedule_people表
 		//TODO 判断多个人同时属于一个日程，并区分对待人员状态（如统计一个律师对一个客户的时间）
 		if(isset($args['people']) && $args['people']){
-			$this->db->where('schedule_people.people',$args['people']);
+			$args['has_relative_like']=$args['people'];
 		}
 		
-		//依赖schedule_people表
 		if(isset($args['people_type']) && $args['people_type']){
 			$this->db->where("schedule.id IN (
-				SELECT schedule FROM schedule_people WHERE people IN (
-					SELECT id FROM people WHERE type = {$this->db->escape($args['people_type'])}
+				SELECT object FROM object_relationship WHERE relative IN (
+					SELECT id FROM object WHERE type = {$this->db->escape($args['people_type'])}
 				)
 			)");
 		}
 		
 		//依赖schedule_people表
-		if(isset($args['people_labels']) && $args['people_labels']){
-			foreach($args['people_labels'] as $id => $label_name){
-				$this->db->join("people_label t_$id","schedule_people.people = t_$id.people AND t_$id.label_name = $label_name",'inner');
+		if(isset($args['people_tags']) && $args['people_tags']){
+			foreach($args['people_tags'] as $id => $tag_name){
+				$this->db->join("object_tag `t_$id`","object_relationship.object = `t_$id`.object AND `t_$id`.tag_name = {$this->db->escape($tag_name)}",'inner');
 			}
 		}
 		
@@ -116,28 +125,28 @@ class Schedule_model extends BaseItem_model{
 			//TODO 判断多个人同时属于一个日程，并区分对待人员状态（如统计一个律师对一个客户的时间）
 			if($args['group_by']==='people'){
 				if(isset($args['people_is_staff']) && $args['people_is_staff']){
-					$this->db->where('schedule_people.people IN (SELECT id FROM staff)',NULL,false);
+					$this->db->where('object_relationship.object IN (SELECT id FROM staff)',NULL,false);
 				}
-				$this->db->group_by('schedule_people.people')
-					->join('people','people.id = schedule_people.people','inner')
+				$this->db->group_by('object_relationship.object')
+					->join('object people','people.id = object_relationship.relative','inner')
 					->select('people.id people, people.name people_name');
 			}
 		}
 		
 		if((isset($args['people']) || (isset($args['group_by']) && $args['group_by']==='people')) && isset($args['in_todo_list'])){
 			//依赖人员参数
-			$this->db->where('schedule_people.in_todo_list',$args['in_todo_list']);
+			$this->db->where('object_relationship.mod & 4 = '.($args['in_todo_list']?4:0),NULL,false);
 		}
 		
 		if((isset($args['people']) || (isset($args['group_by']) && $args['group_by']==='people')) && isset($args['enrolled'])){
 			//依赖人员参数
-			$this->db->where('schedule_people.enrolled',$args['enrolled']);
+			$this->db->where('object_relationship.mod & 2 = '.($args['enrolled']?2:0),NULL,false);
 		}
 		
 		if((isset($args['people']) || (isset($args['group_by']) && $args['group_by']==='people'))){
 			//依赖人员参数
 			!isset($args['deleted']) && $args['deleted']=false;
-			$this->db->where('schedule_people.deleted',$args['deleted']);
+			$this->db->where('object_relationship.mod & 1 = '.($args['deleted']?1:0),NULL,false);
 		}
 		
 		if(isset($args['completed'])){
@@ -186,17 +195,17 @@ class Schedule_model extends BaseItem_model{
 		}
 		
 		if(isset($args['in_project_of_people']) && $args['in_project_of_people']){
-			$this->db->join('project_people',"project_people.project  = schedule.project AND project_people.people = {$args['in_project_of_people']}",'inner')
-				->join('project','project.id = project_people.project','inner')
-				->select('project.name AS project_name, project.id AS project');
+			$this->db->join('object_relationship',"object_relationship.objec t  = schedule.project AND object_relationship.relative{$this->db->escape_int_array($args['in_project_of_people'])}",'inner')
+				->join('object project_object','project_object.id = object_relationship.object','inner')
+				->select('project_object.name AS project_name, project_object.id AS project');
 		}
 		elseif(isset($args['show_project']) && $args['show_project']){
-			$this->db->join('project','project.id = schedule.project','left')
-				->select('project.name project_name');
+			$this->db->join('object project_object','project_object.id = schedule.project','left')
+				->select('project_object.name project_name');
 		}
 		
 		if(isset($args['show_creater']) && $args['show_creater']){
-			$this->db->join('people creater','creater.id = schedule.uid','inner')
+			$this->db->join('object creater','creater.id = schedule.uid','inner')
 				->select('creater.id creater, creater.name creater_name');
 		}
 		
@@ -223,7 +232,7 @@ class Schedule_model extends BaseItem_model{
 			if($schedule['completed']){
 				$schedule['color']='#36C';
 			}else{
-				if($schedule['start']<$this->date->now){
+				if($schedule['start']<time()){
 					$schedule['color']='#555';
 				}else{
 					$schedule['color']='#E35B00';
@@ -252,6 +261,8 @@ class Schedule_model extends BaseItem_model{
 	 * 插入一条日程，返回插入的id
 	 */
 	function add(array $data=array()){
+		
+		$insert_id=parent::add($data);
 		
 		//attemp to convert date string to timestamp
 		foreach(array('start','end','deadline') as $timepoint){
@@ -282,11 +293,13 @@ class Schedule_model extends BaseItem_model{
 			$data['hours_own']=NULL;
 		}
 		
-		$schedule_id=parent::add($data);
+		$data=array_merge(self::$fields,array_intersect_key($data,self::$fields));
+		$data['id']=$insert_id;
+		$this->db->insert($this->table,$data);
+
+		$this->updatePeople($insert_id, array($this->user->id));
 		
-		$this->updatePeople($schedule_id, array($this->user->id));
-		
-		return $schedule_id;
+		return $insert_id;
 	}
 	
 	function update($schedule_id,$data){
@@ -336,16 +349,12 @@ class Schedule_model extends BaseItem_model{
 		return $this->db->update('schedule',array('display'=>false),array('id'=>$schedule_id));	
 	}
 	
-	function addPeople($schedule_id,$people_id){
-		$schedule_id=intval($schedule_id);
-		$people_id=intval($people_id);
-		
-		return $this->db->insert('schedule_people',array('schedule'=>$schedule_id,'people'=>$people_id));
+	function getPeople($schedule_id){
+		return array_column(parent::getRelative($schedule_id),'relavite');
 	}
 	
-	function getPeople($schedule_id){
-		$schedule_id=intval($schedule_id);
-		return array_sub($this->db->get_where('schedule_people',array('schedule'=>$schedule_id))->result_array(),'people');
+	function addPeople($schedule_id,$people_id){
+		return parent::addRelative($schedule_id, $people_id);
 	}
 	
 	/**
@@ -369,23 +378,23 @@ class Schedule_model extends BaseItem_model{
 		}
 		
 		$this->db->select('people')
-			->from('schedule_people')
-			->where('schedule_people.schedule',$schedule_id);
+			->from('object_relationship')
+			->where('object_relationship.object',$schedule_id);
 		
-		$origin=array_sub($this->db->get()->result_array(),'people');
+		$origin=array_column($this->db->get()->result_array(),'people');
 
 		$insert=array_diff($setto,$origin);
 		$delete=array_diff($origin,$setto);
 		
 		if($delete){
-			$this->db->where('schedule',$schedule_id)
-				->where_in('people',$delete)
-				->delete('schedule_people');
+			$this->db->where('object',$schedule_id)
+				->where_in('relative',$delete)
+				->delete('object_relationship');
 		}
 
 		if($insert){
 			$this->db->query("
-				INSERT INTO schedule_people (schedule,people)
+				INSERT INTO object_relationship (object,relative)
 				SELECT $schedule_id, id 
 				FROM people
 				WHERE id IN (".implode(',',$insert).")
@@ -400,21 +409,21 @@ class Schedule_model extends BaseItem_model{
 	function removePeople($schedule_id,$people_id){
 		$schedule_id=intval($schedule_id);
 		$people_id=intval($people_id);
-		$this->db->delete('schedule_people',array('schedule'=>$schedule_id,'people'=>$people_id));
+		$this->db->delete('object_relationship',array('object'=>$schedule_id,'relative'=>$people_id));
 		return $this->db->affected_rows();
 	}
 	
 	function getPeopleStatus($schedule_id, $people_id){
-		$this->db->from('schedule_people')
-			->where('schedule',$schedule_id)
-			->where('people',$people_id);
+		$this->db->from('object_relationship')
+			->where('object',$schedule_id)
+			->where('relative',$people_id);
 		
 		$result_array=$this->db->get()->result_array();
 		
 		$people_status=array();
 		
 		foreach($result_array as $row){
-			$people_status[$row['people']]=$row;
+			$people_status[$row['relative']]=$row;
 		}
 		
 		return $people_status;
@@ -422,7 +431,7 @@ class Schedule_model extends BaseItem_model{
 	
 	function updatePeopleStatus($schedule_id,$people_id,$data){
 		$data=array_intersect_key($data, array('enrolled'=>'参与','deleted'=>'已删除','in_todo_list'=>'在任务列表显示'));
-		$this->db->update('schedule_people',$data,array('schedule'=>$schedule_id,'people'=>$people_id));
+		$this->db->update('object_relationship',$data,array('object'=>$schedule_id,'relative'=>$people_id));
 		return $this->db->affected_rows();
 	}
 	
@@ -610,7 +619,7 @@ class Schedule_model extends BaseItem_model{
 		
 		$data=array(
 			'sort_data' => json_encode($sort_data),
-			'time' => $this->date->now
+			'time' => time()
 		);
 		$this->db->update('schedule_taskboard' , $data , array('uid'=>$uid));
 	}
@@ -620,7 +629,7 @@ class Schedule_model extends BaseItem_model{
 		$data=array(
 			'sort_data'=>json_encode($sort_data),
 			'uid'=>$uid,
-			'time'=>$this->date->now
+			'time'=>time()
 		);
 
 		$this->db->insert('schedule_taskboard' , $data);

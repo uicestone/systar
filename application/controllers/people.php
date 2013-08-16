@@ -19,7 +19,7 @@ class People extends SS_Controller{
 
 	function __construct() {
 		parent::__construct();
-		$this->search_items=array('name','labels','in_team');
+		$this->search_items=array('name','tags','in_team');
 		
 		$this->list_args=array(
 			'abbreviation'=>array(
@@ -31,7 +31,7 @@ class People extends SS_Controller{
 			},'args'=>array('type'))),
 			'phone'=>array('heading'=>'电话'),
 			'email'=>array('heading'=>'电邮'),
-			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->people,'getCompiledLabels'),'args'=>array('id')))
+			'tags'=>array('heading'=>'标签','parser'=>array('function'=>array($this->people,'getCompiledTags'),'args'=>array('id')))
 		);
 		
 		$this->relative_list_args=array(
@@ -60,7 +60,7 @@ class People extends SS_Controller{
 			'comment'=>array('heading'=>'备注')
 		);
 		
-		$this->team_list_args=array(
+		$this->group_list_args=array(
 			'name'=>array('heading'=>'名称'),
 			'type'=>array('heading'=>'类型','parser'=>array('function'=>'lang','args'=>array('type'))),
 			'leader_name'=>array('heading'=>'负责人','cell'=>array('data'=>'<a href="#{leader_type}/{leader}">{leader_name}</a>'))
@@ -91,7 +91,7 @@ class People extends SS_Controller{
 				'id'=>$row['id'],
 				'type'=>lang($row['type'])?lang($row['type']):'',
 				'name'=>$row['name'],
-				'label'=>lang($row['type']).'　'.$row['name'],
+				'tag'=>lang($row['type']).'　'.$row['name'],
 				'value'=>$row['id'],
 			);
 		}
@@ -130,8 +130,8 @@ class People extends SS_Controller{
 
 		try{
 			$this->people->data=array_merge($this->people->fetch($id),$this->input->sessionPost('people'));
-			$this->people->labels=$this->people->getLabels($this->people->id);
-			$this->people->profiles=array_sub($this->people->getProfiles($this->people->id),'content','name');
+			$this->people->tags=$this->people->getTags($this->people->id);
+			$this->people->meta=array_column($this->people->getMeta($this->people->id),'content','name');
 
 			if(!$this->people->data['name'] && !$this->people->data['abbreviation']){
 				
@@ -140,8 +140,8 @@ class People extends SS_Controller{
 				$this->output->title=$this->people->data['abbreviation']?$this->people->data['abbreviation']:$this->people->data['name'];
 			}
 
-			$available_options=$this->people->getAllLabels();
-			$profile_name_options=$this->people->getProfileNames();
+			$available_options=$this->people->getAllTags();
+			$profile_name_options=$this->people->getMetaNames();
 
 			$this->load->addViewData('relative_list', $this->relativeList());
 			$this->load->addViewData('profile_list',$this->profileList());
@@ -153,8 +153,8 @@ class People extends SS_Controller{
 
 			$this->load->addViewArrayData(compact('controller','available_options','profile_name_options'));
 			$this->load->addViewData('people', $this->people->data);
-			$this->load->addViewData('labels', $this->people->labels);
-			$this->load->addViewData('profiles', $this->people->profiles);
+			$this->load->addViewData('tags', $this->people->tags);
+			$this->load->addViewData('meta', $this->people->meta);
 
 			if($this->input->post('character') && in_array($this->input->post('character'),array('个人','单位'))){
 				post('people/character', $this->input->post('character'));
@@ -192,7 +192,7 @@ class People extends SS_Controller{
 	function profileList(){
 
 		$list=$this->table->setFields($this->profile_list_args)
-			->setData($this->people->getProfiles($this->people->id))
+			->setData($this->people->getMeta($this->people->id))
 			->generate();
 		
 		return $list;
@@ -238,7 +238,7 @@ class People extends SS_Controller{
 		
 		$team=new Team_model();
 		
-		$list=$this->table->setFields($this->team_list_args)
+		$list=$this->table->setFields($this->group_list_args)
 			->setRowAttributes(array('hash'=>'{type}/{id}'))
 			->setData($team->getList(array('has_relative_like'=>$this->people->id,'get_leader'=>true,'limit'=>10)))
 			->generate();
@@ -273,8 +273,8 @@ class People extends SS_Controller{
 			}
 
 			elseif($submit=='people'){
-				$this->people->labels=$this->input->sessionPost('labels');
-				$this->people->profiles=$this->input->sessionPost('profiles');
+				$this->people->tags=$this->input->sessionPost('tags');
+				$this->people->meta=$this->input->sessionPost('meta');
 
 				if(!$this->people->data['display']){
 					$this->people->data['display']=true;
@@ -293,7 +293,7 @@ class People extends SS_Controller{
 				}
 				
 				$this->people->update($this->people->id,$this->people->data);
-				$this->people->updateProfiles($this->people->id,$this->people->profiles);
+				$this->people->updateMetas($this->people->id,$this->people->meta);
 
 				unsetPost();
 				$this->output->message($this->output->title.' 已保存');
@@ -304,24 +304,24 @@ class People extends SS_Controller{
 				$relative=$this->input->sessionPost('relative');
 				
 				if(!$relative['id']){
-					$this->people->profiles=$this->input->sessionPost('relative_profiles');
+					$this->people->meta=$this->input->sessionPost('relative_meta');
 					
-					if(count($this->people->profiles)==0){
+					if(count($this->people->meta)==0){
 						$this->output->message('请至少输入一种联系方式','warning');
 						throw new Exception;
 					}
 					
-					if(!$this->people->profiles['电话'] && !$this->people->profiles['电子邮件']){
+					if(!$this->people->meta['电话'] && !$this->people->meta['电子邮件']){
 						$this->output->message('至少输入一种联系方式', 'warning');
 						throw new Exception;
 					}
 
-					foreach($this->people->profiles as $name => $content){
+					foreach($this->people->meta as $name => $content){
 						if($name=='电话'){
 							if($this->people->isMobileNumber($content)){
-								$relative['profiles']['手机']=$content;
+								$relative['meta']['手机']=$content;
 							}else{
-								$relative['profiles']['电话']=$content;
+								$relative['meta']['电话']=$content;
 							}
 							$relative['phone']=$content;
 						}elseif($name=='电子邮件' && $content){
@@ -331,7 +331,7 @@ class People extends SS_Controller{
 							}
 							$relative['email']=$content;
 						}else{
-							$relative['profiles'][$name]=$content;
+							$relative['meta'][$name]=$content;
 						}
 					}
 
@@ -339,8 +339,8 @@ class People extends SS_Controller{
 						'type'=>'client',
 						'abbreviation'=>$relative['name'],
 						'character'=>isset($relative['character']) && $relative['character'] == '单位' ? '单位' : '个人',
-						'profiles'=>$this->people->profiles,
-						'labels'=>array('类型'=>'潜在客户')
+						'meta'=>$this->people->meta,
+						'tags'=>array('类型'=>'潜在客户')
 					);
 					
 					$relative['display']=true;
@@ -349,7 +349,7 @@ class People extends SS_Controller{
 					$this->output->message('新客户 <a href="#'.CONTROLLER.'/' . $relative['id'] . '">' . $relative['name'] . ' </a>已经添加');
 				}
 				
-				$this->people->addRelationship($this->people->id,$relative['id'],empty($relative['relation'])?NULL:$relative['relation']);
+				$this->people->addRelative($this->people->id,$relative['id'],empty($relative['relation'])?NULL:$relative['relation']);
 
 				$this->output->setData($this->relativeList(),'relative-list','content-table','.item[name="relative"]>.contentTable','replace');
 				
@@ -358,7 +358,7 @@ class People extends SS_Controller{
 			}
 
 			elseif($submit=='remove_relative'){
-				$this->people->removeRelationship($this->people->id,$button_id);
+				$this->people->removeRelative($this->people->id,$button_id);
 				$this->output->setData($this->relativeList(),'relative-list','content-table','.item[name="relative"]>.contentTable','replace');
 			}
 
@@ -370,7 +370,7 @@ class People extends SS_Controller{
 					throw new Exception;
 				}
 				
-				$this->people->addProfile($this->people->id,$profile['name'],$profile['content'],$profile['comment']);
+				$this->people->addMeta($this->people->id,$profile['name'],$profile['content'],$profile['comment']);
 				
 				$this->output->setData($this->profileList(),'profile-list','content-table','.item[name="profile"]>.contentTable','replace');
 				
@@ -378,7 +378,7 @@ class People extends SS_Controller{
 			}
 
 			elseif($submit=='remove_profile'){
-				$this->people->removeProfile($this->people->id,$button_id);
+				$this->people->removeMeta($this->people->id,$button_id);
 				$this->output->setData($this->profileList(),'profile-list','content-table','.item[name="profile"]>.contentTable','replace');
 			}
 			

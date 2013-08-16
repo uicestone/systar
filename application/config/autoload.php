@@ -66,10 +66,6 @@ $autoload['libraries'] = array('database','date','session','parser','table','use
 
 $autoload['helper'] = array('array','date','form','html','language','string','db','session');
 
-if(ENVIRONMENT==='development'){
-	$autoload['helper'][]='develop';
-}
-
 /*
 | -------------------------------------------------------------------
 |  Auto-load Config files
@@ -99,7 +95,7 @@ $autoload['config'] = array();
 |
 */
 
-$autoload['language'] = array('controllers');
+$autoload['language'] = array('controllers','error');
 
 
 /*

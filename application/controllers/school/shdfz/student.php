@@ -26,7 +26,7 @@ class Student extends People{
 			'8总'=>array('heading'=>'8总','cell'=>'{8总}<span class="rank">{rank_8总}</span>')
 		);
 		
-		$this->team_list_args['name']=array(
+		$this->group_list_args['name']=array(
 			'heading'=>'名称','parser'=>array('function'=>function($name,$type,$accepted){
 				$out=$name;
 				if($type=='society'){
@@ -52,7 +52,7 @@ class Student extends People{
 			'num'=>array('heading'=>'学号'),
 			'name'=>array('heading'=>'姓名'),
 			'class_name'=>array('heading'=>'班级'),
-			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->student,'getCompiledLabels'),'args'=>array('id')))
+			'tags'=>array('heading'=>'标签','parser'=>array('function'=>array($this->student,'getCompiledTags'),'args'=>array('id')))
 		);
 		
 		parent::index();
@@ -68,8 +68,8 @@ class Student extends People{
 		
 		try{
 			$people=array_merge($this->student->fetch($id),$this->input->sessionPost('people'));
-			$labels=$this->student->getLabels($this->student->id);
-			$profiles=array_sub($this->student->getProfiles($this->student->id),'content','name');
+			$tags=$this->student->getTags($this->student->id);
+			$meta=array_column($this->student->getMeta($this->student->id),'content','name');
 
 			if(!$people['name'] && !$people['abbreviation']){
 				$this->output->title='未命名'.lang(CONTROLLER);
@@ -77,16 +77,16 @@ class Student extends People{
 				$this->output->title=$people['abbreviation']?$people['abbreviation']:$people['name'];
 			}
 
-			$available_options=$this->student->getAllLabels();
-			$profile_name_options=$this->student->getProfileNames();
+			$available_options=$this->student->getAllTags();
+			$profile_name_options=$this->student->getMetaNames();
 			
 			$this->load->addViewData('class', $this->classes->fetchByStudent($this->student->id));
 			$this->load->addViewData('score_list', $this->scoreList());
 			$this->load->addViewData('status_list', $this->statusList());
 			$this->load->addViewData('profile_list', $this->profileList());
 			$this->load->addViewData('relative_list', $this->relativeList());
-			$this->load->addViewData('team_list', $this->teamList());
-			$this->load->addViewArrayData(compact('people','labels','profiles','available_options','profile_name_options'));
+			$this->load->addViewData('team_list', $this->groupList());
+			$this->load->addViewArrayData(compact('people','tags','meta','available_options','profile_name_options'));
 
 		}
 		catch(Exception $e){
@@ -291,15 +291,15 @@ class Student extends People{
 		
 		$exams_scores=$this->student->getscores($student,array('limit'=>'pagination','orderby'=>'exam asc'));
 		
-		$category=array_sub($exams_scores,'exam_name');
+		$category=array_column($exams_scores,'exam_name');
 		
-		$courses=$this->label->getList(array('type'=>'course'));
+		$courses=$this->tag->getList(array('type'=>'course'));
 		
 		$series=array();
 		
 		foreach($courses as $course){
 			
-			$scores=array_sub($exams_scores,$course['name']);
+			$scores=array_column($exams_scores,$course['name']);
 			
 			$has_score=false;
 			
@@ -315,7 +315,7 @@ class Student extends People{
 				$series[]=array(
 					'name'=>$course['name'],
 					'color'=>'#'.$course['color'],
-					'data'=>array_sub($exams_scores,'rank_'.$course['name'],false,true)
+					'data'=>array_column($exams_scores,'rank_'.$course['name'],false,true)
 				);
 			}
 		}

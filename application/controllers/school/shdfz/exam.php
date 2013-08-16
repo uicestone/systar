@@ -24,7 +24,7 @@ class Exam extends Evaluation{
 		
 		$this->table->setFields($list_args)
 			->setRowAttributes(array('hash'=>'exam/paperlist/{id}'))
-			->setData($this->exam->getList(array('orderby'=>'id desc','limit'=>'pagination','get_profiles'=>array('term'=>'学期'))));
+			->setData($this->exam->getList(array('orderby'=>'id desc','limit'=>'pagination','get_meta'=>array('term'=>'学期'))));
 		
 		$this->load->view('exam/lists');
 	}
@@ -43,7 +43,7 @@ class Exam extends Evaluation{
 		
 		$this->table->setFields($list_args)
 			->setRowAttributes(array('hash'=>'exam/candidates/{id}'))
-			->setData($this->exam->getList(array('orderby'=>'id desc','limit'=>'pagination','type'=>'exam_paper','is_relative_of'=>$exam_id,'get_profiles'=>array('students'=>'人数'),'get_labels'=>array('course'=>'学科'))));
+			->setData($this->exam->getList(array('orderby'=>'id desc','limit'=>'pagination','type'=>'exam_paper','is_relative_of'=>$exam_id,'get_meta'=>array('students'=>'人数'),'get_tags'=>array('course'=>'学科'))));
 		
 		$this->load->view('exam/paperlist');
 	}
@@ -120,7 +120,7 @@ class Exam extends Evaluation{
 				'is_absent'=>$this->input->post('is_absent')?'1':'0',
 				'scorer'=>$this->user->id,
 				'scorer_username'=>$_SESSION['username'],
-				'time'=>$this->date->now
+				'time'=>time()
 			);
 			
 			if($this->input->post('score')!=$_SESSION['score']['currentScore']['score'] || $this->input->post('is_absent')!=$_SESSION['score']['currentScore']['is_absent'])

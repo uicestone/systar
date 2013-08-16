@@ -2,7 +2,7 @@
 class Evaluation_model extends Project_model{
 	function __construct(){
 		parent::__construct();
-		$this->fields['type']='evaluation';
+		parent::$fields['type']='evaluation';
 	}
 	
 	function applyModel($project,$model){
@@ -18,7 +18,7 @@ class Evaluation_model extends Project_model{
 		$this->db->from('evaluation_model')
 			->where('company',$this->company->id);
 		
-		return array_sub($this->db->get()->result_array(),'name','id');
+		return array_column($this->db->get()->result_array(),'name','id');
 	}
 	
 	function getIndicatorList($project,$candidate=NULL,$judge=NULL, array $args=array()){
@@ -210,7 +210,7 @@ class Evaluation_model extends Project_model{
 			'company'=>$this->company->id,
 			'uid'=>$this->user->id,
 			'username'=>$this->user->name,
-			'time'=>$this->date->now
+			'time'=>time()
 		);
 		
 		//$data_score['anonymous']=$anonymous;

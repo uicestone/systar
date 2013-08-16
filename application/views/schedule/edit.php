@@ -1,14 +1,14 @@
 <textarea name="content" placeholder="日程概要" style="width:98%"><?=$this->value('schedule/content')?></textarea>
 <?if($this->input->get('project')===false || $this->input->get('project')){?>
 <select name="project" data-placeholder="相关事务" style="width:98%">
-	<?=options($this->project->getArray(array('people'=>array_merge(array_keys($this->user->teams),array($this->user->id)),'active'=>true),'name','id'),$this->value('project/id'),'',true,false,false)?>
+	<?=options($this->project->getArray(array('people'=>array_merge(array_keys($this->user->groups),array($this->user->id)),'active'=>true),'name','id'),$this->value('project/id'),'',true,false,false)?>
 </select>
 <br />
 <?}?>
 <input type="hidden" name="people" data-placeholder="邀请其他人" class="tagging" multiple="multiple" value="<?=implode(',',$people)?>" data-initselection='<?=json_encode($this->people->getArray(array('id_in'=>$people)))?>' data-ajax="/people/match/" style="width:98%">
 <br />
-<select name="labels" data-placeholder="标签" multiple="multiple" class="allow-new" style="width:98%">
-	<?=options($this->schedule->getAllLabels(),$this->value('labels'))?>
+<select name="tags" data-placeholder="标签" multiple="multiple" class="allow-new" style="width:98%">
+	<?=options($this->schedule->getAllTags(),$this->value('tags'))?>
 </select>
 <hr />
 <?if($this->input->get('period')){?>
@@ -23,5 +23,5 @@
 	</select>
 	<button>保存</button>
 	<br />
-	<input type="text" name="profiles[]" style="width:98%" />
+	<input type="text" name="meta[]" style="width:98%" />
 </div>

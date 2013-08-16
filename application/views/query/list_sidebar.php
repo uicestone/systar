@@ -10,7 +10,7 @@
 			</tr>
 			<tr>
 				<td>
-					<select name="labels[]" class="chosen" data-placeholder="标签" multiple="multiple"><?=options($this->project->getAllLabels(),$this->config->user_item('search/labels'))?></select>
+					<select name="tags[]" class="chosen" data-placeholder="标签" multiple="multiple"><?=options($this->project->getAllTags(),$this->config->user_item('search/tags'))?></select>
 				</td>
 			</tr>
 			<tr>

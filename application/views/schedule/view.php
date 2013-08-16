@@ -12,7 +12,7 @@
 	截止：<?=$this->value('schedule/deadline')?>
 <?}?>
 </div>
-<?foreach($profiles as $profile){?>
+<?foreach($meta as $profile){?>
 <div class="field profile" id="<?=$profile['id']?>" style="border-bottom: none;border-top:#999 1px solid;"<?if($profile['author']==$this->user->id){?> removable<?}?>><?=$profile['name']?>：<?=$profile['content']?> (<?=$profile['author_name']?>)</div>
 <?}?>
 <div class="profile hidden" style="text-align:left;">
@@ -21,5 +21,5 @@
 	</select>
 	<button>保存</button>
 	<br />
-	<input type="text" name="profiles[]" style="width:98%" />
+	<input type="text" name="meta[]" style="width:98%" />
 </div>

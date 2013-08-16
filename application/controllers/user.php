@@ -92,8 +92,8 @@ class user extends SS_controller{
 	function profile(){
 		
 		$people=array_merge_recursive($this->people->fetch($this->user->id),$this->input->sessionPost('people'));
-		$people_profiles=array_merge_recursive(array_sub($this->people->getProfiles($this->user->id),'content','name'),$this->input->sessionPost('people'));
-		$this->load->addViewArrayData(compact('people','people_profiles'));
+		$people_meta=array_merge_recursive(array_column($this->people->getMeta($this->user->id),'content','name'),$this->input->sessionPost('people'));
+		$this->load->addViewArrayData(compact('people','people_meta'));
 		
 		$this->output->title='用户资料';
 		$this->load->view('user/profile');
@@ -128,10 +128,10 @@ class user extends SS_controller{
 				}
 				
 				$people=$this->input->sessionPost('people');
-				$profiles=$this->input->sessionPost('people_profiles');
+				$meta=$this->input->sessionPost('people_meta');
 				
 				$this->people->update($this->user->id,$people);
-				$this->people->updateProfiles($this->user->id, $profiles);
+				$this->people->updateMetas($this->user->id, $meta);
 				
 				$this->output->message($this->output->title.' 已保存');
 			}

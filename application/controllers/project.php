@@ -27,19 +27,19 @@ class Project extends SS_controller{
 		parent::__construct();
 		$this->load->model('project_model','project');
 		
-		$this->form_validation_rules['people'][]=array('rules'=>'required','label'=>'人员','field'=>'people[id]');
+		$this->form_validation_rules['people'][]=array('rules'=>'required','tag'=>'人员','field'=>'people[id]');
 		$this->form_validation_rules['account']=array(
-			array('field'=>'account[type]','label'=>'收费类型','rules'=>'required'),
-			array('field'=>'account[amount]','label'=>'金额','rules'=>'required|numeric'),
-			array('field'=>'account[date]','label'=>'收费日起','rules'=>'required')
+			array('field'=>'account[type]','tag'=>'收费类型','rules'=>'required'),
+			array('field'=>'account[amount]','tag'=>'金额','rules'=>'required|numeric'),
+			array('field'=>'account[date]','tag'=>'收费日起','rules'=>'required')
 		);
 		
-		$this->search_items=array('num','name','labels','people');
+		$this->search_items=array('num','name','tags','people');
 
 		$this->list_args=array(
 			'name'=>array('heading'=>'名称','cell'=>'{name}'),
 			'people'=>array('heading'=>'人员','cell'=>array('class'=>'ellipsis'),'parser'=>array('function'=>array($this->project,'getCompiledPeople'),'args'=>array('id'))),
-			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->project,'getCompiledLabels'),'args'=>array('id')))
+			'tags'=>array('heading'=>'标签','parser'=>array('function'=>array($this->project,'getCompiledTags'),'args'=>array('id')))
 		);
 		
 		$this->people_list_args=array(
@@ -90,7 +90,7 @@ class Project extends SS_controller{
 		
 		$this->load->model('staff_model','staff');//用于边栏职员搜索
 
-		!$this->user->isLogged('developer') && $this->config->set_user_item('search/people', array_merge(array($this->user->id),array_keys($this->user->teams)), false,'method',false);
+		!$this->user->isLogged('developer') && $this->config->set_user_item('search/people', array_merge(array($this->user->id),array_keys($this->user->groups)), false,'method',false);
 		$this->config->set_user_item('search/order_by', 'project.id desc', false);
 		$this->config->set_user_item('search/limit', 'pagination', false);
 		
@@ -118,13 +118,13 @@ class Project extends SS_controller{
 			if($this->config->user_item('project/index/search/type')!==false){
 				$data['type']=$this->config->item('project/index/search/type');
 			}
-			if($this->input->get('labels')!==false){
-				$labels=explode(' ',urldecode($this->input->get('labels')));
-				$this->config->set_user_item('search/labels', $labels, false);
+			if($this->input->get('tags')!==false){
+				$tags=explode(' ',urldecode($this->input->get('tags')));
+				$this->config->set_user_item('search/tags', $tags, false);
 			}
 			$this->project->id=$this->project->add($data);
 			$this->project->addPeople($this->project->id, $this->user->id, NULL, '创建人');
-			$this->project->addLabels($this->project->id, $this->config->user_item('search/labels'));
+			$this->project->addTags($this->project->id, $this->config->user_item('search/tags'));
 		}
 		
 		$this->edit($this->project->id);
@@ -136,7 +136,7 @@ class Project extends SS_controller{
 		try{
 			$this->project->data=array_merge($this->project->fetch($id),$this->input->sessionPost('project'));
 
-			$this->project->labels=array_merge($this->project->getLabels($this->project->id),$this->input->sessionPost('labels'));
+			$this->project->tags=array_merge($this->project->getTags($this->project->id),$this->input->sessionPost('tags'));
 
 			if(!$this->project->data['name']){
 				$this->output->title='未命名'.lang(CONTROLLER);
@@ -146,7 +146,7 @@ class Project extends SS_controller{
 			
 			$this->load->addViewData('project', $this->project->data);
 			
-			$this->load->addViewData('labels', $this->project->labels);
+			$this->load->addViewData('tags', $this->project->tags);
 
 			$this->load->addViewData('people_list', $this->peopleList());
 			
@@ -201,7 +201,7 @@ class Project extends SS_controller{
 				return '<a href="/document/download/'.$id.'">'.$name.'</a>';
 			},'args'=>array('id','name','filename'))),
 			'time_insert'=>array('heading'=>'上传时间','parser'=>array('function'=>function($time_insert){return date('Y-m-d H:i:s',$time_insert);},'args'=>array('time_insert'))),
-			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->document,'getCompiledLabels'),'args'=>array('id')))
+			'tags'=>array('heading'=>'标签','parser'=>array('function'=>array($this->document,'getCompiledTags'),'args'=>array('id')))
 		);
 		
 		return $this->table->setFields($this->document_list_args)
@@ -239,8 +239,8 @@ class Project extends SS_controller{
 		$this->project->id=$id;
 		
 		$this->project->data=array_merge($this->project->fetch($id),$this->input->sessionPost('project'));
-		$this->project->labels=array_merge($this->project->getLabels($this->project->id),$this->input->sessionPost('labels'));
-		$this->project->profiles=$this->input->sessionPost('profiles');
+		$this->project->tags=array_merge($this->project->getTags($this->project->id),$this->input->sessionPost('tags'));
+		$this->project->meta=$this->input->sessionPost('meta');
 		
 		$this->load->library('form_validation');
 		
@@ -268,8 +268,8 @@ class Project extends SS_controller{
 				}
 				
 				$this->project->update($this->project->id,$this->project->data);
-				$this->project->updateLabels($this->project->id,$this->input->sessionPost('labels'));
-				$this->project->updateProfiles($this->project->id,$this->input->sessionPost('profiles'));
+				$this->project->updateTags($this->project->id,$this->input->sessionPost('tags'));
+				$this->project->updateMetas($this->project->id,$this->input->sessionPost('meta'));
 				
 				unsetPost();
 				$this->output->message($this->output->title.' 已保存');
@@ -315,7 +315,7 @@ class Project extends SS_controller{
 				
 				if($this->cases->data['type']==='query'){
 					$subject='咨询费';
-				}elseif(in_array('法律顾问',$this->project->labels)){
+				}elseif(in_array('法律顾问',$this->project->tags)){
 					$subject='顾问费';
 				}else{
 					$subject='律师费';
@@ -342,7 +342,7 @@ class Project extends SS_controller{
 				
 				$document=$this->input->sessionPost('document');
 				
-				$document_labels=$this->input->sessionPost('document_labels');
+				$document_tags=$this->input->sessionPost('document_tags');
 				
 				if(!$document['id']){
 					$this->output->message('请选择要上传的文件', 'warning');
@@ -351,7 +351,7 @@ class Project extends SS_controller{
 				
 				$this->document->update($document['id'], $document);
 				
-				$this->document->addLabels($document['id'],$document_labels);
+				$this->document->addTags($document['id'],$document_tags);
 				
 				$this->document->addmod(1,$this->people->getArray(array('in_project'=>$this->project->id),'id'),$document['id']);
 				
@@ -399,7 +399,7 @@ class Project extends SS_controller{
 		foreach ($result as $row){
 			if(strpos($row['case_name'], $term)!==false){
 				$array[]=array(
-					'label'=>strip_tags($row['case_name']).' - '.$row['num'],
+					'tag'=>strip_tags($row['case_name']).' - '.$row['num'],
 					'value'=>$row['id']
 				);
 			}

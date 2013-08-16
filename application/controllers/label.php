@@ -1,12 +1,12 @@
 <?php
-class Label extends SS_Controller{
+class Tag extends SS_Controller{
 	function __construct() {
 		parent::__construct();
 	}
 	
-	function getRelatives($label_name,$relation=NULL){
-		$label_name=urldecode($label_name);
-		$this->output->data=$this->label->getRelatives($label_name);
+	function getRelatives($tag_name,$relation=NULL){
+		$tag_name=urldecode($tag_name);
+		$this->output->data=$this->tag->getRelatives($tag_name);
 	}
 }
 ?>

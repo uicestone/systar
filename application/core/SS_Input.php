@@ -38,6 +38,41 @@ class SS_input extends CI_Input{
 		}
 	}
 	
+	function put(){
+		
+		if($this->server('REQUEST_METHOD')!=='PUT'){
+			return false;
+		}
+		
+		$data=file_get_contents('php://input');
+		
+		$headers=$this->request_headers();
+
+		if(array_key_exists('Content-type', $headers)){
+			if(
+				strpos($headers['Content-type'],'application/x-www-form-urlencoded')===0
+				|| strpos($headers['Content-type'],'multipart/form-data')===0){
+				parse_str($data,$data);
+			}
+
+			if($headers['Content-type']==='application/json'){
+				$data=json_decode($data,JSON_OBJECT_AS_ARRAY);
+			}
+		}
+
+		return $data;
+
+	}
+	
+	function delete(){
+		
+		if($this->server('REQUEST_METHOD')!=='PUT'){
+			return false;
+		}
+		
+		return true;
+	}
+	
 	/**
 	 * @param string 一个变量名或数组变量路径
 	 * @return array 返回储存于$_SESSION的post()值和$this->input->post()值取并集的结果

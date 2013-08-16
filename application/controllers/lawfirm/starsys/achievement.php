@@ -42,7 +42,7 @@ class Achievement extends SS_controller{
 				'received'=>true,
 				'contract_date'=>array('from'=>$this->date->year_begin),
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
-				'project_labels'=>array('费用已锁定'),
+				'project_tags'=>array('费用已锁定'),
 				'orderby'=>'sum desc'
 			)),
 
@@ -52,7 +52,7 @@ class Achievement extends SS_controller{
 				'received'=>true,
 				'contract_date'=>array('to'=>$this->date->last_year_end),
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
-				'project_labels'=>array('费用已锁定')
+				'project_tags'=>array('费用已锁定')
 			)),
 
 			'签约'=>$this->account->getList(array(
@@ -60,7 +60,7 @@ class Achievement extends SS_controller{
 				'group_by'=>'team',
 				'received'=>false,
  				'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
-				'project_labels'=>array('费用已锁定')
+				'project_tags'=>array('费用已锁定')
 			))
 		);
 		
@@ -79,12 +79,12 @@ class Achievement extends SS_controller{
 		
 		$joined=array_merge($joined,array());
 		
-		$category=array_sub($joined,'team_name');
+		$category=array_column($joined,'team_name');
 		
 		$series=array(
-			array('name'=>'新增创收','data'=>array_sub($joined,'新增创收',NULL,true),'stack'=>2),
-			array('name'=>'存量创收','data'=>array_sub($joined,'存量创收',NULL,true),'stack'=>2),
-			array('name'=>'签约','data'=>array_sub($joined,'签约',NULL,true),'stack'=>0)
+			array('name'=>'新增创收','data'=>array_column($joined,'新增创收',NULL,true),'stack'=>2),
+			array('name'=>'存量创收','data'=>array_column($joined,'存量创收',NULL,true),'stack'=>2),
+			array('name'=>'签约','data'=>array_column($joined,'签约',NULL,true),'stack'=>0)
 		);
 		
 		$this->load->addViewData('category', json_encode($category));
@@ -105,7 +105,7 @@ class Achievement extends SS_controller{
 			
 			'面谈咨询'=>$this->project->getList(array(
 				'count'=>true,
-				'labels'=>array('面谈'),
+				'tags'=>array('面谈'),
 				'type'=>'query',
 				'group_by'=>'team',
 				'first_contact'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
@@ -113,7 +113,7 @@ class Achievement extends SS_controller{
 
 			'电话咨询'=>$this->project->getList(array(
 				'count'=>true,
-				'labels'=>array('电话'),
+				'tags'=>array('电话'),
 				'type'=>'query',
 				'group_by'=>'team',
 				'first_contact'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
@@ -121,7 +121,7 @@ class Achievement extends SS_controller{
 
 			'网络咨询'=>$this->project->getList(array(
 				'count'=>true,
-				'labels'=>array('网络'),
+				'tags'=>array('网络'),
 				'type'=>'query',
 				'group_by'=>'team',
 				'first_contact'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
@@ -144,13 +144,13 @@ class Achievement extends SS_controller{
 		
 		$joined=array_merge($joined,array());
 		
-		$category=array_sub($joined,'team_name');
+		$category=array_column($joined,'team_name');
 		
 		$series=array(
-			array('name'=>'签约案件','data'=>array_sub($joined,'签约案件',NULL,true),'stack'=>0),
-			array('name'=>'面谈咨询','data'=>array_sub($joined,'面谈咨询',NULL,true),'stack'=>1),
-			array('name'=>'电话咨询','data'=>array_sub($joined,'电话咨询',NULL,true),'stack'=>2),
-			array('name'=>'网络咨询','data'=>array_sub($joined,'网络咨询',NULL,true),'stack'=>3)
+			array('name'=>'签约案件','data'=>array_column($joined,'签约案件',NULL,true),'stack'=>0),
+			array('name'=>'面谈咨询','data'=>array_column($joined,'面谈咨询',NULL,true),'stack'=>1),
+			array('name'=>'电话咨询','data'=>array_column($joined,'电话咨询',NULL,true),'stack'=>2),
+			array('name'=>'网络咨询','data'=>array_column($joined,'网络咨询',NULL,true),'stack'=>3)
 		);
 		
 		$this->load->addViewData('category_count', json_encode($category));
@@ -183,7 +183,7 @@ class Achievement extends SS_controller{
 				'received'=>true,
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 				'contract_date'=>array('from'=>$this->date->year_begin),
-				'project_labels'=>array('费用已锁定'),
+				'project_tags'=>array('费用已锁定'),
 				'order_by'=>'sum desc'
 			)),
 			
@@ -194,14 +194,14 @@ class Achievement extends SS_controller{
 				'received'=>true,
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 				'contract_date'=>array('to'=>$this->date->last_year_end),
-				'project_labels'=>array('费用已锁定')
+				'project_tags'=>array('费用已锁定')
 			)),
 			
 			'所内接洽创收'=>$this->account->getList(array(
 				'sum'=>true,
 				'group_by'=>'people',
 				'role'=>array('接洽律师'),
-				'project_labels'=>array('所内案源','费用已锁定'),
+				'project_tags'=>array('所内案源','费用已锁定'),
 				'received'=>true,
 				'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 			)),
@@ -212,7 +212,7 @@ class Achievement extends SS_controller{
 				'role'=>array('案源人'),
 				'received'=>true,
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
-				'project_labels'=>array('费用已锁定')
+				'project_tags'=>array('费用已锁定')
 			)),
 
 			'主办签约'=>$this->account->getList(array(
@@ -221,7 +221,7 @@ class Achievement extends SS_controller{
 				'role'=>array('主办律师'),
 				'received'=>false,
 				'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
-				'project_labels'=>array('费用已锁定')
+				'project_tags'=>array('费用已锁定')
 			))
 
 		);
@@ -241,14 +241,14 @@ class Achievement extends SS_controller{
 		
 		$joined=array_merge($joined,array());
 		
-		$category=array_sub($joined,'people_name');
+		$category=array_column($joined,'people_name');
 		
 		$series=array(
-			array('name'=>'主办新增创收','data'=>array_sub($joined,'主办新增创收',NULL,true),'stack'=>2),
-			array('name'=>'主办存量创收','data'=>array_sub($joined,'主办存量创收',NULL,true),'stack'=>2),
-			array('name'=>'所内接洽创收','data'=>array_sub($joined,'所内接洽创收',NULL,true),'stack'=>1),
-			array('name'=>'个人案源创收','data'=>array_sub($joined,'个人案源创收',NULL,true),'stack'=>1),
-			array('name'=>'主办签约','data'=>array_sub($joined,'主办签约',NULL,true),'stack'=>0)
+			array('name'=>'主办新增创收','data'=>array_column($joined,'主办新增创收',NULL,true),'stack'=>2),
+			array('name'=>'主办存量创收','data'=>array_column($joined,'主办存量创收',NULL,true),'stack'=>2),
+			array('name'=>'所内接洽创收','data'=>array_column($joined,'所内接洽创收',NULL,true),'stack'=>1),
+			array('name'=>'个人案源创收','data'=>array_column($joined,'个人案源创收',NULL,true),'stack'=>1),
+			array('name'=>'主办签约','data'=>array_column($joined,'主办签约',NULL,true),'stack'=>0)
 		);
 		
 		$this->load->addViewData('category', json_encode($category));
@@ -263,7 +263,7 @@ class Achievement extends SS_controller{
 				'count'=>true,
 				'group_by'=>'people',
 				'role'=>'接洽律师',
-				'labels'=>array('所内案源'),
+				'tags'=>array('所内案源'),
 				'type'=>'cases',
 				'time_contract'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 				'orderby'=>'count desc'
@@ -273,7 +273,7 @@ class Achievement extends SS_controller{
 				'count'=>true,
 				'group_by'=>'people',
 				'role'=>'案源人',
-				'labels'=>array('个人案源'),
+				'tags'=>array('个人案源'),
 				'type'=>'cases',
 				'time_contract'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 				'orderby'=>'count desc'
@@ -281,7 +281,7 @@ class Achievement extends SS_controller{
 			
 			'面谈接洽'=>$this->project->getList(array(
 				'count'=>true,
-				'labels'=>array('面谈'),
+				'tags'=>array('面谈'),
 				'group_by'=>'people',
 				'role'=>'接洽律师',
 				'first_contact'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
@@ -304,12 +304,12 @@ class Achievement extends SS_controller{
 		
 		$joined=array_merge($joined,array());
 		
-		$category=array_sub($joined,'people_name');
+		$category=array_column($joined,'people_name');
 		
 		$series=array(
-			array('name'=>'接洽签约','data'=>array_sub($joined,'接洽签约',NULL,true),'stack'=>0),
-			array('name'=>'案源签约','data'=>array_sub($joined,'案源签约',NULL,true),'stack'=>1),
-			array('name'=>'面谈接洽','data'=>array_sub($joined,'面谈接洽',NULL,true),'stack'=>2)
+			array('name'=>'接洽签约','data'=>array_column($joined,'接洽签约',NULL,true),'stack'=>0),
+			array('name'=>'案源签约','data'=>array_column($joined,'案源签约',NULL,true),'stack'=>1),
+			array('name'=>'面谈接洽','data'=>array_column($joined,'面谈接洽',NULL,true),'stack'=>2)
 		);
 		
 		$this->load->addViewData('category_count', json_encode($category));
@@ -354,7 +354,7 @@ class Achievement extends SS_controller{
 				'received'=>true,
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 				'contract_date'=>array('from'=>$this->date->year_begin),
-				'project_labels'=>array('费用已锁定'),
+				'project_tags'=>array('费用已锁定'),
 				'order_by'=>'sum desc'
 			)),
 			
@@ -364,7 +364,7 @@ class Achievement extends SS_controller{
 				'role'=>array('主办律师'),
 				'received'=>true,
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
-				'project_labels'=>array('费用已锁定'),
+				'project_tags'=>array('费用已锁定'),
 				'contract_date'=>array('to'=>$this->date->last_year_end)
 			)),
 			
@@ -372,7 +372,7 @@ class Achievement extends SS_controller{
 				'sum'=>true,
 				'group_by'=>'people',
 				'role'=>array('接洽律师'),
-				'project_labels'=>array('所内案源','费用已锁定'),
+				'project_tags'=>array('所内案源','费用已锁定'),
 				'received'=>true,
 				'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
 			)),
@@ -381,7 +381,7 @@ class Achievement extends SS_controller{
 				'sum'=>true,
 				'group_by'=>'people',
 				'role'=>array('案源人'),
-				'project_labels'=>array('费用已锁定'),
+				'project_tags'=>array('费用已锁定'),
 				'received'=>true,
 				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
 			)),
@@ -390,7 +390,7 @@ class Achievement extends SS_controller{
 				'sum'=>true,
 				'group_by'=>'people',
 				'role'=>array('主办律师'),
-				'project_labels'=>array('费用已锁定'),
+				'project_tags'=>array('费用已锁定'),
 				'received'=>false,
 				'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
 			))
@@ -461,12 +461,12 @@ class Achievement extends SS_controller{
 		
 		$joined=array_values($joined);
 		
-		$category=array_sub($joined,'month');
+		$category=array_column($joined,'month');
 		
 		$series=array(
-			array('name'=>'新增创收','data'=>array_sub($joined,'新增创收',NULL,true)),
-			array('name'=>'存量创收','data'=>array_sub($joined,'存量创收',NULL,true)),
-			array('name'=>'签约','data'=>array_sub($joined,'签约',NULL,true)),
+			array('name'=>'新增创收','data'=>array_column($joined,'新增创收',NULL,true)),
+			array('name'=>'存量创收','data'=>array_column($joined,'存量创收',NULL,true)),
+			array('name'=>'签约','data'=>array_column($joined,'签约',NULL,true)),
 		);
 		$this->load->addViewData('category', json_encode($category));
 		$this->load->addViewData('series', json_encode($series,JSON_NUMERIC_CHECK));
@@ -532,7 +532,7 @@ class Achievement extends SS_controller{
 					'received'=>true,
 					'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
 					'ten_thousand_unit'=>true,
-					'project_labels'=>array('费用已锁定')
+					'project_tags'=>array('费用已锁定')
 				)),
 				$this->account->getSum(array(
 					'received'=>true,
@@ -540,7 +540,7 @@ class Achievement extends SS_controller{
 					'people'=>$this->user->id,
 					'role'=>array('主办律师'),
 					'ten_thousand_unit'=>true,
-					'project_labels'=>array('费用已锁定')
+					'project_tags'=>array('费用已锁定')
 				)),
 				$this->account->getSum(array(
 					'received'=>true,
@@ -548,7 +548,7 @@ class Achievement extends SS_controller{
 					'people'=>$this->user->id,
 					'role'=>array('案源人'),
 					'ten_thousand_unit'=>true,
-					'project_labels'=>array('费用已锁定')
+					'project_tags'=>array('费用已锁定')
 				))
 			)
 			

@@ -36,6 +36,43 @@ define('FOPEN_READ_WRITE_CREATE',				'a+b');
 define('FOPEN_WRITE_CREATE_STRICT',				'xb');
 define('FOPEN_READ_WRITE_CREATE_STRICT',		'x+b');
 
+if(php_sapi_name() === 'cli' OR defined('STDIN')){
+	//cli 模式下不用考虑公司环境
+	define('COMPANY_TYPE','');
+	define('COMPANY_CODE','');
+}
+else{
+	
+	$companies=array(
+		'lawfirm'=>array(
+			'starsys'=>'sys.lawyerstars.com'
+		),
+		'school'=>array(
+			'shdfz'=>'sdfz.sys.sh'
+		),
+	);
+	
+	//使用array_walk 匿名函数，不污染全局变量
+	array_walk($companies,
+		function($company,$company_type){
+			array_walk($company,function($company_hostname,$company_code,$company_type){
+				if($company_code===$_SERVER['HTTP_HOST'] || $company_hostname===$_SERVER['HTTP_HOST']){
+					define('COMPANY_TYPE',$company_type);
+					define('COMPANY_CODE',$company_code);
+					return;
+				}
+				
+				if(defined('COMPANY_TYPE') && defined('COMPANY_CODE')){
+					return;
+				}
+			},$company_type);
+		}
+	);
+
+	if(!defined('COMPANY_TYPE') || !defined('COMPANY_CODE')){
+		show_error('unknown host '.$_SERVER['HTTP_HOST']);
+	}
+}
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

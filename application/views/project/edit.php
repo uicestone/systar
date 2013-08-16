@@ -33,8 +33,8 @@
 			<input type="file" name="document" id="file" data-url="/document/submit/upload" />
 			<input name="document[id]" class="hidden" />
 			<input type="text" name="document[name]" placeholder="文件名称" style="padding:4px" />
-			<select name="document_labels[]" class="chosen allow-new" data-placeholder="标签" multiple="multiple" style="width:200px;height:15px;">
-				<?=options($this->document->getAllLabels(),$this->value('document_labels'));?>
+			<select name="document_tags[]" class="chosen allow-new" data-placeholder="标签" multiple="multiple" style="width:200px;height:15px;">
+				<?=options($this->document->getAllTags(),$this->value('document_tags'));?>
 			</select>
 			<button type="submit" name="submit[document]">保存</button>
 		</div>

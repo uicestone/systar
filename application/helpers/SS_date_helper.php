@@ -3,7 +3,7 @@ function uidTime($company=true,$time_insert=false){
 	$CI=&get_instance();
 	$array=array(
 		'uid'=>$CI->user->id,
-		'time'=>$CI->date->now,
+		'time'=>time(),
 	);
 	
 	if($company){
@@ -11,7 +11,7 @@ function uidTime($company=true,$time_insert=false){
 	}
 	
 	if($time_insert){
-		$array['time_insert']=$CI->date->now;
+		$array['time_insert']=time();
 	}
 	
 	return $array;
@@ -89,11 +89,11 @@ function getWorkingDays($startDate, $endDate, $holidays = array(), $overtimedays
 }
 /*
 function getHolidays(){
-	return array_sub(db_toArray("SELECT date FROM holidays WHERE is_overtime=0 AND staff IS NULL"),'date');
+	return array_column(db_toArray("SELECT date FROM holidays WHERE is_overtime=0 AND staff IS NULL"),'date');
 }
 
 function getOvertimedays(){
-	return array_sub(db_toArray("SELECT date FROM holidays WHERE is_overtime=1 AND staff IS NULL"),'date');
+	return array_column(db_toArray("SELECT date FROM holidays WHERE is_overtime=1 AND staff IS NULL"),'date');
 }
  */
 ?>

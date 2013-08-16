@@ -180,7 +180,7 @@ $config['directory_trigger']	= 'd'; // experimental not currently in use
 | your log files will fill up very fast.
 |
 */
-$config['log_threshold'] = 2;
+$config['log_threshold'] = 1;
 
 
 /*
@@ -360,39 +360,6 @@ $config['proxy_ips'] = '';
 
 //定义时区，windows系统中php不能识别到系统时区
 date_default_timezone_set('Asia/Shanghai');
-
-$company=array(
-	'lawfirm'=>array(
-		'starsys'=>'sys.lawyerstars.com'
-	),
-	'school'=>array(
-		'shdfz'=>'sdfz.sys.sh'
-	),
-);
-
-$type=$code=NULL;
-
-foreach($company as $company_type => $company)
-{
-	foreach($company as $company_code => $company_hostname)
-	{
-		if($company_code===$_SERVER['HTTP_HOST'] || $company_hostname===$_SERVER['HTTP_HOST'])
-		{
-			define('COMPANY_TYPE',$company_type);
-			define('COMPANY_CODE',$company_code);
-			break;
-		}
-	}
-
-	if(defined('COMPANY_TYPE') && defined('COMPANY_CODE'))
-	{
-		break;
-	}
-}
-
-if(!defined('COMPANY_TYPE') || !defined('COMPANY_CODE')){
-	show_error('unknown host '.$_SERVER['HTTP_HOST']);
-}
 
 /**
  * 启用php5风格的autoloader

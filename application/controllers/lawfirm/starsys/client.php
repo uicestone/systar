@@ -8,8 +8,8 @@ class Client extends People{
 		
 		$this->form_validation_rules['people']=array(
 			array(
-				'field'=>'profiles[来源类型]',
-				'label'=>'客户来源类型',
+				'field'=>'meta[来源类型]',
+				'tag'=>'客户来源类型',
 				'rules'=>'required'
 			)
 		);
@@ -18,7 +18,7 @@ class Client extends People{
 	}
 
 	function potential(){
-		$this->config->set_user_item('search/labels', array('潜在客户'));
+		$this->config->set_user_item('search/tags', array('潜在客户'));
 		
 		$this->index();
 	}
@@ -26,8 +26,8 @@ class Client extends People{
 	function index(){
 		$this->config->set_user_item('search/in_same_project_with',$this->user->id,false);
 		
-		if(!$this->config->user_item('search/labels')){
-			$this->config->set_user_item('search/labels', array('成交客户'));
+		if(!$this->config->user_item('search/tags')){
+			$this->config->set_user_item('search/tags', array('成交客户'));
 		}
 		
 		parent::index();

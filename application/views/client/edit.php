@@ -21,11 +21,11 @@
 <?if($people['type']=='client'){?>		
 	<div class="item">
 		<div class="title"><label>来源：</label></div>
-		<select name="profiles[来源类型]">
-			<?=options($this->config->user_item('客户来源类型'),$this->value('profiles/来源类型'),'来源类型')?>
+		<select name="meta[来源类型]">
+			<?=options($this->config->user_item('客户来源类型'),$this->value('meta/来源类型'),'来源类型')?>
 		</select>
 
-		<input type="text" name="profiles[来源]" value="<?=$this->value('profiles/来源')?>" <?if(!$this->value('profiles/来源')){?>class="hidden" disabled="disabled"<?}?> />
+		<input type="text" name="meta[来源]" value="<?=$this->value('meta/来源')?>" <?if(!$this->value('meta/来源')){?>class="hidden" disabled="disabled"<?}?> />
 		<input type="text" name="people[staff_name]" placeholder="来源律师" value="<?=$this->value('people/staff_name')?$this->value('people/staff_name'):$this->user->name?>" />
 	</div>
 <?}?>

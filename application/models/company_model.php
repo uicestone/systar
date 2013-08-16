@@ -1,5 +1,5 @@
 <?php
-class Company_model extends BaseItem_model{
+class Company_model extends Object_model{
 	
 	var $name;
 	var $type;
@@ -16,7 +16,7 @@ class Company_model extends BaseItem_model{
 		$this->db->from('company_config')
 			->where('company',$this->id);
 		
-		$config=array_sub($this->db->get()->result_array(),'value','name');
+		$config=array_column($this->db->get()->result_array(),'value','name');
 		
 		array_walk($config, function(&$value){
 			$decoded=json_decode($value,true);

@@ -7,7 +7,7 @@
 		</tr>
 		<tr>
 			<td>
-				<select name="labels[]" class="chosen allow-new" data-placeholder="标签" multiple="multiple"><?=options($this->document->getAllLabels(),$this->config->user_item('search/labels'))?></select>
+				<select name="tags[]" class="chosen allow-new" data-placeholder="标签" multiple="multiple"><?=options($this->document->getAllTags(),$this->config->user_item('search/tags'))?></select>
 			</td>
 		</tr>
 		<tr>
@@ -21,8 +21,8 @@
 <input id="fileupload" type="file" name="document" data-url="/document/submit/upload" multiple="multiple" style="width:99%" />
 <p class="upload-list-item hidden">
 	<input type="text" name="document[name]" placeholder="名称" />
-	<select name="labels[]" data-placeholder="标签" multiple="multiple" class="allow-new">
-		<?=options($this->document->getAllLabels(NULL,$this->config->user_item('search/labels')), $this->config->user_item('search/labels'))?>
+	<select name="tags[]" data-placeholder="标签" multiple="multiple" class="allow-new">
+		<?=options($this->document->getAllTags(NULL,$this->config->user_item('search/tags')), $this->config->user_item('search/tags'))?>
 	</select>
 	<hr />
 </p>

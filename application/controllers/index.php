@@ -49,8 +49,8 @@ class Index extends SS_Controller{
 				'name'=>$this->input->post('title'),
 				'people'=>$receptionist,
 				'content'=>$content,
-				'start'=>$this->date->now,
-				'end'=>$this->date->now+3600,
+				'start'=>time(),
+				'end'=>time()+3600,
 				'completed'=>false
 			));
 

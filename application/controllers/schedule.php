@@ -98,7 +98,7 @@ class Schedule extends SS_controller{
 
 	function outPlan(){
 		
-		$this->config->set_user_item('search/profiles', array('外出地点'), false);
+		$this->config->set_user_item('search/meta', array('外出地点'), false);
 		
 		$field=array(
 			'staff_name'=>array('heading'=>array('data'=>'人员','width'=>'60px'),'cell'=>'<a href="#schedule/lists?staff={staff}"> {staff_name}</a>'),
@@ -211,7 +211,7 @@ class Schedule extends SS_controller{
 			is_string($people) && $people=explode(',', $people);
 			$this->schedule->updatePeople($new_schedule_id,$people);
 			
-			$this->schedule->updateLabels($new_schedule_id, $this->input->post('labels'), true);
+			$this->schedule->updateTags($new_schedule_id, $this->input->post('tags'), true);
 			
 			$this->schedule->updatePeopleStatus($new_schedule_id, $this->user->id, array(
 				'in_todo_list'=>$this->input->post('in_todo_list'),
@@ -233,7 +233,7 @@ class Schedule extends SS_controller{
 			is_string($people) && $people=explode(',', $people);
 			$this->schedule->updatePeople($schedule_id,$people);
 			
-			$this->schedule->updateLabels($schedule_id, $this->input->post('labels'), true);
+			$this->schedule->updateTags($schedule_id, $this->input->post('tags'), true);
 			
 			$schedule=$this->schedule->fetch($schedule_id);
 			
@@ -358,8 +358,8 @@ class Schedule extends SS_controller{
 		$this->schedule->setTaskBoardSort($sort_data, $this->user->id);
 	}
 	
-	function removeProfile($schedule_id,$profile_id){
-		$this->schedule->removeProfile($schedule_id, $profile_id);
+	function removeMeta($schedule_id,$profile_id){
+		$this->schedule->removeMeta($schedule_id, $profile_id);
 	}
 	
 	function add(){
@@ -388,7 +388,7 @@ class Schedule extends SS_controller{
 			
 			$schedule['creater_name']=$this->people->fetch($schedule['uid'],'name');
 			
-			$profiles=$this->schedule->getProfiles($schedule_id,array('show_author'=>true));
+			$meta=$this->schedule->getMeta($schedule_id,array('show_author'=>true));
 			
 			$people_status=$this->schedule->getPeopleStatus($schedule_id,$this->user->id);
 			
@@ -396,7 +396,7 @@ class Schedule extends SS_controller{
 			//从people中删除当前用户，应为当前用户会自动被关联到本日志
 			unset($people[array_search($this->user->id,$people)]);
 			
-			$labels=$this->schedule->getLabels($schedule_id);
+			$tags=$this->schedule->getTags($schedule_id);
 
 			if(isset($schedule['project'])){
 				$project=$this->project->fetch($schedule['project']);
@@ -409,7 +409,7 @@ class Schedule extends SS_controller{
 			isset($people_status[$this->user->id]['enrolled']) && $this->output->setData($people_status[$this->user->id]['enrolled'],'enrolled');
 		}
 		
-		$this->load->addViewArrayData(compact('schedule','profiles','people','labels','people_status'));
+		$this->load->addViewArrayData(compact('schedule','meta','people','tags','people_status'));
 		
 		$this->output->setData($this->load->view("schedule/$mode",true));
 	}

@@ -17,10 +17,10 @@ class Document extends SS_controller{
 				return '<a href="/document/download/'.$id.'">'.$name.'</a>';
 			},'args'=>array('id','name','filename'))),
 			'time_insert'=>array('heading'=>'上传时间','parser'=>array('function'=>function($time_insert){return date('Y-m-d H:i',$time_insert);},'args'=>array('time_insert'))),
-			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->document,'getCompiledLabels'),'args'=>array('id')))
+			'tags'=>array('heading'=>'标签','parser'=>array('function'=>array($this->document,'getCompiledTags'),'args'=>array('id')))
 		);
 		
-		$this->search_items=array('name','labels');
+		$this->search_items=array('name','tags');
 
 		$this->load->view_path['list_aside']='document/list_sidebar';
 	}
@@ -72,7 +72,7 @@ class Document extends SS_controller{
 		try{
 			$this->document->data=array_merge($this->document->fetch($id),$this->input->sessionPost('document'));
 
-			$this->document->labels=array_merge($this->document->getLabels($this->document->id),$this->input->sessionPost('labels'));
+			$this->document->tags=array_merge($this->document->getTags($this->document->id),$this->input->sessionPost('tags'));
 
 			if(!$this->document->data['name']){
 				$this->output->title='未命名'.lang(CONTROLLER);
@@ -89,7 +89,7 @@ class Document extends SS_controller{
 			
 			$this->document->data['uploader_name']=$this->people->fetch($this->document->data['uid'],'name');
 
-			$this->load->addViewData('mod', $this->document->getPeopleMod($this->document->id,array_merge(array_keys($this->user->teams),array($this->user->id))));
+			$this->load->addViewData('mod', $this->document->getPeopleMod($this->document->id,array_merge(array_keys($this->user->groups),array($this->user->id))));
 			
 			$this->load->addViewData('read_mod_people', $this->document->getModPeople($this->document->id, 1));
 			
@@ -97,7 +97,7 @@ class Document extends SS_controller{
 			
 			$this->load->addViewData('document', $this->document->data);
 			
-			$this->load->addViewData('labels', $this->document->labels);
+			$this->load->addViewData('tags', $this->document->tags);
 
 			$this->load->view('document/edit');
 			
@@ -118,7 +118,7 @@ class Document extends SS_controller{
 			$this->document->id=$id;
 
 			$this->document->data=array_merge($this->document->fetch($id),$this->input->sessionPost('document'));
-			$this->document->labels=array_merge($this->document->getLabels($this->document->id),$this->input->sessionPost('labels'));
+			$this->document->tags=array_merge($this->document->getTags($this->document->id),$this->input->sessionPost('tags'));
 		}
 		
 		$this->load->library('form_validation');
@@ -150,9 +150,9 @@ class Document extends SS_controller{
 					'size'=>$file_info['file_size']
 				));
 				
-				$labels=$this->config->user_item('search/labels','index');
-				if($labels){
-					$this->document->addLabels($document_id, $labels);
+				$tags=$this->config->user_item('search/tags','index');
+				if($tags){
+					$this->document->addTags($document_id, $tags);
 				}
 
 				rename('../uploads/'.$file_info['file_name'],'../uploads/'.$document_id);

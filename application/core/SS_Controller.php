@@ -36,10 +36,12 @@ class SS_Controller extends CI_Controller{
 		 */
 		$this->load->model('company_model','company');
 		$this->load->model('people_model','people');
-		$this->load->model('team_model','team');
+		$this->load->model('group_model','group');
 		$this->load->model('user_model','user');
-		$this->load->model('label_model','label');
+		$this->load->model('tag_model','tag');
 		$this->load->model('message_model','message');
+		
+		$this->user->initialize();
 		
 		$this->output->as_ajax=$this->input->is_ajax_request();
 		
@@ -60,7 +62,7 @@ class SS_Controller extends CI_Controller{
 			}
 		}
 		
-		if(is_array($this->permission) && $this->permission && (!$this->user->teams || !array_intersect(array_keys($this->user->teams),$this->permission))){
+		if(is_array($this->permission) && $this->permission && (!$this->user->groups || !array_intersect(array_keys($this->user->groups),$this->permission))){
 			if($this->output->as_ajax){
 				$this->output->status='denied';
 				$this->output->message('no permission','warning');
@@ -96,7 +98,7 @@ class SS_Controller extends CI_Controller{
 				'ip'=>$this->input->ip_address(),
 				'company'=>$this->company->id,
 				'username'=>$this->user->name,
-				'time'=>date('Y-m-d H:i:s',$this->date->now)
+				'time'=>date('Y-m-d H:i:s',time())
 			));
 		}
 	}

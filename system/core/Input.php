@@ -314,6 +314,12 @@ class CI_Input {
 		{
 			return $this->ip_address;
 		}
+		
+		//uicestone 2013/7/19 cli request does not has an ip
+		if($this->is_cli_request())
+		{
+			return $this->ip_address;
+		}
 
 		$proxy_ips = config_item('proxy_ips');
 		if ( ! empty($proxy_ips))

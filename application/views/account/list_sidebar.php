@@ -14,7 +14,7 @@
 		</tr>
 		<tr>
 			<td>
-				<select name="labels[]" class="chosen" data-placeholder="标签" data-width="copy" multiple="multiple"><?=options($this->account->getAllLabels(),$this->config->user_item('search/labels'))?></select>
+				<select name="tags[]" class="chosen" data-placeholder="标签" data-width="copy" multiple="multiple"><?=options($this->account->getAllTags(),$this->config->user_item('search/tags'))?></select>
 			</td>
 		</tr>
 		<tr>
@@ -26,7 +26,7 @@
 			<td><input type="text" name="payer_name" value="<?=$this->config->user_item('search/payer_name')?>" placeholder="付款/收款人" title="付款/收款人" /></td>
 		</tr>
 		<tr>
-			<td><select name="team" class="chosen allow-new" data-placeholder="团队"><?=options($this->team->getArray(),$this->config->user_item('search/team'),'',true,false,false)?></select></td>
+			<td><select name="team" class="chosen allow-new" data-placeholder="团队"><?=options($this->group->getArray(),$this->config->user_item('search/team'),'',true,false,false)?></select></td>
 		</tr>
 		<tr>
 			<td><select name="people" class="chosen allow-new" data-placeholder="职员"><?=options($this->staff->getArray(),$this->config->user_item('search/people'),'',true,false,false)?></select></td>
@@ -43,15 +43,15 @@
 		</tr>
 		<tr>
 			<td>
-				<select name="project_labels[]" class="chosen" data-width="copy" data-placeholder="事务标签" multiple="multiple">
-					<?=options($this->project->getAllLabels(),$this->config->user_item('search/project_labels'))?>
+				<select name="project_tags[]" class="chosen" data-width="copy" data-placeholder="事务标签" multiple="multiple">
+					<?=options($this->project->getAllTags(),$this->config->user_item('search/project_tags'))?>
 				</select>
 			</td>
 		</tr>
 		<tr>
 			<td>
-				<select name="project_without_labels[]" class="chosen" data-width="copy" data-placeholder="事务标签不包括" multiple="multiple">
-					<?=options($this->project->getAllLabels(),$this->config->user_item('search/project_without_labels'))?>
+				<select name="project_without_tags[]" class="chosen" data-width="copy" data-placeholder="事务标签不包括" multiple="multiple">
+					<?=options($this->project->getAllTags(),$this->config->user_item('search/project_without_tags'))?>
 				</select>
 			</td>
 		</tr>

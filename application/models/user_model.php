@@ -1,44 +1,57 @@
 <?php
 class User_model extends People_model{
 	
-	var $name;
+	var $name='';
 	
-	/**
-	 * 当前用户直接或间接所在的所有组
-	 * @var array(team_id=>team_name,...) 
-	 */
-	var $teams;
-	var $group;
+	var $groups=array();//当前用户user.id和直接或间接所在组的所有id
+	var $groups_name=array();//当前用户直接或间接所在组的代号
 	
-	function __construct($uid=NULL){
+	static $field;
+	
+	function __construct(){
 		parent::__construct();
 		
 		$this->table='user';
 		
-		$this->fields=array_merge($this->fields,array(
+		self::$fields=array(
 			'alias'=>'',//别名
 			'password'=>''//密码
-		));
+		);
+	}
+	
+	function initialize($id=NULL){
+		isset($id) && $this->id=$id;
 		
-		if(is_null($uid)){
-			$uid=$this->session->userdata('user/id');
+		if(is_null($this->id)){
+			$this->id=$this->session->userdata('user/id');
 		}
 		
-		if($uid){
-			$user=$this->fetch($uid);
-			$this->id=$uid;
-			$this->name=$user['name'];
-			$this->group=explode(',',$user['group']);
+		if(!$this->id){
+			return;
 		}
 		
-		//TODO 生成了过多的查询，应予以优化
-		$this->teams=$this->team->trace($this->id);
+		$user=$this->fetch();
+		$this->name=$user['name'];
+		$this->groups[]=$this->id;
+		$this->groups_name=explode(',',$user['group']);
 
+		function trace($id,$user_model){
+			$group=$user_model->getList(array('has_relative_like'=>$id));
+			$new_groups=array_diff(array_column($group, 'id'),$user_model->groups);
+			$user_model->groups=array_merge($user_model->groups,$new_groups);
+			$user_model->groups_name=array_merge($user_model->groups_name,array_column($group, 'num'));
+			if($new_groups){
+				trace($new_groups,$user_model);
+			}
+		}
+		
+		trace($this->id,$this);
+		
 		//获取存在数据库中的用户配置项
 		$this->db->from('user_config')
 			->where('user',$this->id);
 		
-		$config=array_sub($this->db->get()->result_array(),'value','name');
+		$config=array_column($this->db->get()->result_array(),'value','name');
 		
 		array_walk($config, function(&$value){
 			$decoded=json_decode($value);
@@ -48,32 +61,31 @@ class User_model extends People_model{
 		});
 		
 		$this->config->user=$config;
-
 	}
 	
 	function getList(array $args=array()){
 		
-		$this->db->select('people.*')
+		$this->db
 			->join('people','user.id = people.id','inner')
-			->where('people.company',$this->company->id)
-			->where('people.display',true);
+			->where('object.company',$this->company->id)
+			->where('object.display',true);
 		
 		$args+=array('display'=>false,'company'=>false);
 		
 		return parent::getList($args);
 	}
 	
-	function add($data=array()){
-		$user_id=parent::add($data);
+	function add(array $data){
+		$insert_id=parent::add($data);
 
 		$data=array_intersect_key($data, self::$fields);
 		
-		$data['id']=$user_id;
+		$data['id']=$insert_id;
 		$data['company']=$this->company->id;
 
-		$this->db->insert('user',$data);
+		$this->db->insert($this->table,$data);
 		
-		return $user_id;
+		return $insert_id;
 	}
 	
 	function verify($username,$password){
@@ -100,7 +112,7 @@ class User_model extends People_model{
 	function updateLoginTime(){
 		$this->db->update('user',
 			array('lastip'=>$this->session->userdata('ip_address'),
-				'lastlogin'=>$this->date->now
+				'lastlogin'=>time()
 			),
 			array('id'=>$this->id,'company'=>$this->company->id)
 		);
@@ -158,7 +170,7 @@ class User_model extends People_model{
 			if(empty($this->id)){
 				return false;
 			}
-		}elseif(empty($this->group) || !in_array($check_type,$this->group)){
+		}elseif(empty($this->groups) || !in_array($check_type,$this->group)){
 			return false;
 		}
 
@@ -166,15 +178,15 @@ class User_model extends People_model{
 	}
 	
 	function inTeam($team){
-		if(array_key_exists($team, $this->teams)){
+		if(array_key_exists($team, $this->groups)){
 			return true;
 		}
 		
-		if(in_subarray($team, $this->teams, 'num')){
+		if(in_subarray($team, $this->groups, 'num')){
 			return true;
 		}
 		
-		if(in_subarray($team, $this->teams,'name')){
+		if(in_subarray($team, $this->groups,'name')){
 			return true;
 		}
 		
@@ -188,7 +200,7 @@ class User_model extends People_model{
 				SELECT * FROM nav
 				WHERE (company_type is null or company_type = '{$this->company->type}')
 					AND (company ={$this->company->id} OR company IS NULL)
-					AND (team IS NULL OR team{$this->db->escape_int_array(array_keys($this->teams))})
+					AND (team IS NULL OR team{$this->db->escape_int_array(array_keys($this->groups))})
 				ORDER BY company_type DESC, company DESC, team DESC
 			)nav_ordered
 			GROUP BY href

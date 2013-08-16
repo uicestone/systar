@@ -1,9 +1,10 @@
 <?php
-class Team_model extends People_model{
+class Group_model extends People_model{
 	
 	function __construct() {
 		parent::__construct();
-		$this->fields['type']='team';
+		$this->table='team';
+		parent::$fields['type']='team';
 	}
 	
 	/**
@@ -43,28 +44,19 @@ class Team_model extends People_model{
 		return parent::getList($args);
 	}
 	
-	/**
-	 * 追踪并返回一个人或组的所有父组
-	 */
-	function trace($id,$relation=NULL,$teams=array()){
-		
-		$id=intval($id);
-		
-		$result=$this->db->select('people.id, people.name, people.num, people.type')
-			->from('people_relationship')
-			->join('team','team.id = people_relationship.people','inner')
-			->join('people','people.id = people_relationship.people','inner')
-			->where(is_null($relation)?array('relative'=>$id):array('relative'=>$id,'relation'=>$relation))
-			->get();
-			
-		foreach($result->result_array() as $row){
-			$teams[$row['id']]=$row;
-			$teams+=$this->trace($row['id'],$relation,$teams);
-		}
-		
-		return $teams;
-	}
+	function add($data=array()){
+		$insert_id=parent::add($data);
 
+		$data=array_intersect_key($data, self::$fields);
+		
+		$data['id']=$insert_id;
+		$data['company']=$this->company->id;
+
+		$this->db->insert($this->table,$data);
+		
+		return $insert_id;
+	}
+	
 	/**
 	 * 根据部分团队名称返回匹配的id、名称和；类别列表
 	 * @param $part_of_name

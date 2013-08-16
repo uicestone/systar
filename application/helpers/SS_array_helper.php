@@ -60,45 +60,48 @@ if(!function_exists('array_replace_recursive')){
  * @param $keyname
  * @param $keyname_forkey 母数组中用来作为子数组键名的键值的键名
  * @return array
+ * php 5.5 开始自带此函数
  */
-function array_sub($array,$keyname,$keyname_forkey=NULL,$fill_null=false){
-	$array_new=array();
-	foreach($array as $key => $sub_array){
-		
-		if(isset($sub_array[$keyname])){
-			if($keyname_forkey===false){
-				$array_new[]=$sub_array[$keyname];
-			}
-			elseif(is_null($keyname_forkey)){
-				$array_new[$key]=$sub_array[$keyname];
-			}
-			else{
-				if(isset($sub_array[$keyname_forkey])){
-					$array_new[$sub_array[$keyname_forkey]]=$sub_array[$keyname];
+if(!function_exists('array_column')){
+	function array_column($array,$keyname,$keyname_forkey=NULL,$fill_null=false){
+		$array_new=array();
+		foreach($array as $key => $sub_array){
+
+			if(isset($sub_array[$keyname])){
+				if($keyname_forkey===false){
+					$array_new[]=$sub_array[$keyname];
 				}
-				else{
+				elseif(is_null($keyname_forkey)){
 					$array_new[$key]=$sub_array[$keyname];
 				}
-			}
-		}
-		elseif($fill_null){
-			if($keyname_forkey===false){
-				$array_new[]=NULL;
-			}
-			elseif(is_null($keyname_forkey)){
-				$array_new[$key]=NULL;
-			}
-			else{
-				if(isset($sub_array[$keyname_forkey])){
-					$array_new[$sub_array[$keyname_forkey]]=NULL;
-				}
 				else{
+					if(isset($sub_array[$keyname_forkey])){
+						$array_new[$sub_array[$keyname_forkey]]=$sub_array[$keyname];
+					}
+					else{
+						$array_new[$key]=$sub_array[$keyname];
+					}
+				}
+			}
+			elseif($fill_null){
+				if($keyname_forkey===false){
+					$array_new[]=NULL;
+				}
+				elseif(is_null($keyname_forkey)){
 					$array_new[$key]=NULL;
 				}
+				else{
+					if(isset($sub_array[$keyname_forkey])){
+						$array_new[$sub_array[$keyname_forkey]]=NULL;
+					}
+					else{
+						$array_new[$key]=NULL;
+					}
+				}
 			}
 		}
+		return $array_new;
 	}
-	return $array_new;
 }
 
 function array_picksub($array,$keys){
@@ -181,13 +184,14 @@ function in_subarray($needle,array $array,$key_specified=NULL){
  * 将返回array('b'=>1,'c'=>2);
  * @param $array
  * @param $prefix 路径
- * @param $prefix_end_with_slash 是否为prefix末尾加上'/'(default:true)
+ * @param $prefix_end_with_slash 是否为prefix末尾加上'/' (default:true)
+ * @param $preg 将prefix作为正则表达式匹配，由于匹配到的键名可能不唯一，因此将输出多个子数组形成的新数组
  * @return $subarray
  */
-function array_prefix(array $array,$prefix,$prefix_end_with_slash=true){
+function array_prefix(array $array,$prefix,$preg=false,$prefix_end_with_slash=true){
 	
 	//数组中恰好存在与prefix一致的键名，则返回该键值
-	if(array_key_exists($prefix, $array)){
+	if(!$preg && array_key_exists($prefix, $array)){
 		return $array[$prefix];
 	}
 	
@@ -195,20 +199,32 @@ function array_prefix(array $array,$prefix,$prefix_end_with_slash=true){
 		return $array;
 	}
 	
+	if(!$preg){
+		$prefix=preg_quote($prefix,'/');
+	}
+	
 	if($prefix_end_with_slash){
-		$prefix.='/';
+		$prefix.='\/';
 	}
 
 	$prefixed_array=array();
 
 	foreach($array as $key => $value){
-		if(strpos($key,$prefix)===0){
-			$prefix_preg=preg_quote($prefix,'/');
-			$prefixed_array[preg_replace("/^$prefix_preg/", '', $key)]=$value;
+		$matches=array();
+		preg_match("/^$prefix/",$key,$matches);
+		if($matches){
+			if($prefix_end_with_slash){
+				$matches[0]=substr($matches[0],0,strlen($matches[0])-1);
+			}
+			$prefixed_array[$matches[0]][preg_replace("/^$prefix/", '', $key)]=$value;
 		}
 	}
-
-	return $prefixed_array;
+	
+	if($preg){
+		return $prefixed_array;
+	}else{
+		return $prefixed_array?array_pop($prefixed_array):array();
+	}
 }
 
 /**
@@ -218,7 +234,7 @@ function array_prefix(array $array,$prefix,$prefix_end_with_slash=true){
  */
 function is_json($string) {
 	json_decode($string);
-	return (json_last_error() == JSON_ERROR_NONE);
+	return (json_last_error() === JSON_ERROR_NONE);
 }
 
 /**

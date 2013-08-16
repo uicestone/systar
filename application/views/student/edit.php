@@ -42,7 +42,7 @@
 			<input type="text" name="status[content]" value="<?=$this->value('status/content')?>" placeholder="内容" />
 			<input type="text" name="status[comment]" value="<?=$this->value('status/comment')?>" placeholder="备注" />
 			<select name="status[team]">
-				<?=options(array_sub($this->user->teams,'name'),$this->value('status/team'),'评价团队',true)?>
+				<?=options(array_column($this->user->groups,'name'),$this->value('status/team'),'评价团队',true)?>
 			</select>
 			<button type="submit" name="submit[status]">添加</button>
 		</span>

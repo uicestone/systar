@@ -2,6 +2,7 @@
 class Classes_model extends Team_model{
 	function __construct(){
 		parent::__construct();
+		parent::$fields['type']='classes';
 	}
 
 	/**
@@ -19,15 +20,15 @@ class Classes_model extends Team_model{
 		
 		$this->db->select('
 			people_team.id,people_team.name,team.leader,leader.name AS leader_name,
-			people_relationship.num,
-			CONCAT(RIGHT(10000+people_relationship.num,4),people_relationship.num) AS num
+			object_relationship.num,
+			CONCAT(RIGHT(10000+object_relationship.num,4),object_relationship.num) AS num
 		',false)
 			->from('people people_team')
 			->join('team','people_team.id = team.id','inner')
-			->join('people_relationship','people_relationship.people = people_team.id','inner')
+			->join('object_relationship','object_relationship.people = people_team.id','inner')
 			->join('people leader','leader.id = team.leader','left')
-			->where('people_relationship.relative',$student_id)
-			->where('people_relationship.till >= CURDATE()',NULL,FALSE);
+			->where('object_relationship.relative',$student_id)
+			->where('object_relationship.till >= CURDATE()',NULL,FALSE);
 		
 		return $this->db->get()->row_array();
 	}

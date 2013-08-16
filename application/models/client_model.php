@@ -2,7 +2,7 @@
 class Client_model extends People_model{
 	function __construct(){
 		parent::__construct();
-		$this->fields['type']='client';
+		parent::$fields['type']='client';
 	}
 	
 	function getList($args = array()) {
@@ -62,22 +62,6 @@ class Client_model extends People_model{
 		}
 	}
 	
-	function setDefaultRelated($people_relationship_id,$client){
-		$this->clearDefaultRelated($client);
-		
-		if($this->db->update('people_relationship',array('is_default_contact'=>1),array('id'=>$people_relationship_id))){
-			return true;
-		}
-		return false;
-	}
-	
-	function clearDefaultRelated($client){
-		if($this->db->update('people_relationship',array('is_default_contact'=>'_NULL_'),array('client_left'=>$client))){
-			return true;
-		}
-		return false;
-	}
-	
 	/**
 	 * 获得系统中所有客户的email
 	 */
@@ -93,7 +77,7 @@ class Client_model extends People_model{
 		
 		$result=$this->db->query($query);
 		
-		return array_sub($result->result_array(),'content');
+		return array_column($result->result_array(),'content');
 	}
 }
 ?>

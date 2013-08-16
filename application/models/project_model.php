@@ -1,10 +1,13 @@
 <?php
-class Project_model extends BaseItem_model{
+class Project_model extends Object_model{
 	
+	static $fields;
+
 	function __construct(){
 		parent::__construct();
 		$this->table='project';
-		$this->fields=array_merge($this->fields,array(
+		parent::$fields['type']=$this->table;
+		self::$fields=array(
 			'num'=>NULL,//编号
 			'active'=>true,//是否有效
 			'first_contact'=>NULL,//首次接洽时间
@@ -14,23 +17,12 @@ class Project_model extends BaseItem_model{
 			'focus'=>NULL,//焦点
 			'summary'=>NULL,//概况
 			'comment'=>NULL,//备注
-		));
+		);
 	}
 	
-	function match($part_of_name){
+	function add(array $data){
 		
-		$this->db->select('project.id,project.num,project.name')
-			->from('project')
-			->where("
-				project.company={$this->company->id} AND project.display=1 
-				AND (name LIKE '%$part_of_name%' OR num LIKE '%$part_of_name%' OR name_extra LIKE '%$part_of_name%')
-			")
-			->order_by('project.id','desc');
-		
-		return $this->db->get()->result_array();
-	}
-
-	function add($data=array()){
+		$insert_id=parent::add($data);
 		
 		foreach(array('first_contact','time_contract','end') as $date_field){
 			if(empty($data[$date_field])){
@@ -40,9 +32,11 @@ class Project_model extends BaseItem_model{
 		
 		$data['active']=true;
 		
-		$new_project_id=parent::add($data);
-		
-		return $new_project_id;
+		$data=array_merge(self::$fields,array_intersect_key($data,self::$fields));
+		$data['id']=$insert_id;
+		$this->db->insert($this->table,$data);
+
+		return $insert_id;
 	}
 	
 	function update($id,array $data){
@@ -190,10 +184,10 @@ class Project_model extends BaseItem_model{
 	}
 	
 	/**
-	 * @param array $labels
+	 * @param array $tags
 	 * @return array
 	 */
-	function getRelatedRoles($labels=NULL){
+	function getRelatedRoles($tags=NULL){
 		$this->db->select('project_people.role, COUNT(*) AS hits',false)
 			->from('project_people')
 			->join('project',"project_people.project = project.id AND project.company = {$this->company->id}")
@@ -201,13 +195,13 @@ class Project_model extends BaseItem_model{
 			->group_by('project_people.role')
 			->order_by('hits', 'desc');
 		
-		if($labels){
-			$this->db->join('project_label',"project_label.project = project_people.project AND project_label.label_name{$this->db->escape_array($labels)}");
+		if($tags){
+			$this->db->join('project_tag',"project_tag.project = project_people.project AND project_tag.tag_name{$this->db->escape_array($tags)}");
 		}
 		
 		$result=$this->db->get()->result_array();
 		
-		return array_sub($result,'role');
+		return array_column($result,'role');
 	}
 	
 	function addPeople($project_id,$people_id,$type=NULL,$role=NULL,$weight=NULL){
@@ -277,13 +271,12 @@ class Project_model extends BaseItem_model{
 	function getList(array $args=array()){
 
 		if(isset($args['people'])){
-			$where="project.id IN (SELECT project FROM project_people WHERE people{$this->db->escape_int_array($args['people'])}";
-			if(isset($args['role'])){
-				$where.=" AND role = '{$args['role']}'";
-			}
-			$where.=')';
 			
-			$this->db->where($where,NULL,FALSE);
+			$args['has_relative_like']=$args['people'];
+			
+			if(isset($args['role'])){
+				$args['has_relative_like__role']=$args['role'];
+			}
 		}
 		
 		if(isset($args['people_is_relative_of'])){
@@ -295,41 +288,23 @@ class Project_model extends BaseItem_model{
 			
 			$this->db->where($where,NULL,FALSE);
 		}
-
-		if(isset($args['num'])){
-			$this->db->like('project.num',$args['num']);
-		}
 		
+		if(isset($args['people_has_relative_like'])){
+			$args['has_secondary_relative_like']=$args['people_has_relative_like'];
+			$args['has_secondary_relative_like__media']='people';
+		}
+
+		if(isset($args['people_is_relative_of'])){
+			$args['has_secondary_relative_like']=$args['people_has_relative_like'];
+			$args['has_secondary_relative_like__media']='people';
+		}
+
 		if(isset($args['active'])){
 			$this->db->where('project.active',(bool)$args['active']);
 		}
 		
-		if(isset($args['is_relative_of'])){
-			$this->db->select('project.*')->select('relationship.relation')
-				->join('project_relationship relationship',"relationship.relative = project.id",'inner')
-				->where('relationship.project',intval($args['is_relative_of']));
-		}
-		
 		if(isset($args['before'])){
-			$this->db->where('project.id <',$args['before']);
-		}
-		
-		foreach(array('first_contact','time_contract','end') as $date_field){
-			if(isset($args[$date_field]['from']) && $args[$date_field]['from']){
-				$this->db->where("TO_DAYS(project.time_contract) >= TO_DAYS('{$args[$date_field]['from']}')",NULL,FALSE);
-			}
-
-			if(isset($args[$date_field.'/from']) && $args[$date_field.'/from']){
-				$this->db->where("TO_DAYS(project.time_contract) >= TO_DAYS('{$args[$date_field.'/from']}')",NULL,FALSE);
-			}
-
-			if(isset($args[$date_field]['to']) && $args[$date_field]['to']){
-				$this->db->where("TO_DAYS(project.time_contract) <= TO_DAYS('{$args[$date_field]['to']}')",NULL,FALSE);
-			}
-			
-			if(isset($args[$date_field.'/to']) && $args[$date_field.'/to']){
-				$this->db->where("TO_DAYS(project.time_contract) <= TO_DAYS('{$args[$date_field.'/to']}')",NULL,FALSE);
-			}
+			$args['id_less_than']=$args['before'];
 		}
 		
 		if(isset($args['count'])){
@@ -339,18 +314,18 @@ class Project_model extends BaseItem_model{
 		if(isset($args['group_by'])){
 			if($args['group_by']==='team'){
 				$this->db->join('team','team.id = project.team','inner')
-					->group_by('project.team')
+					->group_by('object.team')
 					->select('team.id `team`, team.name `team_name`');
 			}
 			
 			if($args['group_by']==='people'){
-				$this->db->join('project_people','project_people.project = project.id','inner')
-					->join('people','people.id = project_people.people','inner')
-					->group_by('project_people.people')
+				$this->db->join('object_relationship','object_relationship.object = object.id','inner')
+					->join('object people','people.id = object_relationship.relative','inner')
+					->group_by('object_relationship.relative')
 					->select('people.name AS people_name, people.id AS people');
 				
 				if(isset($args['role'])){
-					$this->db->where('project_people.role',$args['role']);
+					$this->db->where('object_relationship.role',$args['role']);
 				}
 			}
 		}
