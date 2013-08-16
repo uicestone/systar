@@ -434,6 +434,10 @@ class Schedule extends SS_controller{
 			isset($people_status[$this->user->id]['enrolled']) && $this->output->setData($people_status[$this->user->id]['enrolled'],'enrolled');
 		}
 		
+		if($this->input->get('people')){
+			$people[]=$this->input->get('people');
+		}
+
 		$this->load->addViewArrayData(compact('schedule','profiles','people','labels','people_status'));
 		
 		$this->output->setData($this->load->view("schedule/$mode",true));

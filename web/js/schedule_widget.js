@@ -123,6 +123,10 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			uri=$.changeUrlPar(uri,'project','0');
 		}
 		
+		if(this.options.people){
+			uri=$.changeUrlPar(uri,'people',this.options.people);
+		}
+		
 		if(!this.options.start && !this.options.end){
 			uri=$.changeUrlPar(uri,'period','1');
 		}
