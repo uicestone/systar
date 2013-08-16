@@ -60,12 +60,14 @@ class Schedule extends SS_controller{
 		$this->config->set_user_item('search/limit', 'pagination', false);
 		$this->config->set_user_item('search/in_project_of_people', $this->user->id, false);
 		$this->config->set_user_item('search/show_creater', true, false);
+		$this->config->set_user_item('search/show_project', true, false);
 		$this->config->set_user_item('search/time/input_format', 'date', false);
 		$this->config->set_user_item('search/date_form', '%Y-%m-%d %H:%i', false);
 		
 		if($this->input->get('project')){
 			$this->output->title=$this->output->title.' - '.$this->project->fetch($this->input->get('project'),'name');
 			$this->config->set_user_item('search/project', $this->input->get('project'),false);
+			$this->config->set_user_item('search/in_project_of_people', NULL, false);
 		}
 		
 		$this->_search();

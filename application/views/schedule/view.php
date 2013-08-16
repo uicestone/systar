@@ -19,7 +19,7 @@
 	<select class="profile-name allow-new" style="width:78%">
 		<?=options(array('外出地点','费用金额','费用用途','备注'),NULL)?>
 	</select>
-	<button>保存</button>
+	<button id="save">保存</button>
 	<br />
 	<input type="text" name="profiles[]" style="width:98%" />
 </div>
