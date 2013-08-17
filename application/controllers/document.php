@@ -72,7 +72,7 @@ class Document extends SS_controller{
 		try{
 			$this->document->data=array_merge($this->document->fetch($id),$this->input->sessionPost('document'));
 
-			$this->document->tags=array_merge($this->document->getTags($this->document->id),$this->input->sessionPost('tags'));
+			$this->document->tags=array_merge($this->document->getTag($this->document->id),$this->input->sessionPost('tags'));
 
 			if(!$this->document->data['name']){
 				$this->output->title='未命名'.lang(CONTROLLER);
@@ -118,7 +118,7 @@ class Document extends SS_controller{
 			$this->document->id=$id;
 
 			$this->document->data=array_merge($this->document->fetch($id),$this->input->sessionPost('document'));
-			$this->document->tags=array_merge($this->document->getTags($this->document->id),$this->input->sessionPost('tags'));
+			$this->document->tags=array_merge($this->document->getTag($this->document->id),$this->input->sessionPost('tags'));
 		}
 		
 		$this->load->library('form_validation');

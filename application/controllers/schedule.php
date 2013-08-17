@@ -396,7 +396,7 @@ class Schedule extends SS_controller{
 			//从people中删除当前用户，应为当前用户会自动被关联到本日志
 			unset($people[array_search($this->user->id,$people)]);
 			
-			$tags=$this->schedule->getTags($schedule_id);
+			$tags=$this->schedule->getTag($schedule_id);
 
 			if(isset($schedule['project'])){
 				$project=$this->project->fetch($schedule['project']);

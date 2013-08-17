@@ -130,7 +130,7 @@ class People extends SS_Controller{
 
 		try{
 			$this->people->data=array_merge($this->people->fetch($id),$this->input->sessionPost('people'));
-			$this->people->tags=$this->people->getTags($this->people->id);
+			$this->people->tags=$this->people->getTag($this->people->id);
 			$this->people->meta=array_column($this->people->getMeta($this->people->id),'content','name');
 
 			if(!$this->people->data['name'] && !$this->people->data['abbreviation']){

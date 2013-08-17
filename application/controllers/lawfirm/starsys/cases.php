@@ -57,7 +57,7 @@ class Cases extends Project{
 		try{
 			$this->cases->data=array_merge($this->cases->fetch($this->cases->id),$this->input->sessionPost('project'));
 			$this->cases->meta=array_merge(array_column($this->cases->getMeta($this->cases->id),'content','name'),$this->input->sessionPost('meta'));
-			$this->cases->tags=array_merge($this->cases->getTags($this->cases->id),$this->input->sessionPost('tags'));
+			$this->cases->tags=array_merge($this->cases->getTag($this->cases->id),$this->input->sessionPost('tags'));
 			
 			if(!$this->cases->data['name']){
 				$this->output->title='未命名'.lang(CONTROLLER);

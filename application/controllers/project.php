@@ -136,7 +136,7 @@ class Project extends SS_controller{
 		try{
 			$this->project->data=array_merge($this->project->fetch($id),$this->input->sessionPost('project'));
 
-			$this->project->tags=array_merge($this->project->getTags($this->project->id),$this->input->sessionPost('tags'));
+			$this->project->tags=array_merge($this->project->getTag($this->project->id),$this->input->sessionPost('tags'));
 
 			if(!$this->project->data['name']){
 				$this->output->title='未命名'.lang(CONTROLLER);
@@ -239,7 +239,7 @@ class Project extends SS_controller{
 		$this->project->id=$id;
 		
 		$this->project->data=array_merge($this->project->fetch($id),$this->input->sessionPost('project'));
-		$this->project->tags=array_merge($this->project->getTags($this->project->id),$this->input->sessionPost('tags'));
+		$this->project->tags=array_merge($this->project->getTag($this->project->id),$this->input->sessionPost('tags'));
 		$this->project->meta=$this->input->sessionPost('meta');
 		
 		$this->load->library('form_validation');

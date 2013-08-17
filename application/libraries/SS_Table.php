@@ -74,7 +74,7 @@ class SS_Table extends CI_Table{
 			}
 			
 			foreach($this->row_attr as $attr_name => $attr_value){
-				$row_compiled['_attr'][$attr_name]=$this->parser->parse_string($attr_value, array_column($row,'data',NULL,true), true);
+				$row_compiled['_attr'][$attr_name]=$this->parser->parse_string($attr_value, array_column($row,'data'), true);
 			}
 			
 			foreach($this->fields as $field_name => $field){
@@ -100,7 +100,7 @@ class SS_Table extends CI_Table{
 				}
 				
 				foreach($cell as $attr_name => $attr_value){
-					$cell[$attr_name]=$this->parser->parse_string($attr_value,array_column($row,'data',NULL,true),true);
+					$cell[$attr_name]=$this->parser->parse_string($attr_value,array_column($row,'data'),true);
 				}
 				
 				//用指定函数来处理$cell[data]

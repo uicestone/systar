@@ -68,7 +68,7 @@ class Student extends People{
 		
 		try{
 			$people=array_merge($this->student->fetch($id),$this->input->sessionPost('people'));
-			$tags=$this->student->getTags($this->student->id);
+			$tags=$this->student->getTag($this->student->id);
 			$meta=array_column($this->student->getMeta($this->student->id),'content','name');
 
 			if(!$people['name'] && !$people['abbreviation']){

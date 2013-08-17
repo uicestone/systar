@@ -58,7 +58,7 @@ class Test extends SS_controller{
 		$object->addTags(array('再成案','阶段'=>'一审'));
 		$object->updateTags(array('阶段'=>'二审'));
 		$object->removeTag('个人案源');
-		$this->unit->run($object->getTags(),array('领域'=>'房产','再成案','阶段'=>'二审'),'标签增删');
+		$this->unit->run($object->getTag(),array('领域'=>'房产','再成案','阶段'=>'二审'),'标签增删');
 		
 		$object->addMeta('电话', '51096488');
 		$meta_phone=$object->addMeta('电话', '52567816');

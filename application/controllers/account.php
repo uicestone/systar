@@ -139,7 +139,7 @@ class Account extends SS_controller{
 		
 		try{
 			$this->account->data=$this->account->fetch($this->account->id);
-			$this->account->tags=$this->account->getTags($this->account->id);
+			$this->account->tags=$this->account->getTag($this->account->id);
 
 			if($this->account->data['name']){
 				$this->output->title=$this->account->data['name'];
