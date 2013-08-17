@@ -7,8 +7,7 @@
     <div class="widget-body">
         <div class="widget-main form-inline">
             <label for="name">姓名</label>
-            <input type="text" id="name" value="<%=meta.name%>">
-
+            <input type="text" id="name" value="<%=name%>">
             <label for="phone">手机</label>
             <div class="input-prepend">
                 <span class="add-on">
@@ -20,7 +19,7 @@
 
             <label for="birthday">生日</label>
             <div class="input-append">
-                <input class="span10 date-picker" id="birthday" type="text" data-date-format="yyyy-mm-dd" value="">
+                <input class="span10 date-picker" id="birthday" type="text" data-date-format="yyyy-mm-dd" value="<%=birthday%>">
                 <span class="add-on">
                     <i class="icon-calendar"></i>
                 </span>

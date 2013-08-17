@@ -38,6 +38,7 @@ var Workspace = Backbone.Router.extend({
             wrap.find("[data-widget-type=table]").each(function(i,el){
                 el = $(el);
                 var container = el.find(".widget-main");
+                if(!data.meta){return;}
                 var grid = new Grid("meta", data.meta, el);
                 var paginator = new Backgrid.Extension.Paginator({
                   collection: grid.collection

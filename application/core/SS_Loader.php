@@ -71,7 +71,7 @@ class SS_Loader extends CI_Loader{
 	 * @param string $js_file_path js文件的路径文件名（不含"web/js/"和".js"）
 	 */
 	function javascript($js_file_path){
-		$path='js/'.$js_file_path.'.js';
+		$path= $js_file_path.'.js';
 		
 		if(!file_exists($path)){
 			//找不到文件？我们看看这个文件是不是需要根据其他文件合并
@@ -80,8 +80,7 @@ class SS_Loader extends CI_Loader{
 			if(!array_key_exists($path, $sources)){
 				//配置文件中没有发现合并列表？放弃吧
 				return;
-			}
-			else{
+			}else{
 				if(true || ENVIRONMENT==='development'){
 					//开发环境下，直接根据合并列表分别载入所有文件
 					$html='';
@@ -107,24 +106,24 @@ class SS_Loader extends CI_Loader{
 	/**
 	 * 在view中载入外部css链接的简写
 	 */
-	function stylesheet($js_file_path){
-		$path=$js_file_path.'.css';
+	function stylesheet($css_file_path){
+		$path=$css_file_path.'.css';
 		
 		if(!file_exists($path)){
 			//找不到文件？我们看看这个文件是不是需要根据其他文件合并
 			$this->config('minify');
 			$sources=$this->config->item('minify_source');
+
 			if(!array_key_exists($path, $sources)){
 				//配置文件中没有发现合并列表？放弃吧
 				return;
-			}
-			else{
+			}else{
 				if(true || ENVIRONMENT==='development'){
 					//开发环境下，直接根据合并列表分别载入所有文件
 					$html='';
 					foreach($sources[$path] as $source){
 						$hash=filemtime($source);
-						$html.='<link rel="stylesheet" href="/'.$source.'?'.$hash.'" type="text/css" />'."\n";
+						$html.="<link rel=\"stylesheet\" href=\"/$source?$hash\" type=\"text/css\" />\n";
 					}
 					return $html;
 				}else{
@@ -138,7 +137,7 @@ class SS_Loader extends CI_Loader{
 		}
 		
 		$hash=filemtime($path);
-		return '<link rel="stylesheet" href="/'.$path.'?'.$hash.'" type="text/css" />'."\n";
+		return "<link rel=\"stylesheet\" href=\"/$path?$hash\" type=\"text/css\" />\n";
 	}
 
 	/**
