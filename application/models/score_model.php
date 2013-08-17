@@ -1,5 +1,5 @@
 <?php
-class Score_model extends SS_Model{
+class Score_model extends CI_Model{
 	function __construct(){
 		parent::__construct();
 	}

@@ -1,5 +1,5 @@
 <?php
-class Object_model extends SS_Model{
+class Object_model extends CI_Model{
 	
 	var $id;
 	var $data;//具体对象数据
@@ -136,7 +136,7 @@ class Object_model extends SS_Model{
 		}
 		
 		foreach(array('meta','mod','relative','status','tag') as $field){
-			if(isset($args['get_'.$field]) && $args['get_'.$field]){
+			if(array_key_exists('get_'.$field,$args) && $args['get_'.$field]){
 				$object[$field]=call_user_func(array($this,'get'.$field));
 			}
 		}
@@ -297,7 +297,7 @@ class Object_model extends SS_Model{
 	 *		)
 	 * 
 	 *	orderby string or array
-	 *	limit string, array or 'pagination'
+	 *	limit string, array
 	 * @return array
 	 */
 	function getList($args=array()){
@@ -321,17 +321,7 @@ class Object_model extends SS_Model{
 			array_unshift($this->db->ar_join,array_pop($this->db->ar_join));
 		}
 		
-		//验证读权限
-		if($this->mod && !$this->user->isLogged($this->table.'admin')){
-			$this->db->where("object.id IN (
-				SELECT object FROM object_mod
-				WHERE (object_mod.people IS NULL OR object_mod.people{$this->db->escape_int_array(array_merge(array_keys($this->user->groups),array($this->user->id)))})
-					AND ((object_mod.mod & 1) = 1)
-				)
-			");
-		}
-		
-		if(isset($args['name'])){
+		if(array_key_exists('name',$args)){
 			$this->db->like('object.name',$args['name']);
 		}
 		
@@ -343,36 +333,36 @@ class Object_model extends SS_Model{
 			}
 		}
 		
-		if(isset($args['id_less_than'])){
+		if(array_key_exists('id_less_than',$args)){
 			$this->db->where('object.id <',$args['id_less_than']);
 		}
 		
-		if(isset($args['id_greater_than'])){
+		if(array_key_exists('id_greater_than',$args)){
 			$this->db->where('object.id >',$args['id_greater_than']);
 		}
 		
-		if(isset($args['type']) && $args['type']){
+		if(array_key_exists('type',$args) && $args['type']){
 			$this->db->where('object.type',$args['type']);
 		}
 		
-		if(isset($args['num'])){
+		if(array_key_exists('num',$args)){
 			$this->db->like('object.num',$args['num']);
 		}
 		
-		if(!isset($args['display']) || $args['display']===true){
+		if(!array_key_exists('display',$args) || $args['display']===true){
 			$this->db->where('object.display',true);
 		}
 
-		if(!isset($args['company']) || $args['company']===true){
+		if(!array_key_exists('company',$args) || $args['company']===true){
 			$this->db->where('object.company',$this->company->id);
 		}
 		
-		if(isset($args['uid']) && $args['uid']){
+		if(array_key_exists('uid',$args) && $args['uid']){
 			$this->db->where('object.uid',$args['uid']);
 		}
 		
 		//使用INNER JOIN的方式来筛选标签，聪明又机灵。//TODO 总觉得哪里不对- -||
-		if(isset($args['tags']) && is_array($args['tags'])){
+		if(array_key_exists('tags',$args) && is_array($args['tags'])){
 			foreach($args['tags'] as $id => $tag_name){
 				//每次连接object_tag表需要定一个唯一的名字
 				$on="object.id = `t_$id`.object AND `t_$id`.tag_name = {$this->db->escape($tag_name)}";
@@ -383,7 +373,7 @@ class Object_model extends SS_Model{
 			}
 		}
 		
-		if(isset($args['without_tags'])){
+		if(array_key_exists('without_tags',$args)){
 			foreach($args['without_tags'] as $id => $tag_name){
 				$query_with="SELECT object FROM object_tag WHERE tag_name = {$this->db->escape($tag_name)}";
 				if(!is_integer($id)){
@@ -394,7 +384,25 @@ class Object_model extends SS_Model{
 			}
 		}
 		
-		if(isset($args['has_meta']) && is_array($args['has_meta'])){
+		if(array_key_exists('mod', $args)){
+			$positive=$negative=0;
+			foreach($args['mod'] as $mod_name => $status){
+					
+				if(!array_key_exists($mod_name, $this->mod_list)){
+					log_message('error','mod name not found: '.$mod_name);
+					continue;
+				}
+
+				$mod=$this->mod_list[$mod_name];
+				$status?($positive|=$mod):($negative|=$mod);
+			}
+			
+			$this->db
+				->join('object_mod',"object_mod.object = object.id AND object_mod.user = {$this->user->id}",'inner')
+				->where("object_mod.mod & $positive = $positive AND object_mod.mod & $negative = 0",NULL,false);
+		}
+		
+		if(array_key_exists('has_meta',$args) && is_array($args['has_meta'])){
 			foreach($args['has_meta'] as $name => $content){
 				$name=$this->db->escape($name);
 				$content=$this->db->escape($content);
@@ -408,11 +416,11 @@ class Object_model extends SS_Model{
 			}
 		}
 		
-		if(isset($args['is_relative_of'])){
+		if(array_key_exists('is_relative_of',$args)){
 			
 			$on="object.id = object_relationship__is_relative_of.relative AND object_relationship__is_relative_of.object{$this->db->escape_int_array($args['is_relative_of'])}";
 			
-			if(isset($args['is_relative_of__role'])){
+			if(array_key_exists('is_relative_of__role',$args)){
 				$on.=" object_relationship__is_relative_of.role = {$this->db->escape($args['is_relative_of__role'])}";
 			}
 			
@@ -421,11 +429,11 @@ class Object_model extends SS_Model{
 			
 		}
 
-		if(isset($args['has_relative_like'])){
+		if(array_key_exists('has_relative_like',$args)){
 			
 			$on="object.id = object_relationship__has_relative_like.object AND object_relationship__has_relative_like.relative{$this->db->escape_int_array($args['has_relative_like'])}";
 			
-			if(isset($args['has_relative_like__role'])){
+			if(array_key_exists('has_relative_like__role',$args)){
 				$on.=" object_relationship__has_relative_like.role = {$this->db->escape($args['has_relative_like__role'])}";
 			}
 			
@@ -433,7 +441,7 @@ class Object_model extends SS_Model{
 				->select('object_relationship__has_relative_like.id relationship_id, object_relationship__has_relative_like.relation, object_relationship__has_relative_like.accepted, object_relationship__has_relative_like.time relationship_time');
 		}
 		
-		if(isset($args['is_secondary_relative_of'])){
+		if(array_key_exists('is_secondary_relative_of',$args)){
 			$this->db->where("object.id IN (
 				SELECT relative FROM object_relative WHERE object IN (
 					SELECT relative FROM object_relative
@@ -443,7 +451,7 @@ class Object_model extends SS_Model{
 			)");
 		}
 
-		if(isset($args['is_both_relative_with'])){
+		if(array_key_exists('is_both_relative_with',$args)){
 			$this->db->where("object.id IN (
 				SELECT relative FROM object_relative WHERE object IN (
 					SELECT object FROM object_relative
@@ -453,7 +461,7 @@ class Object_model extends SS_Model{
 			)");
 		}
 
-		if(isset($args['has_common_relative_with'])){
+		if(array_key_exists('has_common_relative_with',$args)){
 			$this->db->where("object.id IN (
 				SELECT object FROM object_relative WHERE relative IN (
 					SELECT relative FROM object_relative
@@ -463,7 +471,7 @@ class Object_model extends SS_Model{
 			)");
 		}
 
-		if(isset($args['has_secondary_relative_like'])){
+		if(array_key_exists('has_secondary_relative_like',$args)){
 			$this->db->where("object.id IN (
 				SELECT object FROM object_relative WHERE relative IN (
 					SELECT object FROM object_relative
@@ -487,7 +495,7 @@ class Object_model extends SS_Model{
 					$this->db->where('UNIX_TIMESTAMP(schedule.start) >=',$status['from']);
 				}
 
-				if(isset($args['time']['to']) && $args['time']['to']){
+				if(isset($status['to']) && $status['to']){
 
 					if(isset($status['format']) && $status['format']!=='timestamp'){
 						$status['to']=strtotime($status['to']);
@@ -503,10 +511,7 @@ class Object_model extends SS_Model{
 			}
 		}
 		
-		//复制一个DB对象用来计算行数，因为计算行数需要运行sql，将清空DB对象中属性
-		$db_num_rows=clone $this->db;
-		
-		if(isset($args['order_by']) && $args['order_by']){
+		if(array_key_exists('order_by',$args) && $args['order_by']){
 			if(is_array($args['order_by'])){
 				foreach($args['order_by'] as $orderby){
 					$this->db->order_by($orderby[0],$orderby[1]);
@@ -516,16 +521,12 @@ class Object_model extends SS_Model{
 			}
 		}
 		
-		if(isset($args['limit']) && $args['limit']){
-			if($args['limit']==='pagination'){
-				if(array_key_exists('group_by', $args)){
-					$args['limit']=$this->pagination($db_num_rows,true,'object.id');
-				}else{
-					$args['limit']=$this->pagination($db_num_rows);
-				}
-				call_user_func_array(array($this->db,'limit'), $args['limit']);
-			}
-			elseif(is_array($args['limit'])){
+		if(!array_key_exists('limit',$args)){
+			$args['limit']='25 0';
+		}
+		
+		if($args['limit']){
+			if(is_array($args['limit'])){
 				call_user_func_array(array($this->db,'limit'), $args['limit']);
 			}
 			else{
@@ -535,9 +536,8 @@ class Object_model extends SS_Model{
 		
 		$result_array=$this->db->get()->result_array();
 		
-		
 		foreach(array('meta','mod','relative','status','tag') as $field){
-			if(isset($args['get_'.$field]) && $args['get_'.$field]){
+			if(array_key_exists('get_'.$field,$args) && $args['get_'.$field]){
 				array_walk($result_array,function(&$row){
 					$row[$field]=call_user_func(array($this,'get'.$field));
 				});
@@ -553,7 +553,7 @@ class Object_model extends SS_Model{
 	}
 	
 	function getRow($args=array()){
-		!isset($args['limit']) && $args['limit']=1;
+		!array_key_exists('limit',$args) && $args['limit']=1;
 		$result=$this->getList($args);
 		if(isset($result[0])){
 			return $result[0];
@@ -707,7 +707,7 @@ class Object_model extends SS_Model{
 			->join('object','object_meta.object = object.id','inner')
 			->where("object_meta.object",$this->id);
 			
-		if(isset($args['show_author']) && $args['show_author']){
+		if(array_key_exists('show_author',$args) && $args['show_author']){
 			$this->db->join('object author','author.id = object_meta.uid','inner')
 				->select('author.id author, author.name author_name');
 		}
@@ -858,21 +858,21 @@ class Object_model extends SS_Model{
 		
 		if($mod_set){
 			$positive=$negative=0;
-			foreach($mod_set as $relation_type => $mods){
+			foreach($mod_set as $relative_type => $mods){
 				
-				if(!array_key_exists($relation_type, $this->relative_mod_list)){
-					log_message('error','relation type not found: '.$relation_type);
+				if(!array_key_exists($relative_type, $this->relative_mod_list)){
+					log_message('error','relation type not found: '.$relative_type);
 					continue;
 				}
 				
 				foreach($mods as $mod_name => $status){
 					
-					if(!array_key_exists($mod_name, $this->relative_mod_list[$relation_type])){
+					if(!array_key_exists($mod_name, $this->relative_mod_list[$relative_type])){
 						log_message('error','mod name not found: '.$mod_name);
 						continue;
 					}
 					
-					$mod=$this->relative_mod_list[$relation_type][$mod_name];
+					$mod=$this->relative_mod_list[$relative_type][$mod_name];
 					$status?($positive|=$mod):($negative|=$mod);
 				}
 				
@@ -1006,7 +1006,7 @@ class Object_model extends SS_Model{
 	}
 	
 	function getMod(){
-		$this->db->select('people,mod')
+		$this->db->select('user,mod')
 			->from('object_mod')
 			->where('object',$this->id);
 		
@@ -1017,44 +1017,47 @@ class Object_model extends SS_Model{
 	 * 给当前对象增加一个权限(开关参数)
 	 * @todo 没必要搞得这么复杂，写成单行写入即可，供多次调用
 	 * @param string $mod
-	 * @param int $people
+	 * @param int $user
 	 * @return \Object_model
 	 */
-	function addMod($mod,$people){
+	function addMod($mod,$user){
 		
 		$mod=$this->mod_list[$mod];
 		
-		if(!is_array($people)){
-			$people=array($people);
+		if(!is_array($user)){
+			$user=array($user);
 		}
 		
 		$result_mod=$this->db->from('object_mod')
 			->where('object',$this->id)
-			->where_in('people',$people)
+			->where_in('user',$user)
 			->get()->result_array();
 		
-		$people_with_permission=array_column($result_mod,'people');
+		$user_with_mod=array_column($result_mod,'user');
 		
-		$people_without_permission=array_diff($people,$people_with_permission);
+		$user_without_mod=array_diff($user,$user_with_mod);
 		
-		foreach($people_with_permission as $person_with_permission){
+		foreach($user_with_mod as $person_with_mod){
 			$this->db
 				->where('object',$this->id)
-				->where('people',$person_with_permission)
+				->where('user',$person_with_mod)
 				->set('mod','`mod` | '.intval($mod),false)
 				->update('object_mod');
 		}
 		
 		$set=array();
 		
-		foreach($people_without_permission as $person_without_permission){
+		foreach($user_without_mod as $person_without_mod){
 			$set[]=array(
 				'object'=>$this->id,
-				'people'=>$person_without_permission,
-				'mod'=>$mod
+				'user'=>$person_without_mod,
+				'mod'=>$mod,
+				'uid'=>$this->user->id,
+				'time'=>time()
 			);
 		}
-		$this->db->insert_batch('object_mod',$set);
+		
+		!empty($set) && $this->db->insert_batch('object_mod',$set);
 		
 		return $this;
 		

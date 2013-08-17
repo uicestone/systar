@@ -134,7 +134,7 @@ class People_model extends Object_model{
 	}
 	
 	/**
-	 * 继承自SS_Model::getList()，具有基本的type,tag,orderby和limit配置功能
+	 * 继承自CI_Model::getList()，具有基本的type,tag,orderby和limit配置功能
 	 * @param array $args:
 	 * name string 匹配部分people.name, people.abbreviation, people.name_en
 	 * 

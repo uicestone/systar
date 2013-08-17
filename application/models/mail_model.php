@@ -1,5 +1,5 @@
 <?php
-class Mail_model extends SS_Model{
+class Mail_model extends CI_Model{
 	function __construct() {
 		parent::__construct();
 	}
