@@ -18,14 +18,17 @@ var Workspace = Backbone.Router.extend({
 
     list:function(name){
         var tplname = [name,"list"].join("/");
+        var template = Templates[tplname];
+        
+        $.getJSON(name, {}, function(data){
+            console.log(data);
+        });
     },
 
     edit:function(name,id){
         var tplname = [name,"edit"].join("/");
 
         var template = Templates[tplname];
-
-
 
         $.getJSON([name,id].join("/"),{},function(data){
             var html = _.template(template,_.extend(data,ViewHelpers));
