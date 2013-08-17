@@ -112,7 +112,8 @@ class SS_Controller extends CI_Controller{
 	 * 而且他还会判断当前页面是否包含一个传统html输出
 	 * 如果是，那么追加一些需要执行的内嵌js代码，然后添加到Output::data中（这里需要用内嵌js是因为js的变量需要由后台程序赋值）
 	 */
-	function _output($output=''){
+	
+/*	function _output($output=''){
 		
 		if(!$this->output->as_ajax){
 			echo $output;
@@ -132,7 +133,7 @@ class SS_Controller extends CI_Controller{
 			 * 我们给它直接加上嵌入页面的js
 			 * 并作为data的content键封装json传输到前段
 			 */
-			$output.=$this->load->view('innerjs',true);
+/*			$output.=$this->load->view('innerjs',true);
 			$this->output->setData($output,substr($this->input->server('REQUEST_URI'),1),'html','article>section[hash="'.substr($this->input->server('REQUEST_URI'),1).'"]');
 		}
 		
@@ -153,7 +154,7 @@ class SS_Controller extends CI_Controller{
 		
 		echo json_encode($output_array);
 	}
-	
+*/	
 	function _search(){
 		if($this->input->get('labels')!==false){
 			$labels=preg_split('/\s|,/',urldecode($this->input->get('labels')));
@@ -174,6 +175,20 @@ class SS_Controller extends CI_Controller{
 				$this->config->unset_user_item('search/'.$item);
 			}
 		}
+	}
+	
+	function fetch($id){
+		$args=$this->input->get();
+		$controller=CONTROLLER;
+		$this->output->set_output(json_encode($this->$controller->fetch($id,$args)));
+		$this->output->set_header('Content-Type: application/json');
+	}
+	
+	function getList(){
+		$args=$this->input->get();
+		$controller=CONTROLLER;
+		$this->output->set_output(json_encode($this->$controller->getList($args)));
+		$this->output->set_header('Content-Type: application/json');
 	}
 	
 	/**

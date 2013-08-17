@@ -96,10 +96,9 @@ class Object_model extends SS_Model{
 	
 	/**
 	 * 
-	 * @param string $field
 	 * @throws Exception 'not_found'
 	 */
-	function fetch($id=NULL, $field=NULL){
+	function fetch($id=NULL, $args=array()){
 		
 		if(is_null($id)){
 			$id=$this->id;
@@ -136,16 +135,14 @@ class Object_model extends SS_Model{
 			throw new Exception(lang($this->table).' '.$this->id.' '.lang('not_found'));
 		}
 		
-		if(is_null($field)){
-			return $object;
-	
-		}elseif(array_key_exists($field,$object)){
-			return $object[$field];
-
-		}else{
-			log_message('error','Unknown field '.$field.' in object');
-			return false;
+		foreach(array('meta','mod','relative','status','tag') as $field){
+			if(isset($args['get_'.$field]) && $args['get_'.$field]){
+				$object[$field]=call_user_func(array($this,'get'.$field));
+			}
 		}
+		
+		return $object;
+
 	}
 	
 	function add(array $data){
@@ -304,6 +301,10 @@ class Object_model extends SS_Model{
 	 * @return array
 	 */
 	function getList($args=array()){
+		
+		if(!is_array($args)){
+			$args=array();
+		}
 		
 		if(!$this->db->ar_select){
 			$this->db->select('object.*');
@@ -534,43 +535,12 @@ class Object_model extends SS_Model{
 		
 		$result_array=$this->db->get()->result_array();
 		
-		if(isset($args['get_meta']) && is_array($args['get_meta'])){
-			foreach($result_array as &$row){
-				$meta=array_column($this->getMeta($row['id']),'content','name');
-				if($args['get_meta']===true){
-					$row['meta']=$meta;
-				}
-				elseif(is_array($args['get_meta'])){
-					foreach($args['get_meta'] as $key => $value){
-						$profile_content=array_key_exists($value, $meta)?$meta[$value]:NULL;
-						if(is_integer($key)){
-							$row[$value]=$profile_content;
-						}
-						else{
-							$row[$key]=$profile_content;
-						}
-					}
-				}
-			}
-		}
 		
-		if(isset($args['get_tags']) && is_array($args['get_tags'])){
-			foreach($result_array as &$row){
-				$tags=$this->getTags($row['id']);
-				if($args['get_tags']===true){
-					$row['tags']=$tags;
-				}
-				elseif(is_array($args['get_tags'])){
-					foreach($args['get_tags'] as $key => $value){
-						$tag_content=array_key_exists($value, $tags)?$tags[$value]:NULL;
-						if(is_integer($key)){
-							$row[$value]=$tag_content;
-						}
-						else{
-							$row[$key]=$tag_content;
-						}
-					}
-				}
+		foreach(array('meta','mod','relative','status','tag') as $field){
+			if(isset($args['get_'.$field]) && $args['get_'.$field]){
+				array_walk($result_array,function(&$row){
+					$row[$field]=call_user_func(array($this,'get'.$field));
+				});
 			}
 		}
 		
@@ -597,7 +567,7 @@ class Object_model extends SS_Model{
 	 * @param string $type
 	 * @return array([type=>]name,...)
 	 */
-	function getTags($type=NULL){
+	function getTag($type=NULL){
 		
 		$this->db
 			->select('tag.name,object_tag.type')
@@ -649,7 +619,7 @@ class Object_model extends SS_Model{
 	 */
 	function addTag($name,$type=NULL){
 		$tag_id=$this->tag->match($name);
-		$this->tags=$this->getTags();
+		$this->tags=$this->getTag();
 		
 		if(!in_array($name,$this->tags)){
 			$this->db->insert('object_tag',array_merge(self::$fields_tag,array('object'=>$this->id,'tag'=>$tag_id,'type'=>$type,'tag_name'=>$name)));
@@ -704,7 +674,7 @@ class Object_model extends SS_Model{
 			$this->db->update('object_tag',array_merge(self::$fields_tag,$set,$where),$where);
 		}
 		
-		$origin_tags=$this->getTags($this->id);
+		$origin_tags=$this->getTag($this->id);
 		
 		//添加新的标签
 		$this->addTags(array_diff($origin_tags,$tags));
@@ -1033,6 +1003,14 @@ class Object_model extends SS_Model{
 		
 		return $this;
 				
+	}
+	
+	function getMod(){
+		$this->db->select('people,mod')
+			->from('object_mod')
+			->where('object',$this->id);
+		
+		return $this->db->get()->result_array();
 	}
 	
 	/**
