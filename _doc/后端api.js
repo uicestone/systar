@@ -1,0 +1,131 @@
+var objectData={
+	id:0,
+	type:'',//对象类型如people,contact,cases,project
+	num:'',//对象的编号，字符串
+	name:'',//对象的显示名称
+	'additional_fields':'',//根据不同type的对象，可能有些额外的根字段
+	meta:[
+		{
+			id:0,
+			name:'',
+			content:'',
+			comment:''
+		}
+	],
+	mod:{
+		'user.id':0
+	},
+	relative:[
+		{
+			id:0,//关系id
+			num:'',//关系编号，比如一个学生在一个班级中的学号
+			relation:'',
+			mod:0,//合并存储的一组二进制数据
+			weight:0,//比重
+			till:'1970-01-01',//关系结束时间
+			relative_id:0,//关联对象id
+			type:'',//关连对象类型
+			name:''//关连对象显示名称
+		}
+	],
+	status:[
+		{
+			id:0,
+			name:'',
+			type:'',
+			datetime:'',
+			content:'',
+			comment:''
+		}
+	],
+	tag:[
+		{
+			id:0,
+			name:'',
+			type:''//标签类型，如“阶段”，“领域”
+		}
+	]
+};
+
+var listArgs={
+	id_in:[],
+	id_less_than:0,
+	id_greater_than:0,
+	name:'',
+	type:'',
+	num:'',
+	display:false,
+	company:0,
+	uid:0,
+
+	tags:{tagType:tagName,0:tagName},
+	without_tags:{tagType:tagName,0:tagName},
+	get_tags:false,
+
+	has_meta:{metaName:metaContent,0:metaName},
+	get_meta:false,
+
+	is_relative_of:0,//根据本对象获得相关对象
+		is_relative_of__relation:'',
+	has_relative_like:0,//根据相关对象获得本对象
+		has_relative_like__relation:'',
+	is_secondary_relative_of:0,//右侧相关对象的右侧相关对象，“下属的下属”
+		is_secondary_relative_of__media:'',
+	is_both_relative_with:0,//右侧相关对象的左侧相关对象，“具有共同上司的同事”
+		is_both_relative_with__media:'',
+	has_common_relative_with:0,//左侧相关对象的右侧相关对象，“具有共同下属的上司”
+		has_common_relative_with__media:'',
+	has_secondary_relative_like:0,//左侧相关对象的左侧相关对象，“上司的上司”
+		has_secondary_relative_like__media:'',
+
+	status:{
+		'name':[
+			{'from':'from_syntax','to':'to_syntax','format':'timestamp/date/datetime'},
+			false
+		],
+		'首次接洽':{'from':1300000000,'to':1300100000,'format':'timestamp'},
+		'立案':{'from':'2013-01-01','to':'2013-06-30'},
+		'结案':true
+	},
+
+	orderby:['',[]],
+	limit:''
+};
+
+var api = [
+	{
+		name:fetchObject,
+		request:{
+			uri:'/{object.type}/{id}',
+			contentType:['application/json','application/x-www-form-urlencoded','multipart/form-data'],
+			method:'GET',
+			data:{}
+		},
+		response:{
+			contentType:'application/json',
+			data:objectData
+		}
+	},
+	{
+		name:getObjects,
+		request:{
+			uri:'{object.type}',
+			data:listArgs
+		},
+		response:[
+			objectData,
+			objectData
+		]
+	},
+	{
+		name:nav,
+		request:{
+			uri:'/nav',
+		},
+		response:{
+			data:{
+				
+			}
+		}
+	},
+]
