@@ -1,3 +1,8 @@
-	<article default-uri="<?=$this->config->user_item('default_page')?>"></article>
-	<aside></aside>
-	<script type="text/javascript">controller='<?=CONTROLLER?>';affair='<?=$this->output->title?>';method='<?=METHOD?>';username='<?=$this->user->name?>';sysname='<?=$this->company->sysname?>';environment='<?=ENVIRONMENT?>';</script>
+<div class="main-content">
+    <div class="page-content">
+        <div class="row-fluid">
+            <div class="span12">
+            </div><!--/.span-->
+        </div><!--/.row-fluid-->
+    </div><!--/.page-content-->
+</div><!--/.main-content-->
