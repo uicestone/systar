@@ -100,6 +100,10 @@ class Object_model extends CI_Model{
 	 */
 	function fetch($id=NULL, $args=array()){
 		
+		if($args === false){
+			$args = array();
+		}
+
 		if(is_null($id)){
 			$id=$this->id;
 		}else{
