@@ -178,5 +178,7 @@ ALTER TABLE  `people` CHANGE  `name_en`  `name_en` VARCHAR( 255 ) CHARACTER SET 
 ALTER TABLE  `people` CHANGE  `city`  `city` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
 
 ALTER TABLE  `account` ADD  `count` BOOLEAN NOT NULL DEFAULT TRUE AFTER  `distributed_actual`;
+
+ALTER TABLE  `schedule_people` CHANGE  `in_todo_list`  `in_todo_list` TINYINT( 1 ) NOT NULL DEFAULT  '1';
 -- server updated
 

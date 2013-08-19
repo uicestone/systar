@@ -46,10 +46,10 @@ group by project having sum != 1
 -- 确认已申请归档案件的实际贡献总额
 select project.id,project.name,sum(weight) sum from
 project left join project_people on project.id = project_people.project and project_people.role = '实际贡献'
-where project.active=1 
-and project.id in (select project from project_label where label_name='已申请归档')
-	and project.id not in (select project from project_label where label_name='案卷已归档')
-group by project.id having sum != 1 or sum is null;
+where project.active=0 
+and end between '2013-01-01' and '2013-06-30'
+and project.id in (select project from account where received = 1)
+group by project.id having round(sum,3) != 1 or sum is null;
 
 -- 协办律师没有比例
 select * from project_people where weight is not null and role = '协办律师';
@@ -241,3 +241,47 @@ delete from account where type in ('结案奖金','办案奖金','结案奖金�
 delete from account_label where  label_name = '奖金已生成';
 
 delete from project_label where label_name = '结案奖金已生成';
+
+-- 将已全额到账的账目预估日期调整为最后到账日期
+create temporary table balanced
+select account
+from account
+group by account
+having sum(if(received=1,amount,0)) = sum(if(received=0,amount,0));
+
+create temporary table last_pay
+select account,date from (select * from account where received = 1 order by date desc)t group by account;
+
+update account 
+inner join last_pay using (account) 
+set account.date = last_pay.date
+where account.received = 0
+and account.account in (select account from balanced)
+and account.date > last_pay.date;
+
+-- 计算去年到账案件的结案奖金
+use starsys;
+select staff.name `职员`,project.name `案件`,account.amount `创收`,case_lawyer.contribute `实际贡献`,FROM_UNIXTIME(account.time_occur,'%Y-%m-%d') `到账日期`,project.end `结案日期`
+from account
+inner join case_lawyer on case_lawyer.case = account.case and case_lawyer.role = '实际贡献'
+inner join staff on staff.id = case_lawyer.lawyer
+inner join syssh.project on project.active = 0 and project.id = account.case
+where account.distributed_actual = 0
+and account.time_occur <= UNIX_TIMESTAMP('2012-12-31')
+order by case_lawyer.case,case_lawyer.lawyer;
+
+-- 去年每人创收明细
+select project.name,people.name,account.amount,case_lawyer.role, case_lawyer.contribute
+from starsys.account inner join starsys.case_lawyer on account.case = case_lawyer.case
+inner join syssh.people on people.id = case_lawyer.lawyer
+inner join syssh.project on project.id = case_lawyer.case
+where account.time_occur >= unix_timestamp('2012-01-01') and account.time_occur < unix_timestamp('2013-01-01');
+
+-- 去年到帐案件未分配全
+select `case`,sum(contribute) sum from case_lawyer
+where `case` in (
+select `case` from account
+where account.time_occur >= unix_timestamp('2012-01-01') and account.time_occur < unix_timestamp('2013-01-01')
+)
+group by `case`
+having round(sum,3) != 1;
