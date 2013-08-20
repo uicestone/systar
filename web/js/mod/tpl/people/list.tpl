@@ -1,24 +1,10 @@
-<table id="sample-table-1" data-removable="true" class="table table-striped table-bordered table-hover">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Age</th>
-            <th>Job</th>
-            <th></th>
-        </tr>
-    </thead>
-    <% _.each(peoples,function(people){ %>
-        <tr>
-            <td><%= people.name %></td>
-            <td><%= people.age %></td>
-            <td><%= people.job %></td>
-            <td>
-                <div class="hidden-phone visible-desktop btn-group">
-                    <button class="btn btn-mini btn-danger">
-                        <i class="icon-trash bigger-120"></i>
-                    </button>
-                </div>
-            </td>
-        </tr>
-    <% }); %>
+<div class="widget-main">
+
+<table id="sample-table-1" data-removable="true" data-args='{"totalRecords":60,"pageSize":10,"sortKey":"name","order":-1}' class="table table-striped table-bordered table-hover">
+    <tr>
+        <th data-cell="string" data-name="name" data-label="名称">Name</th>
+        <th data-cell="string" data-name="character" data-label="角色">Age</th>
+        <th data-cell="string" data-name="abbreviation" data-label="拉拉林">Job</th>
+    </tr>
 </table>
+</div>

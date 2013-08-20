@@ -37,17 +37,15 @@ define(function(require){
         /**
          * 可分页Rows
          */
+        // TODO: parse config from template
+        var settings = JSON.parse(el.attr("data-args"));
         var Rows = Backbone.PageableCollection.extend({
           model: Row,
           mode:"server",
-          state:{
+          state:_.extend({
             firstPage: 0,
-            currentPage: 0,
-            totalRecords:6,
-            pageSize:2,
-            sortKey:"name",
-            order:-1
-          },
+            currentPage: 0
+          },settings),
           url: name
         });
 
@@ -89,7 +87,7 @@ define(function(require){
         });
 
         grid.on("add",function(){
-          console.log("");
+          console.log("add");
         });
 
         /**

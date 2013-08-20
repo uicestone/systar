@@ -48,7 +48,7 @@
 
 
 
-<div class="widget-box" data-widget-type="table" data-removable="true" data-per="5" data-order-by="id" data-order="asc" data-args="{order_by:1,order:}">
+<div class="widget-box" data-widget-type="table" data-removable="true" data-per="5" data-order-by="id" data-order="asc" data-args="{order_by:1}">
     <div class="widget-header">
         <h4>资料项</h4>
     </div>

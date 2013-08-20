@@ -12,17 +12,40 @@ TplEngine.loadAll(function(Templates){
 
 var Workspace = Backbone.Router.extend({
     routes: {
-        ':resource/:num':'edit',
-        ':resource':'list'
+        ":resource/:num":"edit",
+        ":resource":"list",
+        "calendar":"calendar",
+        "taskboard":"taskboard",
+        "achievement":"achievement",
+        "achievement/stuff":"stuffAchievement",
+        "schedule":"scheduleStats"
     },
+
+
 
     list:function(name){
         var tplname = [name,"list"].join("/");
         var template = Templates[tplname];
         
         $.getJSON(name, {}, function(data){
-            console.log(data);
+            var html = _.template(template,_.extend(data,ViewHelpers));
+            var wrap = $(html);
+
+            wrap.find("table").each(function(i,el){
+                el = $(el);
+                var grid = new Grid(name, data, el);
+                var paginator = new Backgrid.Extension.Paginator({
+                  collection: grid.collection
+                });
+
+                wrap.empty().append(grid.render().$el);
+                wrap.append(paginator.render().el);
+
+            });
+
+            MainContainer.append(wrap);
         });
+
     },
 
     edit:function(name,id){
@@ -65,24 +88,6 @@ var Workspace = Backbone.Router.extend({
 
 var syssh = new Workspace();
 Backbone.history.start(); 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
