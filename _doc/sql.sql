@@ -271,17 +271,27 @@ and account.time_occur <= UNIX_TIMESTAMP('2012-12-31')
 order by case_lawyer.case,case_lawyer.lawyer;
 
 -- 去年每人创收明细
-select project.name,people.name,account.amount,case_lawyer.role, case_lawyer.contribute
+select project.name project,project.active,people.name people,from_unixtime(account.time_occur,'%Y-%m-%d'),account.amount,case_lawyer.role, case_lawyer.contribute
 from starsys.account inner join starsys.case_lawyer on account.case = case_lawyer.case
 inner join syssh.people on people.id = case_lawyer.lawyer
 inner join syssh.project on project.id = case_lawyer.case
 where account.time_occur >= unix_timestamp('2012-01-01') and account.time_occur < unix_timestamp('2013-01-01');
 
--- 去年到帐案件未分配全
-select `case`,sum(contribute) sum from case_lawyer
+-- 去年有到帐，目前已结案案件，未分配全
+select `case`,sum(contribute) sum from starsys.case_lawyer
 where `case` in (
-select `case` from account
-where account.time_occur >= unix_timestamp('2012-01-01') and account.time_occur < unix_timestamp('2013-01-01')
+	select `case` from starsys.account
+	where account.time_occur >= unix_timestamp('2012-01-01') and account.time_occur < unix_timestamp('2013-01-01')
 )
+-- and `case` in (select id from syssh.project where active = 0)
 group by `case`
-having round(sum,3) != 1;
+having round(sum,3) < 0.7;
+
+-- 今年以前有到账但尚未结案
+select * from syssh.project
+where active = 1
+and id in (
+	select `case`
+	from starsys.account
+	where time_occur < unix_timestamp('2013-01-01')
+)

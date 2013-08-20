@@ -187,11 +187,14 @@ class Schedule_model extends BaseItem_model{
 		}
 		
 		if(isset($args['in_project_of_people']) && $args['in_project_of_people']){
-			$this->db->join('project_people',"project_people.project  = schedule.project AND project_people.people = {$args['in_project_of_people']}",'inner')
-				->join('project','project.id = project_people.project','inner')
-				->select('project.name AS project_name, project.id AS project');
+			$this->db->where("
+				schedule.project IN (
+					SELECT project FROM project_people WHERE people{$this->db->escape_int_array($args['in_project_of_people'])}
+				)",
+			NULL,FALSE);
 		}
-		elseif(isset($args['show_project']) && $args['show_project']){
+		
+		if(isset($args['show_project']) && $args['show_project']){
 			$this->db->join('project','project.id = schedule.project','left')
 				->select('project.name project_name');
 		}
