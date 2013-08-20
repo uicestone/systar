@@ -37,8 +37,10 @@ class Client extends People{
 		parent::submit($submit, $id, $button_id);
 		
 		if($submit==='people'){
-			$this->people->data['staff']=$this->people->check($this->people->data['staff_name']);
-			$this->people->update($this->people->id, $this->people->data);
+			if(isset($this->people->data['staff_name'])){
+				$this->people->data['staff']=$this->people->check($this->people->data['staff_name']);
+				$this->people->update($this->people->id, $this->people->data);
+			}
 		}
 		
 	}
