@@ -1,0 +1,13 @@
+User	输入地址请求首页		GET /
+Server	HTML框架，css资源，js框架资源
+User	导航至#people
+Client	调用Router.list()，确定模板名称，查找未过期本地模板，请求模版 GET /template/people/list
+Server	返回一个json，包含页面组件描述和数据路径描述
+Client	解析，分析未下载或已过期数据，发送数据请求	GET	/people,...
+Server	返回json数据
+Client	渲染
+
+User	在列表点开搜索框进行搜索
+Client	将搜索表单变成请求	GET/people?一大坨参数
+Server	新的数据
+Client	重新渲染
