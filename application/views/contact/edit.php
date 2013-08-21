@@ -16,10 +16,8 @@
 		<input type="text" name="people[work_for]" value="<?=$this->value('people/work_for')?>" placeholder="工作单位" />
 		<input type="text" name="people[position]" value="<?=$this->value('people/position')?>" placeholder="职位" />
 <?}?>
-
 	</div>
 
-<?if($people['type']=='client'){?>	
 	<div class="item">
 		<div class="title"><label>来源：</label></div>
 		<select name="profiles[来源类型]">
@@ -27,9 +25,8 @@
 		</select>
 
 		<input type="text" name="profiles[来源]" value="<?=$this->value('profiles/来源')?>" <?if(!$this->value('profiles/来源')){?>class="hidden" disabled="disabled"<?}?> />
-		<input type="text" name="people[staff_name]" placeholder="来源律师" value="<?=$this->value('people/staff_name')?$this->value('people/staff_name'):$this->user->name?>" />
+		<input type="text" name="people[staff_name]" placeholder="来源律师" value="<?=$this->value('people/staff_name')?$this->value('people/staff_name'):$this->user->name?>"<?if($this->user->id!=$this->value('people/staff') && !$this->user->isLogged('service')){?> disabled="disabled"<?}?> />
 	</div>
-<?}?>
 
 	<div class="item" name="profile">
 		<div class="title"><label>资料项</label></div>
