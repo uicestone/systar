@@ -29,33 +29,36 @@ var components=[
 	 */
 	{
 		"type":"list",
-		"collection":"people",//这个列表要用到people collection的数据，用它展开主循环,
-		"limit":25,
-		"order_by":"id desc",
-		"fields":[
-			{
-				"heading":"名称",
-				"cell":{"data":element.abbreviation,"class":"ellipsis","title":element.name}//element为collection展开循环的一行，有没有更可行的表达方式
-			},
-			{
-				"heading":"类型",
-				"cell":{"data":element.type}
-			},
-			{
-				"heading":"电话",
-				"cell":{"data":element.phone}
-			},
-			{
-				"heading":"电邮",
-				"cell":{"data":element.email}
-			}
-		],
-		"search":[
-			{
-				"field":"名称",
-				"queryKey":"name"
-			}
-		]
+		"data":{
+			"collection":"people",//这个列表要用到people collection的数据，用它展开主循环,
+			"collection":"people.meta",//子表也用这种形式，这样下面写element.name, elememt.content就是meta的键和值
+			"limit":25,
+			"order_by":"id desc",
+			"fields":[
+				{
+					"heading":"名称",
+					"cell":{"data":"<%=element.abbreviation%>","class":"ellipsis","title":"<%=element.name%>"}//element为collection展开循环的一行，有没有更可行的表达方式
+				},
+				{
+					"heading":"类型",
+					"cell":{"data":"<%=element.type%>"}
+				},
+				{
+					"heading":"电话",
+					"cell":{"data":"<%=element.phone%>"}
+				},
+				{
+					"heading":"电邮",
+					"cell":{"data":"<%=element.email%>"}
+				}
+			],
+			"search":[
+				{
+					"field":"名称",
+					"queryKey":"name"
+				}
+			]
+		}
 	},
 	/**
 	 * 表单
@@ -66,13 +69,13 @@ var components=[
 			{
 				"name":"name",
 				"type":"text",
-				"value":element.name,//element为当前页面查看的对象，如/#people/1即people model中id=1的元素
+				"value":"<%=element.name%>",//element为当前页面查看的对象，如/#people/1即people model中id=1的元素
 				"label":"姓名"
 			},
 			{
 				"name":"id_card",
 				"type":"text",
-				"value":element.id_card,
+				"value":"<%=element.name%>",
 				"label":"身份证号"
 			},
 		]
