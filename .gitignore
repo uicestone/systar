@@ -5,4 +5,5 @@
 /web/downloads
 /application/logs
 /application/controllers/test.php
+/*.sublime-*
 
