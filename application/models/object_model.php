@@ -305,7 +305,6 @@ class Object_model extends CI_Model{
 	 * @return array
 	 */
 	function getList($args=array()){
-		
 		if(!is_array($args)){
 			$args=array();
 		}
@@ -525,18 +524,21 @@ class Object_model extends CI_Model{
 			}
 		}
 		
-		if(!array_key_exists('limit',$args)){
-			$args['limit']='25 0';
+
+
+		$limit_start = 0;
+		$arg_page = 0;
+		$arg_per_page = 10;
+
+		if(array_key_exists('page',$args)){
+			$arg_page = $args['page'] - 1;
 		}
-		
-		if($args['limit']){
-			if(is_array($args['limit'])){
-				call_user_func_array(array($this->db,'limit'), $args['limit']);
-			}
-			else{
-				call_user_func(array($this->db,'limit'), $args['limit']);
-			}
+
+		if(@array_key_exists($args['per_page'],$args)){
+			$arg_per_page = $args['per_page'];
 		}
+
+		call_user_func_array(array($this->db,'limit'),array($arg_per_page,$arg_page*$arg_per_page));
 		
 		$result_array=$this->db->get()->result_array();
 		
@@ -547,8 +549,11 @@ class Object_model extends CI_Model{
 				});
 			}
 		}
-		
-		return $result_array;
+
+		$result = Array();
+		$result["total"] = 1234;
+		$result["data"] = $result_array;
+		return $result;
 	}
 	
 	
