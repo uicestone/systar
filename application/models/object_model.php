@@ -98,12 +98,8 @@ class Object_model extends CI_Model{
 	 * 
 	 * @throws Exception 'not_found'
 	 */
-	function fetch($id=NULL, $args=array()){
+	function fetch($id=NULL, array $args=array()){
 		
-		if($args === false){
-			$args = array();
-		}
-
 		if(is_null($id)){
 			$id=$this->id;
 		}else{
@@ -304,11 +300,8 @@ class Object_model extends CI_Model{
 	 *	limit string, array
 	 * @return array
 	 */
-	function getList($args=array()){
-		if(!is_array($args)){
-			$args=array();
-		}
-		
+	function getList(array $args=array()){
+
 		if(!$this->db->ar_select){
 			$this->db->select('object.*');
 		}
@@ -524,22 +517,25 @@ class Object_model extends CI_Model{
 			}
 		}
 		
-
-
-		$limit_start = 0;
-		$arg_page = 0;
-		$arg_per_page = 10;
-
-		if(array_key_exists('page',$args)){
-			$arg_page = $args['page'] - 1;
+		//使用两种方式来对列表分页
+		if(array_key_exists('per_page',$args) && array_key_exists('page', $args)){
+			//页码-每页数量方式，转换为sql limit
+			$args['limit']=array($args['per_page'],($args['per_page']-1)*$args['page']);
 		}
-
-		if(@array_key_exists($args['per_page'],$args)){
-			$arg_per_page = $args['per_page'];
-		}
-
-		call_user_func_array(array($this->db,'limit'),array($arg_per_page,$arg_page*$arg_per_page));
 		
+		if(!array_key_exists('limit', $args)){
+			//默认limit
+			$args['limit']=25;//$this->config->user_item('per_page');
+		}
+		
+		if(is_array($args['limit'])){
+			//sql limit方式
+			call_user_func_array(array($this->db,'limit'), $args['limit']);
+		}
+		else{
+			call_user_func(array($this->db,'limit'), $args['limit']);
+		}
+
 		$result_array=$this->db->get()->result_array();
 		
 		foreach(array('meta','mod','relative','status','tag') as $field){

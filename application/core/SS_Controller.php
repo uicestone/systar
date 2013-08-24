@@ -43,7 +43,10 @@ class SS_Controller extends CI_Controller{
 		
 		$this->user->initialize();
 		
-		$this->output->as_ajax=$this->input->is_ajax_request();
+		if($this->input->is_ajax_request()){
+			$this->output->as_ajax=true;
+			$this->output->set_content_type('application/json');
+		}
 		
 		/*
 		 * 页面权限判断
@@ -103,133 +106,44 @@ class SS_Controller extends CI_Controller{
 		}
 	}
 	
-	/**
-	 * @todo 统一的_output方法最好还是写成Output:_display()的继承
-	 * 
-	 * 自定义的通用输出方法，系统不再直接将输出内容打印，而是传给此方法
-	 * 此方法将当前Output类中的data,status,message等属性统一封装为json后输出
-	 * 
-	 * 而且他还会判断当前页面是否包含一个传统html输出
-	 * 如果是，那么追加一些需要执行的内嵌js代码，然后添加到Output::data中（这里需要用内嵌js是因为js的变量需要由后台程序赋值）
-	 */
-	
-/*	function _output($output=''){
-		
-		if(!$this->output->as_ajax){
-			echo $output;
-			return;
-		}
-		
-		if($this->agent->browser()=='Internet Explorer' && strpos($this->input->header('Content-Type'),'multipart/form-data')!==false){
-			header('Content-type: text/html');
-		}
-		else{
-			header('Content-Type: application/json');
-		}
-		
-		if($output){
-			/*
-			 * 如果在这个方法运行之前，页面就有输出，那么说明是一个旧式的输出html的页面
-			 * 我们给它直接加上嵌入页面的js
-			 * 并作为data的content键封装json传输到前段
-			 */
-/*			$output.=$this->load->view('innerjs',true);
-			$this->output->setData($output,substr($this->input->server('REQUEST_URI'),1),'html','article>section[hash="'.substr($this->input->server('REQUEST_URI'),1).'"]');
-		}
-		
-		if(array_key_exists('sidebar',$this->load->blocks)){
-			$this->output->setData($this->load->blocks['sidebar'],'sidebar','html','aside>section[hash="'.substr($this->input->server('REQUEST_URI'),1).'"]');
-		}
-		
-		if(is_null($this->output->status)){
-			$this->output->status='success';
-		}
-		
-		$output_array=array(
-			'status'=>$this->output->status,
-			'message'=>$this->output->message,
-			'data'=>$this->output->data,
-			'section_title'=>$this->output->title
-		);
-		
-		echo json_encode($output_array);
-	}
-*/	
-	function _search(){
-		if($this->input->get('labels')!==false){
-			$labels=preg_split('/\s|,/',urldecode($this->input->get('labels')));
-			$this->config->set_user_item('search/labels', $labels);
-		}
-		
-		foreach($this->search_items as $item){
-			if($this->input->post($item) || $this->input->post($item)==='0'){
-				$this->config->set_user_item('search/'.$item, $this->input->post($item));
-			}
-			elseif($this->input->post('submit')==='search'){
-				$this->config->unset_user_item('search/'.$item);
-			}
-		}
-		
-		if($this->input->post('submit')==='search_cancel'){
-			foreach($this->search_items as $item){
-				$this->config->unset_user_item('search/'.$item);
-			}
-		}
-	}
-	
 	function fetch($id){
 		$args=$this->input->get();
+		
+		if($args===false){
+			$args=array();
+		}
+		
 		$controller=CONTROLLER;
 		$this->output->set_output(json_encode($this->$controller->fetch($id,$args)));
-		$this->output->set_header('Content-Type: application/json');
 	}
 	
 	function getList(){
 		$args=$this->input->get();
+
+		if($args===false){
+			$args=array();
+		}
+		
 		$controller=CONTROLLER;
 		$this->output->set_output(json_encode($this->$controller->getList($args)));
-		$this->output->set_header('Content-Type: application/json');
 	}
 	
-	/**
-	 * 在一个form中，用户修改任何input/select值时，就发送一个请求，保存到$_SESSION中
-	 * 如此一来到发生保存请求时，只需要把$_SESSION中的新值保存即可
-	 */
-	function setFields($item_id=NULL){
-
-		$controller=CONTROLLER;
-		$item_id && $this->$controller->id=$item_id;
-		
-		if(!is_array($this->input->post())){
-			$this->output->status='fail';
-			$this->output->message('invalid post data', 'warning');
-			return;
-		}
-		
-		foreach($this->input->post() as $field_name=>$value){
-			post($field_name,$value);
-		}
-		$this->output->status='success';
-	}
-	
-	function removeLabel($item_id){
+	function removeTag($item_id){
 		
 		$controller=CONTROLLER;
 		
 		$label_name=$this->input->post('label');
 		
-		$this->$controller->removeLabel($item_id, $label_name);
+		$this->$controller->removeTag($item_id, $label_name);
 	}
 	
-	function addLabel($item_id){
+	function addTag($item_id){
 		$controller=CONTROLLER;
 		
 		$label_name=$this->input->post('label');
 		
-		$this->$controller->addLabel($item_id, $label_name);
+		$this->$controller->addTag($item_id, $label_name);
 	}
-	
-	function submit(){}
 	
 }
 ?>
