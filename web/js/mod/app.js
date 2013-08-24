@@ -27,13 +27,13 @@ var Workspace = Backbone.Router.extend({
         var tplname = [name,"list"].join("/");
         var template = Templates[tplname];
         
-        $.getJSON(name, {}, function(data){
-            var html = _.template(template,_.extend(data,ViewHelpers));
+        $.getJSON(name, {}, function(result){
+            var html = _.template(template,_.extend(result,ViewHelpers));
             var wrap = $(html);
 
             wrap.find("table").each(function(i,el){
                 el = $(el);
-                var grid = new Grid(name, data, el);
+                var grid = new Grid(name, result, el);
                 var paginator = new Backgrid.Extension.Paginator({
                   collection: grid.collection
                 });

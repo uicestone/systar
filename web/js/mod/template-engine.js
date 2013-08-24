@@ -1,4 +1,5 @@
 define(function(require,exports,module){
+    "use strict";
     var ENV = window.ENV;
     var PRODUCT = "product";
     var store = require("store");
@@ -25,7 +26,7 @@ define(function(require,exports,module){
                 }
             });
 
-            fetchPathList = _.map(fetchList,function(key){
+            var fetchPathList = _.map(fetchList,function(key){
                 return "tpl/" + key + ".tpl";
             });
 

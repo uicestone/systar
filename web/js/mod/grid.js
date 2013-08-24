@@ -20,7 +20,11 @@ define(function(require){
         "delete":DeleteCell
     };
 
-    function Grid(name,data,el){
+    function Grid(name,result,el){
+        var data = result.data;
+        var total = result.total;
+        if(!data){throw "`data` should be specified in /"+name;}
+        if(!total){throw "`total` should be specified in /"+name;}
         var Row = Backbone.Model.extend({
             initialize:function(){
                 Backbone.Model.prototype.initialize.apply(this, arguments);
@@ -41,10 +45,14 @@ define(function(require){
         var settings = JSON.parse(el.attr("data-args"));
         var Rows = Backbone.PageableCollection.extend({
           model: Row,
+          parse:function(resp){
+            return resp.data;
+          },
           mode:"server",
           state:_.extend({
             firstPage: 0,
-            currentPage: 0
+            currentPage: 0,
+            totalRecords: total
           },settings),
           url: name
         });
@@ -63,6 +71,7 @@ define(function(require){
         /**
          * 由th生成符合BackGrid要求的columns
          */
+        var editable = el.attr("data-editable") == "true";
         var columns = _.map(el.find("th").get(),function(el){
             el = $(el);
             var celltype = el.attr("data-cell");
@@ -73,7 +82,8 @@ define(function(require){
             return {
                 name:el.attr("data-name"),
                 label:el.attr("data-label"),
-                cell:celltype
+                cell:celltype,
+                editable:editable
             };
         });
 

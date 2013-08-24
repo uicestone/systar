@@ -1,6 +1,6 @@
 <div class="widget-main">
 
-<table id="sample-table-1" data-removable="true" data-args='{"totalRecords":60,"pageSize":10,"sortKey":"name","order":-1}' class="table table-striped table-bordered table-hover">
+<table id="sample-table-1" data-args='{"pageSize":20,"sortKey":"name","order":-1}' class="table table-striped table-bordered table-hover" data-editable="false">
     <tr>
         <th data-cell="string" data-name="name" data-label="名称">Name</th>
         <th data-cell="string" data-name="character" data-label="角色">Age</th>
