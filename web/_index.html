@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+    <script src="/js/seajs/sea-debug.js" id="seajsnode"></script>
+    <script>
+        seajs.config({
+          base: "/js/mod",
+          plugins: ["text"],
+          alias: {
+            'select2':'/js/select2',
+            'fullcalendar':'/js/fullcalendar.min.js'
+          }
+        });
+        // 加载入口模块
+        seajs.use("template-engine");
+        // script = document.createElement("script");script.src="http://starsys.lc/js/mod/template-engine.js";script.async=true;document.head.appendChild(script)
+    </script>
+</body>
+</html>

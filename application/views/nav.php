@@ -137,7 +137,7 @@
     </li>
 
     <li>
-        <a href="calendar.html">
+        <a href="/#calendar">
             <i class="icon-calendar"></i>
 
             <span class="menu-text">

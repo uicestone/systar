@@ -1,4 +1,4 @@
-<div>
+<div class="span12">
 <div class="widget-box">
     <div class="widget-header">
         <h4>基本信息</h4>
@@ -64,6 +64,5 @@
         </div>
     </div>
 </div>
-
 
 </div>

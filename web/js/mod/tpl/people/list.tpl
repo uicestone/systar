@@ -1,3 +1,4 @@
+<div class="span12">
 <div class="widget-main">
 
 <table id="sample-table-1" data-args='{"pageSize":20,"sortKey":"name","order":-1}' class="table table-striped table-bordered table-hover" data-editable="false">
@@ -7,4 +8,5 @@
         <th data-cell="string" data-name="abbreviation" data-label="拉拉林">Job</th>
     </tr>
 </table>
+</div>
 </div>
