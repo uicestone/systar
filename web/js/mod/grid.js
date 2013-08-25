@@ -66,7 +66,22 @@ define(function(require){
             return !item.hidden;
         }));
         
-
+        var RowView = Backgrid.Row.extend({
+            events:{
+                "click":"redirect",
+                "mouseenter":"active",
+                "mouseleave":"unactive"
+            },
+            redirect:function(){
+                location.hash= name + "/" + this.model.id;
+            },
+            active:function(){
+                this.$el.addClass("active");
+            },
+            unactive:function(){
+                this.$el.removeClass("active");
+            }
+        });
 
         /**
          * 由th生成符合BackGrid要求的columns
@@ -92,8 +107,10 @@ define(function(require){
          * @type {Backgrid}
          */
         var grid = new Backgrid.Grid({
-          columns: columns,
-          collection: rows
+            className:"table table-striped table-bordered table-hover",
+            row:RowView,
+            columns: columns,
+            collection: rows
         });
 
         grid.on("add",function(){
