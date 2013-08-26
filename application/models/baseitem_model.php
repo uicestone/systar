@@ -184,12 +184,10 @@ class BaseItem_model extends SS_Model{
 		if(isset($args['has_profiles']) && is_array($args['has_profiles'])){
 			foreach($args['has_profiles'] as $name => $content){
 				
-				$content=$this->db->escape($content);
-				
 				if(is_integer($name)){
-					$on="{$this->table}.id = `$name`.{$this->table} AND `$name`.name = $content";
+					$on="{$this->table}.id = `$name`.{$this->table} AND `$name`.name{$this->db->escape_array($content)}";
 				}else{
-					$on="{$this->table}.id = `$name`.{$this->table} AND `$name`.name = {$this->db->escape($name)} AND `$name`.content = $content";
+					$on="{$this->table}.id = `$name`.{$this->table} AND `$name`.name = {$this->db->escape($name)} AND `$name`.content{$this->db->escape_array($content)}";
 				}
 				
 				$this->db->join("{$this->table}_profile `".$name.'`',$on,'inner',false);

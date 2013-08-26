@@ -24,11 +24,13 @@
 	<div class="item" name="relative">
 		<div class="title"><label>学生</label></div>
 		<?=$relative_list?>
+<?if($this->user->id==$this->value('people/leader')){?>
 		<button type="button" class="toggle-add-form">＋</button>
 		<span class="add-form hidden">
 			<input type="hidden" name="relative[id]" class="tagging" data-ajax="/student/match/" data-width="150px" value="<?=$this->value('relative/name')?>" placeholder="姓名" autocomplete-model="student" />
 			<button type="submit" name="submit[relative]">添加</button>
 		</span>
+<?}?>
 	 </div>
 
 	<div class="item">

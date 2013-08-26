@@ -6,6 +6,12 @@ class Team_model extends People_model{
 		$this->fields['type']='team';
 	}
 	
+	function fetch($id){
+		$people = parent::fetch($id);
+		$team = $this->db->from('team')->where('id',$id)->get()->row_array();
+		return $people + $team;
+	}
+	
 	/**
 	 * @param array $args
 	 *	project 查找某个事务关联的组
