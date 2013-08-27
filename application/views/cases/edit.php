@@ -38,10 +38,10 @@
 
 	<div class="item" name="client">
 		<div class="title"><label>客户及相关人：</label>
-<? if(isset($people_roles[$this->user->id]) && in_subarray('督办人', $people_roles[$this->user->id], 'role')!==false && !in_array('客户已锁定',$labels)){?>
+<? if(isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') && !in_array('客户已锁定',$labels)){?>
 			<button type="submit" name="submit[lock_client]">锁定</button>
 <? }?>
-<? if(isset($people_roles[$this->user->id]) && in_subarray('督办人', $people_roles[$this->user->id], 'role')!==false && in_array('客户已锁定',$labels)){ ?>
+<? if(isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') && in_array('客户已锁定',$labels)){ ?>
 			<button type="submit" name="submit[unlock_client]">解锁</button>
 <? } ?>
 		</div>
@@ -76,10 +76,10 @@
 	
 	<div class="item" name="staff"<?if(in_array('职员已锁定',$labels)){?> locked="locked"<?}?>>
 		<div class="title"><label>律师：</label>
-<?if(isset($people_roles[$this->user->id]) && in_subarray('督办人', $people_roles[$this->user->id], 'role')!==false && !in_array('职员已锁定',$labels)){?>
+<?if(isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') && !in_array('职员已锁定',$labels)){?>
 			<button type="submit" name="submit[lock_staff]">锁定</button>
 <? }?>
-<? if(isset($people_roles[$this->user->id]) && in_subarray('督办人', $people_roles[$this->user->id], 'role')!==false && in_array('职员已锁定',$labels)){ ?>
+<? if(isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') && in_array('职员已锁定',$labels)){ ?>
 			<button type="submit" name="submit[unlock_staff]">解锁</button>
 <? } ?>
 		</div>
@@ -101,10 +101,10 @@
 		<div class="title">
 			<label>资金：</label>
 			
-<? if((isset($people_roles[$this->user->id]) && in_subarray('督办人', $people_roles[$this->user->id], 'role')!==false || $this->user->isLogged('finance')) && !in_array('费用已锁定',$labels)){?>
+<? if((isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') || $this->user->isLogged('finance')) && !in_array('费用已锁定',$labels)){?>
 			<button type="submit" name="submit[lock_fee]">锁定</button>
 <? }?>
-<? if((isset($people_roles[$this->user->id]) && in_subarray('督办人', $people_roles[$this->user->id], 'role')!==false || $this->user->isLogged('finance')) && in_array('费用已锁定',$labels)){ ?>
+<? if((isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') || $this->user->isLogged('finance')) && in_array('费用已锁定',$labels)){ ?>
 			<button type="submit" name="submit[unlock_fee]">解锁</button>
 <? } ?>
 		</div>

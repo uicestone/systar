@@ -72,10 +72,6 @@ delete from people_label where label_name ='null';
 delete from document_label where label_name ='null';
 delete from label where name = 'null';
 
--- 对于没有督办人的案件设置默认督办人
-insert ignore into project_people (project,people,role)
-select id,6356,'督办人' from project where type = 'cases';
-
 -- 统计所内案源创收
 select amount,project.name,group_concat(people.name)
 from account 

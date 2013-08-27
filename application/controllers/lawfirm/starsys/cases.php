@@ -79,9 +79,9 @@ class Cases extends Project{
 			$this->load->view_data['schedule_time']=$this->schedule->getSum(array('project'=>$this->cases->id,'completed'=>true));
 
 			if($this->cases->data['type']==='query'){
-				$this->load->view_data['staff_role_array']=array('督办人','接洽律师','律师助理');
+				$this->load->view_data['staff_role_array']=array('接洽律师','律师助理');
 			}else{
-				$this->load->view_data['staff_role_array']=array('案源人','督办人','接洽律师','主办律师','协办律师','律师助理');
+				$this->load->view_data['staff_role_array']=array('案源人','接洽律师','主办律师','协办律师','律师助理');
 			}
 			
 			$this->load->addViewData('client_list', $this->clientList());
