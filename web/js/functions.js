@@ -404,9 +404,13 @@ jQuery.fn.extend({
 			if($(this).data('initselection')){
 				options=$.extend({},{
 					initSelection : function (element, callback) {
-						var data = [];
-						for(id in element.data('initselection')){
-							data.push({id:id,name:element.data('initselection')[id]});
+						if(element.data('initselection').id){
+							data=element.data('initselection');
+						}else{
+							var data = [];
+							for(id in element.data('initselection')){
+								data.push({id:id,name:element.data('initselection')[id]});
+							}
 						}
 						callback(data);
 					},

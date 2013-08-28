@@ -163,7 +163,8 @@ class Schedule extends SS_controller{
 				'completed'=>true,
 				'time'=>array('from'=>$this->config->user_item('search/time/from'),'to'=>$this->config->user_item('search/time/to'),'input_format'=>'date'),
 				'where'=>"(
-					schedule.id IN (SELECT schedule FROM schedule_people WHERE people IN (SELECT id FROM people WHERE type IN ('client','contact')))
+					schedule.id IN (SELECT schedule FROM schedule_people WHERE people IN (SELECT id FROM people WHERE type IN ('client','contact'))
+					OR schedule.project IN (SELECT id FROM project WHERE type = 'query')
 					OR project = 2725
 				)"
 			)),

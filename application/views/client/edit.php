@@ -20,12 +20,13 @@
 
 	<div class="item">
 		<div class="title"><label>来源：</label></div>
-		<select name="profiles[来源类型]">
-			<?=options($this->config->user_item('客户来源类型'),$this->value('profiles/来源类型'),'来源类型')?>
+		<select name="profiles[来源类型]" class="tagging" data-placeholder="来源类型">
+			<?=options($this->config->user_item('客户来源类型'),$this->value('profiles/来源类型'),'',false,false,false)?>
 		</select>
-
+		&nbsp;
 		<input type="text" name="profiles[来源]" value="<?=$this->value('profiles/来源')?>" <?if(!$this->value('profiles/来源')){?>class="hidden" disabled="disabled"<?}?> />
-		<input type="text" name="people[staff_name]" placeholder="来源律师" value="<?=$this->value('people/staff_name')?>"<?if($this->value('people/staff') && $this->user->id!=$this->value('people/staff') && !$this->user->isLogged('service')){?> disabled="disabled"<?}?> />
+		<input type="hidden" name="people[staff]" value="<?=$this->value('people/staff')?>" class="tagging" data-ajax="/staff/match/" data-placeholder="来源律师" data-initselection='<?=json_encode($this->staff->fetch($this->value('people/staff')));?>' />
+
 	</div>
 
 	<div class="item" name="profile">

@@ -11,6 +11,11 @@ class Client extends People{
 				'field'=>'profiles[来源类型]',
 				'label'=>'客户来源类型',
 				'rules'=>'required'
+			),
+			array(
+				'field'=>'people[staff]',
+				'label'=>'来源律师',
+				'rules'=>'required'
 			)
 		);
 		
@@ -31,18 +36,6 @@ class Client extends People{
 		}
 		
 		parent::index();
-	}
-	
-	function submit($submit, $id, $button_id = NULL) {
-		parent::submit($submit, $id, $button_id);
-		
-		if($submit==='people'){
-			if(isset($this->people->data['staff_name'])){
-				$this->people->data['staff']=$this->people->check($this->people->data['staff_name']);
-				$this->people->update($this->people->id, $this->people->data);
-			}
-		}
-		
 	}
 	
 }

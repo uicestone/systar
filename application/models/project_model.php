@@ -297,6 +297,16 @@ class Project_model extends BaseItem_model{
 			$this->db->where($where,NULL,FALSE);
 		}
 
+		if(isset($args['people_has_relative_like'])){
+			$where="project.id IN (SELECT project FROM project_people WHERE people IN (SELECT people FROM people_relationship WHERE relative{$this->db->escape_int_array($args['people_has_relative_like'])})";
+			if(isset($args['role'])){
+				$where.=" AND role = '{$args['role']}'";
+			}
+			$where.=')';
+			
+			$this->db->where($where,NULL,FALSE);
+		}
+
 		if(isset($args['num'])){
 			$this->db->like('project.num',$args['num']);
 		}

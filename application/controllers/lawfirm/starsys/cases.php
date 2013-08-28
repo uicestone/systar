@@ -23,6 +23,22 @@ class Cases extends Project{
 			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->cases,'getCompiledLabels'),'args'=>array('id')))
 		);
 		
+		$this->account_list_args=array(
+			'account'=>array('heading'=>'账目编号'),
+			'type'=>array('heading'=>'类型'),
+			'subject'=>array('heading'=>'科目'),
+			'amount'=>array('heading'=>'金额','parser'=>array('function'=>function($amount,$received){
+				if($amount>0){
+					return '<span style="color:#0A0">'.$amount.'</span> '.(intval($received)?'√':'？');
+				}else{
+					return '<span style="color:#A00">'.$amount.'</span> '.(intval($received)?'√':'？');
+				}
+			},'args'=>array('amount','received')),'cell'=>array('style'=>'text-align:right')),
+			'date'=>array('heading'=>'日期'),
+			'payer_name'=>array('heading'=>'付款/收款人'),
+			'comment'=>array('heading'=>'备注','cell'=>array('title'=>'{comment}'),'parser'=>array('function'=>function($comment){return str_getSummary($comment);},'args'=>array('comment')))
+		);
+		
 		$this->client_list_args=array(
 			'name'=>array('heading'=>'名称','cell'=>array('data'=>'{name}')),
 			'phone'=>array('heading'=>'电话','cell'=>array('class'=>'ellipsis','title'=>'{phone}')),
@@ -200,21 +216,22 @@ class Cases extends Project{
 					
 					if($project_client['role']==='主委托人'){
 
-						$recent_case_of_client=$this->cases->getRow(array('people'=>$project_client['client'],'role'=>'主委托人','before'=>$this->cases->id));
-						$recent_case_of_client_relative=$this->cases->getRow(array('people_is_relative_of'=>$project_client['client'],'role'=>'主委托人','before'=>$this->cases->id));
-
-						if($recent_case_of_client && $recent_case_of_client_relative){
-							if($recent_case_of_client['id']>$recent_case_of_client_relative['id']){
-								$recent_case=$recent_case_of_client;
-							}else{
-								$recent_case=$recent_case_of_client_relative;
-							}
-						}elseif($recent_case_of_client){
+						$recent_case_of_client=$this->cases->getRow(array('people'=>$project_client['client'],'role'=>'主委托人','before'=>$this->cases->id,'order_by'=>'id desc'));
+						$recent_case_of_client_relative=$this->cases->getRow(array('people_is_relative_of'=>$project_client['client'],'role'=>'主委托人','before'=>$this->cases->id,'order_by'=>'id desc'));
+						$recent_case_of_client_arelative=$this->cases->getRow(array('people_has_relative_like'=>$project_client['client'],'role'=>'主委托人','before'=>$this->cases->id,'order_by'=>'id desc'));
+						
+						if($recent_case_of_client){
 							$recent_case=$recent_case_of_client;
-						}elseif($recent_case_of_client_relative){
+						}
+						
+						if($recent_case_of_client_relative && (!isset($recent_case) || $recent_case_of_client_relative['id']>$recent_case['id'])){
 							$recent_case=$recent_case_of_client_relative;
 						}
-
+						
+						if($recent_case_of_client_arelative && (!isset($recent_case) || $recent_case_of_client_arelative['id']>$recent_case['id'])){
+							$recent_case=$recent_case_of_client_arelative;
+						}
+						
 						if(isset($recent_case)){
 
 							$this->cases->addLabel($this->cases->id, '再成案');
