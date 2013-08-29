@@ -1449,7 +1449,7 @@ class CI_DB_driver {
 			return " IN ($value)";
 		}
 		else{
-			$value=$this->escape($v);
+			$value=$this->escape($value);
 			return " = $value";
 		}
 	}
