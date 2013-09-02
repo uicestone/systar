@@ -382,11 +382,6 @@ class Cases extends Project{
 					$staff['weight']=100;
 				}
 				
-				if($staff['role']==='案源人'){
-					$this->cases->removeLabel($this->cases->id, '所内案源');
-					$this->cases->addLabel($this->cases->id, '个人案源');
-				}
-				
 				if($staff['weight']===''){
 					$staff['weight']=NULL;
 				}else{

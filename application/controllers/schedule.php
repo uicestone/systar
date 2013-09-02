@@ -239,6 +239,8 @@ class Schedule extends SS_controller{
 			
 			$this->schedule->updateLabels($new_schedule_id, $this->input->post('labels'), true);
 			
+			$this->schedule->updateProfiles($new_schedule_id, $this->input->post('profiles'));
+			
 			$this->schedule->updatePeopleStatus($new_schedule_id, $this->user->id, array(
 				'in_todo_list'=>$this->input->post('in_todo_list'),
 				'enrolled'=>$this->input->post('enrolled')
@@ -265,6 +267,8 @@ class Schedule extends SS_controller{
 			}
 			
 			$this->schedule->updateLabels($schedule_id, $this->input->post('labels'), true);
+
+			$this->schedule->updateProfiles($schedule_id, $this->input->post('profiles'));
 			
 			$schedule=$this->schedule->fetch($schedule_id);
 			

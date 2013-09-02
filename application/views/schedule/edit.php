@@ -18,10 +18,10 @@
 <input type="text" name="deadline" value="<?=$this->value('schedule/deadline')?>" class="datetime" placeholder="截止" style="width:98%" />
 <br />
 <div class="profile hidden" style="text-align:left;">
-	<select class="profile-name allow-new" style="width:78%">
+	<hr />
+	<select class="profile-name allow-new" style="width:98%">
 		<?=options(array('外出地点','费用金额','费用用途','备注'),NULL)?>
 	</select>
-	<button>保存</button>
 	<br />
 	<input type="text" name="profiles[]" style="width:98%" />
 </div>

@@ -19,6 +19,7 @@
 	text-transform: none;
 	line-height: 1;
 	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
 /* Use the following CSS code if you want to have a class per icon */
@@ -27,7 +28,7 @@ Instead of a list of all class selectors,
 you can use the generic selector below, but it's slower:
 [class*="icon-"] {
 */
-.icon-checkmark, .icon-clock, .icon-list, .icon-close {
+.icon-checkmark, .icon-clock, .icon-list, .icon-close, .icon-floppy, .icon-plus, .icon-minus, .icon-pencil, .icon-lock, .icon-unlocked {
 	font-family: 'icomoon';
 	speak: none;
 	font-style: normal;
@@ -48,4 +49,22 @@ you can use the generic selector below, but it's slower:
 }
 .icon-close:before {
 	content: "\78";
+}
+.icon-floppy:before {
+	content: "\21";
+}
+.icon-plus:before {
+	content: "\22";
+}
+.icon-minus:before {
+	content: "\23";
+}
+.icon-pencil:before {
+	content: "\24";
+}
+.icon-lock:before {
+	content: "\25";
+}
+.icon-unlocked:before {
+	content: "\26";
 }

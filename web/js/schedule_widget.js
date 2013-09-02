@@ -4,10 +4,11 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 		end:null,
 		allDay:null,
 		target:null,/*dialog positioning target*/
+		width:330,
 		position:{
-		my:'left bottom',
-			at:'right top',
-			of:null
+			my:'left bottom',
+				at:'right top',
+				of:null
 		},
 		dialogClass:'shadow schedule-form',
 		autoOpen:true,
@@ -44,7 +45,7 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 		
 		this.options.buttons=[
 			{
-				text: "+",
+				html: '<span class="icon-plus"></span>',
 				tabIndex:-1,
 				title:'添加其他选项',
 				click: function(){
@@ -54,6 +55,14 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 						.show()
 						.children('.profile-name')
 						.tagging({width:'copy'});
+				}
+			},
+			{
+				html: '<span class="icon-floppy"></span>',
+				tabIndex:-1,
+				title:'保存',
+				click: function(){
+					that._save();
 				}
 			}
 		];
@@ -72,23 +81,24 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 				end:that.options.end,
 				allDay:that.options.allDay
 			};
-			
-			this.options.buttons.push(
-				{
-					text: "保存",
-					tabIndex:0,
-					click: function(){
-						that._save();
-					}
-				}
-			);
+			// 
+			// this.options.buttons.push(
+			// 	{
+			// 		text: "保存",
+			// 		tabIndex:0,
+			// 		click: function(){
+			// 			that._save();
+			// 		}
+			// 	}
+			// );
 		}
 		
 		if(this.options.method==='view'){
 			
-			this.options.buttons.splice(this.options.buttons.length,0,{
-				text:'编辑',
+			this.options.buttons.unshift({
+				html:'<span class="icon-pencil"></span>',
 				tabIndex:-1,
+				title:'编辑',
 				click:function(){
 					that.element.schedule('edit');
 				}
@@ -206,64 +216,38 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			that.element.find('[name="labels"]').tagging({width:'copy'});
 			
 			that.element.on('focus','[name^="profiles"]',function(){
-				$(this).attr('name','profiles['+$(this).prev('.profile-name').val()+']');
+				$(this).attr('name','profiles['+$(this).siblings(':input.profile-name').val()+']');
 			});
 			
-			that.element.on('change','.profile-name',function(){
-				$(this).next('[name^="profiles"]').attr('name','profiles['+$(this).val()+']');
+			that.element.on('change',':input.profile-name',function(){
+				$(this).siblings('[name^="profiles"]').attr('name','profiles['+$(this).val()+']');
 			});
-			
+
 			if(that.options.project){
 				that.element.find('[name="project"]').val(that.options.project).attr('changed','changed');
 			}
-			
-			if(that.options.method==='view'){
-				
-				that.element.find('div.field')
-					.on('mouseenter',function(){
-						$(this).siblings('.profile.field[removable]').each(function(){
-							if($(this).data('delete-button')){
-								$(this).data('delete-button').remove();
-							}
-						});
-					});
-				
-				that.element.find('.profile.field[removable]')
-					.on('mouseenter',function(){
-				
-						var row=this;
 
-						$(this).data('delete-button',
-							$('<button/>',{text:'x'}).appendTo('body')
-								.position({
-									my:'right top',
-									at:'right top',
-									of:$(row)
-								})
-								.hide()
-								.css({zIndex:100000})
-								.on('mouseenter',function(){
-									$(this).clearQueue();
-								})
-								.on('mouseleave',function(){
-									$(this).stop().remove();
-								})
-								.on('click',function(){
-									var button=this;
-									var event_id=that.options.id;
-									var profile_id=$(row).attr('id');
-									$.post('/schedule/removeprofile/'+event_id+'/'+profile_id,function(){
-										$(button).remove();
-										that._getContent();
-									});
-								}).delay(100).fadeIn()
-							);
+			if(that.options.method==='view'){
+				that.element.find('div.field.profile')
+				.on('mouseenter',function(){
+					$(this).children('#remove').show().position({
+						my:'right center',
+						at:'right center',
+						of:$(this)
 					})
-					.on('mouseleave','span[role]',function(){
-						$(this).data('delete-button').clearQueue().delay(200).hide(0,function(){
-							$(this).remove();
+					.on('click',function(){
+						var button=this;
+						var event_id=that.options.id;
+						var profile_id=$(this).parent('.field').attr('id');
+						$.post('/schedule/removeprofile/'+event_id+'/'+profile_id,function(){
+							that._getContent();
 						});
 					});
+				})
+				.on('mouseleave',function(){
+					$(this).children('#remove').hide();
+				})
+				.off('click');
 			}
 			
 		});
@@ -425,10 +409,10 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 		this.option('method','edit');
 		this._getContent(function(){
 			/*对于编辑页面，删除编辑按钮，并换成一个删除按钮*/
-			that.options.buttons.pop();
-			that.options.buttons.push(
+			that.options.buttons.shift();
+			that.options.buttons.unshift(
 				{
-					text:'删除',
+					html:'<span class="icon-clock"></span>',
 					tabIndex:-1,
 					click:function(){
 						$.get('/schedule/delete/'+that.options.id,function(response){
@@ -440,15 +424,15 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 					}
 				}
 			);
-			that.options.buttons.push(
-				{
-					text: "保存",
-					tabIndex:0,
-					click: function(){
-						that._save();
-					}
-				}
-			);
+			// that.options.buttons.push(
+			// 	{
+			// 		text: "保存",
+			// 		tabIndex:0,
+			// 		click: function(){
+			// 			that._save();
+			// 		}
+			// 	}
+			// );
 			that.option('buttons',that.options.buttons);
 		});
 	}
