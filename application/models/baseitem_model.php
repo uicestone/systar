@@ -50,7 +50,7 @@ class BaseItem_model extends SS_Model{
 		}
 		
 		if(!$row){
-			throw new Exception('item not found');
+			throw new Exception(CONTROLLER.' '.$id.' not found');
 		}
 		
 		if(is_null($field)){
