@@ -234,5 +234,18 @@ class User_model extends People_model{
 		return generate($nav);
 	}
 
+	function setConfig($item,$value){
+
+		$item_exists=$this->db->from('user_config')->where('name',$item)->where('user',$this->id)->count_all_results();
+
+		if($item_exists){
+			$this->db->update('user_config',array('value'=>$value),array('user'=>$this->id,'name'=>$item));
+		}
+		else{
+			$this->db->insert('user_config',array('user'=>$this->id,'name'=>$item,'value'=>$value));
+		}
+		
+	}
+
 }
 ?>

@@ -97,6 +97,21 @@ class Message_model extends BaseItem_model{
 		
 		return $this->db->get()->result_array();
 	}
+
+	function getSystemDialog($uid=NULL){
+		is_null($uid) && $uid=$this->user->id;
+		return $this->db->from('dialog_user')
+			->where('user',$uid)
+			->where('title','系统')
+			->get()
+			->row()
+			->dialog;
+	}
+
+	function system($content,$uid=NULL){
+		$dialog=$this->getSystemDialog($uid);
+		return $this->sendByDialog($content,$dialog,false);
+	}
 	
 	/**
 	 * 根据会话id插入发送的消息
@@ -104,7 +119,7 @@ class Message_model extends BaseItem_model{
 	 * @param int $dialog 会话id
 	 * @return message.id
 	 */
-	function sendByDialog($content,$dialog){
+	function sendByDialog($content,$dialog,$mark_read_for_this_user=true){
 		
 		$dialog=intval($dialog);
 		
@@ -122,7 +137,7 @@ class Message_model extends BaseItem_model{
 			->get()->result_array();
 		
 		$message_user_batch=array(
-			array('message'=>$message,'user'=>$this->user->id,'read'=>true,'deleted'=>false)
+			array('message'=>$message,'user'=>$this->user->id,'read'=>$mark_read_for_this_user,'deleted'=>false)
 		);
 		
 		foreach($result_dialog_user as $row){
@@ -137,9 +152,14 @@ class Message_model extends BaseItem_model{
 		$this->db->insert_batch('message_user',$message_user_batch);
 		
 		$this->db->update('dialog',array('last_message'=>$message),array('id'=>$dialog));
+
+		$condition=array('dialog'=>$dialog);
+		if($mark_read_for_this_user){
+			$condition['user !=']=$this->user->id;
+		}
 		
 		//将收件人的会话标记为未读且取消隐藏
-		$this->db->update('dialog_user',array('read'=>false,'hidden'=>false),array('dialog'=>$dialog,'user !='=>$this->user->id));
+		$this->db->update('dialog_user',array('read'=>false,'hidden'=>false),$condition);
 		
 		return $message;
 	}

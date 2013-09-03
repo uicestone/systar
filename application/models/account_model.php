@@ -165,6 +165,7 @@ class Account_model extends BaseItem_model{
 						MAX(account.type) AS type, 
 						SUM(IF(account.received,account.amount,0)) AS received_amount,
 						SUM(IF(account.received,0,account.amount)) AS total_amount,
+						SUM(IF(account.received,0,account.amount)) - SUM(IF(account.received,account.amount,0)) AS receivable_amount,
 						MAX(IF(account.received,account.date,NULL)) AS received_date, 
 						MAX(IF(account.received,NULL,account.date)) AS receivable_date, 
 						GROUP_CONCAT(account.comment) AS comment
@@ -207,6 +208,11 @@ class Account_model extends BaseItem_model{
 					->order_by('month')
 					->select('LEFT(project.time_contract,7) AS month',false);
 			}
+			
+			if(isset($args['having'])){
+				$this->db->having($args['having']);
+			}
+			
 		}
 
 		if(isset($args['sum']) && $args['sum']===true){
