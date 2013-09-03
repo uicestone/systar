@@ -409,15 +409,15 @@ function __autoload($class) {
 		require_once APPPATH.'libraries/'.strtolower($class).EXT;
 	}
 
-	elseif(file_exists(APPPATH.'controllers/'.COMPANY_TYPE.'/'.COMPANY_CODE.'/'.strtolower($class).EXT)){
+	if(file_exists(APPPATH.'controllers/'.COMPANY_TYPE.'/'.COMPANY_CODE.'/'.strtolower($class).EXT)){
 		require_once APPPATH.'controllers/'.COMPANY_TYPE.'/'.COMPANY_CODE.'/'.strtolower($class).EXT;
 	}
 	
-	elseif(file_exists(APPPATH.'controllers/'.COMPANY_TYPE.'/'.strtolower($class).EXT)){
+	if(file_exists(APPPATH.'controllers/'.COMPANY_TYPE.'/'.strtolower($class).EXT)){
 		require_once APPPATH.'controllers/'.COMPANY_TYPE.'/'.strtolower($class).EXT;
 	}
 	
-	elseif(file_exists(APPPATH.'controllers/'.strtolower($class).EXT)){
+	if(file_exists(APPPATH.'controllers/'.strtolower($class).EXT)){
 		require_once APPPATH.'controllers/'.strtolower($class).EXT;
 	}
 	

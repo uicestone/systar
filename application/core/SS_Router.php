@@ -12,14 +12,31 @@ class SS_Router extends CI_Router{
 			return $segments;
 		}
 
-		if(file_exists(APPPATH.'controllers/'.COMPANY_TYPE.'/'.COMPANY_CODE.'/'.$segments[0].EXT))
+		if(file_exists(APPPATH.'controllers/'.COMPANY_TYPE.'/'.COMPANY_CODE.'/'.COMPANY_CODE.'_'.$segments[0].EXT))
+		{
+			$this->directory=COMPANY_TYPE.'/'.COMPANY_CODE.'/';
+			$segments[0]=COMPANY_CODE.'_'.$segments[0];
+			//TODO 直接修改了 $segments，将使segments[0]与url第一字段可能不一致。继承Router::_set_request也许可以解决
+			return $segments;
+			
+		}
+		
+		elseif(file_exists(APPPATH.'controllers/'.COMPANY_TYPE.'/'.COMPANY_CODE.'/'.$segments[0].EXT))
 		{
 			$this->directory=COMPANY_TYPE.'/'.COMPANY_CODE.'/';
 			return $segments;
 			
 		}
 		
-		if(file_exists(APPPATH.'controllers/'.COMPANY_TYPE.'/'.$segments[0].EXT)){
+		elseif(file_exists(APPPATH.'controllers/'.COMPANY_TYPE.'/'.COMPANY_CODE.'_'.$segments[0].EXT))
+		{
+			$this->directory=COMPANY_TYPE.'/'.COMPANY_CODE.'/';
+			$this->class=COMPANY_CODE.'_'.$segments[0];
+			return $segments;
+			
+		}
+		
+		elseif(file_exists(APPPATH.'controllers/'.COMPANY_TYPE.'/'.$segments[0].EXT)){
 			$this->directory=COMPANY_TYPE.'/';
 			return $segments;
 		}
