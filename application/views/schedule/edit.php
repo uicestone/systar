@@ -5,7 +5,7 @@
 </select>
 <br />
 <?}?>
-<input type="hidden" name="people" data-placeholder="邀请其他人" class="tagging" multiple="multiple" value="<?=implode(',',$people)?>" data-initselection='<?=json_encode($this->people->getArray(array('id_in'=>$people)))?>' data-ajax="/people/match/"<?if($this->input->get('people')){?> changed="changed"<?}?> style="width:98%">
+<input type="hidden" name="people" data-placeholder="邀请、通知或关联" class="tagging" multiple="multiple" value="<?=implode(',',$people)?>" data-initselection='<?=json_encode($this->people->getArray(array('id_in'=>$people)))?>' data-ajax="/people/match/"<?if($this->input->get('people')){?> changed="changed"<?}?> style="width:98%">
 <br />
 <select name="labels" data-placeholder="标签" multiple="multiple" class="allow-new" style="width:98%">
 	<?=options($this->schedule->getAllLabels(),$this->value('labels'))?>
