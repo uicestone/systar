@@ -13,6 +13,7 @@ class Starsys_Index extends Index{
 		if(!$this->config->user_item('receivable_notified')){
 			$receivable_accounts=$this->account->getList(array(
 				'people'=>$this->user->id,
+				'project_is_active'=>true,
 				'group_by'=>'account',
 				'role'=>'主办律师',
 				'having'=>'receivable_amount > 0 AND `receivable_date` <= CURDATE()',
