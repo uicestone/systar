@@ -50,6 +50,7 @@ class BaseItem_model extends SS_Model{
 		}
 		
 		if(!$row){
+			echo $this->db->last_query();
 			throw new Exception(CONTROLLER.' '.$id.' not found');
 		}
 		
@@ -297,9 +298,15 @@ class BaseItem_model extends SS_Model{
 	}
 	
 	function getAddingItem(){
+		
+		if(isset($this->fields['type'])){
+			$this->db->where('type',$this->fields['type']);
+		}
+		
 		$row=$this->db->select('id')
 			->from($this->table)
-			->where(array('display'=>false,'uid'=>$this->user->id))
+			->where('display',false)
+			->where('uid',$this->user->id)
 			->order_by('id', 'desc')
 			->limit(1)
 			->get()->row();
