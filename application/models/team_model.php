@@ -77,14 +77,8 @@ class Team_model extends People_model{
 	 * @return array
 	 */
 	function match($part_of_name){
-		$this->db->select('team.id,team.name,team.type')
-			->from('team')
-			->where('team.company',$this->company->id)
-			->where('team.display',true)
-			->like('name',$part_of_name)
-			->order_by('team.id','desc');
-		
-		return $this->db->get()->result_array();
+		$this->db->join('team','team.id=people.id','inner');
+		return parent::match($part_of_name);
 	}
 	
 }

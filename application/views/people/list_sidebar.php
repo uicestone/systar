@@ -12,9 +12,7 @@
 			</tr>
 			<tr>
 				<td>
-					<select name="in_team[]" class="chosen" title="输入多个团组，将采取“或”方式查找" multiple="multiple" data-placeholder="团组">
-						<?=options($this->team->getArray(array('people_type'=>$this->config->user_item('search/type')),'name','id'),$this->config->user_item('search/in_team'),NULL,true)?>
-					</select>
+					<input type="hidden" name="in_team[]" class="tagging" multiple="multiple" data-ajax="/team/match/" data-placeholder="团组" style="width:238px;" data-initselection='<?=json_encode($this->team->getArray(array('id_in'=>$this->config->user_item('search/in_team')),'name','id'))?>' value="<?=implode((array)$this->config->user_item('search/in_team'))?>" />
 				</td>
 			</tr>
 			<tr>
