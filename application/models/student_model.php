@@ -38,17 +38,17 @@ class Student_model extends People_model{
 		
 		$this->db->select('
 			people.*,
-			team.id AS class,team.name AS class_name
+			people_team.id AS class,people_team.name AS class_name
 		',false)
-			->join('people_relationship class_student',"class_student.relative = people.id AND class_student.till>=CURDATE()",isset($args['in_class']) && $args['in_class']?'inner':'left')
-			->join('team','team.id = class_student.people',isset($args['in_class']) && $args['in_class']?'inner':'left');
+			->join('people_relationship class_student',"class_student.relative = people.id AND (class_student.till>=CURDATE() OR class_student.till IS NULL)",isset($args['in_class']) && $args['in_class']?'inner':'left')
+			->join('people people_team',"people_team.id = class_student.people",isset($args['in_class']) && $args['in_class']?'inner':'left')
+			->where('people_team.type','classes');
 		
 		if(isset($args['team'])){
 			$this->db->where_in('class_student.people',$args['team']);
 			unset($args['team']);
 		}
 			
-		
 		$args['orderby']='num';
 		
 		return parent::getList($args);

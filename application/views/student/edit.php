@@ -49,7 +49,7 @@
 <?}?>
 	 </div>
 
-	<div class="item" name="profile">
+	<div class="item" name="profile" locked="locked">
 		<div class="title"><label>资料项</label></div>
 		<?=$profile_list?>
 		<button type="button" class="toggle-add-form">＋</button>
@@ -64,7 +64,7 @@
 		</span>
 	 </div>
 
-	<div class="item" name="relative">
+	<div class="item" name="relative" locked="locked">
 		<div class="title"><label>相关人</label></div>
 		<?=$relative_list?>
 	 </div>

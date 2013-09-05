@@ -42,8 +42,11 @@ class Student extends People{
 			},'args'=>array('name','type','accepted'))
 		);
 		
+		$this->team_list_args['leader_name']=array(
+			'heading'=>'负责人','cell'=>array('data'=>'<a href="#message/to/{leader}">{leader_name}</a>')
+		);
+		
 		$this->load->view_path['edit']='student/edit';
-
 	}
 	
 	function index(){

@@ -10,15 +10,7 @@ class Classes extends Team{
 			'extra_course_name'=>array('heading'=>'加一'),
 			'class_teacher_name'=>array('heading'=>'班主任')
 		);
-	}
-	
-	function edit($id){
-		
-		$this->load->model('staff_model','staff');
-		
-		$this->classes->data=$this->classes->fetch($id);
-		
-		$this->load->view('classes/edit');
+		$this->load->view_path['edit']='classes/edit';
 	}
 }
 ?>

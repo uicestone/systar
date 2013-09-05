@@ -9,11 +9,11 @@
 	</div>
 <?}?>
 	
-	<div class="item" name="people">
+	<div class="item" name="people"<?if($project['uid']!=$this->user->id){?> locked="locked"<?}?>>
 		<div class="title"><label>人员：</label></div>
 
 		<?=$people_list?>
-
+<?if($project['uid']==$this->user->id){?>
 		<button type="button" class="toggle-add-form">＋</button>
 		<span class="add-form hidden">
 			<input type="hidden" name="people[id]" class="tagging" data-ajax="/people/match/" data-placeholder="人员" />
@@ -22,6 +22,7 @@
 			</select>
 			<button type="submit" name="submit[people]">添加</button>
 		</span>
+<?}?>
 	</div>
 
 	<div class="item" name="document">
@@ -48,7 +49,6 @@
 			</span>
 			<label>日程：
 				<a href="javascript:$.createSchedule({project:<?=$this->value('project/id')?>,refreshOnSave:true,target:this})">添加>></a>
-				<a href="#schedule/lists?project=<?=$this->value('project/id')?>" class="right">查看全部</a>
 			</label>
 		</div>
 		<?=$schedule_list?>
