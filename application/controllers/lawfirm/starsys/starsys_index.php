@@ -14,6 +14,7 @@ class Starsys_Index extends Index{
 			$receivable_accounts=$this->account->getList(array(
 				'people'=>$this->user->id,
 				'project_is_active'=>true,
+				'type_is_not'=>'办案费',
 				'group_by'=>'account',
 				'role'=>'主办律师',
 				'having'=>'receivable_amount > 0 AND `receivable_date` <= CURDATE()',

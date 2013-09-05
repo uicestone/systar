@@ -111,6 +111,7 @@ class BaseItem_model extends SS_Model{
 	 *	company
 	 *	display
 	 *	type
+	 *	type_is_not
 	 *	id_in
 	 *	orderby string or array
 	 *	limit string, array or 'pagination'
@@ -168,6 +169,10 @@ class BaseItem_model extends SS_Model{
 		
 		if(isset($args['type']) && $args['type']){
 			$this->db->where($this->table.'.type',$args['type']);
+		}
+		
+		if(isset($args['type_is_not']) && $args['type_is_not']){
+			$this->db->where($this->table.'.type !=',$args['type_is_not']);
 		}
 		
 		if(isset($args['uid']) && $args['uid']){
