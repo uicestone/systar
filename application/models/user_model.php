@@ -51,6 +51,11 @@ class User_model extends People_model{
 
 	}
 	
+	function match($part_of_name) {
+		$this->db->join('user','user.id = people.id');
+		return parent::match($part_of_name);
+	}
+
 	function getList(array $args=array()){
 		
 		$this->db->select('people.*')
@@ -246,6 +251,6 @@ class User_model extends People_model{
 		}
 		
 	}
-
+	
 }
 ?>

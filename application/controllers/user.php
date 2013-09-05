@@ -1,5 +1,5 @@
 <?php
-class user extends SS_controller{
+class User extends People{
 	
 	function __construct(){
 		
@@ -9,10 +9,13 @@ class user extends SS_controller{
 			'logout'=>array(),
 			'submit'=>true,
 			'setfields'=>true,
-			'profile'=>array()
+			'profile'=>array(),
+			'match'=>true
 		);
 		
 		parent::__construct();
+		
+		$this->people=$this->user;
 		
 		if($this->company->ucenter){
 			require APPPATH.'third_party/ucenter_client/config.php';
@@ -173,5 +176,6 @@ class user extends SS_controller{
 			$this->output->status='success';
 		}
 	}
+	
 }
 ?>

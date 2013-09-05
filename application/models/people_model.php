@@ -34,7 +34,7 @@ class People_model extends BaseItem_model{
 			->from('people')
 			->where('people.company',$this->company->id)
 			->where('people.display',true)
-			->where("(name LIKE '%$part_of_name%' OR abbreviation LIKE '$part_of_name' OR name_en LIKE '%$part_of_name%')")
+			->where("(people.name LIKE '%$part_of_name%' OR people.abbreviation LIKE '$part_of_name' OR people.name_en LIKE '%$part_of_name%')")
 			->order_by('people.id','desc');
 		
 		return $this->db->get()->result_array();
