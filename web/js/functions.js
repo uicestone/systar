@@ -254,7 +254,16 @@ jQuery.fn.extend({
 					messages_to_notify.push(notification.id);
 					
 					if(!notifications[notification.id]){
-						notifications[notification.id]=window.webkitNotifications.createNotification('/images/favicon.ico', notification.author_name, notification.content);
+						var href=notification.content.match(/\<a.* href="(.*?)".*\>.*?\<\/a\>/);
+						console.log(notification.content);
+						console.log(href);
+						notifications[notification.id]=window.webkitNotifications.createNotification('/images/favicon.ico', notification.author_name, notification.content.replace(/<\w+.*?>|<\/[\w]+>/g,''));
+						if(href !== null){
+							notifications[notification.id].href=href[1];
+							notifications[notification.id].onclick=function(){
+								window.location.href=this.href;
+							}
+						}
 						notifications[notification.id].show();
 					}
 				}
