@@ -59,6 +59,7 @@ select project,sum(weight) sum from project_people where role = '主办律师'
 group by project having sum != 1
 
 -- 清除添加失败的project
+delete from project_document where project in (select id from project where display = 0 and name is null); 
 delete from project_people where project in (select id from project where display = 0 and name is null);
 delete from project where display = 0 and name is null;
 
