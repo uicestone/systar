@@ -3,7 +3,7 @@
 	<tbody>
 		<tr>
 			<td>
-				<input type="hidden" name="receivers[]" class="tagging" data-placeholder="收件人" multiple="multiple" data-ajax="/user/match/" style="width:238px;" />
+				<input type="hidden" name="receivers" class="tagging" data-placeholder="收件人" multiple="multiple" data-ajax="/user/match/" style="width:238px;" />
 			</td>
 		</tr>
 		<tr>

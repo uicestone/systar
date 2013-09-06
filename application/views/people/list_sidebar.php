@@ -12,7 +12,7 @@
 			</tr>
 			<tr>
 				<td>
-					<input type="hidden" name="in_team[]" class="tagging" multiple="multiple" data-ajax="/team/match/" data-placeholder="团组" style="width:238px;" data-initselection='<?=json_encode($this->team->getArray(array('id_in'=>$this->config->user_item('search/in_team')),'name','id'))?>' value="<?=implode((array)$this->config->user_item('search/in_team'))?>" />
+					<input type="hidden" name="in_team" class="tagging" multiple="multiple" data-ajax="/team/match/" data-placeholder="团组" style="width:238px;" data-initselection='<?=json_encode($this->team->getArray(array('id_in'=>$this->config->user_item('search/in_team')),'name','id'))?>' value="<?=implode((array)$this->config->user_item('search/in_team'))?>" />
 				</td>
 			</tr>
 			<tr>

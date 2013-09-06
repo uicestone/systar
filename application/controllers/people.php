@@ -4,6 +4,7 @@ class People extends SS_Controller{
 	var $form_validation_rules=array();
 	
 	var $search_items=array();
+	var $search_items_imploded=array();
 	
 	var $list_args;
 	
@@ -22,6 +23,7 @@ class People extends SS_Controller{
 	function __construct() {
 		parent::__construct();
 		$this->search_items=array('name','labels','in_team');
+		$this->search_items_imploded=array('in_team');
 		
 		$this->list_args=array(
 			'abbreviation'=>array(

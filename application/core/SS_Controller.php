@@ -160,7 +160,11 @@ class SS_Controller extends CI_Controller{
 		
 		foreach($this->search_items as $item){
 			if($this->input->post($item) || $this->input->post($item)==='0'){
-				$this->config->set_user_item('search/'.$item, $this->input->post($item));
+				if(in_array($item,$this->search_items_imploded)){
+					$this->config->set_user_item('search/'.$item, explode(',',$this->input->post($item)));
+				}else{
+					$this->config->set_user_item('search/'.$item, $this->input->post($item));
+				}
 			}
 			elseif($this->input->post('submit')==='search'){
 				$this->config->unset_user_item('search/'.$item);

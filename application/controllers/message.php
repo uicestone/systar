@@ -12,7 +12,7 @@ class Message extends SS_Controller{
 				if(!$this->input->post('content')){
 					throw new Exception('请填写消息内容');
 				}
-				$message_id=$this->message->send($this->input->post('content'), $this->input->post('receivers'));
+				$message_id=$this->message->send($this->input->post('content'), explode(',',$this->input->post('receivers')));
 
 				if($this->input->post('documents')){
 					$this->load->model('document_model','document');
