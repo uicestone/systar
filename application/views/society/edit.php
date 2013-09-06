@@ -2,6 +2,7 @@
 	<div class="item">
 		<div class="title"><label>基本信息：</label></div>
 		<label>社团名称：</label><input name="people[name]" value="<?=$this->value('people/name'); ?>" type="text" placeholder="名称" />
+		<label>教师：</label><?=$this->people->fetch($this->value('people/leader'),'name')?>
 		<label>名额：</label><input name="profiles[名额]" value="<?=$this->value('profiles/名额')?>" placeholder="名额" />
 		<label>状态：</label>
 <?if($this->user->inTeam('科训')){?>

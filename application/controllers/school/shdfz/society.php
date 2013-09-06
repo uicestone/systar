@@ -9,12 +9,12 @@ class Society extends Team{
 
 		$this->list_args=array(
 			'name'=>array('heading'=>'名称'),
-			
+			'leader_name'=>array('heading'=>'教师'),
 			'intro'=>array('heading'=>'简介','cell'=>array('class'=>'ellipsis','title'=>'{intro}')),
-			
 			'capacity'=>array('heading'=>'名额/已报/已录','parser'=>array('function'=>function($id,$capacity){
 				return $capacity.'/'.$this->society->countApplicants($id).'/'.$this->society->countApplicants($id,true);
-			},'args'=>array('id','capacity')))
+			},'args'=>array('id','capacity'))),
+			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->people,'getCompiledLabels'),'args'=>array('id')))
 		);
 		
 		if(!$this->user->inTeam('teacher')){
@@ -41,6 +41,7 @@ class Society extends Team{
 		}
 		
 		$this->config->set_user_item('search/get_profiles', array('intro'=>'简介','capacity'=>'名额'));
+		$this->config->set_user_item('search/get_leader', true);
 		
 		parent::index();
 	}
