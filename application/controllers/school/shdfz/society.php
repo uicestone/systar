@@ -30,7 +30,7 @@ class Society extends Team{
 		}
 		
 		$this->load->view_path['edit']='society/edit';
-		$this->load->view_path['list_aside']='society/edit_sidebar';
+		$this->load->view_path['edit_aside']='society/edit_sidebar';
 		
 	}
 	
