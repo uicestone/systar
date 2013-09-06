@@ -3,7 +3,7 @@
 	<tbody>
 		<tr>
 			<td>
-				<textarea name="content" placeholder="内容"></textarea>
+				<textarea name="content" placeholder="内容" rows="10"></textarea>
 			</td>
 		</tr>
 		<tr>

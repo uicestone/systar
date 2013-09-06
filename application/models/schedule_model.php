@@ -398,7 +398,7 @@ class Schedule_model extends BaseItem_model{
 			
 			$name=$this->fetch($schedule_id, 'name');
 			
-			$this->message->send('：'.$name, $insert);
+			$this->message->send($name, $insert);
 		}
 	}
 	

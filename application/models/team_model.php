@@ -6,10 +6,16 @@ class Team_model extends People_model{
 		$this->fields['type']='team';
 	}
 	
-	function fetch($id){
-		$people = parent::fetch($id);
-		$team = $this->db->from('team')->where('id',$id)->get()->row_array();
-		return $people + $team;
+	function fetch($id,$field=NULL){
+		$people = parent::fetch($id,$field);
+		
+		if(is_null($field)){
+			$team = $this->db->from('team')->where('id',$id)->get()->row_array();
+			return $people + $team;
+		}
+		else{
+			return $people;
+		}
 	}
 	
 	/**
