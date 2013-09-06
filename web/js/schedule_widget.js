@@ -412,13 +412,15 @@ $.widget('ui.schedule',jQuery.ui.dialog,{
 			that.options.buttons.shift();
 			that.options.buttons.unshift(
 				{
-					html:'<span class="icon-clock"></span>',
+					html:'<span class="icon-remove"></span>',
+					title:'删除',
 					tabIndex:-1,
 					click:function(){
 						$.get('/schedule/delete/'+that.options.id,function(response){
 							if(response.status==='success'){
 								that.element.schedule('close');
 								$(calendar).fullCalendar('removeEvents',that.options.id);
+								$.get('schedule/todolist');
 							}
 						});
 					}

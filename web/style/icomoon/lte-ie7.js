@@ -15,7 +15,8 @@ window.onload = function() {
 			'icon-minus' : '&#x23;',
 			'icon-pencil' : '&#x24;',
 			'icon-lock' : '&#x25;',
-			'icon-unlocked' : '&#x26;'
+			'icon-unlocked' : '&#x26;',
+			'icon-remove' : '&#x27;'
 		},
 		els = document.getElementsByTagName('*'),
 		i, attr, c, el;
