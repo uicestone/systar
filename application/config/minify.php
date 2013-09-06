@@ -1,8 +1,8 @@
 <?php
 $config['minify_source']['js/combined.js']=array(
 	'js/underscore-min.js',
-	ENVIRONMENT==='development'?'js/jQuery/jquery-1.9.1.js':'js/jQuery/jquery-1.9.1.min.js',
-	'js/jQuery/jquery-migrate-1.1.1.js',
+	'js/jQuery/jquery-1.10.2.min.js',
+	'js/jQuery/jquery-migrate-1.2.1.js',
 	'js/backbone-min.js',
 	'js/jQuery/jquery-ui-1.10.3.custom.min.js',
 
