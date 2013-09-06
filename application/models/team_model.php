@@ -18,6 +18,13 @@ class Team_model extends People_model{
 		}
 	}
 	
+	function add(array $data = array()) {
+		$data['character']='单位';
+		$new_team_id = parent::add($data);
+		$this->db->insert('team',array('id'=>$new_team_id,'leader'=>$this->user->id,'company'=>$this->company->id,'time'=>time(),'time_insert'=>time()));
+		return $new_team_id;
+	}
+	
 	/**
 	 * @param array $args
 	 *	project 查找某个事务关联的组
