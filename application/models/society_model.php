@@ -5,10 +5,14 @@ class Society_model extends Team_model{
 		parent::__construct();
 	}
 	
-	function countApplicants($team_id){
+	function countApplicants($team_id,$accepted=NULL){
+		
+		if(isset($accepted)){
+			$this->db->where('accepted',true);
+		}
+		
 		return $this->db->from('people_relationship')
 			->where('people',$team_id)
-			->where('accepted',true)
 			->count_all_results();
 	}
 	

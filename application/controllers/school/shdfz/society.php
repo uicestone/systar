@@ -12,8 +12,8 @@ class Society extends Team{
 			
 			'intro'=>array('heading'=>'简介','cell'=>array('class'=>'ellipsis','title'=>'{intro}')),
 			
-			'capacity'=>array('heading'=>'名额/已报','parser'=>array('function'=>function($id,$capacity){
-				return $capacity.'/'.$this->society->countApplicants($id);
+			'capacity'=>array('heading'=>'名额/已报/已录','parser'=>array('function'=>function($id,$capacity){
+				return $capacity.'/'.$this->society->countApplicants($id).'/'.$this->society->countApplicants($id,true);
 			},'args'=>array('id','capacity')))
 		);
 		
@@ -30,6 +30,7 @@ class Society extends Team{
 		}
 		
 		$this->load->view_path['edit']='society/edit';
+		$this->load->view_path['list_aside']='society/edit_sidebar';
 		
 	}
 	
