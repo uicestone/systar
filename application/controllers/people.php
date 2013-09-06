@@ -111,7 +111,7 @@ class People extends SS_Controller{
 	function index(){
 		
 		$this->config->set_user_item('search/limit', 'pagination', false);
-		$this->config->set_user_item('search/order_by', 'id desc',false);
+		$this->config->set_user_item('search/order_by', 'people.id desc',false);
 		
 		$this->_search();
 		
