@@ -93,7 +93,7 @@ class Schedule_model extends BaseItem_model{
 		//依赖schedule_people表
 		//TODO 判断多个人同时属于一个日程，并区分对待人员状态（如统计一个律师对一个客户的时间）
 		if(isset($args['people']) && $args['people']){
-			$this->db->where('schedule_people.people',$args['people']);
+			$this->db->where('schedule_people.people'.$this->db->escape_int_array($args['people']),NULL,FALSE);
 		}
 		
 		//依赖schedule_people表
@@ -353,7 +353,7 @@ class Schedule_model extends BaseItem_model{
 	}
 	
 	/**
-	 * update relatied people of a schedule
+	 * update related people of a schedule
 	 * will add new ones and remove old ones
 	 * suitbable for all add/remove/update operation when an array of people is given
 	 * @param int $schedule_id

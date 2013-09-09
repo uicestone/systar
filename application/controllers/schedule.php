@@ -126,7 +126,7 @@ class Schedule extends SS_controller{
 		
 		}else{
 			//获得当前视图的全部日历，根据$this->input->get('start'),$this->input->get('end')(timestamp)
-			$this->output->data=$this->schedule->getList(array('date_form'=>false,'time'=>array('from'=>$start,'to'=>$end),'people'=>$this->user->id));
+			$this->output->data=$this->schedule->getList(array('date_form'=>false,'time'=>array('from'=>$start,'to'=>$end),'people'=>array_merge(array($this->user->id),array_keys($this->user->teams))));
 		}
 	}
 	
