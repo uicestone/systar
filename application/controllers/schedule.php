@@ -58,7 +58,9 @@ class Schedule extends SS_controller{
 		
 		$this->config->set_user_item('search/order_by', 'schedule.id desc', false);
 		$this->config->set_user_item('search/limit', 'pagination', false);
-		$this->config->set_user_item('search/in_project_of_people', $this->user->id, false);
+		if(!$this->user->isLogged('scheduleadmin')){
+			$this->config->set_user_item('search/in_project_of_people', $this->user->id, false);
+		}
 		$this->config->set_user_item('search/show_creater', true, false);
 		$this->config->set_user_item('search/show_project', true, false);
 		$this->config->set_user_item('search/time/input_format', 'date', false);
