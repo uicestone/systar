@@ -121,10 +121,12 @@ where people in (select id from team)
 and relative in (select id from staff);
 
 -- 含有用户的组也是用户
-insert ignore into user (id)
-select people from people_relationship
-where people in (select id from team)
-and relative in (select id from user);
+insert ignore into user (id,company)
+select id,company from people where id in(
+	select people from people_relationship
+	where people in (select id from team)
+	and relative in (select id from user)
+);
 
 -- 用户组下的人员都是用户
 insert ignore into user (id,name,company)
@@ -291,4 +293,9 @@ and id in (
 	select `case`
 	from starsys.account
 	where time_occur < unix_timestamp('2013-01-01')
-)
+);
+
+-- 将类team类人员添加为组
+insert ignore into team (id,name,display,company,uid,time_insert,time)
+select id,name,display,company,uid,time_insert,time
+from people where type in ('team','teacher_group','course_group','classes');

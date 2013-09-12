@@ -59,7 +59,12 @@ class Message extends SS_Controller{
 				$message_id=$this->message->sendByDialog($this->input->post('content'), $dialog_id);
 				
 				if($this->input->post('documents')){
+					$this->load->model('document_model','document');
 					$this->message->addDocuments($message_id, $this->input->post('documents'));
+					$members=$this->message->getDialogMembers($dialog_id);
+					foreach($this->input->post('documents') as $document_id){
+						$this->document->addMod(1, $members, $document_id);
+					}
 				}
 				
 			}

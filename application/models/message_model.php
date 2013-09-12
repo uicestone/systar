@@ -86,6 +86,14 @@ class Message_model extends BaseItem_model{
 		return $this->db->get()->result_array();
 	}
 	
+	function getDialogMembers($dialog_id){
+		$this->db->select('user')
+			->from('dialog_user')
+			->where('dialog',$dialog_id);
+		
+		return array_sub($this->db->get()->result_array(),'user');
+	}
+	
 	function getList($dialog_id){
 		$dialog_id=intval($dialog_id);
 		$this->db->select('message.*, people.name AS author_name, message_user.read AS `read`')
