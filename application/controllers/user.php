@@ -93,9 +93,9 @@ class User extends People{
 	}
 	
 	function profile(){
-		
-		$people=array_merge_recursive($this->people->fetch($this->user->id),$this->input->sessionPost('people'));
-		$people_profiles=array_merge_recursive(array_sub($this->people->getProfiles($this->user->id),'content','name'),$this->input->sessionPost('people'));
+		$people_model=new People_model();
+		$people=array_merge_recursive($people_model->fetch($this->user->id),$this->input->sessionPost('people'));
+		$people_profiles=array_merge_recursive(array_sub($people_model->getProfiles($this->user->id),'content','name'),$this->input->sessionPost('people'));
 		$this->load->addViewArrayData(compact('people','people_profiles'));
 		
 		$this->output->title='用户资料';
@@ -131,10 +131,12 @@ class User extends People{
 				}
 				
 				$people=$this->input->sessionPost('people');
-				$profiles=$this->input->sessionPost('people_profiles');
+				$profiles=$this->input->sessionPost('profiles');
 				
-				$this->people->update($this->user->id,$people);
-				$this->people->updateProfiles($this->user->id, $profiles);
+				$people_model=new People_model();
+				
+				$people_model->update($this->user->id,$people);
+				$people_model->updateProfiles($this->user->id, $profiles);
 				
 				$this->output->message($this->output->title.' 已保存');
 			}

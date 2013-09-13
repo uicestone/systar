@@ -625,7 +625,9 @@ class BaseItem_model extends SS_Model{
 		}
 		
 		foreach($profiles as $name => $content){
-			
+			if($content===''){
+				continue;
+			}
 			$set=array('content'=>$content);
 			$where=array($this->table=>$item_id,'name'=>$name);
 			

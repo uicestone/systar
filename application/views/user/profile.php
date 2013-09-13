@@ -35,4 +35,29 @@ $(function(){
 		</select>
 		<input type="text" name="people[birthday]" value="<?=$this->value('people/birthday')?>" class="birthday" placeholder="生日" title="生日" />
 	</div>
+<?if($this->user->isLogged('student')){?>
+	<div class="item">
+		<div class="title"><label>学籍信息</label></div>
+		 <?=checkbox('是否团员', 'profiles[是否团员]', $this->value('profiles/是否团员'), '是')?>
+		 <?=checkbox('是否住宿', 'profiles[是否住宿]', $this->value('profiles/是否住宿'), '是')?>
+		<input type="text" name="profiles[宿舍]" value="<?=$this->value('profiles/宿舍')?>" placeholder="宿舍">
+		<input type="text" name="profiles[毕业初中]" value="<?=$this->value('profiles/毕业初中')?>" placeholder="毕业初中">
+	</div>
+	<div class="item">
+		<div class="title"><label>联系方式</label></div>
+		<input type="text" name="profiles[手机]" value="<?=$this->value('profiles/手机')?>" placeholder="手机">
+		<input type="text" name="profiles[QQ]" value="<?=$this->value('profiles/QQ')?>" placeholder="QQ">
+		<input type="text" name="profiles[电子邮件]" value="<?=$this->value('profiles/电子邮件')?>" placeholder="电子邮件">
+		<input type="text" name="profiles[联系地址]" value="<?=$this->value('profiles/联系地址')?>" placeholder="联系地址">
+		<input type="text" name="profiles[邮政编码]" value="<?=$this->value('profiles/邮政编码')?>" placeholder="邮政编码">
+		<br>
+		<input type="text" name="profiles[所属街道]" value="<?=$this->value('profiles/所属街道')?>" placeholder="所属街道">
+		<input type="text" name="profiles[家庭电话]" value="<?=$this->value('profiles/家庭电话')?>" placeholder="家庭电话">
+	</div>
+	<div class="item">
+		<div class="title"><label>其它信息</label></div>
+		<input type="text" name="profiles[银行账号]" value="<?=$this->value('profiles/银行账号')?>" placeholder="银行账号">
+		<textarea name="profiles[疾病史]" placeholder="疾病史"><?=$this->value('profiles/疾病史')?></textarea>
+	</div>
+<?}?>
 </form>
