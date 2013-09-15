@@ -40,7 +40,7 @@ class Student_model extends People_model{
 			people.*,
 			people_team.id AS class,people_team.name AS class_name
 		',false)
-			->join('people_relationship class_student',"class_student.relative = people.id AND (class_student.till>=CURDATE() OR class_student.till IS NULL)",isset($args['in_class']) && $args['in_class']?'inner':'left')
+			->join('people_relationship class_student',"class_student.relative = people.id AND class_student.is_on = TRUE",isset($args['in_class']) && $args['in_class']?'inner':'left')
 			->join('people people_team',"people_team.id = class_student.people",isset($args['in_class']) && $args['in_class']?'inner':'left')
 			->where('people_team.type','classes');
 		

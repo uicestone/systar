@@ -27,7 +27,7 @@ class Classes_model extends Team_model{
 			->join('people_relationship','people_relationship.people = people_team.id','inner')
 			->join('people leader','leader.id = team.leader','left')
 			->where('people_relationship.relative',$student_id)
-			->where('people_relationship.till >= CURDATE()',NULL,FALSE);
+			->where('is_on',true);
 		
 		return $this->db->get()->row_array();
 	}
