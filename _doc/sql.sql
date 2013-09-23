@@ -299,3 +299,23 @@ and id in (
 insert ignore into team (id,name,display,company,uid,time_insert,time)
 select id,name,display,company,uid,time_insert,time
 from people where type in ('team','teacher_group','course_group','classes');
+
+-- 应收账款催收列表
+SELECT project.name, MAX(account.type) AS type,
+SUM(IF(account.received,account.amount,0)) AS received_amount,						SUM(IF(account.received,0,account.amount)) AS total_amount,
+SUM(IF(account.received,0,account.amount)) - SUM(IF(account.received,account.amount,0)) AS receivable_amount,
+MAX(IF(account.received,account.date,NULL)) AS received_date,
+MAX(IF(account.received,NULL,account.date)) AS receivable_date,
+lawyers.lawyers,
+GROUP_CONCAT(account.comment) AS comment
+from account
+inner join project on project.id = account.project -- and project.active = 0
+inner join (
+	select project_people.project, group_concat(distinct people.name) lawyers from
+        project_people inner join people on project_people.people = people.id
+        inner join staff on staff.id = people.id
+        group by project_people.project
+)lawyers on lawyers.project = account.project
+where account.date >= '2013-01-01'
+group by account.account
+having sum(if(received=1,amount,0)) < sum(if(received=0,amount,0))
