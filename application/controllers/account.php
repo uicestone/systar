@@ -81,13 +81,13 @@ class Account extends SS_controller{
 			),
 			
 			array(
-				$this->account->getSum(array(
+				$this->account->getSum(array_diff_key(array(
 					'received'=>false,
 					'limit'=>false,
 					'orderby'=>false,
 					'contract_date'=>array('from'=>$this->config->user_item('search/date/from'),'to'=>$this->config->user_item('search/date/to')),
 					'ten_thousand_unit'=>true
-				)+$args),
+				)+$args,array('date'=>''))),
 				$this->account->getSum(array(
 					'received'=>false,
 					'limit'=>false,
