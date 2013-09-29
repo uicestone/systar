@@ -5,6 +5,8 @@ class Account extends SS_controller{
 	
 	var $search_items=array();
 	
+	var $search_items_imploded=array();
+	
 	function __construct(){
 		
 		parent::__construct();
@@ -26,7 +28,7 @@ class Account extends SS_controller{
 			'comment'=>array('heading'=>'备注','cell'=>array('title'=>'{comment}'),'parser'=>array('function'=>function($comment){return str_getSummary($comment);},'args'=>array('comment')))
 		);
 
-		$this->search_items=array('account','date/from','date/to','contract_date/from','contract_date/to','project_name','amount','payer_name','labels','project_labels','project_without_labels','received','people','team','role','group_by','type');
+		$this->search_items=array('account','date/from','date/to','project_name','amount','payer_name','labels','project_labels','project_without_labels','received','people','team','role','group_by','type');
 	}
 	
 	function index(){
@@ -87,7 +89,7 @@ class Account extends SS_controller{
 					'orderby'=>false,
 					'contract_date'=>array('from'=>$this->config->user_item('search/date/from'),'to'=>$this->config->user_item('search/date/to')),
 					'ten_thousand_unit'=>true
-				)+$args,array('date'=>''))),
+				)+$args,array('date'=>'','date/from'=>'','date/to'=>''))),
 				$this->account->getSum(array(
 					'received'=>false,
 					'limit'=>false,
