@@ -25,7 +25,7 @@
 		</tr>
 		<tr><td><input type="text" name="date/from" value="<?=$this->config->user_item('search/date/from')?>" class="date" placeholder="开始日期" /></td></tr>
 		<tr><td><input type="text" name="date/to" value="<?=$this->config->user_item('search/date/to')?>" class="date" placeholder="结束日期" /></td></tr>
-		<tr><td><input type="text" name="contract_date/from" value="<?=$this->config->user_item('search/date/contract_from')?>" class="date" placeholder="签约日期自" /></td></tr>
+		<tr><td><input type="text" name="contract_date/from" value="<?=$this->config->user_item('search/contract_date/from')?>" class="date" placeholder="签约日期自" /></td></tr>
 		<tr><td><input type="text" name="contract_date/to" value="<?=$this->config->user_item('search/contract_date/to')?>" class="date" placeholder="签约日期至" /></td></tr>
 		<tr>
 			<td><input type="text" name="payer_name" value="<?=$this->config->user_item('search/payer_name')?>" placeholder="付款/收款人" title="付款/收款人" /></td>
