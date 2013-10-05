@@ -121,7 +121,6 @@ class BaseItem_model extends SS_Model{
 	 * @return array
 	 */
 	function getList($args=array()){
-		
 		/**
 		 * 这是一个model方法，它具有配置独立性，即所有条件接口均通过参数$args来传递，不接受其他系统变量
 		 */
@@ -177,6 +176,39 @@ class BaseItem_model extends SS_Model{
 		
 		if(isset($args['uid']) && $args['uid']){
 			$this->db->where($this->table.'.uid',$args['uid']);
+		}
+		
+		foreach(array('time','time_insert') as $date_args){
+			if(!isset($args[$date_args])){
+				$args[$date_args]=array_prefix($args, $date_args);
+			}
+		}
+		
+		foreach(array('time','time_insert') as $time_field){
+			
+			if(isset($args[$time_field]['from']) && $args[$time_field]['from']){
+				
+				//默认以日期处理输入
+				if(strtotime($args[$time_field]['from'])){
+					$args[$time_field]['from']=strtotime($args[$time_field]['from']);
+				}
+			
+				$this->db->where($this->table.'.'.$time_field.' >= ',$args[$time_field]['from']);
+			}
+
+			if(isset($args[$time_field]['to']) && $args[$time_field]['to']){
+				
+				if(strtotime($args[$time_field]['to'])){
+					$args[$time_field]['to']=strtotime($args[$time_field]['to']);
+				}
+				
+				//默认以纯日期处理输入
+				if(strtotime($args[$time_field]['to']) && (empty($args[$time_field]['input_form']) || $args[$time_field]['input_form']!=='datetime')){
+					$args[$time_field]['to']+=86400;
+				}
+			
+				$this->db->where($this->table.'.'.$time_field.' < ',$args[$time_field]['to']);
+			}
 		}
 		
 		if(array_key_exists('id_in',$args)){
