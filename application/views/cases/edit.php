@@ -99,7 +99,38 @@
 
 	<div class="item" name="account">
 		<div class="title">
-			<label>资金：</label>
+			<label>资金（外部 计入创收）：</label>
+			
+<? if((isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') || $this->user->isLogged('finance')) && !in_array('费用已锁定',$labels)){?>
+			<button type="submit" name="submit[lock_fee]">锁定</button>
+<? }?>
+<? if((isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') || $this->user->isLogged('finance')) && in_array('费用已锁定',$labels)){ ?>
+			<button type="submit" name="submit[unlock_fee]">解锁</button>
+<? } ?>
+		</div>
+
+		<?=$account_list?>	
+		<button type="button" class="toggle-add-form">＋</button>
+		<span class="add-form hidden">
+			<select name="account[type]" class="tagging allow-new">
+				<?=options(array('固定','风险','计时预付','律师服务费'),$this->value('account/type'),'类型');?>
+			</select>
+			<input type="text" name="account[account]" value="<?=$this->value('account/account')?>" placeholder="帐目编号" />
+			<input type="text" name="account[amount]" value="<?=$this->value('account/amount')?>" placeholder="数额" />
+			<input type="hidden" name="account[count]" value="1" />
+<?if($this->user->isLogged('finance')){?>
+			<label><input type="checkbox" value="1" name="account[received]">已到帐</label>
+<?}?>
+			<input type="text" name="account[date]" value="<?=$this->value('account/date')?>" placeholder="预估日期" class="date" />
+			<input type="hidden" name="account[people]" data-ajax="/people/match/" data-placeholder="收款/付款人" class="tagging">
+			<input type="text" name="account[comment]" value="<?=$this->value('account/comment');?>" placeholder="条件/备注" />
+			<button type="submit" name="submit[account]">添加</button>
+		</span>
+	</div>
+
+	<div class="item" name="fee">
+		<div class="title">
+			<label>资金（内部 不计入创收）：</label>
 			
 <? if((isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') || $this->user->isLogged('finance')) && !in_array('费用已锁定',$labels)){?>
 			<button type="submit" name="submit[lock_fee]">锁定</button>
@@ -112,21 +143,22 @@
 		<?=$fee_list?>	
 		<button type="button" class="toggle-add-form">＋</button>
 		<span class="add-form hidden">
-			<select name="account[type]" class="tagging allow-new">
-				<?=options(array('固定','风险','计时预付','律师服务费'),$this->value('account/type'),'类型');?>
+			<select name="fee[type]" class="tagging allow-new">
+				<?=options(array('办案费','公关费用'),$this->value('fee/type'),'类型');?>
 			</select>
-			<input type="text" name="account[account]" value="<?=$this->value('account/account')?>" placeholder="帐目编号" />
-			<input type="text" name="account[amount]" value="<?=$this->value('account/amount')?>" placeholder="数额" />
+			<input type="text" name="fee[fee]" value="<?=$this->value('fee/fee')?>" placeholder="帐目编号" />
+			<input type="text" name="fee[amount]" value="<?=$this->value('fee/amount')?>" placeholder="数额" />
+			<input type="hidden" name="fee[count]" value="0" />
 <?if($this->user->isLogged('finance')){?>
-			<label><input type="checkbox" value="1" name="account[received]">已到帐</label>
+			<label><input type="checkbox" value="1" name="fee[received]">已到帐</label>
 <?}?>
-			<input type="text" name="account[date]" value="<?=$this->value('account/date')?>" placeholder="预估日期" class="date" />
-			<input type="hidden" name="account[people]" data-ajax="/people/match/" data-placeholder="收款/付款人" class="tagging">
-			<input type="text" name="account[comment]" value="<?=$this->value('account/comment');?>" placeholder="条件/备注" />
-			<button type="submit" name="submit[account]">添加</button>
+			<input type="text" name="fee[date]" value="<?=$this->value('fee/date')?>" placeholder="预估日期" class="date" />
+			<input type="hidden" name="fee[people]" data-ajax="/people/match/" data-placeholder="收款/付款人" class="tagging">
+			<input type="text" name="fee[comment]" value="<?=$this->value('fee/comment');?>" placeholder="条件/备注" />
+			<button type="submit" name="submit[fee]">添加</button>
 		</span>
 	</div>
-
+	
 	<div class="item" name="document">
 		<div class="title"><label>文件：</label>
 <? if($this->value('project/apply_file')){ ?>

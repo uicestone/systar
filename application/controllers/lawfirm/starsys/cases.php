@@ -104,9 +104,11 @@ class Cases extends Project{
 
 			$this->load->addViewData('staff_list', $this->staffList());
 			
-			$this->load->addViewData('fee_list', $this->accountList());
+			$this->load->addViewData('account_list', $this->accountList());
 			
-			$this->load->addViewData('schedule_list', $this->scheduleList());
+			$this->load->addViewData('fee_list', $this->feeList());
+			
+			$this->load->addViewData('schedule_list', $this->workList());
 
 			$this->load->addViewData('plan_list', $this->planList());
 			
@@ -167,6 +169,18 @@ class Cases extends Project{
 			->setAttribute('name','staff')
 			->setRowAttributes(array('hash'=>'staff/{id}'))
 			->generate($this->staff->getList(array('in_project'=>$this->cases->id)));
+		
+		return $list;
+	}
+	
+	function feeList(){
+		
+		$this->load->model('account_model','account');
+		
+		$list=$this->table->setFields($this->account_list_args)
+				->setAttribute('name','account')
+				->setRowAttributes(array('hash'=>'account/{id}'))
+				->generate($this->account->getList(array('project'=>$this->project->id,'count'=>false,'show_payer'=>true)));
 		
 		return $list;
 	}
@@ -405,36 +419,32 @@ class Cases extends Project{
 				}
 			}
 			
-			elseif($submit=='miscfee'){
+			elseif($submit=='fee'){
 				
 				$this->load->model('account_model','account');
 				
-				$misc_fee=$this->input->sessionPost('miscfee');
-				
-				if(!$misc_fee['receiver']){
-					$this->output->message('请选择办案费收款方','warning');
-					throw new Exception;
-				}
-				
-				if(!is_numeric($misc_fee['amount'])){
-					$this->output->message('请预估收费金额（数值）','warning');
-					throw new Exception;
-				}
-				
-				if(!$misc_fee['date']){
-					$this->output->message('请预估收费时间','warning');
-					throw new Exception;
-				}
-				
-				$misc_fee['type']=$misc_fee['subject']='办案费';
-				
-				$misc_fee['comment']=$misc_fee['receiver'].'收 '.$misc_fee['comment'];
-				
-				$this->account->add($misc_fee+array('project'=>$this->project->id,'display'=>true));
-				$this->output->setData($this->miscfeeList(),'miscfee-list','content-table','.item[name="miscfee"]>.contentTable','replace');
-				
-				unsetPost('miscfee');
+				$fee=$this->input->sessionPost('fee');
 
+				if(!is_numeric($fee['amount'])){
+					$this->output->message('请预估收费金额（数值）','warning');
+				}
+				
+				if(!$fee['comment']){
+					$this->output->message('请填写付款条件','warning');
+				}
+				
+				if(!$fee['date']){
+					$this->output->message('请预估收费时间','warning');
+				}
+				
+				if(count($this->output->message['warning'])>0){
+					throw new Exception;
+				}
+				
+				$this->account->add($fee+array('project'=>$this->project->id,'display'=>true));
+				$this->output->setData($this->feeList(),'fee-list','content-table','.item[name="fee"]>.contentTable','replace');
+				
+				unsetPost('fee');
 			}
 			
 			elseif($submit=='review'){

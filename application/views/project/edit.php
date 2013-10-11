@@ -45,7 +45,7 @@
 		<div class="title">
 			<span class="right">
 				<?=(double)$this->schedule->getSum(array('project'=>$this->project->id,'completed'=>true))?>小时
-				<a href="#schedule/lists?people=<?=$this->value('project/id')?>">所有日程>></a>
+				<a href="#schedule/lists?project=<?=$this->value('project/id')?>">所有日程>></a>
 			</span>
 			<label>日程：
 				<a href="javascript:$.createSchedule({project:<?=$this->value('project/id')?>,refreshOnSave:true,target:this})">添加>></a>

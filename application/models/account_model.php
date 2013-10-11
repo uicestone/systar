@@ -23,6 +23,8 @@ class Account_model extends BaseItem_model{
 	 * @param array $args
 	 * name: 帐目摘要
 	 * received: 是否到帐
+	 * reviewed: 已审核
+	 * count: 计入创收
 	 * project: 指定项目id
 	 * project_labels
 	 * project_without_labels

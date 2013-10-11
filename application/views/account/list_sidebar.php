@@ -46,6 +46,13 @@
 		</tr>
 		<tr>
 			<td>
+				<select name="count" class="chosen" data-placeholder="计入创收">
+					<?=options(array(0=>'不计入',1=>'计入'),$this->config->user_item('search/count'),'',true,false,false)?>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>
 				<select name="project_labels[]" class="chosen" data-width="copy" data-placeholder="事务标签" multiple="multiple">
 					<?=options($this->project->getAllLabels(),$this->config->user_item('search/project_labels'))?>
 				</select>
