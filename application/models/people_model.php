@@ -177,7 +177,8 @@ class People_model extends BaseItem_model{
 		
 		$this->db->select('
 			people.id,people.type,people.name,people.phone,people.email,
-			IF(people.abbreviation IS NULL,people.name,people.abbreviation) AS abbreviation
+			IF(people.abbreviation IS NULL,people.name,people.abbreviation) AS abbreviation,
+			people.uid,people.time,people.time_insert
 		',false);
 		
 		if(isset($args['name'])){
@@ -239,11 +240,25 @@ class People_model extends BaseItem_model{
 		if(isset($args['is_relative_of'])){
 			$this->db->join("people_relationship","people.id = people_relationship.relative AND people_relationship.people{$this->db->escape_int_array($args['is_relative_of'])}",'inner')
 				->select('people_relationship.relation, people_relationship.accepted, people_relationship.time relationship_time');
+
+			if(isset($args['accepted'])){
+				$this->db->where('people_relationship.accepted',$args['accepted']);
+			}
+			if(isset($args['is_on'])){
+				$this->db->where('people_relationship.is_on',$args['is_on']);
+			}
 		}
 
 		if(isset($args['has_relative_like'])){
 			$this->db->join('people_relationship',"people.id = people_relationship.people AND people_relationship.relative{$this->db->escape_int_array($args['has_relative_like'])}",'inner')
 				->select('people_relationship.relation, people_relationship.accepted, people_relationship.time relationship_time');
+			
+			if(isset($args['accepted'])){
+				$this->db->where('people_relationship.accepted',$args['accepted']);
+			}
+			if(isset($args['is_on'])){
+				$this->db->where('people_relationship.is_on',$args['is_on']);
+			}
 		}
 		
 		if(isset($args['is_secondary_relative_of'])){

@@ -97,23 +97,23 @@ class Society extends Team{
 			'accepted'=>array('heading'=>'状态','parser'=>array('function'=>function($id,$accepted){
 				if(is_null($accepted)){
 					$out='待批准加入';
-					if($this->society->data['leader']==$this->user->id){
+					if($this->society->data['leader']==$this->user->id || $this->user->isLogged('societyadmin')){
 						$out.='<button type="submit" name="accept" id="'.$id.'">批准</button><button type="submit" name="refuse" id="'.$id.'">拒绝</button>';
 					}
 				}elseif($accepted){
 					$out='已批准加入';
-					if($this->society->data['leader']==$this->user->id){
+					if($this->society->data['leader']==$this->user->id || $this->user->isLogged('societyadmin')){
 						$out.='<button type="submit" name="cancelacception" id="'.$id.'">取消</button>';
 					}
 				}else{
 					$out='已拒绝加入';
-					if($this->society->data['leader']==$this->user->id){
+					if($this->society->data['leader']==$this->user->id || $this->user->isLogged('societyadmin')){
 						$out.='<button type="submit" name="cancelacception" id="'.$id.'">取消</button>';
 					}
 				}
-				
-				if(count($this->society->getList(array('open'=>true,'has_relative_like'=>$id)))>1){
-					$out.=' 与其他社团冲突';
+				$count=count($this->society->getList(array('open'=>true,'has_relative_like'=>$id,'accepted'=>true)));
+				if(1 || $count>=1){
+					$out.=" 已被 $count 个社团接受";
 				}
 				return $out;
 			},'args'=>array('id','accepted')))
@@ -121,13 +121,13 @@ class Society extends Team{
 		
 		$this->table->setFields($list_args);
 		
-		if($this->user->id!==$this->society->data['leader']){
+		if($this->user->id!==$this->society->data['leader'] && !$this->user->isLogged('societyadmin')){
 			$this->table->setRowAttributes(array('hash'=>'{type}/{id}','locked'=>true));
 		}else{
 			$this->table->setRowAttributes(array('hash'=>'{type}/{id}'));
 		}
 		
-		$this->table->setData($this->student->getList(array('is_relative_of'=>$this->society->id)));
+		$this->table->setData($this->student->getList(array('is_relative_of'=>$this->society->id,'order_by'=>'relationship_time')));
 		
 		$list=$this->table->generate();
 		

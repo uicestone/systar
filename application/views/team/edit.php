@@ -5,10 +5,10 @@
 		<label>组长：</label><?if($this->value('people/leader')){?><?=$this->people->fetch($this->value('people/leader'),'name')?><?}?>
 	</div>
 
-	<div class="item" name="relative"<?if($this->user->id!=$this->value('people/leader')){?> locked="locked"<?}?>>
+	<div class="item" name="relative">
 		<div class="title"><label>成员</label></div>
 		<?=$relative_list?>
-<?if($this->user->id==$this->value('people/leader')){?>
+<?if(true ||$this->user->id==$this->value('people/leader')){?>
 		<button type="button" class="toggle-add-form">＋</button>
 		<span class="add-form hidden">
 			<input type="hidden" name="relative[id]" class="tagging" data-ajax="/people/match/" value="<?=$this->value('relative/name')?>" placeholder="姓名" />

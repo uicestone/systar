@@ -12,7 +12,7 @@ class Society_model extends Team_model{
 		}
 		
 		return $this->db->from('people_relationship')
-			->where('people',$team_id)
+			->where('people',$team_id)->where('is_on',true)
 			->count_all_results();
 	}
 	
