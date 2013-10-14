@@ -184,6 +184,9 @@ class Schedule_model extends BaseItem_model{
 					"FROM_UNIXTIME(schedule.deadline, '{$args['date_form']}') `deadline`"
 				),false);
 			}
+			
+			unset($args['time']);
+			
 		}
 		
 		if(isset($args['in_project_of_people']) && $args['in_project_of_people']){
