@@ -238,11 +238,11 @@ class Cases extends Project{
 							$recent_case=$recent_case_of_client;
 						}
 						
-						if($recent_case_of_client_relative && (!isset($recent_case) || $recent_case_of_client_relative['id']>$recent_case['id'])){
+						if($recent_case_of_client_relative && (!isset($recent_case) || $recent_case_of_client_relative['time_contract']>$recent_case['time_contract'])){
 							$recent_case=$recent_case_of_client_relative;
 						}
 						
-						if($recent_case_of_client_arelative && (!isset($recent_case) || $recent_case_of_client_arelative['id']>$recent_case['id'])){
+						if($recent_case_of_client_arelative && (!isset($recent_case) || $recent_case_of_client_arelative['time_contract']>$recent_case['time_contract'])){
 							$recent_case=$recent_case_of_client_arelative;
 						}
 						
