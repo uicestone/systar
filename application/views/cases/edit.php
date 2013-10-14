@@ -146,7 +146,7 @@
 			<select name="fee[type]" class="tagging allow-new">
 				<?=options(array('办案费','公关费用'),$this->value('fee/type'),'类型');?>
 			</select>
-			<input type="text" name="fee[fee]" value="<?=$this->value('fee/fee')?>" placeholder="帐目编号" />
+			<input type="text" name="fee[account]" value="<?=$this->value('fee/fee')?>" placeholder="帐目编号" />
 			<input type="text" name="fee[amount]" value="<?=$this->value('fee/amount')?>" placeholder="数额" />
 			<input type="hidden" name="fee[count]" value="0" />
 <?if($this->user->isLogged('finance')){?>

@@ -206,8 +206,8 @@ $(document)
 		/*edit表单元素更改时实时提交到后台 */
 		section.children('form').on('change',':input:not(:file)',function(){
 			var value=$(this).val();
-			if($(this).is(':checkbox') && !$(this).is(':checked')){
-				value=0;
+			if($(this).is(':checkbox')){
+				value=Number($(this).is(':checked'));
 			}
 			var id = section.children('form').attr('id');
 			var name = $(this).attr('name').replace(/\[(.+?)\]/,'/$1');
