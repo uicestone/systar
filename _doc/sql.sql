@@ -36,11 +36,13 @@ update schedule_label inner join label on schedule_label.label = label.id set sc
 -- 确定个人案源的案源总和
 select project,sum(weight) sum from project_people where role = '案源人'
 and project in (select project from project_label where label_name='个人案源')
+and project in (select project from account where received=1 and count=1 and date between '2013-09-01' and '2013-09-30')
 group by project having sum > 1
 
 -- 确定所内案源接洽总和
 select project,sum(weight) sum from project_people where role = '接洽律师'
 and project in (select project from project_label where label_name='所内案源')
+and project in (select project from account where received=1 and count=1 and date between '2013-09-01' and '2013-09-30')
 group by project having sum != 1
 
 -- 确认已申请归档案件的实际贡献总额

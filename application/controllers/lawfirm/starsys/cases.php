@@ -230,9 +230,9 @@ class Cases extends Project{
 					
 					if($project_client['role']==='主委托人'){
 
-						$recent_case_of_client=$this->cases->getRow(array('people'=>$project_client['client'],'role'=>'主委托人','before'=>$this->cases->id,'order_by'=>'id desc'));
-						$recent_case_of_client_relative=$this->cases->getRow(array('people_is_relative_of'=>$project_client['client'],'role'=>'主委托人','before'=>$this->cases->id,'order_by'=>'id desc'));
-						$recent_case_of_client_arelative=$this->cases->getRow(array('people_has_relative_like'=>$project_client['client'],'role'=>'主委托人','before'=>$this->cases->id,'order_by'=>'id desc'));
+						$recent_case_of_client=$this->cases->getRow(array('people'=>$project_client['client'],'role'=>'主委托人','before'=>$this->cases->id,'order_by'=>'time_contract desc'));
+						$recent_case_of_client_relative=$this->cases->getRow(array('people_is_relative_of'=>$project_client['client'],'role'=>'主委托人','before'=>$this->cases->id,'order_by'=>'time_contract desc'));
+						$recent_case_of_client_arelative=$this->cases->getRow(array('people_has_relative_like'=>$project_client['client'],'role'=>'主委托人','before'=>$this->cases->id,'order_by'=>'time_contract desc'));
 						
 						if($recent_case_of_client){
 							$recent_case=$recent_case_of_client;
