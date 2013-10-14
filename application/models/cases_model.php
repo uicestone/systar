@@ -32,15 +32,17 @@ class Cases_model extends Project_model{
 		
 		if(isset($labels['领域'])){
 			switch($labels['领域']){
-				case '公司':$symbol.='（公）'.$this->date->year.'-1-';break;
+				case '公司投资':$symbol.='（公）'.$this->date->year.'-1-';break;
 				case '房产建筑':$symbol.='（房）'.$this->date->year.'-2-';;break;
 				case '婚姻家庭':$symbol.='（家）'.$this->date->year.'-3-';;break;
 				case '劳动人事':$symbol.='（劳）'.$this->date->year.'-4-';;break;
 				case '知识产权':$symbol.='（知）'.$this->date->year.'-5-';;break;
-				case '诉讼':$symbol.='（诉）'.$this->date->year.'-6-';;break;
-				case '刑事行政':$symbol.='（刑）'.$this->date->year.'-7-';;break;
+				case '其他民事':$symbol.='（民）'.$this->date->year.'-6-';;break;
+				case '刑事':$symbol.='（刑）'.$this->date->year.'-7-';;break;
 				case '涉外':$symbol.='（外）'.$this->date->year.'-8-';;break;
 				case '韩日':$symbol.='（韩）'.$this->date->year.'-9-';;break;
+				case '金融财税':$symbol.='（金）'.$this->date->year.'-10-';break;
+				case '行政':$symbol.='（行政）'.$this->date->year.'-11-';;break;
 				default:$symbol.='';
 			}
 		}
