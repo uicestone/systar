@@ -11,7 +11,7 @@ class Mail extends SS_Controller{
 		$client_emails=$this->client->getAllEmails();
 
 		//$this->session->set_userdata('mail/express/receivers',$client_emails);
-		$this->session->set_userdata('mail/express/send_progress',0);
+		$this->user->setConfig('mail/express/send_progress',0);
 		
 		//$this->load->addViewData('client_emails', $client_emails);
 
@@ -62,32 +62,30 @@ class Mail extends SS_Controller{
 				
 				$mail_html=$this->load->view('mail/express_template',true);
 
-				$this->session->set_userdata('mail/express/mail_html',$mail_html);
-				$this->session->set_userdata('mail/express/title','星瀚律师 - '.$this->input->post('title'));
+				$this->user->setConfig('mail/express/mail_html',$mail_html);
+				$this->user->setConfig('mail/express/title','星瀚律师 - '.$this->input->post('title'));
 				//$this->session->set_userdata('mail/express/attachment','./images/mail/express/'.$attachment['file_name']);
 				
 				$this->output->setData($mail_html, 'preview', 'html','#express-preview');
 			}
 			
 			if($submit=='send_express'){
-				if(!$this->session->userdata('mail/express/mail_html')){
+				if(!$this->config->user_item('mail/express/mail_html')){
 					$this->output->message('还没有生成期刊');
 					throw new Exception;
 				}
 				
-				$client_emails=preg_split('/,[\s]*/', $this->input->post('client-emails'));
-				
-				if(!$client_emails){
-					$this->output->message('邮件列表解析错误','warning');
-					throw new Exception;
+				if(!$this->input->post('client-emails')){
+					$client_emails=$this->config->user_item('mail/express/receivers');
+				}else{
+					$client_emails=preg_split('/,[\s]*/', $this->input->post('client-emails'));
+					$this->user->setConfig('mail/express/receivers',json_encode($client_emails));
 				}
-				
-				$this->session->set_userdata('mail/express/receivers',$client_emails);
-				
+								
 				$this->load->library('email');
 				$config=array(
 					'protocol'=>'smtp',
-					'smtp_host'=>'192.168.1.156',
+					'smtp_host'=>'smtp.exmail.qq.com',
 					'smtp_user'=>'lawyer@lawyerstars.com',
 					'smtp_pass'=>'1218xinghan',
 					'mailtype'=>'html',
@@ -99,13 +97,13 @@ class Mail extends SS_Controller{
 
 				$this->email->from('lawyer@lawyerstars.com', '星瀚律师');
 
-				$this->email->subject($this->session->userdata('mail/express/title'));
-				$this->email->message($this->session->userdata('mail/express/mail_html')); 
+				$this->email->subject($this->config->user_item('mail/express/title'));
+				$this->email->message($this->config->user_item('mail/express/mail_html')); 
 				//$this->email->attach($this->session->userdata('mail/express/attachment'));
 
-				if($this->session->userdata('mail/express/send_progress')<count($this->session->userdata('mail/express/receivers'))){
-					$receivers=$this->session->userdata('mail/express/receivers');
-					$receiver=$receivers[$this->session->userdata('mail/express/send_progress')];
+				if($this->config->user_item('mail/express/send_progress')<count($this->config->user_item('mail/express/receivers'))){
+					$receivers=$this->config->user_item('mail/express/receivers');
+					$receiver=$receivers[$this->config->user_item('mail/express/send_progress')];
 					if($this->email->to($receiver)){
 						$delivery_status='';
 					}else{
@@ -114,9 +112,9 @@ class Mail extends SS_Controller{
 					$this->output->setData($receiver.' ','receiver','html','#delivery-status','append');
 
 					$this->email->send();
-					//sleep(1);
+					sleep(3);
 
-					$this->session->set_userdata('mail/express/send_progress',$this->session->userdata('mail/express/send_progress')+1);
+					$this->user->setConfig('mail/express/send_progress',$this->config->user_item('mail/express/send_progress')+1);
 					$this->output->setData('$(\'[name="submit[send_express]"]:first\').trigger(\'click\')','script','script');
 				}else{
 					$this->output->message('发送完毕');
@@ -127,7 +125,7 @@ class Mail extends SS_Controller{
 				$this->output->as_ajax=false;
 				$this->load->model('document_model','document');
 				$this->document->exportHead('express.html');
-				$this->output->set_output($this->session->userdata('mail/express/mail_html'));
+				$this->output->set_output($this->config->user_item('mail/express/mail_html'));
 			}
 			
 			$this->output->status='success';

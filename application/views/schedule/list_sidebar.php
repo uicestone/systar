@@ -7,6 +7,17 @@
 			</tr>
 			<tr><td><input type="text" name="time/from" value="<?=$this->config->user_item('search/time/from')?>" class="date" placeholder="开始日期" /></td></tr>
 			<tr><td><input type="text" name="time/to" value="<?=$this->config->user_item('search/time/to')?>" class="date" placeholder="结束日期" /></td></tr>
+			<tr><td><input type="text" name="time/from" value="<?=$this->config->user_item('search/time/from')?>" class="date" placeholder="开始日期" /></td></tr>
+			<tr>
+				<td>
+					<input type="hidden" name="people" value="<?=$this->config->user_item('search/people')?>" class="tagging" style="width: 238px;" data-placeholder="人员" data-ajax="/user/match/" data-initselection='<?=$this->config->user_item('search/people')?json_encode($this->people->fetch($this->config->user_item('search/people'))):''?>' />
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<input type="hidden" name="project" value="<?=$this->config->user_item('search/project')?>" class="tagging" style="width: 238px;" data-placeholder="事务" data-ajax="/project/match/" data-initselection='<?=$this->config->user_item('search/project')?json_encode($this->project->fetch($this->config->user_item('search/project'))):''?>' />
+				</td>
+			</tr>
 			<tr>
 				<td class="submit">
 					<button type="submit" name="search" tabindex="0">搜索</button>

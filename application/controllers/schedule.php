@@ -5,6 +5,8 @@ class Schedule extends SS_controller{
 	
 	var $search_items=array();
 	
+	var $search_items_imploded=array();
+	
 	function __construct(){
 		$this->default_method='calendar';
 		parent::__construct();
@@ -25,7 +27,7 @@ class Schedule extends SS_controller{
 			'project'=>array('heading'=>'事项','cell'=>'{project_name}')
 		);
 		
-		$this->search_items=array('name','time/from','time/to');
+		$this->search_items=array('name','time/from','time/to','people','project');
 	}
 	
 	function calendar(){

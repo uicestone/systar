@@ -320,4 +320,39 @@ inner join (
 )lawyers on lawyers.project = account.project
 where account.date >= '2013-01-01'
 group by account.account
-having sum(if(received=1,amount,0)) < sum(if(received=0,amount,0))
+having sum(if(received=1,amount,0)) < sum(if(received=0,amount,0));
+
+-- 奖金总表
+SELECT `people`.`name` AS people_name, `people`.`id` AS people, ROUND( SUM( account.amount * weight * content ),2 )  `bonus` 
+FROM `account`
+INNER JOIN  `project` ON  `project`.`id` =  `account`.`project` 
+INNER JOIN  `project_label` `t_0` ON  `account`.`project` =  `t_0`.`project` 
+AND t_0.label_name =  '费用已锁定'
+INNER JOIN  `project_people` ON  `project_people`.`project` =  `account`.`project` 
+INNER JOIN  `people` ON  `people`.`id` =  `project_people`.`people` 
+INNER JOIN `project_profile` ON project_profile.project = account.project AND project_profile.name='案源系数'
+WHERE  `account`.`received` =1 and `account`.count=1
+AND TO_DAYS( account.date ) >= TO_DAYS(  '2013-01-01' ) 
+AND TO_DAYS( account.date ) <= TO_DAYS(  '2013-06-30' ) 
+AND  `account`.`count` =1
+AND  `project_people`.`role` =  '案源人'
+AND  `account`.`company` =1
+AND  `account`.`display` =1
+GROUP BY  `project_people`.`people`;
+
+-- 奖金详单
+SELECT project.name project_name, project.id project, `people`.`name` AS people_name, `people`.`id` AS people, project_people.role ,account.amount, project_people.weight, project_profile.content, account.amount * project_people.weight * project_profile.content bonus 
+FROM `account`
+INNER JOIN  `project` ON  `project`.`id` =  `account`.`project` 
+INNER JOIN  `project_label` `t_0` ON  `account`.`project` =  `t_0`.`project` 
+AND t_0.label_name =  '费用已锁定'
+INNER JOIN  `project_people` ON  `project_people`.`project` =  `account`.`project` 
+INNER JOIN  `people` ON  `people`.`id` =  `project_people`.`people` 
+INNER JOIN `project_profile` ON project_profile.project = account.project AND project_profile.name='案源系数'
+WHERE  `account`.`received` =1 and `account`.count=1
+AND TO_DAYS( account.date ) >= TO_DAYS(  '2013-01-01' ) 
+AND TO_DAYS( account.date ) <= TO_DAYS(  '2013-06-30' ) 
+AND  `account`.`count` =1
+AND  `project_people`.`role` =  '案源人'
+AND  `account`.`company` =1
+AND  `account`.`display` =1;

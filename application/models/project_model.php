@@ -20,12 +20,9 @@ class Project_model extends BaseItem_model{
 	
 	function match($part_of_name){
 		
-		$this->db->select('project.id,project.num,project.name')
+		$this->db->select('project.id,project.type,project.num,project.name')
 			->from('project')
-			->where("
-				project.company={$this->company->id} AND project.display=1 
-				AND (name LIKE '%$part_of_name%' OR num LIKE '%$part_of_name%' OR name_extra LIKE '%$part_of_name%')
-			")
+			->where("project.company = {$this->company->id} AND project.display = 1 AND (name LIKE '%$part_of_name%' OR num LIKE '%$part_of_name%')",NULL,FALSE)
 			->order_by('project.id','desc');
 		
 		return $this->db->get()->result_array();

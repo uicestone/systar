@@ -402,23 +402,27 @@ class Project extends SS_controller{
 		$this->output->setData($this->peopleList(),'people-list','content-table','.item[name="people"]>.contentTable','replace');
 	}
 	
-	function match(){
-
-		$term=$this->input->post('term');
-
-		$result=$this->project->getList(array('people'=>$this->user->id));//只匹配到当前用户参与的案件
+	function match($term=NULL){
+		
+		if(is_null($term)){
+			$term=$this->input->post('term');
+		}
+		
+		$term=urldecode($term);
+		
+		$result=$this->project->match($term);
 
 		$array=array();
 
 		foreach ($result as $row){
-			if(strpos($row['case_name'], $term)!==false){
-				$array[]=array(
-					'label'=>strip_tags($row['case_name']).' - '.$row['num'],
-					'value'=>$row['id']
-				);
-			}
+			$array[]=array(
+				'id'=>$row['id'],
+				'type'=>lang($row['type'])?lang($row['type']):'',
+				'name'=>$row['name'],
+				'label'=>lang($row['type']).'　'.$row['name'],
+				'value'=>$row['id'],
+			);
 		}
-		
 		$this->output->data=$array;
 	}
 }

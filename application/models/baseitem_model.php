@@ -51,7 +51,7 @@ class BaseItem_model extends SS_Model{
 		
 		if(!$row){
 			echo $this->db->last_query();
-			throw new Exception(CONTROLLER.' '.$id.' not found');
+			throw new Exception($this->table.' '.$id.' not found');
 		}
 		
 		if(is_null($field)){
