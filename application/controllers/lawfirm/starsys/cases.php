@@ -147,7 +147,7 @@ class Cases extends Project{
 		return $this->table->setFields($this->schedule_list_args)
 			->setAttribute('name','schedule')
 			->setRowAttributes(array('onclick'=>"$.viewSchedule({id:{id}})",'style'=>'cursor:pointer;'))
-			->generate($this->schedule->getList(array('show_creater'=>true,'limit'=>10,'project'=>$this->project->id,'completed'=>true,'orderby'=>'id desc')));
+			->generate($this->schedule->getList(array('show_creater'=>true,'limit'=>10,'project'=>$this->project->id,'completed'=>true,'order_by'=>'id desc')));
 	}
 	
 	function planList(){
@@ -163,6 +163,7 @@ class Cases extends Project{
 	function staffList(){
 		
 		$this->staff_list_args['role']=array('heading'=>'本案职位','parser'=>array('function'=>array($this->cases,'getCompiledPeopleRoles'),'args'=>array($this->cases->id,'id')));
+		$this->staff_list_args['time']=array('heading'=>'工作时间','parser'=>array('function'=>function($case, $people){return $this->schedule->getSum(array('project'=>$case,'people'=>$people,'completed'=>true));},'args'=>array($this->cases->id,'id')));
 		$this->load->model('staff_model','staff');
 		
 		$list=$this->table->setFields($this->staff_list_args)

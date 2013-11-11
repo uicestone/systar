@@ -194,13 +194,13 @@ class Project_model extends BaseItem_model{
 	function getRelatedRoles($labels=NULL){
 		$this->db->select('project_people.role, COUNT(*) AS hits',false)
 			->from('project_people')
-			->join('project',"project_people.project = project.id AND project.company = {$this->company->id}")
+			->join('project',"project_people.project = project.id AND project.company = {$this->company->id}",'inner')
 			->where('project_people.role IS NOT NULL',NULL,FALSE)
 			->group_by('project_people.role')
 			->order_by('hits', 'desc');
 		
 		if($labels){
-			$this->db->join('project_label',"project_label.project = project_people.project AND project_label.label_name{$this->db->escape_array($labels)}");
+			$this->db->join('project_label',"project_label.project = project_people.project AND project_label.label_name{$this->db->escape_array($labels)}",'inner');
 		}
 		
 		$result=$this->db->get()->result_array();

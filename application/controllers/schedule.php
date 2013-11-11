@@ -27,7 +27,7 @@ class Schedule extends SS_controller{
 			'project'=>array('heading'=>'事项','cell'=>'{project_name}')
 		);
 		
-		$this->search_items=array('name','time/from','time/to','people','project');
+		$this->search_items=array('name','time/from','time/to','people','project','completed');
 	}
 	
 	function calendar(){
@@ -67,6 +67,7 @@ class Schedule extends SS_controller{
 		$this->config->set_user_item('search/show_project', true, false);
 		$this->config->set_user_item('search/time/input_format', 'date', false);
 		$this->config->set_user_item('search/date_form', '%Y-%m-%d %H:%i', false);
+		$this->config->set_user_item('search/completed', true);
 		
 		if($this->input->get('project')){
 			$this->output->title=$this->output->title.' - '.$this->project->fetch($this->input->get('project'),'name');
@@ -90,9 +91,12 @@ class Schedule extends SS_controller{
 			
 			$this->table
 				->setFields($field)
-				->setData($this->schedule->getList($this->config->user_item('search')))
+				->setData($this->schedule->getList(array_merge($this->config->user_item('search'),array('order_by'=>'id asc','limit'=>NULL))))
 				->generateExcel();
 		}else{
+			
+			$this->load->addViewData('sum_time', $this->schedule->getSum($this->config->user_item('search')));
+			
 			$this->table
 				->setFields($this->list_args)
 				->setData($this->schedule->getList($this->config->user_item('search')));
