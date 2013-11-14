@@ -11,7 +11,7 @@ class Cases extends Project{
 		
 		$this->project=$this->cases;
 
-		$this->search_items=array('name','num','people','time_contract/from','time_contract/to','labels','without_labels');
+		$this->search_items=array('name','num','people','time_contract/from','time_contract/to','role','labels','without_labels');
 
 		$this->list_args=array(
 			'time_contract'=>array(
@@ -161,6 +161,8 @@ class Cases extends Project{
 	}
 	
 	function staffList(){
+		
+		$this->load->model('schedule_model','schedule');
 		
 		$this->staff_list_args['role']=array('heading'=>'本案职位','parser'=>array('function'=>array($this->cases,'getCompiledPeopleRoles'),'args'=>array($this->cases->id,'id')));
 		$this->staff_list_args['time']=array('heading'=>'工作时间','parser'=>array('function'=>function($case, $people){return $this->schedule->getSum(array('project'=>$case,'people'=>$people,'completed'=>true));},'args'=>array($this->cases->id,'id')));

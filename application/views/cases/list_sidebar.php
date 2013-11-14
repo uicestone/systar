@@ -21,6 +21,7 @@
 			<tr>
 				<td><select name="people[]" multiple="multiple" class="chosen allow-new" data-placeholder="职员"><?=options($this->staff->getArray(),$this->config->user_item('search/people'),NULL,true)?></select></td>
 			</tr>
+			<tr><td><select name="role" class="chosen allow-new" data-placeholder="角色"><?=options(array('案源人','主办律师','接洽律师'),$this->config->user_item('search/role'),'',false,false,false)?></select></td></tr>
 			<tr><td><input type="text" name="time_contract[from]" value="<?=$this->config->user_item('search/time_contract/from')?>" class="date" placeholder="立案日期起" /></td></tr>
 			<tr><td><input type="text" name="time_contract[to]" value="<?=$this->config->user_item('search/time_contract/to')?>" class="date" placeholder="立案日期止" /></td></tr>
 			<tr>

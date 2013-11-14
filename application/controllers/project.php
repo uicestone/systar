@@ -5,6 +5,8 @@ class Project extends SS_controller{
 	
 	var $search_items=array();
 	
+	var $search_items_imploded=array();
+	
 	var $list_args;
 	
 	var $people_list_args;
@@ -34,7 +36,7 @@ class Project extends SS_controller{
 			array('field'=>'account[date]','label'=>'收费日起','rules'=>'required')
 		);
 		
-		$this->search_items=array('num','name','labels','people');
+		$this->search_items=array('num','name','labels','people','role');
 
 		$this->list_args=array(
 			'name'=>array('heading'=>'名称','cell'=>'{name}'),
