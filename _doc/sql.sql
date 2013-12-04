@@ -33,18 +33,6 @@ update project_label inner join label on project_label.label = label.id set proj
 update document_label inner join label on document_label.label = label.id set document_label.label_name = label.name;
 update schedule_label inner join label on schedule_label.label = label.id set schedule_label.label_name = label.name;
 
--- 确定个人案源的案源总和
-select project,sum(weight) sum from project_people where role = '案源人'
-and project in (select project from project_label where label_name='个人案源')
-and project in (select project from account where received=1 and count=1 and date between '2013-09-01' and '2013-09-30')
-group by project having sum > 1
-
--- 确定所内案源接洽总和
-select project,sum(weight) sum from project_people where role = '接洽律师'
-and project in (select project from project_label where label_name='所内案源')
-and project in (select project from account where received=1 and count=1 and date between '2013-09-01' and '2013-09-30')
-group by project having sum != 1
-
 -- 确认已申请归档案件的实际贡献总额
 select project.id,project.name,sum(weight) sum from
 project left join project_people on project.id = project_people.project and project_people.role = '实际贡献'
@@ -52,13 +40,6 @@ where project.active=0
 and end between '2013-01-01' and '2013-06-30'
 and project.id in (select project from account where received = 1)
 group by project.id having round(sum,3) != 1 or sum is null;
-
--- 协办律师没有比例
-select * from project_people where weight is not null and role = '协办律师';
-
--- 确定办案总和
-select project,sum(weight) sum from project_people where role = '主办律师'
-group by project having sum != 1
 
 -- 清除添加失败的project
 delete from project_document where project in (select id from project where display = 0 and name is null); 
@@ -356,3 +337,227 @@ AND  `account`.`count` =1
 AND  `project_people`.`role` =  '案源人'
 AND  `account`.`company` =1
 AND  `account`.`display` =1;
+
+-- 各领域创收统计
+select project_label.label_name name, sum(account.amount) sum from
+account
+inner join project_label on project_label.project = account.project and project_label.type = '领域'
+where date >= '2013-01-01' and date <= '2013-12-31'
+and account.received = 1 and account.count = 1
+group by project_label.label;
+
+insert ignore into project_profile (project, name, content, uid, time)
+select id, '案源类型','所内案源',6343,unix_timestamp() from project where id in (select project from project_label where label_name = '所内案源')
+and id not in (select project from project_label where label_name = '个人案源');
+
+insert ignore into project_profile (project, name, content, uid, time)
+select id, '案源系数','0.08',6343,unix_timestamp() from project where id in (select project from project_label where label_name = '所内案源')
+and id not in (select project from project_label where label_name = '个人案源')
+and id not in (select project from project_label where label_name = '再成案');
+
+select * from project where id in (select project from account where date between '2013-01-01' and '2013-12-31' and received = 1 and count = 1)
+and id not in (select project from project_profile where name = '案源类型')
+and type = 'cases';
+
+-- 确认每个案件都有案源类型
+select * from project
+where type = 'cases'
+and id not in (select project from project_profile where name = '案源类型')
+and id in (select project from account where received = 1 and count = 1 and date between '2013-01-01' and '2013-12-31');
+
+-- 确认每个案件都有案源系数
+select * from project
+where type = 'cases'
+and id not in (select project from project_profile where name = '案源系数')
+and id in (select project from account where received = 1 and count = 1 and date between '2013-01-01' and '2013-12-31');
+
+-- 个人案源的案源系数都是0.2
+select * from project_profile where project in (
+	select project from project_profile where name = '案源类型' and content = '个人案源'
+)
+and name = '案源系数'
+and content != '0.2';
+
+-- 所内案源的案源系数小于0.2
+select * from project_profile where project in (
+	select project from project_profile where name = '案源类型' and content = '所内案源'
+)
+and name = '案源系数'
+and content >= 0.2;
+
+-- 确定每个案件都有100%的案源人
+select * from project
+where id not in (select project from project_people where role = '案源人')
+and id in (select project from account where received = 1 and count = 1 and date between '2013-01-01' and '2013-12-31')
+and project.type = 'cases';
+
+select project,sum(weight) sum from project_people where role = '案源人'
+and project in (select project from account where received=1 and count=1 and date between '2013-01-01' and '2013-12-31')
+group by project having sum != 1;
+
+-- 确定每个案件都有100%的主办律师
+select * from project
+where id not in (select project from project_people where role = '主办律师')
+and id in (select project from account where received = 1 and count = 1 and date between '2013-01-01' and '2013-12-31')
+and project.type = 'cases';
+
+select project,sum(weight) sum from project_people where role = '主办律师'
+and project in (select project from account where received=1 and count=1 and date between '2013-01-01' and '2013-12-31')
+group by project having sum != 1;
+
+-- 确定每个所内案源案件都有100%的接洽律师
+select * from project
+where id not in (select project from project_people where role = '接洽律师')
+and id in (select project from account where received = 1 and count = 1 and date between '2013-01-01' and '2013-12-31')
+and project.type = 'cases'
+and id in (select project from project_profile where name = '案源类型' and content = '所内案源');
+
+select project,sum(weight) sum from project_people where role = '主办律师'
+and project in (select project from account where received=1 and count=1 and date between '2013-01-01' and '2013-12-31')
+group by project having sum != 1;
+
+-- 所内案源的接洽律师迁移到案源人
+insert ignore into project_people (project,people,role,weight,uid,time,comment)
+select project,people,'案源人',weight,6343,unix_timestamp(),'所内案源接洽律师迁移而来，统计用'
+from project_people where role = '接洽律师' and project in (select project from project_profile where name = '案源类型' and content = '所内案源');
+
+-- 确定每个案件都有且只有一个主委托人
+select * from project
+left join project_people on project_people.project = project.id and project_people.role = '主委托人'
+where project.id in (select project from account where received = 1 and count = 1 and date between '2013-01-01' and '2013-12-31')
+group by project.id
+having project_people.people is null or count(project_people.people)!=1;
+
+-- 案件详单
+SELECT * 
+FROM project
+
+-- 创收详单
+
+-- 贡献详单
+SELECT
+	account.account, account.date, account.amount, 
+	project.id project, project.num project_num, project.name case_name, 
+	case_field.label_name case_field, case_classification.label_name case_classification, 
+	client.name client, client.character client_character, client_source.content client_souce, 
+	lawyer.name lawyer, project_lawyer.role , project_lawyer.weight, case_source_mod.content
+FROM `account`
+INNER JOIN `project` ON  `project`.`id` =  `account`.`project` AND project.type = 'cases'
+INNER JOIN `project_people` project_lawyer ON  `project_lawyer`.`project` =  `account`.`project` AND `project_lawyer`.`role` IN  ('案源人','主办律师')
+INNER JOIN `people` lawyer ON  `lawyer`.`id` =  `project_lawyer`.`people` 
+-- 每个案件必须有案源系数
+INNER JOIN `project_profile` case_source_mod ON case_source_mod.project = account.project AND case_source_mod.name='案源系数'
+-- 每个案件必须有领域
+INNER JOIN project_label case_field ON account.project = case_field.project AND case_field.type = '领域'
+-- 每个案件必须有分类
+INNER JOIN project_label case_classification ON account.project = case_classification.project AND case_classification.type = '分类'
+-- 每个案件必须有且只有一个主委托人
+INNER JOIN project_people project_client ON project_client.project = account.project AND project_client.role = '主委托人'
+INNER JOIN people client ON client.id = project_client.people
+INNER JOIN people_profile client_source ON client_source.people = project_client.people AND client_source.name = '来源类型'
+WHERE  `account`.`received` =1 and `account`.count=1
+AND TO_DAYS( account.date ) >= TO_DAYS(  '2013-01-01' ) 
+AND TO_DAYS( account.date ) <= TO_DAYS(  '2013-12-31' ) 
+AND  `account`.`company` =1
+AND  `account`.`display` =1;
+
+-- 客户详单
+
+-- 案件 - 创收
+DROP VIEW IF EXISTS case_account;
+CREATE VIEW case_account AS
+SELECT project.id, project.num, project.name, project.time_contract, project.end, project.active,
+SUM(IF(account.received AND account.count, account.amount, 0)) `创收`,
+SUM(IF(!account.received AND account.count, account.amount, 0)) `签约`,
+SUM(IF(account.received AND !account.count, account.amount, 0)) `费用`
+FROM project
+INNER JOIN account ON account.project = project.id
+WHERE project.type = 'cases'
+GROUP BY project.id;
+
+-- 帐目 - 贡献
+DROP VIEW IF EXISTS account_contribution;
+CREATE VIEW account_contribution AS
+SELECT
+	account.id, account.amount, account.date, account.received, account.count, account.project,
+	project.time_contract, project.end,
+	lawyer.id lawyer, lawyer.name lawyer_name, project_lawyer.role, project_lawyer.weight
+FROM `account`
+INNER JOIN `project` ON  `project`.`id` =  `account`.`project` AND project.type = 'cases'
+INNER JOIN `project_people` project_lawyer ON  `project_lawyer`.`project` =  `account`.`project` AND `project_lawyer`.`role` IN  ('案源人','主办律师')
+INNER JOIN `people` lawyer ON  `lawyer`.`id` =  `project_lawyer`.`people` 
+WHERE 1;
+
+-- 案件 - 时间
+DROP VIEW IF EXISTS case_hours;
+CREATE VIEW case_hours AS
+SELECT project.id, project.num, project.name, project.time_contract, project.end, project.active,
+SUM(schedule.hours_own) hours
+FROM project
+INNER JOIN schedule ON schedule.project = project.id
+WHERE project.type = 'cases'
+GROUP BY project.id;
+
+-- 律师 - 时间
+DROP VIEW IF EXISTS lawyer_hours;
+CREATE VIEW lawyer_hours AS
+SELECT project.id project, people.id people, project.num, project.name project_name, project.type, case_classification.label_name classification, case_field.label_name field, people.name people_name, SUM(schedule.hours_own) hours
+FROM
+schedule
+INNER JOIN project ON project.id = schedule.project
+INNER JOIN people ON people.id = schedule.uid
+LEFT JOIN project_label case_field ON schedule.project = case_field.project AND case_field.type = '领域'
+LEFT JOIN project_label case_classification ON schedule.project = case_classification.project AND case_classification.type = '分类'
+GROUP BY schedule.uid, schedule.project;
+
+-- 1、每个人带来的案源业绩、案源签约总额；
+SELECT lawyer_name, SUM(amount)
+FROM account_contribution
+WHERE received = 1 AND count = 1 AND role = '案源人'
+AND YEAR(date) = '2013'
+GROUP BY lawyer;
+
+SELECT lawyer_name, SUM(amount)
+FROM account_contribution
+WHERE received = 1 AND count = 1 AND role = '案源人'
+AND YEAR(time_contract) = '2013'
+GROUP BY lawyer;
+
+-- 2、每个人主办的案件数量与对应的业绩
+SELECT `people`.`name` AS people_name, ROUND( SUM( account.amount * weight ),2 ) contribute
+FROM `account`
+INNER JOIN  `project` ON  `project`.`id` =  `account`.`project` 
+INNER JOIN  `project_people` ON  `project_people`.`project` =  `account`.`project` 
+INNER JOIN  `people` ON  `people`.`id` =  `project_people`.`people` 
+INNER JOIN `project_profile` ON project_profile.project = account.project AND project_profile.name='案源系数'
+WHERE  `account`.`received` = 0 and `account`.count=1
+AND project.time_contract BETWEEN '2013-01-01' AND '2013-12-31'
+AND `project_people`.`role` =  '主办律师'
+AND `account`.`company` = 1
+AND `account`.`display` = 1
+GROUP BY  `project_people`.`people`;
+
+SELECT * 
+FROM project_people
+WHERE project_people.role = '主办律师'
+-- 4、今年新增案件的总签约金、平均签约金及其分布（按个人、类型、企业客户和个人客户、诉讼与非诉讼）；
+
+
+-- 5、今年新增案件的总数量与各个类型的数量（按个人、类型、企业客户和个人客户、诉讼与非诉讼）；
+-- 6、今年结案案件的平均创收与各个类型的平均创收、平均用时、单位产出（按个人案源也分一下）；
+-- 7、今年结案案件的平均办案周期与各个类型案件的平均办案周期（按个人案源、主办也分一下）；
+-- 8、历史案件的结案数量、结案率、结案周期；新增案件的结案数量、结案率，结案周期（全所和个人）
+-- 9、常年法律顾问单位的数量，顾问费总收入、平均收入、衍生案件数量、衍生收入，总创收
+-- 10、今年结案案件的客户平均满意度；
+-- 11、今年结案案件中主办律师的时间比率（考量案件中律师助理的作用，主办律师各自的作用）
+-- 12、新增客户数据、成交客户数据（按个人分一下）
+-- 13、个人案源与所内案源的数据分布（类型、）
+-- 14、电话咨询、面谈咨询的数据（数量、类型、来源形式、转化率）
+-- 15、历史遗留咨询的数量、类型、分布人员
+-- 16、各类人事数据（考勤、病假、迟到、事假、离职、实习、面试与录用、工作时间分析）
+-- 17、会议室使用情况
+-- 18、人事培训及会议情况（数量、时间、类型、讲师、出席率，缺勤情况）
+-- 19、外网访问情况、新增文章数量（人员）、期刊发送情况、推广措施及效果、成本与时间
+-- 20、其他营销活动（微信、微博、外出授课、客户活动等）
+-- 21、办案报销总费用、已结案件的平均支持、未结案件的平均支出（按人也分一下）
+-- 22、律所其他花费的主要分布、预算结算情况
