@@ -601,3 +601,9 @@ group by project_profile.content;
 -- 20、其他营销活动（微信、微博、外出授课、客户活动等）
 -- 21、办案报销总费用、已结案件的平均支持、未结案件的平均支出（按人也分一下）
 -- 22、律所其他花费的主要分布、预算结算情况
+
+-- 单件案件费用分布图
+SELECT COUNT(*),ROUND(AVG(`创收`)/10000,2),SUM(hours)/50 FROM `case_account`
+INNER JOIN case_hours USING (id)
+WHERE case_account.id IN (SELECT project FROM account WHERE count = 1 AND received = 1 AND YEAR(date) = 2013)
+GROUP BY ROUND(LOG(`创收`)/LOG(10)/3,1)
