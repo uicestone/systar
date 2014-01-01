@@ -8,6 +8,10 @@ class Client_model extends People_model{
 	function getList($args = array()) {
 		!isset($args['type']) && $args['type']='client';
 		
+		if(array_key_exists('staff', $args)){
+			$this->db->where('people.staff', $args['staff']);
+		}
+		
 		return parent::getList($args);
 	}
 	

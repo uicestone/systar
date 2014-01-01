@@ -353,86 +353,50 @@ class Achievement extends SS_controller{
 			$this->config->set_user_item('date/to', $this->input->post('date_to'));
 		}
 		
-		//获得个人业绩金额
-		$data=array(
-			'主办新增创收'=>$this->account->getList(array(
-				'sum'=>true,
-				'group_by'=>'people',
-				'role'=>array('主办律师'),
-				'received'=>true,
-				'count'=>true,
-				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
-				'contract_date'=>array('from'=>$this->date->year_begin),
-				'project_labels'=>array('费用已锁定'),
-				'order_by'=>'sum desc'
-			)),
-			
-			'主办存量创收'=>$this->account->getList(array(
-				'sum'=>true,
-				'group_by'=>'people',
-				'role'=>array('主办律师'),
-				'received'=>true,
-				'count'=>true,
-				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to')),
-				'project_labels'=>array('费用已锁定'),
-				'contract_date'=>array('to'=>$this->date->last_year_end)
-			)),
-			
-			'所内接洽创收'=>$this->account->getList(array(
-				'sum'=>true,
-				'group_by'=>'people',
-				'role'=>array('接洽律师'),
-				'project_labels'=>array('所内案源','费用已锁定'),
-				'received'=>true,
-				'count'=>true,
-				'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
-			)),
-
-			'个人案源创收'=>$this->account->getList(array(
-				'sum'=>true,
-				'group_by'=>'people',
-				'role'=>array('案源人'),
-				'project_labels'=>array('费用已锁定'),
-				'received'=>true,
-				'count'=>true,
-				'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
-			)),
-
-			'主办签约'=>$this->account->getList(array(
-				'sum'=>true,
-				'group_by'=>'people',
-				'role'=>array('主办律师'),
-				'project_labels'=>array('费用已锁定'),
-				'received'=>false,
-				'count'=>true,
-				'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))
-			))
-
-		);
+		$this->load->model('staff_model','staff');
+		$this->load->model('cases_model','cases');
+		$this->load->model('query_model','query');
+		$this->load->model('client_model','client');
+		$this->load->model('schedule_model','schedule');
 		
-		$joined=array();
+		$staff_achievement = $this->table->setFields(array(
+			'name'=>array('heading'=>'人员'),
+			'title'=>array('heading'=>'职级'),
+			'working_cases_count'=>array('heading'=>'在办','parser'=>array('function'=>function($staff){
+				return $this->cases->count(array('people'=>$staff,'role'=>'主办律师'));
+			},'args'=>array('id'))),
+			'queries'=>array('heading'=>'意向','parser'=>array('function'=>function($staff){
+				return $this->query->count(array('people'=>$staff,'role'=>'接洽律师'));
+			},'args'=>array('id'))),
+			'archived_cases_count'=>array('heading'=>'已结','parser'=>array('function'=>function($staff){
+				return $this->cases->count(array('people'=>$staff,'role'=>'主办律师','active'=>false,'end'=>array('to'=>$this->config->user_item('date/to'))));
+			},'args'=>array('id'))),
+			'knowledge'=>array('heading'=>'知识','parser'=>array('function'=>function($staff){
+				return $this->people->getProfile($staff,'知识积分');
+			},'args'=>array('id'))),
+			'client_count'=>array('heading'=>'客户','parser'=>array('function'=>function($staff){
+				return $this->client->count(array('staff'=>$staff));
+			},'args'=>array('id'))),
+			'case_hours'=>array('heading'=>'案时','parser'=>array('function'=>function($staff){
+				return $this->schedule->getSum(array('project_type'=>'cases','people'=>$staff,'time'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'),'input_format'=>'date')));
+			},'args'=>array('id'))),
+			'project_hours'=>array('heading'=>'所时','parser'=>array('function'=>function($staff){
+				return $this->schedule->getSum(array('project_type'=>'project','people'=>$staff,'time'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'),'input_format'=>'date')));
+			},'args'=>array('id'))),
+			'创收'=>array('heading'=>'创收','parser'=>array('function'=>function($staff){
+				return $this->account->getSum(array('people'=>$staff,'role'=>'案源人','received'=>true,'count'=>true,'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))));
+			},'args'=>array('id'))),
+			'签约'=>array('heading'=>'签约','parser'=>array('function'=>function($staff){
+				return $this->account->getSum(array('people'=>$staff,'role'=>'案源人','received'=>false,'count'=>true,'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))));
+			},'args'=>array('id'))),
+			'办案'=>array('heading'=>'办案','parser'=>array('function'=>function($staff){
+				return $this->account->getSum(array('people'=>$staff,'role'=>'主办律师','received'=>false,'count'=>true,'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))));
+			},'args'=>array('id'))),
+		))
+		->setData($this->staff->getList(array('type'=>'staff')))
+		->generate();
 		
-		foreach($data as $key => $array){
-			foreach($array as $row){
-				if(!isset($joined[$row['people']])){
-					$joined[$row['people']]=array(
-						'people_name'=>$row['people_name'],
-					);
-				}
-				$joined[$row['people']][$key]=$row['sum'];
-			}
-		}
-		
-		$joined=array_merge($joined,array());
-		
-		$this->load->addViewData('table', $this->table->setFields(array(
-			'people_name'=>array('heading'=>'人员'),
-			'主办新增创收'=>array('heading'=>'主办新增创收'),
-			'主办存量创收'=>array('heading'=>'主办存量创收'),
-			'所内接洽创收'=>array('heading'=>'所内接洽创收'),
-			'个人案源创收'=>array('heading'=>'个人案源创收'),
-			'主办签约'=>array('heading'=>'主办签约')
-		))->generate($joined));
+		$this->load->addViewData('staff_achievement', $staff_achievement);
 		
 		$data=array(
 			'签约'=>$this->account->getList(array(

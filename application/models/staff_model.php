@@ -6,6 +6,9 @@ class Staff_model extends People_model{
 	
 	function getList(array $args=array()){
 		$args['is_staff']=true;
+		
+		$this->db->select('staff.title');
+				
 		return parent::getList($args);
 	}
 	

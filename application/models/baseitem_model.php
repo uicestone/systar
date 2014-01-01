@@ -130,6 +130,10 @@ class BaseItem_model extends SS_Model{
 		
 		$this->db->from($this->table);
 		
+		if(isset($args['count'])){
+			$this->db->select('COUNT(*) as `count`',false);
+		}
+		
 		//验证读权限
 		if($this->mod && !$this->user->isLogged($this->table.'admin')){
 			$this->db->where("document.id IN (
@@ -311,6 +315,12 @@ class BaseItem_model extends SS_Model{
 		return $result_array;
 	}
 	
+	
+	function count(array $args=array()){
+		$args['count']=true;
+		$result=$this->getList($args);
+		return isset($result[0]['count']) ? $result[0]['count'] : 0;
+	}
 	
 	function getArray($args=array(),$keyname='name',$keyname_forkey='id'){
 		return array_sub($this->getList($args),$keyname,$keyname_forkey);
@@ -632,6 +642,20 @@ class BaseItem_model extends SS_Model{
 		}
 		
 		return $this->db->get()->result_array();
+	}
+	
+	function getProfile($item_id, $profile_name, array $args=array()){
+		$item_id=intval($item_id);
+		
+		$this->db->select("{$this->table}_profile.id,{$this->table}_profile.comment,{$this->table}_profile.content,{$this->table}_profile.name")
+			->from("{$this->table}_profile")
+			->join($this->table,"{$this->table}_profile.{$this->table}={$this->table}.id",'inner')
+			->where("{$this->table}_profile.{$this->table}",$item_id)
+			->where("{$this->table}_profile.name",$profile_name);
+			
+		$result = $this->db->get()->result_array();
+		
+		return implode(', ',array_sub($result, 'content'));
 	}
 	
 	/**

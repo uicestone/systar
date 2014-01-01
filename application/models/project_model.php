@@ -246,11 +246,6 @@ class Project_model extends BaseItem_model{
 		return $this->db->delete('project_document',array('document'=>$document_id,'project'=>$project_id));
 	}
 	
-	function count(array $args=array()){
-		$args['count']=true;
-		$result=$this->getList($args);
-	}
-	
 	/**
 	 * @param array $args
 	 * people
@@ -338,10 +333,6 @@ class Project_model extends BaseItem_model{
 			if(isset($args[$date_field.'/to']) && $args[$date_field.'/to']){
 				$this->db->where("TO_DAYS(project.$date_field) <= TO_DAYS('{$args[$date_field.'/to']}')",NULL,FALSE);
 			}
-		}
-		
-		if(isset($args['count'])){
-			$this->db->select('COUNT(*) as `count`',false);
 		}
 		
 		if(isset($args['group_by'])){
