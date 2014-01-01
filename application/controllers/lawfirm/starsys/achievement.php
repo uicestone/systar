@@ -387,10 +387,10 @@ class Achievement extends SS_controller{
 				return $this->account->getSum(array('people'=>$staff,'role'=>'案源人','received'=>true,'count'=>true,'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))));
 			},'args'=>array('id'))),
 			'签约'=>array('heading'=>'签约','parser'=>array('function'=>function($staff){
-				return $this->account->getSum(array('people'=>$staff,'role'=>'案源人','received'=>false,'count'=>true,'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))));
+				return $this->account->getSum(array('people'=>$staff,'role'=>'案源人','received'=>false,'count'=>true,'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))));
 			},'args'=>array('id'))),
 			'办案'=>array('heading'=>'办案','parser'=>array('function'=>function($staff){
-				return $this->account->getSum(array('people'=>$staff,'role'=>'主办律师','received'=>false,'count'=>true,'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))));
+				return $this->account->getSum(array('people'=>$staff,'role'=>'主办律师','received'=>true,'count'=>true,'contract_date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))));
 			},'args'=>array('id'))),
 		))
 		->setData($this->staff->getList(array('type'=>'staff')))
