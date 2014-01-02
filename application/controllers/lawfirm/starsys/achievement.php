@@ -393,10 +393,78 @@ class Achievement extends SS_controller{
 				return $this->account->getSum(array('people'=>$staff,'role'=>'主办律师','received'=>true,'count'=>true,'date'=>array('from'=>$this->config->user_item('date/from'),'to'=>$this->config->user_item('date/to'))));
 			},'args'=>array('id'))),
 		))
-		->setData($this->staff->getList(array('type'=>'staff')))
+		->setData($this->staff->getList(array('type'=>'staff','in_team'=>13434)))
 		->generate();
 		
 		$this->load->addViewData('staff_achievement', $staff_achievement);
+		
+		$summary_achivement = $this->table->setFields(array(
+			'heading'=>array('heading'=>''),
+			'存量创收'=>array('heading'=>'存量创收','parser'=>array('function'=>function($from, $to){
+				return $this->account->getSum(array(
+					'contract_date'=>array('to'=>(date('Y',strtotime($from))-1).'-12-31'),
+					'date'=>array('from'=>$from,'to'=>$to),
+					'received'=>true,
+					'count'=>true,
+					'project_label'=>array('费用已锁定')
+				));
+			},'args'=>array('from','to'))),
+			'新增创收'=>array('heading'=>'新增创收','parser'=>array('function'=>function($from, $to){
+				return $this->account->getSum(array(
+					'contract_date'=>array('from'=>date('Y',strtotime($from)).'-01-01'),
+					'date'=>array('from'=>$from,'to'=>$to),
+					'received'=>true,
+					'count'=>true,
+					'project_label'=>array('费用已锁定')
+				));
+			},'args'=>array('from','to'))),
+			'新增签约'=>array('heading'=>'新增签约','parser'=>array('function'=>function($from, $to){
+				return $this->account->getSum(array(
+					'contract_date'=>array('from'=>date('Y',strtotime($from)).'-01-01'),
+					'date'=>array('from'=>$from,'to'=>$to),
+					'received'=>false,
+					'count'=>true,
+					'project_label'=>array('费用已锁定')
+				));
+			},'args'=>array('from','to'))),
+			'新增案件'=>array('heading'=>'新增案件','parser'=>array('function'=>function($from, $to){
+				return $this->cases->count(array(
+					'time_contract'=>array('from'=>$from,'to'=>$to)
+				));
+			},'args'=>array('from','to'))),
+			'单件创收'=>array('heading'=>'单件创收','parser'=>array('function'=>function($from, $to){
+				$sum = $this->account->getSum(array(
+					'received'=>true,
+					'count'=>true,
+					'date'=>array('from'=>$from,'to'=>$to),
+					'group_by'=>'project'
+				));
+
+				return round(array_sum(array_sub($sum,'sum'))/count($sum));
+			},'args'=>array('from','to'))),
+			'单件用时'=>array('heading'=>'单件用时','parser'=>array('function'=>function($from, $to){
+				$sum = $this->schedule->getSum(array(
+					'time'=>array('from'=>$from,'to'=>$to,'input_format'=>'date'),
+					'project_type'=>'cases',
+					'group_by'=>'project'
+				));
+				
+				return round(array_sum(array_sub($sum,'sum'))/count($sum),1);
+			},'args'=>array('from','to'))),
+		))->setData(array(
+			'本月'=>array(
+				'heading'=>'本月',
+				'from'=>$this->config->user_item('date/from') ? date('Y-m',strtotime($this->config->user_item('date/from'))).'-01' : $this->date->month_begin,
+				'to'=>$this->config->user_item('date/from') ? date('Y-m-d',strtotime(date('Y-m',strtotime($this->config->user_item('date/from').' +1 Month')).'-01')-86400) : $this->date->month_end
+			),
+			'年度'=>array(
+				'heading'=>'年度',
+				'from'=>$this->config->user_item('date/from') ? date('Y',strtotime($this->config->user_item('date/from'))).'-01-01' : $this->date->year_begin,
+				'to'=>$this->config->user_item('date/from') ? date('Y',strtotime($this->config->user_item('date/from'))).'-12-31' : $this->date->year_end
+			)
+		))->generate();
+		
+		$this->load->addViewData('summary_achievement', $summary_achivement);
 		
 		$data=array(
 			'签约'=>$this->account->getList(array(

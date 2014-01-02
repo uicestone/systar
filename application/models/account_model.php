@@ -215,6 +215,9 @@ class Account_model extends BaseItem_model{
 					->order_by('month')
 					->select('LEFT(project.time_contract,7) AS month',false);
 			}
+			elseif($args['group_by']==='project'){
+				$this->db->group_by('account.project')->select('account.project');
+			}
 			
 			if(isset($args['having'])){
 				$this->db->having($args['having']);
@@ -258,7 +261,12 @@ class Account_model extends BaseItem_model{
 	function getSum(array $args=array()){
 		$args=array_merge($args,array('sum'=>true));
 		$result_array=$this->getList($args);
-		return isset($result_array[0]['sum'])?$result_array[0]['sum']:NULL;
+		
+		if(array_key_exists('group_by', $args)){
+			return $result_array;
+		}
+		
+		return isset($result_array[0]['sum']) ? $result_array[0]['sum'] : NULL;
 	}
 
 	function add(array $data=array()){

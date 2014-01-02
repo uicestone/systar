@@ -6,13 +6,15 @@ class Test extends SS_controller{
 	}
 	
 	function index(){
-		$schedule=new Schedule_model();
-		print_r($schedule->getList(array(
-			'group_by'=>'people',
-			'people_is_staff'=>true,
-			'time'=>array('from'=>'2013-6-1','to'=>'2013-6-30','input_format'=>'date'),
-			'sum'=>true
-		)));
+		$this->load->model('account_model','account');
+		$sum = $this->account->getSum(array(
+			'date'=>array('from'=>'2013-06-01','to'=>'2013-12-31'),
+			'group_by'=>'project',
+			'count'=>true,
+			'received'=>true,
+			'project_label'=>array('费用已锁定')
+		));
+		print_r(array_sum(array_sub($sum,'sum'))/count($sum));
 		echo $this->db->last_query();
 		print_r($this->session->all_userdata());
 		print_r($this->user);

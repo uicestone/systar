@@ -123,6 +123,9 @@ class Schedule_model extends BaseItem_model{
 					->join('people','people.id = schedule_people.people','inner')
 					->select('people.id people, people.name people_name');
 			}
+			if($args['group_by']==='project'){
+				$this->db->group_by('schedule.project')->select('schedule.project');
+			}
 		}
 		
 		if((isset($args['people']) || (isset($args['group_by']) && $args['group_by']==='people')) && isset($args['in_todo_list'])){
@@ -252,6 +255,11 @@ class Schedule_model extends BaseItem_model{
 	function getSum(array $args=array()){
 		$args=array_merge($args,array('sum'=>true));
 		$result_array=$this->getList($args);
+		
+		if(array_key_exists('group_by', $args)){
+			return $result_array;
+		}
+		
 		return isset($result_array[0]['sum'])?$result_array[0]['sum']:NULL;
 	}
 

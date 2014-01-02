@@ -24,4 +24,5 @@ var chart;
 <div class="contentTableBox" style="width:100%">
 	<!--<div id="chart" style="height:600px;margin:auto"></div>-->
 	<?=$staff_achievement?>
+	<?=$summary_achievement?>
 </div>
