@@ -130,7 +130,7 @@ class BaseItem_model extends SS_Model{
 		
 		$this->db->from($this->table);
 		
-		if(isset($args['count'])){
+		if(array_key_exists('count', $args) && $args['count']){
 			$this->db->select('COUNT(*) as `count`',false);
 		}
 		
