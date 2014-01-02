@@ -21,8 +21,15 @@ var chart;
 	}));
 });*/
 </script>
-<div class="contentTableBox" style="width:100%">
+<form>
 	<!--<div id="chart" style="height:600px;margin:auto"></div>-->
-	<?=$staff_achievement?>
-	<?=$summary_achievement?>
-</div>
+		<div class="item">
+			<div class="title">公告<span class="right"><a href="#message/content/305">全部公告</a></span></div>
+			<?=$notices?>
+		</div>
+		<div class="item">
+			<div class="title">业绩汇总</div>
+			<?=$staff_achievement?>
+			<?=$summary_achievement?>
+		</div>
+</form>

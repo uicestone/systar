@@ -94,7 +94,7 @@ class Message_model extends BaseItem_model{
 		return array_sub($this->db->get()->result_array(),'user');
 	}
 	
-	function getList($dialog_id){
+	function getList($dialog_id, $args = array()){
 		$dialog_id=intval($dialog_id);
 		$this->db->select('message.*, people.name AS author_name, message_user.read AS `read`')
 			->from('message')
@@ -102,6 +102,10 @@ class Message_model extends BaseItem_model{
 			->join('people','people.id = message.uid','left')
 			->join('message_user',"message_user.message = message.id AND message_user.user = {$this->user->id} AND message_user.deleted=0",'inner')
 			->order_by('message.id','desc');
+		
+		if(array_key_exists('limit', $args)){
+			$this->db->limit($args['limit']);
+		}	
 		
 		return $this->db->get()->result_array();
 	}

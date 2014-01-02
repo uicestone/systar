@@ -359,6 +359,22 @@ class Achievement extends SS_controller{
 		$this->load->model('client_model','client');
 		$this->load->model('schedule_model','schedule');
 		
+		$notices = $this->table->setFields(array(
+			'标题'=>array('heading'=>'标题','cell'=>'{content}'),
+			'发布人'=>array('heading'=>'发布人','cell'=>'{author_name}'),
+			'发布时间'=>array('heading'=>'发布时间','parser'=>array('function'=>function($time){
+				return date('Y-m-d',$time);
+			},'args'=>array('time'))),
+			'附件'=>array('heading'=>'附件','parser'=>array('function'=>function($id){
+				//return $this->document->getList(array(
+				//	'message'=>$id
+				//));
+			},'args'=>array('id')))
+		))->setData($this->message->getList(305,array('limit'=>5)))
+		->generate();
+		
+		$this->load->addViewData('notices', $notices);
+		
 		$staff_achievement = $this->table->setFields(array(
 			'name'=>array('heading'=>'人员'),
 			'title'=>array('heading'=>'职级'),
