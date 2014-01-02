@@ -360,7 +360,9 @@ class Achievement extends SS_controller{
 		$this->load->model('schedule_model','schedule');
 		
 		$notices = $this->table->setFields(array(
-			'标题'=>array('heading'=>'标题','cell'=>'{content}'),
+			'标题'=>array('heading'=>'标题','cell'=>array('title'=>'{content}','class'=>'ellipsis'),'parser'=>array('function'=>function($content){
+				return strip_tags($content);
+			},'args'=>array('content'))),
 			'发布人'=>array('heading'=>'发布人','cell'=>'{author_name}'),
 			'发布时间'=>array('heading'=>'发布时间','parser'=>array('function'=>function($time){
 				return date('Y-m-d',$time);
@@ -370,7 +372,9 @@ class Achievement extends SS_controller{
 				//	'message'=>$id
 				//));
 			},'args'=>array('id')))
-		))->setData($this->message->getList(305,array('limit'=>5)))
+		))
+		->setRowAttributes(array('hash'=>'#message/content/305'))
+		->setData($this->message->getList(305,array('limit'=>5)))
 		->generate();
 		
 		$this->load->addViewData('notices', $notices);

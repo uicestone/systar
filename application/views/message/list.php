@@ -3,7 +3,8 @@
 	<span id="delete" class="icon-close hidden right"></span>
 	<p class="time right"><?=date('Y-m-d H:i:s',$message['time'])?></p>
 	<?if($message['author_name']){?><span class="author"><?=$message['author_name']?>：</span><?}?>
-	<?=$message['content']?>
+	<hr>
+	<div class="content"><?=$message['content']?></div>
 <?	if($message['documents']){?>
 <p><label>附件：</label>
 <?		foreach($message['documents'] as $document){?>

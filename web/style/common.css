@@ -547,3 +547,7 @@ section>form>.submit{
 	font-size:1.2em;
 	color:#007;
 }
+
+.message-content-list-item .content {
+	white-space: pre-line;
+}
