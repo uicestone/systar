@@ -360,7 +360,7 @@ class Achievement extends SS_controller{
 		$this->load->model('schedule_model','schedule');
 		
 		$notices = $this->table->setFields(array(
-			'标题'=>array('heading'=>'标题','cell'=>array('title'=>'{content}','class'=>'ellipsis'),'parser'=>array('function'=>function($content){
+			'标题'=>array('heading'=>array('data'=>'标题','width'=>'70%'),'cell'=>array('title'=>'{content}','class'=>'ellipsis'),'parser'=>array('function'=>function($content){
 				return strip_tags($content);
 			},'args'=>array('content'))),
 			'发布人'=>array('heading'=>'发布人','cell'=>'{author_name}'),
