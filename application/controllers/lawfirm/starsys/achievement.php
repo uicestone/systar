@@ -373,7 +373,7 @@ class Achievement extends SS_controller{
 				//));
 			},'args'=>array('id')))
 		))
-		->setRowAttributes(array('hash'=>'#message/content/305'))
+		->setRowAttributes(array('hash'=>'#message/content/305/{id}'))
 		->setData($this->message->getList(305,array('limit'=>5)))
 		->generate();
 		

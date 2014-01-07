@@ -102,6 +102,10 @@ class Message_model extends BaseItem_model{
 			->join('people','people.id = message.uid','left')
 			->join('message_user',"message_user.message = message.id AND message_user.user = {$this->user->id} AND message_user.deleted=0",'inner')
 			->order_by('message.id','desc');
+			
+		if(array_key_exists('message', $args) && $args['message']){
+			$this->db->where('message.id', $args['message']);
+		}
 		
 		if(array_key_exists('limit', $args)){
 			$this->db->limit($args['limit']);

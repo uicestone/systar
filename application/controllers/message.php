@@ -47,7 +47,7 @@ class Message extends SS_Controller{
 		}
 	}
 
-	function content($dialog_id){
+	function content($dialog_id, $message_id = null){
 		
 		try{
 			if($this->input->post('submit')==='send'){
@@ -73,7 +73,7 @@ class Message extends SS_Controller{
 
 			$this->output->title='对话 '.$dialog['title'];
 
-			$messages=$this->message->getList($dialog_id);
+			$messages=$this->message->getList($dialog_id, array('message'=>$message_id));
 			
 			$this->load->model('document_model','document');
 			
