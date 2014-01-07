@@ -163,6 +163,7 @@ class Account_model extends BaseItem_model{
 		
 		if(isset($args['count'])){
 			$this->db->where('account.count',(bool)intval($args['count']));
+			unset($args['count']);
 		}
 		
 		if(isset($args['group_by'])){
