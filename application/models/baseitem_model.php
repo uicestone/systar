@@ -405,6 +405,12 @@ class BaseItem_model extends SS_Model{
 	 * @return type 返回{item}_label的insert_id
 	 */
 	function addLabel($item_id,$label_name,$type=NULL){
+		
+		//避免添加空标签
+		if(!$label_name){
+			return;
+		}
+		
 		$item_id=intval($item_id);
 		$label_id=$this->label->match($label_name);
 		$insert_string=$this->db->insert_string($this->table.'_label',array($this->table=>$item_id,'label'=>$label_id,'type'=>$type,'label_name'=>$label_name));
