@@ -212,10 +212,14 @@ class Project extends SS_controller{
 			'labels'=>array('heading'=>'标签','parser'=>array('function'=>array($this->document,'getCompiledLabels'),'args'=>array('id')))
 		);
 		
+		//在项目（案件）查看页中禁用文档标签过滤参数的session存储，以防止事务下上传的文档自动搭上上述标签
+		$this->session->unset_userdata('config/document/index/search/labels');
+		
 		return $this->table->setFields($this->document_list_args)
 			->setAttribute('name','document')
 			->setRowAttributes(array('hash'=>'document/{id}'))
 			->generate($this->document->getList(array('project'=>$this->project->id)));
+		
 	}
 	
 	function scheduleList(){

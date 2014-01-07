@@ -6,16 +6,6 @@ class Test extends SS_controller{
 	}
 	
 	function index(){
-		$this->load->model('account_model','account');
-		$sum = $this->account->getSum(array(
-			'date'=>array('from'=>'2013-06-01','to'=>'2013-12-31'),
-			'group_by'=>'project',
-			'count'=>true,
-			'received'=>true,
-			'project_label'=>array('费用已锁定')
-		));
-		print_r(array_sum(array_sub($sum,'sum'))/count($sum));
-		echo $this->db->last_query();
 		print_r($this->session->all_userdata());
 		print_r($this->user);
 	}
