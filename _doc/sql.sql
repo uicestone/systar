@@ -64,10 +64,6 @@ select * from project_label where label_name in ('金融财税','公司投资','
 -- 监测是否有未设定领域的案件
 select * from project where type='cases' and id not in (select project from project_label where type = '领域');
 
--- 检测没有案源类型的案件
-select * from project
-where type = 'cases' and id not in (select project from project_label where label_name in ('所内案源','个人案源'));
-
 -- 确认每个案件都有案源类型
 select * from project
 where type = 'cases'
@@ -474,7 +470,7 @@ SELECT project.id, project.num, project.name, project.time_contract, project.end
 case_field.label_name case_field, case_classification.label_name case_classification, client.character,
 SUM(IF(account.received AND account.count, account.amount, 0)) `创收`,
 SUM(IF(!account.received AND account.count, account.amount, 0)) `签约`,
-SUM(IF(account.received AND !account.count, account.amount, 0)) `费用`
+SUM(IF(!account.received AND !account.count, account.amount, 0)) `费用`
 FROM project
 INNER JOIN account ON account.project = project.id
 -- 每个案件必须有领域
@@ -527,13 +523,15 @@ SELECT lawyer_name, SUM(amount*weight)
 FROM account_contribution
 WHERE received = 1 AND count = 1 AND role = '案源人'
 AND YEAR(date) = '2013'
-GROUP BY lawyer;
+GROUP BY lawyer
+ORDER BY CONVERT(lawyer_name USING GBK);
 
 SELECT lawyer_name, SUM(amount*weight)
 FROM account_contribution
 WHERE received = 1 AND count = 1 AND role = '案源人'
 AND YEAR(time_contract) = '2013'
-GROUP BY lawyer;
+GROUP BY lawyer
+ORDER BY CONVERT(lawyer_name USING GBK);
 
 -- 2、每个人主办的案件数量与对应的业绩
 SELECT people.name, COUNT(*)
@@ -541,7 +539,8 @@ FROM project_people INNER JOIN people ON project_people.people = people.id
 INNER JOIN project ON project.id = project_people.project
 WHERE project_people.role = '主办律师'
 AND (project.active = 1 OR project.end >= '2013-01-01')
-GROUP BY project_people.people;
+GROUP BY project_people.people
+ORDER BY CONVERT(people.name USING GBK);
 
 SELECT lawyer_name, SUM(amount*weight)
 FROM account_contribution
@@ -551,29 +550,29 @@ GROUP BY lawyer
 ORDER BY CONVERT(lawyer_name USING GBK);
 
 -- 4、今年新增案件的总签约金、平均签约金及其分布（按个人、类型、企业客户和个人客户、诉讼与非诉讼）；
-select `case_field`, COUNT(*), SUM(`创收`), SUM(`签约`), SUM(`费用`), SUM(hours) from case_account inner join case_hours using (id) where case_account.time_contract >= '2013-01-01'
+select `case_field`, COUNT(*), SUM(`创收`), SUM(`签约`), SUM(`费用`), SUM(hours) from case_account inner join case_hours using (id) where year(case_account.time_contract) = 2013
 group by `case_field`;
 
-select `case_classification`, COUNT(*), SUM(`创收`), SUM(`签约`), SUM(`费用`), SUM(hours) from case_account inner join case_hours using (id) where case_account.time_contract >= '2013-01-01'
+select `case_classification`, COUNT(*), SUM(`创收`), SUM(`签约`), SUM(`费用`), SUM(hours) from case_account inner join case_hours using (id) where year(case_account.time_contract) = 2013
 group by `case_classification`;
 
-select `character`, COUNT(*), SUM(`创收`), SUM(`签约`), SUM(`费用`), SUM(hours) from case_account inner join case_hours using (id) where case_account.time_contract >= '2013-01-01'
+select `character`, COUNT(*), SUM(`创收`), SUM(`签约`), SUM(`费用`), SUM(hours) from case_account inner join case_hours using (id) where year(case_account.time_contract) = 2013
 group by `character`;
 
 -- 5、今年新增案件的总数量与各个类型的数量（按个人、类型、企业客户和个人客户、诉讼与非诉讼）；
-select `case_field`, COUNT(*), SUM(`创收`), SUM(`签约`), SUM(`费用`), SUM(hours) from case_account inner join case_hours using (id) where case_account.active = 0 and case_account.end >= '2013-01-01'
+select `case_field`, COUNT(*), SUM(`创收`), SUM(`签约`), SUM(`费用`), SUM(hours), AVG(TO_DAYS(case_account.end) - TO_DAYS(case_account.time_contract)) from case_account inner join case_hours using (id) where case_account.active = 0 and year(case_account.end) = 2013
 group by `case_field`;
 
-select `case_classification`, COUNT(*), SUM(`创收`), SUM(`签约`), SUM(`费用`), SUM(hours) from case_account inner join case_hours using (id) where case_account.end >= '2013-01-01'
+select `case_classification`, COUNT(*), SUM(`创收`), SUM(`签约`), SUM(`费用`), SUM(hours), AVG(TO_DAYS(case_account.end) - TO_DAYS(case_account.time_contract)) from case_account inner join case_hours using (id) where year(case_account.end) = 2013
 group by `case_classification`;
 
-select `character`, COUNT(*), SUM(`创收`), SUM(`签约`), SUM(`费用`), SUM(hours) from case_account inner join case_hours using (id) where case_account.end >= '2013-01-01'
+select `character`, COUNT(*), SUM(`创收`), SUM(`签约`), SUM(`费用`), SUM(hours), AVG(TO_DAYS(case_account.end) - TO_DAYS(case_account.time_contract)) from case_account inner join case_hours using (id) where year(case_account.end) = 2013
 group by `character`;
 
 -- 6、今年结案案件的平均创收与各个类型的平均创收、平均用时、单位产出（按个人案源也分一下）；
 -- 7、今年结案案件的平均办案周期与各个类型案件的平均办案周期（按个人案源、主办也分一下）；
 -- 8、历史案件的结案数量、结案率、结案周期；新增案件的结案数量、结案率，结案周期（全所和个人）
-select * from project where active = 0 and time_contract < '2013-01-01' and end >= '2013-01-01';
+select * from project where active = 0 and time_contract < '2013-01-01' and year(end) = 2013;
 select * from project where active = 1 and time_contract < '2013-01-01';
 
 -- 9、常年法律顾问单位的数量，顾问费总收入、平均收入、衍生案件数量、衍生收入，总创收
@@ -582,7 +581,7 @@ select * from project where active = 1 and time_contract < '2013-01-01';
 -- 12、新增客户数据、成交客户数据（按个人分一下）
 select COUNT(*) from people
 INNER JOIN people lawyer on lawyer.id = people.staff
-where people.type = 'client' and people.time_insert >= UNIX_TIMESTAMP('2013-01-01')
+where people.type = 'client' and year(from_unixtime(people.time_insert)) = 2013
 GROUP BY people.staff;
 
 -- 13、个人案源与所内案源的数据分布（类型、）
