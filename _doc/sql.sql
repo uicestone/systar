@@ -606,3 +606,16 @@ SELECT COUNT(*),ROUND(AVG(`创收`)/10000,2),SUM(hours)/50 FROM `case_account`
 INNER JOIN case_hours USING (id)
 WHERE case_account.id IN (SELECT project FROM account WHERE count = 1 AND received = 1 AND YEAR(date) = 2013)
 GROUP BY ROUND(LOG(`创收`)/LOG(10)/3,1)
+
+-- 合并案件
+update ignore project_people set project = 4833 where project = 4922;
+delete from project_people where project = 4833;
+
+update account set project = 4833 where project = 4922;
+
+update ignore project_document set project = 4833 where project = 4922;
+delete from project_document where project = 4833;
+
+update schedule set project = 4833 where project = 4922;
+
+delete from project where id = 4922;
