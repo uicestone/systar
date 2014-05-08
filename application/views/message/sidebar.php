@@ -25,6 +25,7 @@
 	</tbody>
 </table>
 <button id="enable-desktop-notification" class="hidden">启用桌面通知</button>
+<div id="progress" class="hidden"><div id="bar" style="width:0%;background:#007;height:1em;"></div></div>
 <p class="upload-list-item hidden">
 	<input type="hidden" name="documents[]" disabled="disabled" />
 	<input type="text" name="document[name]" disabled="disabled" placeholder="名称" />
@@ -45,7 +46,16 @@ $(function () {
 	
 	section.find('#fileupload').fileupload({
         dataType: 'json',
+		start: function(){
+			$('#progress').show();
+		},
+		progress: function(e, data){
+			var progress = parseInt(data.loaded / data.total * 100, 10);
+			$('#progress>#bar').css({width:progress + '%'});
+		},
         done: function (event, data) {
+			
+			$('#progress>#bar').css({width:0}).hide();
 			
 			$(document).setBlock(data.result);
 			

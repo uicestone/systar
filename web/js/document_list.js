@@ -9,7 +9,16 @@ $(function () {
 
 	section.find('#fileupload').fileupload({
         dataType: 'json',
+		start: function(){
+			$('#progress').show();
+		},
+		progress: function(e, data){
+			var progress = parseInt(data.loaded / data.total * 100, 10);
+			$('#progress>#bar').css({width:progress + '%'});
+		},
         done: function (event, data) {
+			
+			$('#progress>#bar').css({width:0}).hide();
 			
 			$(document.body).setBlock(data.result);
 			
