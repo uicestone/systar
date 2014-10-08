@@ -272,7 +272,7 @@ class Schedule_model extends BaseItem_model{
 		foreach(array('start','end','deadline') as $timepoint){
 			if(isset($data[$timepoint])){
 				$timestamp = strtotime($data[$timepoint]);
-				if($timestamp >= 0 && $timestamp < 1E10){
+				if($timestamp && $timestamp >= 0 && $timestamp < 1E10){
 					$data[$timepoint]=strtotime($data[$timepoint]);
 				}
 			}
@@ -312,7 +312,7 @@ class Schedule_model extends BaseItem_model{
 		foreach(array('start','end','deadline') as $timepoint){
 			if(isset($data[$timepoint])){
 				$timestamp = strtotime($data[$timepoint]);
-				if($timestamp >= 0 && $timestamp < 1E10){
+				if($timestamp && $timestamp >= 0 && $timestamp < 1E10){
 					$data[$timepoint]=strtotime($data[$timepoint]);
 				}
 			}
