@@ -15,4 +15,4 @@
 	</style>
 <?}?>
 </head>
-<body style="background-image:url('/images/bg_<?=$this->company->syscode?>.gif')">
+<body style="background-image:url('/images/birthday_bg.png')">

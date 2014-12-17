@@ -316,6 +316,16 @@ $(document)
 		});
 		
 	});
+	
+	!localStorage.hideBirthday && $('<img/>')
+		.attr('src', 'images/Happy_Birthday_gw.png')
+		.css({zIndex: 100, position: 'relative', left: '50%', marginLeft: '-20px', marginTop: '80px', width: '40px'})
+		.appendTo('body')
+		.animate({marginLeft: '-200px', width: '400px'}, 1000)
+		.on('click', function(){
+			$(this).fadeOut(3000);
+			localStorage.hideBirthday = true;
+		});
 
 })
 /*主体页面加载事件*/
