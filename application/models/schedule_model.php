@@ -270,11 +270,13 @@ class Schedule_model extends BaseItem_model{
 		
 		//attemp to convert date string to timestamp
 		foreach(array('start','end','deadline') as $timepoint){
-			if(isset($data[$timepoint])){
-				$timestamp = strtotime($data[$timepoint]);
-				if($timestamp && $timestamp >= 0 && $timestamp < 1E10){
-					$data[$timepoint]=strtotime($data[$timepoint]);
-				}
+			if(empty($data[$timepoint])){
+				continue;
+			}
+			if(!is_numeric($data[$timepoint])){
+				$data[$timepoint]=strtotime($data[$timepoint]);
+			}elseif($data[$timepoint]>1E12){
+				$data[$timepoint] = $data[$timepoint]/1000;
 			}
 		}
 		
@@ -310,11 +312,13 @@ class Schedule_model extends BaseItem_model{
 		
 		//attemp to convert date string to timestamp
 		foreach(array('start','end','deadline') as $timepoint){
-			if(isset($data[$timepoint])){
-				$timestamp = strtotime($data[$timepoint]);
-				if($timestamp && $timestamp >= 0 && $timestamp < 1E10){
-					$data[$timepoint]=strtotime($data[$timepoint]);
-				}
+			if(empty($data[$timepoint])){
+				continue;
+			}
+			if(!is_numeric($data[$timepoint])){
+				$data[$timepoint]=strtotime($data[$timepoint]);
+			}elseif($data[$timepoint]>1E12){
+				$data[$timepoint] = $data[$timepoint]/1000;
 			}
 		}
 		
