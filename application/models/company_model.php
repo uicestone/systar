@@ -10,7 +10,7 @@ class Company_model extends BaseItem_model{
 	function __construct(){
 		parent::__construct();
 		$this->table='company';
-		$this->recognize($this->input->server('SERVER_NAME'));
+		$this->recognize($this->input->server('HTTP_HOST'));
 
 		//获取存在数据库中的公司配置项
 		$this->db->from('company_config')

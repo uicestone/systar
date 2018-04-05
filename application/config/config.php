@@ -363,10 +363,7 @@ date_default_timezone_set('Asia/Shanghai');
 
 $company=array(
 	'lawfirm'=>array(
-		'starsys'=>'sys.lawyerstars.com'
-	),
-	'school'=>array(
-		'shdfz'=>'sdfz.sys.sh'
+		'starsys'=>'localhost:8080'
 	),
 );
 
@@ -391,7 +388,7 @@ foreach($company as $company_type => $company)
 }
 
 if(!defined('COMPANY_TYPE') || !defined('COMPANY_CODE')){
-	show_error('unknown host '.$_SERVER['HTTP_HOST']);
+	exit('unknown host '.$_SERVER['HTTP_HOST']);
 }
 
 /**
