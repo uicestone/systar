@@ -48,11 +48,11 @@
 $active_group = 'default';
 $active_record = TRUE;
 
-$db['default']['hostname'] = '';
-$db['default']['username'] = 'root';
-$db['default']['password'] = '';
+$db['default']['hostname'] = '127.0.0.1';
+$db['default']['username'] = 'syssh';
+$db['default']['password'] = 'syssh';
 $db['default']['database'] = 'syssh';
-$db['default']['dbdriver'] = 'mysql';
+$db['default']['dbdriver'] = 'mysqli';
 $db['default']['dbprefix'] = '';
 $db['default']['pconnect'] = FALSE;
 $db['default']['db_debug'] = TRUE;
@@ -63,23 +63,6 @@ $db['default']['dbcollat'] = 'utf8_general_ci';
 $db['default']['swap_pre'] = '';
 $db['default']['autoinit'] = TRUE;
 $db['default']['stricton'] = FALSE;
-
-$db['star']['hostname'] = '';
-$db['star']['username'] = 'root';
-$db['star']['password'] = '';
-$db['star']['database'] = 'star';
-$db['star']['dbdriver'] = 'mysql';
-$db['star']['dbprefix'] = '';
-$db['star']['pconnect'] = FALSE;
-$db['star']['db_debug'] = TRUE;
-$db['star']['cache_on'] = FALSE;
-$db['star']['cachedir'] = '';
-$db['star']['char_set'] = 'utf8';
-$db['star']['dbcollat'] = 'utf8_general_ci';
-$db['star']['swap_pre'] = '';
-$db['star']['autoinit'] = FALSE;
-$db['star']['stricton'] = FALSE;
-
 
 /* End of file database.php */
 /* Location: ./application/config/database.php */

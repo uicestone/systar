@@ -14,6 +14,8 @@ class SS_Controller extends CI_Controller{
 	
 	function __construct(){
 		parent::__construct();
+
+		$this->db->query("SET SQL_MODE = ''");
 		
 		/*
 		 * 处理$class和$method，并定义为常量
