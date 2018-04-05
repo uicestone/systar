@@ -9,9 +9,9 @@ $(function(){
 			text: '每月新增咨询和案件数量'
 		},
 		xAxis: {
-			categories: $.parseJSON('<? echo $chart_monthly_queries_catogary?>')
+			categories: $.parseJSON('<?=$chart_monthly_queries_catogary?>')
 		},
-		series: $.parseJSON('<? echo $chart_monthly_queries_series ?>')
+		series: $.parseJSON('<?=$chart_monthly_queries_series?>')
 	}));
 
 	chart_personally_queries = new Highcharts.Chart($.extend(true,{},highchartsOptions,{
@@ -22,7 +22,7 @@ $(function(){
 			text: '每人咨询量（今年，按在谈状态）'
 		},
 		xAxis: {
-			categories: $.parseJSON('<? echo $chart_personally_queries_catogary?>')
+			categories: $.parseJSON('<?=$chart_personally_queries_catogary?>')
 		},
 		yAxis: {
 			stackLabels: {
@@ -38,7 +38,7 @@ $(function(){
 				}
 			}
 		},
-		series: $.parseJSON('<? echo $chart_personally_queries_series ?>')
+		series: $.parseJSON('<?=$chart_personally_queries_series?>')
 	}));
 
 	chart_personally_type_queries = new Highcharts.Chart($.extend(true,{},highchartsOptions,{
@@ -49,7 +49,7 @@ $(function(){
 			text: '每人咨询量（今年，按咨询方式）'
 		},
 		xAxis: {
-			categories: $.parseJSON('<? echo $chart_personally_type_queries_catogary?>')
+			categories: $.parseJSON('<?=$chart_personally_type_queries_catogary?>')
 		},
 		yAxis: {
 			stackLabels: {
@@ -65,7 +65,7 @@ $(function(){
 				}
 			}
 		},
-		series: $.parseJSON('<? echo $chart_personally_type_queries_series ?>')
+		series: $.parseJSON('<?=$chart_personally_type_queries_series?>')
 	}));
 });
 </script>

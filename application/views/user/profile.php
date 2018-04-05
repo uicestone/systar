@@ -35,7 +35,7 @@ $(function(){
 		</select>
 		<input type="text" name="people[birthday]" value="<?=$this->value('people/birthday')?>" class="birthday" placeholder="生日" title="生日" />
 	</div>
-<?if($this->user->isLogged('student')){?>
+<?php if($this->user->isLogged('student')){ ?>
 	<div class="item">
 		<div class="title"><label>学籍信息</label></div>
 		 <?=checkbox('是否团员', 'profiles[是否团员]', $this->value('profiles/是否团员'), '是')?>
@@ -59,5 +59,5 @@ $(function(){
 		<input type="text" name="profiles[银行账号]" value="<?=$this->value('profiles/银行账号')?>" placeholder="银行账号">
 		<textarea name="profiles[疾病史]" placeholder="疾病史"><?=$this->value('profiles/疾病史')?></textarea>
 	</div>
-<?}?>
+<?php } ?>
 </form>

@@ -13,9 +13,9 @@
 			</tr>
 
 			<tr><td class="submit"><button type="submit" name="date_range">提交</button>
-<?if($this->config->user_item('search/date_from') || $this->config->user_item('search/date_to')){?>
+<?php if($this->config->user_item('search/date_from') || $this->config->user_item('search/date_to')){ ?>
 				<button type="submit" name="date_range_cancel" tabindex="1">取消</button>
-<?}?>
+<?php } ?>
 			</td></tr>
 		</tbody>
 	</table>

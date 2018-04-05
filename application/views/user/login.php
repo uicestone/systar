@@ -5,12 +5,12 @@ $(function(){
 </script>
 <form method="post">
 	<div class="login-form">
-<?if(isset($warning)){?>
+<?php if(isset($warning)): ?>
 		<span class="message ui-corner-all ui-state-error" title="点击隐藏提示">
 			<span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
 			<?=$warning?>
 		</span>
-<?}?>
+<?php endif; ?>
 		<div class="item">
 			<input type="text" id="username" name="username" placeholder="用户名" />
 		</div>

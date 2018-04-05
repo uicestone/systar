@@ -9,10 +9,10 @@
 	<?=$this->javascript('combined')?>
 	<link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
 	<title><?=$this->output->title.' '.$this->company->sysname?></title>
-<?if(isset($css) && $css){?>
+<?php if(isset($css) && $css){ ?>
 	<style type="text/css">
 		<?=$css?>
 	</style>
-<?}?>
+<?php } ?>
 </head>
 <body style="background-image:url('/images/bg_<?=$this->company->syscode?>.gif')">

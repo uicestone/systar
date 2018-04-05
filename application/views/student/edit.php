@@ -16,7 +16,7 @@
 		<?=$score_list?>
 	 </div>
 
-<?if(!empty($class)){?>
+<?php if(!empty($class)){ ?>
 	<div class="item" name="class">
 		<div class="title">
 			<label class="right">班主任：<?=$class['leader_name']?>
@@ -25,7 +25,7 @@
 			<label><a href="#classes/<?=$class['id']?>"><?=$class['name']?></a></label>
 		</div>
 	 </div>
-<?}?>
+<?php } ?>
 	<div class="item" name="team">
 		<div class="title"><label>所属团组</label></div>
 		<?=$team_list?>
@@ -34,7 +34,7 @@
 	<div class="item" name="status">
 		<div class="title"><label>动态</label></div>
 		<?=$status_list?>
-<?if($this->user->inTeam('teacher')){?>
+<?php if($this->user->inTeam('teacher')){ ?>
 		<button type="button" class="toggle-add-form">＋</button>
 		<span class="add-form hidden">
 			<input type="text" name="status[name]" value="<?=$this->value('status/name')?>" placeholder="状态" />
@@ -46,7 +46,7 @@
 			</select>
 			<button type="submit" name="submit[status]">添加</button>
 		</span>
-<?}?>
+<?php } ?>
 	 </div>
 
 	<div class="item" name="profile" locked="locked">

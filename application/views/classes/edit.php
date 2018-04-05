@@ -6,16 +6,16 @@
 		<input name="people[phone]" value="<?=$this->value('people/phone'); ?>" type="text" placeholder="电话" />
 		<input name="people[email]" value="<?=$this->value('people/email'); ?>" type="text" placeholder="电子邮件" />
 		<?=checkbox('单位', 'people[character]', $this->value('people/character'), '单位')?>
-<?if($this->value('people/character')=='单位'){?>
+<?php if($this->value('people/character')=='单位'){ ?>
 		<input name="people[abbreviation]" value="<?=$this->value('people/abbreviation')?>" placeholder="简称" />
-<?}else{?>
+<?php }else{ ?>
 		<select name="people[gender]"><?=options(array('男','女'), $this->value('people/gender'), '性别')?></select>
 		<input type="text" name="people[id_card]" value="<?=$this->value('people/id_card'); ?>" placeholder="身份证" style="width:195px;" />
 		<input type="text" name="people[birthday]" value="<?=$this->value('people/birthday'); ?>" placeholder="生日" class="date" />
 		<input name="people[name_en]" value="<?=$this->value('people/name_en'); ?>" type="text" placeholder="英文名" />
 		<input type="text" name="people[work_for]" value="<?=$this->value('people/work_for')?>" placeholder="工作单位" />
 		<input type="text" name="people[position]" value="<?=$this->value('people/position')?>" placeholder="职位" />
-<?}?>
+<?php } ?>
 
 	</div>
 

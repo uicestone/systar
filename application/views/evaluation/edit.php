@@ -7,7 +7,7 @@
 		<div class="title"><label>状态：</label>
 		</div>
 		<span class="ui-dialog-buttonset" style="font-size:12px;">
-			<input type="checkbox" id="active"<?if($this->value('project/active')){?> checked="checked"<?}?> name="project[active]" value="1" text-checked="开放" text-unchecked="停止" /><label for="active" ></label>
+			<input type="checkbox" id="active"<?php if($this->value('project/active')){ ?> checked="checked"<?php } ?> name="project[active]" value="1" text-checked="开放" text-unchecked="停止" /><label for="active" ></label>
 		</span>
 		<input type="text" name="project[time_contract]" value="<?=$this->value('project/time_contract')?>" class="date" placeholder="开始日期" />
 		<input type="text" name="project[end]" value="<?=$this->value('project/end')?>" class="date" placeholder="结束日期" />

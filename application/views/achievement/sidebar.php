@@ -5,9 +5,9 @@
 		<tr><td><input type="text" name="date_to" value="<?=$this->config->user_item('date/to')?>" class="date" placeholder="结束" /></td></tr>
 
 		<tr><td class="submit"><button type="submit" name="date_range">提交</button>
-<?if($this->config->user_item('search/date_from') || $this->config->user_item('search/date_to')){?>
+<?php if($this->config->user_item('search/date_from') || $this->config->user_item('search/date_to')){ ?>
 			<button type="submit" name="date_range_cancel" tabindex="1">取消</button>
-<?}?>
+<?php } ?>
 		</td></tr>
 	</tbody>
 </table>

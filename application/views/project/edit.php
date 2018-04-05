@@ -1,19 +1,19 @@
 <form method="post" name="<?=CONTROLLER?>" id="<?=$this->project->id?>">
 	<div class="item">
-		<input type="text" name="project[name]" value="<?=$this->value('project/name')?>" placeholder="名称" class="large-field"<?if($project['uid']!=$this->user->id){?> readonly="readonly"<?}?>>
+		<input type="text" name="project[name]" value="<?=$this->value('project/name')?>" placeholder="名称" class="large-field"<?php if($project['uid']!=$this->user->id){ ?> readonly="readonly"<?php } ?>>
 	 </div>
 
-<?if($project['summary'] || $project['uid']==$this->user->id){?>
+<?php if($project['summary'] || $project['uid']==$this->user->id){ ?>
 	<div class="item">
-		<textarea class="item" name="project[summary]" type="text" placeholder="描述" rows="4"<?if($project['uid']!=$this->user->id){?> readonly="readonly"<?}?>><?=$this->value('project/summary')?></textarea>
+		<textarea class="item" name="project[summary]" type="text" placeholder="描述" rows="4"<?php if($project['uid']!=$this->user->id){ ?> readonly="readonly"<?php } ?>><?=$this->value('project/summary')?></textarea>
 	</div>
-<?}?>
+<?php } ?>
 	
-	<div class="item" name="people"<?if($project['uid']!=$this->user->id){?> locked="locked"<?}?>>
+	<div class="item" name="people"<?php if($project['uid']!=$this->user->id){ ?> locked="locked"<?php } ?>>
 		<div class="title"><label>人员：</label></div>
 
 		<?=$people_list?>
-<?if($project['uid']==$this->user->id){?>
+<?php if($project['uid']==$this->user->id){ ?>
 		<button type="button" class="toggle-add-form">＋</button>
 		<span class="add-form hidden">
 			<input type="hidden" name="people[id]" class="tagging" data-ajax="/people/match/" data-placeholder="人员" />
@@ -22,7 +22,7 @@
 			</select>
 			<button type="submit" name="submit[people]">添加</button>
 		</span>
-<?}?>
+<?php } ?>
 	</div>
 
 	<div class="item" name="document">

@@ -4,41 +4,41 @@
 			<label class="num"><?=$this->value('project/num');?></label>
 		</div>
 
-		<select id="type" name="labels[领域]"<?if(in_array('类型已锁定',$labels)){?> disabled="disabled"<?}?>>
+		<select id="type" name="labels[领域]"<?php if(in_array('类型已锁定',$labels)){ ?> disabled="disabled"<?php } ?>>
 			<?=options($this->config->user_item('案件领域'),$this->value('labels/领域'),'领域');?>
 		</select>
 		
-		<select id="classification" name="labels[分类]"<?if(in_array('类型已锁定',$labels)){?> disabled="disabled"<?}?>>
+		<select id="classification" name="labels[分类]"<?php if(in_array('类型已锁定',$labels)){ ?> disabled="disabled"<?php } ?>>
 			<?=options(array('争议','非争议','法律顾问'),$this->value('labels/分类'),'分类');?>
 		</select>
 		
 		<select name="labels[阶段]" 
-			class="<?if(!isset($labels['分类']) || $labels['分类']!='争议'){?>hidden<?}?>"
-			<?if(!isset($labels['分类']) || $labels['分类']!='争议'){?> disabled="disabled"<?}?>
+			class="<?php if(!isset($labels['分类']) || $labels['分类']!='争议'){ ?>hidden<?php } ?>"
+			<?php if(!isset($labels['分类']) || $labels['分类']!='争议'){ ?> disabled="disabled"<?php } ?>
 		>
 			<?=options($this->cases->getRelatedLabels($labels, '阶段'),$this->value('labels/阶段'),'阶段');?>
 		</select>
 		
 		<input type="text" name="project[name]" value="<?=$this->value('project/name')?>" placeholder="<?=lang(CONTROLLER)?>名称" style="width:300px;">
 		
-<?if(!$project['num'] && $project['type']==='cases'){?>
+<?php if(!$project['num'] && $project['type']==='cases'){ ?>
 		<button type="submit" name="submit[apply_num]" class="major">获得案号</button>
-<?}?>
+<?php } ?>
 
-<?if($project['type']==='query'){?>
+<?php if($project['type']==='query'){ ?>
 		<input type="text" name="project[first_contact]" value="<?=$this->value('project/first_contact')?>" placeholder="首次接待日期" title="首次接待日期" class="date" />
-<?}else{?>
+<?php }else{ ?>
 		<input type="text" name="project[time_contract]" value="<?=$this->value('project/time_contract')?>" placeholder="立案日期" title="立案日期" class="date" <? if(in_array('在办',$labels))echo 'disabled';?> />
 		-
 		<input type="text" name="project[end]" value="<?=$this->value('project/end')?>" placeholder="预估结案日期" title="预估结案日期" class="date" <? if(in_array('在办',$labels))echo 'disabled';?> />
-<?}?>
+<?php } ?>
 		<span><?=$this->value('profiles/案源类型')?></span>
 		<span>案源系数：<?=round($this->value('profiles/案源系数')*100,2)?>%</span>
 	</div>
 
 	<div class="item" name="client">
 		<div class="title"><label>客户及相关人：</label>
-<? if(isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') && !in_array('客户已锁定',$labels)){?>
+<? if(isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') && !in_array('客户已锁定',$labels)){ ?>
 			<button type="submit" name="submit[lock_client]">锁定</button>
 <? }?>
 <? if(isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') && in_array('客户已锁定',$labels)){ ?>
@@ -60,23 +60,23 @@
 		</span>
 	 </div>
 
-<? if(in_array('争议',$labels)){?>
+<? if(in_array('争议',$labels)){ ?>
 	<div class="item">
 		<div class="title"><label>争议焦点：</label></div>
 		<input name="project[focus]" type="text" value="<?=$this->value('project/focus')?>" style="width:99%;font-size:1.2em;" />
 	</div>
 <? }?>
 
-<? if(in_array('非争议',$labels)){?>
+<? if(in_array('非争议',$labels)){ ?>
 	<div class="item">
 		<div class="title"><label>案件标的：</label></div>
 		<input name="project[focus]" type="text" value="<?=$this->value('project/focus')?>" style="width:99%;font-size:1.2em;" />
 	</div>
 <? }?>
 	
-	<div class="item" name="staff"<?if(in_array('职员已锁定',$labels)){?> locked="locked"<?}?>>
+	<div class="item" name="staff"<?php if(in_array('职员已锁定',$labels)){ ?> locked="locked"<?php } ?>>
 		<div class="title"><label>律师：</label>
-<?if(isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') && !in_array('职员已锁定',$labels)){?>
+<?php if(isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') && !in_array('职员已锁定',$labels)){ ?>
 			<button type="submit" name="submit[lock_staff]">锁定</button>
 <? }?>
 <? if(isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') && in_array('职员已锁定',$labels)){ ?>
@@ -101,7 +101,7 @@
 		<div class="title">
 			<label>资金（外部 计入创收）：</label>
 			
-<? if((isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') || $this->user->isLogged('finance')) && !in_array('费用已锁定',$labels)){?>
+<? if((isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') || $this->user->isLogged('finance')) && !in_array('费用已锁定',$labels)){ ?>
 			<button type="submit" name="submit[lock_fee]">锁定</button>
 <? }?>
 <? if((isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') || $this->user->isLogged('finance')) && in_array('费用已锁定',$labels)){ ?>
@@ -118,9 +118,9 @@
 			<input type="text" name="account[account]" value="<?=$this->value('account/account')?>" placeholder="帐目编号" />
 			<input type="text" name="account[amount]" value="<?=$this->value('account/amount')?>" placeholder="数额" />
 			<input type="hidden" name="account[count]" value="1" />
-<?if($this->user->isLogged('finance')){?>
+<?php if($this->user->isLogged('finance')){ ?>
 			<label><input type="checkbox" value="1" name="account[received]">已到帐</label>
-<?}?>
+<?php } ?>
 			<input type="text" name="account[date]" value="<?=$this->value('account/date')?>" placeholder="预估日期" class="date" />
 			<input type="hidden" name="account[people]" data-ajax="/people/match/" data-placeholder="收款/付款人" class="tagging">
 			<input type="text" name="account[comment]" value="<?=$this->value('account/comment');?>" placeholder="条件/备注" />
@@ -132,7 +132,7 @@
 		<div class="title">
 			<label>资金（内部 不计入创收）：</label>
 			
-<? if((isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') || $this->user->isLogged('finance')) && !in_array('费用已锁定',$labels)){?>
+<? if((isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') || $this->user->isLogged('finance')) && !in_array('费用已锁定',$labels)){ ?>
 			<button type="submit" name="submit[lock_fee]">锁定</button>
 <? }?>
 <? if((isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') || $this->user->isLogged('finance')) && in_array('费用已锁定',$labels)){ ?>
@@ -149,9 +149,9 @@
 			<input type="text" name="fee[account]" value="<?=$this->value('fee/fee')?>" placeholder="帐目编号" />
 			<input type="text" name="fee[amount]" value="<?=$this->value('fee/amount')?>" placeholder="数额" />
 			<input type="hidden" name="fee[count]" value="0" />
-<?if($this->user->isLogged('finance')){?>
+<?php if($this->user->isLogged('finance')){ ?>
 			<label><input type="checkbox" value="1" name="fee[received]">已到帐</label>
-<?}?>
+<?php } ?>
 			<input type="text" name="fee[date]" value="<?=$this->value('fee/date')?>" placeholder="预估日期" class="date" />
 			<input type="hidden" name="fee[people]" data-ajax="/people/match/" data-placeholder="收款/付款人" class="tagging">
 			<input type="text" name="fee[comment]" value="<?=$this->value('fee/comment');?>" placeholder="条件/备注" />
@@ -195,7 +195,7 @@
 	<div class="item" name="plan">
 		<div class="title">
 			<span class="right">
-				<a href="#schedule/plan?project=<? echo $this->value('project/id')?>">所有计划>></a>
+				<a href="#schedule/plan?project=<?=$this->value('project/id')?>">所有计划>></a>
 			</span>
 			<label>日程计划：
 				<a href="javascript:$.createSchedule({project:<?=$this->value('project/id')?>,completed:false,refreshOnSave:true})">添加>></a>

@@ -15,7 +15,7 @@
 					<input type="hidden" name="in_team" class="tagging" multiple="multiple" data-ajax="/team/match/" data-placeholder="团组" style="width:238px;" data-initselection='<?=json_encode($this->team->getArray(array('id_in'=>$this->config->user_item('search/in_team')),'name','id'))?>' value="<?=implode((array)$this->config->user_item('search/in_team'))?>" />
 				</td>
 			</tr>
-<?if($this->user->isLogged('service')){?>
+<?php if($this->user->isLogged('service')){ ?>
 			<tr>
 				<td><input type="text" class="date" name="time_insert/from" value="<?=$this->config->user_item('search/time_insert/from')?>" placeholder="添加日期自" title="添加日期自" /></td>
 			</tr>
@@ -25,11 +25,11 @@
 			<tr>
 				<td><input type="hidden" name="uid" value="<?=$this->config->user_item('search/uid')?>" class="tagging" style="width:238px" data-ajax="/user/match/" data-initselection='<?=$this->config->user_item('search/uid')?json_encode($this->user->fetch($this->config->user_item('search/uid'))):'';?>' placeholder="添加人" title="添加人" /></td>
 			</tr>
-<?}?>
+<?php } ?>
 			<tr>
 				<td class="submit">
 					<button type="submit" name="search" tabindex="0">搜索</button>
-					<button type="submit" name="search_cancel" tabindex="1"<?if(!array_reduce($this->search_items, function($result, $item){return ($result || $this->config->user_item('search/'.$item));},false)){?> class="hidden"<?}?>>取消</button>
+					<button type="submit" name="search_cancel" tabindex="1"<?php if(!array_reduce($this->search_items, function($result, $item){return ($result || $this->config->user_item('search/'.$item));},false)){ ?> class="hidden"<?php } ?>>取消</button>
 				</td>
 			</tr>
 		</tbody>
