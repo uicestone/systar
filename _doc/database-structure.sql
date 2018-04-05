@@ -1,9 +1,29 @@
-SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
-SET time_zone = "+00:00";
-CREATE DATABASE `syssh` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
-USE `syssh`;
+# ************************************************************
+# Sequel Pro SQL dump
+# Version 4541
+#
+# http://www.sequelpro.com/
+# https://github.com/sequelpro/sequelpro
+#
+# Host: 127.0.0.1 (MySQL 5.7.18)
+# Database: syssh-sdfz
+# Generation Time: 2018-04-05 05:05:46 +0000
+# ************************************************************
 
-CREATE TABLE IF NOT EXISTS `account` (
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+
+# Dump of table account
+# ------------------------------------------------------------
+
+CREATE TABLE `account` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
   `type` varchar(255) DEFAULT NULL,
@@ -11,6 +31,7 @@ CREATE TABLE IF NOT EXISTS `account` (
   `amount` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '数额',
   `received` tinyint(1) NOT NULL DEFAULT '0',
   `reviewed` tinyint(1) NOT NULL DEFAULT '0',
+  `count` tinyint(1) NOT NULL DEFAULT '1',
   `date` date DEFAULT NULL COMMENT '到账日期',
   `project` int(11) DEFAULT NULL,
   `team` int(11) DEFAULT NULL,
@@ -35,10 +56,21 @@ CREATE TABLE IF NOT EXISTS `account` (
   KEY `time_insert` (`time_insert`),
   KEY `subject` (`subject`),
   KEY `type` (`type`),
-  KEY `team` (`team`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='账目（主表）' AUTO_INCREMENT=1917 ;
+  KEY `team` (`team`),
+  CONSTRAINT `account_ibfk_10` FOREIGN KEY (`project`) REFERENCES `project` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `account_ibfk_12` FOREIGN KEY (`account`) REFERENCES `account` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `account_ibfk_13` FOREIGN KEY (`team`) REFERENCES `team` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `account_ibfk_3` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `account_ibfk_4` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `account_ibfk_9` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='账目（主表）';
 
-CREATE TABLE IF NOT EXISTS `account_label` (
+
+
+# Dump of table account_label
+# ------------------------------------------------------------
+
+CREATE TABLE `account_label` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `account` int(11) NOT NULL,
   `label` int(11) NOT NULL,
@@ -49,10 +81,17 @@ CREATE TABLE IF NOT EXISTS `account_label` (
   UNIQUE KEY `account-type` (`account`,`type`),
   KEY `label` (`label`),
   KEY `label_name` (`label_name`),
-  KEY `type` (`type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+  KEY `type` (`type`),
+  CONSTRAINT `account_label_ibfk_1` FOREIGN KEY (`account`) REFERENCES `account` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `account_label_ibfk_2` FOREIGN KEY (`label`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `company` (
+
+
+# Dump of table company
+# ------------------------------------------------------------
+
+CREATE TABLE `company` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `type` varchar(255) NOT NULL,
@@ -61,26 +100,42 @@ CREATE TABLE IF NOT EXISTS `company` (
   `sysname` varchar(255) NOT NULL,
   `ucenter` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='公司列表（系统表）' AUTO_INCREMENT=4 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='公司列表（系统表）';
 
-CREATE TABLE IF NOT EXISTS `company_config` (
+
+
+# Dump of table company_config
+# ------------------------------------------------------------
+
+CREATE TABLE `company_config` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `company` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
   `value` text NOT NULL,
   PRIMARY KEY (`id`),
   KEY `company` (`company`),
-  KEY `name` (`name`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=20 ;
+  KEY `name` (`name`),
+  CONSTRAINT `company_config_ibfk_1` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `course` (
+
+
+# Dump of table course
+# ------------------------------------------------------------
+
+CREATE TABLE `course` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL DEFAULT '',
   `chart_color` char(6) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='课程' AUTO_INCREMENT=16 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='课程';
 
-CREATE TABLE IF NOT EXISTS `dialog` (
+
+
+# Dump of table dialog
+# ------------------------------------------------------------
+
+CREATE TABLE `dialog` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `last_message` int(11) DEFAULT NULL,
   `company` int(11) NOT NULL,
@@ -92,19 +147,34 @@ CREATE TABLE IF NOT EXISTS `dialog` (
   KEY `uid` (`uid`),
   KEY `time` (`time`),
   KEY `company` (`company`),
-  KEY `users` (`users`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=295 ;
+  KEY `users` (`users`),
+  CONSTRAINT `dialog_ibfk_4` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `dialog_ibfk_5` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `dialog_ibfk_6` FOREIGN KEY (`last_message`) REFERENCES `message` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `dialog_message` (
+
+
+# Dump of table dialog_message
+# ------------------------------------------------------------
+
+CREATE TABLE `dialog_message` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `dialog` int(11) NOT NULL,
   `message` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `dialog` (`dialog`),
-  KEY `message` (`message`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=440 ;
+  KEY `message` (`message`),
+  CONSTRAINT `dialog_message_ibfk_1` FOREIGN KEY (`dialog`) REFERENCES `dialog` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `dialog_message_ibfk_2` FOREIGN KEY (`message`) REFERENCES `message` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `dialog_user` (
+
+
+# Dump of table dialog_user
+# ------------------------------------------------------------
+
+CREATE TABLE `dialog_user` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `dialog` int(11) NOT NULL,
   `user` int(11) NOT NULL,
@@ -113,12 +183,20 @@ CREATE TABLE IF NOT EXISTS `dialog_user` (
   `hidden` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `dialog` (`dialog`),
-  KEY `user` (`user`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=555 ;
+  KEY `user` (`user`),
+  CONSTRAINT `dialog_user_ibfk_1` FOREIGN KEY (`dialog`) REFERENCES `dialog` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `dialog_user_ibfk_2` FOREIGN KEY (`user`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `document` (
+
+
+# Dump of table document
+# ------------------------------------------------------------
+
+CREATE TABLE `document` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
+  `type` varchar(255) DEFAULT 'document',
   `filename` varchar(255) NOT NULL,
   `extname` char(8) NOT NULL,
   `size` int(11) NOT NULL DEFAULT '0',
@@ -133,10 +211,17 @@ CREATE TABLE IF NOT EXISTS `document` (
   KEY `uid` (`uid`),
   KEY `time` (`time`),
   KEY `company` (`company`),
-  KEY `time_insert` (`time_insert`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='项目下文件' AUTO_INCREMENT=2347 ;
+  KEY `time_insert` (`time_insert`),
+  CONSTRAINT `document_ibfk_2` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `document_ibfk_3` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='项目下文件';
 
-CREATE TABLE IF NOT EXISTS `document_label` (
+
+
+# Dump of table document_label
+# ------------------------------------------------------------
+
+CREATE TABLE `document_label` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `document` int(11) NOT NULL,
   `label` int(11) NOT NULL,
@@ -147,19 +232,34 @@ CREATE TABLE IF NOT EXISTS `document_label` (
   UNIQUE KEY `document-type` (`document`,`type`),
   KEY `label` (`label`),
   KEY `type` (`type`),
-  KEY `label_name` (`label_name`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=4620 ;
+  KEY `label_name` (`label_name`),
+  CONSTRAINT `document_label_ibfk_2` FOREIGN KEY (`label`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `document_label_ibfk_3` FOREIGN KEY (`document`) REFERENCES `document` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `document_mod` (
-  `id` int(11) DEFAULT NULL,
+
+
+# Dump of table document_mod
+# ------------------------------------------------------------
+
+CREATE TABLE `document_mod` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `document` int(11) NOT NULL,
   `people` int(11) DEFAULT NULL,
   `mod` tinyint(4) NOT NULL COMMENT '1:read 2:write',
-  KEY `document` (`document`),
-  KEY `people` (`people`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `document-people` (`document`,`people`),
+  KEY `people` (`people`),
+  CONSTRAINT `document_mod_ibfk_2` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `document_mod_ibfk_3` FOREIGN KEY (`document`) REFERENCES `document` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `evaluation_indicator` (
+
+
+# Dump of table evaluation_indicator
+# ------------------------------------------------------------
+
+CREATE TABLE `evaluation_indicator` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `project` int(11) NOT NULL,
   `indicator` int(11) NOT NULL,
@@ -168,18 +268,31 @@ CREATE TABLE IF NOT EXISTS `evaluation_indicator` (
   `weight` decimal(10,1) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `project` (`project`,`indicator`),
-  KEY `indicator` (`indicator`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+  KEY `indicator` (`indicator`),
+  CONSTRAINT `evaluation_indicator_ibfk_1` FOREIGN KEY (`project`) REFERENCES `project` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `evaluation_indicator_ibfk_2` FOREIGN KEY (`indicator`) REFERENCES `indicator` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `evaluation_model` (
+
+
+# Dump of table evaluation_model
+# ------------------------------------------------------------
+
+CREATE TABLE `evaluation_model` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `company` int(11) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `company` (`company`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
+  KEY `company` (`company`),
+  CONSTRAINT `evaluation_model_ibfk_1` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `evaluation_model_indicator` (
+
+
+# Dump of table evaluation_model_indicator
+# ------------------------------------------------------------
+
+CREATE TABLE `evaluation_model_indicator` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `model` int(11) NOT NULL,
   `indicator` int(11) NOT NULL,
@@ -191,10 +304,17 @@ CREATE TABLE IF NOT EXISTS `evaluation_model_indicator` (
   KEY `model` (`model`),
   KEY `indicator` (`indicator`),
   KEY `cadidates_team` (`candidates`),
-  KEY `judges_team` (`judges`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=4 ;
+  KEY `judges_team` (`judges`),
+  CONSTRAINT `evaluation_model_indicator_ibfk_1` FOREIGN KEY (`model`) REFERENCES `evaluation_model` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  CONSTRAINT `evaluation_model_indicator_ibfk_2` FOREIGN KEY (`indicator`) REFERENCES `indicator` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `express` (
+
+
+# Dump of table express
+# ------------------------------------------------------------
+
+CREATE TABLE `express` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `sender` int(11) DEFAULT NULL,
   `num` varchar(255) NOT NULL DEFAULT '',
@@ -213,25 +333,46 @@ CREATE TABLE IF NOT EXISTS `express` (
   KEY `uid` (`uid`),
   KEY `company` (`company`),
   KEY `time` (`time`),
-  KEY `sender` (`sender`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='快递（主表）' AUTO_INCREMENT=868 ;
+  KEY `sender` (`sender`),
+  CONSTRAINT `express_ibfk_1` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `express_ibfk_2` FOREIGN KEY (`sender`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `express_ibfk_4` FOREIGN KEY (`sender`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='快递（主表）';
 
-CREATE TABLE IF NOT EXISTS `holidays` (
+
+
+# Dump of table holidays
+# ------------------------------------------------------------
+
+CREATE TABLE `holidays` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
   `date` date NOT NULL,
   `is_overtime` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0为假日（覆盖正常工作日），1为加班（覆盖集体假期）',
   `staff` int(11) DEFAULT NULL COMMENT 'NULL为全体行为，否则为单名员工行为',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=10 ;
+  PRIMARY KEY (`id`),
+  KEY `staff` (`staff`),
+  CONSTRAINT `holidays_ibfk_1` FOREIGN KEY (`staff`) REFERENCES `staff` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `idcard_region` (
+
+
+# Dump of table idcard_region
+# ------------------------------------------------------------
+
+CREATE TABLE `idcard_region` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `num` int(6) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='身份证地域区段（资源表）' AUTO_INCREMENT=3466 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='身份证地域区段（资源表）';
 
-CREATE TABLE IF NOT EXISTS `indicator` (
+
+
+# Dump of table indicator
+# ------------------------------------------------------------
+
+CREATE TABLE `indicator` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL DEFAULT '',
   `question` text,
@@ -239,18 +380,20 @@ CREATE TABLE IF NOT EXISTS `indicator` (
   `weight` decimal(5,1) DEFAULT NULL,
   `candidates` varchar(255) DEFAULT NULL,
   `judges` varchar(255) DEFAULT NULL,
-  `position` int(11) DEFAULT NULL COMMENT '被评价人职位',
-  `critic` int(11) DEFAULT NULL COMMENT '评价人职位',
   `company` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `company` (`company`),
-  KEY `critic` (`critic`),
-  KEY `position` (`position`),
   KEY `candidates` (`candidates`),
-  KEY `judges` (`judges`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='考核指标' AUTO_INCREMENT=648 ;
+  KEY `judges` (`judges`),
+  CONSTRAINT `indicator_ibfk_3` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='考核指标';
 
-CREATE TABLE IF NOT EXISTS `label` (
+
+
+# Dump of table label
+# ------------------------------------------------------------
+
+CREATE TABLE `label` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `type` varchar(255) DEFAULT NULL,
@@ -260,9 +403,14 @@ CREATE TABLE IF NOT EXISTS `label` (
   UNIQUE KEY `name` (`name`),
   KEY `order` (`order`),
   KEY `type` (`type`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=215 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `label_relationship` (
+
+
+# Dump of table label_relationship
+# ------------------------------------------------------------
+
+CREATE TABLE `label_relationship` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `label` int(11) NOT NULL,
   `relative` int(11) NOT NULL,
@@ -270,10 +418,17 @@ CREATE TABLE IF NOT EXISTS `label_relationship` (
   PRIMARY KEY (`id`),
   KEY `label` (`label`),
   KEY `relative` (`relative`),
-  KEY `relation` (`relation`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=12 ;
+  KEY `relation` (`relation`),
+  CONSTRAINT `label_relationship_ibfk_1` FOREIGN KEY (`label`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `label_relationship_ibfk_2` FOREIGN KEY (`relative`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `log` (
+
+
+# Dump of table log
+# ------------------------------------------------------------
+
+CREATE TABLE `log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `uri` varchar(255) NOT NULL,
   `host` varchar(255) NOT NULL,
@@ -286,28 +441,46 @@ CREATE TABLE IF NOT EXISTS `log` (
   `username` varchar(255) DEFAULT NULL,
   `time` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='系统请求日志（记录表）' AUTO_INCREMENT=198801 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='系统请求日志（记录表）';
 
-CREATE TABLE IF NOT EXISTS `message` (
+
+
+# Dump of table message
+# ------------------------------------------------------------
+
+CREATE TABLE `message` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `content` text,
   `uid` int(11) DEFAULT NULL,
   `time` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `uid` (`uid`),
-  KEY `time` (`time`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='公告（主表）' AUTO_INCREMENT=474 ;
+  KEY `time` (`time`),
+  CONSTRAINT `message_ibfk_1` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='公告（主表）';
 
-CREATE TABLE IF NOT EXISTS `message_document` (
+
+
+# Dump of table message_document
+# ------------------------------------------------------------
+
+CREATE TABLE `message_document` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `message` int(11) NOT NULL,
   `document` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `message` (`message`),
-  KEY `document` (`document`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=12 ;
+  KEY `document` (`document`),
+  CONSTRAINT `message_document_ibfk_1` FOREIGN KEY (`message`) REFERENCES `message` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `message_document_ibfk_2` FOREIGN KEY (`document`) REFERENCES `document` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `message_user` (
+
+
+# Dump of table message_user
+# ------------------------------------------------------------
+
+CREATE TABLE `message_user` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `message` int(11) NOT NULL,
   `user` int(11) NOT NULL,
@@ -315,16 +488,35 @@ CREATE TABLE IF NOT EXISTS `message_user` (
   `deleted` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `user` (`user`),
-  KEY `message` (`message`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=903 ;
+  KEY `message` (`message`),
+  CONSTRAINT `message_user_ibfk_1` FOREIGN KEY (`message`) REFERENCES `message` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `message_user_ibfk_2` FOREIGN KEY (`user`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `nav` (
+
+
+# Dump of table migrations
+# ------------------------------------------------------------
+
+CREATE TABLE `migrations` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `migration` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `batch` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+
+# Dump of table nav
+# ------------------------------------------------------------
+
+CREATE TABLE `nav` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `href` varchar(255) NOT NULL,
   `add_href` varchar(255) DEFAULT NULL,
   `parent` int(11) DEFAULT NULL,
-  `order` int(11) NOT NULL,
+  `order` int(11) NOT NULL DEFAULT '0',
   `team` int(11) DEFAULT NULL COMMENT 'href相同的条目，team.id大的将覆盖小的和NULL',
   `company` int(11) DEFAULT NULL COMMENT 'href相同的条目，具体值将覆盖NULL',
   `company_type` varchar(255) DEFAULT NULL COMMENT 'href相同的条目，具体值将覆盖NULL',
@@ -334,36 +526,126 @@ CREATE TABLE IF NOT EXISTS `nav` (
   KEY `company` (`company`),
   KEY `href` (`href`),
   KEY `company_type` (`company_type`),
-  KEY `order` (`order`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=66 ;
+  KEY `order` (`order`),
+  CONSTRAINT `nav_ibfk_2` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `nav_ibfk_3` FOREIGN KEY (`parent`) REFERENCES `nav` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `nav_ibfk_4` FOREIGN KEY (`team`) REFERENCES `team` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `people` (
+
+
+# Dump of table oauth_access_tokens
+# ------------------------------------------------------------
+
+CREATE TABLE `oauth_access_tokens` (
+  `id` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `client_id` int(11) NOT NULL,
+  `name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `scopes` text COLLATE utf8_unicode_ci,
+  `revoked` tinyint(1) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `expires_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `oauth_access_tokens_user_id_index` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+
+# Dump of table oauth_auth_codes
+# ------------------------------------------------------------
+
+CREATE TABLE `oauth_auth_codes` (
+  `id` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `client_id` int(11) NOT NULL,
+  `scopes` text COLLATE utf8_unicode_ci,
+  `revoked` tinyint(1) NOT NULL,
+  `expires_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+
+# Dump of table oauth_clients
+# ------------------------------------------------------------
+
+CREATE TABLE `oauth_clients` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL,
+  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `secret` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `redirect` text COLLATE utf8_unicode_ci NOT NULL,
+  `personal_access_client` tinyint(1) NOT NULL,
+  `password_client` tinyint(1) NOT NULL,
+  `revoked` tinyint(1) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `oauth_clients_user_id_index` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+
+# Dump of table oauth_personal_access_clients
+# ------------------------------------------------------------
+
+CREATE TABLE `oauth_personal_access_clients` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `client_id` int(11) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `oauth_personal_access_clients_client_id_index` (`client_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+
+# Dump of table oauth_refresh_tokens
+# ------------------------------------------------------------
+
+CREATE TABLE `oauth_refresh_tokens` (
+  `id` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `access_token_id` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `revoked` tinyint(1) NOT NULL,
+  `expires_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `oauth_refresh_tokens_access_token_id_index` (`access_token_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+
+# Dump of table people
+# ------------------------------------------------------------
+
+CREATE TABLE `people` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `character` enum('单位','个人') NOT NULL DEFAULT '个人',
   `name` varchar(255) DEFAULT NULL,
-  `name_en` varchar(255) NOT NULL DEFAULT '',
+  `name_en` varchar(255) DEFAULT NULL,
   `name_pinyin` varchar(255) DEFAULT NULL,
   `abbreviation` varchar(255) DEFAULT NULL,
-  `type` enum('people','team','staff','contact','client','student','classes','teacher_group','course_group') NOT NULL DEFAULT 'people',
+  `type` varchar(255) NOT NULL DEFAULT 'people',
   `num` varchar(255) DEFAULT NULL,
   `gender` enum('男','女') DEFAULT NULL,
   `phone` varchar(255) DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
   `id_card` char(18) DEFAULT NULL,
-  `work_for` varchar(255) NOT NULL DEFAULT '',
+  `work_for` varchar(255) DEFAULT '',
   `position` varchar(255) DEFAULT NULL,
   `birthday` date DEFAULT NULL,
-  `staff` int(11) DEFAULT NULL COMMENT '人员直接相关职员',
+  `staff` int(11) DEFAULT NULL,
   `display` tinyint(1) NOT NULL DEFAULT '0',
-  `city` varchar(255) NOT NULL DEFAULT '',
+  `city` varchar(255) DEFAULT NULL,
   `race` char(20) DEFAULT NULL,
-  `company` int(11) DEFAULT NULL,
+  `company` int(11) DEFAULT '1',
   `uid` int(11) DEFAULT NULL,
-  `username` varchar(255) DEFAULT NULL,
   `time_insert` int(11) DEFAULT NULL,
   `time` int(11) DEFAULT NULL,
   `comment` text,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `type-num-company` (`type`,`num`,`company`),
   KEY `name` (`name`),
   KEY `abbreviation` (`abbreviation`),
   KEY `staff` (`staff`),
@@ -372,10 +654,18 @@ CREATE TABLE IF NOT EXISTS `people` (
   KEY `time` (`time`),
   KEY `time_insert` (`time_insert`),
   KEY `name_pinyin` (`name_pinyin`),
-  KEY `num` (`num`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='客户（主表）' AUTO_INCREMENT=13544 ;
+  KEY `num` (`num`),
+  CONSTRAINT `people_ibfk_2` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `people_ibfk_3` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `people_ibfk_5` FOREIGN KEY (`staff`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='客户（主表）';
 
-CREATE TABLE IF NOT EXISTS `people_label` (
+
+
+# Dump of table people_label
+# ------------------------------------------------------------
+
+CREATE TABLE `people_label` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `people` int(11) NOT NULL,
   `label` int(11) NOT NULL,
@@ -386,10 +676,17 @@ CREATE TABLE IF NOT EXISTS `people_label` (
   UNIQUE KEY `people-type` (`people`,`type`),
   KEY `label` (`label`),
   KEY `type` (`type`),
-  KEY `label_name` (`label_name`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=20172 ;
+  KEY `label_name` (`label_name`),
+  CONSTRAINT `people_label_ibfk_2` FOREIGN KEY (`label`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `people_label_ibfk_3` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `people_profile` (
+
+
+# Dump of table people_profile
+# ------------------------------------------------------------
+
+CREATE TABLE `people_profile` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `people` int(11) NOT NULL DEFAULT '0',
   `name` varchar(255) NOT NULL DEFAULT '手机',
@@ -402,32 +699,47 @@ CREATE TABLE IF NOT EXISTS `people_profile` (
   KEY `uid` (`uid`),
   KEY `time` (`time`),
   KEY `name` (`name`),
-  KEY `people-name` (`people`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='客户联系方式' AUTO_INCREMENT=45200 ;
+  KEY `people-name` (`people`),
+  CONSTRAINT `people_profile_ibfk_3` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `people_profile_ibfk_4` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='客户联系方式';
 
-CREATE TABLE IF NOT EXISTS `people_relationship` (
+
+
+# Dump of table people_relationship
+# ------------------------------------------------------------
+
+CREATE TABLE `people_relationship` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `people` int(11) DEFAULT NULL,
   `relative` int(11) DEFAULT NULL,
   `relation` varchar(255) DEFAULT NULL,
-  `relation_type` varchar(255) DEFAULT NULL,
+  `is_on` tinyint(1) DEFAULT '1',
   `till` date DEFAULT NULL,
   `num` int(11) DEFAULT NULL,
-  `is_default_contact` tinyint(1) DEFAULT NULL,
-  `uid` int(11) DEFAULT NULL,
-  `time` int(11) NOT NULL DEFAULT '0',
+  `accepted` tinyint(1) DEFAULT NULL,
+  `uid` int(11) NOT NULL,
+  `time` int(11) NOT NULL,
+  `comment` text,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `people-relative-relation-is_on` (`people`,`relative`,`relation`,`is_on`),
   KEY `uid` (`uid`),
   KEY `time` (`time`),
   KEY `relative` (`relative`),
   KEY `relation` (`relation`),
-  KEY `relation_type` (`relation_type`),
   KEY `num` (`num`),
   KEY `till` (`till`),
-  KEY `people` (`people`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='人员关系' AUTO_INCREMENT=17566 ;
+  CONSTRAINT `people_relationship_ibfk_1` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `people_relationship_ibfk_3` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `people_relationship_ibfk_4` FOREIGN KEY (`relative`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='人员关系';
 
-CREATE TABLE IF NOT EXISTS `people_status` (
+
+
+# Dump of table people_status
+# ------------------------------------------------------------
+
+CREATE TABLE `people_status` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `people` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
@@ -443,35 +755,33 @@ CREATE TABLE IF NOT EXISTS `people_status` (
   KEY `date` (`date`),
   KEY `uid` (`uid`),
   KEY `time` (`time`),
-  KEY `team` (`team`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+  KEY `team` (`team`),
+  CONSTRAINT `people_status_ibfk_3` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `people_status_ibfk_4` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `people_status_ibfk_5` FOREIGN KEY (`team`) REFERENCES `team` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `position` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL DEFAULT '',
-  `ui_name` varchar(255) NOT NULL DEFAULT '',
-  `company` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `company` (`company`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='员工职位' AUTO_INCREMENT=10 ;
 
-CREATE TABLE IF NOT EXISTS `project` (
+
+# Dump of table project
+# ------------------------------------------------------------
+
+CREATE TABLE `project` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
-  `type` enum('project','evaluation','cases','query') NOT NULL DEFAULT 'project',
+  `type` varchar(255) NOT NULL DEFAULT 'project',
   `team` int(11) DEFAULT NULL,
   `num` char(20) DEFAULT NULL,
   `active` tinyint(1) NOT NULL DEFAULT '0',
   `first_contact` date DEFAULT NULL,
   `time_contract` date DEFAULT NULL,
   `end` date DEFAULT NULL,
-  `quote` varchar(255) NOT NULL DEFAULT '' COMMENT '报价',
+  `quote` varchar(255) DEFAULT NULL COMMENT '报价',
   `display` tinyint(1) NOT NULL DEFAULT '0',
   `focus` text,
   `summary` text,
-  `company` int(11) DEFAULT NULL,
+  `company` int(11) NOT NULL,
   `uid` int(11) DEFAULT NULL,
-  `username` varchar(255) NOT NULL DEFAULT '',
   `time_insert` int(11) NOT NULL,
   `time` int(11) NOT NULL DEFAULT '0',
   `comment` text,
@@ -485,24 +795,39 @@ CREATE TABLE IF NOT EXISTS `project` (
   KEY `time` (`time`),
   KEY `company` (`company`),
   KEY `time_insert` (`time_insert`),
-  KEY `team` (`team`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='项目（主表）' AUTO_INCREMENT=2672 ;
+  KEY `team` (`team`),
+  CONSTRAINT `project_ibfk_2` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `project_ibfk_3` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `project_ibfk_4` FOREIGN KEY (`team`) REFERENCES `team` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='项目（主表）';
 
-CREATE TABLE IF NOT EXISTS `project_document` (
+
+
+# Dump of table project_document
+# ------------------------------------------------------------
+
+CREATE TABLE `project_document` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `project` int(11) DEFAULT NULL,
   `document` int(11) NOT NULL,
   `uid` int(11) NOT NULL,
-  `username` varchar(255) DEFAULT NULL,
   `time` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `case` (`project`),
   KEY `document` (`document`),
   KEY `uid` (`uid`),
-  KEY `time` (`time`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2492 ;
+  KEY `time` (`time`),
+  CONSTRAINT `project_document_ibfk_2` FOREIGN KEY (`document`) REFERENCES `document` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `project_document_ibfk_3` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `project_document_ibfk_4` FOREIGN KEY (`project`) REFERENCES `project` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `project_label` (
+
+
+# Dump of table project_label
+# ------------------------------------------------------------
+
+CREATE TABLE `project_label` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `project` int(11) DEFAULT NULL,
   `label` int(11) NOT NULL,
@@ -513,10 +838,17 @@ CREATE TABLE IF NOT EXISTS `project_label` (
   UNIQUE KEY `project-type` (`project`,`type`),
   KEY `label` (`label`),
   KEY `label_name` (`label_name`),
-  KEY `type` (`type`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=19315 ;
+  KEY `type` (`type`),
+  CONSTRAINT `project_label_ibfk_2` FOREIGN KEY (`label`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `project_label_ibfk_4` FOREIGN KEY (`project`) REFERENCES `project` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `project_people` (
+
+
+# Dump of table project_people
+# ------------------------------------------------------------
+
+CREATE TABLE `project_people` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `project` int(11) DEFAULT NULL,
   `people` int(11) NOT NULL DEFAULT '0',
@@ -527,16 +859,25 @@ CREATE TABLE IF NOT EXISTS `project_people` (
   `contribute` decimal(5,5) NOT NULL DEFAULT '0.00000',
   `uid` int(11) DEFAULT NULL,
   `time` int(11) NOT NULL DEFAULT '0',
+  `comment` text,
   PRIMARY KEY (`id`),
   UNIQUE KEY `case` (`project`,`people`,`role`),
   KEY `uid` (`uid`),
   KEY `time` (`time`),
   KEY `people` (`people`),
   KEY `role` (`role`),
-  KEY `weight` (`weight`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='项目人员关系' AUTO_INCREMENT=47964 ;
+  KEY `weight` (`weight`),
+  CONSTRAINT `project_people_ibfk_2` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `project_people_ibfk_4` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `project_people_ibfk_6` FOREIGN KEY (`project`) REFERENCES `project` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='项目人员关系';
 
-CREATE TABLE IF NOT EXISTS `project_profile` (
+
+
+# Dump of table project_profile
+# ------------------------------------------------------------
+
+CREATE TABLE `project_profile` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `project` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
@@ -545,24 +886,38 @@ CREATE TABLE IF NOT EXISTS `project_profile` (
   `uid` int(11) DEFAULT NULL,
   `time` int(11) NOT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `project-name` (`project`,`name`),
   KEY `time` (`time`),
   KEY `uid` (`uid`),
   KEY `name` (`name`),
-  KEY `project` (`project`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=175 ;
+  CONSTRAINT `project_profile_ibfk_2` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `project_profile_ibfk_3` FOREIGN KEY (`project`) REFERENCES `project` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `project_relationship` (
+
+
+# Dump of table project_relationship
+# ------------------------------------------------------------
+
+CREATE TABLE `project_relationship` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `project` int(11) NOT NULL,
   `relative` int(11) NOT NULL,
   `relation` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `project-relative-relation` (`project`),
+  UNIQUE KEY `project-relative-relation` (`project`,`relative`,`relation`),
   KEY `relative` (`relative`),
-  KEY `relation` (`relation`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=14 ;
+  KEY `relation` (`relation`),
+  CONSTRAINT `project_relationship_ibfk_1` FOREIGN KEY (`project`) REFERENCES `project` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `project_relationship_ibfk_2` FOREIGN KEY (`relative`) REFERENCES `project` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `project_status` (
+
+
+# Dump of table project_status
+# ------------------------------------------------------------
+
+CREATE TABLE `project_status` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `project` int(11) NOT NULL,
   `status` varchar(255) NOT NULL,
@@ -574,10 +929,17 @@ CREATE TABLE IF NOT EXISTS `project_status` (
   KEY `date` (`date`),
   KEY `uid` (`uid`),
   KEY `time` (`time`),
-  KEY `project` (`project`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+  KEY `project` (`project`),
+  CONSTRAINT `project_status_ibfk_1` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `project_status_ibfk_2` FOREIGN KEY (`project`) REFERENCES `project` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `schedule` (
+
+
+# Dump of table schedule
+# ------------------------------------------------------------
+
+CREATE TABLE `schedule` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
   `content` text,
@@ -596,7 +958,6 @@ CREATE TABLE IF NOT EXISTS `schedule` (
   `display` tinyint(1) NOT NULL DEFAULT '0',
   `company` int(11) DEFAULT NULL,
   `uid` int(11) DEFAULT NULL,
-  `username` varchar(255) DEFAULT NULL,
   `time_insert` int(11) NOT NULL,
   `time` int(11) DEFAULT NULL,
   `comment` text,
@@ -613,10 +974,19 @@ CREATE TABLE IF NOT EXISTS `schedule` (
   KEY `people` (`people`),
   KEY `document` (`document`),
   KEY `time_insert` (`time_insert`),
-  KEY `deadline` (`deadline`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='日程（主表）' AUTO_INCREMENT=21205 ;
+  KEY `deadline` (`deadline`),
+  CONSTRAINT `schedule_ibfk_2` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `schedule_ibfk_3` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `schedule_ibfk_4` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `schedule_ibfk_5` FOREIGN KEY (`project`) REFERENCES `project` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='日程（主表）';
 
-CREATE TABLE IF NOT EXISTS `schedule_label` (
+
+
+# Dump of table schedule_label
+# ------------------------------------------------------------
+
+CREATE TABLE `schedule_label` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `schedule` int(11) NOT NULL,
   `label` int(11) NOT NULL,
@@ -627,20 +997,37 @@ CREATE TABLE IF NOT EXISTS `schedule_label` (
   UNIQUE KEY `schedule-type` (`schedule`,`type`),
   KEY `label` (`label`),
   KEY `type` (`type`),
-  KEY `label_name` (`label_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+  KEY `label_name` (`label_name`),
+  CONSTRAINT `schedule_label_ibfk_2` FOREIGN KEY (`label`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `schedule_label_ibfk_4` FOREIGN KEY (`schedule`) REFERENCES `schedule` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `schedule_people` (
+
+
+# Dump of table schedule_people
+# ------------------------------------------------------------
+
+CREATE TABLE `schedule_people` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `schedule` int(11) NOT NULL,
   `people` int(11) NOT NULL,
+  `enrolled` tinyint(1) NOT NULL,
+  `in_todo_list` tinyint(1) NOT NULL,
+  `deleted` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `schedule-people` (`schedule`,`people`),
   KEY `schedule` (`schedule`),
-  KEY `people` (`people`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=265 ;
+  KEY `people` (`people`),
+  CONSTRAINT `schedule_people_ibfk_1` FOREIGN KEY (`schedule`) REFERENCES `schedule` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `schedule_people_ibfk_2` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `schedule_profile` (
+
+
+# Dump of table schedule_profile
+# ------------------------------------------------------------
+
+CREATE TABLE `schedule_profile` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `schedule` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
@@ -652,29 +1039,48 @@ CREATE TABLE IF NOT EXISTS `schedule_profile` (
   KEY `schedule` (`schedule`),
   KEY `name` (`name`),
   KEY `uid` (`uid`),
-  KEY `time` (`time`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1485 ;
+  KEY `time` (`time`),
+  CONSTRAINT `schedule_profile_ibfk_2` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `schedule_profile_ibfk_3` FOREIGN KEY (`schedule`) REFERENCES `schedule` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `schedule_taskboard` (
+
+
+# Dump of table schedule_taskboard
+# ------------------------------------------------------------
+
+CREATE TABLE `schedule_taskboard` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `uid` int(11) DEFAULT NULL,
   `sort_data` text,
   `time` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `uid` (`uid`),
-  KEY `time` (`time`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=382 ;
+  KEY `time` (`time`),
+  CONSTRAINT `schedule_taskboard_ibfk_1` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `school_room` (
+
+
+# Dump of table school_room
+# ------------------------------------------------------------
+
+CREATE TABLE `school_room` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL DEFAULT '',
   `capacity` int(11) NOT NULL DEFAULT '0',
   `team` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `team` (`team`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='考场' AUTO_INCREMENT=34 ;
+  KEY `team` (`team`),
+  CONSTRAINT `school_room_ibfk_1` FOREIGN KEY (`team`) REFERENCES `team` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='考场';
 
-CREATE TABLE IF NOT EXISTS `school_view_score` (
+
+
+# Dump of table school_view_score
+# ------------------------------------------------------------
+
+CREATE TABLE `school_view_score` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `student` int(11) NOT NULL,
   `extra_course` int(11) DEFAULT NULL,
@@ -712,10 +1118,16 @@ CREATE TABLE IF NOT EXISTS `school_view_score` (
   KEY `student` (`student`),
   KEY `exam` (`exam`),
   KEY `time` (`time`),
-  KEY `extra_course` (`extra_course`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='分数汇总' AUTO_INCREMENT=13231 ;
+  KEY `extra_course` (`extra_course`),
+  CONSTRAINT `school_view_score_ibfk_1` FOREIGN KEY (`exam`) REFERENCES `project` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='分数汇总';
 
-CREATE TABLE IF NOT EXISTS `score` (
+
+
+# Dump of table score
+# ------------------------------------------------------------
+
+CREATE TABLE `score` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `people` int(11) NOT NULL,
   `project` int(11) DEFAULT NULL,
@@ -730,12 +1142,35 @@ CREATE TABLE IF NOT EXISTS `score` (
   KEY `scorer` (`uid`),
   KEY `time` (`time`),
   KEY `indicator` (`indicator`),
-  KEY `project` (`project`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='阅卷分数' AUTO_INCREMENT=95017 ;
+  KEY `project` (`project`),
+  CONSTRAINT `score_ibfk_1` FOREIGN KEY (`indicator`) REFERENCES `indicator` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `score_ibfk_2` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `score_ibfk_3` FOREIGN KEY (`project`) REFERENCES `project` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `score_ibfk_4` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='阅卷分数';
 
-CREATE TABLE IF NOT EXISTS `staff` (
+
+
+# Dump of table sessions
+# ------------------------------------------------------------
+
+CREATE TABLE `sessions` (
+  `session_id` varchar(40) NOT NULL DEFAULT '0',
+  `ip_address` varchar(45) NOT NULL DEFAULT '0',
+  `user_agent` varchar(120) NOT NULL,
+  `last_activity` int(10) unsigned NOT NULL DEFAULT '0',
+  `user_data` longtext NOT NULL,
+  PRIMARY KEY (`session_id`),
+  KEY `last_activity_idx` (`last_activity`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table staff
+# ------------------------------------------------------------
+
+CREATE TABLE `staff` (
   `id` int(11) NOT NULL DEFAULT '0',
-  `position` int(11) DEFAULT NULL,
   `title` varchar(255) DEFAULT NULL COMMENT '职称',
   `modulus` decimal(3,2) NOT NULL DEFAULT '0.00' COMMENT '团奖系数',
   `course` int(11) DEFAULT NULL,
@@ -743,16 +1178,23 @@ CREATE TABLE IF NOT EXISTS `staff` (
   PRIMARY KEY (`id`),
   KEY `course` (`course`),
   KEY `id` (`id`),
-  KEY `position` (`position`)
+  CONSTRAINT `staff_ibfk_1` FOREIGN KEY (`id`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `staff_ibfk_2` FOREIGN KEY (`course`) REFERENCES `course` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='员工（主表）';
 
-CREATE TABLE IF NOT EXISTS `team` (
+
+
+# Dump of table team
+# ------------------------------------------------------------
+
+CREATE TABLE `team` (
   `id` int(11) NOT NULL,
   `name` varchar(255) DEFAULT NULL,
   `leader` int(11) DEFAULT NULL,
+  `open` tinyint(1) NOT NULL,
   `extra_course` int(11) DEFAULT NULL,
   `display` tinyint(1) NOT NULL DEFAULT '0',
-  `company` int(11) DEFAULT NULL,
+  `company` int(11) NOT NULL,
   `uid` int(11) DEFAULT NULL,
   `time_insert` int(11) DEFAULT NULL,
   `time` int(11) DEFAULT NULL,
@@ -762,175 +1204,90 @@ CREATE TABLE IF NOT EXISTS `team` (
   KEY `company` (`company`),
   KEY `uid` (`uid`),
   KEY `time` (`time`),
-  KEY `time_insert` (`time_insert`)
+  KEY `time_insert` (`time_insert`),
+  CONSTRAINT `team_ibfk_1` FOREIGN KEY (`leader`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `team_ibfk_2` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `team_ibfk_3` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `team_ibfk_4` FOREIGN KEY (`id`) REFERENCES `people` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='团队（主表）';
 
-CREATE TABLE IF NOT EXISTS `user` (
+
+
+# Dump of table user
+# ------------------------------------------------------------
+
+CREATE TABLE `user` (
   `id` int(11) NOT NULL,
   `name` varchar(255) DEFAULT NULL,
   `alias` varchar(255) DEFAULT NULL,
+  `email` varchar(255) NOT NULL,
   `password` varchar(255) DEFAULT NULL,
+  `remember_token` varchar(100) DEFAULT NULL,
   `group` varchar(255) NOT NULL DEFAULT '',
   `lastip` varchar(255) DEFAULT NULL,
   `lastlogin` int(11) DEFAULT NULL,
-  `company` int(11) DEFAULT NULL,
+  `company` int(11) DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`,`company`),
   KEY `company` (`company`),
-  KEY `password` (`password`)
+  KEY `password` (`password`),
+  CONSTRAINT `user_ibfk_1` FOREIGN KEY (`id`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `user_ibfk_2` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户';
 
-CREATE TABLE IF NOT EXISTS `user_config` (
+
+
+# Dump of table user_config
+# ------------------------------------------------------------
+
+CREATE TABLE `user_config` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
-  `value` text NOT NULL,
+  `value` mediumtext NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `user-name` (`user`,`name`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
+  KEY `user-name` (`user`,`name`),
+  CONSTRAINT `user_config_ibfk_1` FOREIGN KEY (`user`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
-ALTER TABLE `account`
-  ADD CONSTRAINT `account_ibfk_10` FOREIGN KEY (`project`) REFERENCES `project` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `account_ibfk_12` FOREIGN KEY (`account`) REFERENCES `account` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `account_ibfk_13` FOREIGN KEY (`team`) REFERENCES `team` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `account_ibfk_3` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `account_ibfk_4` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `account_ibfk_9` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
-ALTER TABLE `account_label`
-  ADD CONSTRAINT `account_label_ibfk_1` FOREIGN KEY (`account`) REFERENCES `account` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `account_label_ibfk_2` FOREIGN KEY (`label`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
-ALTER TABLE `company_config`
-  ADD CONSTRAINT `company_config_ibfk_1` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 
-ALTER TABLE `dialog`
-  ADD CONSTRAINT `dialog_ibfk_4` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `dialog_ibfk_5` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+INSERT INTO `company` (`id`, `name`, `type`, `host`, `syscode`, `sysname`, `ucenter`)
+VALUES
+	(1, 'Law Firm', 'lawfirm', 'localhost:8080', 'starsys', 'SYSTAR', 0);
 
-ALTER TABLE `dialog_message`
-  ADD CONSTRAINT `dialog_message_ibfk_1` FOREIGN KEY (`dialog`) REFERENCES `dialog` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `dialog_message_ibfk_2` FOREIGN KEY (`message`) REFERENCES `message` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
-ALTER TABLE `dialog_user`
-  ADD CONSTRAINT `dialog_user_ibfk_1` FOREIGN KEY (`dialog`) REFERENCES `dialog` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `dialog_user_ibfk_2` FOREIGN KEY (`user`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+INSERT INTO `company_config` (`id`, `company`, `name`, `value`)
+VALUES
+	(1, 1, 'default_page', 'schedule');
 
-ALTER TABLE `document`
-  ADD CONSTRAINT `document_ibfk_2` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `document_ibfk_3` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+INSERT INTO `people` (`id`, `character`, `name`, `name_en`, `name_pinyin`, `abbreviation`, `type`, `num`, `gender`, `phone`, `email`, `id_card`, `work_for`, `position`, `birthday`, `staff`, `display`, `city`, `race`, `company`, `uid`, `time_insert`, `time`, `comment`)
+VALUES
+	(1, '个人', 'Root', 'root', 'root', 'root', 'people', NULL, NULL, NULL, NULL, NULL, '', NULL, NULL, NULL, 1, NULL, NULL, 1, NULL, NULL, NULL, NULL);
 
-ALTER TABLE `document_label`
-  ADD CONSTRAINT `document_label_ibfk_2` FOREIGN KEY (`label`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `document_label_ibfk_3` FOREIGN KEY (`document`) REFERENCES `document` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
-ALTER TABLE `document_mod`
-  ADD CONSTRAINT `document_mod_ibfk_3` FOREIGN KEY (`document`) REFERENCES `document` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `document_mod_ibfk_2` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+INSERT INTO `user` (`id`, `name`, `alias`, `email`, `password`, `remember_token`, `group`, `lastip`, `lastlogin`, `company`)
+VALUES
+	(1, 'root', NULL, '', 'root', NULL, '', NULL, NULL, 1);
 
-ALTER TABLE `evaluation_indicator`
-  ADD CONSTRAINT `evaluation_indicator_ibfk_1` FOREIGN KEY (`project`) REFERENCES `project` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `evaluation_indicator_ibfk_2` FOREIGN KEY (`indicator`) REFERENCES `indicator` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+INSERT INTO `nav` (`id`, `name`, `href`, `add_href`, `parent`, `order`, `team`, `company`, `company_type`)
+VALUES
+	(1, '日程', '#schedule', 'javascript:$.createSchedule({selection:this});', NULL, 5, NULL, NULL, NULL),
+	(2, '案件', '#cases', '#cases/add', NULL, 10, NULL, NULL, 'lawfirm'),
+	(3, '咨询', '#query', '#query/add', NULL, 20, NULL, NULL, 'lawfirm'),
+	(4, '客户', '#client', '#client/add', NULL, 30, NULL, NULL, 'lawfirm'),
+	(6, '评价', '#evaluation', '#evaluation/add', NULL, 60, NULL, NULL, NULL),
+	(7, '通讯录', '#contact', '#contact/add', NULL, 50, NULL, NULL, 'lawfirm'),
+	(8, '文档', '#document', NULL, NULL, 10, NULL, 1, NULL),
+	(9, '事务', '#project', '#project/add', NULL, 5, NULL, NULL, NULL),
+	(10, '任务墙', '#schedule/taskboard', NULL, 1, 0, NULL, NULL, NULL),
+	(11, '列表', '#schedule/lists', NULL, 1, 10, NULL, NULL, NULL);
 
-ALTER TABLE `evaluation_model`
-  ADD CONSTRAINT `evaluation_model_ibfk_1` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
-ALTER TABLE `evaluation_model_indicator`
-  ADD CONSTRAINT `evaluation_model_indicator_ibfk_1` FOREIGN KEY (`model`) REFERENCES `evaluation_model` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
-  ADD CONSTRAINT `evaluation_model_indicator_ibfk_2` FOREIGN KEY (`indicator`) REFERENCES `indicator` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
-
-ALTER TABLE `express`
-  ADD CONSTRAINT `express_ibfk_1` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `express_ibfk_2` FOREIGN KEY (`sender`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `express_ibfk_3` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `express_ibfk_4` FOREIGN KEY (`sender`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `express_ibfk_5` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
-ALTER TABLE `indicator`
-  ADD CONSTRAINT `indicator_ibfk_3` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `indicator_ibfk_5` FOREIGN KEY (`critic`) REFERENCES `position` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
-ALTER TABLE `label_relationship`
-  ADD CONSTRAINT `label_relationship_ibfk_1` FOREIGN KEY (`label`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `label_relationship_ibfk_2` FOREIGN KEY (`relative`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
-ALTER TABLE `message`
-  ADD CONSTRAINT `message_ibfk_1` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
-ALTER TABLE `message_document`
-  ADD CONSTRAINT `message_document_ibfk_1` FOREIGN KEY (`message`) REFERENCES `message` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `message_document_ibfk_2` FOREIGN KEY (`document`) REFERENCES `document` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
-ALTER TABLE `message_user`
-  ADD CONSTRAINT `message_user_ibfk_1` FOREIGN KEY (`message`) REFERENCES `message` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `message_user_ibfk_2` FOREIGN KEY (`user`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
-ALTER TABLE `nav`
-  ADD CONSTRAINT `nav_ibfk_2` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `nav_ibfk_3` FOREIGN KEY (`parent`) REFERENCES `nav` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `nav_ibfk_4` FOREIGN KEY (`team`) REFERENCES `team` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
-ALTER TABLE `people`
-  ADD CONSTRAINT `people_ibfk_2` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `people_ibfk_3` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `people_ibfk_5` FOREIGN KEY (`staff`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
-ALTER TABLE `people_label`
-  ADD CONSTRAINT `people_label_ibfk_2` FOREIGN KEY (`label`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `people_label_ibfk_3` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
-ALTER TABLE `people_profile`
-  ADD CONSTRAINT `people_profile_ibfk_3` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `people_profile_ibfk_4` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
-ALTER TABLE `people_relationship`
-  ADD CONSTRAINT `people_relationship_ibfk_1` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `people_relationship_ibfk_3` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `people_relationship_ibfk_4` FOREIGN KEY (`relative`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
-ALTER TABLE `people_status`
-  ADD CONSTRAINT `people_status_ibfk_3` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `people_status_ibfk_4` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `people_status_ibfk_5` FOREIGN KEY (`team`) REFERENCES `team` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
-ALTER TABLE `project`
-  ADD CONSTRAINT `project_ibfk_2` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `project_ibfk_3` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `project_ibfk_4` FOREIGN KEY (`team`) REFERENCES `team` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
-ALTER TABLE `project_document`
-  ADD CONSTRAINT `project_document_ibfk_2` FOREIGN KEY (`document`) REFERENCES `document` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `project_document_ibfk_3` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `project_document_ibfk_4` FOREIGN KEY (`project`) REFERENCES `project` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
-ALTER TABLE `project_label`
-  ADD CONSTRAINT `project_label_ibfk_2` FOREIGN KEY (`label`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `project_label_ibfk_4` FOREIGN KEY (`project`) REFERENCES `project` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
-ALTER TABLE `project_people`
-  ADD CONSTRAINT `project_people_ibfk_2` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `project_people_ibfk_4` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `project_people_ibfk_5` FOREIGN KEY (`project`) REFERENCES `project` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
-ALTER TABLE `project_profile`
-  ADD CONSTRAINT `project_profile_ibfk_1` FOREIGN KEY (`project`) REFERENCES `project` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `project_profile_ibfk_2` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
-ALTER TABLE `project_relationship`
-  ADD CONSTRAINT `project_relationship_ibfk_1` FOREIGN KEY (`project`) REFERENCES `project` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `project_relationship_ibfk_2` FOREIGN KEY (`relative`) REFERENCES `project` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
-ALTER TABLE `project_status`
-  ADD CONSTRAINT `project_status_ibfk_1` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `project_status_ibfk_2` FOREIGN KEY (`project`) REFERENCES `project` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
-ALTER TABLE `schedule`
-  ADD CONSTRAINT `schedule_ibfk_2` FOREIGN KEY (`people`) REFERENCES `people` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `schedule_ibfk_3` FOREIGN KEY (`company`) REFERENCES `company` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `schedule_ibfk_4` FOREIGN KEY (`uid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `schedule_ibfk_5` FOREIGN KEY (`project`) REFERENCES `project` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
-ALTER TABLE `schedule_label`
-  ADD CONSTRAINT `schedule_label_ibfk_2` FOREIGN KEY (`label`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `schedule_label_ibfk_4` FOREIGN KEY (`schedule`) REFERENCES `schedule` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
