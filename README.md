@@ -43,5 +43,10 @@ MySQL >= 5.0
 ## 启动服务
 
 ### 使用Apache或NGINX等Web服务
+
 - 根目录绑定为`web/`
+- 所有非实际文件请求rewrite到index.php
+
 ### 使用php内置Web服务
+
+- `cd web/; php -S localhost:8080`
