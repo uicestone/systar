@@ -9,16 +9,16 @@
 		<tr><td><img src="http://sys.lawyerstars.com/images/mail/express/<?=$header_img?>" alt="<?=$title?>" width="763px"></td></tr>
 	</thead>
 	<tbody>
-<?$line_id=0?>
-<?foreach($articles as $article){ ?>
-<?	$line_id++?>
-<?	if($line_id>0){ ?>
+<?php $line_id=0; ?>
+<?php foreach($articles as $article){ ?>
+<?php $line_id++; ?>
+<?php if($line_id>0){ ?>
 		<tr>
 			<td style="padding:0;border:0;">
 				<img src="http://sys.lawyerstars.com/images/mail/express/delimiter.png" alt="_______________________________________________________" />
 			</td>
 		</tr>
-<?	}?>
+<?php } ?>
 		<tr>
 			<td style="border:0;padding:40px;<?php if($line_id % 2 == 0){ ?>float:right;<?php } ?>">
 				<h1 style="color:#0D0080;font:25px/1.5 Simhei;"><a href="http://www.lawyerstars.com/article-<?=$article['aid']?>-1.html"><?=$article['title']?></a></h1>

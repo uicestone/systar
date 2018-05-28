@@ -11,7 +11,7 @@
 	截止：<?=$this->value('schedule/deadline')?>
 <?php } ?>
 </div>
-<?foreach($profiles as $profile){ ?>
+<?php foreach($profiles as $profile){ ?>
 <div class="field profile" id="<?=$profile['id']?>" style="border-bottom: none;border-top:#999 1px solid;">
 	<?=$profile['name']?>：<?=$profile['content']?> (<?=$profile['author_name']?>)
 	<?php if($profile['author']==$this->user->id){ ?><button id="remove" class="hidden" style="position:absolute;">-</button><?php } ?>

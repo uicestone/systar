@@ -28,9 +28,9 @@
 <?php if($project['type']==='query'){ ?>
 		<input type="text" name="project[first_contact]" value="<?=$this->value('project/first_contact')?>" placeholder="首次接待日期" title="首次接待日期" class="date" />
 <?php }else{ ?>
-		<input type="text" name="project[time_contract]" value="<?=$this->value('project/time_contract')?>" placeholder="立案日期" title="立案日期" class="date" <? if(in_array('在办',$labels))echo 'disabled';?> />
+		<input type="text" name="project[time_contract]" value="<?=$this->value('project/time_contract')?>" placeholder="立案日期" title="立案日期" class="date" <?php if(in_array('在办',$labels))echo 'disabled';?> />
 		-
-		<input type="text" name="project[end]" value="<?=$this->value('project/end')?>" placeholder="预估结案日期" title="预估结案日期" class="date" <? if(in_array('在办',$labels))echo 'disabled';?> />
+		<input type="text" name="project[end]" value="<?=$this->value('project/end')?>" placeholder="预估结案日期" title="预估结案日期" class="date" <?php if(in_array('在办',$labels))echo 'disabled';?> />
 <?php } ?>
 		<span><?=$this->value('profiles/案源类型')?></span>
 		<span>案源系数：<?=round($this->value('profiles/案源系数')*100,2)?>%</span>
@@ -38,12 +38,12 @@
 
 	<div class="item" name="client">
 		<div class="title"><label>客户及相关人：</label>
-<? if(isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') && !in_array('客户已锁定',$labels)){ ?>
+<?php if(isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') && !in_array('客户已锁定',$labels)){ ?>
 			<button type="submit" name="submit[lock_client]">锁定</button>
-<? }?>
-<? if(isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') && in_array('客户已锁定',$labels)){ ?>
+<?php }?>
+<?php if(isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') && in_array('客户已锁定',$labels)){ ?>
 			<button type="submit" name="submit[unlock_client]">解锁</button>
-<? } ?>
+<?php } ?>
 		</div>
 
 		<?=$client_list?>
@@ -60,28 +60,28 @@
 		</span>
 	 </div>
 
-<? if(in_array('争议',$labels)){ ?>
+<?php if(in_array('争议',$labels)){ ?>
 	<div class="item">
 		<div class="title"><label>争议焦点：</label></div>
 		<input name="project[focus]" type="text" value="<?=$this->value('project/focus')?>" style="width:99%;font-size:1.2em;" />
 	</div>
-<? }?>
+<?php }?>
 
-<? if(in_array('非争议',$labels)){ ?>
+<?php if(in_array('非争议',$labels)){ ?>
 	<div class="item">
 		<div class="title"><label>案件标的：</label></div>
 		<input name="project[focus]" type="text" value="<?=$this->value('project/focus')?>" style="width:99%;font-size:1.2em;" />
 	</div>
-<? }?>
+<?php }?>
 	
 	<div class="item" name="staff"<?php if(in_array('职员已锁定',$labels)){ ?> locked="locked"<?php } ?>>
 		<div class="title"><label>律师：</label>
 <?php if(isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') && !in_array('职员已锁定',$labels)){ ?>
 			<button type="submit" name="submit[lock_staff]">锁定</button>
-<? }?>
-<? if(isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') && in_array('职员已锁定',$labels)){ ?>
+<?php }?>
+<?php if(isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') && in_array('职员已锁定',$labels)){ ?>
 			<button type="submit" name="submit[unlock_staff]">解锁</button>
-<? } ?>
+<?php } ?>
 		</div>
 
 		<?=$staff_list?>
@@ -101,12 +101,12 @@
 		<div class="title">
 			<label>资金（外部 计入创收）：</label>
 			
-<? if((isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') || $this->user->isLogged('finance')) && !in_array('费用已锁定',$labels)){ ?>
+<?php if((isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') || $this->user->isLogged('finance')) && !in_array('费用已锁定',$labels)){ ?>
 			<button type="submit" name="submit[lock_fee]">锁定</button>
-<? }?>
-<? if((isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') || $this->user->isLogged('finance')) && in_array('费用已锁定',$labels)){ ?>
+<?php }?>
+<?php if((isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') || $this->user->isLogged('finance')) && in_array('费用已锁定',$labels)){ ?>
 			<button type="submit" name="submit[unlock_fee]">解锁</button>
-<? } ?>
+<?php } ?>
 		</div>
 
 		<?=$account_list?>	
@@ -132,12 +132,12 @@
 		<div class="title">
 			<label>资金（内部 不计入创收）：</label>
 			
-<? if((isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') || $this->user->isLogged('finance')) && !in_array('费用已锁定',$labels)){ ?>
+<?php if((isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') || $this->user->isLogged('finance')) && !in_array('费用已锁定',$labels)){ ?>
 			<button type="submit" name="submit[lock_fee]">锁定</button>
-<? }?>
-<? if((isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') || $this->user->isLogged('finance')) && in_array('费用已锁定',$labels)){ ?>
+<?php }?>
+<?php if((isset($people_roles[$this->user->id]) && $this->user->isLogged('manager') || $this->user->isLogged('finance')) && in_array('费用已锁定',$labels)){ ?>
 			<button type="submit" name="submit[unlock_fee]">解锁</button>
-<? } ?>
+<?php } ?>
 		</div>
 
 		<?=$fee_list?>	
@@ -161,9 +161,9 @@
 	
 	<div class="item" name="document">
 		<div class="title"><label>文件：</label>
-<? if($this->value('project/apply_file')){ ?>
+<?php if($this->value('project/apply_file')){ ?>
 			<button type="submit" name="submit[file_document_list]">下载目录</button>
-<? } ?>
+<?php } ?>
 		</div>
 
 		<?=$document_list?>

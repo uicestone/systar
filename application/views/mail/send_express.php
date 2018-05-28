@@ -5,7 +5,7 @@
 		<button type="submit" name="submit[send_express]">发送</button>
 	</div>
 	<div class="item"><div class="title">邮件列表</div>
-		<textarea name="client-emails"><?//=implode(', ',$client_emails)?></textarea>
+		<textarea name="client-emails"><?php //=implode(', ',$client_emails)?></textarea>
 	</div>
 
 	<div class="item"><div class="title">发送状态</div>
