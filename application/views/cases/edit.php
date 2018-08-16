@@ -4,19 +4,8 @@
 			<label class="num"><?=$this->value('project/num');?></label>
 		</div>
 
-		<select id="type" name="labels[领域]"<?php if(in_array('类型已锁定',$labels)){ ?> disabled="disabled"<?php } ?>>
-			<?=options($this->config->user_item('案件领域'),$this->value('labels/领域'),'领域');?>
-		</select>
-		
 		<select id="classification" name="labels[分类]"<?php if(in_array('类型已锁定',$labels)){ ?> disabled="disabled"<?php } ?>>
 			<?=options(array('争议','非争议','法律顾问'),$this->value('labels/分类'),'分类');?>
-		</select>
-		
-		<select name="labels[阶段]" 
-			class="<?php if(!isset($labels['分类']) || $labels['分类']!='争议'){ ?>hidden<?php } ?>"
-			<?php if(!isset($labels['分类']) || $labels['分类']!='争议'){ ?> disabled="disabled"<?php } ?>
-		>
-			<?=options($this->cases->getRelatedLabels($labels, '阶段'),$this->value('labels/阶段'),'阶段');?>
 		</select>
 		
 		<input type="text" name="project[name]" value="<?=$this->value('project/name')?>" placeholder="<?=lang(CONTROLLER)?>名称" style="width:300px;">

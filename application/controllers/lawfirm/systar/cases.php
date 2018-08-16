@@ -530,11 +530,6 @@ class Cases extends Project{
 
 			elseif($submit=='apply_num'){
 				
-				if(empty($this->cases->labels['领域'])){
-					$this->output->message('获得案号前要先选择案件领域','warning');
-					throw new Exception();
-				}
-
 				if(empty($this->cases->labels['分类'])){
 					$this->output->message('获得案号前要先选择案件分类','warning');
 					throw new Exception();
