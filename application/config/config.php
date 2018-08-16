@@ -363,7 +363,7 @@ date_default_timezone_set('Asia/Shanghai');
 
 $company=array(
 	'lawfirm'=>array(
-		'starsys'=>'localhost:8080'
+		'systar'=>'localhost:8080'
 	),
 );
 
