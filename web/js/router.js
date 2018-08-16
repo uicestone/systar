@@ -54,4 +54,4 @@ var Workspace = Backbone.Router.extend({
 	}
 });
 
-var syssh = new Workspace;
+var systar = new Workspace;

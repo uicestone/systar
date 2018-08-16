@@ -114,9 +114,9 @@ jQuery.extend({
 		}).length;
 
 		if(sections>0){
-			syssh.navigate(lastAccessedHash,true);
+            systar.navigate(lastAccessedHash,true);
 		}else{
-			syssh.navigate(page.attr('default-uri'),true);
+            systar.navigate(page.attr('default-uri'),true);
 		}
 
 	},
@@ -132,7 +132,7 @@ jQuery.extend({
 		tabs.children('li[hash="'+hash+'"]').remove();
 		page.children('section[hash="'+hash+'"]').remove();
 		aside.children('section[hash="'+hash+'"]').remove();
-		syssh.navigate(newhash,true);
+        systar.navigate(newhash,true);
 	},
 
 	refresh: function(hash){

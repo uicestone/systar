@@ -6,7 +6,7 @@
 # https://github.com/sequelpro/sequelpro
 #
 # Host: 127.0.0.1 (MySQL 5.7.18)
-# Database: syssh-sdfz
+# Database: systar
 # Generation Time: 2018-04-05 05:05:46 +0000
 # ************************************************************
 

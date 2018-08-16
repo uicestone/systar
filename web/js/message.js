@@ -2,7 +2,7 @@ $(function(){
 	page
 	.on('sectioncreate','section[hash="message"]',function(){
 		$(this).on('click','.message-dialog-list-item',function(){
-			syssh.navigate('message/content/'+$(this).attr('id'),true);
+            systar.navigate('message/content/'+$(this).attr('id'),true);
 		});
 
 		$(this).on('mouseenter','.message-dialog-list-item',function(){

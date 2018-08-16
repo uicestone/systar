@@ -1,6 +1,6 @@
-<img src="https://raw.github.com/uicestone/syssh/master/_doc/introduction/schedule.png" alt="日程界面" />
-<img src="https://raw.github.com/uicestone/syssh/master/_doc/introduction/project.png" alt="项目列表界面" />
-<img src="https://raw.github.com/uicestone/syssh/master/_doc/introduction/achievement.png" alt="报表界面" />
+<img src="https://raw.github.com/uicestone/systar/master/previews/schedule.png" alt="日程界面" />
+<img src="https://raw.github.com/uicestone/systar/master/previews/project.png" alt="项目列表界面" />
+<img src="https://raw.github.com/uicestone/systar/master/previews/achievement.png" alt="报表界面" />
 
 概要
 ---
@@ -22,7 +22,7 @@
 
 ### 简化配置和使用
 传统ERP系统需要采购昂贵的系统，经过复杂的配置方可使用。为此不得不由专业的ERP实施人员帮助配置，为次需要大量的时间和费用。  
-Syssh将这一传统配置的过程拆分为简易配置和定制开发两块。  
+systar将这一传统配置的过程拆分为简易配置和定制开发两块。  
  * 基础的企业共性功能已经被抽象出来，只要将企业的特定事务类型、人员类型、工作流等输入系统即可立即获得一套完整的管理系统。  
  * 复杂的定制功能直接基于系统的HMVC架构继承开发，并注重其他同类公司的复用。
 
@@ -37,8 +37,8 @@ php >= 5.4
 MySQL >= 5.0
 
 ## 数据库准备
-- 创建名为`syssh`的数据库
-- 运行`_doc/database-structure.sql`
+- 创建名为`systar`的数据库
+- 运行`database-structure.sql`
 
 ## 启动服务
 

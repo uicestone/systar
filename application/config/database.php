@@ -49,9 +49,9 @@ $active_group = 'default';
 $active_record = TRUE;
 
 $db['default']['hostname'] = '127.0.0.1';
-$db['default']['username'] = 'syssh';
-$db['default']['password'] = 'syssh';
-$db['default']['database'] = 'syssh';
+$db['default']['username'] = 'systar';
+$db['default']['password'] = 'systar';
+$db['default']['database'] = 'systar';
 $db['default']['dbdriver'] = 'mysqli';
 $db['default']['dbprefix'] = '';
 $db['default']['pconnect'] = FALSE;

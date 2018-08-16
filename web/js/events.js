@@ -16,7 +16,7 @@ $(document)
 		Backbone.history.start({silent:true});
 		
 		if(page.attr('default-uri')){
-			syssh.navigate(page.attr('default-uri'),true);
+			systar.navigate(page.attr('default-uri'),true);
 		}
 	}
 	else{
@@ -112,7 +112,7 @@ $(document)
 			
 			$(this).children('tbody').children('tr[hash]')
 				.on('click',function(){
-					syssh.navigate($(this).attr('hash'),true);
+                    systar.navigate($(this).attr('hash'),true);
 				})
 				.find('a, :input')
 					.on('click',function(event){
