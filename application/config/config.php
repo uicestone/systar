@@ -368,7 +368,6 @@ $company=array(
 );
 
 $type=$code=NULL;
-
 foreach($company as $company_type => $company)
 {
 	foreach($company as $company_code => $company_hostname)
@@ -394,6 +393,7 @@ if(!defined('COMPANY_TYPE') || !defined('COMPANY_CODE')){
 /**
  * 启用php5风格的autoloader
  */
+if (!function_exists('__autoload')):
 function __autoload($class) {
 	
 	if(preg_match('/_model$/', $class)){
@@ -419,6 +419,7 @@ function __autoload($class) {
 	}
 	
 }
+endif;
 
 /* End of file config.php */
 /* Location: ./application/config/config.php */
