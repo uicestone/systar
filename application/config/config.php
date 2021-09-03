@@ -363,7 +363,7 @@ date_default_timezone_set('Asia/Shanghai');
 
 $company=array(
 	'lawfirm'=>array(
-		'systar'=>'localhost:8080'
+		'xxx'=>'xxx.codeispoetry.tech'
 	),
 );
 
